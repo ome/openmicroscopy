@@ -25,6 +25,123 @@
  	===============================================
  */
 
+.left_panel_content {
+	position: absolute;
+	top: 59px;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+
+.left_panel_tabs_container {
+	position: relative; /* Also declared in ui-tabs */
+	min-width: 340px;
+}
+
+.left_panel_toolbar {
+	position: relative;
+}
+
+.left_panel_tree {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow: auto;
+	border-top: solid 1px hsl(210, 10%, 85%);
+	border-right: solid 1px hsl(210, 10%, 85%);
+}
+
+/*******************************************************************/
+/* Left bottom panel - displayed when a user clicks a well in grid */
+/*******************************************************************/
+.left_panel_preview {
+	display: none;
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow: auto;
+	border-top: solid 1px hsl(210,10%,85%);
+	border-right: solid 1px hsl(210, 10%, 85%);
+}
+
+.left_panel_preview__header {
+	position: relative;
+	padding: 4px 8px;
+	height: 24px;
+}
+
+.left_panel_preview__close {
+	position: absolute;
+	top: 50%;
+	left: 95%;
+	transform: translate(-50%, -50%);
+}
+
+.left_panel_preview__title--centered {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.left_panel_preview__title--medium {
+	font-size: medium;
+}
+/*******************************************************************/
+/* Well Fields Panel - displayed at the center bottom of a well grid */
+/*******************************************************************/
+.well-fields {
+	bottom: 0;
+	height: 160px; /*160*/
+}
+
+.well-fields__toolbar {
+	position: relative;
+	width: 100%;
+	height: 32px;
+	border-bottom: solid 1px #ddd;
+}
+.well-fields__toolbar-title {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.well-fields__toolbar-tools--left {
+	position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+	margin-left: 8px;
+	margin-right: 8px;
+    text-align: center;
+}
+
+.well-fields__images {
+	top: 32px;
+	bottom: 25px;
+	margin: 8px 0;
+}
+
+.wrap-images-tool {
+	width: auto;
+	max-height: 32px;
+}
+
+.wrap-images-tool__input {
+	width: 36px;
+	font-size: medium;
+	font-weight: bold;
+	margin: 4px;
+}
+
+.text--medium {
+	font-size: medium;
+}
+/*******************************************************************/
 
     /* jstree */
 
@@ -55,6 +172,7 @@
 	    border-right:solid 1px hsl(210,10%,40%);
 	    position:relative;
 	    height:31px;
+		min-width: 340px;
 	}
 	
 	
@@ -148,13 +266,13 @@
     /* Generic Left and Right Panel Tabs */
     
 	
-	#left_panel_tabs, #annotation_tabs {
+	#annotation_tabs {
 	    position:absolute;
 	    padding:0;
 	}
 	
 	.ui-tabs {
-		padding:0;
+		padding: 0 !important;
 	}
 
     /* Move down the layout of the tab to give the impression of continuous background
@@ -248,11 +366,11 @@
 	
 	
     	.ui-tabs-nav {
-			padding:0px !important;
+			padding: 0 !important;
 		}
 		
 		.ui-tabs-panel {
-			padding:0 !important;
+			padding: 0 !important;
 		}
 	
 	
@@ -307,7 +425,6 @@
     /* Left Panel Tree */
 
     #tree_details {
-        top:59px;
         padding:0;
         padding-top:6px;
     }
@@ -329,94 +446,7 @@
         overflow:           auto;
     }
 
-/*******************************************************************/
-/* Left bottom panel - displayed when a user clicks a well in grid */
-/*******************************************************************/
-.left_panel_inner {
-	position: absolute;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	overflow: auto;
-	border-top: solid 1px hsl(210,10%,85%);
-	border-right: solid 1px hsl(210, 10%, 85%);
-}
 
-.left_panel_inner__header {
-	position: relative;
-	padding: 4px 8px;
-	height: 24px;
-}
-
-.left_panel_inner__close {
-	position: absolute;
-	top: 50%;
-	left: 95%;
-	transform: translate(-50%, -50%);
-}
-
-.left_panel_inner__title--centered {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-}
-
-.left_panel_inner__title--medium {
-	font-size: medium;
-}
-/*******************************************************************/
-/* Well Fields Panel - displayed at the center bottom of a well grid */
-/*******************************************************************/
-.well-fields {
-	bottom: 0;
-	height: 160px; /*160*/
-}
-
-.well-fields__toolbar {
-	position: relative;
-	width: 100%;
-	height: 32px;
-	border-bottom: solid 1px #ddd;
-}
-.well-fields__toolbar-title {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-}
-
-.well-fields__toolbar-tools--left {
-	position: absolute;
-    top: 50%;
-    transform: translate(0, -50%);
-	margin-left: 8px;
-	margin-right: 8px;
-    text-align: center;
-}
-
-.well-fields__images {
-	top: 32px;
-	bottom: 25px;
-	margin: 8px 0;
-}
-
-.wrap-images-tool {
-	width: auto;
-	max-height: 32px;
-}
-
-.wrap-images-tool__input {
-	width: 36px;
-	font-size: medium;
-	font-weight: bold;
-	margin: 4px;
-}
-
-.text--medium {
-	font-size: medium;
-}
-/*******************************************************************/
 
 /*
 	===============================================
@@ -2336,7 +2366,6 @@ div.paging input.button_pagination {
     width: 10px;
     height: 10px;
     border: solid black 1px;
-    z-index: 0;
     background: #bbb;
     cursor: pointer;
 }

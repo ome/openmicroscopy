@@ -96,7 +96,6 @@
 	 	
 	 	
 	 #middle_header_right {
-		 z-index:999;
 		 position:absolute;
 		 right:0;
 		 top:0;
@@ -290,7 +289,7 @@
 			
 		    color: #000;
 			position:absolute;
-			z-index:99;
+			z-index: 1;
 		}
 		
 		.info_panel {
@@ -448,8 +447,10 @@
 		}
 		
 		.dropdown {
-		    visibility:hidden;
-			padding:5px 0;
+			position: absolute;
+		    visibility: hidden;
+			padding: 5px 0;
+			z-index: 2;
 		}
 			
 			.dropdown li {
@@ -556,8 +557,7 @@
 		
 	    .dropdown_menu ul { 
 			visibility: hidden; 
-			left: 0px; 
-			z-index:50;
+			left: 0px;
 	        margin: 0;
 			position:absolute;
 		}
@@ -1001,13 +1001,12 @@ li.menu_back a {
 }
 
 #left_panel {
-    left:0px;
-    top:33px;
-    bottom:0px;
-    right:0px;
-    width:350px;
-    border-left: none;
-	overflow:hidden;
+	position: absolute;
+	border-left: none;
+    width: 350px;
+	left: 0;
+	top: 33px;
+	bottom: 0;
 }
 
 #center_panel {
@@ -1032,13 +1031,13 @@ li.menu_back a {
     position:absolute;
     top:0px; left:0px; bottom:0px;
     width: 1px;
-	z-index:9999;
+	z-index: 10;
 }
 #trayhandle_right {
     position:absolute;
     top:0px; right:0px; bottom:0px;
     width: 1px;
-	z-index:9999;
+	z-index: 10;
 }
 #center_container {
     position:absolute;
@@ -1047,7 +1046,6 @@ li.menu_back a {
     background: #e5e5e5;
 	background:hsl(210,1%,98%); /* Must match #center_panel background-color */
 	/* I wish that background: hsl(220,8%,16%);*/
-    z-index:10;
 }
 
 
@@ -1116,7 +1114,7 @@ li.menu_back a {
 }
 
 .verticalDragHandle {
-	z-index: 100;
+	z-index: 10;
 	width: 100%;
 	height: 8px;
 	left: 0;

@@ -11,8 +11,10 @@ $(function(){
             .off("click");
     };
     OME.hideWellBirdsEye = function() {
-        $("#left_panel_tabs").css('bottom', '0');
-        $("#left_panel_bottom").css('height', '0');
+        $("#tree_details").css('bottom', '0');
+        $("#well_details").css('height', '0')
+            .css('display', 'none');
+
         // Also clear content
         OME.emptyWellBirdsEye();
     };
@@ -21,8 +23,8 @@ $(function(){
 
     OME.WellBirdsEye = function(opts) {
 
-        var $left_panel_tabs = $("#left_panel_tabs");
-        var $left_panel_bottom = $("#left_panel_bottom");
+        var $tree_details = $("#tree_details");
+        var $well_details = $("#well_details");
         var $well_birds_eye = $("#well_birds_eye");
 
         function selectionChanged() {
@@ -58,8 +60,10 @@ $(function(){
 
         function showPanel() {
             var height = 280;
-            $left_panel_tabs.css('bottom', height + 'px');
-            $left_panel_bottom.css('height', height + 'px');
+
+            $tree_details.css('bottom', height + 'px');
+            $well_details.css('height', height + 'px')
+                .css('display', 'block');
         }
 
         function getPos(attr) {
@@ -90,7 +94,7 @@ $(function(){
                     maxY;
 
                 // first filter for well-samples that have positions
-                data = data.filter(function(ws){ return ws.position !== undefined });
+                data = data.filter(function(ws){ return ws.position !== undefined; });
 
                 // Only show panel if we have some data
                 if (data.length > 0) {
@@ -131,7 +135,7 @@ $(function(){
                 $well_birds_eye.append(html.join(""));
             }
         }
-    }
+    };
 
     // Used by WellIndexForm in forms.py
     window.changeField = function changeField(field) {
@@ -158,7 +162,7 @@ $(function(){
         datatree.select_node(containerNode);
 
         return false;
-    }
+    };
 
     var primaryIndex = -1;
     OME.handleClickSelection = function (event, target, elementsSelector) {
@@ -169,7 +173,7 @@ $(function(){
         var selIndex = thumbs.index($clickedImage);
 
         if (event && event.shiftKey ) {
-            if ( primaryIndex == -1 ) {
+            if ( primaryIndex === -1 ) {
                 primaryIndex = selIndex;
                 $clickedImage.parent().addClass("ui-selected");
                 return;
@@ -183,7 +187,7 @@ $(function(){
             
         }
         else if (event && event.metaKey) {
-            if ( primaryIndex == -1 ) {
+            if ( primaryIndex === -1 ) {
                 primaryIndex = selIndex;
             }
             
@@ -198,6 +202,6 @@ $(function(){
             $clickedImage.parent().addClass("ui-selected");
             primaryIndex = selIndex;
         }
-    }
+    };
 
 });
