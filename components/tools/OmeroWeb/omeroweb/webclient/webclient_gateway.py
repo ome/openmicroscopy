@@ -559,6 +559,50 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 return rslt[0][0].val
         return 0
 
+    def listImagesInDataset(self, oid, eid=None, page=None,
+                            load_pixels=False):
+        """
+        List Images in the given Dataset.
+        Optinally filter by experimenter 'eid'
+
+        @param eid:         experimenter id
+        @type eid:          Long
+        @param page:        page number
+        @type page:         Long
+        @return:            Generator yielding Images
+        @rtype:             L{ImageWrapper} generator
+        """
+        warnings.warn(
+            "Deprecated as of OMERO 5.4.0. "
+            "Use getObjects('Image', opts={'dataset': id})",
+            DeprecationWarning)
+
+        q = self.getQueryService()
+        p = omero.sys.ParametersI()
+        p.map["oid"] = rlong(long(oid))
+        if page is not None:
+            p.page(((int(page)-1)*settings.PAGE), settings.PAGE)
+        if load_pixels:
+            pixels = ("join fetch im.pixels as pix"
+                      " left outer join fetch pix.thumbnails ")
+        else:
+            pixels = ""
+        sql = ("select im from Image im "
+               "join fetch im.details.creationEvent "
+               "join fetch im.details.owner join fetch im.details.group "
+               "left outer join fetch im.datasetLinks dil "
+               "left outer join fetch dil.parent d %s"
+               "where d.id = :oid" % pixels)
+        if eid is not None:
+            p.map["eid"] = rlong(long(eid))
+            sql += " and im.details.owner.id=:eid"
+        sql += " order by lower(im.name), im.id"
+
+        for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
+            kwargs = {'link': omero.gateway.BlitzObjectWrapper(
+                self, e.copyDatasetLinks()[0])}
+            yield ImageWrapper(self, e, None, **kwargs)
+
     def createDataset(self, name, description=None, img_ids=None, owner=None):
         """
         Creates a Dataset and adds images if img_ids is specified.
@@ -576,6 +620,51 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 links.append(link)
             self.saveArray(links, owner=owner)
         return dsid
+
+    def createProject(self, name, description=None):
+        """ Creates new Project and returns ID """
+        warnings.warn(
+            "Deprecated as of OMERO 5.4.0. Use createContainer()",
+            DeprecationWarning)
+        pr = omero.model.ProjectI()
+        pr.name = rstring(str(name))
+        if description is not None and description != "":
+            pr.description = rstring(str(description))
+        return self.saveAndReturnId(pr)
+
+    def createScreen(self, name, description=None):
+        """ Creates new Screen and returns ID """
+        warnings.warn(
+            "Deprecated as of OMERO 5.4.0. Use createContainer()",
+            DeprecationWarning)
+        sc = omero.model.ScreenI()
+        sc.name = rstring(str(name))
+        if description is not None and description != "":
+            sc.description = rstring(str(description))
+        return self.saveAndReturnId(sc)
+
+    def createTag(self, name, description=None):
+        """ Creates new Tag and returns ID """
+        warnings.warn(
+            "Deprecated as of OMERO 5.4.0. Use createContainer()",
+            DeprecationWarning)
+        tag = omero.model.TagAnnotationI()
+        tag.textValue = rstring(str(name))
+        if description is not None and description != "":
+            tag.description = rstring(str(description))
+        return self.saveAndReturnId(tag)
+
+    def createTagset(self, name, description=None):
+        """ Creates new Tag Set and returns ID """
+        warnings.warn(
+            "Deprecated as of OMERO 5.4.0. Use createContainer()",
+            DeprecationWarning)
+        tag = omero.model.TagAnnotationI()
+        tag.textValue = rstring(str(name))
+        tag.ns = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
+        if description is not None and description != "":
+            tag.description = rstring(str(description))
+        return self.saveAndReturnId(tag)
 
     def createContainer(self, dtype, name, description=None, owner=None):
         """Creates Project, Dataset, Screen, Tag or Tagset and returns ID."""
