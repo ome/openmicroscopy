@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,6 +21,7 @@
 package omero.gateway.facility;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,6 +32,8 @@ import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.model.AdminPrivilege;
+import omero.model.AdminPrivilegeI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -40,6 +43,7 @@ import omero.sys.Roles;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 import omero.gateway.util.PojoMapper;
+import omero.gateway.util.Utils;
 
 /**
  * {@link Facility} for handling admin issues, e.g. creating users, groups,
@@ -110,25 +114,71 @@ public class AdminFacility extends Facility {
     /**
      * Creates an experimenter and returns it.
      *
-     * @param ctx The security context.
-     * @param exp The experimenter to create.
-     * @param username The user name to use.
-     * @param password The password to use.
-     * @param groups The groups to add the user to.
-     * @param isAdmin Pass <code>true</code> if the user is an administrator,
-     *                <code>false</code> otherwise.
-     * @param isGroupOwner Pass <code>true</code> if the user is a group owner,
-     *                <code>false</code> otherwise.
+     * @param ctx
+     *            The security context.
+     * @param exp
+     *            The experimenter to create.
+     * @param username
+     *            The user name to use.
+     * @param password
+     *            The password to use.
+     * @param groups
+     *            The groups to add the user to.
+     * @param isAdmin
+     *            Pass <code>true</code> if the user is an administrator,
+     *            <code>false</code> otherwise.
+     * @param isGroupOwner
+     *            Pass <code>true</code> if the user is a group owner,
+     *            <code>false</code> otherwise.
      * @return See above.
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
-     *             service. 
+     *             service.
      */
     public ExperimenterData createExperimenter(SecurityContext ctx,
             ExperimenterData exp, String username, String password,
             List<GroupData> groups, boolean isAdmin, boolean isGroupOwner)
+            throws DSOutOfServiceException, DSAccessException {
+        return createExperimenter(ctx, exp, username, password, groups,
+                isAdmin, isGroupOwner, null);
+    }
+    
+    /**
+     * Creates an experimenter and returns it.
+     *
+     * @param ctx
+     *            The security context.
+     * @param exp
+     *            The experimenter to create.
+     * @param username
+     *            The user name to use.
+     * @param password
+     *            The password to use.
+     * @param groups
+     *            The groups to add the user to.
+     * @param isAdmin
+     *            Pass <code>true</code> if the user is an administrator,
+     *            <code>false</code> otherwise.
+     * @param isGroupOwner
+     *            Pass <code>true</code> if the user is a group owner,
+     *            <code>false</code> otherwise.
+     * @param privileges
+     *            Only grant these admin privileges (only applies if isAdmin ==
+     *            <code>true</code>); pass an empty list to create a user in
+     *            system group but no admin privileges (unspecified or
+     *            <code>null</code> creates full admin with all privileges)
+     * @return See above.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public ExperimenterData createExperimenter(SecurityContext ctx,
+            ExperimenterData exp, String username, String password,
+            List<GroupData> groups, boolean isAdmin, boolean isGroupOwner, List<String> privileges)
             throws DSOutOfServiceException, DSAccessException {
 
         try {
@@ -172,6 +222,12 @@ public class AdminFacility extends Facility {
                         .getExperimenter(id));
                 if (isGroupOwner && !systemGroup)
                     svc.setGroupOwner(g, exp.asExperimenter());
+
+                if (privileges != null)
+                    svc.setAdminPrivileges(exp.asExperimenter(), Utils.toEnum(
+                            AdminPrivilege.class, AdminPrivilegeI.class,
+                            privileges));
+
                 return exp;
             }
 
@@ -238,6 +294,80 @@ public class AdminFacility extends Facility {
             handleException(this, e, "Cannot load the required group.");
         }
         return null;
+    }
+
+    /**
+     * Get the logged in user's admin privileges
+     * 
+     * @param ctx
+     *            The security context.
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     * @see omero.model.enums
+     */
+    public List<String> getAdminPrivileges(SecurityContext ctx)
+            throws DSOutOfServiceException, DSAccessException {
+        return getAdminPrivileges(ctx, gateway.getLoggedInUser());
+    }
+
+    /**
+     * Get the admin privileges of a certain user
+     * 
+     * @param ctx
+     *            The security context.
+     * @param user
+     *            The user
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     * @see omero.model.enums
+     */
+    public List<String> getAdminPrivileges(SecurityContext ctx,
+            ExperimenterData user) throws DSOutOfServiceException,
+            DSAccessException {
+        try {
+            IAdminPrx adm = gateway.getAdminService(ctx);
+            return Utils
+                    .fromEnum(adm.getAdminPrivileges(user.asExperimenter()));
+        } catch (Exception e) {
+            handleException(this, e, "Cannot get admin privileges.");
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Set the admin privileges of a certain user
+     * 
+     * @param ctx
+     *            The security context.
+     * @param user
+     *            The user
+     * @param privileges
+     *            The admin privileges
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     * @see omero.model.enums
+     */
+    public void setAdminPrivileges(SecurityContext ctx, ExperimenterData user,
+            List<String> privileges) throws DSOutOfServiceException,
+            DSAccessException {
+        try {
+            IAdminPrx adm = gateway.getAdminService(ctx);
+            adm.setAdminPrivileges(user.asExperimenter(), Utils.toEnum(
+                    AdminPrivilege.class, AdminPrivilegeI.class, privileges));
+        } catch (Exception e) {
+            handleException(this, e, "Cannot set admin privileges.");
+        }
     }
 
     /**
