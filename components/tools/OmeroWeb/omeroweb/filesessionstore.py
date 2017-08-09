@@ -1,7 +1,6 @@
 import datetime
 import errno
 import logging
-import traceback
 import os
 import shutil
 import tempfile
@@ -117,7 +116,7 @@ class SessionStore(SessionBase):
                 logger.debug("No file_data for session: %s" %
                              self._key_to_file())
         except (IOError, SuspiciousOperation):
-            logger.debug(traceback.format_exc())
+            logger.debug("Failed to load session data", exc_info=True)
             self.create()
         return session_data
 
@@ -195,7 +194,7 @@ class SessionStore(SessionBase):
                     os.unlink(output_file_name)
 
         except (OSError, IOError, EOFError):
-            logger.debug(traceback.format_exc())
+            pass
 
     def exists(self, session_key):
         return os.path.exists(self._key_to_file(session_key))
