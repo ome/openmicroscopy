@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,9 +21,11 @@
 package integration.gateway;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 
@@ -32,6 +34,7 @@ import org.testng.annotations.Test;
 
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
+import omero.model.enums.AdminPrivilegeChgrp;
 
 
 /**
@@ -61,7 +64,10 @@ public class AdminFacilityTest extends GatewayTest {
         exp.setLastName("User");
         List<GroupData> groups = new ArrayList<GroupData>();
         groups.add(group);
-        exp = adminFacility.createExperimenter(rootCtx, exp, UUID.randomUUID().toString(), "test", groups, false, true);
+        // create a 'light admin' user without any admin privileges
+        exp = adminFacility
+                .createExperimenter(rootCtx, exp, UUID.randomUUID().toString(),
+                        "test", groups, true, true, Collections.EMPTY_LIST);
         Assert.assertTrue(exp.getId()>-1);
     }
     
@@ -75,5 +81,18 @@ public class AdminFacilityTest extends GatewayTest {
     public void testLookupGroup() throws DSOutOfServiceException, DSAccessException {
         GroupData g = adminFacility.lookupGroup(rootCtx, group.getName());
         Assert.assertEquals(group.getId(), g.getId());
+    }
+    
+    @Test(dependsOnMethods = { "testCreateExperimenter" })
+    public void testAdminPrivileges() throws DSOutOfServiceException,
+            DSAccessException {
+        SecurityContext userCtx = new SecurityContext(exp.getGroupId());
+        List<String> privs = adminFacility.getAdminPrivileges(userCtx, exp);
+        Assert.assertTrue(privs.isEmpty());
+        adminFacility.setAdminPrivileges(userCtx, exp,
+                Collections.singletonList(AdminPrivilegeChgrp.value));
+        privs = adminFacility.getAdminPrivileges(userCtx, exp);
+        Assert.assertEquals(privs.size(), 1);
+        Assert.assertEquals(privs.iterator().next(), AdminPrivilegeChgrp.value);
     }
 }
