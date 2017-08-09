@@ -18,6 +18,7 @@
  */
 package integration.gateway;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
 import java.util.UUID;
@@ -35,6 +36,9 @@ import org.testng.annotations.Test;
 
 public class TablesFacilityTest extends GatewayTest {
 
+    // Note: Use @Test(dependsOnMethods = { "xyz" })
+    //       to make sure tests run in the order they are listed!
+    
     private static Random rand = new Random();
 
     private static final int nCols = 10;
@@ -115,7 +119,7 @@ public class TablesFacilityTest extends GatewayTest {
         Assert.assertEquals(info.getColumns(), original.getColumns());
     }
 
-    @Test(dependsOnMethods = { "testAddTable" })
+    @Test(dependsOnMethods = { "testGetTableInfo" })
     public void testSearch() throws Exception {
         long[] rows = tablesFacility.query(rootCtx,
                 original.getOriginalFileId(), "(column0=='" + searchForThis
@@ -137,7 +141,7 @@ public class TablesFacilityTest extends GatewayTest {
             }
     }
 
-    @Test(dependsOnMethods = { "testAddTable" })
+    @Test(dependsOnMethods = { "testSearch" })
     public void testInvalidParams() throws Exception {
         try {
             // start > stop
@@ -171,6 +175,7 @@ public class TablesFacilityTest extends GatewayTest {
         }
     }
 
+    @Test(dependsOnMethods = { "testInvalidParams" })
     public void testObjectColumnType() throws Exception {
         // Create an object where the table can be attached to
         // (can't use this.ds to not interfere with other tests)
@@ -201,7 +206,7 @@ public class TablesFacilityTest extends GatewayTest {
         Assert.assertEquals(td2.getNumberOfRows(), 1);
     }
 
-    @Test(dependsOnMethods = { "testAddTable" })
+    @Test(dependsOnMethods = { "testObjectColumnType" })
     public void testGetAvailableTables() throws Exception {
         Collection<FileAnnotationData> tablesFiles = tablesFacility
                 .getAvailableTables(rootCtx, ds);
@@ -210,7 +215,7 @@ public class TablesFacilityTest extends GatewayTest {
                 original.getOriginalFileId());
     }
 
-    @Test(dependsOnMethods = { "testAddTable" }, invocationCount = 10)
+    @Test(dependsOnMethods = { "testGetAvailableTables" }, invocationCount = 10)
     /**
      * Read a random subset from the table and compare to the original data
      * 
@@ -262,7 +267,7 @@ public class TablesFacilityTest extends GatewayTest {
         }
     }
 
-    @Test(dependsOnMethods = { "testAddTable" })
+    @Test(dependsOnMethods = { "testReadTable" })
     /**
      * Test that unspecified requests are limited to TablesFacility.DEFAULT_MAX_ROWS_TO_FETCH rows
      * @throws Exception
@@ -276,5 +281,46 @@ public class TablesFacilityTest extends GatewayTest {
         Assert.assertEquals(td.getData()[0].length,
                 TablesFacility.DEFAULT_MAX_ROWS_TO_FETCH);
     }
+    
+    @Test(dependsOnMethods = { "testThreshold" })
+    public void testUpdateTable() throws Exception {
+        // modify values for row 10 to 20, columns 5, 6 and 7
+        TableData td = tablesFacility.getTable(rootCtx,
+                original.getOriginalFileId(), 10, 20, new int[] { 5, 6, 7 });
 
+        for (int c = 0; c < td.getColumns().length; c++) {
+            Class<?> type = td.getColumns()[c].getType();
+            for (int r = 0; r < td.getData()[0].length; r++) {
+                if (type.equals(String.class)) {
+                    td.getData()[c][r] = "newValue";
+                } else if (type.equals(Long.class)) {
+                    td.getData()[c][r] = new Long(9999);
+                } else if (type.equals(Double.class)) {
+                    td.getData()[c][r] = new Double(9.999);
+                } else if (type.equals(Double[].class)) {
+                    td.getData()[c][r] = new Double[] { 6.666, 7.777, 8.888,
+                            9.999 };
+                }
+            }
+        }
+
+        tablesFacility.updateTable(rootCtx, td);
+
+        TableData td2 = tablesFacility.getTable(rootCtx,
+                original.getOriginalFileId(), 0, 30);
+
+        // check that the modified values were saved,
+        // while the other values were not modified.
+        for (int c = 0; c < td2.getColumns().length; c++) {
+            for (int r = 0; r < td2.getData()[0].length; r++) {
+                if (c < 5 || c > 7 || r < 10 || r > 20) {
+                    Assert.assertEquals(td2.getData()[c][r],
+                            original.getData()[c][r]);
+                } else {
+                    Assert.assertEquals(td2.getData()[c][r],
+                            td.getData()[c - 5][r - 10]);
+                }
+            }
+        }
+    }
 }
