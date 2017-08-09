@@ -194,7 +194,7 @@ class SessionStore(SessionBase):
                     os.unlink(output_file_name)
 
         except (OSError, IOError, EOFError):
-            pass
+            logger.debug("Failed to save session data", exc_info=True)
 
     def exists(self, session_key):
         return os.path.exists(self._key_to_file(session_key))
