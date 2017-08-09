@@ -668,7 +668,6 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
     def createContainer(self, dtype, name, description=None, owner=None):
         """Creates Project, Dataset, Screen, Tag or Tagset and returns ID."""
-        print 'owner', owner
         dtype = dtype.lower()
         if dtype == "project":
             c = omero.model.ProjectI()
@@ -1627,7 +1626,6 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         if owner is not None:
             ctx.setOmeroUser(owner)
         u = self.getUpdateService()
-        print 'saveArray', len(objs)
         u.saveArray(objs, ctx)
 
     def saveAndReturnObject(self, obj, owner=None):
