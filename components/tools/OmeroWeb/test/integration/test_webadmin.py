@@ -20,6 +20,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import pytest
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import post
 
@@ -54,3 +55,34 @@ class TestExperimenters(IWebTest):
         admin = self.client.sf.getAdminService()
         # Will throw if user doesn't exist
         admin.lookupExperimenter(uuid)
+
+    @pytest.mark.parametrize("required_field",
+                             [["omename", "This field is required"],
+                              ["first_name", "This field is required"],
+                              ["last_name", "This field is required"],
+                              ["password", "This field is required"],
+                              ["confirmation", "This field is required"],
+                              ["default_group", "No default group selected"],
+                              ["other_groups",
+                               "User must be a member of at least one group."]
+                              ])
+    def test_required_fields(self, required_field):
+        """Test form validation with required fields missing."""
+        uuid = self.uuid()
+        groupid = self.new_group().id.val
+        request_url = reverse('wamanageexperimenterid', args=["create"])
+        data = {
+            "omename": uuid,
+            "first_name": uuid,
+            "last_name": uuid,
+            "active": "on",
+            "default_group": groupid,
+            "other_groups": groupid,
+            "password": uuid,
+            "confirmation": uuid,
+            "role": "user",
+        }
+        field, error = required_field
+        del data[field]
+        rsp = post(self.django_root_client, request_url, data)
+        assert error in rsp.content
