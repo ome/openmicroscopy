@@ -52,7 +52,7 @@ public class Entry {
     volatile Ice.Communicator ic = null;
 
     private static void waitOnStartup() {
-        int ms = 10000; // 10 seconds by default
+        int ms = 80000; // 80 seconds by default
         try {
             String prop = System.getenv("OMERO_STARTUP_WAIT");
             ms = Integer.valueOf(prop);

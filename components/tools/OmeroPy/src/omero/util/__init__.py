@@ -444,9 +444,9 @@ class Server(Ice.Application):
         self.dependencies = dependencies
 
     def waitOnStartup(self):
-        ms = 10000  # 10 seconds by default
+        ms = 80000  # 80 seconds by default
         try:
-            i = os.environ.get("OMERO_STARTUP_WAIT", "10000")
+            i = os.environ.get("OMERO_STARTUP_WAIT", "80000")
             ms = int(i)
         except:
             self.logger.debug(exc_info=1)
