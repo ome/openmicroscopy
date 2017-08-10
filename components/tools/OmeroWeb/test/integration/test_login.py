@@ -21,7 +21,7 @@
 Tests webclient login
 """
 
-from omeroweb.testlib import IWebTest, _csrf_post_response, _get_response
+from omeroweb.testlib import IWebTest, post, get
 from django.core.urlresolvers import reverse
 from django.test import Client
 from random import random
@@ -55,8 +55,7 @@ class TestLogin(IWebTest):
         data = credentials[0]
         data['server'] = 1
         message = credentials[1]
-        rsp = _csrf_post_response(django_client, request_url, data,
-                                  status_code=200)
+        rsp = post(django_client, request_url, data, status_code=200)
         assert message in rsp.content
 
     def test_get_login_page(self):
@@ -65,7 +64,7 @@ class TestLogin(IWebTest):
         """
         django_client = Client()
         request_url = reverse('weblogin')
-        rsp = _get_response(django_client, request_url, {}, status_code=200)
+        rsp = get(django_client, request_url, {}, status_code=200)
         assert 'OMERO.web - Login' in rsp.content
 
     @pytest.mark.parametrize("redirect", ['', tag_url])
@@ -80,8 +79,7 @@ class TestLogin(IWebTest):
         data = {'username': self.ctx.userName,
                 'password': self.ctx.userName,
                 'server': 1}
-        rsp = _csrf_post_response(django_client, request_url, data,
-                                  status_code=302)
+        rsp = post(django_client, request_url, data, status_code=302)
         if len(redirect) == 0:
             redirect = reverse('webindex')
         assert rsp['Location'].endswith(redirect)

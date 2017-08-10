@@ -22,29 +22,13 @@ Tests adding & removing annotations
 """
 
 import omero
-import json
 import omero.clients
 from time import sleep
 
 from omeroweb.testlib import IWebTest
-from omeroweb.testlib import _csrf_post_response, _get_response
+from omeroweb.testlib import post, get_json
 
 from django.core.urlresolvers import reverse
-
-# @pytest.fixture(scope='function')
-# def tags_userA_userB(request, userA, userB, groupA):
-#     """
-#     Returns new OMERO Tags
-#     """
-#     tags = []
-#     ctx = {'omero.group': str(groupA.id.val)}
-#     for name, user in zip(["userAtag", "userBtag"], [userA, userB]):
-#         tag = TagAnnotationI()
-#         tag.textValue = rstring(name)
-#         tag = get_update_service(user).saveAndReturnObject(tag, ctx)
-#         tags.append(tag)
-#     tags.sort(cmp_id)
-#     return tags
 
 
 class TestTagging(IWebTest):
@@ -71,7 +55,7 @@ class TestTagging(IWebTest):
             'newtags-TOTAL_FORMS': 0,
             'tags': ",".join([str(i) for i in tagIds])
         }
-        _csrf_post_response(django_client, request_url, data)
+        post(django_client, request_url, data)
 
     def test_annotate_tag(self):
 
@@ -101,7 +85,7 @@ class TestTagging(IWebTest):
         data = {
             "dataset": ds.id.val
         }
-        rsp = _get_response_json(django_client1, request_url, data)
+        rsp = get_json(django_client1, request_url, data)
 
         tagIds = [t['id'] for t in rsp['annotations']]
         assert tag.id.val in tagIds
@@ -114,21 +98,7 @@ class TestTagging(IWebTest):
         # Since tag link deletion is async, we need to wait to be sure that
         # tag is removed.
         sleep(1)
-        rsp = _get_response_json(django_client1, request_url, data)
+        rsp = get_json(django_client1, request_url, data)
         tagIds = [t['id'] for t in rsp['annotations']]
         assert tag.id.val not in tagIds
         assert tag2.id.val in tagIds
-
-
-def _csrf_post_response_json(django_client, request_url, data):
-    rsp = _csrf_post_response(django_client,
-                              request_url,
-                              json.dumps(data),
-                              content_type="application/json")
-    return json.loads(rsp.content)
-
-
-def _get_response_json(django_client, request_url, query_string):
-    rsp = _get_response(django_client, request_url,
-                        query_string, status_code=200)
-    return json.loads(rsp.content)

@@ -25,8 +25,7 @@ import omero
 import omero.clients
 from omero.rtypes import rstring
 from omeroweb.testlib import IWebTest
-from omeroweb.testlib import _csrf_post_response, _post_response
-from omeroweb.testlib import _get_response
+from omeroweb.testlib import post, get_json
 
 import pytest
 import json
@@ -60,7 +59,7 @@ class TestTags(IWebTest):
             'folder_type': 'tagset',
             'name': tsValue
         }
-        response = _csrf_post_response(self.django_client, request_url, data)
+        response = post(self.django_client, request_url, data)
         tagsetId = json.loads(response.content).get("id")
 
         # check creation
@@ -76,14 +75,13 @@ class TestTags(IWebTest):
             'folder_type': 'tag',
             'name': 'tagInTagset'
         }
-        _post_response(self.django_client, request_url, data)
-        response2 = _csrf_post_response(self.django_client, request_url, data)
+        response2 = post(self.django_client, request_url, data)
         tagId = json.loads(response2.content).get("id")
 
         # Check that tag is listed under tagset...
         request_url = reverse("api_tags_and_tagged")
         data = {'id': tagsetId}
-        data = _get_response_json(self.django_client, request_url, data)
+        data = get_json(self.django_client, request_url, data)
         assert len(data['tags']) == 1
         assert data['tags'][0]['id'] == tagId
 
@@ -99,7 +97,7 @@ class TestTags(IWebTest):
             'folder_type': dtype,
             'name': 'beforeEdit'
         }
-        response = _csrf_post_response(self.django_client, request_url, data)
+        response = post(self.django_client, request_url, data)
         tagId = json.loads(response.content).get("id")
 
         # Edit name
@@ -108,7 +106,7 @@ class TestTags(IWebTest):
         data = {
             'name': 'afterEdit'
         }
-        response = _csrf_post_response(self.django_client, request_url, data)
+        response = post(self.django_client, request_url, data)
 
         # Edit description
         request_url = reverse("manage_action_containers",
@@ -116,7 +114,7 @@ class TestTags(IWebTest):
         data = {
             'description': 'New description after editing'
         }
-        response = _csrf_post_response(self.django_client, request_url, data)
+        response = post(self.django_client, request_url, data)
 
         # check edited name and description
         tagset = self.query.get('TagAnnotationI', tagId)
@@ -145,8 +143,7 @@ class TestTags(IWebTest):
             'newtags-TOTAL_FORMS': 1,
             'tags': tag.id.val
         }
-        _post_response(self.django_client, request_url, data)
-        rsp = _csrf_post_response(self.django_client, request_url, data)
+        rsp = post(self.django_client, request_url, data)
         rspJson = json.loads(rsp.content)
         assert len(rspJson['new']) == 1
         newTagId = rspJson['new'][0]
@@ -154,7 +151,7 @@ class TestTags(IWebTest):
         # Check that image is tagged with both tags
         request_url = reverse("api_annotations")
         data = {'image': img.id.val, 'type': 'tag'}
-        data = _get_response_json(self.django_client, request_url, data)
+        data = get_json(self.django_client, request_url, data)
         assert len(data['annotations']) == 2
 
         # Remove tag
@@ -164,26 +161,24 @@ class TestTags(IWebTest):
             'index': 0,
             'parent': "image-%i" % img.id.val
         }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
+        post(self.django_client, request_url, data)
         # Check that tag is removed
         request_url = reverse("api_annotations")
         data = {'image': img.id.val, 'type': 'tag'}
-        data = _get_response_json(self.django_client, request_url, data)
+        data = get_json(self.django_client, request_url, data)
         assert len(data['annotations']) == 1
 
         # Delete other tag
         request_url = reverse("manage_action_containers",
                               args=["delete", "tag", newTagId])
-        _post_response(self.django_client, request_url, {})
-        _csrf_post_response(self.django_client, request_url, {})
+        post(self.django_client, request_url, {})
         # Check that tag is deleted from image
         request_url = reverse("api_annotations")
         data = {'image': img.id.val, 'type': 'tag'}
         completed = False
         # Async delete - Keep checking until done
         for t in range(20):
-            rsp = _get_response_json(self.django_client, request_url, data)
+            rsp = get_json(self.django_client, request_url, data)
             if len(rsp['annotations']) == 0:
                 completed = True
                 break
@@ -209,8 +204,7 @@ class TestTags(IWebTest):
             'newtags-TOTAL_FORMS': 0,
             'tags': tagIds
         }
-        _post_response(self.django_client, request_url, data)
-        rsp = _csrf_post_response(self.django_client, request_url, data)
+        rsp = post(self.django_client, request_url, data)
         rspJson = json.loads(rsp.content)
         assert len(rspJson['added']) == tag_count
         # Check that tags are added to all images
@@ -233,14 +227,8 @@ class TestTags(IWebTest):
             'newtags-TOTAL_FORMS': 0,
             'tags': ''
         }
-        _csrf_post_response(self.django_client, request_url, data)
+        post(self.django_client, request_url, data)
         # Check tags removed
         rsp = self.django_client.get('%s?%s' % (anns_url, query_string))
         rspJson = json.loads(rsp.content)
         assert len(rspJson['annotations']) == 0
-
-
-def _get_response_json(django_client, request_url, query_string):
-    rsp = _get_response(django_client, request_url,
-                        query_string, status_code=200)
-    return json.loads(rsp.content)

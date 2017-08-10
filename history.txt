@@ -1,6 +1,24 @@
 OMERO version history
 =====================
 
+5.4.0-m3 (August 2017)
+----------------------
+
+Developer preview release. Intended *only as a developer preview* for updating
+code before the full public release of 5.4.0. **Use at your own risk.**
+
+Changes include:
+
+- improved display of plate in OMERO.web
+- various improvements in integration tests
+- fixed import related bugs in OMERO.insight
+- fixed synchronization of controls enabling copy/paste of
+  rendering settings in OMERO.web
+- fixed projection of images
+- removed Scipy dependency
+
+This release also upgrades the version of Bio-Formats which OMERO uses to 5.6.0-m1
+
 5.4.0-m2 (July 2017)
 --------------------
 

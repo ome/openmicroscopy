@@ -1047,13 +1047,6 @@
   License File: mit.txt
 
 
-  Artifacts:    components/tools/OmeroPy/src/omero_ext/tiltpicker
-  Project:      TiltPicker: Particle picker for image tilt pairs.
-  Web Site:     http://ami.scripps.edu/software/tiltpicker/
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
-
-
   Artifacts:    components/tools/OmeroPy/src/path.py
   Project:      A module wrapper for os.path
   Web Site:     https://github.com/jaraco/path.py
@@ -1269,12 +1262,6 @@
   Web Site:     https://python-pillow.org/
   License:      Standard PIL License
   License File: pil.txt
-
-
-  Project:      SciPy
-  Web Site:     https://www.scipy.org/scipylib/index.html
-  License:      BSD
-  License File: bsd.txt
 
 
   Project:      PyTables

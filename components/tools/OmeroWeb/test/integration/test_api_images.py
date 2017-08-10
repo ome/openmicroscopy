@@ -19,7 +19,7 @@
 
 """Tests querying Images with web json api."""
 
-from omeroweb.testlib import IWebTest, _get_response_json
+from omeroweb.testlib import IWebTest, get_json
 from django.core.urlresolvers import reverse
 from omeroweb.api import api_settings
 import pytest
@@ -116,7 +116,7 @@ class TestImages(IWebTest):
         datasets_url = reverse('api_datasets', kwargs={'api_version': version})
 
         # List ALL Images
-        rsp = _get_response_json(django_client, images_url, {'group': groupId})
+        rsp = get_json(django_client, images_url, {'group': groupId})
         assert len(rsp['data']) == 6
         assert rsp['meta'] == {'totalCount': 6,
                                'limit': api_settings.API_LIMIT,
@@ -125,7 +125,7 @@ class TestImages(IWebTest):
 
         # Filter Images by Orphaned
         payload = {'orphaned': 'true', 'group': groupId}
-        rsp = _get_response_json(django_client, images_url, payload)
+        rsp = get_json(django_client, images_url, payload)
         assert_objects(conn, rsp['data'], [orphaned], dtype='Image',
                        group=groupId, opts={'load_pixels': True})
         assert rsp['meta'] == {'totalCount': 1,
@@ -136,7 +136,7 @@ class TestImages(IWebTest):
         # Filter Images by Dataset
         images.sort(cmp_name_insensitive)
         payload = {'dataset': dataset.id.val}
-        rsp = _get_response_json(django_client, images_url, payload)
+        rsp = get_json(django_client, images_url, payload)
         # Manual check that Pixels & Type are loaded but Channels are not
         assert 'Type' in rsp['data'][0]['Pixels']
         assert 'Channels' not in rsp['data'][0]['Pixels']
@@ -151,7 +151,7 @@ class TestImages(IWebTest):
         limit = 3
         dataset_images_url = datasets_url + "%s/images/" % dataset.id.val
         payload = {'dataset': dataset.id.val, 'limit': limit}
-        rsp = _get_response_json(django_client, dataset_images_url, payload)
+        rsp = get_json(django_client, dataset_images_url, payload)
         assert_objects(conn, rsp['data'], images[0:limit], dtype='Image',
                        opts={'load_pixels': True})
         assert rsp['meta'] == {'totalCount': 5,
@@ -159,7 +159,7 @@ class TestImages(IWebTest):
                                'maxLimit': api_settings.API_MAX_LIMIT,
                                'offset': 0}
         payload['offset'] = limit   # page 2
-        rsp = _get_response_json(django_client, images_url, payload)
+        rsp = get_json(django_client, images_url, payload)
         assert_objects(conn, rsp['data'], images[limit:limit * 2],
                        dtype='Image', opts={'load_pixels': True})
         assert rsp['meta'] == {'totalCount': 5,
@@ -169,7 +169,7 @@ class TestImages(IWebTest):
 
         # Show ONLY the orphaned image (channels are loaded by default)
         img_url = images_url + '%s/' % orphaned.id.val
-        rsp = _get_response_json(django_client, img_url, {})
+        rsp = get_json(django_client, img_url)
         # Manual check that Channels are loaded
         img_json = rsp['data']
         assert len(img_json['Pixels']['Channels']) == 1
