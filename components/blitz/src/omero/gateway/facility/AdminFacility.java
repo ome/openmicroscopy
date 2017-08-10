@@ -76,7 +76,7 @@ public class AdminFacility extends Facility {
      * @param permissions The group's permissions.
      * @return See above.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or not logged in
+     *             If the connection is broken, or not logged in.
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
@@ -132,7 +132,7 @@ public class AdminFacility extends Facility {
      *            <code>false</code> otherwise.
      * @return See above.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or not logged in
+     *             If the connection is broken, or not logged in.
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
@@ -171,7 +171,7 @@ public class AdminFacility extends Facility {
      *            <code>null</code> creates full admin with all privileges)
      * @return See above.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or not logged in
+     *             If the connection is broken, or not logged in.
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
@@ -246,7 +246,7 @@ public class AdminFacility extends Facility {
      *            The name of the group.
      * @return See above
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or not logged in
+     *             If the connection is broken, or not logged in.
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
@@ -276,7 +276,7 @@ public class AdminFacility extends Facility {
      *            The name of the experimenter.
      * @return See above
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or not logged in
+     *             If the connection is broken, or not logged in.
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
@@ -320,10 +320,10 @@ public class AdminFacility extends Facility {
      * @param ctx
      *            The security context.
      * @param user
-     *            The user
+     *            The user.
      * @return See above
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or not logged in
+     *             If the connection is broken, or not logged in.
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
@@ -338,7 +338,7 @@ public class AdminFacility extends Facility {
         } catch (Exception e) {
             handleException(this, e, "Cannot get admin privileges.");
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     /**
@@ -348,11 +348,11 @@ public class AdminFacility extends Facility {
      * @param ctx
      *            The security context.
      * @param user
-     *            The user
+     *            The user.
      * @param privileges
      *            The admin privileges
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or not logged in
+     *             If the connection is broken, or not logged in.
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
@@ -374,7 +374,7 @@ public class AdminFacility extends Facility {
      *
      * @param level
      *            The level to handle.
-     * @return The {@link Permissions}
+     * @return The {@link Permissions}.
      */
     private Permissions createPermissions(int level) {
         String perms = "rw----"; // private group

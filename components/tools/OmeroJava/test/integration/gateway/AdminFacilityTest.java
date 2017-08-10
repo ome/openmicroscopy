@@ -67,8 +67,9 @@ public class AdminFacilityTest extends GatewayTest {
         // create a 'light admin' user without any admin privileges
         exp = adminFacility
                 .createExperimenter(rootCtx, exp, UUID.randomUUID().toString(),
-                        "test", groups, true, true, Collections.EMPTY_LIST);
+                        "test", groups, true, true, Collections.<String>emptyList());
         Assert.assertTrue(exp.getId()>-1);
+        Assert.assertTrue(adminFacility.getAdminPrivileges(rootCtx, exp).isEmpty());
     }
     
     @Test(dependsOnMethods = {"testCreateExperimenter"})
