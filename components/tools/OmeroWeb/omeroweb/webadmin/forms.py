@@ -252,11 +252,12 @@ class ExperimenterForm(NonASCIIForm):
     active = forms.BooleanField(required=False)
 
     def clean_confirmation(self):
-        if (self.cleaned_data.get('password') or
-                self.cleaned_data.get('confirmation')):
+        if self.cleaned_data.get('password'):
             if len(self.cleaned_data.get('password')) < 3:
                 raise forms.ValidationError(
                     'Password must be at least 3 characters long.')
+        if (self.cleaned_data.get('password') or
+                self.cleaned_data.get('confirmation')):
             if (self.cleaned_data.get('password') !=
                     self.cleaned_data.get('confirmation')):
                 raise forms.ValidationError('Passwords do not match')
