@@ -28,6 +28,7 @@ import java.util.UUID;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.facility.AdminFacility;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -38,17 +39,22 @@ import omero.model.enums.AdminPrivilegeChgrp;
 
 
 /**
- *
+ * Tests for the {@link AdminFacility} methods.
+ * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
  */
-
 public class AdminFacilityTest extends GatewayTest {
 
     GroupData group;
     ExperimenterData exp;
     
+    /**
+     * Test creation of groups
+     * @throws DSOutOfServiceException If an error occurred
+     * @throws DSAccessException If an error occurred
+     */
     @Test
     public void testCreateGroup() throws DSOutOfServiceException, DSAccessException {
         group = new GroupData();
@@ -57,6 +63,11 @@ public class AdminFacilityTest extends GatewayTest {
         Assert.assertTrue(group.getId()>-1);
     }
     
+    /**
+     * Test creation of users
+     * @throws DSOutOfServiceException If an error occurred
+     * @throws DSAccessException If an error occurred
+     */
     @Test(dependsOnMethods = {"testCreateGroup"})
     public void testCreateExperimenter() throws DSOutOfServiceException, DSAccessException {
         exp = new ExperimenterData();
@@ -72,18 +83,33 @@ public class AdminFacilityTest extends GatewayTest {
         Assert.assertTrue(adminFacility.getAdminPrivileges(rootCtx, exp).isEmpty());
     }
     
+    /**
+     * Test lookup of users
+     * @throws DSOutOfServiceException If an error occurred
+     * @throws DSAccessException If an error occurred
+     */
     @Test(dependsOnMethods = {"testCreateExperimenter"})
     public void testLookupExperimenter() throws DSOutOfServiceException, DSAccessException {
         ExperimenterData e = adminFacility.lookupExperimenter(rootCtx, exp.getUserName());
         Assert.assertEquals(exp.getId(), e.getId());
     }
     
+    /**
+     * Test lookup of groups
+     * @throws DSOutOfServiceException If an error occurred
+     * @throws DSAccessException If an error occurred
+     */
     @Test(dependsOnMethods = {"testCreateGroup"})
     public void testLookupGroup() throws DSOutOfServiceException, DSAccessException {
         GroupData g = adminFacility.lookupGroup(rootCtx, group.getName());
         Assert.assertEquals(group.getId(), g.getId());
     }
     
+    /**
+     * Test getting and setting admin privileges
+     * @throws DSOutOfServiceException If an error occurred
+     * @throws DSAccessException If an error occurred
+     */
     @Test(dependsOnMethods = { "testCreateExperimenter" })
     public void testAdminPrivileges() throws DSOutOfServiceException,
             DSAccessException {
