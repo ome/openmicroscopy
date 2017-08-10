@@ -16,7 +16,8 @@
   <properties file="${ivy.settings.dir}/build.properties"/>
   <properties file="${ivy.settings.dir}/local.properties"/>
   <properties file="${ivy.settings.dir}/../target/omero.version"/>
-  <property name="local-maven2-dir" value="${user.home}/.m2/repository/"/>
+  <property name="local-maven2-dir" value="${user.home}/.m2/repository/"
+      override="false"/>
 
   <settings defaultResolver="${omero.resolver}"/>
 
