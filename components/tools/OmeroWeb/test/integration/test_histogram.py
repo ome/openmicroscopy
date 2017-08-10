@@ -20,7 +20,7 @@
 """Tests rendering of thumbnails."""
 
 from omeroweb.testlib import IWebTest
-from omeroweb.testlib import _get_response_json
+from omeroweb.testlib import get_json
 
 import pytest
 from django.core.urlresolvers import reverse
@@ -46,8 +46,7 @@ class TestHistogram(IWebTest):
         if bins is not None:
             payload['bins'] = bins
         request_url = reverse('histogram_json', args=args)
-        json = _get_response_json(self.django_client, request_url, payload,
-                                  status_code=200)
+        json = get_json(self.django_client, request_url, payload)
         data = json['data']
         # Sum of all pixel counts should equal number of pixels in image
         assert sum(data) == size_x * size_y

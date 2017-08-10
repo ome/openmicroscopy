@@ -27,7 +27,7 @@ from omero.gateway import BlitzGateway
 
 import pytest
 import time
-from omeroweb.testlib import IWebTest, _get_response, _csrf_post_response
+from omeroweb.testlib import IWebTest, post, get_json
 from django.core.urlresolvers import reverse
 import json
 
@@ -108,7 +108,7 @@ class TestChgrp(IWebTest):
         data = {
             "Project": project.id.val
         }
-        data = _get_response_json(django_client, request_url, data)
+        data = get_json(django_client, request_url, data)
 
         assert 'groups' in data
         assert len(data['groups']) == 1
@@ -124,15 +124,15 @@ class TestChgrp(IWebTest):
 
         def doDryRun(data):
             request_url = reverse('chgrpDryRun')
-            rsp = _csrf_post_response(django_client, request_url, data)
+            rsp = post(django_client, request_url, data)
             jobId = rsp.content
             # Keep polling activities until dry-run job completed
             activities_url = reverse('activities_json')
             data = {'jobId': jobId}
-            rsp = _get_response_json(django_client, activities_url, data)
+            rsp = get_json(django_client, activities_url, data)
             while rsp['finished'] is not True:
                 time.sleep(0.5)
-                rsp = _get_response_json(django_client, activities_url, data)
+                rsp = get_json(django_client, activities_url, data)
             return rsp
 
         django_client = self.get_django_client(credentials)
@@ -191,7 +191,8 @@ class TestChgrp(IWebTest):
             "new_container_name": projectName,
             "new_container_type": "project",
         }
-        data = _csrf_post_response_json(django_client, request_url, data)
+        rsp = post(django_client, request_url, data)
+        data = json.loads(rsp.content)
         expected = {"update": {"childless": {"project": [],
                                              "orphaned": False,
                                              "dataset": []},
@@ -204,12 +205,12 @@ class TestChgrp(IWebTest):
 
         activities_url = reverse('activities_json')
 
-        data = _get_response_json(django_client, activities_url, {})
+        data = get_json(django_client, activities_url)
 
         # Keep polling activities until no jobs in progress
         while data['inprogress'] > 0:
             time.sleep(0.5)
-            data = _get_response_json(django_client, activities_url, {})
+            data = get_json(django_client, activities_url)
 
         # individual activities/jobs are returned as dicts within json data
         for k, o in data.items():
@@ -255,7 +256,8 @@ class TestChgrp(IWebTest):
             "Dataset": dataset.id.val,
             "target_id": "project-%s" % project.id.val,
         }
-        data = _csrf_post_response_json(django_client, request_url, data)
+        rsp = post(django_client, request_url, data)
+        data = json.loads(rsp.content)
         expected = {"update": {"childless": {"project": [],
                                              "orphaned": False,
                                              "dataset": []},
@@ -268,12 +270,12 @@ class TestChgrp(IWebTest):
 
         activities_url = reverse('activities_json')
 
-        data = _get_response_json(django_client, activities_url, {})
+        data = get_json(django_client, activities_url)
 
         # Keep polling activities until no jobs in progress
         while data['inprogress'] > 0:
             time.sleep(0.5)
-            data = _get_response_json(django_client, activities_url, {})
+            data = get_json(django_client, activities_url)
 
         # individual activities/jobs are returned as dicts within json data
         for k, o in data.items():
@@ -297,19 +299,3 @@ class TestChgrp(IWebTest):
         # Project owner should be current user
         assert p.getDetails().owner.id.val == userId
         assert p.getId() == project.id.val
-
-
-# Helpers
-def _get_response_json(django_client, request_url,
-                       query_string, status_code=200):
-    rsp = _get_response(django_client, request_url, query_string, status_code)
-    assert rsp.get('Content-Type') == 'application/json'
-    return json.loads(rsp.content)
-
-
-def _csrf_post_response_json(django_client, request_url,
-                             query_string, status_code=200):
-    rsp = _csrf_post_response(django_client, request_url,
-                              query_string, status_code)
-    assert rsp.get('Content-Type') == 'application/json'
-    return json.loads(rsp.content)

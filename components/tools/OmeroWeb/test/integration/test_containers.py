@@ -26,11 +26,7 @@ import omero.clients
 from omero.rtypes import rtime
 from omeroweb.api import api_settings
 from omeroweb.testlib import IWebTest
-from omeroweb.testlib import _csrf_delete_response, \
-    _csrf_post_response, \
-    _delete_response, \
-    _get_response_json, \
-    _post_response
+from omeroweb.testlib import get_json, post, post_json, delete_json
 
 import json
 
@@ -66,8 +62,7 @@ class TestContainers(IWebTest):
             'folder_type': 'project',
             'name': 'foobar'
         }
-        _post_response(self.django_client, request_url, data)
-        response = _csrf_post_response(self.django_client, request_url, data)
+        response = post(self.django_client, request_url, data)
         pid = json.loads(response.content).get("id")
 
         # Add dataset to the project
@@ -77,8 +72,7 @@ class TestContainers(IWebTest):
             'folder_type': 'dataset',
             'name': 'foobar'
         }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
+        post(self.django_client, request_url, data)
 
         # Rename project
         request_url = reverse("manage_action_containers",
@@ -86,8 +80,7 @@ class TestContainers(IWebTest):
         data = {
             'name': 'anotherfoobar'
         }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
+        post(self.django_client, request_url, data)
 
         # Change project description
         request_url = reverse("manage_action_containers",
@@ -95,11 +88,10 @@ class TestContainers(IWebTest):
         data = {
             'description': 'anotherfoobar'
         }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
+        post(self.django_client, request_url, data)
 
     def test_add_owned_container(self):
-        """Tests root user creating a Dataset owned by another user"""
+        """Test root user creating a Dataset owned by another user."""
         request_url = reverse("manage_action_containers",
                               args=["addnewcontainer"])
 
@@ -118,7 +110,7 @@ class TestContainers(IWebTest):
             'name': 'ownedby',
             'owner': str(user.id.val)
         }
-        response = _csrf_post_response(self.django_root_client,
+        response = post(self.django_root_client,
                                        request_url, data)
         did = json.loads(response.content).get("id")
 
@@ -128,7 +120,7 @@ class TestContainers(IWebTest):
         version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_dataset', kwargs={'api_version': version,
                                                      'object_id': did})
-        rsp_json = _get_response_json(self.django_root_client, request_url, {})
+        rsp_json = get_json(self.django_root_client, request_url, {})
         dataset = rsp_json['data']
         assert dataset['@id'] == did
         assert dataset['omero:details']['owner']['@id'] == user.id.val
@@ -143,8 +135,7 @@ class TestContainers(IWebTest):
             'folder_type': 'dataset',
             'name': 'foobar'
         }
-        _post_response(self.django_client, request_url, data)
-        response = _csrf_post_response(self.django_client, request_url, data)
+        response = post(self.django_client, request_url, data)
         did = json.loads(response.content).get("id")
 
         img = self.make_image()
@@ -156,24 +147,15 @@ class TestContainers(IWebTest):
             'dataset': {did: {'image': [img.id.val]}}
         }
 
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client,
-                            request_url,
-                            json.dumps(data),
-                            content_type="application/json")
+        post_json(self.django_client, request_url, data)
 
         # Unlink image from Dataset
         request_url = reverse("api_links")
         data = {
             'dataset': {did: {'image': [img.id.val]}}
         }
-        _delete_response(self.django_client, request_url, data)
-        response = _csrf_delete_response(self.django_client,
-                                         request_url,
-                                         json.dumps(data),
-                                         content_type="application/json")
+        response = delete_json(self.django_client, request_url, data)
         # Response will contain remaining links from image (see test_links.py)
-        response = json.loads(response.content)
         assert response == {"success": True}
 
     def test_create_share(self):
@@ -188,8 +170,7 @@ class TestContainers(IWebTest):
             'message': 'foobar'
         }
 
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
+        post(self.django_client, request_url, data)
 
     def test_edit_share(self):
 
@@ -209,8 +190,7 @@ class TestContainers(IWebTest):
             'members': self.user.id.val,
             'message': 'another foobar'
         }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
+        post(self.django_client, request_url, data)
 
         # remove image from share
         request_url = reverse("manage_action_containers",
@@ -218,5 +198,4 @@ class TestContainers(IWebTest):
         data = {
             'source': images[1].id.val,
         }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
+        post(self.django_client, request_url, data)

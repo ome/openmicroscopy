@@ -435,6 +435,7 @@ public class PermissionsTest extends AbstractServerTest {
      * @param isRecipientInGroup if the user receiving data by means of the {@link Chown2} request is a member of the data's group
      * @param isExpectSuccessOneTargetUser if the one-user chown is expected to succeed
      * @param isExpectSuccessTwoTargetUsers if the two-users chown is expected to succeed
+     * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testChownAllBelongingToUser.pptx">graphical explanation</a>
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown targetUser test cases")

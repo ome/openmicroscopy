@@ -27,7 +27,7 @@ import omero
 import omero.clients
 
 from omeroweb.testlib import IWebTest
-from omeroweb.testlib import _csrf_post_response, _get_response
+from omeroweb.testlib import post, get
 
 from django.core.urlresolvers import reverse
 
@@ -65,14 +65,14 @@ class TestRendering(IWebTest):
         data = {
             "fromid": iid1
         }
-        _get_response(self.django_client, request_url, data, status_code=200)
+        get(self.django_client, request_url, data)
 
         # paste rendering settings to image2
         data = {
             'toids': iid2
         }
 
-        _csrf_post_response(self.django_client, request_url, data)
+        post(self.django_client, request_url, data)
 
         image2 = conn.getObject("Image", iid2)
         assert image2.isGreyscaleRenderingModel() is False
@@ -134,13 +134,13 @@ class TestRendering(IWebTest):
             "z": 1,
             "zm": 100
         }
-        _get_response(self.django_client, request_url, data, status_code=200)
+        get(self.django_client, request_url, data)
 
         # paste rendering settings to image2
         data = {
             'toids': iid2
         }
-        _csrf_post_response(self.django_client, request_url, data)
+        post(self.django_client, request_url, data)
 
         # reload image1
         image1 = conn.getObject("Image", iid1)
@@ -179,8 +179,7 @@ class TestRendering(IWebTest):
         # request the rendering def via the method we want to test
         request_url = reverse(
             'webgateway.views.get_image_rdefs_json', args=[iid])
-        response = _get_response(
-            self.django_client, request_url, {}, status_code=200)
+        response = get(self.django_client, request_url)
 
         # check expected response
         assert response is not None and response.content is not None
@@ -247,7 +246,7 @@ class TestRenderImageRegion(IWebTest):
             self.client.getSessionId()
         )
         try:
-            _get_response(django_client, request_url, data, status_code=400)
+            get(django_client, request_url, data, status_code=400)
         finally:
             self.assert_no_leaked_rendering_engines()
 
@@ -270,7 +269,7 @@ class TestRenderImageRegion(IWebTest):
             self.client.getSessionId()
         )
         try:
-            _get_response(django_client, request_url, data, status_code=400)
+            get(django_client, request_url, data, status_code=400)
         finally:
             self.assert_no_leaked_rendering_engines()
 
@@ -293,6 +292,6 @@ class TestRenderImageRegion(IWebTest):
             self.client.getSessionId()
         )
         try:
-            _get_response(django_client, request_url, data, status_code=400)
+            get(django_client, request_url, data, status_code=400)
         finally:
             self.assert_no_leaked_rendering_engines()

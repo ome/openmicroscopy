@@ -1551,9 +1551,11 @@ class LocationDialog extends JDialog implements ActionListener,
 
 		displayItems(projectsBox, sortByUser(projects),
 				selectedProject, this);
-		displayItemsWithTooltips(datasetsBox,
-				sortByUser(datasets.get(selectedProject)),
-				selectedDataset);
+		if (selectedProject != null) {
+		      displayItemsWithTooltips(datasetsBox,
+		                sortByUser(datasets.get(selectedProject)),
+		                selectedDataset);
+		}
 		displayItemsWithTooltips(screensBox,
 				sortByUser(screens), selectedScreen);
 	}
