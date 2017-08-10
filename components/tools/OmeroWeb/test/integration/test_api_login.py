@@ -22,8 +22,7 @@ Tests logging in with webgateway json api
 """
 
 import pytest
-from omeroweb.testlib import IWebTest, _get_response_json, \
-    _post_response_json, _csrf_post_response_json
+from omeroweb.testlib import IWebTest, get_json, _response, post
 from django.core.urlresolvers import reverse, NoReverseMatch
 from omeroweb.api import api_settings
 from django.test import Client
@@ -42,7 +41,7 @@ class TestLogin(IWebTest):
         """
         django_client = self.django_root_client
         request_url = reverse('api_versions')
-        rsp = _get_response_json(django_client, request_url, {})
+        rsp = get_json(django_client, request_url)
         versions = rsp['data']
         assert len(versions) == len(api_settings.API_VERSIONS)
         for v in versions:
@@ -56,7 +55,7 @@ class TestLogin(IWebTest):
         # test the most recent version
         version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_base', kwargs={'api_version': version})
-        rsp = _get_response_json(django_client, request_url, {})
+        rsp = get_json(django_client, request_url)
         assert 'url:servers' in rsp
         assert 'url:login' in rsp
         assert 'url:projects' in rsp
@@ -82,8 +81,7 @@ class TestLogin(IWebTest):
         django_client = self.django_root_client
         version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_login', kwargs={'api_version': version})
-        rsp = _get_response_json(django_client, request_url, {},
-                                 status_code=405)
+        rsp = get_json(django_client, request_url, status_code=405)
         assert (rsp['message'] ==
                 "POST only with username, password, server and csrftoken")
 
@@ -95,8 +93,10 @@ class TestLogin(IWebTest):
         # test the most recent version
         version = api_settings.API_VERSIONS[-1]
         request_url = reverse('api_login', kwargs={'api_version': version})
-        rsp = _post_response_json(django_client, request_url, {},
-                                  status_code=403)
+        # POST without adding CSRF token
+        rsp = _response(django_client, request_url, method='post',
+                        status_code=403)
+        rsp = json.loads(rsp.content)
         assert (rsp['message'] ==
                 ("CSRF Error. You need to include valid CSRF tokens for any"
                  " POST, PUT, PATCH or DELETE operations."
@@ -127,8 +127,8 @@ class TestLogin(IWebTest):
         request_url = reverse('api_login', kwargs={'api_version': version})
         data = credentials[0]
         message = credentials[1]
-        rsp = _csrf_post_response_json(django_client, request_url, data,
-                                       status_code=403)
+        rsp = post(django_client, request_url, data, status_code=403)
+        rsp = json.loads(rsp.content)
         assert rsp['message'] == message
 
     def test_login_example(self):
@@ -144,21 +144,21 @@ class TestLogin(IWebTest):
         django_client = Client()
         # Start at the /api/ url to list versions...
         request_url = reverse('api_versions')
-        rsp = _get_response_json(django_client, request_url, {})
+        rsp = get_json(django_client, request_url)
         # Pick the last version
         version = rsp['data'][-1]
         base_url = version['url:base']
         # Base url will give a bunch of other urls
-        base_rsp = _get_response_json(django_client, base_url, {})
+        base_rsp = get_json(django_client, base_url)
         login_url = base_rsp['url:login']
         servers_url = base_rsp['url:servers']
         login_url = base_rsp['url:login']
         token_url = base_rsp['url:token']
         # See what servers we can log in to
-        servers_rsp = _get_response_json(django_client, servers_url, {})
+        servers_rsp = get_json(django_client, servers_url)
         server_id = servers_rsp['data'][0]['id']
         # Need a CSRF token
-        token_rsp = _get_response_json(django_client, token_url, {})
+        token_rsp = get_json(django_client, token_url)
         token = token_rsp['data']
         # Can also get this from our session cookies
         csrf_token = django_client.cookies['csrftoken'].value

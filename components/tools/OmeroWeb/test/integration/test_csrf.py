@@ -26,8 +26,7 @@ import omero
 import omero.clients
 from omero.rtypes import rstring
 from omeroweb.testlib import IWebTest
-from omeroweb.testlib import _csrf_post_response, _post_response
-from omeroweb.testlib import _csrf_get_response, _get_response
+from omeroweb.testlib import post, get, _response, csrf_response
 
 from django.test import Client
 from django.core.urlresolvers import reverse
@@ -86,10 +85,10 @@ class TestCsrf(IWebTest):
             'password': self.client.getProperty('omero.pass')
         }
         login_url = reverse('weblogin')
-        _post_response(django_client, login_url, data)
+        _response(django_client, login_url, 'post', data=data, status_code=403)
 
         logout_url = reverse('weblogout')
-        _post_response(django_client, logout_url, {})
+        _response(django_client, logout_url, 'post', status_code=403)
 
     def test_forgot_password(self):
 
@@ -98,8 +97,7 @@ class TestCsrf(IWebTest):
             'username': "omename",
             'email': "email"
         }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
+        post(self.django_client, request_url, data)
 
     def test_move_data(self):
 
@@ -111,8 +109,7 @@ class TestCsrf(IWebTest):
             'group_id': group_id
         }
 
-        _post_response(self.django_root_client, request_url, data)
-        _csrf_post_response(self.django_root_client, request_url, data)
+        post(self.django_root_client, request_url, data)
 
     def test_add_and_remove_comment(self):
 
@@ -121,8 +118,7 @@ class TestCsrf(IWebTest):
             'comment': 'foobar',
             'image': self.image_with_channels().id.val
         }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
+        post(self.django_client, request_url, data)
 
         # Remove comment, see remove tag,
         # http://localhost/webclient/action/remove/[comment|tag|file]/ID/
@@ -143,7 +139,7 @@ class TestCsrf(IWebTest):
                 'index': 0,
                 'annotation_file': temp
             }
-            _post_response(self.django_client, request_url, data)
+            post(self.django_client, request_url, data)
         finally:
             temp.close()
 
@@ -159,7 +155,7 @@ class TestCsrf(IWebTest):
                 'index': 0,
                 'annotation_file': temp
             }
-            _csrf_post_response(self.django_client, request_url, data)
+            post(self.django_client, request_url, data)
         finally:
             temp.close()
 
@@ -176,13 +172,12 @@ class TestCsrf(IWebTest):
         code.
         """
         img = self.image_with_channels()
-        query_string = data = {'channel0': 'foobar'}
+        data = {'channel0': 'foobar'}
         request_url = reverse(
             'edit_channel_names', args=[img.id.val]
         )
-        _csrf_get_response(self.django_client, request_url, query_string,
-                           status_code=405)
-        _csrf_post_response(self.django_client, request_url, data)
+        get(self.django_client, request_url, data, status_code=405, csrf=True)
+        post(self.django_client, request_url, data)
 
     def test_copy_past_rendering_settings(self):
 
@@ -204,10 +199,8 @@ class TestCsrf(IWebTest):
             'toids': img.id.val
         }
 
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-        _csrf_get_response(self.django_client, request_url, data,
-                           status_code=405)
+        post(self.django_client, request_url, data)
+        get(self.django_client, request_url, data, status_code=405, csrf=True)
 
     def test_reset_rendering_settings(self):
 
@@ -227,11 +220,9 @@ class TestCsrf(IWebTest):
             'to_type': 'image'
         }
 
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-        _get_response(self.django_client, request_url, data)
-        _csrf_get_response(self.django_client, request_url, data,
-                           status_code=405)
+        post(self.django_client, request_url, data)
+        get(self.django_client, request_url, data, status_code=405)
+        get(self.django_client, request_url, data, status_code=405, csrf=True)
 
     def test_apply_owners_rendering_settings(self):
 
@@ -243,9 +234,7 @@ class TestCsrf(IWebTest):
             'to_type': 'image'
         }
 
-        _post_response(self.django_client, request_url, data,
-                       status_code=403)
-        _csrf_post_response(self.django_client, request_url, data)
+        post(self.django_client, request_url, data)
 
     def test_ome_tiff_script(self):
 
@@ -259,10 +248,8 @@ class TestCsrf(IWebTest):
 
         request_url = reverse('ome_tiff_script', args=[img.id.val])
 
-        _post_response(self.django_client, request_url, {})
-        _csrf_post_response(self.django_client, request_url, {})
-        _csrf_get_response(self.django_client, request_url, {},
-                           status_code=405)
+        post(self.django_client, request_url, {})
+        get(self.django_client, request_url, status_code=405)
 
     def test_script(self):
 
@@ -283,8 +270,7 @@ class TestCsrf(IWebTest):
             "Format": "JPEG",
             "Zoom": "100%"
         }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
+        post(self.django_client, request_url, data)
 
     # ADMIN
     def test_myaccount(self):
@@ -297,9 +283,7 @@ class TestCsrf(IWebTest):
             "institution": "foo bar",
             "default_group": self.group.id.val
         }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data,
-                            status_code=302)
+        post(self.django_client, request_url, data, status_code=302)
 
     def test_avatar(self):
 
@@ -324,7 +308,8 @@ class TestCsrf(IWebTest):
                 'filename': 'avatar.png',
                 "photo": temp
             }
-            _post_response(self.django_client, request_url, data)
+            csrf_response(self.django_client, request_url, 'post', data,
+                          status_code=302, test_csrf_required=False)
         finally:
             temp.close()
 
@@ -346,8 +331,8 @@ class TestCsrf(IWebTest):
                 'filename': 'avatar.png',
                 "photo": temp
             }
-            _csrf_post_response(self.django_client, request_url, data,
-                                status_code=302)
+            csrf_response(self.django_client, request_url, 'post', data,
+                          status_code=302, test_csrf_required=False)
         finally:
             temp.close()
 
@@ -359,9 +344,8 @@ class TestCsrf(IWebTest):
             'y1': 50,
             'y2': 150
         }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data,
-                            status_code=302)
+        csrf_response(self.django_client, request_url, 'post', data,
+                      status_code=302, test_csrf_required=False)
 
     def test_create_group(self):
         uuid = self.uuid()
@@ -371,9 +355,7 @@ class TestCsrf(IWebTest):
             "description": uuid,
             "permissions": 0
         }
-        _post_response(self.django_root_client, request_url, data)
-        _csrf_post_response(self.django_root_client, request_url, data,
-                            status_code=302)
+        post(self.django_root_client, request_url, data, status_code=302)
 
     def test_create_user(self):
         uuid = self.uuid()
@@ -389,9 +371,7 @@ class TestCsrf(IWebTest):
             "password": uuid,
             "confirmation": uuid
         }
-        _post_response(self.django_root_client, request_url, data)
-        _csrf_post_response(self.django_root_client, request_url, data,
-                            status_code=302)
+        post(self.django_root_client, request_url, data, status_code=302)
 
     def test_edit_group(self):
         group = self.new_group(perms="rw----")
@@ -401,9 +381,7 @@ class TestCsrf(IWebTest):
             "description": "description",
             "permissions": 0
         }
-        _post_response(self.django_root_client, request_url, data)
-        _csrf_post_response(self.django_root_client, request_url, data,
-                            status_code=302)
+        post(self.django_root_client, request_url, data, status_code=302)
 
     def test_edit_user(self):
         user = self.new_user()
@@ -416,9 +394,7 @@ class TestCsrf(IWebTest):
             "default_group": user.copyGroupExperimenterMap()[0].parent.id.val,
             "other_groups": user.copyGroupExperimenterMap()[0].parent.id.val,
         }
-        _post_response(self.django_root_client, request_url, data)
-        _csrf_post_response(self.django_root_client, request_url, data,
-                            status_code=302)
+        post(self.django_root_client, request_url, data, status_code=302)
 
     def test_edit_group_by_owner(self):
 
@@ -432,9 +408,7 @@ class TestCsrf(IWebTest):
             "owners": self.user.id.val,
             "permissions": 0
         }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data,
-                            status_code=302)
+        post(self.django_client, request_url, data, status_code=302)
 
     def test_change_password(self):
         user = self.new_user()
@@ -445,8 +419,7 @@ class TestCsrf(IWebTest):
             "password": "new",
             "confirmation": "new"
         }
-        _post_response(self.django_root_client, request_url, data)
-        _csrf_post_response(self.django_root_client, request_url, data)
+        post(self.django_root_client, request_url, data)
 
     def test_su(self):
 
@@ -460,6 +433,5 @@ class TestCsrf(IWebTest):
 
         request_url = reverse('webgateway_su', args=[user.omeName.val])
 
-        _csrf_get_response(self.django_root_client, request_url, {})
-        _post_response(self.django_root_client, request_url, {})
-        _csrf_post_response(self.django_root_client, request_url, {})
+        get(self.django_root_client, request_url, {}, csrf=True)
+        post(self.django_root_client, request_url)

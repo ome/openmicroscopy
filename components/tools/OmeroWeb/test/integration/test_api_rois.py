@@ -19,7 +19,7 @@
 
 """Tests querying of ROIs and Shapes with json api."""
 
-from omeroweb.testlib import IWebTest, _get_response_json
+from omeroweb.testlib import IWebTest, get_json
 from django.core.urlresolvers import reverse
 from omeroweb.api import api_settings
 import pytest
@@ -157,11 +157,11 @@ class TestContainers(IWebTest):
 
         # List ALL rois
         rois_url = reverse('api_rois', kwargs={'api_version': version})
-        rsp = _get_response_json(client, rois_url, {})
+        rsp = get_json(client, rois_url)
         assert_objects(conn, rsp['data'], rois, dtype="Roi",
                        opts={'load_shapes': True})
 
         # ROIs on the image
-        rsp = _get_response_json(client, rois_url, {'image': image.id.val})
+        rsp = get_json(client, rois_url, {'image': image.id.val})
         assert_objects(conn, rsp['data'], rois[:2], dtype="Roi",
                        opts={'load_shapes': True})

@@ -22,7 +22,7 @@
 import base64
 import json
 from omeroweb.testlib import IWebTest
-from omeroweb.testlib import _get_response
+from omeroweb.testlib import get
 
 from cStringIO import StringIO
 import pytest
@@ -50,8 +50,7 @@ class TestThumbnails(IWebTest):
         if size is not None:
             args.append(size)
         request_url = reverse('webgateway.views.render_thumbnail', args=args)
-        rsp = _get_response(self.django_client, request_url, {},
-                            status_code=200)
+        rsp = get(self.django_client, request_url)
 
         thumb = Image.open(StringIO(rsp.content))
         # Should be 96 on both sides
@@ -72,15 +71,13 @@ class TestThumbnails(IWebTest):
         if size is not None:
             args.append(size)
         request_url = reverse('webgateway.views.render_thumbnail', args=args)
-        rsp = _get_response(self.django_client, request_url, {},
-                            status_code=200)
+        rsp = get(self.django_client, request_url)
         thumb = json.dumps(
             "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content))
 
         request_url = reverse('webgateway.views.get_thumbnail_json',
                               args=args)
-        b64rsp = _get_response(self.django_client, request_url, {},
-                               status_code=200).content
+        b64rsp = get(self.django_client, request_url).content
         assert thumb == b64rsp
 
     def test_base64_thumb_set(self):
@@ -98,16 +95,14 @@ class TestThumbnails(IWebTest):
         for i in images:
             request_url = reverse('webgateway.views.render_thumbnail',
                                   args=[i])
-            rsp = _get_response(self.django_client, request_url, {},
-                                status_code=200)
+            rsp = get(self.django_client, request_url)
 
             expected_thumbs[i] = \
                 "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content)
 
         iids = {'id': images}
         request_url = reverse('webgateway.views.get_thumbnails_json')
-        b64rsp = _get_response(self.django_client, request_url, iids,
-                               status_code=200).content
+        b64rsp = get(self.django_client, request_url, iids).content
 
         assert cmp(json.loads(b64rsp),
                    json.loads(json.dumps(expected_thumbs))) == 0
