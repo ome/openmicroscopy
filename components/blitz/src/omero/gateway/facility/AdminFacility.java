@@ -298,7 +298,7 @@ public class AdminFacility extends Facility {
 
     /**
      * Get the logged in user's admin privileges
-     * 
+     * (see omero.model.enums)
      * @param ctx
      *            The security context.
      * @return See above
@@ -307,7 +307,6 @@ public class AdminFacility extends Facility {
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
-     * @see omero.model.enums
      */
     public List<String> getAdminPrivileges(SecurityContext ctx)
             throws DSOutOfServiceException, DSAccessException {
@@ -316,6 +315,7 @@ public class AdminFacility extends Facility {
 
     /**
      * Get the admin privileges of a certain user
+     * (see omero.model.enums)
      * 
      * @param ctx
      *            The security context.
@@ -327,7 +327,6 @@ public class AdminFacility extends Facility {
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
-     * @see omero.model.enums
      */
     public List<String> getAdminPrivileges(SecurityContext ctx,
             ExperimenterData user) throws DSOutOfServiceException,
@@ -344,6 +343,7 @@ public class AdminFacility extends Facility {
 
     /**
      * Set the admin privileges of a certain user
+     * (see omero.model.enums)
      * 
      * @param ctx
      *            The security context.
@@ -356,7 +356,6 @@ public class AdminFacility extends Facility {
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
-     * @see omero.model.enums
      */
     public void setAdminPrivileges(SecurityContext ctx, ExperimenterData user,
             List<String> privileges) throws DSOutOfServiceException,
