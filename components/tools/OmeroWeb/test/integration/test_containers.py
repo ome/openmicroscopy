@@ -110,8 +110,7 @@ class TestContainers(IWebTest):
             'name': 'ownedby',
             'owner': str(user.id.val)
         }
-        response = post(self.django_root_client,
-                                       request_url, data)
+        response = post(self.django_root_client, request_url, data)
         did = json.loads(response.content).get("id")
 
         # Check that Dataset was created & has correct group and owner
