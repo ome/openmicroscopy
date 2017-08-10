@@ -174,7 +174,7 @@ module omero {
     };
 
     /**
-     * General namespaces for <a href="http://www.openmicroscopy.org/site/support/omero5.2/developers/Modules/StructuredAnnotations.html">StructuredAnnotations</a>
+     * General namespaces for <a href="https://docs.openmicroscopy.org/latest/omero/developers/scripts//developers/Modules/StructuredAnnotations.html">StructuredAnnotations</a>
      **/
     module namespaces {
         const string NSFSRENAME = "openmicroscopy.org/omero/fs/rename";
@@ -201,7 +201,7 @@ module omero {
         const string NSDYNAMIC = "openmicroscopy.org/omero/scripts/job/dynamic";
 
         //
-        // modulo namespaces for <a href="http://www.openmicroscopy.org/site/support/ome-model/developers/6d-7d-and-8d-storage.html">6d-7d-and-8d-storage</a>
+        // modulo namespaces for <a href="https://docs.openmicroscopy.org/ome-model/5.5.7/developers/6d-7d-and-8d-storage.html">6d-7d-and-8d-storage</a>
         //
         const string NSMODULO = "openmicroscopy.org/omero/dimension/modulo";
     };

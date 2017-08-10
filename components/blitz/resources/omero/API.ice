@@ -180,8 +180,8 @@ module omero {
              * {@link omero.grid.SharedResources} service provides look ups
              * for various facilities offered by OMERO:
              * <ul>
-             *   <li><a href="http://www.openmicroscopy.org/site/support/omero5.2/developers/scripts/">OMERO.scripts</a>
-             *   <li><a href="http://www.openmicroscopy.org/site/support/omero5.2/developers/Tables.html">OMERO.tables</a>
+             *   <li><a href="https://docs.openmicroscopy.org/latest/omero/developers/scripts/">OMERO.scripts</a>
+             *   <li><a href="https://docs.openmicroscopy.org/latest/omero/developers/Tables.html">OMERO.tables</a>
              * </ul>
              * These facilities may or may not be available on first request.
              *

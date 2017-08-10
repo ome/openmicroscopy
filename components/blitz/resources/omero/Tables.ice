@@ -21,7 +21,7 @@
  * The Tables API is intended to provide a storage mechanism
  * for tabular data.
  *
- * See http://www.openmicroscopy.org/site/support/omero5.2/developers/Tables.html
+ * See https://docs.openmicroscopy.org/latest/omero/developers/Tables.html
  */
 module omero {
 

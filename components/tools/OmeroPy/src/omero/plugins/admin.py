@@ -252,7 +252,7 @@ Command-line tool for re-indexing the database. This command must be run on the
 machine where the FullText directory is located. In most cases, you will want
 to disable the background indexer before running most of these commands.
 
-See http://www.openmicroscopy.org/site/support/omero/sysadmins/search.html
+See https://docs.openmicroscopy.org/latest/omero/sysadmins/search.html
 for more information.
 
 Examples:
