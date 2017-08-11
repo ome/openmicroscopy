@@ -5,6 +5,8 @@
 package integration;
 
 import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import omero.model.CommentAnnotationI;
 import omero.model.DetailsI;
 import omero.model.PermissionsI;
@@ -22,6 +24,7 @@ public class PermissionsTest extends AbstractServerTest {
     /*
      * See #8277 permissions returned from the server should now be immutable.
      */
+    @Test
     public void testImmutablePermissions() throws Exception {
 
         // Test on the raw object
@@ -45,12 +48,14 @@ public class PermissionsTest extends AbstractServerTest {
         }
     }
 
+    @Test
     public void testDisallow() {
         PermissionsI p = new omero.model.PermissionsI();
         Assert.assertTrue(p.canAnnotate());
         Assert.assertTrue(p.canEdit());
     }
 
+    @Test
     public void testClientSet() throws Exception {
         CommentAnnotationI c = new omero.model.CommentAnnotationI();
         c = (CommentAnnotationI) this.iUpdate.saveAndReturnObject(c);
