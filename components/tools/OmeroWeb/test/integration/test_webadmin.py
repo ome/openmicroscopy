@@ -171,7 +171,7 @@ class TestExperimenters(IWebTest):
         admin = self.client.sf.getAdminService()
 
         # Create Restricted Admin and check privileges are as expected
-        client, exp = self.new_client_and_user(privileges=privileges)
+        exp = self.new_user(privileges=privileges)
         p = [p.getValue().val for p in admin.getAdminPrivileges(exp)]
         assert set(privileges) == set(p)
 
@@ -200,3 +200,46 @@ class TestExperimenters(IWebTest):
         # Shouldn't be able to create a Full Admin
         admin_option = [l for l in form_lines if 'value="administrator"' in l]
         assert 'disabled' in admin_option[0]
+
+    def test_restricted_admin_create_edit_user(self):
+        """Test create & edit user doesn't allow privilege escalation."""
+        exp = self.new_user(privileges=['Chown', 'ModifyGroup', 'ModifyUser',
+                                        'ModifyGroupMembership'])
+        ome_name = exp.omeName.val
+        django_client = self.new_django_client(ome_name, ome_name)
+
+        uuid = self.uuid()
+        groupid = self.new_group().id.val
+        request_url = reverse('wamanageexperimenterid', args=["create"])
+        data = {
+            "omename": uuid,
+            "first_name": uuid,
+            "last_name": uuid,
+            "active": "on",
+            "default_group": groupid,
+            "other_groups": groupid,
+            "password": uuid,
+            "confirmation": uuid,
+            "role": "restricted_administrator",
+            "Sudo": 'on',   # Sudo and Chgrp should be ignored (escalation)
+            "Chgrp": 'on',
+            "ModifyGroup": 'on',   # Should be applied
+        }
+        post(django_client, request_url, data, status_code=302)
+        # Check that user was created
+        admin = self.client.sf.getAdminService()
+        exp = admin.lookupExperimenter(uuid)
+        # Check Privileges
+        privileges = [p.getValue().val for p in admin.getAdminPrivileges(exp)]
+        assert privileges == ['ModifyGroup']
+
+        # Edit user
+        request_url = reverse('wamanageexperimenterid',
+                              args=["save", exp.id.val])
+        # Add & remove privileges
+        data['Chown'] = 'on'
+        del data['ModifyGroup']
+        post(django_client, request_url, data, status_code=302)
+
+        privileges = [p.getValue().val for p in admin.getAdminPrivileges(exp)]
+        assert privileges == ['Chown']
