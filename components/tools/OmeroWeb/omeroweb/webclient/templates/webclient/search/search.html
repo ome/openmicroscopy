@@ -220,41 +220,46 @@
 
     <form id="searching_form" class="search_panel standard_form" action="{% url 'load_searching' 'form' %}">
 
-        <div class="search_panel__header">
+        <div class="search_panel_header">
 
-            <div class="absolute--left">
-                <h2 style="vertical-align: middle; text-align: center">{% trans "General Search" %}</h2>
+            <div class="search_panel_header__text" >
+
+                <div class="search_panel_header__text--title">
+                    <!-- h2 style has a bottom margin -->
+                    <h2 style="margin-bottom: 0">{% trans "General Search" %}</h2>
+                </div>
+
+                <div class="search_panel_header__text--hints" >
+                    <a id="showSearchHints" class="search_tips__button" href="#">Show search hints</a>
+                    <span class="searching_info" data-content="? Single character wildcard<br>* Multiple character wildcard<br>'AND' Results will contain both terms. E.g: GFP AND H2B">
+                        <img class="search_tips__image" src="{% static "webgateway/img/help16.png" %}"/>
+                    </span>
+                </div>
+
             </div>
 
-{#            <div style="font-size: 120%; float: right; position: relative; top: -20px">#}
-            <div class="absolute--right" >
-                <a id="showSearchHints" class="search_tips__button" href="#">Show search hints</a>
-                <span class="searching_info" data-content="? Single character wildcard<br>* Multiple character wildcard<br>'AND' Results will contain both terms. E.g: GFP AND H2B">
-                    <img class="search_tips__image" src="{% static "webgateway/img/help16.png" %}"/>
-                </span>
+            <!-- Hidden hints box shown when the user clicks to show hints -->
+            <div id="searchHints" style="display: none">
+                <ul>
+                    <li> <strong> ? </strong> Single character wildcard</li>
+                    <li> <strong> * </strong> Multiple character wildcard</li>
+                    <li> <strong> AND </strong> Results will contain both terms. E.g: GFP AND H2B</li>
+                </ul>
+                <br>
+                <div>
+                    For more info, see the
+                    <a title="Open link in new Tab" target="new" href="http://help.openmicroscopy.org/search.html">
+                        User Help</a>
+                    pages.
+                </div>
             </div>
 
-        </div>
-
-        <div id="searchHints" style="display: none">
-            <ul>
-                <li> <strong> ? </strong> Single character wildcard</li>
-                <li> <strong> * </strong> Multiple character wildcard</li>
-                <li> <strong> AND </strong> Results will contain both terms. E.g: GFP AND H2B</li>
-            </ul>
-            <br>
-            <div>
-                For more info, see the
-                <a title="Open link in new Tab" target="new" href="http://help.openmicroscopy.org/search.html">
-                    User Help</a>
-                pages.
-            </div>
         </div>
 
         <div style="clear:both"></div>
 
             <label for="query">{% trans "Search" %}:</label>
-            <input class="search" type="text" name="query" value="{{ init.query }}" size="35"/>
+            <input class="search" name="query" value="{{ init.query }}" size="35"/>
 
             <hr>
 

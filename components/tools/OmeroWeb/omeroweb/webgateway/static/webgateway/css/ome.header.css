@@ -1001,12 +1001,10 @@ li.menu_back a {
 }
 
 #left_panel {
-	position: absolute;
+	position: relative;
 	border-left: none;
     width: 350px;
-	left: 0;
-	top: 33px;
-	bottom: 0;
+	height: calc(100% - 33px);
 }
 
 #center_panel {
