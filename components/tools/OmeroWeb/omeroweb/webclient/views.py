@@ -119,6 +119,11 @@ def get_long_or_default(request, name, default):
     return val
 
 
+def get_list(request, name):
+    val = request.GET.getlist(name)
+    return [i for i in val if i != '']
+
+
 def get_longs(request, name):
     warnings.warn(
         "Deprecated. Use omeroweb.webgateway.util.get_longs()",
@@ -1147,17 +1152,19 @@ def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
 def api_annotations(request, conn=None, **kwargs):
 
     r = request.GET
-    image_ids = r.getlist('image')
-    dataset_ids = r.getlist('dataset')
-    project_ids = r.getlist('project')
-    screen_ids = r.getlist('screen')
-    plate_ids = r.getlist('plate')
-    run_ids = r.getlist('acquisition')
-    well_ids = r.getlist('well')
+    image_ids = get_list(request, 'image')
+    dataset_ids = get_list(request, 'dataset')
+    project_ids = get_list(request, 'project')
+    screen_ids = get_list(request, 'screen')
+    plate_ids = get_list(request, 'plate')
+    run_ids = get_list(request, 'acquisition')
+    well_ids = get_list(request, 'well')
     page = get_long_or_default(request, 'page', 1)
     limit = get_long_or_default(request, 'limit', settings.PAGE)
 
     ann_type = r.get('type', None)
+
+    image_ids = [i for i in image_ids if i != '']
 
     anns, exps = tree.marshal_annotations(conn, project_ids=project_ids,
                                           dataset_ids=dataset_ids,
