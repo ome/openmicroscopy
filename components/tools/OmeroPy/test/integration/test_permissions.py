@@ -874,7 +874,8 @@ class TestPermissionProjections(ITest):
 
     @pytest.mark.parametrize("fixture", PFS,
                              ids=[x.get_name() for x in PFS])
-    def testProjectionPermissions(self, fixture):
+    def testProjectionPermissionsWorkaround(self, fixture):
+        """Test we get same permissions via _details_permissions map"""
         writer = self.writer(fixture)
         reader = self.reader(fixture)
         project = self.make_project(name="testProjectPermissions",
@@ -904,7 +905,7 @@ class TestPermissionProjections(ITest):
 
     @pytest.mark.parametrize("fixture", PFS,
                              ids=[x.get_name() for x in PFS])
-    def testProjectionPermissionsWorkaround(self, fixture):
+    def testProjectionPermissions(self, fixture):
         writer = self.writer(fixture)
         reader = self.reader(fixture)
         project = self.make_project(name="testProjectPermissions",
@@ -937,33 +938,7 @@ class TestPermissionProjections(ITest):
                     "canChown": perms.canChown(),
                 }
 
-                # Test that we get the same using the map with
-                # 'project_details_permissions' workaround as used in webclient
-                # without loading the whole project
-                proj = unwrap(reader.projection(
-                    """select new map(project.id as id,
-                    project.name as name,
-                    project.details.owner.id as ownerId,
-                    project as project_details_permissions)
-                    from Project project
-                    where project.id = :id""",
-                    ParametersI().addId(project.id.val),
-                    {"omero:group": str(group)}))[0]
-
-                perms = proj[0].get('project_details_permissions')
-                perms_values = {
-                    "perms": perms.get("perm"),
-                    "canAnnotate": perms.get("canAnnotate"),
-                    "canDelete": perms.get("canDelete"),
-                    "canEdit": perms.get("canEdit"),
-                    "canLink": perms.get("canLink"),
-                    "canChgrp": perms.get("canChgrp"),
-                    "canChown": perms.get("canChown"),
-                }
-
-                assert perms_values == value
-
-                self._cache[key] = perms_values
+                self._cache[key] = value
 
         except IndexError:
             # No permissions were returned.
