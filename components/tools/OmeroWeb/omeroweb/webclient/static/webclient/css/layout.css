@@ -1711,13 +1711,10 @@
 	display:inline-block;
 }
 
-#left_panel_inner {
-	border:solid 1px red;
+/* Used in tag search - only */
+.left_panel_inner {
+	padding: 16px;
 }
-
-
-
-
 
 /*
 	===============================================
