@@ -459,6 +459,10 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                     defaultGroup = otherGroups[0]
 
                 privileges = conn.get_privileges_from_form(form)
+                if privileges is not None:
+                    # Only process privileges that we have permission to set
+                    privileges = [p for p in privileges
+                                  if p in conn.getCurrentAdminPrivileges()]
                 # Create a User, Restricted-Admin or Admin, based on privileges
                 conn.createExperimenter(
                     omename, firstName, lastName, email, admin, active,
