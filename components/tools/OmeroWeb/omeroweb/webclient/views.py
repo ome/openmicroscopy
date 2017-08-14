@@ -478,8 +478,9 @@ def group_user_content(request, url=None, conn=None, **kwargs):
         system_groups = [
             conn.getAdminService().getSecurityRoles().userGroupId,
             conn.getAdminService().getSecurityRoles().guestGroupId]
-        groups = [g for g in conn.getObjects("ExperimenterGroup")
-                  if g.getId() not in system_groups]
+        groups = conn.getObjects("ExperimenterGroup",
+                                 opts={'load_experimenters': True})
+        groups = [g for g in groups if g.getId() not in system_groups]
         groups.sort(key=lambda x: x.getName().lower())
     else:
         groups = myGroups
