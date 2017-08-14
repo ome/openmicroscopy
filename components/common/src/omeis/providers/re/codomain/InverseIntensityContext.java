@@ -1,14 +1,14 @@
 /*
- * omeis.providers.re.codomain.ReverseIntensityContext
+ * omeis.providers.re.codomain.InverseIntensityContext
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package omeis.providers.re.codomain;
 
 /**
- * The empty context of the reverse intensity map.
+ * The empty context of the inverse intensity map.
  * 
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -17,10 +17,8 @@ package omeis.providers.re.codomain;
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * @since OME2.2
- * 
- * @deprecated Renamed to {@link InverseIntensityContext}
  */
-public class ReverseIntensityContext extends CodomainMapContext {
+public class InverseIntensityContext extends CodomainMapContext {
 
     /**
      * Implemented as specified by superclass.
@@ -38,7 +36,7 @@ public class ReverseIntensityContext extends CodomainMapContext {
      */
     @Override
     CodomainMap getCodomainMap() {
-        return new ReverseIntensityMap();
+        return new InverseIntensityMap();
     }
 
     /**
@@ -48,7 +46,7 @@ public class ReverseIntensityContext extends CodomainMapContext {
      */
     @Override
     public CodomainMapContext copy() {
-        ReverseIntensityContext copy = new ReverseIntensityContext();
+        InverseIntensityContext copy = new InverseIntensityContext();
         copy.intervalEnd = intervalEnd;
         copy.intervalStart = intervalStart;
         return this;

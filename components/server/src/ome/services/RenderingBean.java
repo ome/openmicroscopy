@@ -813,6 +813,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
             nc.setReverse(((ome.model.display.ReverseIntensityContext) ctx).getReverse());
             return nc;
         }
+        if (ctx instanceof ome.model.display.InverseIntensityContext) {
+            ome.model.display.InverseIntensityContext nc =  new ome.model.display.InverseIntensityContext();
+            nc.setInverse(((ome.model.display.InverseIntensityContext) ctx).getInverse());
+            return nc;
+        }
         return null;
     }
 
