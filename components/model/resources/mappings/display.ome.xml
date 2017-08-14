@@ -89,8 +89,15 @@
 	</abstract>
 	<type id="ome.model.display.ReverseIntensityContext" superclass="ome.model.display.CodomainMapContext">
 		<!-- Note: ReverseIntensityContext is not in model-->
+		<!-- Note: Deprecated, use InverseIntensityContext instead-->
 		<properties>
 			<required name="reverse" type="boolean"/>
+		</properties>
+	</type>
+	<type id="ome.model.display.InverseIntensityContext" superclass="ome.model.display.CodomainMapContext">
+		<!-- Note:InverseIntensityContext is not in model-->
+		<properties>
+			<required name="inverse" type="boolean"/>
 		</properties>
 	</type>
 	<type id="ome.model.display.PlaneSlicingContext" superclass="ome.model.display.CodomainMapContext">
