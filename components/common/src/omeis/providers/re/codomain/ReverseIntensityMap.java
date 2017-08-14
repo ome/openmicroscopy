@@ -9,7 +9,7 @@ package omeis.providers.re.codomain;
 
 /**
  * Reverses the intensity levels of an image. It produces the equivalent of a
- * photographic negative. This type of transformation is suited fo enhancing
+ * photographic negative. This type of transformation is suited for enhancing
  * white or gray details embedded in dark regions of an image, especially when
  * the black areas are dominant in size.
  * 
@@ -21,6 +21,9 @@ package omeis.providers.re.codomain;
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * @since OME2.2
+ * 
+ * @deprecated This class will be renamed to InvertCodomainMap (or similar) in
+ *             future versions
  */
 class ReverseIntensityMap implements CodomainMap {
 
