@@ -98,7 +98,7 @@ public class PermissionsTest extends AbstractServerTest {
      * <tt>root</tt> user <q>can</q> do everything.
      * @throws Exception unexpected
      */
-    @Test(groups = "broken")
+    @Test
     public void testRootCanPermissionsByProjection() throws Exception {
         final EventContext normalUser = newUserAndGroup("rwr---");
         final long projectId = iUpdate.saveAndReturnObject(mmFactory.simpleProject()).getId().getValue();
