@@ -2165,7 +2165,7 @@ public class AbstractServerTest extends AbstractTest {
      * @throws Exception
      */
     protected Response doChange(Request change) throws Exception {
-        return doChange(client, factory, change, true, null);
+        return doChange(client, factory, change, true);
     }
 
     /**
@@ -2177,12 +2177,12 @@ public class AbstractServerTest extends AbstractTest {
      * @throws Exception
      */
     protected Response doChange(Request change, long groupID) throws Exception {
-        return doChange(client, factory, change, true, groupID);
+        return doChange(client, factory, change, true, groupID, null);
     }
 
     protected Response doChange(omero.client c, ServiceFactoryPrx f,
             Request change, boolean pass) throws Exception {
-        return doChange(c, f, change, pass, null);
+        return doChange(c, f, change, pass, null, null);
     }
 
     protected Response doAllChanges(omero.client c, ServiceFactoryPrx f,
@@ -2203,7 +2203,7 @@ public class AbstractServerTest extends AbstractTest {
      * @throws Exception
      */
     protected Response doChange(omero.client c, ServiceFactoryPrx f,
-            Request change, boolean pass, Long groupID) throws Exception {
+            Request change, boolean pass, Long groupID, Integer scalingFactorAdjustment) throws Exception {
         final Map<String, String> callContext = new HashMap<String, String>();
         if (groupID != null) {
             callContext.put("omero.group", "" + groupID);
@@ -2211,7 +2211,11 @@ public class AbstractServerTest extends AbstractTest {
         final HandlePrx prx = f.submit(change, callContext);
         // assertFalse(prx.getStatus().flags.contains(State.FAILURE));
         CmdCallbackI cb = new CmdCallbackI(c, prx);
-        cb.loop(20, scalingFactor);
+        long useScalingFactor = scalingFactor;
+        if (scalingFactorAdjustment != null) {
+            useScalingFactor *= scalingFactorAdjustment;
+        }
+        cb.loop(20, useScalingFactor);
         return assertCmd(cb, pass);
     }
 
