@@ -18,7 +18,7 @@ package omeis.providers.re.codomain;
  * @version 2.2
  * @since OME2.2
  * 
- * @deprecated This class will be renamed to InvertIntensityContext (or similar) in
+ * @deprecated This class will be renamed to InverseIntensityContext (or similar) in
  *             future versions
  */
 public class ReverseIntensityContext extends CodomainMapContext {
