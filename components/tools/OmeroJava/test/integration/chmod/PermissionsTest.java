@@ -111,7 +111,7 @@ public class PermissionsTest extends AbstractServerTest {
     @AfterClass
     public void deleteTestImages() throws Exception {
         final Delete2 delete = Requests.delete().target("Image").id(testImages).build();
-        doChange(root, root.getSession(), delete, true);
+        doChange(root, root.getSession(), delete, true, null, 2);
         clearTestImages();
     }
 
