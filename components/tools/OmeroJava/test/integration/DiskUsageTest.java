@@ -623,6 +623,6 @@ public class DiskUsageTest extends AbstractServerTest {
     @Test
     public void testBadClassName() throws Exception {
         final DiskUsage2 request = Requests.diskUsage().target("NoClass").id(1L).build();
-        doChange(client, factory, request, false, null);
+        doChange(client, factory, request, false);
     }
 }

@@ -112,7 +112,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         DoAll all = new DoAll();
         all.requests = commands;
-        doChange(client, factory, all, false, null);
+        doChange(client, factory, all, false);
 
         // Now log the original user back in
         disconnect();
