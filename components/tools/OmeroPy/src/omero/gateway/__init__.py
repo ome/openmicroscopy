@@ -5660,13 +5660,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
         if opts is None:
             opts = {}
-        # NB: In order not to change API for OMERO 5.3.3 we default
-        # 'load_groups' to True if not specified.
-        # In OMERO 5.4 we should change this default to False
-        if opts.get('load_groups') is None:
-            load_groups = True
-        else:
-            load_groups = opts.get('load_groups')
+        load_groups = opts.get('load_groups')
         if load_groups:
             query += (" left outer join fetch obj.groupExperimenterMap "
                       "as groupExperimenterMap "
