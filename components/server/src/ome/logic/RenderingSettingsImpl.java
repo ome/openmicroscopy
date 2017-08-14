@@ -44,6 +44,7 @@ import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.CodomainMapContext;
+import ome.model.display.InverseIntensityContext;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.display.ReverseIntensityContext;
@@ -986,6 +987,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         if (ctx instanceof ReverseIntensityContext) {
             ReverseIntensityContext nc =  new ReverseIntensityContext();
             nc.setReverse(((ReverseIntensityContext) ctx).getReverse());
+            return nc;
+        }
+        if (ctx instanceof InverseIntensityContext) {
+            InverseIntensityContext nc =  new InverseIntensityContext();
+            nc.setInverse(((InverseIntensityContext) ctx).getInverse());
             return nc;
         }
         return null;
