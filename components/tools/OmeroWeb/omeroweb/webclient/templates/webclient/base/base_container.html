@@ -164,8 +164,8 @@
         var WEBCLIENT = {};
 
         WEBCLIENT.active_group_id = {{ active_group.id }};
-        WEBCLIENT.USER = {'id': {{ ome.user.id }} };
-        WEBCLIENT.active_user_id = {{ ome.user_id }};
+        WEBCLIENT.USER = {'id': {{ ome.user.id }}, 'fullName': "{{ ome.user.getFullName }}"};
+        WEBCLIENT.active_user = {'id': {{ ome.user_id }}, 'fullName': "{{ active_user.getFullName }}"};
         WEBCLIENT.eventContext = {{ ome.eventContext|json_dumps|safe }};
 
         WEBCLIENT.URLS = {};

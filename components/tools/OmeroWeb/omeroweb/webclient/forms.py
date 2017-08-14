@@ -143,6 +143,9 @@ class ContainerForm(NonASCIIForm):
     description = forms.CharField(
         widget=forms.Textarea(attrs={'rows': 2, 'cols': 49}),
         required=False)
+    owner = forms.CharField(
+        widget=forms.HiddenInput,
+        required=False)
 
 
 class ContainerNameForm(NonASCIIForm):

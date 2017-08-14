@@ -24,8 +24,9 @@ Tests creation, linking, editing & deletion of containers
 import omero
 import omero.clients
 from omero.rtypes import rtime
+from omeroweb.api import api_settings
 from omeroweb.testlib import IWebTest
-from omeroweb.testlib import post, post_json, delete_json
+from omeroweb.testlib import get_json, post, post_json, delete_json
 
 import json
 
@@ -88,6 +89,41 @@ class TestContainers(IWebTest):
             'description': 'anotherfoobar'
         }
         post(self.django_client, request_url, data)
+
+    def test_add_owned_container(self):
+        """Test root user creating a Dataset owned by another user."""
+        request_url = reverse("manage_action_containers",
+                              args=["addnewcontainer"])
+
+        # Create user in 2 groups
+        group1 = self.new_group()
+        group2 = self.new_group()
+        user = self.new_user(group=group1)
+        self.add_groups(user, [group2])
+
+        # Container will get added to active_group
+        session = self.django_root_client.session
+        session['active_group'] = group2.id.val
+        session.save()
+        data = {
+            'folder_type': 'dataset',
+            'name': 'ownedby',
+            'owner': str(user.id.val)
+        }
+        response = post(self.django_root_client, request_url, data)
+        did = json.loads(response.content).get("id")
+
+        # Check that Dataset was created & has correct group and owner
+        request_url = reverse("manage_action_containers",
+                              args=["addnewcontainer"])
+        version = api_settings.API_VERSIONS[-1]
+        request_url = reverse('api_dataset', kwargs={'api_version': version,
+                                                     'object_id': did})
+        rsp_json = get_json(self.django_root_client, request_url, {})
+        dataset = rsp_json['data']
+        assert dataset['@id'] == did
+        assert dataset['omero:details']['owner']['@id'] == user.id.val
+        assert dataset['omero:details']['group']['@id'] == group2.id.val
 
     def test_paste_move_remove_deletamany_image(self):
 

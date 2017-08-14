@@ -496,34 +496,28 @@ class BaseContainer(BaseController):
     ####################################################################
     # Creation
 
-    def createDataset(self, name, description=None, img_ids=None):
-        dsId = self.conn.createDataset(name, description, img_ids)
+    def createDataset(self, name, description=None, img_ids=None, owner=None):
+        dsId = self.conn.createDataset(name, description, img_ids, owner=owner)
         if self.project is not None:
             l_ds = omero.model.ProjectDatasetLinkI()
             l_ds.setParent(self.project._obj)
             l_ds.setChild(omero.model.DatasetI(dsId, False))
             # ds.addProjectDatasetLink(l_ds)
-            self.conn.saveAndReturnId(l_ds)
+            self.conn.saveAndReturnId(l_ds, owner=owner)
         return dsId
 
-    def createProject(self, name, description=None):
-        return self.conn.createProject(name, description)
-
-    def createScreen(self, name, description=None):
-        return self.conn.createScreen(name, description)
-
-    def createTag(self, name, description=None):
-        tId = self.conn.createTag(name, description)
+    def createTag(self, name, description=None, owner=None):
+        tId = self.conn.createContainer("tag", name, description, owner=owner)
         if (self.tag and
                 self.tag.getNs() == omero.constants.metadata.NSINSIGHTTAGSET):
+            ctx = self.conn.SERVICE_OPTS.copy()
+            if owner is not None:
+                ctx.setOmeroUser(owner)
             link = omero.model.AnnotationAnnotationLinkI()
             link.setParent(omero.model.TagAnnotationI(self.tag.getId(), False))
             link.setChild(omero.model.TagAnnotationI(tId, False))
-            self.conn.saveObject(link)
+            self.conn.saveObject(link, owner=owner)
         return tId
-
-    def createTagset(self, name, description=None):
-        return self.conn.createTagset(name, description)
 
     def checkMimetype(self, file_type):
         if file_type is None or len(file_type) == 0:
