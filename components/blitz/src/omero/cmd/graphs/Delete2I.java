@@ -38,7 +38,7 @@ import com.google.common.collect.SetMultimap;
 
 import ome.model.IObject;
 import ome.security.ACLVoter;
-import ome.security.SystemTypes;
+import ome.security.basic.LightAdminPrivileges;
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
@@ -55,7 +55,7 @@ import omero.cmd.IRequest;
 import omero.cmd.Response;
 
 /**
- * Request to delete model objects, replacing version 5.0's {@code DeleteI}.
+ * Request to delete model objects.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
@@ -68,7 +68,6 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
     private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.DELETE);
 
     private final ACLVoter aclVoter;
-    private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final Set<Class<? extends IObject>> targetClasses;
     private final Deletion deletionInstance;
@@ -91,19 +90,18 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
      * Construct a new <q>delete</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
      * @param securityRoles the security roles
-     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
+     * @param adminPrivileges the light administrator privileges helper
      * @param deletionInstance a deletion instance for deleting files
      * @param targetClasses legal target object classes for delete
      * @param graphPolicy the graph policy to apply for delete
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param applicationContext the OMERO application context from Spring
      */
-    public Delete2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
+    public Delete2I(ACLVoter aclVoter, Roles securityRoles, GraphPathBean graphPathBean, LightAdminPrivileges adminPrivileges,
             Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
             SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
         this.aclVoter = aclVoter;
-        this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.deletionInstance = deletionInstance;
         this.targetClasses = targetClasses;
@@ -132,7 +130,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
         this.graphHelper = new GraphHelper(helper, graphPathBean);
 
         graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
-                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(), dryRun);
+                aclVoter, graphPathBean, unnullable, new InternalProcessor(), dryRun);
 
         graphPolicyAdjusters = null;
     }
@@ -146,7 +144,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
                 final SetMultimap<String, Long> targetMultimap = graphHelper.getTargetMultimap(targetClasses, targetObjects);
                 targetObjectCount += targetMultimap.size();
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
-                        graphTraversal.planOperation(helper.getSession(), targetMultimap, false, true);
+                        graphTraversal.planOperation(targetMultimap, false, true);
                 if (!plan.getKey().isEmpty()) {
                     final Exception e = new IllegalStateException("deletion does not do anything other than delete");
                     helper.cancel(new ERR(), e, "graph-fail");

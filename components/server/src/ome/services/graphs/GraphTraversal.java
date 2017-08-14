@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -56,7 +56,7 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
-import ome.security.SystemTypes;
+import ome.security.basic.LightAdminPrivileges;
 import ome.services.graphs.GraphPathBean.PropertyKind;
 import ome.services.graphs.GraphPolicy.Ability;
 import ome.services.graphs.GraphPolicy.Action;
@@ -100,12 +100,16 @@ public class GraphTraversal {
          * @param mayUpdate if the object may be updated
          * @param mayDelete if the object may be deleted
          * @param mayChmod if the object may have its permissions changed
+         * @param mayChgrp if the object may be moved
+         * @param mayChown if the object may be given
          * @param isOwner if the user owns the object
          * @param isCheckPermissions if the user is expected to have the permissions required to process the object
          */
         DetailsWithCI(IObject subject, Long ownerId, Long groupId, Action action, Orphan orphan,
-                boolean mayUpdate, boolean mayDelete, boolean mayChmod, boolean isOwner, boolean isCheckPermissions) {
-            super(subject, ownerId, groupId, action, orphan, mayUpdate, mayDelete, mayChmod, isOwner, isCheckPermissions);
+                boolean mayUpdate, boolean mayDelete, boolean mayChmod, boolean mayChgrp, boolean mayChown,
+                boolean isOwner, boolean isCheckPermissions) {
+            super(subject, ownerId, groupId, action, orphan, mayUpdate, mayDelete, mayChmod, mayChgrp, mayChown,
+                    isOwner, isCheckPermissions);
             this.subjectAsCI = new CI(subject);
         }
 
@@ -176,7 +180,7 @@ public class GraphTraversal {
         }
 
         /**
-         * Construct a new {@link IObject}
+         * Construct a new {@link IObject}.
          * @return an unloaded {@link IObject} corresponding to this {@link CI}
          * @throws GraphException if the {@link IObject} could not be constructed
          */
@@ -295,8 +299,7 @@ public class GraphTraversal {
         /**
          * Construct a {@link CP} from this {@link CPI}.
          * Repeated calls to this method may return the same {@link CP} instance.
-         * @param id an instance ID
-         * @return a {@link CPI} with the corresponding values
+         * @return a {@link CP} with the corresponding values
          */
         CP toCP() {
             if (asCP == null) {
@@ -376,6 +379,7 @@ public class GraphTraversal {
         final Set<CI> included = new HashSet<CI>();
         final Set<CI> deleted = new HashSet<CI>();
         final Set<CI> outside = new HashSet<CI>();
+        final Set<CI> unchanged = new HashSet<CI>();
         /* orphan checks */
         final Set<CI> findIfLast = new HashSet<CI>();
         final Map<CI, Boolean> foundIfLast = new HashMap<CI, Boolean>();
@@ -392,6 +396,8 @@ public class GraphTraversal {
         final Set<CI> mayUpdate = new HashSet<CI>();
         final Set<CI> mayDelete = new HashSet<CI>();
         final Set<CI> mayChmod = new HashSet<CI>();
+        final Set<CI> mayChgrp = new HashSet<CI>();
+        final Set<CI> mayChown = new HashSet<CI>();
         final Set<CI> owns = new HashSet<CI>();
         final Set<CI> overrides = new HashSet<CI>();
     }
@@ -457,8 +463,8 @@ public class GraphTraversal {
 
     private final Session session;
     private final EventContext eventContext;
+    private final boolean isCheckUserPermissions;
     private final ACLVoter aclVoter;
-    private final SystemTypes systemTypes;
     private final GraphPathBean model;
     private final SetMultimap<String, String> unnullable;
     private final Set<Milestone> progress = EnumSet.noneOf(Milestone.class);
@@ -471,46 +477,44 @@ public class GraphTraversal {
      * @param session the Hibernate session
      * @param eventContext the current event context
      * @param aclVoter ACL voter for permissions checking
-     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param policy how to determine which related objects to include in the operation
      * @param processor how to operate on the resulting target object graph
      */
-    public GraphTraversal(Session session, EventContext eventContext, ACLVoter aclVoter, SystemTypes systemTypes,
-            GraphPathBean graphPathBean, SetMultimap<String, String> unnullable, GraphPolicy policy, Processor processor) {
+    public GraphTraversal(Session session, EventContext eventContext, ACLVoter aclVoter, GraphPathBean graphPathBean,
+            SetMultimap<String, String> unnullable, GraphPolicy policy, Processor processor) {
         this.session = session;
         this.eventContext = eventContext;
         this.aclVoter = aclVoter;
-        this.systemTypes = systemTypes;
         this.model = graphPathBean;
         this.unnullable = unnullable;
         this.planning = new Planning();
         this.policy = policy;
         this.processor = log.isDebugEnabled() ? debugWrap(processor) : processor;
+        this.isCheckUserPermissions = !LightAdminPrivileges.getAllPrivileges().equals(eventContext.getCurrentAdminPrivileges());
     }
 
     /**
      * Traverse model object graph to determine steps for the proposed operation.
-     * @param session the Hibernate session to use for HQL queries
      * @param objects the model objects to process
      * @param include if the given model objects are to be included (instead of just deleted)
      * @param applyRules if the given model objects should have the policy rules applied to them
      * @return the model objects included in the operation, and the deleted objects
      * @throws GraphException if the model objects were not as expected
      */
-    public Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> planOperation(Session session,
-            SetMultimap<String, Long> objects, boolean include, boolean applyRules) throws GraphException {
+    public Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> planOperation(SetMultimap<String, Long> objects,
+            boolean include, boolean applyRules) throws GraphException {
         if (progress.contains(Milestone.PLANNED)) {
             throw new IllegalStateException("operation already planned");
         }
         final Set<CI> targetSet = include ? planning.included : planning.deleted;
         /* note the object instances for processing */
-        targetSet.addAll(objectsToCIs(session, objects));
+        targetSet.addAll(objectsToCIs(objects));
         if (applyRules) {
             /* actually do the planning of the operation */
             planning.toProcess.addAll(targetSet);
-            planOperation(session);
+            planOperation();
         } else {
             /* act as if the target objects have no links and no rules match them */
             for (final CI targetObject : targetSet) {
@@ -532,15 +536,14 @@ public class GraphTraversal {
 
     /**
      * Traverse model object graph to determine steps for the proposed operation.
-     * @param session the Hibernate session to use for HQL queries
      * @param objectInstances the model objects to process, may be unloaded with ID only
      * @param include if the given model objects are to be included (instead of just deleted)
      * @param applyRules if the given model objects should have the policy rules applied to them
      * @return the model objects included in the operation, and the deleted objects, may be unloaded with ID only
      * @throws GraphException if the model objects were not as expected
      */
-    public Entry<Collection<IObject>, Collection<IObject>> planOperation(Session session,
-            Collection<? extends IObject> objectInstances, boolean include, boolean applyRules) throws GraphException {
+    public Entry<Collection<IObject>, Collection<IObject>> planOperation(Collection<? extends IObject> objectInstances,
+            boolean include, boolean applyRules) throws GraphException {
         if (progress.contains(Milestone.PLANNED)) {
             throw new IllegalStateException("operation already planned");
         }
@@ -556,11 +559,11 @@ public class GraphTraversal {
                 objectsToQuery.put(instance.getClass().getName(), instance.getId());
             }
         }
-        targetSet.addAll(objectsToCIs(session, objectsToQuery));
+        targetSet.addAll(objectsToCIs(objectsToQuery));
         if (applyRules) {
             /* actually do the planning of the operation */
             planning.toProcess.addAll(targetSet);
-            planOperation(session);
+            planOperation();
         } else {
             /* act as if the target objects have no links and no rules match them */
             for (final CI targetObject : targetSet) {
@@ -583,10 +586,9 @@ public class GraphTraversal {
     /**
      * Traverse model object graph to determine steps for the proposed operation.
      * Assumes that the internal {@code planning} field is set up and mutates it accordingly.
-     * @param session the Hibernate session to use for HQL queries
      * @throws GraphException if the model objects were not as expected
      */
-    private void planOperation(Session session) throws GraphException {
+    private void planOperation() throws GraphException {
         /* track state to guarantee progress in reprocessing objects whose orphan status is relevant */
         Set<CI> optimisticReprocess = null;
         /* set of not-last objects after latest review */
@@ -613,7 +615,7 @@ public class GraphTraversal {
                 toCache.removeAll(planning.cached);
                 if (!toCache.isEmpty()) {
                     optimisticReprocess = null;
-                    cache(session, toCache);
+                    cache(toCache);
                     continue;
                 }
                 /* try processing the findIfLast in case of any changes */
@@ -637,6 +639,7 @@ public class GraphTraversal {
                 optimisticReprocess = null;
                 for (final CI orphan : planning.findIfLast) {
                     planning.foundIfLast.put(orphan, true);
+                    planning.unchanged.clear();
                     if (log.isDebugEnabled()) {
                         log.debug("marked " + orphan + " as " + Orphan.IS_LAST);
                     }
@@ -661,6 +664,7 @@ public class GraphTraversal {
             planning.findIfLast.addAll(isNotLast);
             for (final CI object : isNotLast) {
                 planning.foundIfLast.remove(object);
+                planning.unchanged.clear();
                 if (log.isDebugEnabled()) {
                     log.debug("marked " + object + " as " + Orphan.RELEVANT + " to verify " + Orphan.IS_NOT_LAST + " status");
                 }
@@ -689,13 +693,23 @@ public class GraphTraversal {
      * @throws GraphException if the object could not be converted to an unloaded instance
      */
     private void noteDetails(CI object, ome.model.internal.Details objectDetails) throws GraphException {
-        final IObject objectInstance = object.toIObject();
+        IObject objectInstance = object.toIObject();
 
         if (planning.detailsNoted.put(object, objectDetails) != null) {
             return;
         }
 
-        if (!eventContext.isCurrentUserAdmin()) {
+        if (isCheckUserPermissions) {
+            /* BasicACLVoter needs to check fuller instances of some objects */
+            if (objectInstance instanceof OriginalFile) {
+                final String query = "SELECT mimetype, repo FROM OriginalFile WHERE id = :id";
+                final Object[] result = (Object[]) session.createQuery(query).setLong("id", object.id).uniqueResult();
+                final OriginalFile file = new OriginalFile(object.id, true);
+                file.setMimetype((String) result[0]);
+                file.setRepo((String) result[1]);
+                objectInstance = file;
+            }
+
             /* allowLoad ensures that BasicEventContext.groupPermissionsMap is populated */
             aclVoter.allowLoad(session, objectInstance.getClass(), objectDetails, object.id);
 
@@ -705,6 +719,12 @@ public class GraphTraversal {
             if (aclVoter.allowDelete(objectInstance, objectDetails)) {
                 planning.mayDelete.add(object);
             }
+            if (!objectDetails.getPermissions().isDisallowChgrp()) {
+                planning.mayChgrp.add(object);
+            }
+            if (!objectDetails.getPermissions().isDisallowChown()) {
+                planning.mayChown.add(object);
+            }
             if (objectInstance instanceof ExperimenterGroup) {
                 final ExperimenterGroup loadedGroup = (ExperimenterGroup) session.load(ExperimenterGroup.class, object.id);
                 if (aclVoter.allowChmod(loadedGroup)) {
@@ -712,7 +732,7 @@ public class GraphTraversal {
                 }
             }
             final Experimenter objectOwner = objectDetails.getOwner();
-            if (objectOwner != null && eventContext.getCurrentUserId().equals(objectOwner.getId())) {
+            if (objectOwner != null && (isOwnsAll || eventContext.getCurrentUserId().equals(objectOwner.getId()))) {
                 planning.owns.add(object);
             }
         }
@@ -814,12 +834,11 @@ public class GraphTraversal {
 
     /**
      * Convert the indicated objects to {@link CI}s with their actual class identified.
-     * @param session a Hibernate session
      * @param objects the objects to query
      * @return {@link CI}s corresponding to the objects
      * @throws GraphException if any of the specified objects could not be queried
      */
-    private Collection<CI> objectsToCIs(Session session, SetMultimap<String, Long> objects) throws GraphException {
+    private Collection<CI> objectsToCIs(SetMultimap<String, Long> objects) throws GraphException {
         final List<CI> returnValue = new ArrayList<CI>(objects.size());
         for (final Entry<String, Collection<Long>> oneQueryClass : objects.asMap().entrySet()) {
             final String className = oneQueryClass.getKey();
@@ -905,11 +924,10 @@ public class GraphTraversal {
 
     /**
      * Load object instances and their links into the various cache fields of {@link Planning}.
-     * @param session a Hibernate session
      * @param toCache the objects to cache
      * @throws GraphException if the objects could not be converted to unloaded instances
      */
-    private void cache(Session session, Collection<CI> toCache) throws GraphException {
+    private void cache(Collection<CI> toCache) throws GraphException {
         /* note which links to query, organized for batch querying */
         final SetMultimap<CP, Long> forwardLinksWanted = HashMultimap.create();
         final SetMultimap<CP, Long> backwardLinksWanted = HashMultimap.create();
@@ -1039,13 +1057,14 @@ public class GraphTraversal {
             final Action action = getAction(object);
             final Orphan orphan = action == Action.EXCLUDE ? getOrphan(object) : Orphan.IRRELEVANT;
 
-            if (eventContext.isCurrentUserAdmin()) {
-                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan, true, true, true, true, true);
-            } else {
+            if (isCheckUserPermissions) {
                 details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan,
                         planning.mayUpdate.contains(object), planning.mayDelete.contains(object),
-                        planning.mayChmod.contains(object), planning.owns.contains(object),
-                        !planning.overrides.contains(object));
+                        planning.mayChmod.contains(object), planning.mayChgrp.contains(object), planning.mayChown.contains(object),
+                        planning.owns.contains(object), !planning.overrides.contains(object));
+            } else {
+                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan,
+                        true, true, true, true, true, true, true);
             }
 
             cache.put(object, details);
@@ -1114,9 +1133,11 @@ public class GraphTraversal {
             return;
         }
         /* act on collated policies */
+        boolean anyChanges = false;
         for (final Details change : changes) {
             final CI instance = new CI(change.subject);
             final Action previousAction = getAction(instance);
+            boolean isChanged = true;
             if (previousAction != change.action) {
                 /* undo previous action */
                 switch (previousAction) {
@@ -1156,21 +1177,30 @@ public class GraphTraversal {
                 planning.findIfLast.remove(instance);
                 planning.foundIfLast.put(instance, change.orphan == Orphan.IS_LAST);
                 planning.toProcess.add(instance);
-            } else if (change.action == Action.EXCLUDE && change.orphan == Orphan.RELEVANT &&
-                    planning.findIfLast.add(instance) && !planning.cached.contains(instance)) {
-                /* orphan status is relevant; if just now noted as such then ensure the object is or will be cached */
+            } else if (change.action == Action.EXCLUDE && change.orphan == Orphan.RELEVANT && planning.findIfLast.add(instance)) {
+                /* orphan status switched to relevant */
                 planning.toProcess.add(instance);
-            } else if (!(change.action == Action.OUTSIDE || instance.equals(object))) {
+            } else if (instance.equals(object) || change.action == Action.OUTSIDE) {
+                isChanged = false;
+            } else {
                 /* probably just needs review */
-                planning.toProcess.add(instance);
+                if (planning.unchanged.add(instance)) {
+                    planning.toProcess.add(instance);
+                }
+                isChanged = false;
             }
-            if (!(change.isCheckPermissions || eventContext.isCurrentUserAdmin())) {
+            anyChanges = anyChanges || isChanged;
+            if (isCheckUserPermissions && !change.isCheckPermissions) {
                 /* do not check the user's permissions on this object */
                 planning.overrides.add(instance);
             }
             if (log.isDebugEnabled()) {
                 log.debug("adjusted " + change);
             }
+        }
+        if (anyChanges) {
+            planning.toProcess.addAll(planning.unchanged);
+            planning.unchanged.clear();
         }
         /* if object is now DELETE or INCLUDE then it must be in the queue */
         final Action chosenAction = getAction(object);
@@ -1254,21 +1284,6 @@ public class GraphTraversal {
     }
 
     /**
-     * Determine if the given {@link IObject} class is a system type as judged by {@link SystemTypes#isSystemType(Class)}.
-     * @param className a class name
-     * @return if the class is a system type
-     * @throws GraphException if {@code className} does not name an accessible class
-     */
-    private boolean isSystemType(String className) throws GraphException {
-        try {
-            final Class<? extends IObject> actualClass = (Class<? extends IObject>) Class.forName(className);
-            return systemTypes.isSystemType(actualClass);
-        } catch (ClassNotFoundException e) {
-            throw new GraphException("no model object class named " + className);
-        }
-    }
-
-    /**
      * Assert that the processor may operate upon the given objects with {@link Processor#processInstances(String, Collection)}.
      * Never fails for system types.
      * @param className a class name
@@ -1277,10 +1292,8 @@ public class GraphTraversal {
      */
     private void assertMayBeProcessed(String className, Collection<Long> ids) throws GraphException {
         final Set<CI> objects = idsToCIs(className, ids);
-        if (!isSystemType(className)) {
-            assertPermissions(objects, processor.getRequiredPermissions());
-        }
-        if (!eventContext.isCurrentUserAdmin()) {
+        assertPermissions(objects, processor.getRequiredPermissions());
+        if (isCheckUserPermissions) {
             for (final CI object : Sets.difference(objects, planning.overrides)) {
                 try {
                     processor.assertMayProcess(object.className, object.id, planning.detailsNoted.get(object));
@@ -1298,9 +1311,7 @@ public class GraphTraversal {
      * @throws GraphException if the user may not delete all of the objects
      */
     private void assertMayBeDeleted(String className, Collection<Long> ids) throws GraphException {
-        if (!isSystemType(className)) {
-            assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.DELETE));
-        }
+        assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.DELETE));
     }
 
     /**
@@ -1310,9 +1321,7 @@ public class GraphTraversal {
      * @throws GraphException if the user may not update all of the objects
      */
     private void assertMayBeUpdated(String className, Collection<Long> ids) throws GraphException {
-        if (!isSystemType(className)) {
-            assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.UPDATE));
-        }
+        assertPermissions(idsToCIs(className, ids), Collections.singleton(Ability.UPDATE));
     }
 
     /**
@@ -1322,7 +1331,7 @@ public class GraphTraversal {
      * @throws GraphException if the user does not have all the abilities to operate upon all of the objects
      */
     private void assertPermissions(Set<CI> objects, Collection<GraphPolicy.Ability> abilities) throws GraphException {
-        if (abilities == null || eventContext.isCurrentUserAdmin()) {
+        if (abilities == null || !isCheckUserPermissions) {
             return;
         }
         objects = Sets.difference(objects, planning.overrides);
@@ -1342,6 +1351,18 @@ public class GraphTraversal {
             final Set<CI> violations = Sets.difference(objects, planning.mayChmod);
             if (!violations.isEmpty()) {
                 throw new GraphException("not permitted to change permissions on " + Joiner.on(", ").join(violations));
+            }
+        }
+        if (abilities.contains(Ability.CHGRP)) {
+            final Set<CI> violations = Sets.difference(objects, planning.mayChgrp);
+            if (!violations.isEmpty()) {
+                throw new GraphException("not permitted to move " + Joiner.on(", ").join(violations));
+            }
+        }
+        if (abilities.contains(Ability.CHOWN)) {
+            final Set<CI> violations = Sets.difference(objects, planning.mayChown);
+            if (!violations.isEmpty()) {
+                throw new GraphException("not permitted to give " + Joiner.on(", ").join(violations));
             }
         }
         if (abilities.contains(Ability.OWN)) {
@@ -1631,5 +1652,17 @@ public class GraphTraversal {
             linkers.put(linker.className, linker.id);
         }
         return linkers;
+    }
+
+    @Deprecated
+    private boolean isOwnsAll = false;
+
+    /**
+     * Causes {@link Ability#OWN} to always be included among {@link Details#permissions}.
+     * @deprecated An ugly expedient hack that requires review and may be removed without notice.
+     */
+    @Deprecated
+    public void setOwnsAll() {
+        isOwnsAll = true;
     }
 }

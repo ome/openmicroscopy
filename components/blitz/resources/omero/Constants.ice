@@ -1,9 +1,6 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- *
  */
 
 #ifndef OMERO_CONSTANTS_ICE
@@ -177,7 +174,7 @@ module omero {
     };
 
     /**
-     * General namespaces for <a href="http://www.openmicroscopy.org/site/support/omero5.2/developers/Modules/StructuredAnnotations.html">StructuredAnnotations</a>
+     * General namespaces for <a href="https://docs.openmicroscopy.org/latest/omero/developers/scripts//developers/Modules/StructuredAnnotations.html">StructuredAnnotations</a>
      **/
     module namespaces {
         const string NSFSRENAME = "openmicroscopy.org/omero/fs/rename";
@@ -204,7 +201,7 @@ module omero {
         const string NSDYNAMIC = "openmicroscopy.org/omero/scripts/job/dynamic";
 
         //
-        // modulo namespaces for <a href="http://www.openmicroscopy.org/site/support/ome-model/developers/6d-7d-and-8d-storage.html">6d-7d-and-8d-storage</a>
+        // modulo namespaces for <a href="https://docs.openmicroscopy.org/ome-model/5.5.7/developers/6d-7d-and-8d-storage.html">6d-7d-and-8d-storage</a>
         //
         const string NSMODULO = "openmicroscopy.org/omero/dimension/modulo";
     };
@@ -270,6 +267,20 @@ module omero {
        * the annotate restriction has been applied to the current object.
        **/
       const int ANNOTATERESTRICTION = 3;
+
+      /**
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
+       * the chgrp restriction has been applied to the current object.
+       **/
+      const int CHGRPRESTRICTION = 4;
+
+      /**
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
+       * the chown restriction has been applied to the current object.
+       **/
+      const int CHOWNRESTRICTION = 5;
 
       /**
        * Extended restriction name which may be applied to images and other

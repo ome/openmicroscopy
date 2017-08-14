@@ -260,7 +260,7 @@ class OmeroMetadataServiceImpl
 	 * 
 	 * @param ctx The security context.
 	 * @param data The data to save
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMEDS service.
 	 * @throws DSAccessException
@@ -278,7 +278,7 @@ class OmeroMetadataServiceImpl
 	 * 
 	 * @param ctx The security context.
 	 * @param data The data to save
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMEDS service.
 	 * @throws DSAccessException
@@ -294,7 +294,7 @@ class OmeroMetadataServiceImpl
 	 * 
 	 * @param ctx The security context.
 	 * @param data The data to save
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMEDS service.
 	 * @throws DSAccessException
@@ -479,7 +479,7 @@ class OmeroMetadataServiceImpl
 	 * @param ctx The security context.
 	 * @param toAdd The collection of annotation to prepare.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMEDS service.
 	 */
@@ -583,7 +583,7 @@ class OmeroMetadataServiceImpl
 	 * @param ctx The security context.
 	 * @param data The data object to annotate.
 	 * @param annotation The annotation to link.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMEDS service.
 	 */
@@ -673,7 +673,7 @@ class OmeroMetadataServiceImpl
 	 * 
 	 * @param ctx The security context.
 	 * @param ann The annotation to update.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or not logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMEDS service.
 	 */

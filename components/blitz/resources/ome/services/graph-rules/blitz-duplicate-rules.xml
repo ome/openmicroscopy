@@ -2,7 +2,7 @@
 
 <!--
 #
-# Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2015-2017 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -118,7 +118,7 @@
         <bean parent="graphPolicyRule" p:matches="Instrument[I].lightSource = LS:[E]" p:changes="LS:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Instrument[I].microscope = M:[E]" p:changes="M:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Instrument[I].objective = O:[E]" p:changes="O:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Instrument[I].otf = OTF:[E]" p:changes="OTF:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Instrument[I].otf = OTFn:[E]" p:changes="OTFn:[I]"/>
 
         <!-- Continue instrument duplication deeper into subgraph. -->
 
@@ -157,19 +157,6 @@
         <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[E].parent = [I], L.child = [I]"
                                        p:changes="L:[I]"/>
 
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:FilterSetEmissionFilterLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:FilterSetExcitationFilterLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:LightPathEmissionFilterLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[!O]" p:changes="L:[-]"/>
-
-        <!-- Ensure that rules with multiple matches may apply for settings. -->
-
-        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[!O]" p:changes="S:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="S:LightSettings[!O]" p:changes="S:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[!O]" p:changes="S:[-]"/>
-
         <!-- ANNOTATIONS -->
 
         <!-- We can't yet duplicate file annotations. -->
@@ -188,10 +175,6 @@
         <!-- If an original file is duplicated then also duplicate the corresponding file annotation -->
 
         <bean parent="graphPolicyRule" p:matches="A:FileAnnotation[E].file = [I]" p:changes="A:[I]"/>
-
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[!O]" p:changes="L:[-]"/>
 
         <!-- Respect linking rules outside read-annotate groups. -->
 
@@ -371,7 +354,6 @@
         <bean parent="graphPolicyRule" p:matches="Image[I].rois = ROI:[E]" p:changes="ROI:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:[E]" p:changes="S:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Shape[I].transform = T:[E]" p:changes="T:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[EI]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[EI], P.image = I:[E]" p:changes="I:[I]"/>
 
         <!-- SCREEN -->

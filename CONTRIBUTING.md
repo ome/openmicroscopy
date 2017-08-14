@@ -1,7 +1,7 @@
 # Contributing to OMERO
 
 Detailed guidance for contributing developers is available at
-http://www.openmicroscopy.org/site/support/contributing/
+https://docs.openmicroscopy.org/contributing/
 
 ## The Quick Version
 

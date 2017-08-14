@@ -2,7 +2,7 @@
 
 <!--
 #
-# Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -50,6 +50,8 @@
         After a forward slash for matches, the permissions required for the object by the user:
             u = may be updated
             d = may be deleted
+            m = may be moved
+            g = may be given
             o = owns
         In matches, starting these permissions letters with a ! negates the given set.
 

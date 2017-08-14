@@ -381,9 +381,13 @@ class TestGetObject (object):
         # eIds = [e.getId() for e in experimenters]
         for e in exps:
             # assert e.getId() in eIds
-            # check iQuery has loaded groups
+            # check iQuery has loaded at least one group
+            loaded = False
             for groupExpMap in e.copyGroupExperimenterMap():
-                assert e.id == groupExpMap.child.id.val
+                if groupExpMap is not None and \
+                        e.id == groupExpMap.child.id.val:
+                    loaded = True
+            assert loaded
 
         # returns all experimenters except current user - now moved to
         # webclient_gateway

@@ -7,6 +7,8 @@
 package omero.model;
 
 import static ome.model.internal.Permissions.ANNOTATERESTRICTION;
+import static ome.model.internal.Permissions.CHGRPRESTRICTION;
+import static ome.model.internal.Permissions.CHOWNRESTRICTION;
 import static ome.model.internal.Permissions.DELETERESTRICTION;
 import static ome.model.internal.Permissions.EDITRESTRICTION;
 import static ome.model.internal.Permissions.LINKRESTRICTION;
@@ -92,6 +94,16 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
 
     public boolean canAnnotate(final Ice.Current c) {
         return !isDisallow(ANNOTATERESTRICTION, c);
+    }
+
+    @Override
+    public boolean canChgrp(final Ice.Current c) {
+        return !isDisallow(CHGRPRESTRICTION, c);
+    }
+
+    @Override
+    public boolean canChown(final Ice.Current c) {
+        return !isDisallow(CHOWNRESTRICTION, c);
     }
 
     public boolean canDelete(final Ice.Current c) {

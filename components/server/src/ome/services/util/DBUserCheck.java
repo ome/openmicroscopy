@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2013-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -50,6 +50,8 @@ public class DBUserCheck {
         this.sql = sql;
         this.prefs = prefs;
         this.roles = load();
+        sql.setRoles(roles.getRootId(), roles.getGuestId(),
+                roles.getSystemGroupId(), roles.getUserGroupId(), roles.getGuestGroupId());
     }
 
     private String getRoleName(String which, String defaultValue) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -69,7 +69,7 @@ public class PermissionsPredicate implements GraphPolicyRulePredicate {
     @Override
     public boolean isMatch(Details object, String parameter) throws GraphException {
         if (object.groupId == null) {
-            throw new GraphException("no group for " + object);
+            return false;
         }
         final String permissions = groupPermissions.get(object.groupId);
         if (permissions == null) {

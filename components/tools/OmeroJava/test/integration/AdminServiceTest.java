@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2015 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -13,25 +13,37 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import omero.ApiUsageException;
 import omero.RString;
 import omero.ServerError;
 import omero.ValidationException;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
+import omero.api.ServiceFactoryPrx;
 import omero.cmd.Request;
 import omero.gateway.util.Requests;
+import omero.model.AdminPrivilege;
+import omero.model.AdminPrivilegeI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.GroupExperimenterMap;
 import omero.model.IObject;
+import omero.model.NamedValue;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
+import omero.model.enums.AdminPrivilegeModifyUser;
+import omero.model.enums.AdminPrivilegeReadSession;
+import omero.model.enums.AdminPrivilegeSudo;
+import omero.model.enums.AdminPrivilegeWriteOwned;
+import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.sys.Roles;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Sets;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -62,6 +74,23 @@ public class AdminServiceTest extends AbstractServerTest {
     private String PASSWORD_MODIFIED = "passwordModified";
 
     /**
+     * Return a user's {@link Experimenter#getConfig()} property value as a multimap.
+     * @param user a user
+     * @return the user's configuration properties, never {@code null}
+     */
+    private static ImmutableMultimap<String, String> getUserConfig(Experimenter user) {
+        final List<NamedValue> config = user.getConfig();
+        if (config == null || config.isEmpty()) {
+            return ImmutableMultimap.of();
+        }
+        final ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
+        for (final NamedValue namedValue : config) {
+            builder.put(namedValue.name, namedValue.value);
+        }
+        return builder.build();
+    }
+
+    /**
      * Tests the <code>lookupGroup</code> method. Retrieves a specified group.
      * Controls if the following groups exist: <code>system, user</code> and
      * converts the group into the corresponding POJO.
@@ -72,15 +101,15 @@ public class AdminServiceTest extends AbstractServerTest {
     @Test
     public void testLookupGroup() throws Exception {
         IAdminPrx svc = root.getSession().getAdminService();
-        ExperimenterGroup group = svc.lookupGroup(USER_GROUP);
+        ExperimenterGroup group = svc.lookupGroup(roles.userGroupName);
         Assert.assertNotNull(group);
-        Assert.assertEquals(USER_GROUP, group.getName().getValue());
+        Assert.assertEquals(roles.userGroupName, group.getName().getValue());
         GroupData data = new GroupData(group);
         Assert.assertEquals(data.getId(), group.getId().getValue());
         Assert.assertEquals(data.getName(), group.getName().getValue());
-        group = svc.lookupGroup(SYSTEM_GROUP);
+        group = svc.lookupGroup(roles.systemGroupName);
         Assert.assertNotNull(group);
-        Assert.assertEquals(SYSTEM_GROUP, group.getName().getValue());
+        Assert.assertEquals(roles.systemGroupName, group.getName().getValue());
         // Test the conversion into the corresponding POJO
         data = new GroupData(group);
         Assert.assertEquals(data.getId(), group.getId().getValue());
@@ -254,7 +283,7 @@ public class AdminServiceTest extends AbstractServerTest {
         long groupId = id;
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
         // method tested elsewhere
-        ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+        ExperimenterGroup userGroup = svc.lookupGroup(roles.userGroupName);
         groups.add(eg);
         groups.add(userGroup);
         id = svc.createExperimenter(e, eg, groups);
@@ -319,7 +348,7 @@ public class AdminServiceTest extends AbstractServerTest {
         long groupId = id;
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
         // method tested elsewhere
-        ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+        ExperimenterGroup userGroup = svc.lookupGroup(roles.userGroupName);
         groups.add(eg);
         groups.add(userGroup);
         id = svc.createExperimenterWithPassword(e, omero.rtypes.rstring(PASSWORD), eg,
@@ -385,7 +414,7 @@ public class AdminServiceTest extends AbstractServerTest {
         Assert.assertEquals(e.getOmeName().getValue(), uuid);
         // check if we are in the correct group i.e. user and uuid
         // now check if the user is in correct groups.
-        ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+        ExperimenterGroup userGroup = svc.lookupGroup(roles.userGroupName);
         List<Long> ids = new ArrayList<Long>();
         ids.add(groupId);
         ids.add(userGroup.getId().getValue());
@@ -651,7 +680,7 @@ public class AdminServiceTest extends AbstractServerTest {
 
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
         // method tested elsewhere
-        ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+        ExperimenterGroup userGroup = svc.lookupGroup(roles.userGroupName);
         groups.add(eg1);
         groups.add(eg2);
         groups.add(userGroup);
@@ -1033,12 +1062,14 @@ public class AdminServiceTest extends AbstractServerTest {
         proxy = client1.getSession().getAdminService();
         /* test that the same group can be renamed if no longer current */
         proxy.updateGroup(normalGroup1);
+        client1.closeSession();
+        client1.__del__();
+
         /* test the viability of another user still logged in with the renamed group as current */
         proxy = client2.getSession().getAdminService();
         proxy.setDefaultGroup(experimenter2, normalGroup2);
-
-        client1.closeSession();
         client2.closeSession();
+        client2.__del__();
     }
 
     /**
@@ -1668,7 +1699,7 @@ public class AdminServiceTest extends AbstractServerTest {
         groups.add(eg);
         svc.addGroups(e, groups);
         // now check that there are linked
-        ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+        ExperimenterGroup userGroup = svc.lookupGroup(roles.userGroupName);
         List<Long> ids = new ArrayList<Long>();
         ids.add(groupId);
         ids.add(id2);
@@ -1735,5 +1766,211 @@ public class AdminServiceTest extends AbstractServerTest {
         final Experimenter guest = new ExperimenterI(roles.guestId, false);
         final List<Long> guestGroups = adminSvc.getMemberOfGroupIds(guest);
         Assert.assertTrue(guestGroups.contains(roles.guestGroupId));
+    }
+
+    /**
+     * Test getting the set of light administrator privileges for a user.
+     * Includes configuration of unknown privileges and non-Boolean values.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testGetAdminPrivileges() throws Exception {
+        final ServiceFactoryPrx rootSession = root.getSession();
+        /* create a new light administrator */
+        final EventContext ctx = newUserAndGroup("rw----");
+        Experimenter user = new ExperimenterI(ctx.userId, false);
+        final ExperimenterGroup systemGroup = new ExperimenterGroupI(iAdmin.getSecurityRoles().systemGroupId, false);
+        rootSession.getAdminService().addGroups(user, Collections.<ExperimenterGroup>singletonList(systemGroup));
+        /* set the light administrator's privileges */
+        user = (Experimenter) rootSession.getQueryService().get("Experimenter", user.getId().getValue());
+        final List<NamedValue> config = new ArrayList<NamedValue>();
+        config.add(new NamedValue("AdminPrivilege:" + AdminPrivilegeModifyUser.value, "true"));
+        config.add(new NamedValue("AdminPrivilege:" + AdminPrivilegeReadSession.value, "nonsense"));
+        config.add(new NamedValue("nonsense", "true"));
+        user.setConfig(config);
+        rootSession.getUpdateService().saveObject(user);
+        /* check the privileges */
+        final Set<String> actualPrivileges = new HashSet<String>();
+        for (final AdminPrivilege privilege : iAdmin.getAdminPrivileges(user)) {
+            actualPrivileges.add(privilege.getValue().getValue());
+        }
+        Assert.assertTrue(actualPrivileges.contains(AdminPrivilegeModifyUser.value));
+        Assert.assertFalse(actualPrivileges.contains("nonsense"));
+        Assert.assertFalse(actualPrivileges.contains(AdminPrivilegeReadSession.value));
+    }
+
+    /**
+     * Test setting a user's set of light administrator privileges.
+     * Expects the configuration to undergo minimal changes to effect the requirement.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testSetAdminPrivileges() throws Exception {
+        final ServiceFactoryPrx rootSession = root.getSession();
+        final AdminPrivilege modifyUser = new AdminPrivilegeI();
+        final AdminPrivilege readSession = new AdminPrivilegeI();
+        modifyUser.setValue(omero.rtypes.rstring(AdminPrivilegeModifyUser.value));
+        readSession.setValue(omero.rtypes.rstring(AdminPrivilegeReadSession.value));
+        /* create a user */
+        final EventContext ctx = newUserAndGroup("rw----");
+        /* set the user's original configuration */
+        Experimenter user = (Experimenter) rootSession.getQueryService().get("Experimenter", ctx.userId);
+        List<NamedValue> config = new ArrayList<NamedValue>();
+        config.add(new NamedValue("AdminPrivilege:" + AdminPrivilegeModifyUser.value, "nonsense"));
+        config.add(new NamedValue("AdminPrivilege:nonsense", "false"));
+        config.add(new NamedValue("nonsense", "true"));
+        user.setConfig(config);
+        rootSession.getUpdateService().saveObject(user);
+        /* now set ModifyUser but no other privileges */
+        rootSession.getAdminService().setAdminPrivileges((Experimenter) user, Collections.singletonList(modifyUser));
+        /* check if ModifyUser was added to the configuration without affecting the other entries */
+        user = (Experimenter) iQuery.get("Experimenter", ctx.userId);
+        ImmutableMultimap<String, String> configMap = getUserConfig(user);
+        Assert.assertEquals(configMap.get("AdminPrivilege:" + AdminPrivilegeModifyUser.value), Collections.singleton("true"));
+        Assert.assertEquals(configMap.get("AdminPrivilege:nonsense"), Collections.singleton("false"));
+        Assert.assertEquals(configMap.get("nonsense"), Collections.singleton("true"));
+        Assert.assertEquals(configMap.get("AdminPrivilege:" + AdminPrivilegeReadSession.value), Collections.singleton("false"));
+        /* now set ReadSession */
+        rootSession.getAdminService().setAdminPrivileges((Experimenter) user, Collections.singletonList(readSession));
+        /* check if ReadSession was set and ModifyUser was cleared through only minimal changes to the configuration */
+        user = (Experimenter) iQuery.get("Experimenter", ctx.userId);
+        configMap = getUserConfig(user);
+        Assert.assertEquals(configMap.get("AdminPrivilege:" + AdminPrivilegeModifyUser.value), Collections.singleton("false"));
+        Assert.assertEquals(configMap.get("AdminPrivilege:nonsense"), Collections.singleton("false"));
+        Assert.assertEquals(configMap.get("nonsense"), Collections.singleton("true"));
+        Assert.assertEquals(configMap.get("AdminPrivilege:" + AdminPrivilegeReadSession.value), Collections.singleton("true"));
+    }
+
+    /**
+     * Test retrieving the list of light administrators who have all of a given set of privileges.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testGetAdminsWithPrivileges() throws Exception {
+        final ServiceFactoryPrx rootSession = root.getSession();
+        final AdminPrivilege sudo = new AdminPrivilegeI();
+        final AdminPrivilege writeOwned = new AdminPrivilegeI();
+        sudo.setValue(omero.rtypes.rstring(AdminPrivilegeSudo.value));
+        writeOwned.setValue(omero.rtypes.rstring(AdminPrivilegeWriteOwned.value));
+        /* note IDs of coming users */
+        final Set<Long> allUsers = new HashSet<Long>();
+        final Set<Long> canSudo = new HashSet<Long>();
+        final Set<Long> canWriteOwned = new HashSet<Long>();
+        /* set up users with various combinations of privileges */
+        final EventContext ctx = newUserAndGroup("rw----");
+        final ExperimenterGroup systemGroup = new ExperimenterGroupI(iAdmin.getSecurityRoles().systemGroupId, false);
+        final Boolean[] booleanValues = new Boolean[] {null, true, false};
+        final String sudoConfigName = "AdminPrivilege:" + sudo.getValue().getValue();
+        final String writeOwnedConfigName = "AdminPrivilege:" + writeOwned.getValue().getValue();
+        for (final Boolean isSudo : booleanValues) {
+            for (final Boolean isWriteOwned : booleanValues) {
+                final Long newUserId = newUserInGroup().userId;
+                final Experimenter user = (Experimenter) rootSession.getQueryService().get("Experimenter", newUserId);
+                final List<NamedValue> config = new ArrayList<NamedValue>();
+                if (isSudo != null) {
+                    config.add(new NamedValue(sudoConfigName, Boolean.toString(isSudo)));
+                }
+                if (!Boolean.FALSE.equals(isSudo)) {
+                    canSudo.add(newUserId);
+                }
+                if (isWriteOwned != null) {
+                    config.add(new NamedValue(writeOwnedConfigName, Boolean.toString(isWriteOwned)));
+                }
+                if (!Boolean.FALSE.equals(isWriteOwned)) {
+                    canWriteOwned.add(newUserId);
+                }
+                allUsers.add(newUserId);
+                user.setConfig(config);
+                rootSession.getUpdateService().saveObject(user);
+                rootSession.getAdminService().addGroups(user, Collections.<ExperimenterGroup>singletonList(systemGroup));
+            }
+        }
+        /* prepare for testing */
+        loginUser(ctx);
+        Set<Long> expectedUsers, actualUsers;
+        /* check that some users can neither sudo nor write data owned by other users */
+        Assert.assertFalse(Sets.difference(allUsers, Sets.union(canSudo, canWriteOwned)).isEmpty());
+        /* check the list of users who can sudo */
+        expectedUsers = canSudo;
+        Assert.assertFalse(expectedUsers.isEmpty());
+        actualUsers = new HashSet<Long>();
+        for (final Experimenter user : iAdmin.getAdminsWithPrivileges(ImmutableList.of(sudo))) {
+            actualUsers.add(user.getId().getValue());
+        }
+        actualUsers.retainAll(allUsers);
+        Assert.assertEquals(actualUsers, expectedUsers);
+        /* check the list of users who can write data owned by other users */
+        expectedUsers = canWriteOwned;
+        Assert.assertFalse(expectedUsers.isEmpty());
+        actualUsers = new HashSet<Long>();
+        for (final Experimenter user : iAdmin.getAdminsWithPrivileges(ImmutableList.of(writeOwned))) {
+            actualUsers.add(user.getId().getValue());
+        }
+        actualUsers.retainAll(allUsers);
+        Assert.assertEquals(actualUsers, expectedUsers);
+        /* check the list of users who can both sudo and write data owned by other users */
+        expectedUsers = Sets.intersection(canSudo, canWriteOwned);
+        Assert.assertFalse(expectedUsers.isEmpty());
+        actualUsers = new HashSet<Long>();
+        for (final Experimenter user : iAdmin.getAdminsWithPrivileges(ImmutableList.of(sudo, writeOwned))) {
+            actualUsers.add(user.getId().getValue());
+        }
+        actualUsers.retainAll(allUsers);
+        Assert.assertEquals(actualUsers, expectedUsers);
+    }
+
+    /**
+     * Test creating a light administrator.
+     * @throws ServerError unexpected
+     */
+    @Test
+    public void testCreateLightSystemUser() throws ServerError {
+        final IAdminPrx svc = root.getSession().getAdminService();
+        boolean useNext = false;
+        final List<AdminPrivilege> expectedPrivileges = new ArrayList<>();
+        boolean addedSome = false;
+        boolean skippedSome = false;
+        for (final IObject privilege : root.getSession().getTypesService().allEnumerations("AdminPrivilege")) {
+            if (useNext) {
+                expectedPrivileges.add((AdminPrivilege) privilege);
+                addedSome = true;
+            } else {
+                skippedSome = true;
+            }
+            useNext = !useNext;
+        }
+        Assert.assertTrue(addedSome);
+        Assert.assertTrue(skippedSome);
+        final Set<String> expectedPrivilegeNames = new HashSet<>();
+        for (final AdminPrivilege privilege : expectedPrivileges) {
+            expectedPrivilegeNames.add(privilege.getValue().getValue());
+        }
+        final String lightAdminName = UUID.randomUUID().toString();
+        Experimenter lightAdmin = createExperimenterI(lightAdminName, "test", "user");
+        final long lightAdminId = svc.createLightSystemUser(lightAdmin, expectedPrivileges);
+        final List<AdminPrivilege> actualPrivileges = svc.getAdminPrivileges(new ExperimenterI(lightAdminId, false));
+        final Set<String> actualPrivilegeNames = new HashSet<>();
+        for (final AdminPrivilege privilege : actualPrivileges) {
+            actualPrivilegeNames.add(privilege.getValue().getValue());
+        }
+        Assert.assertEquals(actualPrivilegeNames, expectedPrivilegeNames);
+        lightAdmin = svc.lookupExperimenter(lightAdminName);
+        for (final GroupExperimenterMap group : lightAdmin.copyGroupExperimenterMap()) {
+            if (group.getParent().getId().getValue() == roles.systemGroupId) {
+                return;
+            }
+        }
+        Assert.fail("new light system user must be member of system group");
+    }
+
+    /**
+     * Test that removing root's light administrator privileges is not possible.
+     * @throws ServerError unexpected
+     */
+    @Test(expectedExceptions = ApiUsageException.class)
+    public void testMakeRootUserLight() throws ServerError {
+        final IAdminPrx svc = root.getSession().getAdminService();
+        final Experimenter rootUser = new ExperimenterI(roles.rootId, false);
+        svc.setAdminPrivileges(rootUser, Collections.<AdminPrivilege>emptyList());
     }
 }

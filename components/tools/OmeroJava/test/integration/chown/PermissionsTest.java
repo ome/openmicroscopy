@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -36,7 +36,6 @@ import omero.rtypes;
 import omero.cmd.Chmod2;
 import omero.cmd.Chown2;
 import omero.cmd.Delete2;
-import omero.cmd.ERR;
 import omero.cmd.Response;
 import omero.gateway.util.Requests;
 import omero.model.Annotation;
@@ -45,7 +44,6 @@ import omero.model.AnnotationAnnotationLinkI;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
-import omero.model.DatasetImageLinkI;
 import omero.model.Experiment;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
@@ -63,6 +61,7 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.Instrument;
 import omero.model.MapAnnotation;
 import omero.model.MapAnnotationI;
+import omero.model.Microscope;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.RectangleI;
@@ -128,27 +127,6 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * Add the given annotation to the given image.
-     * @param image an image
-     * @param annotation an annotation
-     * @return the new loaded link from the image to the annotation
-     * @throws ServerError unexpected
-     */
-    private ImageAnnotationLink annotateImage(Image image, Annotation annotation) throws ServerError {
-        if (image.isLoaded() && image.getId() != null) {
-            image = (Image) image.proxy();
-        }
-        if (annotation.isLoaded() && annotation.getId() != null) {
-            annotation = (Annotation) annotation.proxy();
-        }
-
-        final ImageAnnotationLink link = new ImageAnnotationLinkI();
-        link.setParent(image);
-        link.setChild(annotation);
-        return (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
-    }
-
-    /**
      * Add a comment, tag, MapAnnotation, FileAnnotation,
      * Thumbnail and a ROI to the given image.
      * @param image an image
@@ -164,7 +142,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         for (final Annotation annotation : new Annotation[] {new CommentAnnotationI(),
              new TagAnnotationI(), new FileAnnotationI(), new MapAnnotationI()}) {
-            final ImageAnnotationLink link = annotateImage(image, annotation);
+            final ImageAnnotationLink link = linkParentToChild(image, annotation);
             annotationObjects.add(link.proxy());
             annotationObjects.add(link.getChild().proxy());
         }
@@ -252,36 +230,6 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * Assert that the given object is owned by the given owner.
-     * @param object a model object
-     * @param expectedOwner a user's event context
-     * @throws ServerError unexpected
-     */
-    private void assertOwnedBy(IObject object, EventContext expectedOwner) throws ServerError {
-        assertOwnedBy(Collections.singleton(object), expectedOwner);
-    }
-
-    /**
-     * Assert that the given objects are owned by the given owner.
-     * @param objects some model objects
-     * @param expectedOwner a user's event context
-     * @throws ServerError unexpected
-     */
-    private void assertOwnedBy(Collection<? extends IObject> objects, EventContext expectedOwner) throws ServerError {
-        if (objects.isEmpty()) {
-            throw new IllegalArgumentException("must assert about some objects");
-        }
-        for (final IObject object : objects) {
-            final String objectName = object.getClass().getName() + '[' + object.getId().getValue() + ']';
-            final String query = "SELECT details.owner.id FROM " + object.getClass().getSuperclass().getSimpleName() +
-                    " WHERE id = " + object.getId().getValue();
-            final List<List<RType>> results = iQuery.projection(query, null);
-            final long actualOwnerId = ((RLong) results.get(0).get(0)).getValue();
-            Assert.assertEquals(actualOwnerId, expectedOwner.userId, objectName);
-        }
-    }
-
-    /**
      * Test a specific case of using {@link Chown2} with owner's shared annotations in a private group.
      * @param isDataOwner if the user submitting the {@link Chown2} request owns the data in the group
      * @param isAdmin if the user submitting the {@link Chown2} request is a member of the system group
@@ -343,13 +291,13 @@ public class PermissionsTest extends AbstractServerTest {
         testImages.add(otherImage.getId().getValue());
         for (final IObject annotation : annotationsDoublyLinked) {
             if (annotation instanceof TagAnnotation) {
-                final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
+                final ImageAnnotationLink link = (ImageAnnotationLink) linkParentToChild(otherImage, (TagAnnotation) annotation);
                 tagLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
             } else if (annotation instanceof FileAnnotation) {
-                final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (FileAnnotation) annotation);
+                final ImageAnnotationLink link = (ImageAnnotationLink) linkParentToChild(otherImage, (FileAnnotation) annotation);
                 fileAnnLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
             } else if (annotation instanceof MapAnnotation) {
-                final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (MapAnnotation) annotation);
+                final ImageAnnotationLink link = (ImageAnnotationLink) linkParentToChild(otherImage, (MapAnnotation) annotation);
                 mapAnnLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
             }
         }
@@ -487,6 +435,7 @@ public class PermissionsTest extends AbstractServerTest {
      * @param isRecipientInGroup if the user receiving data by means of the {@link Chown2} request is a member of the data's group
      * @param isExpectSuccessOneTargetUser if the one-user chown is expected to succeed
      * @param isExpectSuccessTwoTargetUsers if the two-users chown is expected to succeed
+     * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testChownAllBelongingToUser.pptx">graphical explanation</a>
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown targetUser test cases")
@@ -693,9 +642,9 @@ public class PermissionsTest extends AbstractServerTest {
         if (users1CanAnnotateOthers) {
             for (final IObject annotation : annotationsOthersForTripleLinking1) {
                 if (!(annotation instanceof Roi || annotation instanceof Thumbnail || annotation instanceof RectangleI)) {
-                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image1, (Annotation) annotation);
+                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) linkParentToChild(image1, (Annotation) annotation);
                     linksOwnToOthersAnnOwnImage1.add((ImageAnnotationLink) linkOwnImage.proxy());
-                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage1, (Annotation) annotation);
+                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) linkParentToChild(otherImage1, (Annotation) annotation);
                     linksOwnToOthersAnnOthersImage1.add((ImageAnnotationLink) linkOtherImage.proxy());
                 }
             }
@@ -705,9 +654,9 @@ public class PermissionsTest extends AbstractServerTest {
         if (users2CanAnnotateOthers) {
             for (final IObject annotation : annotationsOthersForTripleLinking2) {
                 if (!(annotation instanceof Roi || annotation instanceof Thumbnail || annotation instanceof RectangleI)) {
-                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image2, (Annotation) annotation);
+                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) linkParentToChild(image2, (Annotation) annotation);
                     linksOwnToOthersAnnOwnImage2.add((ImageAnnotationLink) linkOwnImage.proxy());
-                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage2, (Annotation) annotation);
+                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) linkParentToChild(otherImage2, (Annotation) annotation);
                     linksOwnToOthersAnnOthersImage2.add((ImageAnnotationLink) linkOtherImage.proxy());
                 }
             }
@@ -725,9 +674,9 @@ public class PermissionsTest extends AbstractServerTest {
         if (users1CanAnnotateOthers) {
             for (final IObject annotation : annotationsOwnForTripleLinking1) {
                 if (!(annotation instanceof Roi || annotation instanceof Thumbnail || annotation instanceof RectangleI)) {
-                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage1, (Annotation) annotation);
+                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) linkParentToChild(otherImage1, (Annotation) annotation);
                     linksOthersToOwnAnnOthersImage1.add((ImageAnnotationLink) linkOtherImage.proxy());
-                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image1, (Annotation) annotation);
+                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) linkParentToChild(image1, (Annotation) annotation);
                     linksOthersToOwnAnnOwnImage1.add((ImageAnnotationLink) linkOwnImage.proxy());
                 }
             }
@@ -736,9 +685,9 @@ public class PermissionsTest extends AbstractServerTest {
         if (users2CanAnnotateOthers) {
             for (final IObject annotation : annotationsOwnForTripleLinking2) {
                 if (!(annotation instanceof Roi || annotation instanceof Thumbnail || annotation instanceof RectangleI)) {
-                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) annotateImage(otherImage2, (Annotation) annotation);
+                    final ImageAnnotationLink linkOtherImage = (ImageAnnotationLink) linkParentToChild(otherImage2, (Annotation) annotation);
                     linksOthersToOwnAnnOthersImage2.add((ImageAnnotationLink) linkOtherImage.proxy());
-                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) annotateImage(image2, (Annotation) annotation);
+                    final ImageAnnotationLink linkOwnImage = (ImageAnnotationLink) linkParentToChild(image2, (Annotation) annotation);
                     linksOthersToOwnAnnOwnImage2.add((ImageAnnotationLink) linkOwnImage.proxy());
                 }
             }
@@ -1265,10 +1214,7 @@ public class PermissionsTest extends AbstractServerTest {
         init(linkOwner);
         final IObject link;
         if (isInDataset) {
-            final DatasetImageLink linkDI = new DatasetImageLinkI();
-            linkDI.setParent((Dataset) container);
-            linkDI.setChild(image);
-            link = iUpdate.saveAndReturnObject(linkDI);
+            link = linkParentToChild((Dataset) container, image);
         } else {
             final FolderImageLink linkFI = new FolderImageLinkI();
             linkFI.setParent((Folder) container);
@@ -1346,10 +1292,7 @@ public class PermissionsTest extends AbstractServerTest {
         init(linkOwner);
         final IObject link;
         if (isInDataset) {
-            final DatasetImageLink linkDI = new DatasetImageLinkI();
-            linkDI.setParent((Dataset) container);
-            linkDI.setChild(image);
-            link = iUpdate.saveAndReturnObject(linkDI);
+            link = linkParentToChild((Dataset) container, image);
         } else {
             final FolderImageLink linkFI = new FolderImageLinkI();
             linkFI.setParent((Folder) container);
@@ -1618,10 +1561,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         final List<DatasetImageLink> links = new ArrayList<DatasetImageLink>(images.size());
         for (final IObject image : images) {
-            DatasetImageLink link = new DatasetImageLinkI();
-            link.setParent(dataset);
-            link.setChild((Image) image.proxy());
-            links.add((DatasetImageLink) iUpdate.saveAndReturnObject(link).proxy());
+            links.add(linkParentToChild(dataset, (Image) image));
         }
 
         /* check that the objects' ownership is all as expected */
@@ -1712,5 +1652,38 @@ public class PermissionsTest extends AbstractServerTest {
         }
 
         return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * Test that {@link omero.model.Permissions#canChown()} respects {@code allTargets} as passed to
+     * {@link omero.cmd.graphs.GraphRequestFactory#GraphRequestFactory(ome.security.ACLVoter, ome.system.Roles,
+     *  ome.services.graphs.GraphPathBean, ome.security.basic.LightAdminPrivileges, ome.services.delete.Deletion,
+     *  Map, Map, List, Set)}.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testAdminChownObjectPermissions() throws Exception {
+        logRootIntoGroup(newUserAndGroup("rw----"));
+
+        final Instrument instrument = (Instrument) iUpdate.saveAndReturnObject(mmFactory.createInstrument());
+        Assert.assertTrue(instrument.getDetails().getPermissions().canChown());
+
+        final Microscope microscope = instrument.getMicroscope();
+        Assert.assertFalse(microscope.getDetails().getPermissions().canChown());
+
+        Image image = mmFactory.simpleImage();
+        image.setInstrument((Instrument) instrument.proxy());
+        image = (Image) iUpdate.saveAndReturnObject(image);
+        testImages.add(image.getId().getValue());
+        Assert.assertTrue(image.getDetails().getPermissions().canChown());
+
+        final Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
+        Assert.assertTrue(folder.getDetails().getPermissions().canChown());
+
+        FolderImageLink link = new FolderImageLinkI();
+        link.setParent((Folder) folder.proxy());
+        link.setChild((Image) image.proxy());
+        link = (FolderImageLink) iUpdate.saveAndReturnObject(link);
+        Assert.assertTrue(link.getDetails().getPermissions().canChown());
     }
 }

@@ -1,6 +1,94 @@
 OMERO version history
 =====================
 
+5.4.0-m3 (August 2017)
+----------------------
+
+Developer preview release. Intended *only as a developer preview* for updating
+code before the full public release of 5.4.0. **Use at your own risk.**
+
+Changes include:
+
+- improved display of plate in OMERO.web
+- various improvements in integration tests
+- fixed import related bugs in OMERO.insight
+- fixed synchronization of controls enabling copy/paste of
+  rendering settings in OMERO.web
+- fixed projection of images
+- removed Scipy dependency
+
+This release also upgrades the version of Bio-Formats which OMERO uses to 5.6.0-m1
+
+5.4.0-m2 (July 2017)
+--------------------
+
+Developer preview release. Intended *only as a developer preview* for updating
+code before the full public release of 5.4.0. **Use at your own risk.**
+
+Changes include:
+
+- fixed OMERO.server permissions bug with restricted administrators
+- adjusted OMERO.blitz API to allow some query results to be cached
+- improve OMERO.web experience and fixed bugs for restricted administrators
+- improve OMERO.cli:
+  - fixed admin plugin so "cleanse" can handle larger directories
+  - have chgrp plugin check administrator Chgrp restriction
+  - added to chown plugin ability to target all of given users' data
+  - adjusted handling of standard input
+- various improvements in integration tests
+
+
+5.4.0-m1 (July 2017)
+--------------------
+
+Developer preview release. Intended *only as a developer preview* for updating
+code before the full public release of 5.4.0. **Use at your own risk.**
+
+Changes include:
+
+- added support for new security privileges to allow users to perform some
+  admin tasks without having admin privileges e.g. import for others
+- added specific installation instructions for Debian 9
+
+
+This release also upgrades the version of Bio-Formats which OMERO uses to
+`5.5.3 <https://www.openmicroscopy.org/2017/07/05/bio-formats-5-5-3.html>`_.
+
+
+
+5.3.3 (June 2017)
+-----------------
+
+This is a bug-fix release.
+
+Improvements include:
+
+- support for two new lookup tables from `Janelia <https://www.janelia.org/>`_
+- fixed loading of Well in right-panel when browsing Well under Tag tree or from search results
+- fixed rotation of labels in figure scripts
+
+Sysadmin changes include:
+
+- clarified the upgrade of the "Open With" option
+- allowed installation of OMERO.web with ice 3.5
+- fixed recursive loading of feedback in OMERO.web
+- provided patch for OMERO.server installation on OS using OpenSSL 1.1.0 e.g. Debian 9
+  see :doc:`/sysadmins/troubleshooting`
+
+
+Developer updates include:
+
+- added an example of how to retrieve shapes from a ROI using batch querying for scalability
+- improved logging of errors during deletion
+- added new methods to Java Gateway
+- improved login options in Java Gateway
+- specified an image's dataset in its URL to give more context to OMERO.web apps 
+
+
+This release also upgrades the version of Bio-Formats which OMERO uses to
+`5.5.2 <ttps://www.openmicroscopy.org/2017/06/15/bio-formats-5-5-2.html>`_.
+
+
 5.3.2 (May 2017)
 ----------------
 
@@ -13,7 +101,9 @@ Improvements include:
 - textual annotations without a namespace can now be added at import using the CLI
 - improved thumbnails retrieval in OMERO.web
 - added "Open With" option to the right-hand panel in OMERO.web
-- group owners are now prevented from annotating other people's data in OMERO.web
+- private group owners are now not offered the ability to annotate other
+  people's data in OMERO.web UI, an action which was not permitted by the
+  server anyway
 - preview of wells now available in the right-hand panel
 
 Sysadmin changes include:
@@ -30,7 +120,7 @@ Developer updates include:
 - added ROIs support to the Web API
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
-`5.5.0 <https://www.openmicroscopy.org/site/support/bio-formats5.5/about/whats-new.html>`_.
+`5.5.0 <http://www.openmicroscopy.org/2017/05/08/bio-formats-5-5-0.html>`_.
 
 
 5.3.1 (April 2017)
@@ -48,7 +138,7 @@ Improvements include:
 - added support for large image export as jpeg/png from OMERO.insight
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
-`5.4.1 <https://www.openmicroscopy.org/site/support/bio-formats5.4/about/whats-new.html>`_.
+`5.4.1 <http://www.openmicroscopy.org/2017/04/13/bio-formats-5-4-1.html>`_.
 
 5.3.0 (March 2017)
 ------------------
@@ -143,7 +233,7 @@ This is a release aimed at system administrators or developers wanting to
 build OMERO with Ice 3.6.3.
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
-`5.1.10 <https://www.openmicroscopy.org/site/support/bio-formats5.1/about/whats-new.html>`_.
+`5.1.10 <http://www.openmicroscopy.org/2016/05/09/bio-formats-5-1-10.html>`_.
 
 All scripts handling Regions of Interest (ROIs) now support ROI not linked to
 any plane as defined by the OME Model.
@@ -228,7 +318,7 @@ System administrator updates include:
    existing servers and adding it to the documentation as soon as we can)
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
-5.1.9. `See whats-new for more information <https://www.openmicroscopy.org/site/support/bio-formats5.1/about/whats-new.html>`_.
+5.1.9. `See whats-new for more information <http://www.openmicroscopy.org/2016/04/18/bio-formats-5-1-9.html>`_.
 
 5.2.2 (February 2016)
 ---------------------
@@ -273,7 +363,7 @@ Note that the OMERO Virtual Appliance has been discontinued and will not be
 updated for version 5.2.2 or any later releases.
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
-5.1.8. `See whats-new for more information <https://www.openmicroscopy.org/site/support/bio-formats5.1/about/whats-new.html>`_.
+5.1.8. `See whats-new for more information <http://www.openmicroscopy.org/2016/02/15/bio-formats-5-1-8.html>`_.
 
 5.2.1 (December 2015)
 ---------------------

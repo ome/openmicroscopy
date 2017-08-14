@@ -61,7 +61,10 @@ Check User Form
     Page Should Contain Input Field         Email           email
     Page Should Contain Input Field         Institution     institution
     
-    Page Should Contain Checkbox Field      Administrator   administrator
+    Page Should Contain Radio Button        xpath=//input[@type="radio" and @value="user"]
+    Page Should Contain Radio Button        xpath=//input[@type="radio" and @value="administrator"]
+    Page Should Contain Radio Button        xpath=//input[@type="radio" and @value="restricted_administrator"]
+    
     Page Should Contain Checkbox Field      Active          active          selected=${True}
     
     Page Should Contain Choice Field        Group           Type group names to add...
@@ -142,9 +145,8 @@ Check Admin Edit Self
     Go To                             ${USERS URL}
     Click Element                     xpath=//table[@id="experimenterTable"]/tbody/tr[descendant::td[contains(text(), '${ROOT FULL NAME}')]]//a[contains(@class, "btn_edit")] 
 
-    Wait Until Page Contains Element  id=id_administrator       ${WAIT}
-    Checkbox Should Be selected       id=id_administrator
-    Element Should Be Disabled        id=id_administrator
+    Wait Until Page Contains Element  xpath=//input[@type="radio" and @value="administrator"]       ${WAIT}
+    Radio Button Should Be Set To     role  administrator
     
     Click Element                     xpath=//div[@id='id_other_groups_chosen']/ul[@class='chosen-choices']
     Page Should Contain Element       xpath=//div[@id='id_other_groups_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']

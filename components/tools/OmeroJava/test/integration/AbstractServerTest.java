@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
@@ -29,6 +30,7 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.SimpleBackOff;
 import ome.services.blitz.repo.path.FsFile;
+import ome.system.Login;
 import omero.ApiUsageException;
 import omero.RLong;
 import omero.RType;
@@ -53,6 +55,7 @@ import omero.cmd.State;
 import omero.cmd.Status;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
+import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.ChannelBinding;
@@ -61,6 +64,8 @@ import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetAnnotationLinkI;
+import omero.model.DatasetImageLink;
+import omero.model.DatasetImageLinkI;
 import omero.model.Detector;
 import omero.model.DetectorAnnotationLink;
 import omero.model.DetectorAnnotationLinkI;
@@ -104,6 +109,8 @@ import omero.model.PlateAnnotationLinkI;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectAnnotationLinkI;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
 import omero.model.Screen;
@@ -120,14 +127,19 @@ import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+import omero.sys.Roles;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+
+import Ice.ImplicitContext;
 
 /**
  * Base test for integration tests.
@@ -145,17 +157,11 @@ public class AbstractServerTest extends AbstractTest {
     /** Performs the move as group owner. */
     public static final int ADMIN = 102;
 
-    /** Identifies the <code>system</code> group. */
-    public String SYSTEM_GROUP = "system";
-
-    /** Identifies the <code>user</code> group. */
-    public String USER_GROUP = "user";
-
-    /** Identifies the <code>guest</code> group. */
-    public String GUEST_GROUP = "guest";
-
     /** Scaling factor used for CmdCallbackI loop timings. */
     protected long scalingFactor;
+
+    /** All groups context to use in cases where errors due to group restriction are to be avoided. */
+    protected static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
     /** The client object, this is the entry point to the Server. */
     protected omero.client client;
@@ -180,7 +186,10 @@ public class AbstractServerTest extends AbstractTest {
 
     /** Helper reference to the <code>IPixels</code> service. */
     protected IPixelsPrx iPix;
-    
+
+    /** Helper reference to the server's critical roles. */
+    protected Roles roles;
+
     /** Reference to the importer store. */
     protected OMEROMetadataStoreClient importer;
 
@@ -203,6 +212,16 @@ public class AbstractServerTest extends AbstractTest {
      * @see #newUserInGroup(ExperimenterGroup)
      */
     private final Set<omero.client> clients = new HashSet<omero.client>();
+
+    protected AbstractServerTest() {
+        final ome.system.Roles defaultRoles = new ome.system.Roles();
+        roles = new Roles(
+                defaultRoles.getRootId(), defaultRoles.getRootName(),
+                defaultRoles.getSystemGroupId(), defaultRoles.getSystemGroupName(),
+                defaultRoles.getUserGroupId(), defaultRoles.getUserGroupName(),
+                defaultRoles.getGuestId(), defaultRoles.getGuestName(),
+                defaultRoles.getGuestGroupId(), defaultRoles.getGuestGroupName());
+    }
 
     /**
      * Sole location where {@link omero.client#client()} or any other
@@ -276,6 +295,175 @@ public class AbstractServerTest extends AbstractTest {
                 c.__del__();
             }
         }
+    }
+
+    /**
+     * Cast the map of strings (e.g. {@link #ALL_GROUPS_CONTEXT})
+     * into implicit context, which asks for {@code <String, String>}.
+     * @param implicitContext the implicit context to be changed
+     * @param newContext the map of strings (e.g. {@link #ALL_GROUPS_CONTEXT})
+     */
+    protected void mergeIntoContext(ImplicitContext implicitContext, Map<String, String> newContext) {
+        for (final Entry<String, String> entry : newContext.entrySet()) {
+            implicitContext.put(entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
+     * An enumeration of properties for which IObjects can be examined.
+     * Used in {@link AbstractServerTest.verifyObjectProperty}.
+     * @author pwalczysko@dundee.ac.uk
+     */
+    private enum DetailsProperty {
+        GROUP("group"),
+        OWNER("owner");
+
+        private final String name;
+
+        DetailsProperty(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return this.name;
+        }
+    }
+
+    /**
+     * Add the given annotation to the given image.
+     * @param image an image
+     * @param annotation an annotation
+     * @return the new loaded link from the image to the annotation
+     * @throws ServerError an error possibly occurring during saving of the link
+     */
+    protected ImageAnnotationLink linkParentToChild(Image image, Annotation annotation) throws ServerError {
+        if (image.isLoaded()) {
+            image = (Image) image.proxy();
+        }
+        if (annotation.isLoaded() && annotation.getId() != null) {
+            annotation = (Annotation) annotation.proxy();
+        }
+
+        final ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.setParent(image);
+        link.setChild(annotation);
+        return (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+    }
+
+    /**
+     * Create a link between a Project and a Dataset.
+     * @param project an OMERO Project
+     * @param dataset an OMERO Dataset
+     * @return the created link
+     * @throws ServerError an error possibly occurring during saving of the link
+     */
+    protected ProjectDatasetLink linkParentToChild(Project project, Dataset dataset) throws ServerError {
+        if (project.isLoaded() && project.getId() != null) {
+            project = (Project) project.proxy();
+        }
+        if (dataset.isLoaded() && dataset.getId() != null) {
+            dataset = (Dataset) dataset.proxy();
+        }
+
+        final ProjectDatasetLink link = new ProjectDatasetLinkI();
+        link.setParent(project);
+        link.setChild(dataset);
+        return (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
+    }
+
+    /**
+     * Create a link between a Dataset and an Image.
+     * @param dataset an OMERO Dataset
+     * @param image an OMERO Image
+     * @return the created link
+     * @throws ServerError an error possibly occurring during saving of the link
+     */
+    protected DatasetImageLink linkParentToChild(Dataset dataset, Image image) throws ServerError {
+        if (dataset.isLoaded() && dataset.getId() != null) {
+            dataset = (Dataset) dataset.proxy();
+        }
+        if (image.isLoaded() && image.getId() != null) {
+            image = (Image) image.proxy();
+        }
+
+        final DatasetImageLink link = new DatasetImageLinkI();
+        link.setParent(dataset);
+        link.setChild(image);
+        return (DatasetImageLink) iUpdate.saveAndReturnObject(link);
+    }
+
+    /**
+     * Assert that the given object is in the given group.
+     * @param object a model object
+     * @param group an ExperimenterGroup
+     * @throws ServerError unexpected
+     */
+    protected void assertInGroup(IObject object, ExperimenterGroup group) throws ServerError {
+        assertInGroup(Collections.singleton(object), group.getId().getValue());
+    }
+
+    /**
+     * Assert that the given object is in the given group.
+     * @param object a model object
+     * @param expectedGroupId a group Id
+     * @throws ServerError unexpected
+     */
+    protected void assertInGroup(IObject object, long expectedGroupId) throws ServerError {
+        assertInGroup(Collections.singleton(object), expectedGroupId);
+    }
+
+    /**
+     * Assert that the given objects are in the given group.
+     * @param objects some model objects
+     * @param expectedGroupId a group Id
+     * @throws ServerError unexpected
+     */
+    protected void assertInGroup(Collection<? extends IObject> objects, long expectedGroupId) throws ServerError {
+        verifyObjectProperty(objects, expectedGroupId, DetailsProperty.GROUP);
+    }
+
+    /**
+     * Assert that certain objects either belong to a certain group
+     * or have a certain owner.
+     * @param testedObjects some model objects to test for properties
+     * @param id expected id of the property object (of GROUP or OWNER)
+     * @param property property to examine the testedObjects for (can be GROUP or OWNER)
+     * @throws ServerError if query fails
+     */
+    protected void verifyObjectProperty(Collection<? extends IObject> testedObjects, long id, DetailsProperty property) throws ServerError {
+        if (testedObjects.isEmpty()) {
+            throw new IllegalArgumentException("must assert about some objects");
+        }
+        for (final IObject testedObject : testedObjects) {
+            final String testedObjectName = testedObject.getClass().getName() + '[' + testedObject.getId().getValue() + ']';
+            final String query = "SELECT details." + property + ".id FROM " + testedObject.getClass().getSuperclass().getSimpleName() +
+                    " WHERE id = :id";
+            final Parameters params = new ParametersI().addId(testedObject.getId());
+            final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
+            final long actualId = ((RLong) results.get(0).get(0)).getValue();
+            Assert.assertEquals(actualId, id, testedObjectName);
+        }
+    }
+
+    /**
+     * Assert that the given object is owned by the given owner.
+     * @param object a model object
+     * @param expectedOwner a user's event context
+     * @throws ServerError unexpected
+     */
+    protected void assertOwnedBy(IObject object, EventContext expectedOwner) throws ServerError {
+        assertOwnedBy(Collections.singleton(object), expectedOwner);
+    }
+
+    /**
+     * Assert that the given objects are owned by the given owner.
+     * @param objects some model objects
+     * @param expectedOwner a user's event context
+     * @throws ServerError unexpected
+     */
+    protected void assertOwnedBy(Collection<? extends IObject> objects, EventContext expectedOwner) throws ServerError {
+        verifyObjectProperty(objects, expectedOwner.userId, DetailsProperty.OWNER);
     }
 
     /**
@@ -569,7 +757,7 @@ public class AbstractServerTest extends AbstractTest {
     protected long newUserInGroupWithPassword(Experimenter experimenter,
             List<ExperimenterGroup> groups, String password) throws Exception {
         IAdminPrx rootAdmin = root.getSession().getAdminService();
-        ExperimenterGroup userGroup = rootAdmin.lookupGroup(USER_GROUP);
+        ExperimenterGroup userGroup = rootAdmin.lookupGroup(roles.userGroupName);
         return rootAdmin.createExperimenterWithPassword(experimenter,
                 omero.rtypes.rstring(password), userGroup, groups);
     }
@@ -746,6 +934,7 @@ public class AbstractServerTest extends AbstractTest {
         iUpdate = factory.getUpdateService();
         iAdmin = factory.getAdminService();
         iPix = factory.getPixelsService();
+        roles = iAdmin.getSecurityRoles();
         mmFactory = new ModelMockFactory(factory.getTypesService());
 
         importer = new OMEROMetadataStoreClient();
@@ -2084,5 +2273,58 @@ public class AbstractServerTest extends AbstractTest {
             case ADMIN:
                 logRootIntoGroup();
         }
+    }
+
+    /**
+     * Convenient helper function for providing Boolean arguments to TestNG tests.
+     * @param argCount how many arguments the test takes
+     * @return every combination of argument values
+     */
+    private static Boolean[][] provideEveryBooleanCombination(int argCount) {
+        // TODO: Once we use Guava 19 we can use Collections.nCopies and Lists.cartesianProduct instead of this manual approach.
+        if (argCount < 1) {
+            throw new IllegalArgumentException("argument count must be strictly positive");
+        }
+        final Boolean[][] testArguments = new Boolean[1 << argCount][];
+        int testNum = 0;
+        testArguments[testNum] = new Boolean[argCount];
+        Arrays.fill(testArguments[testNum], false);
+        while (++testNum < testArguments.length) {
+            testArguments[testNum] = Arrays.copyOf(testArguments[testNum - 1], argCount);
+            int argNum = argCount - 1;
+            while (true) {
+                if (testArguments[testNum][argNum]) {
+                    testArguments[testNum][argNum--] = false;
+                } else {
+                    testArguments[testNum][argNum] = true;
+                    break;
+                }
+            }
+        }
+        return testArguments;
+    }
+
+    /**
+     * @return all four combinations of Boolean argument values
+     */
+    @DataProvider(name = "test cases using two Boolean arguments")
+    public Object[][] provideTwoBooleanArguments() {
+        return provideEveryBooleanCombination(2);
+    }
+
+    /**
+     * @return all eight combinations of Boolean argument values
+     */
+    @DataProvider(name = "test cases using three Boolean arguments")
+    public Object[][] provideThreeBooleanArguments() {
+        return provideEveryBooleanCombination(3);
+    }
+
+    /**
+     * @return all sixteen combinations of Boolean argument values
+     */
+    @DataProvider(name = "test cases using four Boolean arguments")
+    public Object[][] provideFourBooleanArguments() {
+        return provideEveryBooleanCombination(4);
     }
 }

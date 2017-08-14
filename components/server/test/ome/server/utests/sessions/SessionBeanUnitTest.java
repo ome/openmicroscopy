@@ -1,12 +1,11 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.utests.sessions;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -16,10 +15,12 @@ import java.util.concurrent.TimeoutException;
 
 import ome.conditions.AuthenticationException;
 import ome.conditions.SessionException;
+import ome.model.enums.AdminPrivilege;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.security.basic.CurrentDetails;
+import ome.security.basic.LightAdminPrivileges;
 import ome.services.sessions.SessionBean;
 import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.SessionManager;
@@ -55,7 +56,7 @@ public class SessionBeanUnitTest extends MockObjectTestCase {
         exMock = mock(Executor.class);
         ex = (Executor) exMock.proxy();
 
-        bean = new SessionBean(mgr, ex, new CurrentDetails());
+        bean = new SessionBean(mgr, ex, new CurrentDetails(), new LightAdminPrivileges(new Roles()));
         session = new Session();
         session.setId(1L);
         session.setUuid("uuid");
@@ -99,7 +100,7 @@ public class SessionBeanUnitTest extends MockObjectTestCase {
     public void testProperIsAdminImplementation() throws Exception {
         List<Long> leaderOfGroupsIds = Arrays.asList(1L);
         List<Long> memberOfGroupsIds = Arrays.asList(0L, 1L);
-        SessionContextImpl sessionContext = new SessionContextImpl(session,
+        SessionContextImpl sessionContext = new SessionContextImpl(session, Collections.<AdminPrivilege>emptySet(),
                 leaderOfGroupsIds, memberOfGroupsIds, Arrays.asList("user"),
                 null, new Roles(), null);
         assertTrue(sessionContext.isCurrentUserAdmin());

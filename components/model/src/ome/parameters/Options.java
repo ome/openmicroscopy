@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -20,21 +18,25 @@ public class Options {
     public boolean acquisitionData;
     public boolean leaves;
     public boolean orphan;
+    public boolean cacheable;
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("O[");
         if (acquisitionData) {
-            sb.append("A");
+            sb.append('A');
         }
         if (leaves) {
-            sb.append("L");
+            sb.append('L');
         }
         if (orphan) {
-            sb.append("O");
+            sb.append('O');
         }
-        sb.append("]");
+        if (cacheable) {
+            sb.append('C');
+        }
+        sb.append(']');
         return sb.toString();
     }
 }

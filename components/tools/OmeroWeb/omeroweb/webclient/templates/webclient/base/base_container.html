@@ -166,6 +166,7 @@
         WEBCLIENT.active_group_id = {{ active_group.id }};
         WEBCLIENT.USER = {'id': {{ ome.user.id }} };
         WEBCLIENT.active_user_id = {{ ome.user_id }};
+        WEBCLIENT.eventContext = {{ ome.eventContext|json_dumps|safe }};
 
         WEBCLIENT.URLS = {};
         WEBCLIENT.URLS.webindex = "{% url 'webindex' %}";
@@ -207,6 +208,10 @@
             var PAGE_SIZE = {{ page_size }};
         {% endif %}
 
+        WEBCLIENT.HAS_RDEF = false;
+        $.getJSON("{% url 'webgateway.views.get_image_rdef_json' %}", function(data){
+            WEBCLIENT.HAS_RDEF = !!(data && data.rdef);
+        });
 
         // ** "Open With" config used by E.g. ome.tree.js **
         // Loaded scripts can call OME.setOpenWithEnabledHandler and/or

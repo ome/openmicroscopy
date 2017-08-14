@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -327,17 +327,17 @@ public class FigureParam
 		this.name = name;
 		Color c;
 		mergeChannels = new LinkedHashMap<Integer, Integer>(channels.size());
-		int value;
 		Entry<Integer, Color> entry;
 		Iterator<Entry<Integer, Color>> i = channels.entrySet().iterator();
 		while (i.hasNext()) {
 			entry = i.next();
 			c = entry.getValue();
-			value = ((c.getAlpha() & 0xFF) << 24) |
-            	((c.getRed() & 0xFF) << 16) |
-            ((c.getGreen() & 0xFF) << 8) |
-            ((c.getBlue() & 0xFF) << 0);
-			mergeChannels.put(entry.getKey(), value);
+			int rgba = 0;
+			rgba |= (c.getRed() & 255) << 24;
+			rgba |= (c.getGreen() & 255) << 16;
+			rgba |= (c.getBlue() & 255) << 8;
+			rgba |= (c.getAlpha() & 255);
+			mergeChannels.put(entry.getKey(), rgba);
 		}
 	}
 	

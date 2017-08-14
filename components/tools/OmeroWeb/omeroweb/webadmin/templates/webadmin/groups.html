@@ -75,7 +75,13 @@
         </span>
     </form>
 
-	<div class="btn blue"><a href="{% url 'wamanagegroupid' "new" %}"><span>{% trans "Add new Group" %}</span></a></div>
+    {% if can_modify_group %}
+        <div class="btn blue">
+            <a href="{% url 'wamanagegroupid' "new" %}">
+                <span>{% trans "Add new Group" %}</span>
+            </a>
+        </div>
+    {% endif %}
 
 </div>
 

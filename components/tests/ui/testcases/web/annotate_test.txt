@@ -287,7 +287,7 @@ Test Search Results File Annotations
 
     Input Text  id=id_search_query              ${fileNameTwo}
     Submit Form
-    Location Should Be                          ${SEARCH URL}
+    Location Should Be                          ${SEARCH URL}?search_query=${fileNameTwo}
 
     Wait Until Page Contains Element            xpath=//img[contains(@alt, 'plate')]
     Click Element                               xpath=//img[contains(@alt, 'plate')]

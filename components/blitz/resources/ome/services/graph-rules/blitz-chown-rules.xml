@@ -2,7 +2,7 @@
 
 <!--
 #
-# Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2015-2017 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -96,7 +96,7 @@
         <bean parent="graphPolicyRule" p:matches="Instrument[I].lightSource = LS:[E]" p:changes="LS:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Instrument[I].microscope = M:[E]" p:changes="M:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Instrument[I].objective = O:[E]" p:changes="O:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Instrument[I].otf = OTF:[E]" p:changes="OTF:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Instrument[I].otf = OTFn:[E]" p:changes="OTFn:[I]"/>
 
         <!-- Continue instrument give deeper into subgraph. -->
 
@@ -207,19 +207,6 @@
         <bean parent="graphPolicyRule" p:matches="LP:LightPath[E]{o}" p:changes="LP:[I]"/>
         <bean parent="graphPolicyRule" p:matches="LP:LightPath[E]{a}" p:error="may not give some but not all of {LP}'s filters"/>
 
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:FilterSetEmissionFilterLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:FilterSetExcitationFilterLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:LightPathEmissionFilterLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[!O]" p:changes="L:[-]"/>
-
-        <!-- Ensure that rules with multiple matches may apply for settings. -->
-
-        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[!O]" p:changes="S:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="S:LightSettings[!O]" p:changes="S:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[!O]" p:changes="S:[-]"/>
-
         <!-- ANNOTATIONS -->
 
         <!--
@@ -237,9 +224,13 @@
              they are owned by the object's owner.
           -->
 
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[DI], L.child = A:FileAnnotation[E]{i}/d, X =/o A"
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[I], L.child = A:FileAnnotation[E]{i}/g, X =/o A"
                                        p:changes="A:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[DI], L.child = A:TagAnnotation[E]{i}/d, X =/o A"
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[I], L.child = A:TagAnnotation[E]{i}/g, X =/o A"
+                                       p:changes="A:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[D], L.child = A:FileAnnotation[E]{i}/d, X =/o A"
+                                       p:changes="A:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink.parent = X:[D], L.child = A:TagAnnotation[E]{i}/d, X =/o A"
                                        p:changes="A:{r}"/>
 
         <!-- If an annotated object is deleted or given then consider its list, map, or XML annotations for deletion or giving. -->
@@ -301,10 +292,6 @@
                                        p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].parent = [I];perms=??-???, L.child = [E]{!r}"
                                        p:changes="L:[D]/n"/>
-
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[!O]" p:changes="L:[-]"/>
 
         <!-- CONTAINERS -->
 
@@ -406,13 +393,6 @@
         <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].parent = [E];perms=???a??, L.child = [I]"
                                        p:changes="L:[D]/n"/>
 
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[!O]" p:changes="L:[-]"/>
-
         <!-- CORE -->
 
         <!-- Give pixels link to archived files if both pixels and files are to be given. -->
@@ -502,10 +482,6 @@
 
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{o}/o" p:changes="I:[I]"/>
 
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap[!O]" p:changes="L:[-]"/>
-
         <!-- DISPLAY -->
 
         <!-- Give rendering settings only in a private group. -->
@@ -591,10 +567,6 @@
         <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[E].parent = J:[I], L.child = OF:[E]"
                                        p:error="may not give {J} while {OF} remains"/>
 
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[!O]" p:changes="L:[-]"/>
-
         <!-- META -->
 
         <!-- If an object is deleted or given then also delete or give its external info regardless of permissions. -->
@@ -610,7 +582,6 @@
         <bean parent="graphPolicyRule" p:matches="Image[I].rois =/o ROI:[E];perms=???r??" p:changes="ROI:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:[E]" p:changes="S:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Shape[I].transform = T:[E]" p:changes="T:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels =/o P:[E]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[I].pixels =/o P:[E], P.image = I:[E]" p:changes="I:[I]"/>
 
         <!-- Cannot split affine transforms. -->
@@ -655,14 +626,14 @@
         <!-- Give a reagent only if also giving screens and wells that use it. -->
 
         <bean parent="graphPolicyRule" p:matches="Screen[I].reagents = R:[E]{i}" p:changes="R:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="Screen[E]{ia}.reagents = R:[E]{r}" p:changes="R:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:WellReagentLink.parent = [I], L.child = R:[E]{i}" p:changes="R:{r}"/>
         <bean parent="graphPolicyRule" p:matches="WellReagentLink[I].child = R:[E]{i}" p:changes="R:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Screen[E]{ia}.reagents = R:[E]{r}" p:changes="R:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[E].parent = [E]{ia}, L.child = R:[E]{r}" p:changes="R:{a}"/>
         <bean parent="graphPolicyRule" p:matches="R:Reagent[E]{o}" p:changes="R:[I]"/>
         <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[E].child = [I]" p:changes="L:[I]"/>
         <bean parent="graphPolicyRule" p:matches="S:Screen[E].reagents = R:[I]" p:error="may not give {R} without {S}"/>
-        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[!D].parent = W:[E];perms=??-???, L.child = R:[I]"
+        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[EI].parent = W:[E];perms=??-???, L.child = R:[I]"
                                        p:error="may not give {R} without {W}"/>
 
         <!-- Cannot give screen in a private group if it uses a differently owned reagent. -->
@@ -672,20 +643,32 @@
 
         <!-- If a screen is given then also give the plate if it is used in no other screen. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = [I], L.child = P:[E]{i}/o" p:changes="P:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = S:[I], L.child = P:[E]{i}, S =/o P"
+                                       p:changes="P:{r}"/>
         <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E]{ia}, L.child = P:[E]{r}" p:changes="P:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="P:Plate[E]{o}" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = S:[I];perms=???-??, L.child = P:[E]{r}, S =/!o P"
+                                       p:changes="P:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink.parent = S:[I];perms=???a??, L.child = P:[E]{r}, S =/!o P"
+                                       p:changes="P:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="P:Plate[E]{o}/o" p:changes="P:[I]"/>
 
         <!-- If a screen and plate are given for both sides of a link then give the link unless owned by a third party. -->
 
         <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[ED].parent =/o [I], L.child = [I]" p:changes="L:[I]"/>
         <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[ED].parent = [I], L.child =/o [I]" p:changes="L:[I]"/>
 
-        <!-- If a screen or plate are given then delete their remaining links regardless of permissions in a private group. -->
+        <!--
+             If a screen or plate is given then delete any remaining cross-owner links regardless of permissions outside
+             read-write groups.
+          -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [I];perms=??-???, L.child = [E]{ia}"
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [I];perms=???-??, L.child = [E]{ia}"
                                        p:changes="L:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E];perms=??-???, L.child = [I]"
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E];perms=???-??, L.child = [I]"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [I];perms=???a??, L.child = [E]{ia}"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].parent = [E];perms=???a??, L.child = [I]"
                                        p:changes="L:[D]/n"/>
 
         <!-- Give contained objects: wells and runs of plates, fields of wells and runs. -->
@@ -694,11 +677,6 @@
         <bean parent="graphPolicyRule" p:matches="Plate[I].plateAcquisitions = R:[E]" p:changes="R:[I]"/>
         <bean parent="graphPolicyRule" p:matches="PlateAcquisition[I].wellSample = WS:[E]" p:changes="WS:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Well[I].wellSamples = WS:[E]" p:changes="WS:[I]"/>
-
-        <!-- Ensure that rules with multiple matches may apply for links. -->
-
-        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[!O]" p:changes="L:[-]"/>
 
         <!-- STATS -->
 

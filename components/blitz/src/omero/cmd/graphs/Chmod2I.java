@@ -46,7 +46,7 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
-import ome.security.SystemTypes;
+import ome.security.basic.LightAdminPrivileges;
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
@@ -66,7 +66,7 @@ import omero.cmd.IRequest;
 import omero.cmd.Response;
 
 /**
- * Request to change the permissions on model objects, replacing version 5.0's {@code ChmodI}.
+ * Request to change the permissions on model objects.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.2
  */
@@ -80,7 +80,6 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
 
     private final ACLVoter aclVoter;
     private final Roles securityRoles;
-    private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final Deletion deletionInstance;
     private final Set<Class<? extends IObject>> targetClasses;
@@ -106,20 +105,19 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
      * Construct a new <q>chmod</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
      * @param securityRoles the security roles
-     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
+     * @param adminPrivileges the light administrator privileges helper
      * @param deletionInstance a deletion instance for deleting files
      * @param targetClasses legal target object classes for chmod
      * @param graphPolicy the graph policy to apply for chmod
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param applicationContext the OMERO application context from Spring
      */
-    public Chmod2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
+    public Chmod2I(ACLVoter aclVoter, Roles securityRoles, GraphPathBean graphPathBean, LightAdminPrivileges adminPrivileges,
             Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
             SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
         this.aclVoter = aclVoter;
         this.securityRoles = securityRoles;
-        this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.deletionInstance = deletionInstance;
         this.targetClasses = targetClasses;
@@ -168,7 +166,7 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
         graphPolicy.registerPredicate(new GroupPredicate(securityRoles));
 
         graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
-                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(), dryRun);
+                aclVoter, graphPathBean, unnullable, new InternalProcessor(), dryRun);
 
         graphPolicyAdjusters = null;
     }
@@ -188,7 +186,7 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
                 final boolean isToGroupReadable = newPermissions.isGranted(Permissions.Role.GROUP, Permissions.Right.READ);
                 if (isToGroupReadable) {
                     /* can always skip graph policy rules as is not downgrade to private */
-                    plan = graphTraversal.planOperation(helper.getSession(), targetMultimap, true, false);
+                    plan = graphTraversal.planOperation(targetMultimap, true, false);
                 } else {
                     /* determine which target groups are not already private ... */
                     final String groupClass = ExperimenterGroup.class.getName();
@@ -212,7 +210,7 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
                         }
                     }
                     /* ... and apply the graph policy rules to those */
-                    plan = graphTraversal.planOperation(helper.getSession(), targetsNotPrivate, true, true);
+                    plan = graphTraversal.planOperation(targetsNotPrivate, true, true);
                 }
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:

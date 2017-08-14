@@ -2,7 +2,7 @@
 
 <!--
 #
-# Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2015-2017 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -131,8 +131,8 @@
         <bean parent="graphPolicyRule" p:matches="Instrument[I].detector = D:[E]" p:changes="D:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Instrument[I].lightSource = LS:[E]" p:changes="LS:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Instrument[I].objective = O:[E]" p:changes="O:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="OTF[E].filterSet = [I]" p:changes="OTF:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="OTF[E].objective = [I]" p:changes="OTF:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="OTFn:OTF[E].filterSet = [I]" p:changes="OTFn:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="OTFn:OTF[E].objective = [I]" p:changes="OTFn:[I]"/>
 
         <bean parent="graphPolicyRule" p:matches="L:FilterSetEmissionFilterLink[E].parent = [I], L.child = [I]"
                                        p:changes="L:[I]"/>
@@ -142,11 +142,6 @@
                                        p:changes="L:[I]"/>
         <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[E].parent = [I], L.child = [I]"
                                        p:changes="L:[I]"/>
-
-        <bean parent="graphPolicyRule" p:matches="L:FilterSetEmissionFilterLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:FilterSetExcitationFilterLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:LightPathEmissionFilterLink[!O]" p:changes="L:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[!O]" p:changes="L:[-]"/>
 
         <!-- ANNOTATIONS -->
 
@@ -220,7 +215,6 @@
         <bean parent="graphPolicyRule" p:matches="I:Image[E].rois = [I]" p:changes="I:[I]"/>
         <bean parent="graphPolicyRule" p:matches="ROI:Roi[E].shapes = [I]" p:changes="ROI:[I]"/>
         <bean parent="graphPolicyRule" p:matches="S:Shape[E].transform = [I]" p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Image[I].pixels = P:[EI]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="M:Mask[E].pixels = P:[EI], P.image = [I]" p:changes="M:[I]"/>
 
         <!-- SCREEN -->

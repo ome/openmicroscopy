@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -163,21 +163,20 @@ public class ROIReader {
         int[] yc = shape.getPolygon().ypoints;
         String type = shape.getTypeAsString();
         List<Point2D.Double> points = new LinkedList<Point2D.Double>();
-        List<Integer> masks = new ArrayList<Integer>();
         for (int i = 0; i < xc.length; i++) {
             points.add(new Point2D.Double(xc[i], yc[i]));
         }
         ShapeData data;
         if (type.matches("Polyline") || type.matches("Freeline") ||
                 type.matches("Angle")) {
-            data = new PolylineData(points, points, points, masks);
+            data = new PolylineData(points);
             ((PolylineData) data).setText(shape.getName());
         } else if (type.matches("Polygon") || type.matches("Freehand") ||
                 type.matches("Traced")){
-            data = new PolygonData(points, points, points, masks);
+            data = new PolygonData(points);
             ((PolygonData) data).setText(shape.getName());
         } else {
-            data = new PolygonData(points, points, points, masks);
+            data = new PolygonData(points);
             ((PolygonData) data).setText(shape.getName());
         }
         if (formatShape(shape, data)){

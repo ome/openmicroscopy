@@ -51,9 +51,6 @@ import org.testng.annotations.Test;
  *
  * @see ticket:2874
  * @see 4.4.0
- * @see https
- *      ://www.openmicroscopy.org/site/community/minutes/minigroup/2012.03.12
- *      -groupperms
  */
 @Test(groups = { "integration", "doall" })
 public class DoAllITest extends AbstractGraphTest {

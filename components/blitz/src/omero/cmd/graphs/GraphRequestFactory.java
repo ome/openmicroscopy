@@ -35,8 +35,9 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
 
 import ome.model.IObject;
+import ome.model.internal.Permissions;
 import ome.security.ACLVoter;
-import ome.security.SystemTypes;
+import ome.security.basic.LightAdminPrivileges;
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
@@ -58,8 +59,8 @@ public class GraphRequestFactory implements ApplicationContextAware {
 
     private final ACLVoter aclVoter;
     private final Roles securityRoles;
-    private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
+    private final LightAdminPrivileges adminPrivileges;
     private final Deletion deletionInstance;
     private final ImmutableSetMultimap<Class<? extends Request>, Class<? extends IObject>> allTargets;
     private final ImmutableMap<Class<? extends Request>, GraphPolicy> graphPolicies;
@@ -72,8 +73,8 @@ public class GraphRequestFactory implements ApplicationContextAware {
      * Construct a new graph request factory.
      * @param aclVoter ACL voter for permissions checking
      * @param securityRoles the security roles
-     * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
+     * @param adminPrivileges the light administrator privileges helper
      * @param deletionInstance a deletion instance for deleting files
      * @param allTargets legal target object classes for all request classes that use the graph path bean
      * @param allRules rules for all request classes that use the graph path bean
@@ -81,14 +82,14 @@ public class GraphRequestFactory implements ApplicationContextAware {
      * @param defaultExcludeNs the default value for an unset excludeNs field
      * @throws GraphException if the graph path rules could not be parsed
      */
-    public GraphRequestFactory(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
-            Deletion deletionInstance, Map<Class<? extends Request>, List<String>> allTargets,
+    public GraphRequestFactory(ACLVoter aclVoter, Roles securityRoles, GraphPathBean graphPathBean,
+            LightAdminPrivileges adminPrivileges, Deletion deletionInstance, Map<Class<? extends Request>, List<String>> allTargets,
             Map<Class<? extends Request>, List<GraphPolicyRule>> allRules, List<String> unnullable, Set<String> defaultExcludeNs)
                     throws GraphException {
         this.aclVoter = aclVoter;
         this.securityRoles = securityRoles;
-        this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
+        this.adminPrivileges = adminPrivileges;
         this.deletionInstance = deletionInstance;
 
         final ImmutableSetMultimap.Builder<Class<? extends Request>, Class<? extends IObject>> allTargetsBuilder =
@@ -100,6 +101,12 @@ public class GraphRequestFactory implements ApplicationContextAware {
             }
         }
         this.allTargets = allTargetsBuilder.build();
+
+        aclVoter.setPermittedClasses(ImmutableMap.of(
+                Permissions.CHGRPRESTRICTION,
+                (Set<Class<? extends IObject>>) this.allTargets.get(Chgrp2I.class),
+                Permissions.CHOWNRESTRICTION,
+                (Set<Class<? extends IObject>>) this.allTargets.get(Chown2I.class)));
 
         final ImmutableMap.Builder<Class<? extends Request>, GraphPolicy> graphPoliciesBuilder = ImmutableMap.builder();
         for (final Map.Entry<Class<? extends Request>, List<GraphPolicyRule>> rules : allRules.entrySet()) {
@@ -165,16 +172,16 @@ public class GraphRequestFactory implements ApplicationContextAware {
                     graphPolicy = graphPolicy.getCleanInstance();
                 }
                 if (GraphModify2.class.isAssignableFrom(requestClass)) {
-                    final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
-                            GraphPathBean.class, Deletion.class, Set.class, GraphPolicy.class, SetMultimap.class,
-                            ApplicationContext.class);
-                    request = constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, deletionInstance,
+                    final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class,
+                            GraphPathBean.class, LightAdminPrivileges.class, Deletion.class, Set.class, GraphPolicy.class,
+                            SetMultimap.class, ApplicationContext.class);
+                    request = constructor.newInstance(aclVoter, securityRoles, graphPathBean, adminPrivileges, deletionInstance,
                             targetClasses, graphPolicy, unnullable, applicationContext);
                 } else {
-                    final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
-                            GraphPathBean.class, Set.class, GraphPolicy.class);
-                    request = constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, targetClasses,
-                            graphPolicy);
+                    final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class,
+                            GraphPathBean.class, LightAdminPrivileges.class, Set.class, GraphPolicy.class);
+                    request = constructor.newInstance(aclVoter, securityRoles, graphPathBean, adminPrivileges,
+                            targetClasses, graphPolicy);
                 }
             }
         } catch (IllegalArgumentException | ReflectiveOperationException | SecurityException e) {

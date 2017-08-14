@@ -13,11 +13,18 @@
    defined here will be added to the Cli class for later use.
 """
 
-from omero.cli import CLI, GraphControl, ExperimenterArg
+from omero.cli import CLI, GraphControl, ExperimenterArg, GraphArg
 import sys
 
 HELP = """Transfer ownership of data between users. Entire graphs of data,
 based on the ID of the top-node, are transferred.
+
+There are two ways to use this command, either specify the data to be
+transferred or specify users from whom the ownership of all their data
+will be transferred. These two usage ways can be combined.
+
+The usage with specified users has to be considered as advanced usage
+and might potentially be slow.
 
 This command can only be used by OMERO administrators and group owners.
 
@@ -48,6 +55,13 @@ Examples:
     # Transfer all images contained under two projects
     omero chown 101 Project/Image:201,202
 
+    # Advanced usage & potentially slow:
+    # Transfer all data owned by user 111 and one image to user 4
+    omero chown 4 Experimenter:111 Image:17
+    # Advanced usage & potentially slow:
+    # Transfer all data of users 1, 3 and 7 to user 10
+    omero chown 10 Experimenter:1,3,7
+
     # Do a dry run of a transfer reporting the outcome
     # if the transfer had been run
     omero chown 101 Dataset:53 --dry-run
@@ -68,7 +82,37 @@ class ChownControl(GraphControl):
     def _pre_objects(self, parser):
         parser.add_argument(
             "usr", nargs="?", type=ExperimenterArg,
-            help="""user to transfer ownership of objects to""")
+            help="user to transfer ownership of specified objects and/or all"
+                 " objects owned by specified user(s) to")
+
+    def _objects(self, parser):
+        parser.add_argument(
+            "obj", nargs="*", type=GraphArg(self.cmd_type()),
+            help="objects to be processed in the form <Class>:<Id>"
+                 " and/or user(s) to transfer all data from in the"
+                 " form Experimenter:<Id>")
+
+    def populate_target_users(self, command_check):
+        """
+        Move the Experimenters whose data are to be
+        transferred from targetObjects
+        to targetUsers. The rewritten _check_command
+        method checked these Experimenters when they were
+        in targetObjects, but Chown2 needs them in targetUsers.
+        """
+        try:
+            command_check.targetUsers = command_check.targetObjects.pop(
+                "Experimenter")
+        except KeyError:
+            pass
+
+    def _check_command(self, command_check):
+        """
+        Rewrite higher class method to have command check
+        as well as the possibility to adjust the command.
+        """
+        super(ChownControl, self)._check_command(command_check)
+        self.populate_target_users(command_check)
 
     def _process_request(self, req, args, client):
         # Retrieve user id

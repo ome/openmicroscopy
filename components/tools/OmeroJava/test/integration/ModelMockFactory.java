@@ -1,5 +1,5 @@
 /*
- *  Copyright 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright 2006-2017 University of Dundee. All rights reserved.
  *  Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -311,16 +311,24 @@ public class ModelMockFactory {
     }
 
     /**
-     * Creates and returns an original file object.
-     *
-     * @return See above.
-     * @throws Exception
-     *             Thrown if an error occurred.
+     * Create a FileAnnotation with Original File.
+     * @return the FileAnnotation
      */
-    public OriginalFile createOriginalFile() throws Exception {
+    protected FileAnnotation createFileAnnotation() {
+        FileAnnotation fileAnnotation = new FileAnnotationI();
+        OriginalFile originalFile = createOriginalFile();
+        fileAnnotation.setFile(originalFile);
+        return fileAnnotation;
+    }
+
+    /**
+     * Creates and returns an original file object.
+     * @return See above.
+     */
+    public OriginalFile createOriginalFile() {
         OriginalFileI oFile = new OriginalFileI();
-        oFile.setName(omero.rtypes.rstring("of1"));
-        oFile.setPath(omero.rtypes.rstring("/omero"));
+        oFile.setName(omero.rtypes.rstring("Test_" + UUID.randomUUID().toString()));
+        oFile.setPath(omero.rtypes.rstring("/omero/"));
         oFile.setSize(omero.rtypes.rlong(0));
         oFile.setHash(omero.rtypes.rstring("pending"));
         oFile.setMimetype(omero.rtypes.rstring("application/octet-stream"));

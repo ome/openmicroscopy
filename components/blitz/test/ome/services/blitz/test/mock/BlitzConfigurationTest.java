@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -31,7 +29,7 @@ public class BlitzConfigurationTest extends MockObjectTestCase {
     
     @BeforeClass(groups = "integration")
     public void setup() throws Exception {
-        ring = new Ring("uuid", null, null);
+        ring = new Ring("uuid", null, null, null);
     }
     
     @Test(groups = "integration")

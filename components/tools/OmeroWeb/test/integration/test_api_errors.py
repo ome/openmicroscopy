@@ -19,8 +19,7 @@
 
 """Tests querying & editing Projects with webgateway json api."""
 
-from omeroweb.testlib import IWebTest, _csrf_post_json, _csrf_put_json, \
-    _get_response_json
+from omeroweb.testlib import IWebTest, post_json, put_json, get_json
 from django.core.urlresolvers import reverse
 from omeroweb.api import api_settings
 import pytest
@@ -62,8 +61,7 @@ class TestErrors(IWebTest):
         payload = {'Name': 'test_save_post_no_id',
                    '@type': '%s#Project' % OME_SCHEMA_URL,
                    '@id': 1}
-        rsp = _csrf_post_json(django_client, save_url, payload,
-                              status_code=400)
+        rsp = post_json(django_client, save_url, payload, status_code=400)
         assert (rsp['message'] ==
                 "Object has '@id' attribute. Use PUT to update objects")
 
@@ -74,8 +72,7 @@ class TestErrors(IWebTest):
         save_url = reverse('api_save', kwargs={'api_version': version})
         payload = {'Name': 'test_save_put_id',
                    '@type': '%s#Project' % OME_SCHEMA_URL}
-        rsp = _csrf_put_json(django_client, save_url, payload,
-                             status_code=400)
+        rsp = put_json(django_client, save_url, payload, status_code=400)
         assert (rsp['message'] ==
                 "No '@id' attribute. Use POST to create new objects")
 
@@ -87,8 +84,7 @@ class TestErrors(IWebTest):
         objType = 'SomeInvalidSchema#Project'
         payload = {'Name': 'test_marshal_type',
                    '@type': objType}
-        rsp = _csrf_post_json(django_client, save_url, payload,
-                              status_code=400)
+        rsp = post_json(django_client, save_url, payload, status_code=400)
         assert (rsp['message'] ==
                 'No decoder found for type: %s' % objType)
 
@@ -98,8 +94,7 @@ class TestErrors(IWebTest):
         version = api_settings.API_VERSIONS[-1]
         projects_url = reverse('api_projects', kwargs={'api_version': version})
         payload = {'limit': 'foo'}
-        rsp = _get_response_json(django_client, projects_url, payload,
-                                 status_code=400)
+        rsp = get_json(django_client, projects_url, payload, status_code=400)
         assert (rsp['message'] ==
                 "invalid literal for int() with base 10: 'foo'")
 
@@ -111,8 +106,7 @@ class TestErrors(IWebTest):
         payload = {'Name': 'test_marshal_validation',
                    '@type': OME_SCHEMA_URL + '#Project',
                    'omero:details': {'@type': 'foo'}}
-        rsp = _csrf_post_json(django_client, save_url, payload,
-                              status_code=400)
+        rsp = post_json(django_client, save_url, payload, status_code=400)
         assert (rsp['message'] ==
                 "Error in decode of json data by omero_marshal")
         assert rsp['stacktrace'].startswith(
@@ -131,14 +125,13 @@ class TestErrors(IWebTest):
         payload = {'Name': 'test_security_violation',
                    '@type': OME_SCHEMA_URL + '#Project'}
         save_url_grp_A = save_url + '?group=' + str(group_A_id)
-        rsp = _csrf_post_json(django_client, save_url_grp_A, payload,
-                              status_code=201)
+        rsp = post_json(django_client, save_url_grp_A, payload,
+                        status_code=201)
         pr_json = rsp['data']
         projectId = pr_json['@id']
         # Try to save again into group B
         save_url_grp_B = save_url + '?group=' + str(group_B_id)
-        rsp = _csrf_put_json(django_client, save_url_grp_B, pr_json,
-                             status_code=403)
+        rsp = put_json(django_client, save_url_grp_B, pr_json, status_code=403)
         assert 'message' in rsp
         msg = "Cannot read ome.model.containers.Project:Id_%s" % projectId
         assert msg in rsp['message']
@@ -166,8 +159,7 @@ class TestErrors(IWebTest):
         payload = {'Name': 'test_validation',
                    '@type': OME_SCHEMA_URL + '#Project',
                    'Annotations': [tag_json, tag_json]}
-        rsp = _csrf_post_json(django_client, save_url, payload,
-                              status_code=400)
+        rsp = post_json(django_client, save_url, payload, status_code=400)
         # NB: message contains whole stack trace
         assert "ValidationException" in rsp['message']
         assert rsp['stacktrace'].startswith(

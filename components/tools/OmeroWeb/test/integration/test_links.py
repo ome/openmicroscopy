@@ -25,10 +25,8 @@ import omero
 
 from omero.rtypes import rstring
 from omeroweb.testlib import IWebTest
-from omeroweb.testlib import _csrf_post_response, _get_response
-from omeroweb.testlib import _csrf_delete_response
+from omeroweb.testlib import post_json, get_json, delete_json
 
-import json
 from time import sleep
 
 from django.core.urlresolvers import reverse
@@ -97,12 +95,12 @@ class TestLinks(IWebTest):
         data = {
             'project': {pid: {'dataset': dids}}
         }
-        rsp = _csrf_post_response_json(self.django_client, request_url, data)
+        rsp = post_json(self.django_client, request_url, data)
         assert rsp == {"success": True}
 
         # Check links
         request_url = reverse("api_datasets")
-        rsp = _get_response_json(self.django_client, request_url, {'id': pid})
+        rsp = get_json(self.django_client, request_url, {'id': pid})
         # Expect a single Dataset with correct id
         assert len(rsp['datasets']) == 2
         assert rsp['datasets'][0]['id'] == dids[0]
@@ -119,19 +117,17 @@ class TestLinks(IWebTest):
             'dataset': {dids[0]: {'image': [iids[0]]},
                         dids[1]: {'image': iids}}
         }
-        rsp = _csrf_post_response_json(self.django_client, request_url, data)
+        rsp = post_json(self.django_client, request_url, data)
         assert rsp == {"success": True}
 
         # Check links
         images_url = reverse("api_images")
         # First Dataset has single image
-        rsp = _get_response_json(self.django_client,
-                                 images_url, {'id': dids[0]})
+        rsp = get_json(self.django_client, images_url, {'id': dids[0]})
         assert len(rsp['images']) == 1
         assert rsp['images'][0]['id'] == iids[0]
         # Second Dataset has both images
-        rsp = _get_response_json(self.django_client,
-                                 images_url, {'id': dids[1]})
+        rsp = get_json(self.django_client, images_url, {'id': dids[1]})
         assert len(rsp['images']) == 2
         assert rsp['images'][0]['id'] == iids[0]
         assert rsp['images'][1]['id'] == iids[1]
@@ -141,11 +137,10 @@ class TestLinks(IWebTest):
         data = {
             'dataset': {dids[0]: {'image': iids}}
         }
-        rsp = _csrf_post_response_json(self.django_client, request_url, data)
+        rsp = post_json(self.django_client, request_url, data)
         assert rsp == {"success": True}
         # Check first Dataset now has both images
-        rsp = _get_response_json(self.django_client,
-                                 images_url, {'id': dids[0]})
+        rsp = get_json(self.django_client, images_url, {'id': dids[0]})
         assert len(rsp['images']) == 2
         assert rsp['images'][0]['id'] == iids[0]
         assert rsp['images'][1]['id'] == iids[1]
@@ -164,28 +159,23 @@ class TestLinks(IWebTest):
         data = {
             'tagset': {tagsetId: {'tag': [tagId]}}
         }
-        rsp = _csrf_post_response_json(self.django_client, links_url, data)
+        rsp = post_json(self.django_client, links_url, data)
         assert rsp == {"success": True}
 
         # Check that tag is listed under tagset...
         tags_url = reverse("api_tags_and_tagged")
-        r = _get_response_json(self.django_client, tags_url, {'id': tagsetId})
+        r = get_json(self.django_client, tags_url, {'id': tagsetId})
         assert len(r['tags']) == 1
         assert r['tags'][0]['id'] == tagId
 
         # Unlink first Tag from Tagset
         # data {} is same as for creating link above
-        response = _csrf_delete_response(self.django_client,
-                                         links_url,
-                                         json.dumps(data),
-                                         content_type="application/json")
-        response = json.loads(response.content)
+        response = delete_json(self.django_client, links_url, data)
         assert response["success"]
 
         # Since the Delete is ansync - need to check repeatedly for deletion
         for i in range(10):
-            rsp = _get_response_json(self.django_client,
-                                     tags_url, {'id': tagsetId})
+            rsp = get_json(self.django_client, tags_url, {'id': tagsetId})
             if len(rsp['tags']) == 0:
                 break
             sleep(0.5)
@@ -201,13 +191,12 @@ class TestLinks(IWebTest):
             'screen': {sids[0]: {'plate': pids},
                        sids[1]: {'plate': pids}}
         }
-        rsp = _csrf_post_response_json(self.django_client, request_url, data)
+        rsp = post_json(self.django_client, request_url, data)
         assert rsp == {"success": True}
 
         # Confirm that first Screen linked to 2 Plates
         plates_url = reverse("api_plates")
-        rsp = _get_response_json(self.django_client,
-                                 plates_url, {'id': sids[0]})
+        rsp = get_json(self.django_client, plates_url, {'id': sids[0]})
         assert len(rsp['plates']) == 2
 
         # Unlink first Plate from first Screen
@@ -215,12 +204,8 @@ class TestLinks(IWebTest):
         data = {
             'screen': {sids[0]: {'plate': pids[:1]}}
         }
-        response = _csrf_delete_response(self.django_client,
-                                         request_url,
-                                         json.dumps(data),
-                                         content_type="application/json")
+        response = delete_json(self.django_client, request_url, data)
         # Returns remaining link from 2nd Screen to first Plate
-        response = json.loads(response.content)
         assert response == {"success": True,
                             "screen": {str(sids[1]): {"plate": pids[:1]}}
                             }
@@ -229,8 +214,7 @@ class TestLinks(IWebTest):
         # by counting plates under screen...
         plates_url = reverse("api_plates")
         for i in range(10):
-            rsp = _get_response_json(self.django_client,
-                                     plates_url, {'id': sids[0]})
+            rsp = get_json(self.django_client, plates_url, {'id': sids[0]})
             if len(rsp['plates']) == 1:
                 break
             sleep(0.5)
@@ -238,17 +222,3 @@ class TestLinks(IWebTest):
         # Check that link has been deleted, leaving 2nd plate under 1st screen
         assert len(rsp['plates']) == 1
         assert rsp['plates'][0]['id'] == pids[1]
-
-
-def _get_response_json(django_client, request_url, query_string):
-    rsp = _get_response(django_client, request_url,
-                        query_string, status_code=200)
-    return json.loads(rsp.content)
-
-
-def _csrf_post_response_json(django_client, request_url, data):
-    rsp = _csrf_post_response(django_client,
-                              request_url,
-                              json.dumps(data),
-                              content_type="application/json")
-    return json.loads(rsp.content)

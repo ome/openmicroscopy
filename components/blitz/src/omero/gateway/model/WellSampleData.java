@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -117,20 +117,6 @@ public class WellSampleData extends DataObject {
     }	
 
     /**
-     * Returns the position X.
-     *
-     * @return See above.
-     * @deprecated Replaced by {@link #getPositionX(UnitsLength)}
-     */
-    @Deprecated
-    public double getPositionX()
-    {
-        Length value = asWellSample().getPosX();
-        if (value == null) return 0;
-        return value.getValue();
-    }
-
-    /**
      * Returns the position Y.
      *
      * @param unit
@@ -145,20 +131,6 @@ public class WellSampleData extends DataObject {
         if (value == null)
             return new LengthI(0, UnitsLength.REFERENCEFRAME);
         return unit == null ? value : new LengthI(value, unit);
-    }
-
-    /**
-     * Returns the position Y.
-     *
-     * @return See above.
-     * @deprecated Replaced by {@link #getPositionY(UnitsLength)}
-     */
-    @Deprecated
-    public double getPositionY()
-    {
-        Length value = asWellSample().getPosY();
-        if (value == null) return 0;
-        return value.getValue();
     }
 
     /**

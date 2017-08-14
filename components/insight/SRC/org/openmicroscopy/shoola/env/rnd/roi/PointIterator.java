@@ -21,7 +21,6 @@
 package org.openmicroscopy.shoola.env.rnd.roi;
 
 import java.awt.Point;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -60,10 +59,6 @@ import omero.gateway.model.PixelsData;
  */
 class PointIterator
 {
-
-    /** Gateway to the raw data of the pixels set bound to this iterator. */
-    private Gateway gw;
-
     /** The number of z-sections. */
     private int sizeZ;
 
@@ -79,7 +74,11 @@ class PointIterator
     /** The number of channels. */
     private int sizeC;
 
+    /** The PixelsData */
     private PixelsData pixels;
+    
+    /** Reference to the RawDataFacility */
+    private RawDataFacility rf;
     
     /** 
      * All currently registered {@link PointIteratorObserver}s.
@@ -189,18 +188,14 @@ class PointIterator
      * Creates a new instance to iterate over the pixels set accessible through
      * <code>source</code>.
      * 
-     * @param source Gateway to the raw data of the pixels set this iterator
+     * @param gw Gateway to the raw data of the pixels set this iterator
      *               will work on. Mustn't be <code>null</code>.
-     * @param sizeZ The number of z-sections.
-     * @param sizeT The number of timepoints.
-     * @param sizeC The number of channels.
-     * @param sizeX The number of pixels along the x-axis.
-     * @param sizeY The number of pixels along the y-axis.
+     * @param pixels The PixelsData
+     * @throws ExecutionException  If {@link RawDataFacility} can't be accessed
      */
-    PointIterator(Gateway gw, PixelsData pixels)
+    PointIterator(Gateway gw, PixelsData pixels) throws ExecutionException
     {
-        if (gw == null) throw new NullPointerException("No source.");
-        this.gw = gw;
+        if (gw == null) throw new NullPointerException("No Gateway.");
         this.pixels = pixels;
         this.sizeZ = pixels.getSizeZ();
         this.sizeC = pixels.getSizeC();
@@ -208,6 +203,7 @@ class PointIterator
         this.sizeX = pixels.getSizeX();
         this.sizeY = pixels.getSizeY();
         observers = new HashSet<PointIteratorObserver>();
+        rf = gw.getFacility(RawDataFacility.class);
     }
 
     /**
@@ -251,7 +247,7 @@ class PointIterator
      * @param shape The shape to analyze. Mustn't be <code>null</code>.
      * @param points The collection of points contained in the shape.
      * @param w The selected channel.
-     * @param close Pass <code></code>
+     * * @param close Pass <code>true</code> to close the RawDataFacility
      * @throws DataSourceException If an error occurs while retrieving plane
      *                             data from the pixels source.
      */
@@ -266,12 +262,12 @@ class PointIterator
         
         notifyIterationStart();
         
-        try (RawDataFacility rf = gw.getFacility(RawDataFacility.class)) {
+        try {
             int z = shape.getZ();
             int t = shape.getT();
             if (z >= 0 && z < sizeZ && t >= 0 && t < sizeT) {
                 notifyPlaneStart(z, w, t, points.size());
-                Plane2D data = rf.getPlane(ctx, pixels, z, t, w, close);
+                Plane2D data = rf.getPlane(ctx, pixels, z, t, w);
                 double value;
                 int length = 0;
                 int x1, x2;
@@ -289,33 +285,15 @@ class PointIterator
                 }
                 notifyPlaneEnd(z, w, t, length);
             }
-        } catch (ExecutionException e) {
+        } catch (Exception e) {
             throw new DataSourceException(e);
         } finally {  
+            if (close)
+                rf.close();
             //Give the observers a chance to clean up even when 
             //something goes wrong. 
             notifyIterationEnd();
         }
-    }
-    /**
-     * Iterates over the pixels contained in <code>roi</code>.
-     * The pixel values come from the pixels set that was bound to this
-     * iterator at creation time.
-     * All registered {@link PointIteratorObserver}s get notified of every
-     * iterated pixels value. 
-     * 
-     * @param ctx The security context.
-     * @param shape The shape to analyze. Mustn't be <code>null</code>.
-     * @param points The collection of points contained in the shape.
-     * @param w The selected channel.
-     * @throws DataSourceException If an error occurs while retrieving plane
-     *                             data from the pixels source.
-     */
-    public void iterate(SecurityContext ctx, ROIShape shape, List<Point> points,
-            int w)
-    throws DataSourceException
-    {
-        iterate(ctx, shape, points, w, true);
     }
 
 }

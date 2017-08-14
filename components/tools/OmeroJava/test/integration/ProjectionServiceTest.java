@@ -235,6 +235,19 @@ public class ProjectionServiceTest extends AbstractServerTest
     }
 
     /**
+     * Test the projection with a restricted but valid timepoint range.
+     *
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testTimepointIntervalNotFullRange() throws Exception {
+        Pixels pixels = importImage();
+        List<Integer> channels = Arrays.asList(0);
+        projectImage(pixels, 2, 4, 1, 3, 1,
+                ProjectionType.MAXIMUMINTENSITY, null, channels);
+    }
+    
+    /**
      * Test the projection with an invalid timepoint range.
      *
      * @throws Exception Thrown if an error occurred.
