@@ -40,6 +40,7 @@ import ome.security.policy.PolicyService;
 import ome.system.EventContext;
 import ome.system.Roles;
 import ome.tools.hibernate.HibernateUtils;
+import ome.util.PermDetails;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Session;
@@ -655,6 +656,12 @@ public class BasicACLVoter implements ACLVoter {
 
     public void postProcess(IObject object) {
         if (object.isLoaded()) {
+            if (object instanceof PermDetails) {
+                object = ((PermDetails) object).getInternalContext();
+                if (!object.isLoaded()) {
+                    return; // EARLY EXIT
+                }
+            }
             Details details = object.getDetails();
             // Sets context values.
             this.currentUser.applyContext(details,
