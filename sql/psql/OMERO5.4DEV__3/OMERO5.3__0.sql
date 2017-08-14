@@ -430,6 +430,35 @@ CREATE UNLOGGED TABLE _current_admin_privileges (
 
 CREATE INDEX i_current_admin_privileges_transactions ON _current_admin_privileges(transaction);
 
+-- ... up to patch 3:
+
+CREATE OR REPLACE FUNCTION ome_nextval(seq VARCHAR, increment int4) RETURNS INT8 AS '
+DECLARE
+      Lid  int4;
+      nv   int8;
+BEGIN
+      SELECT id INTO Lid FROM _lock_ids WHERE name = seq;
+      IF Lid IS NULL THEN
+          SELECT INTO Lid nextval(''_lock_seq'');
+          INSERT INTO _lock_ids (id, name) VALUES (Lid, seq);
+      END IF;
+
+      PERFORM pg_advisory_lock(1, Lid);
+
+      BEGIN
+          PERFORM nextval(seq) FROM generate_series(1, increment);
+          SELECT currval(seq) INTO nv;
+      EXCEPTION
+          WHEN OTHERS THEN
+              PERFORM pg_advisory_unlock(1, Lid);
+          RAISE;
+      END;
+
+      PERFORM pg_advisory_unlock(1, Lid);
+
+      RETURN nv;
+
+END;' LANGUAGE plpgsql;
 
 --
 -- FINISHED
