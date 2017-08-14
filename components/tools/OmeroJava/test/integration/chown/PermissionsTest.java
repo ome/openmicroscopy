@@ -20,7 +20,6 @@
 package integration.chown;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -57,7 +56,6 @@ import omero.model.FolderImageLinkI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
-import omero.model.ImageAnnotationLinkI;
 import omero.model.Instrument;
 import omero.model.MapAnnotation;
 import omero.model.MapAnnotationI;
