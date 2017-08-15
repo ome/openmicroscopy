@@ -2244,7 +2244,8 @@ class _BlitzGateway (object):
             uid = self.getUserId()
             if uid is not None:
                 self._user = self.getObject(
-                    "Experimenter", self._userid)
+                    "Experimenter", self._userid,
+                    opts={'load_groups': True})
         return self._user
 
     def getAdministrators(self):
