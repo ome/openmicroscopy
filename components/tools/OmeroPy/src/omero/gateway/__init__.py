@@ -2784,7 +2784,8 @@ class _BlitzGateway (object):
             self.getAdminService().getSecurityRoles().userGroupId]
         if len(self.getEventContext().memberOfGroups) > 0:
             for g in self.getObjects("ExperimenterGroup",
-                                     self.getEventContext().memberOfGroups):
+                                     self.getEventContext().memberOfGroups,
+                                     opts={'load_experimenters': True}):
                 if g.getId() not in system_groups:
                     yield g
 
@@ -5911,13 +5912,7 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         if opts is None:
             opts = {}
 
-        # NB: In order not to change API for OMERO 5.3.3 we default
-        # 'load_experimenters' to True if not specified.
-        # In OMERO 5.4 we should change this default to False
-        if opts.get('load_experimenters') is None:
-            load_experimenters = True
-        else:
-            load_experimenters = opts.get('load_experimenters')
+        load_experimenters = opts.get('load_experimenters')
         if load_experimenters:
             query += (" left outer join fetch obj.groupExperimenterMap as map "
                       "left outer join fetch map.child e")
