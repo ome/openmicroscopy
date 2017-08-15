@@ -1302,7 +1302,8 @@ def load_chgrp_groups(request, conn=None, **kwargs):
     # In case we were passed no objects or they weren't found
     if len(ownerIds) == 0:
         ownerIds = [conn.getUserId()]
-    for owner in conn.getObjects("Experimenter", ownerIds):
+    for owner in conn.getObjects("Experimenter", ownerIds,
+                                 opts={'load_groups': True}):
         # Each owner has a set of groups
         gids = []
         owners[owner.id] = owner.getFullName()

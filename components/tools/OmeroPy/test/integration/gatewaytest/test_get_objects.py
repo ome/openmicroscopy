@@ -371,10 +371,8 @@ class TestGetObject (object):
     def testListExperimentersAndGroups(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         # experimenters
-        # experimenters = list( gatewaywrapper.gateway.listExperimenters() ) #
-        # removed from blitz gateway
-        # all experimenters
-        exps = list(gatewaywrapper.gateway.getObjects("Experimenter"))
+        exps = gatewaywrapper.gateway.getObjects("Experimenter",
+                                                 opts={'load_groups': True})
 
         # self.assertEqual(len(exps), len(experimenters))  # check unordered
         # lists are the same length & ids
@@ -399,7 +397,8 @@ class TestGetObject (object):
         # groups
         # groups = list( gatewaywrapper.gateway.listGroups() )
         # now removed from blitz gateway.
-        gps = list(gatewaywrapper.gateway.getObjects("ExperimenterGroup"))
+        gps = gatewaywrapper.gateway.getObjects(
+                "ExperimenterGroup", opts={'load_experimenters': True})
         for grp in gps:
             grp.copyGroupExperimenterMap()
         # self.assertEqual(len(gps), len(groups))  # check unordered lists are
@@ -416,7 +415,8 @@ class TestGetObject (object):
 
         # check we can find some groups
         exp = gatewaywrapper.gateway.getObject(
-            "Experimenter", attributes={'omeName': gatewaywrapper.USER.name})
+            "Experimenter", attributes={'omeName': gatewaywrapper.USER.name},
+            opts={'load_groups': True})
         for groupExpMap in exp.copyGroupExperimenterMap():
             gName = groupExpMap.parent.name.val
             gId = groupExpMap.parent.id.val
@@ -433,7 +433,7 @@ class TestGetObject (object):
         findExp = gatewaywrapper.gateway.getObject(
             "Experimenter", attributes={'omeName': gatewaywrapper.USER.name})
         exp = gatewaywrapper.gateway.getObject(
-            "Experimenter", findExp.id)  # uses iQuery
+            "Experimenter", findExp.id, opts={'load_groups': True})
         assert exp.omeName == findExp.omeName
 
         # check groupExperimenterMap loaded for exp
@@ -445,7 +445,7 @@ class TestGetObject (object):
         #    assert findExp.id ==  groupExpMap.child.id.val
 
         groupGen = gatewaywrapper.gateway.getObjects(
-            "ExperimenterGroup", groupIds)
+            "ExperimenterGroup", groupIds, opts={'load_experimenters': True})
         # gGen = gatewaywrapper.gateway.getExperimenterGroups(groupIds)  #
         # removed from blitz gateway
         groups = list(groupGen)
@@ -753,7 +753,8 @@ class TestLeaderAndMemberOfGroup(object):
         grs = [g.id for g in gatewaywrapper.gateway.getGroupsLeaderOf()]
         assert len(grs) > 0
         exp = gatewaywrapper.gateway.getObject(
-            "Experimenter", attributes={'omeName': 'group_owner'})
+            "Experimenter", attributes={'omeName': 'group_owner'},
+            opts={'load_groups': True})
         assert exp.sizeOfGroupExperimenterMap() > 0
         filter_system_groups = [gatewaywrapper.gateway.getAdminService()
                                 .getSecurityRoles().userGroupId]
@@ -776,7 +777,8 @@ class TestLeaderAndMemberOfGroup(object):
         grs = [g.id for g in gatewaywrapper.gateway.getGroupsMemberOf()]
         assert len(grs) > 0
         exp = gatewaywrapper.gateway.getObject(
-            "Experimenter", attributes={'omeName': "group_member"})
+            "Experimenter", attributes={'omeName': "group_member"},
+            opts={'load_groups': True})
         assert exp.sizeOfGroupExperimenterMap() > 0
         filter_system_groups = [gatewaywrapper.gateway.getAdminService()
                                 .getSecurityRoles().userGroupId]
@@ -791,7 +793,8 @@ class TestLeaderAndMemberOfGroup(object):
         gatewaywrapper.doLogin(dbhelpers.USERS['group_owner'])
 
         expGr = gatewaywrapper.gateway.getObject(
-            "ExperimenterGroup", attributes={'name': 'ownership_test'})
+            "ExperimenterGroup", attributes={'name': 'ownership_test'},
+            opts={'load_experimenters': True})
 
         leaders, colleagues = expGr.groupSummary()
         assert len(leaders) == 1
@@ -808,7 +811,8 @@ class TestLeaderAndMemberOfGroup(object):
         gatewaywrapper.doLogin(dbhelpers.USERS['group_member'])
 
         expGr = gatewaywrapper.gateway.getObject(
-            "ExperimenterGroup", attributes={'name': 'ownership_test'})
+            "ExperimenterGroup", attributes={'name': 'ownership_test'},
+            opts={'load_experimenters': True})
 
         leaders, colleagues = expGr.groupSummary()
         assert len(leaders) == 1

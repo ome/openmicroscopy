@@ -1280,7 +1280,13 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         @rtype                  List of L{ExperimenterWrapper}
         """
 
-        experimenters = list(self.getObjects("Experimenter"))
+        # Make sure we've loaded experimenters
+        group = self.getObject("ExperimenterGroup", group.id,
+                                opts={'load_experimenters': True})
+
+        # TODO: Shouldn't have to load ALL Experimenters!
+        experimenters = list(self.getObjects("Experimenter",
+                                             opts={'load_groups': True}))
 
         new_membersIds = [nm.id for nm in new_members]
 

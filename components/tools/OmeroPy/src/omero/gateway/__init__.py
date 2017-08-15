@@ -1749,7 +1749,8 @@ class _BlitzGateway (object):
         if self.isAdmin():
             if group is None:
                 e = self.getObject(
-                    "Experimenter", attributes={'omeName': username})
+                    "Experimenter", attributes={'omeName': username},
+                    opts={'load_groups': True})
                 if e is None:
                     return
                 group = e._obj._groupExperimenterMapSeq[0].parent.name.val
@@ -2888,7 +2889,8 @@ class _BlitzGateway (object):
         """
 
         default = self.getObject(
-            "ExperimenterGroup", self.getEventContext().groupId)
+            "ExperimenterGroup", self.getEventContext().groupId,
+            opts={'load_experimenters': True})
         if not default.isPrivate() or self.isLeader():
             for d in default.copyGroupExperimenterMap():
                 if d is None:
