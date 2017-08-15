@@ -12,9 +12,8 @@ Unique name
     [Return]       ${name}_${unique}
 
 Log In As
-    [Arguments]                  ${username}    ${password}        ${server_id}     ${ssl}=${False}
+    [Arguments]                  ${username}    ${password}        ${server_id}
     Select From List By Value    id_server      ${server_id}
-    Run Keyword If               ${ssl}         Select Checkbox    id_ssl
     Input Text                   username       ${username}
     Input Text                   password       ${password}
     Click Button                 Login

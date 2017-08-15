@@ -18,7 +18,6 @@ Login Page
     
     Page Should Contain Image       xpath=//div[contains(@class, 'login-logos')]/img
     Page Should Contain Element     id_server
-    Page Should Contain Checkbox    id_ssl
     Page Should Contain Element     id_username
     Page Should Contain Element     id_password
     Page Should Contain Button      xpath=//input[@value='Login']
@@ -32,7 +31,7 @@ Valid Login
     
     Go To                   ${WEBADMIN WELCOME URL}
     Location Should Be      ${WEBADMIN LOGIN URL}           # redirect confirms logout
-    Log In As               ${ROOT USERNAME}                ${ROOT PASSWORD}    ${SERVER_ID}    ${True}
+    Log In As               ${ROOT USERNAME}                ${ROOT PASSWORD}    ${SERVER_ID}
     Page Should Be Open     ${USERS URL}                    OMERO Users
     Log Out
 

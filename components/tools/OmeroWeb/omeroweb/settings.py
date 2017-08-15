@@ -447,6 +447,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " delete stale data using the cache session store backend, see "
           ":djangodoc:`Django cached session documentation <topics/http/"
           "sessions/#using-cached-sessions>` for more details.")],
+    "omero.web.secure":
+        ["SECURE",
+         "false",
+         parse_boolean,
+         ("Force all backend OMERO.server connections to use SSL.")],
     "omero.web.session_cookie_age":
         ["SESSION_COOKIE_AGE",
          86400,
