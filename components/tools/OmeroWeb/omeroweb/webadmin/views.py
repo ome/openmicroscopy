@@ -401,15 +401,14 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     groups = list(conn.getObjects("ExperimenterGroup"))
     groups.sort(key=lambda x: x.getName().lower())
 
+    user_privileges = conn.get_privileges_for_form(
+        conn.getCurrentAdminPrivileges())
+    can_modify_user = 'ModifyUser' in user_privileges
+
     if action == 'new':
-        user_id = conn.getUserId()
-        user_privileges = conn.getCurrentAdminPrivileges()
-        # Only Full Admin can set 'Role' of new experimenter
-        user_full_admin = 'ReadSession' in user_privileges
-        can_modify_user = 'ModifyUser' in user_privileges
         form = ExperimenterForm(
-            can_edit_role=user_full_admin,
             can_modify_user=can_modify_user,
+            user_privileges=user_privileges,
             initial={'with_password': True,
                      'active': True,
                      'groups': otherGroupsInitialList(groups)})
@@ -431,7 +430,11 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             initial = {'with_password': True,
                        'my_groups': my_groups,
                        'groups': otherGroupsInitialList(groups)}
+            # This form may be returned to user if invalid
+            # Needs user_privileges & can_modify_user for this
             form = ExperimenterForm(
+                can_modify_user=can_modify_user,
+                user_privileges=user_privileges,
                 initial=initial, data=request.POST.copy(),
                 name_check=name_check, email_check=email_check)
             if form.is_valid():
@@ -454,31 +457,21 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 # if default group was not selected take first from the list.
                 if defaultGroup is None:
                     defaultGroup = otherGroups[0]
-                for g in groups:
-                    if long(defaultGroup) == g.id:
-                        dGroup = g
-                        break
 
-                listOfOtherGroups = set()
-                # rest of groups
-                for g in groups:
-                    for og in otherGroups:
-                        # remove defaultGroup from otherGroups if contains
-                        if long(og) == long(dGroup.id):
-                            pass
-                        elif long(og) == g.id:
-                            listOfOtherGroups.add(g)
-
-                expId = conn.createExperimenter(
+                privileges = conn.get_privileges_from_form(form)
+                if privileges is not None:
+                    # Only process privileges that we have permission to set
+                    privileges = [p for p in privileges
+                                  if p in conn.getCurrentAdminPrivileges()]
+                # Create a User, Restricted-Admin or Admin, based on privileges
+                conn.createExperimenter(
                     omename, firstName, lastName, email, admin, active,
-                    dGroup, listOfOtherGroups, password, middleName,
-                    institution)
-
-                # Update 'AdminPrivilege' config roles for user
-                conn.setConfigRoles(expId, form)
+                    defaultGroup, otherGroups, password,
+                    privileges, middleName, institution)
 
                 return HttpResponseRedirect(reverse("waexperimenters"))
-            context = {'form': form}
+            # Handle invalid form
+            context = {'form': form, 'can_modify_user': can_modify_user}
     elif action == 'edit':
         experimenter, defaultGroup, otherGroups, isLdapUser, hasAvatar = \
             prepare_experimenter(conn, eid)
@@ -501,29 +494,9 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             'groups': otherGroupsInitialList(groups)}
 
         # Load 'AdminPrivilege' roles for 'initial'
-        delete_perms = []
-        write_perms = []
-        script_perms = []
         privileges = conn.getAdminPrivileges(experimenter.id)
-        for privilege in privileges:
-            if privilege in ('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo'):
-                delete_perms.append(privilege)
-            elif privilege in ('WriteOwned', 'WriteFile', 'WriteManagedRepo'):
-                write_perms.append(privilege)
-            elif privilege in ('WriteScriptRepo', 'DeleteScriptRepo'):
-                script_perms.append(privilege)
-            else:
-                initial[privilege] = True
-        # if ALL the Delete/Write permissions are found, Delete/Write is True
-        if set(delete_perms) == \
-                set(('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo')):
-            initial['Delete'] = True
-        if set(write_perms) == \
-                set(('WriteOwned', 'WriteFile', 'WriteManagedRepo')):
-            initial['Write'] = True
-        if set(script_perms) == \
-                set(('WriteScriptRepo', 'DeleteScriptRepo')):
-            initial['Script'] = True
+        for p in conn.get_privileges_for_form(privileges):
+            initial[p] = True
 
         role = 'user'
         if experimenter.isAdmin():
@@ -535,17 +508,11 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
         root_id = [conn.getAdminService().getSecurityRoles().rootId]
         user_id = conn.getUserId()
-        user_privileges = conn.getCurrentAdminPrivileges()
         experimenter_root = long(eid) == root_id
         experimenter_me = long(eid) == user_id
-        user_full_admin = 'ReadSession' in user_privileges
-        can_modify_user = 'ModifyUser' in user_privileges
-        # Only Full Admin can edit 'Role' of experimenter
-        can_edit_role = user_full_admin and not (experimenter_me
-                                                 or experimenter_root)
         form = ExperimenterForm(
             can_modify_user=can_modify_user,
-            can_edit_role=can_edit_role,
+            user_privileges=user_privileges,
             experimenter_me=experimenter_me,
             experimenter_root=experimenter_root,
             initial=initial)
@@ -574,7 +541,9 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 request.POST.getlist('other_groups'))
             initial = {'my_groups': my_groups,
                        'groups': otherGroupsInitialList(groups)}
-            form = ExperimenterForm(initial=initial, data=request.POST.copy(),
+            form = ExperimenterForm(can_modify_user=can_modify_user,
+                                    user_privileges=user_privileges,
+                                    initial=initial, data=request.POST.copy(),
                                     name_check=name_check,
                                     email_check=email_check)
 
@@ -618,20 +587,27 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                             listOfOtherGroups.add(g)
 
                 # Update 'AdminPrivilege' config roles for user
-                # If role is empty, roles section of form is disabled - ignore
-                # since disabled privileges will not show up in POST data
-                if role != '':
-                    conn.setConfigRoles(long(eid), form)
+                privileges = conn.get_privileges_from_form(form)
+                if privileges is None:
+                    privileges = []
+                # Only process privileges that we have permission to set
+                to_add = []
+                to_remove = []
+                for p in conn.getCurrentAdminPrivileges():
+                    if p in privileges:
+                        to_add.append(p)
+                    else:
+                        to_remove.append(p)
+
+                conn.updateAdminPrivileges(experimenter.id, to_add, to_remove)
 
                 conn.updateExperimenter(
                     experimenter, omename, firstName, lastName, email, admin,
                     active, dGroup, listOfOtherGroups, middleName,
                     institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
-            context = {'form': form, 'eid': eid, 'ldapAuth': isLdapUser}
-    # elif action == "delete":
-    #    conn.deleteExperimenter()
-    #    return HttpResponseRedirect(reverse("waexperimenters"))
+            context = {'form': form, 'eid': eid, 'ldapAuth': isLdapUser,
+                       'can_modify_user': can_modify_user}
     else:
         return HttpResponseRedirect(reverse("waexperimenters"))
 

@@ -1080,7 +1080,8 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             rstring(str(old_password)), rstring(str(password)))
 
     def createExperimenter(self, omeName, firstName, lastName, email, isAdmin,
-                           isActive, defaultGroup, otherGroups, password,
+                           isActive, defaultGroupId, otherGroupIds, password,
+                           privileges=None,
                            middleName=None, institution=None):
         """
         Create and return a new user in the given groups with password.
@@ -1096,11 +1097,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         @type isAdmin Boolean
         @param isActive Active user (user can log in).
         @type isActive Boolean
-        @param defaultGroup Instance of ExperimenterGroup selected as a first
-                            active group.
-        @type defaultGroup ExperimenterGroupI
-        @param otherGroups List of ExperimenterGroup instances. Can be empty.
-        @type otherGroups L{ExperimenterGroupI}
+        @param defaultGroupId Default active group ID.
+        @type defaultGroupId ExperimenterGroupI
+        @param otherGroupIds List of Group IDs. Can be empty.
+        @type otherGroupIds L{ExperimenterGroupI}
         @param password Must pass validation in the security sub-system.
         @type password String
         @param middleName A middle name.
@@ -1122,26 +1122,47 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                                     rstring(str(institution)) or None)
         experimenter.ldap = rbool(False)
 
+        admin_serv = self.getAdminService()
         listOfGroups = list()
         # system group
         if isAdmin:
-            g = self.getObject("ExperimenterGroup",
-                               attributes={'name': 'system'})
-            listOfGroups.append(g._obj)
+            gid = admin_serv.getSecurityRoles().systemGroupId
+            listOfGroups.append(ExperimenterGroupI(gid, False))
 
         # user group
         if isActive:
-            g = self.getObject("ExperimenterGroup",
-                               attributes={'name': 'user'})
-            listOfGroups.append(g._obj)
+            gid = admin_serv.getSecurityRoles().userGroupId
+            listOfGroups.append(ExperimenterGroupI(gid, False))
 
-        for g in otherGroups:
-            listOfGroups.append(g._obj)
+        for i in otherGroupIds:
+            listOfGroups.append(ExperimenterGroupI(i, False))
 
-        admin_serv = self.getAdminService()
-        return admin_serv.createExperimenterWithPassword(
-            experimenter, rstring(str(password)), defaultGroup._obj,
-            listOfGroups)
+        defaultGroup = ExperimenterGroupI(defaultGroupId, False)
+
+        if privileges is not None:
+            if defaultGroupId not in otherGroupIds:
+                listOfGroups.append(ExperimenterGroupI(defaultGroupId, False))
+
+            admin_privileges = []
+            for p in privileges:
+                privilege = omero.model.AdminPrivilegeI()
+                privilege.setValue(rstring(p))
+                admin_privileges.append(privilege)
+            exp_id = admin_serv.createRestrictedSystemUserWithPassword(
+                experimenter, admin_privileges, rstring(password))
+            exp = ExperimenterI(exp_id, False)
+
+            if 'ModifyGroupMembership' in self.getCurrentAdminPrivileges():
+                admin_serv.addGroups(exp, listOfGroups)
+                admin_serv.setDefaultGroup(exp, defaultGroup)
+
+        else:
+            # This will handle empty listOfGroups
+            exp = admin_serv.createExperimenterWithPassword(
+                experimenter, rstring(password), defaultGroup,
+                listOfGroups)
+
+        return exp
 
     def updateExperimenter(self, experimenter, omeName, firstName, lastName,
                            email, isAdmin, isActive, defaultGroup,
@@ -1244,19 +1265,20 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         if len(rmGroups) > 0 and can_mod:
             admin_serv.removeGroups(up_exp, rmGroups)
 
-    def setConfigRoles(self, experimenter_id, experimenter_form):
+    def get_privileges_from_form(self, experimenter_form):
         """
-        Save 'AdminPrivilege' roles from Experimenter Form
+        Get 'AdminPrivilege' roles from Experimenter Form
+
+        Returns None if Role is User
         """
-        def createPrivilege(value):
-            privilege = omero.model.AdminPrivilegeI()
-            privilege.setValue(rstring(value))
-            return privilege
         privileges = []
+        role = experimenter_form.cleaned_data['role']
+        if role not in ('restricted_administrator', 'administrator'):
+            return None
         # If user is Admin, we give them ALL privileges!
-        if experimenter_form.cleaned_data['role'] == 'administrator':
+        if role == 'administrator':
             for p in self.getEnumerationEntries('AdminPrivilege'):
-                privileges.append(createPrivilege(p.getValue()))
+                privileges.append(p.getValue())
         else:
             # Otherwise, restrict to 'checked' privileges on form
             form_privileges = ['Chgrp',
@@ -1267,22 +1289,53 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                                'Sudo']
             for p in form_privileges:
                 if experimenter_form.cleaned_data[p]:
-                    privileges.append(createPrivilege(p))
+                    privileges.append(p)
             # 'Delete', 'Write' and 'Script' checkboxes update several roles
             if experimenter_form.cleaned_data['Delete']:
-                privileges.append(createPrivilege('DeleteFile'))
-                privileges.append(createPrivilege('DeleteManagedRepo'))
-                privileges.append(createPrivilege('DeleteOwned'))
+                privileges.append('DeleteFile')
+                privileges.append('DeleteManagedRepo')
+                privileges.append('DeleteOwned')
             if experimenter_form.cleaned_data['Write']:
-                privileges.append(createPrivilege('WriteFile'))
-                privileges.append(createPrivilege('WriteManagedRepo'))
-                privileges.append(createPrivilege('WriteOwned'))
+                privileges.append('WriteFile')
+                privileges.append('WriteManagedRepo')
+                privileges.append('WriteOwned')
             if experimenter_form.cleaned_data['Script']:
-                privileges.append(createPrivilege('WriteScriptRepo'))
-                privileges.append(createPrivilege('DeleteScriptRepo'))
-        # Save config...
-        self.getAdminService().setAdminPrivileges(
-            ExperimenterI(experimenter_id, False), privileges)
+                privileges.append('WriteScriptRepo')
+                privileges.append('DeleteScriptRepo')
+        return privileges
+
+    def get_privileges_for_form(self, privileges):
+        """
+        Maps the various server-side privileges for ExperimenterForm.
+
+        For example, 'Delete' privilege is True only if all of
+        'DeleteOwned', 'DeleteFile' and 'DeleteManagedRepo' are True
+        """
+        enabled = []
+        delete_perms = []
+        write_perms = []
+        script_perms = []
+
+        for privilege in privileges:
+            if privilege in ('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo'):
+                delete_perms.append(privilege)
+            elif privilege in ('WriteOwned', 'WriteFile', 'WriteManagedRepo'):
+                write_perms.append(privilege)
+            elif privilege in ('WriteScriptRepo', 'DeleteScriptRepo'):
+                script_perms.append(privilege)
+            else:
+                enabled.append(privilege)
+        # if ALL the Delete/Write permissions are found, Delete/Write is True
+        if set(delete_perms) == \
+                set(('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo')):
+            enabled.append('Delete')
+        if set(write_perms) == \
+                set(('WriteOwned', 'WriteFile', 'WriteManagedRepo')):
+            enabled.append('Write')
+        if set(script_perms) == \
+                set(('WriteScriptRepo', 'DeleteScriptRepo')):
+            enabled.append('Script')
+        return enabled
 
     def setMembersOfGroup(self, group, new_members):
         """

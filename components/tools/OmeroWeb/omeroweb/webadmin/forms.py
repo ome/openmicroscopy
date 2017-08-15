@@ -31,6 +31,8 @@ except:
 from django.conf import settings
 from django import forms
 from django.forms.widgets import Textarea
+from django.utils.encoding import force_unicode
+from django.utils.safestring import mark_safe
 
 from omeroweb.connector import Server
 
@@ -92,17 +94,37 @@ ROLE_CHOICES = (
 )
 
 
+class RoleRenderer(forms.RadioSelect.renderer):
+    """Allows disabling of 'administrator' Radio button."""
+    def render(self):
+        midList = []
+        for x, wid in enumerate(self):
+            disabled = self.attrs.get('disabled')
+            if ROLE_CHOICES[x][0] == 'administrator':
+                if hasattr(self, 'disable_admin'):
+                    disabled = getattr(self, 'disable_admin')
+            if disabled:
+                wid.attrs['disabled'] = True
+            midList.append(u'<li>%s</li>' % force_unicode(wid))
+        finalList = mark_safe(u'<ul id="id_role">\n%s\n</ul>'
+                              % u'\n'.join([u'<li>%s</li>'
+                                           % w for w in midList]))
+        return finalList
+
+
 class ExperimenterForm(NonASCIIForm):
 
     def __init__(self, name_check=False, email_check=False,
                  experimenter_is_me_or_system=False,
                  experimenter_me=False,
                  can_modify_user=True,
+                 user_privileges=[],
                  experimenter_root=False,
-                 can_edit_role=True, *args, **kwargs):
+                 *args, **kwargs):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
         self.name_check = name_check
         self.email_check = email_check
+        self.user_privileges = user_privileges
 
         try:
             self.fields['other_groups'] = GroupModelMultipleChoiceField(
@@ -128,6 +150,17 @@ class ExperimenterForm(NonASCIIForm):
                 self.fields['default_group'] = GroupModelChoiceField(
                     queryset=list(), empty_label=u"", required=False)
 
+        # 'Role' is disabled if experimenter is 'admin' or self,
+        # so required=False to avoid validation error.
+        self.fields['role'] = forms.ChoiceField(
+            choices=ROLE_CHOICES,
+            widget=forms.RadioSelect(renderer=RoleRenderer),
+            required=False,
+            initial='user')
+        # If current user is restricted Admin, can't create full Admin
+        restricted_admin = "ReadSession" not in self.user_privileges
+        self.fields['role'].widget.renderer.disable_admin = restricted_admin
+
         if ('with_password' in kwargs['initial'] and
                 kwargs['initial']['with_password']):
             self.fields['password'] = forms.CharField(
@@ -152,9 +185,9 @@ class ExperimenterForm(NonASCIIForm):
         ordered_fields = [(k, self.fields[k]) for k in fields_key_order]
 
         roles = [('Sudo', 'Sudo'),
-                 # combine WriteFile/MagangedRepo/Owned roles into 'Write'
+                 # combine WriteFile/ManagedRepo/Owned roles into 'Write'
                  ('Write', 'Write Data'),
-                 # combine DeleteFile/MagangedRepo/Owned roles into 'Delete'
+                 # combine DeleteFile/ManagedRepo/Owned roles into 'Delete'
                  ('Delete', 'Delete Data'),
                  ('Chgrp', 'Chgrp'),
                  ('Chown', 'Chown'),
@@ -163,13 +196,16 @@ class ExperimenterForm(NonASCIIForm):
                  ('ModifyGroupMembership', 'Add Users to Groups'),
                  ('Script', 'Upload Scripts')]
         for role in roles:
-            disabled = not can_edit_role
+            # If current user is light-admin, ignore privileges they don't have
+            # So they can't add/remove these from experimenter
+            # We don't disable them - (not in form data and will be removed)
             ordered_fields.append(
                 (role[0], forms.BooleanField(
                     required=False,
                     label=role[1],
-                    widget=forms.CheckboxInput(attrs={'class': 'privilege',
-                                                      'disabled': disabled})
+                    widget=forms.CheckboxInput(
+                        attrs={'class': 'privilege',
+                               'disabled': role[0] not in user_privileges})
                 ))
             )
 
@@ -183,17 +219,10 @@ class ExperimenterForm(NonASCIIForm):
                 name = "'root' user"
             self.fields['omename'].widget.attrs['title'] = \
                 "You can't edit Username of %s" % name
+            self.fields['role'].widget.attrs['disabled'] = True
             self.fields['active'].widget.attrs['disabled'] = True
             self.fields['active'].widget.attrs['title'] = \
                 "You cannot disable %s" % name
-        if not can_edit_role:
-            self.fields['role'].widget.attrs['disabled'] = True
-            reason = "You don't have permissions to edit user's Role"
-            if experimenter_me:
-                reason = "You can't edit your own admin privileges"
-            elif experimenter_root:
-                reason = "You can't edit 'root' user's admin privileges"
-            self.fields['role'].widget.attrs['title'] = reason
 
         # If we can't modify user, ALL fields are disabled
         if not can_modify_user:
@@ -220,21 +249,15 @@ class ExperimenterForm(NonASCIIForm):
         widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}),
         required=False)
 
-    # 'Role' is disabled if experimenter is 'admin' or self,
-    # so required=False to avoid validation error.
-    role = forms.ChoiceField(
-        choices=ROLE_CHOICES,
-        widget=forms.RadioSelect,
-        required=False,
-        initial='user')
     active = forms.BooleanField(required=False)
 
     def clean_confirmation(self):
-        if (self.cleaned_data.get('password') or
-                self.cleaned_data.get('confirmation')):
+        if self.cleaned_data.get('password'):
             if len(self.cleaned_data.get('password')) < 3:
                 raise forms.ValidationError(
                     'Password must be at least 3 characters long.')
+        if (self.cleaned_data.get('password') or
+                self.cleaned_data.get('confirmation')):
             if (self.cleaned_data.get('password') !=
                     self.cleaned_data.get('confirmation')):
                 raise forms.ValidationError('Passwords do not match')

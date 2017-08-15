@@ -519,7 +519,7 @@ class ITest(object):
     @classmethod
     def new_user(cls, group=None, perms=None,
                  owner=False, system=False, uname=None,
-                 email=None):
+                 email=None, privileges=None):
         """
         :owner: If user is to be an owner of the created group
         :system: If user is to be a system admin
@@ -553,14 +553,23 @@ class ITest(object):
         e = admin_service.lookupExperimenter(uname)
         if owner:
             admin_service.setGroupOwner(g, e)
+        if privileges is not None:
+            system = True
         if system:
             admin_service.addGroups(e, [ExperimenterGroupI(0, False)])
 
+        if privileges is not None:
+            to_set = []
+            for p in privileges:
+                privilege = omero.model.AdminPrivilegeI()
+                privilege.setValue(rstring(p))
+                to_set.append(privilege)
+            admin_service.setAdminPrivileges(e, to_set)
         return admin_service.getExperimenter(uid)
 
     def new_client(self, group=None, user=None, perms=None,
                    owner=False, system=False, session=None,
-                   password=None, email=None):
+                   password=None, email=None, privileges=None):
         """
         Like new_user() but returns an active client.
 
@@ -580,7 +589,8 @@ class ITest(object):
                 user, name = self.user_and_name(user)
             else:
                 user = self.new_user(group, perms, owner=owner,
-                                     system=system, email=email)
+                                     system=system, email=email,
+                                     privileges=privileges)
             props["omero.user"] = user.omeName.val
             if password is not None:
                 props["omero.pass"] = password
@@ -594,8 +604,10 @@ class ITest(object):
         return client
 
     def new_client_and_user(self, group=None, perms=None,
-                            owner=False, system=False):
-        user = self.new_user(group, owner=owner, system=system, perms=perms)
+                            owner=False, system=False,
+                            privileges=None):
+        user = self.new_user(group, owner=owner, system=system, perms=perms,
+                             privileges=privileges)
         client = self.new_client(
             group, user, perms=perms, owner=owner, system=system)
         return client, user

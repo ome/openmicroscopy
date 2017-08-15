@@ -369,7 +369,8 @@ class TestCsrf(IWebTest):
             "default_group": groupid,
             "other_groups": groupid,
             "password": uuid,
-            "confirmation": uuid
+            "confirmation": uuid,
+            "role": "user",
         }
         post(self.django_root_client, request_url, data, status_code=302)
 
