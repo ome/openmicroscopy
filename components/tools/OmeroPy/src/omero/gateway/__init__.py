@@ -2898,27 +2898,6 @@ class _BlitzGateway (object):
                 if d.child.id.val != self.getUserId():
                     yield ExperimenterWrapper(self, d.child)
 
-    def groupSummary(self, gid=None, exclude_self=False):
-        """
-        Returns unsorted lists of 'leaders' and 'members' of the specified
-        group (default is current group) as a dict with those keys.
-
-        :return:    {'leaders': list :class:`ExperimenterWrapper`,
-                     'colleagues': list :class:`ExperimenterWrapper`}
-        :rtype:     dict
-
-        ** Deprecated ** Use :meth:`ExperimenterGroupWrapper.groupSummary`.
-        """
-        warnings.warn(
-            "Deprecated. Use ExperimenterGroupWrapper.groupSummary()",
-            DeprecationWarning)
-
-        if gid is None:
-            gid = self.getEventContext().groupId
-        default = self.getObject("ExperimenterGroup", gid)
-        leaders, colleagues = default.groupSummary(exclude_self)
-        return {"leaders": leaders, "colleagues": colleagues}
-
     def listStaffs(self):
         """
         Look up users who are members of groups lead by the current user.
