@@ -1490,11 +1490,9 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             admin_serv.addGroupOwners(group, listOfOwners)
         return gr_id
 
-    def updateGroup(self, group, name, permissions, owners=list(),
-                    description=None):
+    def updateGroup(self, group, name, permissions, description=None):
         """
-        Update an existing user including groups user is a member of.
-        Password cannot be changed by calling that method.
+        Update an existing group.
 
         @param group        A new ExperimenterGroup instance.
         @type group         ExperimenterGroupI
@@ -1502,8 +1500,6 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         @type name          String
         @param permissions  Permissions instances.
         @type permissions   L{PermissionsI}
-        @param owners       List of Experimenter instances. Can be empty.
-        @type owners        L{ExperimenterI}
         @param description  A description.
         @type description   String
 
@@ -1515,49 +1511,57 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             (description != "" and description is not None) and
             rstring(str(description)) or None)
 
+        msgs = []
+        admin_serv = self.getAdminService()
+        admin_serv.updateGroup(up_gr)
+
+        if str(permissions) != str(up_gr.details.getPermissions()):
+            err = self.updatePermissions(group, permissions)
+            if err is not None:
+                msgs.append(err)
+        return msgs
+
+    def updateGroupOwners(self, group, owners):
+        """
+        Update owners of group
+
+        @param group        A new ExperimenterGroup instance.
+        @type group         ExperimenterGroupI
+        @param owners       List of Experimenter instances. Can be empty.
+        @type owners        L{ExperimenterI}
+        """
+
+        up_gr = group._obj
+
         # old list of owners
-        old_owners = list()
+        old_owners = []
         for oex in up_gr.copyGroupExperimenterMap():
             if oex is None:
                 continue
             if oex.owner.val:
                 old_owners.append(oex.child)
 
-        add_exps = list()
-        rm_exps = list()
-
-        can_mod = 'ModifyGroupMembership' in self.getCurrentAdminPrivileges()
-        if can_mod:
-            # remove
-            for oex in old_owners:
-                flag = False
-                for nex in owners:
-                    if nex._obj.id.val == oex.id.val:
-                        flag = True
-                if not flag:
-                    rm_exps.append(oex)
-
-            # add
+        add_exps = []
+        rm_exps = []
+        # remove
+        for oex in old_owners:
+            flag = False
             for nex in owners:
-                flag = False
-                for oex in old_owners:
-                    if oex.id.val == nex._obj.id.val:
-                        flag = True
-                if not flag:
-                    add_exps.append(nex._obj)
+                if nex._obj.id.val == oex.id.val:
+                    flag = True
+            if not flag:
+                rm_exps.append(oex)
 
-        msgs = []
+        # add
+        for nex in owners:
+            flag = False
+            for oex in old_owners:
+                if oex.id.val == nex._obj.id.val:
+                    flag = True
+            if not flag:
+                add_exps.append(nex._obj)
+
         admin_serv = self.getAdminService()
-        # Should we update updateGroup so this would be atomic?
-        admin_serv.updateGroup(up_gr)
-
-        if str(permissions) == str(up_gr.details.getPermissions()):
-            permissions = None
-
-        if permissions is not None:
-            err = self.updatePermissions(group, permissions)
-            if err is not None:
-                msgs.append(err)
         if add_exps:
             admin_serv.addGroupOwners(up_gr, add_exps)
         if rm_exps:

@@ -292,51 +292,50 @@ PERMISSION_CHOICES = (
 
 class GroupForm(NonASCIIForm):
 
-    def __init__(self, name_check=False, group_is_current_or_system=False,
+    def __init__(self, name_check=False, group_is_system=False,
                  can_modify_group=True, can_add_member=True, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
         self.name_check = name_check
-        try:
-            if kwargs['initial']['owners']:
-                pass
-            self.fields['owners'] = ExperimenterModelMultipleChoiceField(
-                queryset=kwargs['initial']['experimenters'],
-                initial=kwargs['initial']['owners'], required=False)
-        except:
-            self.fields['owners'] = ExperimenterModelMultipleChoiceField(
-                queryset=kwargs['initial']['experimenters'], required=False)
 
-        try:
-            if kwargs['initial']['members']:
-                pass
-            self.fields['members'] = ExperimenterModelMultipleChoiceField(
-                queryset=kwargs['initial']['experimenters'],
-                initial=kwargs['initial']['members'], required=False)
-        except:
-            self.fields['members'] = ExperimenterModelMultipleChoiceField(
-                queryset=kwargs['initial']['experimenters'], required=False)
+        if can_add_member:
+            try:
+                if kwargs['initial']['owners']:
+                    pass
+                self.fields['owners'] = ExperimenterModelMultipleChoiceField(
+                    queryset=kwargs['initial']['experimenters'],
+                    initial=kwargs['initial']['owners'], required=False)
+            except:
+                self.fields['owners'] = ExperimenterModelMultipleChoiceField(
+                    queryset=kwargs['initial']['experimenters'],
+                    required=False)
+
+            try:
+                if kwargs['initial']['members']:
+                    pass
+                self.fields['members'] = ExperimenterModelMultipleChoiceField(
+                    queryset=kwargs['initial']['experimenters'],
+                    initial=kwargs['initial']['members'], required=False)
+            except:
+                self.fields['members'] = ExperimenterModelMultipleChoiceField(
+                    queryset=kwargs['initial']['experimenters'],
+                    required=False)
 
         self.fields['permissions'] = forms.ChoiceField(
             choices=PERMISSION_CHOICES, widget=forms.RadioSelect(),
             required=True, label="Permissions")
 
-        if group_is_current_or_system:
+        if group_is_system:
             self.fields['name'].widget.attrs['readonly'] = True
             self.fields['name'].widget.attrs['title'] = \
-                "Changing of system groupname would be un-doable"
+                "Changing of system group name would be un-doable"
 
         self.fields.keyOrder = [
             'name', 'description', 'owners', 'members', 'permissions']
 
-        # If we can't modify group, ALL fields are disabled
+        # If we can't modify group, disable fields
         if not can_modify_group:
-            for field in self.fields.values():
+            for name, field in self.fields.items():
                 field.widget.attrs['disabled'] = True
-
-        # If we can't add members, disable owners and members fields
-        if not can_add_member:
-            self.fields['owners'].widget.attrs['disabled'] = True
-            self.fields['members'].widget.attrs['disabled'] = True
 
     name = forms.CharField(
         max_length=100,
