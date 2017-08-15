@@ -207,9 +207,10 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     /**
      * Check that the user can write files in the current context.
      * @param __current Ice method invocation context
+     * @param isIntoUserGroup if the files would be written into the user group
      * @throws SecurityViolation if the user may not write files in the current context
      */
-    private void assertCanWriteFiles(final Current __current) throws SecurityViolation {
+    private void assertCanWriteFiles(final Current __current, final boolean isIntoUserGroup) throws SecurityViolation {
         boolean allowCreation = false;
         try {
             allowCreation = (Boolean) factory.executor.execute(
@@ -217,6 +218,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                         @Transactional(readOnly = true)
                         public Boolean doWork(Session session, ServiceFactory sf) {
                             final OriginalFile file = new OriginalFile();
+                            if (isIntoUserGroup) {
+                                final long userGroupId = sf.getAdminService().getSecurityRoles().getUserGroupId();
+                                file.getDetails().setGroup((ome.model.meta.ExperimenterGroup) 
+                                        session.get(ome.model.meta.ExperimenterGroup.class, userGroupId));
+                            }
                             file.setRepo(scripts.getUuid());
                             /* check with interceptor */
                             try {
@@ -248,7 +254,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      */
     public void uploadScript_async(final AMD_IScript_uploadScript __cb,
             final String path, final String scriptText, final Current __current) throws ServerError {
-        assertCanWriteFiles(__current);
+        assertCanWriteFiles(__current, false);
         safeRunnableCall(__current, __cb, false, new Callable<Long>() {
             public Long call() throws Exception {
                 OriginalFile file = makeFile(path, scriptText, __current);
@@ -262,7 +268,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     public void uploadOfficialScript_async(
             AMD_IScript_uploadOfficialScript __cb, final String path,
             final String scriptText, final Current __current) throws ServerError {
-        assertCanWriteFiles(__current);
+        assertCanWriteFiles(__current, true);
         safeRunnableCall(__current, __cb, false, new Callable<Long>() {
             public Long call() throws Exception {
                 EventContext ec = factory.getEventContext();
