@@ -1021,8 +1021,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["name"] = rstring(smart_str(name))
+        ctx = self.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(-1)
         sql = "select g from ExperimenterGroup as g where g.name = (:name)"
-        grs = query_serv.findAllByQuery(sql, p, self.SERVICE_OPTS)
+        grs = query_serv.findAllByQuery(sql, p, ctx)
         if len(grs) > 0:
             return True
         else:
@@ -1034,11 +1036,13 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         if email == old_email:
             return False
         query_serv = self.getQueryService()
+        ctx = self.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(-1)
         p = omero.sys.Parameters()
         p.map = {}
         p.map["email"] = rstring(smart_str(email))
         sql = "select e from Experimenter as e where e.email = (:email)"
-        exps = query_serv.findAllByQuery(sql, p, self.SERVICE_OPTS)
+        exps = query_serv.findAllByQuery(sql, p, ctx)
         if len(exps) > 0:
             return True
         else:
@@ -1399,131 +1403,9 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             admin_serv.removeGroups(e, [group._obj])
         return failures
 
-    def setOwnersOfGroup(self, group, new_owners):
+    def setOwnersOfGroup(self, group, owners):
         """
-        Change members of the group.
-
-        @param group            An existing ExperimenterGroup instance.
-        @type group             ExperimenterGroupI
-        @param new_members      List of new new Experimenter Ids.
-        @type new_members       L{Long}
-        """
-
-        experimenters = list(self.getObjects("Experimenter"))
-
-        new_ownersIds = [no.id for no in new_owners]
-
-        old_owners = group.getOwners()
-        old_ownersIds = [oo.id for oo in old_owners]
-
-        old_available = list()
-        for e in experimenters:
-            if e.id not in old_ownersIds:
-                old_available.append(e)
-        old_availableIds = [oa.id for oa in old_available]
-
-        new_available = list()
-        for e in experimenters:
-            if e.id not in new_ownersIds:
-                new_available.append(e)
-
-        new_availableIds = [na.id for na in new_available]
-
-        rm_exps = list(set(old_ownersIds) - set(new_ownersIds))
-        add_exps = list(set(old_availableIds) - set(new_availableIds))
-
-        to_remove = list()
-        to_add = list()
-        for e in experimenters:
-            if e.id in rm_exps:
-                # removing user from their default group #9193
-                # if e.getDefaultGroup().id != group.id:
-                to_remove.append(e._obj)
-            if e.id in add_exps:
-                to_add.append(e._obj)
-
-        admin_serv = self.getAdminService()
-        admin_serv.addGroupOwners(group._obj, to_add)
-        admin_serv.removeGroupOwners(group._obj, to_remove)
-
-    # def deleteExperimenter(self, experimenter):
-    #    """
-    #    Removes a user by removing the password information for that user as
-    #    well as all GroupExperimenterMap instances.
-    #
-    #    @param user     Experimenter to be deleted. Not null.
-    #    @type user      ExperimenterI
-    #    """
-    #    admin_serv = self.getAdminService()
-    #    admin_serv.deleteExperimenter(experimenter)
-
-    def createGroup(self, name, permissions, owners=list(), description=None):
-        """
-        Create and return a new group with the given owners.
-
-        @param group        A new ExperimenterGroup instance.
-        @type group         ExperimenterGroupI
-        @param owners       List of Experimenter instances. Can be empty.
-        @type owners        L{ExperimenterI}
-        @param permissions  Permissions instances.
-        @type permissions   L{PermissionsI}
-        @return             ID of the newly created ExperimenterGroup Not
-                            null.
-        @rtype              Long
-        """
-        new_gr = ExperimenterGroupI()
-        new_gr.name = rstring(str(name))
-        new_gr.description = (
-            (description != "" and description is not None) and
-            rstring(str(description)) or None)
-        new_gr.ldap = rbool(False)
-        new_gr.details.permissions = permissions
-
-        admin_serv = self.getAdminService()
-        gr_id = admin_serv.createGroup(new_gr)
-        group = admin_serv.getGroup(gr_id)
-
-        listOfOwners = list()
-        for exp in owners:
-            listOfOwners.append(exp._obj)
-        if listOfOwners:
-            admin_serv.addGroupOwners(group, listOfOwners)
-        return gr_id
-
-    def updateGroup(self, group, name, permissions, description=None):
-        """
-        Update an existing group.
-
-        @param group        A new ExperimenterGroup instance.
-        @type group         ExperimenterGroupI
-        @param name         A new group name.
-        @type name          String
-        @param permissions  Permissions instances.
-        @type permissions   L{PermissionsI}
-        @param description  A description.
-        @type description   String
-
-        """
-
-        up_gr = group._obj
-        up_gr.name = rstring(str(name))
-        up_gr.description = (
-            (description != "" and description is not None) and
-            rstring(str(description)) or None)
-
-        msgs = []
-        admin_serv = self.getAdminService()
-        admin_serv.updateGroup(up_gr)
-
-        if str(permissions) != str(up_gr.details.getPermissions()):
-            err = self.updatePermissions(group, permissions)
-            if err is not None:
-                msgs.append(err)
-        return msgs
-
-    def updateGroupOwners(self, group, owners):
-        """
-        Update owners of group
+        Set owners of group
 
         @param group        A new ExperimenterGroup instance.
         @type group         ExperimenterGroupI
@@ -1566,6 +1448,62 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             admin_serv.addGroupOwners(up_gr, add_exps)
         if rm_exps:
             admin_serv.removeGroupOwners(up_gr, rm_exps)
+
+    def createGroup(self, name, permissions, description=None):
+        """
+        Create and return a new group with the given owners.
+
+        @param group        A new ExperimenterGroup instance.
+        @type group         ExperimenterGroupI
+        @param owners       List of Experimenter instances. Can be empty.
+        @type owners        L{ExperimenterI}
+        @param permissions  Permissions instances.
+        @type permissions   L{PermissionsI}
+        @return             ID of the newly created ExperimenterGroup Not
+                            null.
+        @rtype              Long
+        """
+        new_gr = ExperimenterGroupI()
+        new_gr.name = rstring(str(name))
+        new_gr.description = (
+            (description != "" and description is not None) and
+            rstring(str(description)) or None)
+        new_gr.ldap = rbool(False)
+        new_gr.details.permissions = permissions
+
+        admin_serv = self.getAdminService()
+        gr_id = admin_serv.createGroup(new_gr)
+        return gr_id
+
+    def updateGroup(self, group, name, permissions, description=None):
+        """
+        Update an existing group.
+
+        @param group        A new ExperimenterGroup instance.
+        @type group         ExperimenterGroupI
+        @param name         A new group name.
+        @type name          String
+        @param permissions  Permissions instances.
+        @type permissions   L{PermissionsI}
+        @param description  A description.
+        @type description   String
+
+        """
+
+        up_gr = group._obj
+        up_gr.name = rstring(str(name))
+        up_gr.description = (
+            (description != "" and description is not None) and
+            rstring(str(description)) or None)
+
+        msgs = []
+        admin_serv = self.getAdminService()
+        admin_serv.updateGroup(up_gr)
+
+        if str(permissions) != str(up_gr.details.getPermissions()):
+            err = self.updatePermissions(group, permissions)
+            if err is not None:
+                msgs.append(err)
         return msgs
 
     def updateMyAccount(self, experimenter, firstName, lastName, email,

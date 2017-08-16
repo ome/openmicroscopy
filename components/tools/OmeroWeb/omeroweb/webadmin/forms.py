@@ -320,9 +320,19 @@ class GroupForm(NonASCIIForm):
                     queryset=kwargs['initial']['experimenters'],
                     required=False)
 
-        self.fields['permissions'] = forms.ChoiceField(
-            choices=PERMISSION_CHOICES, widget=forms.RadioSelect(),
-            required=True, label="Permissions")
+        if can_modify_group:
+            self.fields['permissions'] = forms.ChoiceField(
+                choices=PERMISSION_CHOICES, widget=forms.RadioSelect(),
+                required=True, label="Permissions")
+
+            self.fields['name'] = forms.CharField(
+                max_length=100,
+                widget=forms.TextInput(attrs={'size': 25,
+                                              'autocomplete': 'off'}))
+            self.fields['description'] = forms.CharField(
+                max_length=250, required=False,
+                widget=forms.TextInput(attrs={'size': 25,
+                                              'autocomplete': 'off'}))
 
         if group_is_system:
             self.fields['name'].widget.attrs['readonly'] = True
@@ -335,15 +345,8 @@ class GroupForm(NonASCIIForm):
         # If we can't modify group, disable fields
         if not can_modify_group:
             for name, field in self.fields.items():
-                field.widget.attrs['disabled'] = True
-
-    name = forms.CharField(
-        max_length=100,
-        widget=forms.TextInput(attrs={'size': 25, 'autocomplete': 'off'}))
-    description = forms.CharField(
-        max_length=250,
-        widget=forms.TextInput(attrs={'size': 25, 'autocomplete': 'off'}),
-        required=False)
+                if name not in ('owners', 'members'):
+                    field.widget.attrs['disabled'] = True
 
     def clean_name(self):
         if self.name_check:

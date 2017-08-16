@@ -699,7 +699,9 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         group_is_system = long(gid) in system_groups
     if request.method == 'POST':
         data=request.POST.copy()
-        name_check = conn.checkGroupName(request.POST.get('name'))
+        # name needs to be unique
+        old_name = group.name if gid is not None else None
+        name_check = conn.checkGroupName(request.POST.get('name'), old_name)
     form = GroupForm(initial=initial,
         data=data,
         name_check=name_check,
@@ -719,19 +721,20 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         else:
             if form.is_valid():
                 logger.debug("Create group form:" + str(form.cleaned_data))
-                name = form.cleaned_data['name']
-                description = form.cleaned_data['description']
-                owners = form.cleaned_data['owners']
-                members = form.cleaned_data['members']
-                permissions = form.cleaned_data['permissions']
-
-                perm = setActualPermissions(permissions)
-                listOfOwners = getSelectedExperimenters(conn, owners)
-                gid = conn.createGroup(name, perm, listOfOwners, description)
+                if can_modify_group:
+                    name = form.cleaned_data['name']
+                    description = form.cleaned_data['description']
+                    permissions = form.cleaned_data['permissions']
+                    perm = setActualPermissions(permissions)
+                    gid = conn.createGroup(name, perm, description)
                 if can_add_member:
+                    owners = form.cleaned_data['owners']
+                    members = form.cleaned_data['members']
+                    group = conn.getObject("ExperimenterGroup", gid)
+                    listOfOwners = getSelectedExperimenters(conn, owners)
+                    conn.setOwnersOfGroup(group, listOfOwners)
                     new_members = getSelectedExperimenters(
                         conn, mergeLists(members, owners))
-                    group = conn.getObject("ExperimenterGroup", gid)
                     conn.setMembersOfGroup(group, new_members)
 
                 return HttpResponseRedirect(reverse("wagroups"))
@@ -742,23 +745,24 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         else:
             if form.is_valid():
                 logger.debug("Update group form:" + str(form.cleaned_data))
-                name = form.cleaned_data['name']
-                description = form.cleaned_data['description']
-                permissions = form.cleaned_data['permissions']
+                if can_modify_group:
+                    name = form.cleaned_data['name']
+                    description = form.cleaned_data['description']
+                    permissions = form.cleaned_data['permissions']
 
-                if permissions != int(permissions):
-                    perm = setActualPermissions(permissions)
-                else:
-                    perm = None
-
-                try:
-                    msgs = conn.updateGroup(group, name, perm, description)
-                except omero.SecurityViolation, ex:
-                    if ex.message.startswith('Cannot change permissions'):
-                        msgs.append("Downgrade to private group not currently"
-                                    " possible")
+                    if permissions != int(permissions):
+                        perm = setActualPermissions(permissions)
                     else:
-                        msgs.append(ex.message)
+                        perm = None
+
+                    try:
+                        msgs = conn.updateGroup(group, name, perm, description)
+                    except omero.SecurityViolation, ex:
+                        if ex.message.startswith('Cannot change permissions'):
+                            msgs.append("Downgrade to private group not"
+                                        " currently possible")
+                        else:
+                            msgs.append(ex.message)
 
                 removalFails = []
                 if can_add_member:
@@ -766,13 +770,13 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                     members = form.cleaned_data['members']
 
                     listOfOwners = getSelectedExperimenters(conn, owners)
-                    conn.updateGroupOwners(group, owners)
+                    conn.setOwnersOfGroup(group, listOfOwners)
                     new_members = getSelectedExperimenters(
                         conn, mergeLists(members, owners))
                     removalFails = conn.setMembersOfGroup(group, new_members)
 
-                    if len(removalFails) == 0 and len(msgs) == 0:
-                        return HttpResponseRedirect(reverse("wagroups"))
+                if len(removalFails) == 0 and len(msgs) == 0:
+                    return HttpResponseRedirect(reverse("wagroups"))
 
                 # If we've failed to remove user...
                 # prepare error messages
@@ -781,6 +785,13 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                                   args=["edit", e.id])
                     msgs.append("Can't remove user <a href='%s'>%s</a> from"
                                 " their only group" % (url, e.getFullName()))
+                # Refresh form (ignore POST data)
+                context['form'] = GroupForm(initial=initial,
+                                            name_check=name_check,
+                                            can_modify_group=can_modify_group,
+                                            can_add_member=can_add_member,
+                                            group_is_system=group_is_system)
+
     else:
         return HttpResponseRedirect(reverse("wagroups"))
 
@@ -792,8 +803,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
     # prevent removing 'root' or yourself from group if it's a system group
     context['admins'] = [conn.getAdminService().getSecurityRoles().rootId]
     if group_is_system:
-        admins.append(conn.getUserId())
-        return form
+        context['admins'].append(conn.getUserId())
 
     if len(msgs) > 0:
         context['ome'] = {}

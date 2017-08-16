@@ -50,8 +50,8 @@
                     var selected = $.grep($('#id_members').data('chosen').results_data, function(item){
                         return item.value == userId;
                     });
-                    $("#id_owners_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current').find("a").first().unbind("click").remove();
-                    $("#id_members_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current').find("a").first().unbind("click").remove();
+                    $("#id_owners_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current');
+                    $("#id_members_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current');
                 }
                 
                 // Since we want to disable removal of 'system' users from chosen, this hides the 'X'
