@@ -683,7 +683,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         conn.getAdminService().getSecurityRoles().systemGroupId,
         conn.getAdminService().getSecurityRoles().userGroupId,
         conn.getAdminService().getSecurityRoles().guestGroupId]
-        
+
     initial = {'experimenters': experimenters,
                'permissions': 0}
     group_is_system = False
@@ -698,16 +698,16 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         initial['permissions'] = getActualPermissions(group)
         group_is_system = long(gid) in system_groups
     if request.method == 'POST':
-        data=request.POST.copy()
+        data = request.POST.copy()
         # name needs to be unique
         old_name = group.name if gid is not None else None
         name_check = conn.checkGroupName(request.POST.get('name'), old_name)
     form = GroupForm(initial=initial,
-        data=data,
-        name_check=name_check,
-        can_modify_group=can_modify_group,
-        can_add_member=can_add_member,
-        group_is_system=group_is_system)
+                     data=data,
+                     name_check=name_check,
+                     can_modify_group=can_modify_group,
+                     can_add_member=can_add_member,
+                     group_is_system=group_is_system)
 
     context = {'form': form}
 
