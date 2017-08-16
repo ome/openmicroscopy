@@ -85,6 +85,8 @@ FULL_REQUEST_LOGFORMAT = (
     ' HTTP %(status_code)d %(request)s')
 
 LOGGING_CLASS = 'omero_ext.cloghandler.ConcurrentRotatingFileHandler'
+LOGSIZE = 500000000
+
 
 LOGGING = {
     'version': 1,
@@ -111,7 +113,7 @@ LOGGING = {
             'class': LOGGING_CLASS,
             'filename': os.path.join(
                 LOGDIR, 'OMEROweb.log').replace('\\', '/'),
-            'maxBytes': 1024*1024*5,  # 5 MB
+            'maxBytes': LOGSIZE,
             'backupCount': 10,
             'formatter': 'standard',
         },
@@ -120,7 +122,7 @@ LOGGING = {
             'class': LOGGING_CLASS,
             'filename': os.path.join(
                 LOGDIR, 'OMEROweb.log').replace('\\', '/'),
-            'maxBytes': 1024*1024*5,  # 5 MB
+            'maxBytes': LOGSIZE,
             'backupCount': 10,
             'filters': ['require_debug_false'],
             'formatter': 'full_request',
