@@ -5909,14 +5909,14 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
     def copyGroupExperimenterMap(self):
         """Delegate to the wrapped _obj.copyGroupExperimenterMap()."""
         if not self._obj.groupExperimenterMapLoaded:
-            self.__loadedHotSwap__();
+            self.__loadedHotSwap__()
         return self._obj.copyGroupExperimenterMap()
 
     def __loadedHotSwap__(self):
         """Load ExperimenterGroup with Experimenters loaded."""
-        print "loading..."
-        self._obj = self._conn.getObject('ExperimenterGroup', self.getId(),
-                                         opts={'load_experimenters': True})._obj
+        g = self._conn.getObject('ExperimenterGroup', self.getId(),
+                                 opts={'load_experimenters': True})
+        self._obj = g._obj
 
     def groupSummary(self, exclude_self=False):
         """
