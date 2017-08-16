@@ -2319,6 +2319,7 @@ class ExperimenterGroupWrapper(OmeroWebObjectWrapper,
                 yield ExperimenterWrapper(self._conn, gem.child)
 
     def getOwnersNames(self):
+        warnings.warn("Deprecated in 5.4.0", DeprecationWarning)
         owners = list()
         for e in self.getOwners():
             owners.append(e.getFullName())
