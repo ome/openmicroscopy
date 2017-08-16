@@ -1282,7 +1282,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         # Make sure we've loaded experimenters
         group = self.getObject("ExperimenterGroup", group.id,
-                                opts={'load_experimenters': True})
+                               opts={'load_experimenters': True})
 
         # TODO: Shouldn't have to load ALL Experimenters!
         experimenters = list(self.getObjects("Experimenter",

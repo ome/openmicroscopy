@@ -398,7 +398,7 @@ class TestGetObject (object):
         # groups = list( gatewaywrapper.gateway.listGroups() )
         # now removed from blitz gateway.
         gps = gatewaywrapper.gateway.getObjects(
-                "ExperimenterGroup", opts={'load_experimenters': True})
+            "ExperimenterGroup", opts={'load_experimenters': True})
         for grp in gps:
             grp.copyGroupExperimenterMap()
         # self.assertEqual(len(gps), len(groups))  # check unordered lists are
