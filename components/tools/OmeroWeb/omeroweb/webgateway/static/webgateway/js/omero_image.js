@@ -327,8 +327,8 @@
 
             var wellsUrl = PLATE_WELLS_URL_999.replace('999', tmp.wellId),
                 linksUrl = PLATE_LINKS_URL_999.replace('999', tmp.wellId);
-            loadBulkAnnotations(wellsUrl, tmp.wellId);
-            loadBulkAnnotations(linksUrl, tmp.wellId);
+            loadBulkAnnotations(wellsUrl, 'Well-' + tmp.wellId);
+            loadBulkAnnotations(linksUrl, 'Well-' + tmp.wellId);
         }
     };
 
