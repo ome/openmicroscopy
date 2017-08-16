@@ -5656,6 +5656,18 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
             params.add('group', rlong(opts['group']))
         return query, clauses, params
 
+    def copyGroupExperimenterMap(self):
+        """Delegate to the wrapped _obj.copyGroupExperimenterMap()."""
+        if not self._obj.groupExperimenterMapLoaded:
+            self.__loadedHotSwap__()
+        return self._obj.copyGroupExperimenterMap()
+
+    def __loadedHotSwap__(self):
+        """Load Experimenter with Groups loaded."""
+        e = self._conn.getObject('Experimenter', self.getId(),
+                                 opts={'load_groups': True})
+        self._obj = e._obj
+
     def getRawPreferences(self):
         """
         Returns the experimenter's preferences annotation contents, as a
