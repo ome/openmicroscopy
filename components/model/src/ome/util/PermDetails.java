@@ -59,6 +59,15 @@ public class PermDetails implements IObject {
         this.context = context;
     }
 
+    /**
+     * In order to properly test the permissions for this object, it must be
+     * possible to get the internal context. This is for use by the security
+     * system only.
+     */
+    public IObject getInternalContext() {
+        return this.context;
+    }
+
     //
     // DELEGATE METHODS
     //
