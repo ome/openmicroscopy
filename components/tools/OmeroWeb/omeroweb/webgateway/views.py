@@ -1286,7 +1286,7 @@ def jsonp(f):
         logger.debug('jsonp')
         try:
             server_id = kwargs.get('server_id', None)
-            if server_id is None:
+            if server_id is None and request.session.get('connector'):
                 server_id = request.session['connector'].server_id
             kwargs['server_id'] = server_id
             rv = f(request, *args, **kwargs)
@@ -1683,7 +1683,6 @@ def projectDetail_json(request, pid, conn=None, **kwargs):
     return rv
 
 
-@login_required()
 @jsonp
 def open_with_options(request, **kwargs):
     """
