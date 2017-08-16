@@ -2258,7 +2258,8 @@ class _BlitzGateway (object):
         """
         sysGroup = self.getObject(
             "ExperimenterGroup",
-            self.getAdminService().getSecurityRoles().systemGroupId)
+            self.getAdminService().getSecurityRoles().systemGroupId,
+            opts={'load_experimenters': True})
         for gem in sysGroup.copyGroupExperimenterMap():
             yield ExperimenterWrapper(self, gem.child)
 
