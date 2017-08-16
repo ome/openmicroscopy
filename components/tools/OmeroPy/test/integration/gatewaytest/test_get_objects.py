@@ -371,16 +371,20 @@ class TestGetObject (object):
     def testListExperimentersAndGroups(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         # experimenters
-        exps = gatewaywrapper.gateway.getObjects("Experimenter",
-                                                 opts={'load_groups': True})
+        exps = gatewaywrapper.gateway.getObjects(
+            "Experimenter", opts={'load_groups': True, 'limit': 10})
         for e in exps:
             # check iQuery has loaded at least one group
-            loaded = False
-            for groupExpMap in e.copyGroupExperimenterMap():
-                if groupExpMap is not None and \
-                        e.id == groupExpMap.child.id.val:
-                    loaded = True
-            assert loaded
+            assert e._obj.groupExperimenterMapLoaded
+            e.copyGroupExperimenterMap()
+
+        # load experimenters without groups
+        exps = gatewaywrapper.gateway.getObjects(
+            "Experimenter", opts={'limit': 10})
+        for e in exps:
+            assert not e._obj.groupExperimenterMapLoaded
+            # Lazy load groups
+            e.copyGroupExperimenterMap()
 
         # groups
         gps = gatewaywrapper.gateway.getObjects(
