@@ -373,12 +373,7 @@ class TestGetObject (object):
         # experimenters
         exps = gatewaywrapper.gateway.getObjects("Experimenter",
                                                  opts={'load_groups': True})
-
-        # self.assertEqual(len(exps), len(experimenters))  # check unordered
-        # lists are the same length & ids
-        # eIds = [e.getId() for e in experimenters]
         for e in exps:
-            # assert e.getId() in eIds
             # check iQuery has loaded at least one group
             loaded = False
             for groupExpMap in e.copyGroupExperimenterMap():
@@ -387,25 +382,21 @@ class TestGetObject (object):
                     loaded = True
             assert loaded
 
-        # returns all experimenters except current user - now moved to
-        # webclient_gateway
-        # allBarOne = list( gatewaywrapper.gateway.getExperimenters() )
-        # assert len(allBarOne)+1 ==  len(exps)
-        # for e in allBarOne:
-        #    assert e.getId() in eIds
-
         # groups
-        # groups = list( gatewaywrapper.gateway.listGroups() )
-        # now removed from blitz gateway.
         gps = gatewaywrapper.gateway.getObjects(
-            "ExperimenterGroup", opts={'load_experimenters': True})
+            "ExperimenterGroup",
+            opts={'load_experimenters': True, 'limit': 10})
         for grp in gps:
+            assert grp._obj.groupExperimenterMapLoaded
             grp.copyGroupExperimenterMap()
-        # self.assertEqual(len(gps), len(groups))  # check unordered lists are
-        # the same length & ids
-        # gIds = [g.getId() for g in gps]
-        # for g in groups:
-        #    assert g.getId() in gIds
+
+        # Load groups 'without' experimenters
+        gps = gatewaywrapper.gateway.getObjects(
+            "ExperimenterGroup", opts={'limit': 10})
+        for grp in gps:
+            assert not grp._obj.groupExperimenterMapLoaded
+            # lazy loading of experimenters
+            grp.copyGroupExperimenterMap()
 
         # uses gateway.getObjects("ExperimenterGroup") - check this doesn't
         # throw
@@ -790,11 +781,11 @@ class TestLeaderAndMemberOfGroup(object):
         assert memberOf == grs
 
     def testGroupSummaryAsOwner(self, gatewaywrapper):
+        """Test groupSummary() when Group loded without experimenters."""
         gatewaywrapper.doLogin(dbhelpers.USERS['group_owner'])
 
         expGr = gatewaywrapper.gateway.getObject(
-            "ExperimenterGroup", attributes={'name': 'ownership_test'},
-            opts={'load_experimenters': True})
+            "ExperimenterGroup", attributes={'name': 'ownership_test'})
 
         leaders, colleagues = expGr.groupSummary()
         assert len(leaders) == 1
@@ -811,8 +802,7 @@ class TestLeaderAndMemberOfGroup(object):
         gatewaywrapper.doLogin(dbhelpers.USERS['group_member'])
 
         expGr = gatewaywrapper.gateway.getObject(
-            "ExperimenterGroup", attributes={'name': 'ownership_test'},
-            opts={'load_experimenters': True})
+            "ExperimenterGroup", attributes={'name': 'ownership_test'})
 
         leaders, colleagues = expGr.groupSummary()
         assert len(leaders) == 1
