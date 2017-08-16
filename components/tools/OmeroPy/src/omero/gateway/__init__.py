@@ -3184,9 +3184,9 @@ class _BlitzGateway (object):
         # Handle dict of parameters -> convert to ParametersI()
         if opts is not None:
             # Parse opts dict to build params
-            if 'offset' in opts and 'limit' in opts:
+            if 'limit' in opts:
                 limit = opts['limit']
-                offset = opts['offset']
+                offset = opts.get('offset', 0)
             if 'owner' in opts:
                 owner = rlong(opts['owner'])
             if 'order_by' in opts:
