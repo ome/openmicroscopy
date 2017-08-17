@@ -763,7 +763,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
                 double[] minmax = determineHistogramMinMax(px, channel, false);
                 result.put(ch, minmax);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             handleException(e);
         }
         return result;
