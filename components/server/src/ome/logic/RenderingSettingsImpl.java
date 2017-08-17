@@ -7,6 +7,7 @@ package ome.logic;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -16,7 +17,6 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.collections.CollectionUtils;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +25,7 @@ import ome.annotations.NotNull;
 import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IRenderingSettings;
+import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
 import ome.conditions.ConcurrencyException;
 import ome.conditions.ResourceError;
@@ -48,6 +49,7 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.display.ReverseIntensityContext;
 import ome.model.enums.Family;
+import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
 import ome.model.screen.PlateAcquisition;
 import ome.model.screen.Screen;
@@ -93,6 +95,15 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     /** Reference to the service used to retrieve the pixels metadata. */
     protected transient IPixels pixelsMetadata;
  
+    /** Reference to the raw pixels store. */
+    private RawPixelsStore rawPixStore;
+    
+    /** Pixel types we can't use the global min/max as channel start/end window **/
+    private static final Set<String> minMaxPixelTypes = new HashSet<String>(
+            Arrays.<String> asList(new String[] { PixelsType.VALUE_FLOAT,
+                    PixelsType.VALUE_DOUBLE, PixelsType.VALUE_INT32,
+                    PixelsType.VALUE_UINT32 }));
+
     /**
      * Returns the min/max depending on the pixels type if the values
      * have not seen stored.
@@ -906,6 +917,21 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         if (planeDef == null) {
             throw new NullPointerException("No plane definition.");
         }
+        
+        Map<Integer, double[]> realMinMax = null;
+        
+        // for some pixel types the channel window start/end must be set to 
+        // reasonable (real min/max) values (note: that only affects non-pyramid images)
+        if (minMaxPixelTypes.contains(pixels.getPixelsType().getValue())) {
+            int[] channels = new int[pixels.getSizeC()];
+            for (int i = 0; i < channels.length; i++)
+                channels[i] = i;
+            
+            rawPixStore.setPixelsId(pixels.getId(), true);
+            realMinMax = rawPixStore.findMinMax(channels);
+            rawPixStore.close();
+        }
+        
         StatsFactory sf = new StatsFactory();
         ChannelBinding cb;
         double min, max;
@@ -917,17 +943,26 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             // of the channels linked to the pixels set.
         	
             cb = cbs.get(w);
-            sf.computeLocationStats(pixels, buf, planeDef, w);
-            cb.setNoiseReduction(sf.isNoiseReduction());
-            min = sf.getInputStart();
-            max = sf.getInputEnd();
-        	if (Math.abs(min-max) < EPSILON) {
-        		qs = quantumFactory.getStrategy(qDef, pixels);
-        		min = qs.getPixelsTypeMin();
-        		max = qs.getPixelsTypeMax();
-        	}
-            cb.setInputStart(new Double(min));
-            cb.setInputEnd(new Double(max));
+            
+            if (realMinMax == null) {
+                // use global min/max according to pixeltype
+                sf.computeLocationStats(pixels, buf, planeDef, w);
+                cb.setNoiseReduction(sf.isNoiseReduction());
+                min = sf.getInputStart();
+                max = sf.getInputEnd();
+                if (Math.abs(min - max) < EPSILON) {
+                    qs = quantumFactory.getStrategy(qDef, pixels);
+                    min = qs.getPixelsTypeMin();
+                    max = qs.getPixelsTypeMax();
+                }
+                cb.setInputStart(new Double(min));
+                cb.setInputEnd(new Double(max));
+            } else {
+                // use real min/max value of the pixels
+                cb.setInputStart(realMinMax.get(w)[0]);
+                cb.setInputEnd(realMinMax.get(w)[1]);
+                cb.setNoiseReduction(false);
+            }
         }
     }
     
@@ -1158,6 +1193,17 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     public void setPixelsData(PixelsService dataService) {
         getBeanHelper().throwIfAlreadySet(this.pixelsData, dataService);
         pixelsData = dataService;
+    }
+    
+    /**
+     * Sets injector. For use during configuration. Can only be called once.
+     * 
+     * @param rawPixStore
+     *            The value to set.
+     */
+    public void setRawPixStore(RawPixelsStore rawPixStore) {
+        getBeanHelper().throwIfAlreadySet(this.rawPixStore, rawPixStore);
+        this.rawPixStore = rawPixStore;
     }
 
     /**
