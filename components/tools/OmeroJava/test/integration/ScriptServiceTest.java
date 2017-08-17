@@ -248,6 +248,7 @@ public class ScriptServiceTest extends AbstractServerTest {
      */
     @Test
     public void testUploadScript() throws Exception {
+        newUserAndGroup("rwr---");
         IScriptPrx svc = factory.getScriptService();
         List<OriginalFile> scripts = svc.getScripts();
         final OriginalFile f = getRealScript(scripts);
