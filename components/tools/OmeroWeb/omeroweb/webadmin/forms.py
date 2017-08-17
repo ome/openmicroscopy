@@ -295,8 +295,18 @@ class GroupForm(NonASCIIForm):
     def __init__(self, name_check=False, group_is_system=False,
                  can_modify_group=True, can_add_member=True, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
-        self.name_check = name_check
 
+        self.name_check = name_check
+        if can_modify_group:
+
+            self.fields['name'] = forms.CharField(
+                max_length=100,
+                widget=forms.TextInput(attrs={'size': 25,
+                                              'autocomplete': 'off'}))
+            self.fields['description'] = forms.CharField(
+                max_length=250, required=False,
+                widget=forms.TextInput(attrs={'size': 25,
+                                              'autocomplete': 'off'}))
         if can_add_member:
             try:
                 if kwargs['initial']['owners']:
@@ -324,15 +334,6 @@ class GroupForm(NonASCIIForm):
             self.fields['permissions'] = forms.ChoiceField(
                 choices=PERMISSION_CHOICES, widget=forms.RadioSelect(),
                 required=True, label="Permissions")
-
-            self.fields['name'] = forms.CharField(
-                max_length=100,
-                widget=forms.TextInput(attrs={'size': 25,
-                                              'autocomplete': 'off'}))
-            self.fields['description'] = forms.CharField(
-                max_length=250, required=False,
-                widget=forms.TextInput(attrs={'size': 25,
-                                              'autocomplete': 'off'}))
 
         if group_is_system:
             self.fields['name'].widget.attrs['readonly'] = True
