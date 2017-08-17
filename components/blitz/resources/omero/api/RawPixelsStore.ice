@@ -337,7 +337,9 @@ module omero {
                 idempotent IntegerIntegerArrayMap getHistogram(IntegerArray channels, int binCount, bool globalRange, omero::romio::PlaneDef plane) throws ServerError;
                 
                 /**
-                 * Find the minimum and maximum pixel values for the specified channels. This method can currently only handle non-pyramid images,
+                 * Find the minimum and maximum pixel values for the specified channels by iterating over a full plane.
+                 * In case of multi-z/t images only the 'middle' plane with index maxZ/2 ,respectively maxT/2 is taken into account.
+                 * Note: This method can currently only handle non-pyramid images,
                  * in which case an empty map will be returned.
                  * @param channels the channels
                  * @return See above.
