@@ -812,10 +812,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         return new double[] { min, max };
     }
-
-    // ~ Helpers
-    // =========================================================================
-
+    
     private synchronized byte[] bufferAsByteArrayWithExceptionIfNull(ByteBuffer buffer) {
         byte[] b = new byte[buffer.capacity()];
         buffer.get(b, 0, buffer.capacity());
