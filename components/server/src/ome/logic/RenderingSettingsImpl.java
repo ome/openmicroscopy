@@ -943,7 +943,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         	
             cb = cbs.get(w);
             
-            if (realMinMax == null) {
+            if (realMinMax == null || realMinMax.isEmpty()) {
                 // use global min/max according to pixeltype
                 sf.computeLocationStats(pixels, buf, planeDef, w);
                 cb.setNoiseReduction(sf.isNoiseReduction());
