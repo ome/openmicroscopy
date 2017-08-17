@@ -929,7 +929,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             
             rawPixStore.setPixelsId(pixels.getId(), true);
             realMinMax = rawPixStore.findMinMax(channels);
-            rawPixStore.close();
         }
         
         StatsFactory sf = new StatsFactory();
