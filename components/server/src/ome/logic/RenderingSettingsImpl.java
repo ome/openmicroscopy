@@ -98,12 +98,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     /** Reference to the raw pixels store. */
     private RawPixelsStore rawPixStore;
     
-    /** Pixel types we can't use the global min/max as channel start/end window **/
-    private static final Set<String> minMaxPixelTypes = new HashSet<String>(
-            Arrays.<String> asList(new String[] { PixelsType.VALUE_FLOAT,
-                    PixelsType.VALUE_DOUBLE, PixelsType.VALUE_INT32,
-                    PixelsType.VALUE_UINT32 }));
-
     /**
      * Returns the min/max depending on the pixels type if the values
      * have not seen stored.
@@ -920,9 +914,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         
         Map<Integer, double[]> realMinMax = null;
         
-        // for some pixel types the channel window start/end must be set to 
+        StatsInfo stats = pixels.getPrimaryChannel().getStatsInfo();
+        
+        // if there are no stats available the channel window start/end must be set to 
         // reasonable (real min/max) values (note: that only affects non-pyramid images)
-        if (minMaxPixelTypes.contains(pixels.getPixelsType().getValue())) {
+        if (stats == null) {
             int[] channels = new int[pixels.getSizeC()];
             for (int i = 0; i < channels.length; i++)
                 channels[i] = i;
