@@ -608,8 +608,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Customize webclient login page with your own logo. Logo images "
           "should ideally be 150 pixels high or less and will appear above "
           "the OMERO logo. You will need to host the image somewhere else "
-          "and link to it with"
-          " ``\"http://www.openmicroscopy.org/site/logo.jpg\"``.")],
+          "and link to it with the OMERO logo.")],
     "omero.web.login_view":
         ["LOGIN_VIEW", "weblogin", str, None],
     "omero.web.staticfile_dirs":
