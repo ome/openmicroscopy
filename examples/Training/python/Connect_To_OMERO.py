@@ -70,11 +70,11 @@ if __name__ == '__main__':
     owners, members = group.groupSummary()
     print "   Group owners:"
     for o in owners:
-        print "     ID: %s %s Name: %s" % (
+        print "     ID: %s UserName: %s Name: %s" % (
             o.getId(), o.getOmeName(), o.getFullName())
     print "   Group members:"
     for m in members:
-        print "     ID: %s %s Name: %s" % (
+        print "     ID: %s UserName: %s Name: %s" % (
             m.getId(), m.getOmeName(), m.getFullName())
 
     print "Owner of:"
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     # New in OMERO 5
     print "Admins:"
     for exp in conn.getAdministrators():
-        print "   ID: %s %s Name: %s" % (
+        print "   ID: %s UserName: %s Name: %s" % (
             exp.getId(), exp.getOmeName(), exp.getFullName())
 
     # The 'context' of our current session
