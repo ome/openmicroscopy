@@ -40,6 +40,7 @@ def basic_line(default_id):
     shape.y1 = rdouble(1.0)
     shape.x2 = rdouble(2.0)
     shape.y2 = rdouble(3.0)
+    shape.strokeColor = rlong(287454207)     # 0x112233FF,r=17,g=34,b=51,a=255
     return shape
 
 
@@ -62,6 +63,7 @@ def basic_polyline(request, default_id):
     shape = omero.model.PolylineI()
     shape.id = rlong(default_id)
     shape.points = rstring(points)
+    shape.strokeColor = rlong(287453952)     # 0x11223300,r=17,g=34,b=51,a=0
     return shape
 
 
@@ -186,15 +188,25 @@ class TestShapeMarshal(object):
         assert 1.0 == marshaled['radiusX']
         assert 0.5 == marshaled['radiusY']
 
-    def test_rgba(self, basic_ellipse):
+    def test_rgba(self, basic_ellipse, basic_line, basic_polyline):
         color = unwrap(basic_ellipse.getFillColor())
         result = rgb_int2rgba(color)         # 0x11223344
         assert result[0] == 17               # r
         assert result[1] == 34               # g
         assert result[2] == 51               # b
-        assert result[3] == float(68) / 256  # a (as fraction)
+        assert result[3] == float(68) / 255  # a (as fraction)
 
         color = unwrap(basic_ellipse.getStrokeColor())
         result = rgb_int2css(color)            # 0x55667788
         assert result[0] == "#556677"          # rgb
-        assert result[1] == float(136) / 256   # a (as fraction)
+        assert result[1] == float(136) / 255   # a (as fraction)
+
+        color = unwrap(basic_line.getStrokeColor())
+        result = rgb_int2css(color)            # 0x112233FF
+        assert result[0] == "#112233"          # rgb
+        assert result[1] == 1                  # a (as fraction)
+
+        color = unwrap(basic_polyline.getStrokeColor())
+        result = rgb_int2css(color)            # 0x11223300
+        assert result[0] == "#112233"          # rgb
+        assert result[1] == 0                  # a (as fraction)
