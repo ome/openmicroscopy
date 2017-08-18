@@ -1417,7 +1417,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         # old list of owners
         old_owners = []
-        for oex in up_gr.copyGroupExperimenterMap():
+        for oex in group.copyGroupExperimenterMap():
             if oex is None:
                 continue
             if oex.owner.val:
