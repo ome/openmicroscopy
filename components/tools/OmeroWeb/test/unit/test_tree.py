@@ -187,7 +187,6 @@ class TestTree(object):
             # Test with matching owner_ids, which means
             # isOwned and canChgrp is True
             expected.append('isOwned')
-            # expected.append('canChgrp')
             expected.sort()
             received = parse_permissions_css(permissions_dict,
                                              owner_id,
