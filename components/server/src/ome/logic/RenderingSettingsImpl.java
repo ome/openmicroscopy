@@ -919,7 +919,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         // if there are no stats available the channel window start/end must be set to 
         // reasonable (real min/max) values (note: that only affects non-pyramid images)
         if (stats == null) {
-            int[] channels = new int[pixels.getSizeC()];
+            int[] channels = new int[pixels.sizeOfChannels()];
             for (int i = 0; i < channels.length; i++)
                 channels[i] = i;
             
@@ -949,13 +949,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                     min = qs.getPixelsTypeMin();
                     max = qs.getPixelsTypeMax();
                 }
-                cb.setInputStart(new Double(min));
-                cb.setInputEnd(new Double(max));
+                cb.setInputStart(min);
+                cb.setInputEnd(max);
             } else {
                 // use real min/max value of the pixels
                 cb.setInputStart(realMinMax.get(w)[0]);
                 cb.setInputEnd(realMinMax.get(w)[1]);
-                cb.setNoiseReduction(false);
             }
         }
     }
