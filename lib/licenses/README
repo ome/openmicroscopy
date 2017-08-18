@@ -1114,11 +1114,6 @@
   License File: mit.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/ie8_pngfix/*    
-  License:      MIT License
-  License File: mit.txt
-
-
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery-ui-1.10.4/*
   Project:      jQuery UI - open source library of interface components.
   Web Site:     http://jqueryui.com/
@@ -1154,25 +1149,12 @@
   License File: mit.txt, gpl-v3.0.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/JQuerySpinBtn-1.3a/*
-  Web Site:     http://www.softwareunity.com/jquery/JQuerySpinBtn/
-  License:      MIT License
-  License File: mit.txt
-
-
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/panojs-2.0.0/*
   Project:      An interactive JavaScript widget for panning and zooming a panoramic image
                 stitched together dynamically from smaller tiles. 
   Web Site:     http://www.dimin.net/software/panojs/
   License:      MIT License
   License File: mit.txt
-
-
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/pie-1.0beta5/*
-  Project:      progressive internet explorer
-  Web Site:     http://css3pie.com/
-  License:      Apache License, version 2 and GNU GENERAL PUBLIC LICENSE version 2
-  License File: apache-v2.0.txt, gpl-v2.0.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/raphael-2.1.0/*
