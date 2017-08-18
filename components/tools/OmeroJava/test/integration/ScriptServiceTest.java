@@ -248,6 +248,7 @@ public class ScriptServiceTest extends AbstractServerTest {
      */
     @Test
     public void testUploadScript() throws Exception {
+        newUserAndGroup("rwr---");
         IScriptPrx svc = factory.getScriptService();
         List<OriginalFile> scripts = svc.getScripts();
         final OriginalFile f = getRealScript(scripts);
@@ -339,7 +340,7 @@ public class ScriptServiceTest extends AbstractServerTest {
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    private String readScript(OriginalFile f) throws Exception {
+    String readScript(OriginalFile f) throws Exception {
         RawFileStorePrx store;
         byte[] values;
         store = factory.createRawFileStore();
@@ -357,7 +358,7 @@ public class ScriptServiceTest extends AbstractServerTest {
      * @param scripts some scripts
      * @return one of the scripts
      */
-    private static final OriginalFile getRealScript(Iterable<OriginalFile> scripts) {
+    static final OriginalFile getRealScript(Iterable<OriginalFile> scripts) {
         final Iterator<OriginalFile> scriptIterator = scripts.iterator();
         OriginalFile script;
         do {
