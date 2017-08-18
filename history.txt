@@ -86,7 +86,7 @@ Developer updates include:
 
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
-`5.5.2 <ttps://www.openmicroscopy.org/2017/06/15/bio-formats-5-5-2.html>`_.
+`5.5.2 <https://www.openmicroscopy.org/2017/06/15/bio-formats-5-5-2.html>`_.
 
 
 5.3.2 (May 2017)
@@ -1239,7 +1239,7 @@ Note: this version will still work with the Beta 1 server release.
 This major update provided our first support for multiple platforms via
 OMERO.Blitz. OMERO.insight now supports viewing work of multiple users. Beta 2
 is our first release of the Web2.0-like 'tag' system developed in
-collaboration with :about_plone:`Usable Image <project-history/catriona>`.
+collaboration with Usable Image from Dundee University Computing department.
 This version addresses issues with using our tools under Java 1.6
 
 Beta 1.1 (March 2007)
