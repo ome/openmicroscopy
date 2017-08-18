@@ -28,10 +28,10 @@ import omero.util.script_utils as scriptUtil
 from numpy import arange, uint8
 
 
-def createTestImage(session):
+def createTestImage(session, imageName="imageName"):
 
     plane2D = arange(256, dtype=uint8).reshape(16, 16)
-    image = scriptUtil.createNewImage(session, [plane2D], "imageName",
+    image = scriptUtil.createNewImage(session, [plane2D], imageName,
                                       "description", dataset=None)
 
     return image.getId().getValue()
