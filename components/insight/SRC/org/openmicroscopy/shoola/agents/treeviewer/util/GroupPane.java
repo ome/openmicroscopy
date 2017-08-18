@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -68,25 +68,29 @@ class GroupPane
     /** Initializes the components.
      * @param admin
      *            Pass <code>true</code> to enable admin-only permission changes
+     * @param addUsers
+     *            Pass <code>true</code> to enable owner/members settings
      */
-    private void initComponents(boolean admin)
+    private void initComponents(boolean admin, boolean addUsers)
     {
     	permissions = new PermissionsPane(admin);
     	permissions.setBorder(
 				BorderFactory.createTitledBorder("Permissions"));
     	descriptionArea = new JTextField();
-    	expPane = new ExperimenterPane(false, null, null);
-    	expPane.setBorder(
-				BorderFactory.createTitledBorder("Owner"));
-    	expPane.addPropertyChangeListener(new PropertyChangeListener() {
-			
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (AdminDialog.ENABLE_SAVE_PROPERTY.equals(
-						evt.getPropertyName()))
-				firePropertyChange(AdminDialog.ENABLE_SAVE_PROPERTY,
-						evt.getOldValue(), evt.getNewValue());
-			}
-		});
+
+        if (addUsers) {
+            expPane = new ExperimenterPane(false, null, null);
+            expPane.setBorder(BorderFactory.createTitledBorder("Owner"));
+            expPane.addPropertyChangeListener(new PropertyChangeListener() {
+
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if (AdminDialog.ENABLE_SAVE_PROPERTY.equals(evt
+                            .getPropertyName()))
+                        firePropertyChange(AdminDialog.ENABLE_SAVE_PROPERTY,
+                                evt.getOldValue(), evt.getNewValue());
+                }
+            });
+        }
     }
     
     /**
@@ -152,8 +156,10 @@ class GroupPane
         add(buildContentPanel(), c);
         c.gridy++;
         add(permissions, c);
-        c.gridy++;
-        add(expPane, c);
+        if (expPane != null) {
+            c.gridy++;
+            add(expPane, c);
+        }
     }
     
     /**
@@ -161,12 +167,14 @@ class GroupPane
      * 
      * @param admin
      *            Pass <code>true</code> to enable admin-only permission changes
+     * @param addUsers
+     *            Pass <code>true</code> to enable owner/members settings
      */
-	GroupPane(boolean admin)
-	{
-		initComponents(admin);
-		buildGUI();
-	}
+    GroupPane(boolean admin, boolean addUsers) {
+        initComponents(admin, addUsers);
+        buildGUI();
+    }
+	
 	/**
 	 * Returns <code>true</code> if the login name has been populated,
 	 * <code>false</code> otherwise.
@@ -193,7 +201,7 @@ class GroupPane
 		data.setDescription(descriptionArea.getText().trim());
 		Map<ExperimenterData, UserCredentials> 
 		m = new HashMap<ExperimenterData, UserCredentials>();
-		if (expPane.hasLoginCredentials())
+		if (expPane != null && expPane.hasLoginCredentials())
 			m = expPane.getObjectToSave();
 		AdminObject object = new AdminObject(data, m, AdminObject.CREATE_GROUP);
 		object.setPermissions(permissions.getPermissions());

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -218,7 +218,11 @@ public class CreateTopContainerAction
     {
         setEnabled(false);
         if (nodeType == GROUP) {
-            setEnabled(TreeViewerAgent.isAdministrator());
+            setEnabled(TreeViewerAgent.isEditGroup());
+            return;
+        }
+        if (nodeType == EXPERIMENTER) {
+            setEnabled(TreeViewerAgent.isEditUser());
             return;
         }
         if (model.getDisplayMode() == TreeViewer.EXPERIMENTER_DISPLAY
@@ -240,12 +244,12 @@ public class CreateTopContainerAction
                 if (ho instanceof ExperimenterData) {
                     long id = TreeViewerAgent.getUserDetails().getId();
                     ExperimenterData exp = (ExperimenterData) ho;
-                    setEnabled(exp.getId() == id);
+                    setEnabled(exp.getId() == id || TreeViewerAgent.isEditUser());
                     return;
                 }
                 if (ho instanceof GroupData) {
                     setEnabled(model.getDisplayMode() ==
-                            TreeViewer.GROUP_DISPLAY);
+                            TreeViewer.GROUP_DISPLAY && TreeViewerAgent.isEditGroup());
                     return;
                 }
                 setEnabled(model.canLink(ho));
@@ -260,7 +264,7 @@ public class CreateTopContainerAction
                 Object ho = selectedDisplay.getUserObject();
                 if (ho instanceof GroupData) {
                     TreeImageDisplay[] selected = browser.getSelectedDisplays();
-                    setEnabled(selected.length == 1);
+                    setEnabled(selected.length == 1 && TreeViewerAgent.isEditGroup());
                 } else setEnabled(false);
             }
         }

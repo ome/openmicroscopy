@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.LookupNames
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -169,6 +169,18 @@ public class LookupNames
 
     /** Field indicating if the user is an administrator. */
     public static final String USER_ADMINISTRATOR = "/users/administrator";
+    
+    /** Field indicating if the user can edit users. */
+    public static final String PRIV_EDIT_USER = "/users/edit";
+    
+    /** Field indicating if the user can edit groups. */
+    public static final String PRIV_EDIT_GROUP = "/groups/edit";
+    
+    /** Field indicating if the user move objects to/from groups. */
+    public static final String PRIV_MOVE_GROUP = "/groups/move";
+    
+    /** Field indicating if the user add group members. */
+    public static final String PRIV_GROUP_ADD = "/groups/add";
 
     /** Field to indicate if the connection is fast or not. */
     public static final String IMAGE_QUALITY_LEVEL = "/connection/speed";

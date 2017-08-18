@@ -634,10 +634,26 @@ class OmeroMetadataServiceImpl
 			}
 		}
 		else if (annotation instanceof RatingAnnotationData) {
-			clearAnnotation(ctx, data.getClass(), data.getId(),
-					RatingAnnotationData.class);
-			link = ModelMapper.linkAnnotation(ho, an);
-		} else {
+		    RatingAnnotationData ra = (RatingAnnotationData) annotation;
+            link = findAnnotationLink(ctx, ho.getClass(),
+                    ho.getId().getValue(), ra.getId(), expIds);
+            if (link == null)
+                link = ModelMapper.linkAnnotation(ho, an);
+            else {
+                updateAnnotationData(ctx, ra);
+                exist = true;
+            }
+		} else if (annotation instanceof LongAnnotationData) {
+		    LongAnnotationData ra = (LongAnnotationData) annotation;
+            link = findAnnotationLink(ctx, ho.getClass(),
+                    ho.getId().getValue(), ra.getId(), expIds);
+            if (link == null)
+                link = ModelMapper.linkAnnotation(ho, an);
+            else {
+                updateAnnotationData(ctx, ra);
+                exist = true;
+            }
+        } else {
 			link = ModelMapper.linkAnnotation(ho, an);
 		}
 		if (link != null && !exist) 
@@ -712,7 +728,16 @@ class OmeroMetadataServiceImpl
 			ho.setDescription(omero.rtypes.rstring(tag.getDescription()));
 			IObject object = gateway.updateObject(ctx, ho, new Parameters());
 			return PojoMapper.asDataObject(object);
-		} else if (ann instanceof LongAnnotationData && ann.isDirty()) {
+		} else if (ann instanceof RatingAnnotationData && ann.isDirty()) {
+		    RatingAnnotationData tag = (RatingAnnotationData) ann;
+            id = tag.getId();
+            ioType = PojoMapper.getModelType(LongAnnotationData.class).getName();
+            LongAnnotation ho = (LongAnnotation) gateway.findIObject(ctx,
+                    ioType, id);
+            ho.setLongValue(omero.rtypes.rlong(tag.getRating()));
+            IObject object = gateway.updateObject(ctx, ho, new Parameters());
+            return PojoMapper.asDataObject(object);
+        } else if (ann instanceof LongAnnotationData && ann.isDirty()) {
 			LongAnnotationData tag = (LongAnnotationData) ann;
 			id = tag.getId();
 			ioType = PojoMapper.getModelType(LongAnnotationData.class).getName();

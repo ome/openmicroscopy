@@ -1972,7 +1972,7 @@ class TreeViewerComponent
 	 */
 	public boolean canChgrp(Object ho)
 	{
-		if (TreeViewerAgent.isAdministrator()) return true;
+		if (TreeViewerAgent.isMoveGroup()) return true;
 		long id = model.getUserDetails().getId();
 		boolean b = false;
 		if (ho instanceof TreeImageTimeSet) {

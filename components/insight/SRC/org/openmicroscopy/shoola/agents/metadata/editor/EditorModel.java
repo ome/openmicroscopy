@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -2395,6 +2395,22 @@ class EditorModel
 		}
 		return n;
 	}
+	
+    /**
+     * Returns the rating done by the current user.
+     * 
+     * @return See above
+     */
+    RatingAnnotationData getUserRatingData() {
+        if (!isMultiSelection()) {
+            Map<DataObject, RatingAnnotationData> map = getAllUserRatingAnnotation();
+            for (Entry<DataObject, RatingAnnotationData> e : map.entrySet()) {
+                if (e.getValue().getOwner().getId() == getLoggedInUserID())
+                    return e.getValue();
+            }
+        }
+        return null;
+    }
 	
 	/** 
 	 * Returns the average rating value.

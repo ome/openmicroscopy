@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -341,7 +341,7 @@ implements ActionListener, PropertyChangeListener
             }
             body = new ExperimenterPane(true, groups, selected);
         } else if (GroupData.class.equals(type)) {
-            body = new GroupPane(TreeViewerAgent.isAdministrator());
+            body = new GroupPane(TreeViewerAgent.isAdministrator(), TreeViewerAgent.isAddToGroup());
         }
         body.addPropertyChangeListener(this);
         initComponents();
