@@ -757,7 +757,7 @@ class ExperimenterGroupsView(ObjectsView):
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
         'url:groups': {'name': 'api_group',
-                      'kwargs': {'object_id': 'OBJECT_ID'}},
+                       'kwargs': {'object_id': 'OBJECT_ID'}},
         'url:experimenters': {'name': 'api_group_experimenters',
                               'kwargs': {'group_id': 'OBJECT_ID'}},
     }
