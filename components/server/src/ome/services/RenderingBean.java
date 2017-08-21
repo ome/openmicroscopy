@@ -787,7 +787,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         // Emulate setModel(RenderingModel)
         RenderingModel model = settings.getModel();
-        setModel(model);
+        if (model != null) {
+            setModel(model);
+        }
         // Emulate setDefaultZ(int)
         Integer defaultZ = settings.getDefaultZ();
         if (defaultZ != null) {
@@ -808,13 +810,17 @@ public class RenderingBean implements RenderingEngine, Serializable {
             // Emulate setCodmainInterval(int, int)
             Integer start = quantumDef.getCdStart();
             Integer end = quantumDef.getCdEnd();
-            setCodomainInterval(start, end);
+            if (start != null && end != null) {
+                setCodomainInterval(start, end);
+            }
         }
         for (int w = 0; w < settings.sizeOfWaveRendering(); w++) {
             ChannelBinding cb = settings.getChannelBinding(w);
             // Emulate setActive(boolean)
             Boolean active = cb.getActive();
-            setActive(w, active);
+            if (active != null) {
+                setActive(w, active);
+            }
             // Emulate setChannelWindow(int, double, double)
             Double start = cb.getInputStart();
             Double end = cb.getInputEnd();
