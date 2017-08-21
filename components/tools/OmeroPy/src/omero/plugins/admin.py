@@ -37,7 +37,7 @@ from omero.cli import UserGroupControl
 from omero.model.enums import AdminPrivilegeReadSession
 
 from omero.plugins.prefs import \
-    WriteableConfigControl, with_config, with_rw_config
+    WriteableConfigControl, with_config
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
 from omero_ext import portalocker
