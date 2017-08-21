@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2016 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package omeis.providers.re;
@@ -29,6 +29,7 @@ import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.codomain.CodomainMapContext;
+import omeis.providers.re.codomain.InverseIntensityContext;
 import omeis.providers.re.codomain.ReverseIntensityContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.PlaneFactory;
@@ -334,6 +335,9 @@ public class Renderer {
     {
         if (ctx instanceof ome.model.display.ReverseIntensityContext) {
             return new ReverseIntensityContext();
+        }
+        if (ctx instanceof ome.model.display.InverseIntensityContext) {
+            return new InverseIntensityContext();
         }
         return null;
     }

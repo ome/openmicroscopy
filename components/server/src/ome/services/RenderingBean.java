@@ -40,7 +40,6 @@ import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
-//import ome.model.display.ReverseIntensityContext;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.model.roi.Mask;
@@ -57,8 +56,8 @@ import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.codomain.CodomainChain;
-import omeis.providers.re.codomain.CodomainMap;
 import omeis.providers.re.codomain.CodomainMapContext;
+import omeis.providers.re.codomain.InverseIntensityContext;
 import omeis.providers.re.codomain.ReverseIntensityContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.RegionDef;
@@ -1319,6 +1318,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
         if (mapCtx instanceof ReverseIntensityContext) {
             ome.model.display.ReverseIntensityContext c = new ome.model.display.ReverseIntensityContext();
             c.setReverse(true);
+            return c;
+        }
+        if (mapCtx instanceof InverseIntensityContext) {
+            ome.model.display.InverseIntensityContext c = new ome.model.display.InverseIntensityContext();
+            c.setInverse(true);
             return c;
         }
         return null;
