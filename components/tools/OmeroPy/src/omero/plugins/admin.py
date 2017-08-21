@@ -1783,14 +1783,6 @@ OMERO Diagnostics %s
                            stdout=sys.stdout, stderr=sys.stderr)
         self.ctx.rv = p.wait()
 
-    @with_rw_config
-    def ports(self, args, config):
-        self.ctx.err(
-            "WARNING: the admin ports subcommand is deprecated. Changes will"
-            " be overwritten the next time the configuration files are"
-            " regenerated. Use the omero.ports.xxx configuration properties"
-            " instead.")
-
     @admin_only(AdminPrivilegeReadSession)
     def cleanse(self, args):
         self.check_access()
