@@ -36,6 +36,7 @@ import omero.cmd.Delete2;
 import omero.gateway.util.Requests;
 import omero.model.Channel;
 import omero.model.ChannelBinding;
+import omero.model.ChannelBindingI;
 import omero.model.CodomainMapContext;
 import omero.model.ExperimenterGroup;
 import omero.model.Family;
@@ -48,7 +49,9 @@ import omero.model.ProjectionDef;
 import omero.model.ProjectionDefI;
 import omero.model.ProjectionTypeI;
 import omero.model.QuantumDef;
+import omero.model.QuantumDefI;
 import omero.model.RenderingDef;
+import omero.model.RenderingDefI;
 import omero.model.RenderingModel;
 import omero.model.ReverseIntensityContext;
 import omero.model.ReverseIntensityContextI;
@@ -3650,6 +3653,215 @@ public class RenderingEngineTest extends AbstractServerTest {
             Assert.assertEquals(re.getChannelLookupTable(i),
                     cb.getLookupTable().getValue());
             Assert.assertNull(rnd_def.getChannelBinding(i).getLookupTable());
+            int[] values = re.getRGBA(i);
+            Assert.assertEquals(values[0], cb.getRed().getValue());
+            Assert.assertEquals(values[1], cb.getGreen().getValue());
+            Assert.assertEquals(values[2], cb.getBlue().getValue());
+            Assert.assertEquals(values[3], cb.getAlpha().getValue());
+        }
+    }
+
+    /**
+     * Tests the update of the rendering settings using settings from an image
+     * with less channels than the one used to initialize the rendering engines.
+     * @throws Exception
+     */
+    @Test
+    public void testUpdateSettingsUsingSettingsfromImageWithLessChannels() throws Exception {
+        Image image = createBinaryImage(10, 10, 4, 4, 2);
+        Image image_destination = createBinaryImage(10, 10, 4, 4, 3);
+        Pixels p = image.getPrimaryPixels();
+        Pixels p_destination = image_destination.getPrimaryPixels();
+        long id = p.getId().getValue();
+        long id_destination = p_destination.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id,
+                        id_destination));
+        //Change the rendering settings of the source
+        RenderingDef rnd_def = factory.getPixelsService().retrieveRndSettings(id);
+        //By default no lut set
+        for (int i = 0; i < p.getSizeC().getValue(); i++) {
+            rnd_def.getChannelBinding(i).setLookupTable(omero.rtypes.rstring("channel"+i));
+        }
+        rnd_def = (RenderingDef) factory.getUpdateService().saveAndReturnObject(rnd_def);
+        RenderingDef rnd_def_destination = factory.getPixelsService().retrieveRndSettings(id_destination);
+      //Change the rendering settings of the source
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id_destination);
+        if (!(re.lookupRenderingDef(id_destination))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id_destination);
+        }
+        re.load();
+        re.updateSettings(rnd_def);
+        //Check the values
+        Assert.assertEquals(re.getDefaultT(), rnd_def.getDefaultT().getValue());
+        Assert.assertEquals(re.getDefaultZ(), rnd_def.getDefaultZ().getValue());
+        Assert.assertEquals(re.getModel().getId().getValue(),
+                rnd_def.getModel().getId().getValue());
+        QuantumDef q_def = re.getQuantumDef();
+        if (q_def != null) {
+            Assert.assertEquals(q_def.getBitResolution().getValue(),
+                    rnd_def.getQuantization().getBitResolution().getValue());
+            Assert.assertEquals(q_def.getCdEnd().getValue(),
+                    rnd_def.getQuantization().getCdEnd().getValue());
+            Assert.assertEquals(q_def.getCdStart().getValue(),
+                    rnd_def.getQuantization().getCdStart().getValue());
+        }
+        for (int i = 0; i < p.getSizeC().getValue(); i++) {
+            ChannelBinding cb = rnd_def.getChannelBinding(i);
+            Assert.assertEquals(re.getChannelFamily(i).getId().getValue(),
+                    cb.getFamily().getId().getValue());
+            Assert.assertEquals(re.getChannelWindowStart(i),
+                    cb.getInputStart().getValue());
+            Assert.assertEquals(re.getChannelWindowEnd(i),
+                    cb.getInputEnd().getValue());
+            Assert.assertEquals(re.isActive(i), cb.getActive().getValue());
+            Assert.assertEquals(re.getChannelCurveCoefficient(i),
+                    cb.getCoefficient().getValue());
+            Assert.assertEquals(re.getChannelNoiseReduction(i),
+                    cb.getNoiseReduction().getValue());
+            Assert.assertEquals(re.getChannelLookupTable(i),
+                    cb.getLookupTable().getValue());
+            Assert.assertNull(rnd_def_destination.getChannelBinding(i).getLookupTable());
+            int[] values = re.getRGBA(i);
+            Assert.assertEquals(values[0], cb.getRed().getValue());
+            Assert.assertEquals(values[1], cb.getGreen().getValue());
+            Assert.assertEquals(values[2], cb.getBlue().getValue());
+            Assert.assertEquals(values[3], cb.getAlpha().getValue());
+        }
+    }
+
+    /**
+     * Tests the update of the rendering settings using settings from an image
+     * with more channels than the one used to initialize the rendering engines.
+     * @throws Exception
+     */
+    @Test(expectedExceptions = omero.InternalException.class)
+    public void testUpdateSettingsUsingSettingsfromImageWithMoreChannels() throws Exception {
+        Image image = createBinaryImage(10, 10, 4, 4, 4);
+        Image image_destination = createBinaryImage(10, 10, 4, 4, 3);
+        Pixels p = image.getPrimaryPixels();
+        Pixels p_destination = image_destination.getPrimaryPixels();
+        long id = p.getId().getValue();
+        long id_destination = p_destination.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id,
+                        id_destination));
+        //Change the rendering settings of the source
+        RenderingDef rnd_def = factory.getPixelsService().retrieveRndSettings(id);
+        //By default no lut set
+        for (int i = 0; i < p.getSizeC().getValue(); i++) {
+            rnd_def.getChannelBinding(i).setLookupTable(omero.rtypes.rstring("channel"+i));
+        }
+        rnd_def = (RenderingDef) factory.getUpdateService().saveAndReturnObject(rnd_def);
+        RenderingDef rnd_def_destination = factory.getPixelsService().retrieveRndSettings(id_destination);
+      //Change the rendering settings of the source
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id_destination);
+        if (!(re.lookupRenderingDef(id_destination))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id_destination);
+        }
+        re.load();
+        re.updateSettings(rnd_def);
+        //Check the values
+        Assert.assertEquals(re.getDefaultT(), rnd_def.getDefaultT().getValue());
+        Assert.assertEquals(re.getDefaultZ(), rnd_def.getDefaultZ().getValue());
+        Assert.assertEquals(re.getModel().getId().getValue(),
+                rnd_def.getModel().getId().getValue());
+        QuantumDef q_def = re.getQuantumDef();
+        if (q_def != null) {
+            Assert.assertEquals(q_def.getBitResolution().getValue(),
+                    rnd_def.getQuantization().getBitResolution().getValue());
+            Assert.assertEquals(q_def.getCdEnd().getValue(),
+                    rnd_def.getQuantization().getCdEnd().getValue());
+            Assert.assertEquals(q_def.getCdStart().getValue(),
+                    rnd_def.getQuantization().getCdStart().getValue());
+        }
+        for (int i = 0; i < p.getSizeC().getValue(); i++) {
+            ChannelBinding cb = rnd_def.getChannelBinding(i);
+            Assert.assertEquals(re.getChannelFamily(i).getId().getValue(),
+                    cb.getFamily().getId().getValue());
+            Assert.assertEquals(re.getChannelWindowStart(i),
+                    cb.getInputStart().getValue());
+            Assert.assertEquals(re.getChannelWindowEnd(i),
+                    cb.getInputEnd().getValue());
+            Assert.assertEquals(re.isActive(i), cb.getActive().getValue());
+            Assert.assertEquals(re.getChannelCurveCoefficient(i),
+                    cb.getCoefficient().getValue());
+            Assert.assertEquals(re.getChannelNoiseReduction(i),
+                    cb.getNoiseReduction().getValue());
+            Assert.assertEquals(re.getChannelLookupTable(i),
+                    cb.getLookupTable().getValue());
+            Assert.assertNull(rnd_def_destination.getChannelBinding(i).getLookupTable());
+            int[] values = re.getRGBA(i);
+            Assert.assertEquals(values[0], cb.getRed().getValue());
+            Assert.assertEquals(values[1], cb.getGreen().getValue());
+            Assert.assertEquals(values[2], cb.getBlue().getValue());
+            Assert.assertEquals(values[3], cb.getAlpha().getValue());
+        }
+    }
+
+    /**
+     * Tests the update of the rendering settings passing an empty rendering
+     * settings object
+     * @throws Exception
+     */
+    @Test
+    public void testUpdateSettingsWithNullValues() throws Exception {
+        Image image = createBinaryImage(10, 10, 4, 4, 1);
+        Pixels p = image.getPrimaryPixels();
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        //Change the rendering settings of the source
+        RenderingDef rnd_def = factory.getPixelsService().retrieveRndSettings(id);
+        //By default no lut set
+        for (int i = 0; i < p.getSizeC().getValue(); i++) {
+            rnd_def.getChannelBinding(i).setLookupTable(omero.rtypes.rstring("channel"+i));
+        }
+        rnd_def = (RenderingDef) factory.getUpdateService().saveAndReturnObject(rnd_def);
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        RenderingDef def_null = new RenderingDefI();
+        def_null.setQuantization(new QuantumDefI());
+        def_null.addChannelBinding(new ChannelBindingI());
+        re.updateSettings(def_null);
+        //Check the values
+        Assert.assertEquals(re.getDefaultT(), rnd_def.getDefaultT().getValue());
+        Assert.assertEquals(re.getDefaultZ(), rnd_def.getDefaultZ().getValue());
+        Assert.assertEquals(re.getModel().getId().getValue(),
+                rnd_def.getModel().getId().getValue());
+        QuantumDef q_def = re.getQuantumDef();
+        if (q_def != null) {
+            Assert.assertEquals(q_def.getBitResolution().getValue(),
+                    rnd_def.getQuantization().getBitResolution().getValue());
+            Assert.assertEquals(q_def.getCdEnd().getValue(),
+                    rnd_def.getQuantization().getCdEnd().getValue());
+            Assert.assertEquals(q_def.getCdStart().getValue(),
+                    rnd_def.getQuantization().getCdStart().getValue());
+        }
+        for (int i = 0; i < p.getSizeC().getValue(); i++) {
+            ChannelBinding cb = rnd_def.getChannelBinding(i);
+            Assert.assertEquals(re.getChannelFamily(i).getId().getValue(),
+                    cb.getFamily().getId().getValue());
+            Assert.assertEquals(re.getChannelWindowStart(i),
+                    cb.getInputStart().getValue());
+            Assert.assertEquals(re.getChannelWindowEnd(i),
+                    cb.getInputEnd().getValue());
+            Assert.assertEquals(re.isActive(i), cb.getActive().getValue());
+            Assert.assertEquals(re.getChannelCurveCoefficient(i),
+                    cb.getCoefficient().getValue());
+            Assert.assertEquals(re.getChannelNoiseReduction(i),
+                    cb.getNoiseReduction().getValue());
+            Assert.assertEquals(re.getChannelLookupTable(i),
+                    cb.getLookupTable().getValue());
             int[] values = re.getRGBA(i);
             Assert.assertEquals(values[0], cb.getRed().getValue());
             Assert.assertEquals(values[1], cb.getGreen().getValue());
