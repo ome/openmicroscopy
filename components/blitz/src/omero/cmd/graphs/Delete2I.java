@@ -121,6 +121,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
             final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
             arguments.addParameter("targetObjects", targetObjects);
             arguments.addParameter("childOptions", childOptions);
+            arguments.addParameter("typesToIgnore", typesToIgnore);
             arguments.addParameter("dryRun", dryRun);
             LOGGER.debug("request: " + arguments);
         }
