@@ -130,6 +130,8 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
         helper.setSteps(dryRun ? 4 : 6);
         this.graphHelper = new GraphHelper(helper, graphPathBean);
 
+        graphPolicy = IgnoreTypePolicy.getIgnoreTypePolicy(graphPolicy, graphHelper.getClassesFromNames(typesToIgnore));
+
         graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
                 aclVoter, graphPathBean, unnullable, new InternalProcessor(), dryRun);
 
