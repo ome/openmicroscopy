@@ -96,7 +96,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     protected transient IPixels pixelsMetadata;
  
     /** Reference to the raw pixels store. */
-    private RawPixelsStore rawPixStore;
+    private RawPixelsStore rawPixelsStore;
     
     /**
      * Returns the min/max depending on the pixels type if the values
@@ -923,8 +923,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             for (int i = 0; i < channels.length; i++)
                 channels[i] = i;
             
-            rawPixStore.setPixelsId(pixels.getId(), true);
-            realMinMax = rawPixStore.findMinMax(channels);
+            rawPixelsStore.setPixelsId(pixels.getId(), true);
+            realMinMax = rawPixelsStore.findMinMax(channels);
         }
         
         StatsFactory sf = new StatsFactory();
@@ -1191,12 +1191,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     /**
      * Sets injector. For use during configuration. Can only be called once.
      * 
-     * @param rawPixStore
+     * @param rawPixelsStore
      *            The value to set.
      */
-    public void setRawPixStore(RawPixelsStore rawPixStore) {
-        getBeanHelper().throwIfAlreadySet(this.rawPixStore, rawPixStore);
-        this.rawPixStore = rawPixStore;
+    public void setRawPixelsStore(RawPixelsStore rawPixelsStore) {
+        getBeanHelper().throwIfAlreadySet(this.rawPixelsStore, rawPixelsStore);
+        this.rawPixelsStore = rawPixelsStore;
     }
 
     /**
