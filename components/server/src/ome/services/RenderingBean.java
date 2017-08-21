@@ -848,6 +848,13 @@ public class RenderingBean implements RenderingEngine, Serializable {
             if (lookupTable != null) {
                 setChannelLookupTable(w, lookupTable);
             }
+            // Emulate addCodomainMapToChannel(CodomainMapContext, int)
+            for (int i = 0; i < cb.sizeOfSpatialDomainEnhancement(); i++) {
+                ome.model.display.CodomainMapContext ctx = cb.getCodomainMapContext(i);
+                if (ctx != null) {
+                    addCodomainMapToChannel(reverse(ctx), w);
+                }
+            }
         }
     }
 
@@ -1397,6 +1404,19 @@ public class RenderingBean implements RenderingEngine, Serializable {
             ome.model.display.ReverseIntensityContext c = new ome.model.display.ReverseIntensityContext();
             c.setReverse(true);
             return c;
+        }
+        return null;
+    }
+
+    /**
+     * Reverse the ome.model objectt into the corresponding codomain context.
+     * @param ctx The context to convert.
+     * @return See above.
+     */
+    private CodomainMapContext reverse(ome.model.display.CodomainMapContext ctx)
+    {
+        if (ctx instanceof ome.model.display.ReverseIntensityContext) {
+            return new ReverseIntensityContext();
         }
         return null;
     }
