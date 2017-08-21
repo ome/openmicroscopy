@@ -3481,6 +3481,7 @@ public class RenderingEngineTest extends AbstractServerTest {
             for (int l = 0; l < rgba.length; l++) {
                 Assert.assertNotEquals(rgba[l], prx.rgba[l]);
             }
+            cb.addCodomainMapContext(new ReverseIntensityContextI());
         }
         //Apply the setting
         re.updateSettings(rnd_def);
@@ -3509,6 +3510,11 @@ public class RenderingEngineTest extends AbstractServerTest {
             for (int k = 0; k < values.length; k++) {
                 Assert.assertEquals(values[k], prx.rgba[k]);
             }
+            List<IObject> codomains = re.getCodomainMapContext(i);
+            Assert.assertNotNull(codomains);
+            Assert.assertEquals(codomains.size(), 1);
+            CodomainMapContext ctx = (CodomainMapContext) codomains.get(0);
+            Assert.assertTrue(ctx instanceof ReverseIntensityContext);
         }
     }
 
@@ -3833,7 +3839,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         def_null.setQuantization(new QuantumDefI());
         def_null.addChannelBinding(new ChannelBindingI());
         re.updateSettings(def_null);
-        //Check the values
+        //Check the values have not changed.
         Assert.assertEquals(re.getDefaultT(), rnd_def.getDefaultT().getValue());
         Assert.assertEquals(re.getDefaultZ(), rnd_def.getDefaultZ().getValue());
         Assert.assertEquals(re.getModel().getId().getValue(),
