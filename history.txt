@@ -318,7 +318,7 @@ System administrator updates include:
    existing servers and adding it to the documentation as soon as we can)
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
-5.1.9. `See whats-new for more information <http://www.openmicroscopy.org/2016/04/18/bio-formats-5-1-9.html>`_.
+`5.1.9 <http://www.openmicroscopy.org/2016/04/18/bio-formats-5-1-9.html>`_.
 
 5.2.2 (February 2016)
 ---------------------
@@ -363,7 +363,7 @@ Note that the OMERO Virtual Appliance has been discontinued and will not be
 updated for version 5.2.2 or any later releases.
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
-5.1.8. `See whats-new for more information <http://www.openmicroscopy.org/2016/02/15/bio-formats-5-1-8.html>`_.
+`5.1.8 <http://www.openmicroscopy.org/2016/02/15/bio-formats-5-1-8.html>`_.
 
 5.2.1 (December 2015)
 ---------------------
