@@ -19,8 +19,6 @@ package omeis.providers.re.codomain;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2
- * @since OME2.2
  */
 class InverseIntensityMap implements CodomainMap {
 
