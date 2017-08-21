@@ -3862,7 +3862,7 @@ class _BlitzGateway (object):
         return {'imageCount': len(imageIds), 'updateCount': updateCount}
 
     def createOriginalFileFromFileObj(self, fo, path, name, fileSize,
-                                      mimetype=None, ns=None):
+                                      mimetype=None):
         """
         Creates a :class:`OriginalFileWrapper` from a local file.
         File is uploaded to create an omero.model.OriginalFileI.
@@ -3875,7 +3875,6 @@ class _BlitzGateway (object):
         :param fileSize:                The file size
         :param mimetype:                The mimetype of the file. String.
                                         E.g. 'text/plain'
-        :param ns:                      The file namespace
         :return:                        New :class:`OriginalFileWrapper`
         """
         updateService = self.getUpdateService()
@@ -3925,7 +3924,7 @@ class _BlitzGateway (object):
 
     def createOriginalFileFromLocalFile(self, localPath,
                                         origFilePathAndName=None,
-                                        mimetype=None, ns=None):
+                                        mimetype=None):
         """
         Creates a :class:`OriginalFileWrapper` from a local file.
         File is uploaded to create an omero.model.OriginalFileI.
@@ -3938,7 +3937,6 @@ class _BlitzGateway (object):
                                         OriginalFile. If None, use localPath
         :param mimetype:                The mimetype of the file. String.
                                         E.g. 'text/plain'
-        :param ns:                      The namespace of the file.
         :return:                        New :class:`OriginalFileWrapper`
         """
         if origFilePathAndName is None:
@@ -3975,7 +3973,7 @@ class _BlitzGateway (object):
 
         # create and upload original file
         originalFile = self.createOriginalFileFromLocalFile(
-            localPath, origFilePathAndName, mimetype, ns)
+            localPath, origFilePathAndName, mimetype)
 
         # create FileAnnotation, set ns & description and return wrapped obj
         fa = omero.model.FileAnnotationI()
