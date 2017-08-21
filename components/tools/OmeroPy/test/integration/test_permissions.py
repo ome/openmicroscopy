@@ -864,7 +864,7 @@ class TestPermissionProjections(ITest):
     def assertPerms(self, perms, fixture):
         found_arr = []
         expected_arr = []
-        for x in ("Annotate", "Delete", "Edit", "Link"):
+        for x in ("Annotate", "Delete", "Edit", "Link", "Chgrp", "Chown"):
             key = "can%s" % x
             found = bool(perms[key])
             found_arr.append(found)
@@ -874,7 +874,8 @@ class TestPermissionProjections(ITest):
 
     @pytest.mark.parametrize("fixture", PFS,
                              ids=[x.get_name() for x in PFS])
-    def testProjectionPermissions(self, fixture):
+    def testProjectionPermissionsWorkaround(self, fixture):
+        """Test we get same permissions via _details_permissions map"""
         writer = self.writer(fixture)
         reader = self.reader(fixture)
         project = self.make_project(name="testProjectPermissions",
@@ -904,7 +905,7 @@ class TestPermissionProjections(ITest):
 
     @pytest.mark.parametrize("fixture", PFS,
                              ids=[x.get_name() for x in PFS])
-    def testProjectionPermissionsWorkaround(self, fixture):
+    def testProjectionPermissions(self, fixture):
         writer = self.writer(fixture)
         reader = self.reader(fixture)
         project = self.make_project(name="testProjectPermissions",
@@ -936,7 +937,9 @@ class TestPermissionProjections(ITest):
                     "canChgrp": perms.canChgrp(),
                     "canChown": perms.canChown(),
                 }
+
                 self._cache[key] = value
+
         except IndexError:
             # No permissions were returned.
             assert not fixture.canRead
