@@ -777,7 +777,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      *
-     * @see RenderingEngine#updateSettings()
+     * @see RenderingEngine#updateSettings(RenderingDef)
      */
     @RolesAllowed("user")
     public void updateSettings(RenderingDef settings) {
