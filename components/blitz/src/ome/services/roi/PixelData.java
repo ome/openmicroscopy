@@ -16,6 +16,7 @@ import ome.conditions.ValidationException;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
+import ome.model.core.Pixels;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,22 @@ public class PixelData {
                 pd.dispose();
             }
         }
+    }
+
+    public  ome.util.PixelData getPlane(PixelBuffer buf, int z, int c, int t) {
+        try {
+            return  buf.getPlane(z, c, t);
+        } catch (IOException e) {
+            throw new ResourceError("IOException: " + e);
+        } catch (DimensionsOutOfBoundsException e) {
+            throw new ApiUsageException("DimensionsOutOfBounds: " + e);
+        } catch (IndexOutOfBoundsException iobe) {
+            throw new ValidationException("IndexOutOfBounds: " + iobe);
+        }
+    }
+
+    public boolean needsPyramid(Pixels pix) {
+        return data.requiresPixelsPyramid(pix);
     }
 
 }

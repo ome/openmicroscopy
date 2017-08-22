@@ -10,13 +10,20 @@ package omero.model;
 import static omero.rtypes.rstring;
 
 import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.Random;
 
 public class SmartPolygonI extends omero.model.PolygonI implements SmartShape {
 
     public void areaPoints(PointCallback cb) {
-        throw new UnsupportedOperationException();
+        Shape s = asAwtShape();
+        if (s == null) {
+            return;
+        }
+        if (transform != null) s = Util.transformAwtShape(s, transform);
+        Rectangle2D r = s.getBounds2D();
+        Util.pointsByBoundingBox(s, r, cb);
     }
     
     public Shape asAwtShape() {

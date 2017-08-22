@@ -10,6 +10,8 @@ package omero.model;
 import static omero.rtypes.rdouble;
 
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -18,7 +20,17 @@ public class SmartPointI extends omero.model.PointI implements SmartShape {
 
     public void areaPoints(PointCallback cb) {
         try {
-            cb.handle((int) x.getValue(), (int) y.getValue());
+            double point_x = x.getValue();
+            double point_y = y.getValue();
+            if (transform != null) {
+                final AffineTransform t = Util.getAwtTransform(transform);
+                
+                final Point2D p = 
+                    t.transform(new Point2D.Double(point_x, point_y), null);
+                point_x = p.getX();
+                point_y = p.getY();
+        	 }
+            cb.handle((int) point_x, (int) point_y);
         } catch (NullPointerException npe) {
             return;
         }

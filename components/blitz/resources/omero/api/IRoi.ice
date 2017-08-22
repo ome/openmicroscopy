@@ -177,6 +177,21 @@ module omero {
                 idempotent
                 ShapeStatsList getShapeStatsList(LongList shapeIdList) throws omero::ServerError;
 
+                /**
+                 * Calculate the stats for the points within the given Shapes.
+                 * Varies to the above in the following ways:
+                 * - does not allow tiled images
+                 * - shapes have to be all belonging to the same image
+                 * - unattached z/t use the fallback parameters zForUnattached/tForUnattached
+                 *   that is to say there is never more than 1 z/t combination queried
+                 * - if channel list is given, only the channels in that list are iterated over
+                 * - does not request data from reader on each iteration 
+                 **/
+                ["deprecated:IROI is deprecated."]
+                idempotent
+                ShapeStatsList getShapeStatsRestricted(
+                    LongList shapeIdList, int zForUnattached, int tForUnattached, IntegerArray channels) throws omero::ServerError;
+
                 //
                 // Measurement-based methods
                 //

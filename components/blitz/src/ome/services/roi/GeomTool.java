@@ -13,9 +13,12 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.conditions.ApiUsageException;
@@ -44,6 +47,7 @@ import omero.util.ObjectFactoryRegistry.ObjectFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.hibernate.Query;
 import org.hibernate.Session;
 
@@ -247,7 +251,6 @@ public class GeomTool {
             final ome.model.roi.Shape shape = (ome.model.roi.Shape) session
                     .createQuery(
                             "select s from Shape s "
-                                    + "left outer join fetch s.channels selected " // optional
                                     + "join fetch s.roi r join fetch r.image i "
                                     + "join fetch i.pixels p join fetch p.channels c "
                                     + "join fetch c.logicalChannel lc "
@@ -352,6 +355,129 @@ public class GeomTool {
 
         return rs;
 
+    }
+
+    public ShapeStats [] getStatsRestricted(
+            List<Long> shapeIds, 
+            int z_for_unattached, int t_for_unattached,
+            int[] channels) {
+        if (shapeIds == null || shapeIds.isEmpty()) {
+            return null;
+        }
+
+        final Session session = factory.getSession();
+        final List<ShapeStats> shapeStats = 
+            new ArrayList<ShapeStats>(shapeIds.size());
+        // we lump together shapes that belong to the same z/t
+        // in order to not have to read the same z/t twice
+        final Map<String, List<ome.model.roi.Shape>> zt_lookup =
+            new HashMap<String, List<ome.model.roi.Shape>>();
+
+       // fetch shapes from db and perform some basic checks
+       List results = 
+           session.createQuery(
+               "select distinct s from Shape s " + 
+               "join fetch s.roi r join fetch r.image i " + 
+               "join fetch i.pixels p join fetch p.channels c " + 
+               "join fetch c.logicalChannel lc where s.id in (:ids)").
+           setParameterList("ids", shapeIds).list();
+       
+       ome.model.core.Image image = null;
+       for (final Object r : results) {
+           final ome.model.roi.Shape shape = (ome.model.roi.Shape) r;
+           final ome.model.roi.Roi roi = shape.getRoi();
+           final ome.model.core.Image img = roi.getImage();
+           
+           // check if all shapes come fro the same image
+           if (image == null) image = img;
+           else if (image.getId() != img.getId())
+               throw new ApiUsageException("all shapes have to be from the same image");
+           // if we have unattached z/t we use the unattached z,t fallback
+           final int theZ = shape.getTheZ() != null ? shape.getTheZ() : z_for_unattached;
+           final int theT = shape.getTheT() != null ? shape.getTheT() : t_for_unattached;
+           String lookupKey = theZ + "/" + theT;
+           List<ome.model.roi.Shape> lookupValue = zt_lookup.get(lookupKey);
+           if (lookupValue == null) {
+               lookupValue = new ArrayList<ome.model.roi.Shape>();
+               zt_lookup.put(lookupKey, lookupValue);
+           }
+           lookupValue.add(shape);
+       }
+       if (zt_lookup.size() == 0) return null;
+
+       // common info for all shapes 
+       final ome.model.core.Pixels pixels = image.getPrimaryPixels();
+       // any point iteration in a tiled image is a lost cause
+       if (data.needsPyramid(pixels)) 
+           throw new ApiUsageException("This method can not handle tiled images yet.");
+       final long pixelId = pixels.getId();
+       final int sizeX = pixels.getSizeX();
+       // check for channels filter
+      Set<Integer> validChannels = null;
+       if (channels != null && channels.length > 0) {
+           validChannels = new HashSet<Integer>(channels.length);
+           for (int ch : channels)
+               if (ch >= 0 && ch < pixels.getSizeC()) validChannels.add(ch);
+       }
+       // loop over shapes (grouped by z/t planes)
+       for (final String key : zt_lookup.keySet()) {
+           final String [] keyTokens = key.split("/");
+           final int z = Integer.parseInt(keyTokens[0]);
+           final int t = Integer.parseInt(keyTokens[1]);
+
+           for (ome.model.roi.Shape shape : zt_lookup.get(key)) {
+               final SmartShape smartShape = (SmartShape) new ShapeMapper().map(shape);
+               final int size_stats = 
+                   validChannels != null ? validChannels.size() : pixels.getSizeC();
+               final ShapeStats stats = makeStats(size_stats);
+               stats.shapeId = shape.getId();
+               final double[] sumOfSquares = new double[size_stats];
+
+               final PixelBuffer buf = data.getBuffer(pixelId);
+               try {
+            	   int i = 0;
+                   for (int c = 0; c < pixels.getSizeC(); c++) {
+                       if (validChannels != null && 
+                           !validChannels.contains(new Integer(c))) continue;
+                       final int w = i;
+                       stats.channelIds[w] = c;
+                       final ome.util.PixelData pd = data.getPlane(buf, z, c, t);
+                       smartShape.areaPoints(
+                           new SmartShape.PointCallback() {
+                               public void handle(int x, int y) {
+                                   stats.pointsCount[w]++;
+                                   double value = pd.getPixelValue(sizeX * y + x);
+                                   stats.min[w] = Math.min(value, stats.min[w]);
+                                   stats.max[w] = Math.max(value, stats.max[w]);
+                                   stats.sum[w] += value;
+                                   sumOfSquares[w] += value * value;
+                               }
+                           });
+                       pd.dispose();
+                       i++;
+                   }
+               } finally {
+                   try {
+                       buf.close();
+                   } catch (IOException e) {
+                       log.error("Error closing " + buf, e);
+                   }
+               }
+               for (int w = 0; w < size_stats; w++) {
+                   stats.mean[w] = stats.sum[w] / stats.pointsCount[w];
+                   if (stats.pointsCount[w] > 1) {
+                       double sigmaSquare = 
+                           (sumOfSquares[w] - stats.sum[w] *
+                           stats.sum[w] / stats.pointsCount[w]) /
+                           (stats.pointsCount[w] - 1);
+                       if (sigmaSquare > 0) stats.stdDev[w] = Math.sqrt(sigmaSquare);
+                   }
+               }
+               shapeStats.add(stats);
+           }
+       }
+       
+       return shapeStats.toArray(new ShapeStats[] {});
     }
 
     /**

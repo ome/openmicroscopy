@@ -26,6 +26,7 @@ public class SmartEllipseI extends omero.model.EllipseI implements SmartShape {
         if (s == null) {
             return;
         }
+        if (transform != null) s = Util.transformAwtShape(s, transform);
         Rectangle2D r = s.getBounds2D();
         Util.pointsByBoundingBox(s, r, cb);
     }
