@@ -482,10 +482,20 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             file = photos.get(0);
         }
 
+        final String pathComponent, nameComponent;
+        final int lastSeparator = filename.lastIndexOf('/');
+        if (lastSeparator < 0) {
+            pathComponent = "/";
+            nameComponent = filename;
+        } else {
+            pathComponent = filename.substring(0, lastSeparator + 1);
+            nameComponent = filename.substring(lastSeparator + 1);
+        }
+
         if (file == null) {
             file = new OriginalFile();
-            file.setName(filename);
-            file.setPath(filename); // FIXME this should be something like /users/<name>/photo
+            file.setName(nameComponent);
+            file.setPath(pathComponent); // FIXME this should be something like /users/<name>/photo
             file.setSize((long) data.length);
             file.setHasher(new ChecksumAlgorithm(ChecksumAlgorithm.VALUE_SHA1_160));
             file.setHash(cpf.getProvider(ChecksumType.SHA1).putBytes(data)
@@ -503,8 +513,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             internalMoveToCommonSpace(fa);
             internalMoveToCommonSpace(link);
         } else {
-            file.setName(filename);
-            file.setPath(filename);
+            file.setName(nameComponent);
+            file.setPath(pathComponent);
             file.setMimetype(mimetype);
             file = iUpdate.saveAndReturnObject(file);
         }
