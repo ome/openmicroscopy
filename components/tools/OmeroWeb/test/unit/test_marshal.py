@@ -41,7 +41,7 @@ def basic_line(default_id):
     shape.y1 = rdouble(1.0)
     shape.x2 = rdouble(2.0)
     shape.y2 = rdouble(3.0)
-    shape.strokeColor = rint(ctypes.c_int(0x112233FF).value) # r=17,g=34,b=51,a=255
+    shape.strokeColor = rint(ctypes.c_int(0x112233FF).value)
     return shape
 
 
@@ -64,7 +64,7 @@ def basic_polyline(request, default_id):
     shape = omero.model.PolylineI()
     shape.id = rlong(default_id)
     shape.points = rstring(points)
-    shape.strokeColor = rint(ctypes.c_int(0x11223300).value) # r=17,g=34,b=51,a=0
+    shape.strokeColor = rint(ctypes.c_int(0x11223300).value)
     return shape
 
 
@@ -125,8 +125,8 @@ def basic_ellipse(default_id):
     shape.y = rdouble(.1)
     shape.radiusX = rdouble(1.0)
     shape.radiusY = rdouble(.5)
-    shape.fillColor = rint(ctypes.c_int(0x11223344).value) # r=17,g=34,b=51,a=68
-    shape.strokeColor = rint(ctypes.c_int(0xfffefdfc).value) # r=255,g=254,b=253,a=252 (int value=-66052)
+    shape.fillColor = rint(ctypes.c_int(0x11223344).value)
+    shape.strokeColor = rint(ctypes.c_int(0xfffefdfc).value)
     return shape
 
 
@@ -190,14 +190,14 @@ class TestShapeMarshal(object):
         assert 0.5 == marshaled['radiusY']
 
     def test_rgba(self, basic_ellipse, basic_line, basic_polyline):
-        color = unwrap(basic_ellipse.getFillColor()) # 0x11223344
+        color = unwrap(basic_ellipse.getFillColor())  # 0x11223344
         result = rgb_int2rgba(color)
         assert result[0] == 17               # r
         assert result[1] == 34               # g
         assert result[2] == 51               # b
         assert result[3] == float(68) / 255  # a (as fraction)
 
-        color = unwrap(basic_ellipse.getStrokeColor()) # 0xfffefdfc
+        color = unwrap(basic_ellipse.getStrokeColor())  # 0xfffefdfc
         result = rgb_int2rgba(color)           # int rgb
         assert result[0] == 255                # r
         assert result[1] == 254                # g
@@ -207,12 +207,12 @@ class TestShapeMarshal(object):
         assert result[0] == "#fffefd"          # rgb
         assert result[1] == float(252) / 255   # a (as fraction)
 
-        color = unwrap(basic_line.getStrokeColor()) # 0x112233FF
+        color = unwrap(basic_line.getStrokeColor())  # 0x112233FF
         result = rgb_int2css(color)
         assert result[0] == "#112233"          # rgb
         assert result[1] == 1                  # a (as fraction)
 
-        color = unwrap(basic_polyline.getStrokeColor()) # 0x11223300
+        color = unwrap(basic_polyline.getStrokeColor())  # 0x11223300
         result = rgb_int2css(color)
         assert result[0] == "#112233"          # rgb
         assert result[1] == 0                  # a (as fraction)
