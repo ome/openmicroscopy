@@ -745,6 +745,30 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         return result;
     }
 
+    @RolesAllowed("user")
+    public synchronized Map<Integer, double[]> findMinMax(int[] channels) {
+        Map<Integer, double[]> result = new HashMap<Integer, double[]>();
+        
+        if (requiresPixelsPyramid())
+            return result;
+
+        try {
+            for (int ch : channels) {
+                Channel channel = pixelsInstance.getChannel(ch);
+                if (channel == null)
+                    continue;
+                int z = buffer.getSizeZ() > 1 ? (buffer.getSizeZ() - 1) / 2 : 0;
+                int t = buffer.getSizeT() > 1 ? (buffer.getSizeT() - 1) / 2 : 0;
+                PixelData px = buffer.getPlane(z, ch, t);
+                double[] minmax = determineHistogramMinMax(px, channel, false);
+                result.put(ch, minmax);
+            }
+        } catch (IOException e) {
+            handleException(e);
+        }
+        return result;
+    }
+    
     // ~ Helpers
     // =========================================================================
     
