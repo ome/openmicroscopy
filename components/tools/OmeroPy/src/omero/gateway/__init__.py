@@ -3946,7 +3946,7 @@ class _BlitzGateway (object):
         fileHandle = open(localPath, 'rb')
         try:
             return self.createOriginalFileFromFileObj(
-                fileHandle, path, name, fileSize, mimetype, ns)
+                fileHandle, path, name, fileSize, mimetype)
         finally:
             fileHandle.close()
 
