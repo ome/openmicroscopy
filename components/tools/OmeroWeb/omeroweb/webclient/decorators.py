@@ -207,3 +207,6 @@ class render_response(omeroweb.decorators.render_response):
             c_plugins.append({
                 "label": label, "include": include, "plugin_id": plugin_id})
         context['ome']['center_plugins'] = c_plugins
+
+        if settings.BASE_INCLUDE_TEMPLATE:
+            context['base_include_template'] = settings.BASE_INCLUDE_TEMPLATE

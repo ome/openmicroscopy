@@ -48,6 +48,11 @@
         {% include "webgateway/base/includes/shortcut_icon.html" %}
     {% endblock %}
 
+
+    {% if base_include_template %}
+      {% include base_include_template %}
+    {% endif %}
+
 </head>
 <body>
 
