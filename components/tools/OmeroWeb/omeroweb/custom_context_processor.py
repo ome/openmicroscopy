@@ -8,4 +8,4 @@ def url_suffix(request):
 
 
 def base_include_template(request):
-	return {'base_include_template': settings.BASE_INCLUDE_TEMPLATE}
+    return {'base_include_template': settings.BASE_INCLUDE_TEMPLATE}
