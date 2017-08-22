@@ -1061,6 +1061,7 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
                 'omeroweb.custom_context_processor.url_suffix',
+                'omeroweb.custom_context_processor.base_include_template',
             ],
         },
     },
