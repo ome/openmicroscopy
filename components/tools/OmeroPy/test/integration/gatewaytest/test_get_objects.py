@@ -819,6 +819,34 @@ class TestLeaderAndMemberOfGroup(object):
         assert leaders[0].omeName == "group_owner"
         assert len(colleagues) == 0
 
+    def testGroupSummaryAsOwnerDeprecated(self, gatewaywrapper):
+        gatewaywrapper.doLogin(dbhelpers.USERS['group_owner'])
+
+        summary = gatewaywrapper.gateway.groupSummary()
+        assert len(summary["leaders"]) == 1
+        assert len(summary["colleagues"]) == 1
+        assert summary["leaders"][0].omeName == "group_owner"
+        assert summary["colleagues"][0].omeName == "group_member"
+
+        summary = gatewaywrapper.gateway.groupSummary(exclude_self=True)
+        assert len(summary["leaders"]) == 0
+        assert len(summary["colleagues"]) == 1
+        assert summary["colleagues"][0].omeName == "group_member"
+
+    def testGroupSummaryAsMemberDeprecated(self, gatewaywrapper):
+        gatewaywrapper.doLogin(dbhelpers.USERS['group_member'])
+
+        summary = gatewaywrapper.gateway.groupSummary()
+        assert len(summary["leaders"]) == 1
+        assert len(summary["colleagues"]) == 1
+        assert summary["leaders"][0].omeName == "group_owner"
+        assert summary["colleagues"][0].omeName == "group_member"
+
+        summary = gatewaywrapper.gateway.groupSummary(exclude_self=True)
+        assert len(summary["leaders"]) == 1
+        assert summary["leaders"][0].omeName == "group_owner"
+        assert len(summary["colleagues"]) == 0
+
 
 class TestListParents(ITest):
 
