@@ -21,9 +21,7 @@
 package omero.gateway.facility;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -352,7 +350,7 @@ public class AdminFacility extends Facility {
      * @param user
      *            The user.
      * @param privileges
-     *            The admin privileges
+     *            The admin privileges.
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in.
      * @throws DSAccessException
@@ -371,6 +369,21 @@ public class AdminFacility extends Facility {
         }
     }
 
+    /**
+     * Grant an user additional admin privileges.
+     * 
+     * @param ctx
+     *            The security context.
+     * @param user
+     *            The user.
+     * @param privileges
+     *            The admin privileges to grant.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
     public void addAdminPrivileges(SecurityContext ctx, ExperimenterData user,
             List<String> privileges) throws DSOutOfServiceException,
             DSAccessException {
@@ -385,6 +398,21 @@ public class AdminFacility extends Facility {
         }
     }
 
+    /**
+     * Revoke admin privileges for a user
+     * 
+     * @param ctx
+     *            The security context.
+     * @param user
+     *            The user.
+     * @param privileges
+     *            The admin privileges to revoke.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
     public void removeAdminPrivileges(SecurityContext ctx,
             ExperimenterData user, List<String> privileges)
             throws DSOutOfServiceException, DSAccessException {
@@ -395,7 +423,7 @@ public class AdminFacility extends Facility {
                     privs.remove(priv);
             setAdminPrivileges(ctx, user, privs);
         } catch (Exception e) {
-            handleException(this, e, "Cannot set admin privileges.");
+            handleException(this, e, "Cannot remove admin privileges.");
         }
     }
 
