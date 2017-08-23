@@ -1029,13 +1029,13 @@ li.menu_back a {
     position:absolute;
     top:0px; left:0px; bottom:0px;
     width: 1px;
-	z-index: 10;
+	z-index: 1;
 }
 #trayhandle_right {
     position:absolute;
     top:0px; right:0px; bottom:0px;
     width: 1px;
-	z-index: 10;
+	z-index: 1;
 }
 #center_container {
     position:absolute;
