@@ -1618,10 +1618,6 @@ class DeleteMapAnnotationContext(_QueryContext):
                       [NSBULKANNOTATIONSCONFIG], self.fileannids)
 
     def write_to_omero(self, batch_size=1000, loops=10, ms=500):
-        # options[childoptions] must be a list of dicts
-        childoptions = [ChildOption(**kw)for kw in
-                        self.options.get('childoptions', [])]
-
         for objtype, maids in self.mapannids.iteritems():
             for batch in self._batch(maids, sz=batch_size):
                 self._write_to_omero_batch(
@@ -1633,10 +1629,14 @@ class DeleteMapAnnotationContext(_QueryContext):
     def _write_to_omero_batch(
             self, to_delete, loops=10, ms=500):
         # options[childoptions] must be a list of dicts
+        # options[typestoignore] must be a list of strings
         childoptions = [ChildOption(**kw)for kw in
                         self.options.get('childoptions', [])]
+        typestoignore = self.options.get('typestoignore', [])
         delCmd = omero.cmd.Delete2(
-            targetObjects=to_delete, childOptions=childoptions)
+            targetObjects=to_delete,
+            childOptions=childoptions,
+            typesToIgnore=typestoignore)
         try:
             callback = self.client.submit(
                 delCmd, loops=loops, ms=ms, failontimeout=True)
