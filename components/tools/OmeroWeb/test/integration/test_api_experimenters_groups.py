@@ -101,14 +101,52 @@ class TestExperimenters(IWebTest):
 
         assert_objects(conn, exp_json, exps, dtype="Experimenter")
 
-        # Check we can follow link to Groups for first experimenter
+        # Check we can follow link to Groups for first Experimenter
         groups_url = exp_json[0]["url:groups"]
         rsp = get_json(django_client, groups_url)
         groups_json = rsp['data']
-        json_ids = [g['@id'] for g in groups_json]
+        grp_ids = [g['@id'] for g in groups_json]
 
         # Check if gids are same for experimenter (won't be ordered)
         gids = [g.id for g in conn.getOtherGroups(exp_json[0]['@id'])]
-        assert set(gids) == set([g['@id'] for g in groups_json])
+        assert set(gids) == set(grp_ids)
 
-        assert_objects(conn, groups_json, json_ids, dtype="ExperimenterGroup")
+        assert_objects(conn, groups_json, grp_ids, dtype="ExperimenterGroup")
+
+    def test_groups_experimenters(self, user1):
+        """
+        Test listing groups.
+
+        We simply list existing Groups since we have no way to filter
+        and show only those created in the test.
+        """
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        django_client = self.new_django_client(user_name, user_name)
+        request_url = reverse(
+            'api_groups',
+            kwargs={'api_version': api_settings.API_VERSIONS[-1]})
+        data = {'limit': 10}
+        rsp = get_json(django_client, request_url, data)
+        groups_json = rsp['data']
+
+        query = """select obj from ExperimenterGroup as obj order by
+                   lower(obj.name), obj.id"""
+        params = ParametersI()
+        params.page(0, 10)
+        groups = conn.getQueryService().findAllByQuery(query, params)
+
+        assert_objects(conn, groups_json, groups, dtype="ExperimenterGroup")
+
+        # Check we can follow link to Experimenters for first Group
+        expimenters_url = groups_json[0]["url:experimenters"]
+        rsp = get_json(django_client, expimenters_url)
+        exps_json = rsp['data']
+        exp_ids = [e['@id'] for e in exps_json]
+
+        # Check if eids are same for group (won't be ordered)
+        grp = conn.getObject("ExperimenterGroup", groups_json[0]['@id'])
+        eids = [link.child.id.val for link in grp.copyGroupExperimenterMap()]
+        assert set(eids) == set(exp_ids)
+
+        assert_objects(conn, exps_json, exp_ids, dtype="Experimenter")
