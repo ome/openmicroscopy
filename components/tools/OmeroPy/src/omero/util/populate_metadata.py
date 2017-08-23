@@ -1625,14 +1625,16 @@ class DeleteMapAnnotationContext(_QueryContext):
         for objtype, maids in self.mapannids.iteritems():
             for batch in self._batch(maids, sz=batch_size):
                 self._write_to_omero_batch(
-                    {"%sAnnotationLink" % objtype: batch},
-                    childoptions, loops, ms)
+                    {"%sAnnotationLink" % objtype: batch}, loops, ms)
         for batch in self._batch(self.fileannids, sz=batch_size):
             self._write_to_omero_batch(
-                {"FileAnnotation": batch}, childoptions, loops, ms)
+                {"FileAnnotation": batch}, loops, ms)
 
     def _write_to_omero_batch(
-            self, to_delete, childoptions, loops=10, ms=500):
+            self, to_delete, loops=10, ms=500):
+        # options[childoptions] must be a list of dicts
+        childoptions = [ChildOption(**kw)for kw in
+                        self.options.get('childoptions', [])]
         delCmd = omero.cmd.Delete2(
             targetObjects=to_delete, childOptions=childoptions)
         try:
