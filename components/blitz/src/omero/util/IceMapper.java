@@ -46,6 +46,7 @@ import ome.util.ReverseModelMapper;
 import ome.util.Utils;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.codomain.CodomainMapContext;
+import omeis.providers.re.codomain.InverseIntensityContext;
 import omeis.providers.re.codomain.ReverseIntensityContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.RegionDef;
@@ -582,10 +583,13 @@ public class IceMapper extends ome.util.ModelMapper implements
      */
     public CodomainMapContext convert(omero.romio.CodomainMapContext ctx)
     {
-        if (!(ctx instanceof omero.romio.ReverseIntensityMapContext)) {
-            return null;
+        if (ctx instanceof omero.romio.ReverseIntensityMapContext) {
+            return new ReverseIntensityContext();
         }
-        return new ReverseIntensityContext();
+        if (ctx instanceof omero.romio.InverseIntensityMapContext) {
+            return new InverseIntensityContext();
+        }
+        return null;
     }
 
     /**
@@ -1276,6 +1280,9 @@ public class IceMapper extends ome.util.ModelMapper implements
     {
         if (ctx instanceof ReverseIntensityContext) {
             return new omero.model.ReverseIntensityContextI();
+        }
+        if (ctx instanceof InverseIntensityContext) {
+            return new omero.model.InverseIntensityContextI();
         }
         return null;
     }

@@ -79,9 +79,17 @@ module romio
     };
 
     /**
-     * The reverse intensity.
+     * The reverse intensity. 
+     * (deprecated, please use InverseIntensityMapContext instead)
      **/
     class ReverseIntensityMapContext extends CodomainMapContext
+    {
+    };
+    
+    /**
+     * The inverse intensity.
+     **/
+    class InverseIntensityMapContext extends CodomainMapContext
     {
     };
 
