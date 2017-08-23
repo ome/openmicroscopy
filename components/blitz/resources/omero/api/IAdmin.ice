@@ -312,8 +312,6 @@ module omero {
                  */
                 long createSystemUser(omero::model::Experimenter experimenter) throws ServerError;
 
-                long createLightSystemUser(omero::model::Experimenter experimenter, AdminPrivilegeList privileges) throws ServerError;
-
                 /**
                  * Creates and returns a new system user. This user will be
                  * created with the <i>System</i> (administration) group as

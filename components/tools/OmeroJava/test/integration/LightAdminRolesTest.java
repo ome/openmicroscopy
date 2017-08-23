@@ -1950,7 +1950,7 @@ public class LightAdminRolesTest extends RolesTests {
         }
         /* lightAdmin succeeds only if they have right permissions.*/
         try {
-            iAdmin.createLightSystemUser(createdAdmin, privileges);
+            iAdmin.createRestrictedSystemUser(createdAdmin, privileges);
             Assert.assertTrue(isExpectSuccessCreateLightAdmin);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccessCreateLightAdmin);
