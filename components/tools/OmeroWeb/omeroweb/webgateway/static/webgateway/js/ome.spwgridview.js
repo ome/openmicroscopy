@@ -11,9 +11,8 @@ $(function(){
             .off("click");
     };
     OME.hideWellBirdsEye = function() {
-        $("#tree_details").css('bottom', '0');
-        $("#well_details").css('height', '0')
-            .css('display', 'none');
+        $("#tree_details").css('height', '100%');
+        $("#well_details").css('height', '0').css('display', 'none');
 
         // Also clear content
         OME.emptyWellBirdsEye();
@@ -59,10 +58,8 @@ $(function(){
         });
 
         function showPanel() {
-            var height = 280;
-
-            $tree_details.css('bottom', height + 'px');
-            $well_details.css('height', height + 'px')
+            $tree_details.css('height', '70%');
+            $well_details.css('height', '30%')
                 .css('display', 'block');
         }
 

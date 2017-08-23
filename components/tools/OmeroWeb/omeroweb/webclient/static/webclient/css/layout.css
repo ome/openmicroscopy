@@ -26,11 +26,9 @@
  */
 
 .left_panel_content {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
+	position: relative;
+	width: 100%;
+	height: 100%;
 	overflow: hidden;
 }
 
@@ -52,27 +50,34 @@
 }
 
 .left_panel_tree {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
+	position: relative;
+	width: 100%;
+	height: 100%;
 	overflow: auto;
 	border-top: solid 1px hsl(210, 10%, 85%);
 	border-right: solid 1px hsl(210, 10%, 85%);
 }
+
+/*.left_panel_tree {*/
+	/*position: absolute;*/
+	/*top: 0;*/
+	/*left: 0;*/
+	/*right: 0;*/
+	/*bottom: 0;*/
+	/*overflow: auto;*/
+	/*border-top: solid 1px hsl(210, 10%, 85%);*/
+	/*border-right: solid 1px hsl(210, 10%, 85%);*/
+/*}*/
 
 /*******************************************************************/
 /* Left bottom panel - displayed when a user clicks a well in grid */
 /*******************************************************************/
 .left_panel_preview {
 	display: none;
-	position: absolute;
-	left: 0;
-	right: 0;
-	bottom: 0;
+	position: relative;
+	width: 100%;
 	overflow: auto;
-	border-top: solid 1px hsl(210,10%,85%);
+	border-top: solid 1px hsl(210, 10%, 85%);
 	border-right: solid 1px hsl(210, 10%, 85%);
 }
 
@@ -98,6 +103,20 @@
 
 .left_panel_preview__title--medium {
 	font-size: medium;
+}
+
+.left_paneL_preview__content {
+    position: relative;
+	width: 100%;
+	height: calc(100% - 32px);
+}
+
+.left_paneL_preview__well {
+	position: absolute;
+	margin: 0 auto;
+	right: 0;
+	left: 0;
+	border: solid #bbb 1px;
 }
 /*******************************************************************/
 /* Well Fields Panel - displayed at the center bottom of a well grid */
@@ -432,12 +451,6 @@
 
 
     /* Left Panel Tree */
-
-    #tree_details {
-        padding:0;
-        padding-top:6px;
-    }
-
 
     .hiddenField {
         display: none;
@@ -2415,18 +2428,6 @@ div.paging input.button_pagination {
     height: 6px;
     border: solid 3px #87ABD2;
     z-index: 10;
-}
-#well_birds_eye {
-    height: 200px;
-    width: 200px;
-}
-#well_birds_eye_container {
-    margin: auto;
-    margin-top: 10px;
-    height: 220px;
-    width: 220px;
-    position: relative;
-    border: solid #bbb 1px;
 }
 #wellImagesContainer span {
 	font-size: 12px;
