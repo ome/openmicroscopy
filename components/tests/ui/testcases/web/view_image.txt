@@ -89,6 +89,10 @@ Test Prev Next Buttons
     # Clicking Next button will enable Prev button
     Click Element                       id=nextImage
     Wait Until Page Contains Element    xpath=//button[@id='prevImage' and not (@disabled='disabled')]
+    # Close Popup window for next test
+    Close Window
+    # Select parent window
+    Select Window
 
 
 Test Bulk Annotations
