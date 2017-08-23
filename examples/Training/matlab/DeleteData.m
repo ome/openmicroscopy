@@ -91,7 +91,7 @@ try
     fprintf(1, 'Deleting ROI %g\n', roi.getId().getValue());
     targetObj = java.util.Hashtable;
     targetObj.put('ROI', toJavaList(roi.getId().getValue(), 'java.lang.Long'));
-    deleteCommand = omero.cmd.Delete2(targetObj, [], false);
+    deleteCommand = omero.cmd.Delete2(targetObj, [], false, []);
     session.submit(deleteCommand);
 
     % Delete the image. You can delete more than one image at a time.
