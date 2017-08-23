@@ -418,9 +418,7 @@ public class AdminFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         try {
             List<String> privs = getAdminPrivileges(ctx, user);
-            for (String priv : privileges)
-                if (privs.contains(priv))
-                    privs.remove(priv);
+            privs.removeAll(privileges);
             setAdminPrivileges(ctx, user, privs);
         } catch (Exception e) {
             handleException(this, e, "Cannot remove admin privileges.");
