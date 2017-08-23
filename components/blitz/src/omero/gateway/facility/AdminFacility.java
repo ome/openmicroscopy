@@ -21,7 +21,9 @@
 package omero.gateway.facility;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -364,6 +366,34 @@ public class AdminFacility extends Facility {
             IAdminPrx adm = gateway.getAdminService(ctx);
             adm.setAdminPrivileges(user.asExperimenter(), Utils.toEnum(
                     AdminPrivilege.class, AdminPrivilegeI.class, privileges));
+        } catch (Exception e) {
+            handleException(this, e, "Cannot set admin privileges.");
+        }
+    }
+
+    public void addAdminPrivileges(SecurityContext ctx, ExperimenterData user,
+            List<String> privileges) throws DSOutOfServiceException,
+            DSAccessException {
+        try {
+            List<String> privs = getAdminPrivileges(ctx, user);
+            for (String priv : privileges)
+                if (!privs.contains(priv))
+                    privs.add(priv);
+            setAdminPrivileges(ctx, user, privs);
+        } catch (Exception e) {
+            handleException(this, e, "Cannot add admin privileges.");
+        }
+    }
+
+    public void removeAdminPrivileges(SecurityContext ctx,
+            ExperimenterData user, List<String> privileges)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            List<String> privs = getAdminPrivileges(ctx, user);
+            for (String priv : privileges)
+                if (privs.contains(priv))
+                    privs.remove(priv);
+            setAdminPrivileges(ctx, user, privs);
         } catch (Exception e) {
             handleException(this, e, "Cannot set admin privileges.");
         }
