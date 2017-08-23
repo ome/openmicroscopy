@@ -20,13 +20,12 @@ import java.util.List;
 import java.util.Random;
 
 public class SmartEllipseI extends omero.model.EllipseI implements SmartShape {
-
     public void areaPoints(PointCallback cb) {
         Shape s = asAwtShape();
         if (s == null) {
             return;
         }
-        if (transform != null) s = Util.transformAwtShape(s, transform);
+        if (transform != null) s = Util.transformAwtShape(s, this.transform);
         Rectangle2D r = s.getBounds2D();
         Util.pointsByBoundingBox(s, r, cb);
     }

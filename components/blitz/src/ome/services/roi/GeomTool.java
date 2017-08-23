@@ -32,6 +32,7 @@ import ome.util.SqlAction;
 import omero.api.RoiStats;
 import omero.api.ShapePoints;
 import omero.api.ShapeStats;
+import omero.model.AffineTransformI;
 import omero.model.Ellipse;
 import omero.model.Line;
 import omero.model.Point;
@@ -359,11 +360,10 @@ public class GeomTool {
 
     public ShapeStats [] getStatsRestricted(
             List<Long> shapeIds, 
-            int z_for_unattached, int t_for_unattached,
+            int zForUnattached, int tForUnattached,
             int[] channels) {
-        if (shapeIds == null || shapeIds.isEmpty()) {
-            return null;
-        }
+        if (shapeIds == null || shapeIds.isEmpty()) 
+            throw new ApiUsageException("Provide a non empty list of shape ids.");
 
         final Session session = factory.getSession();
         final List<ShapeStats> shapeStats = 
@@ -376,25 +376,33 @@ public class GeomTool {
        // fetch shapes from db and perform some basic checks
        List results = 
            session.createQuery(
-               "select distinct s from Shape s " + 
-               "join fetch s.roi r join fetch r.image i " + 
-               "join fetch i.pixels p join fetch p.channels c " + 
-               "join fetch c.logicalChannel lc where s.id in (:ids)").
+               "select distinct s from Shape s " +
+               "left join fetch s.transform t left join fetch s.roi r " +
+               "join fetch r.image i join fetch i.pixels p " +
+               "where s.id in (:ids)").
            setParameterList("ids", shapeIds).list();
        
        ome.model.core.Image image = null;
+       ome.model.core.Pixels pixels = null;
        for (final Object r : results) {
            final ome.model.roi.Shape shape = (ome.model.roi.Shape) r;
            final ome.model.roi.Roi roi = shape.getRoi();
            final ome.model.core.Image img = roi.getImage();
            
-           // check if all shapes come fro the same image
-           if (image == null) image = img;
-           else if (image.getId() != img.getId())
-               throw new ApiUsageException("all shapes have to be from the same image");
+           // check if all shapes come from the same image
+           if (image == null) {
+               image = img;
+               pixels = image.getPrimaryPixels();
+           } else if (image.getId() != img.getId())
+               throw new ApiUsageException("All shapes have to be from the same image");
+           // check if z/t unattached fallback values are not out of bounds
+           if (zForUnattached < 0 || zForUnattached >= pixels.getSizeZ() ||
+               tForUnattached < 0 || tForUnattached >= pixels.getSizeT())
+               throw new ApiUsageException(
+                   "Fallback value(s) for unattached z/t shapes are out of bounds");
            // if we have unattached z/t we use the unattached z,t fallback
-           final int theZ = shape.getTheZ() != null ? shape.getTheZ() : z_for_unattached;
-           final int theT = shape.getTheT() != null ? shape.getTheT() : t_for_unattached;
+           final int theZ = shape.getTheZ() != null ? shape.getTheZ() : zForUnattached;
+           final int theT = shape.getTheT() != null ? shape.getTheT() : tForUnattached;
            String lookupKey = theZ + "/" + theT;
            List<ome.model.roi.Shape> lookupValue = zt_lookup.get(lookupKey);
            if (lookupValue == null) {
@@ -405,13 +413,9 @@ public class GeomTool {
        }
        if (zt_lookup.size() == 0) return null;
 
-       // common info for all shapes 
-       final ome.model.core.Pixels pixels = image.getPrimaryPixels();
        // any point iteration in a tiled image is a lost cause
        if (data.needsPyramid(pixels)) 
            throw new ApiUsageException("This method can not handle tiled images yet.");
-       final long pixelId = pixels.getId();
-       final int sizeX = pixels.getSizeX();
        // check for channels filter
       Set<Integer> validChannels = null;
        if (channels != null && channels.length > 0) {
@@ -419,6 +423,10 @@ public class GeomTool {
            for (int ch : channels)
                if (ch >= 0 && ch < pixels.getSizeC()) validChannels.add(ch);
        }
+       // common info for all shapes 
+       final long pixelId = pixels.getId();
+       final int sizeX = pixels.getSizeX();
+       final int sizeY = pixels.getSizeY();
        // loop over shapes (grouped by z/t planes)
        for (final String key : zt_lookup.keySet()) {
            final String [] keyTokens = key.split("/");
@@ -445,6 +453,8 @@ public class GeomTool {
                        smartShape.areaPoints(
                            new SmartShape.PointCallback() {
                                public void handle(int x, int y) {
+                                   // we won't use pixels outside of the image 
+                                   if (x < 0 || y < 0 || x >= sizeX || y >= sizeY) return;
                                    stats.pointsCount[w]++;
                                    double value = pd.getPixelValue(sizeX * y + x);
                                    stats.min[w] = Math.min(value, stats.min[w]);
@@ -577,11 +587,17 @@ public class GeomTool {
                 IObject iobj = (IObject) source;
                 omero.model.IObject robj = (omero.model.IObject) o;
                 robj.setId(rlong(iobj.getId()));
-                robj.unload();
+                // this seems to me the least unintrusive way to remedy
+                // the copying of the affine tranform
+                // the other being the .combined files
+                // which as is just cast for the transform 
+                // (effectively losing info)
+                if (robj instanceof AffineTransformI)
+                    ((AffineTransformI) robj).copyObject(source, this);
+                else robj.unload();
             }
 
             return source;
-
         }
 
     }

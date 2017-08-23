@@ -8,24 +8,28 @@
 
 package omero.model;
 
-import static omero.rtypes.rdouble;
-
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-/**
- * THIS CLASS IS CURRENTLY BROKEN. A Text needs a position (an x/y-offset within
- * the image) which it is currently lacking. Therefore this implementation
- * blindly sets the offset to (0,0) so that all text will be in the upper-right
- * corner.
- */
 public class SmartTextI extends omero.model.LabelI implements SmartShape {
 
     public void areaPoints(PointCallback cb) {
         try {
-            cb.handle((int) x.getValue(), (int) y.getValue());
+            double point_x = x.getValue();
+            double point_y = y.getValue();
+            if (transform != null) {
+                final AffineTransform t = Util.getAwtTransform(transform);
+                
+                final Point2D p = 
+                    t.transform(new Point2D.Double(point_x, point_y), null);
+                point_x = p.getX();
+                point_y = p.getY();
+        	 }
+            cb.handle((int) point_x, (int) point_y);
         } catch (NullPointerException npe) {
             return;
         }
