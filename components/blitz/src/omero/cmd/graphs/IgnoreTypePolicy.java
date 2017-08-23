@@ -39,7 +39,6 @@ import ome.services.graphs.GraphPolicy;
 @Deprecated
 public class IgnoreTypePolicy {
 
-    @SuppressWarnings("unused")
     private static final Logger LOGGER = LoggerFactory.getLogger(IgnoreTypePolicy.class);
 
     /**
@@ -66,6 +65,18 @@ public class IgnoreTypePolicy {
             }
         };
 
-        return SkipTailPolicy.getSkipTailPolicy(graphPolicyToAdjust, isTypeToIgnore);
+        return new BaseGraphPolicyAdjuster(graphPolicyToAdjust) {
+            @Override
+            protected boolean isAdjustedBeforeReview(Details object) {
+                if (object.action == GraphPolicy.Action.EXCLUDE && isTypeToIgnore.apply(object.subject.getClass())) {
+                    object.action = GraphPolicy.Action.OUTSIDE;
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("ignoring all objects of its type, so making " + object);
+                    }
+                    return true;
+                }
+                return false;
+            }
+        };
     }
 }
