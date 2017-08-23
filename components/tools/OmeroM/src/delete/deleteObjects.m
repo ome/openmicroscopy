@@ -48,7 +48,7 @@ for i = 1 : numel(ids)
 end
 targetObject = java.util.Hashtable;
 targetObject.put(objectType.delete2,idlist);
-deleteCommands = omero.cmd.Delete2(targetObject, [], false);
+deleteCommands = omero.cmd.Delete2(targetObject, [], false, []);
 
 % Submit the delete commands
 session.submit(deleteCommands);
