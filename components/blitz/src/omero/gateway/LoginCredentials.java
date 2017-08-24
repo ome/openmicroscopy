@@ -74,7 +74,7 @@ public class LoginCredentials {
      * 
      * @param args
      *            The connection arguments. Note: When using this constructor
-     *            the '#' character has to be escaped!
+     *            the '#' character has to be escaped with a backslash!
      */
     public LoginCredentials(String[] args) {
         this();
