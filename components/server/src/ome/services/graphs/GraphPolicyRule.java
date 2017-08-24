@@ -982,8 +982,7 @@ public class GraphPolicyRule {
                     if (policyRule.termMatchers.size() + policyRule.relationshipMatchers.size() == 1) {
                         reviewWithSingleMatch(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects);
                     } else {
-                        reviewWithManyMatches(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects,
-                                HashMultimap.<String, Details>create());
+                        reviewWithManyMatches(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects);
                     }
                 }
             }
@@ -1059,19 +1058,19 @@ public class GraphPolicyRule {
          * @param notNullable which properties are not nullable
          * @param policyRule the policy rule to consider applying
          * @param changedObjects the set of details of objects that result from applied changes
-         * @param prohibitedTerms matches that may not be made for terms
          * @throws GraphException if a term named for a change is not defined in the matching
          */
         private void reviewWithManyMatches(Map<String, Set<Details>> linkedFrom, Details rootObject,
                 Map<String, Set<Details>> linkedTo, Set<String> notNullable, ParsedPolicyRule policyRule,
-                Set<Details> changedObjects, Multimap<String, Details> prohibitedTerms) throws GraphException {
-            final boolean isPossibleMatch = prohibitedTerms.isEmpty();
+                Set<Details> changedObjects) throws GraphException {
             final SortedMap<String, Details> namedTerms = new TreeMap<String, Details>();
+            final Multimap<String, Details> prohibitedTerms = HashMultimap.<String, Details>create();
             final MutableBoolean isCheckAllPermissions = new MutableBoolean(true);
             final Set<TermMatch> unmatchedTerms = new HashSet<TermMatch>(policyRule.termMatchers);
             final Set<Details> allTerms = unmatchedTerms.isEmpty() ? Collections.<Details>emptySet()
                     : GraphPolicy.allObjects(linkedFrom.values(), rootObject, linkedTo.values());
             final Set<RelationshipMatch> unmatchedRelationships = new HashSet<RelationshipMatch>(policyRule.relationshipMatchers);
+            boolean isPossibleMatch = true;
             /* try all the matchers against all the terms */
             do {
                 final int namedTermCount = namedTerms.size();
@@ -1225,17 +1224,21 @@ public class GraphPolicyRule {
                             }
                         }
                     }
+                    /* reset state */
+                    namedTerms.clear();
+                    isCheckAllPermissions.setValue(true);
+                    unmatchedTerms.addAll(policyRule.termMatchers);
+                    unmatchedRelationships.addAll(policyRule.relationshipMatchers);
                     if (retry) {
-                        /* check if a different object can match the common term */
-                        reviewWithManyMatches(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects,
-                                prohibitedTerms);
+                        /* next iteration checks if a different object can match the common term */
+                        isPossibleMatch = false;
                     } else if (isPossibleMatch && !policyRule.commonTerms.isEmpty()) {
-                        /* try looser matching to at least find what matches common terms for subsequent review */
-                        prohibitedTerms.put("nonsense string", rootObject);  // force isPossibleMatch to false
-                        reviewWithManyMatches(linkedFrom, rootObject, linkedTo, notNullable, policyRule, changedObjects,
-                                prohibitedTerms);
+                        /* next iteration tries looser matching to at least find what matches common terms for subsequent review */
+                        isPossibleMatch = false;
+                    } else {
+                        /* nothing further to attempt */
+                        return;
                     }
-                    return;
                 }
             } while (true);
         }
