@@ -697,6 +697,10 @@ public class DataServicesFactory
                         .contains(omero.model.enums.AdminPrivilegeModifyGroupMembership.value));
                 registry.bind(LookupNames.PRIV_MOVE_GROUP, privs
                         .contains(omero.model.enums.AdminPrivilegeChgrp.value));
+                registry.bind(LookupNames.PRIV_UPLOAD_SCRIPT, privs
+                        .contains(omero.model.enums.AdminPrivilegeWriteScriptRepo.value));
+                registry.bind(LookupNames.PRIV_SUDO, privs
+                        .contains(omero.model.enums.AdminPrivilegeSudo.value));
             } catch (ServerError e1) {
                 registry.bind(LookupNames.PRIV_EDIT_USER, false);
                 registry.bind(LookupNames.PRIV_EDIT_GROUP, false);
@@ -732,6 +736,8 @@ public class DataServicesFactory
 				reg.bind(LookupNames.PRIV_EDIT_GROUP, registry.lookup(LookupNames.PRIV_EDIT_GROUP));
 				reg.bind(LookupNames.PRIV_MOVE_GROUP, registry.lookup(LookupNames.PRIV_MOVE_GROUP));
 				reg.bind(LookupNames.PRIV_GROUP_ADD, registry.lookup(LookupNames.PRIV_GROUP_ADD));
+				reg.bind(LookupNames.PRIV_SUDO, registry.lookup(LookupNames.PRIV_SUDO));
+				reg.bind(LookupNames.PRIV_UPLOAD_SCRIPT, registry.lookup(LookupNames.PRIV_UPLOAD_SCRIPT));
 			}
 		}
 	}

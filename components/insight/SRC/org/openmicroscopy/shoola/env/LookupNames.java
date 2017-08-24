@@ -169,7 +169,10 @@ public class LookupNames
 
     /** Field indicating if the user is an administrator. */
     public static final String USER_ADMINISTRATOR = "/users/administrator";
-    
+
+    /** Field indicating if the user can edit users. */
+    public static final String PRIV_SUDO = "/users/sudo";
+
     /** Field indicating if the user can edit users. */
     public static final String PRIV_EDIT_USER = "/users/edit";
     
@@ -181,6 +184,9 @@ public class LookupNames
     
     /** Field indicating if the user add group members. */
     public static final String PRIV_GROUP_ADD = "/groups/add";
+
+    /** Field indicating if the user add group members. */
+    public static final String PRIV_UPLOAD_SCRIPT = "/scripts/upload";
 
     /** Field to indicate if the connection is fast or not. */
     public static final String IMAGE_QUALITY_LEVEL = "/connection/speed";

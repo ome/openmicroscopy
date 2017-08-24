@@ -202,6 +202,20 @@ public class TreeViewerAgent
         return isAdministrator() && b.booleanValue();
     }
     
+    /**
+     * Returns <code>true</code> if the currently logged in user is is allowed
+     * to upload scripts, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isUploadScript() {
+        Boolean b = (Boolean) registry.lookup(LookupNames.PRIV_UPLOAD_SCRIPT);
+        if (b == null)
+            b = Boolean.FALSE;
+
+        return isAdministrator() && b.booleanValue();
+    }
+    
 	/**
 	 * Returns the context for an administrator.
 	 * 
