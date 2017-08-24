@@ -42,6 +42,9 @@ import string
 
 from omero_ext import portalocker
 from omero.install.python_warning import py27_only, PYTHON_WARNING
+from omero.util.concurrency import get_event
+from utils import sort_properties_to_tuple
+from connector import Server
 
 logger = logging.getLogger(__name__)
 
@@ -161,9 +164,6 @@ LOGGING = {
 }
 
 
-# Load custom settings from etc/grid/config.xml
-# Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
-from omero.util.concurrency import get_event
 CONFIG_XML = os.path.join(OMERO_HOME, 'etc', 'grid', 'config.xml')
 count = 10
 event = get_event("websettings")
@@ -514,6 +514,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " navigate. The idea is that you can create the public pages"
           " yourself (see OMERO.web framework since we do not provide public"
           " pages.")],
+    "omero.web.public.get_only":
+        ["PUBLIC_GET_ONLY",
+         "true",
+         parse_boolean,
+         "Restrict public users to GET requests only"],
     "omero.web.public.server_id":
         ["PUBLIC_SERVER_ID", 1, int, "Server to authenticate against."],
     "omero.web.public.user":
@@ -1236,17 +1241,13 @@ MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 # omeroweb.connector.Connector object
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
-
-# Load server list and freeze
-from utils import sort_properties_to_tuple
-
+# Load custom settings from etc/grid/config.xml
+# Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
 # MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
 MIDDLEWARE_CLASSES = sort_properties_to_tuple(MIDDLEWARE_CLASSES_LIST)  # noqa
 
+
 # Load server list and freeze
-from connector import Server
-
-
 def load_server_list():
     for s in SERVER_LIST:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
         server = (len(s) > 2) and unicode(s[2]) or None

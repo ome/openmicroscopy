@@ -238,6 +238,8 @@ class login_required(object):
                             'disabling OMERO.webpublic.')
                 settings.PUBLIC_ENABLED = False
                 return False
+            if settings.PUBLIC_GET_ONLY and (request.method != 'GET'):
+                return False
             if self.allowPublic is None:
                 return settings.PUBLIC_URL_FILTER.search(request.path) \
                     is not None
