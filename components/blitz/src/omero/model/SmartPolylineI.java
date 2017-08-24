@@ -13,7 +13,6 @@ import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -27,21 +26,18 @@ public class SmartPolylineI extends omero.model.PolylineI implements SmartShape 
         }
         final PathIterator it = s.getPathIterator(Util.getAwtTransform(transform));
         double [] vals = new double[] {0,0,0,0,0,0};
-        Set<Point2D> points = new LinkedHashSet<>();
         double [] last_point = null;
         while (!it.isDone()) {
             it.currentSegment(vals);
             double [] new_point = new double[] {vals[0], vals[1]};
-            if (last_point != null)
-                points = Util.getQuantizedLinePoints(
-                    new Line2D.Double(last_point[0], last_point[1], new_point[0], new_point[1]), points);
+            if (last_point != null) {
+                final Set<Point2D> points = Util.getQuantizedLinePoints(
+                    new Line2D.Double(last_point[0], last_point[1], new_point[0], new_point[1]), null);
+                for (Point2D p : points) cb.handle((int) p.getX(), (int) p.getY());
+            }
             last_point = new_point;
             it.next();
         }
-        
-        for (Point2D p : points)
-            cb.handle((int) p.getX(), (int) p.getY());
-
     }
     
     public Shape asAwtShape() {

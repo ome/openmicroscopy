@@ -252,7 +252,7 @@ public interface SmartShape {
             final Set<Point2D> set = 
                 (points instanceof LinkedHashSet) ? 
                     points : new LinkedHashSet<Point2D>();
-            for (double i = 0 ; i < lengthM ; i += 0.1) {
+            for (double i = 0 ; i <= (lengthM + 0.1) ; i += 0.1) {
                 final Point2D pt = 
                     new Point2D.Double(
                         start.getX()+i*mNorm.getX(),

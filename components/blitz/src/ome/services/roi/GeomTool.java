@@ -381,7 +381,10 @@ public class GeomTool {
                "join fetch r.image i join fetch i.pixels p " +
                "where s.id in (:ids)").
            setParameterList("ids", shapeIds).list();
-       
+       if (results.size() != shapeIds.size()) {
+           throw new ApiUsageException("Given hape id(s) invalid");
+       }
+
        ome.model.core.Image image = null;
        ome.model.core.Pixels pixels = null;
        for (final Object r : results) {
@@ -411,7 +414,6 @@ public class GeomTool {
            }
            lookupValue.add(shape);
        }
-       if (zt_lookup.size() == 0) return null;
 
        // any point iteration in a tiled image is a lost cause
        if (data.needsPyramid(pixels)) 
@@ -420,8 +422,11 @@ public class GeomTool {
       Set<Integer> validChannels = null;
        if (channels != null && channels.length > 0) {
            validChannels = new HashSet<Integer>(channels.length);
-           for (int ch : channels)
-               if (ch >= 0 && ch < pixels.getSizeC()) validChannels.add(ch);
+           for (int ch : channels) {
+               if (ch < 0 || ch >= pixels.getSizeC())
+                   throw new ApiUsageException("Given channel(s) out of bounds.");
+               validChannels.add(ch);
+           }
        }
        // common info for all shapes 
        final long pixelId = pixels.getId();
