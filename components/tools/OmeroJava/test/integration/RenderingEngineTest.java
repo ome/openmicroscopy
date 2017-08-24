@@ -3743,7 +3743,6 @@ public class RenderingEngineTest extends AbstractServerTest {
      * with more channels than the one used to initialize the rendering engines.
      * @throws Exception
      */
-    @Test(expectedExceptions = omero.InternalException.class)
     public void testUpdateSettingsUsingSettingsfromImageWithMoreChannels() throws Exception {
         Image image = createBinaryImage(10, 10, 4, 4, 4);
         Image image_destination = createBinaryImage(10, 10, 4, 4, 3);
