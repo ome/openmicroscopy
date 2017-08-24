@@ -636,7 +636,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["BASE_INCLUDE_TEMPLATE",
          None,
          identity,
-         ("Template to be included in every page, at the bottom of the <body>")],
+         ("Template to be included in every page, at the end of the <body>")],
     "omero.web.login_redirect":
         ["LOGIN_REDIRECT",
          '{}',
