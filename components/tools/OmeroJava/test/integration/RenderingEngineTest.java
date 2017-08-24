@@ -3875,6 +3875,197 @@ public class RenderingEngineTest extends AbstractServerTest {
         }
     }
 
+    /**
+     * Tests the update of the rendering settings.
+     * Specify null channel bindings
+     * @throws Exception
+     */
+    @Test
+    public void testUpdateSettingsWithNullChannelBindings() throws Exception {
+      //First import an image
+        Image image = createBinaryImage(10, 10, 4, 4, 3);
+        Pixels p = image.getPrimaryPixels();
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        //Change the rendering settings of the source
+        RenderingDef rnd_def_original = factory.getPixelsService().retrieveRndSettings(id);
+      //By default no lut set
+        for (int i = 0; i < p.getSizeC().getValue(); i++) {
+            rnd_def_original.getChannelBinding(i).setLookupTable(omero.rtypes.rstring("rnd_def_original_channel"+i));
+        }
+        rnd_def_original = (RenderingDef) factory.getUpdateService().saveAndReturnObject(rnd_def_original);
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        // New value for Z and T
+        int t = 3;
+        int z = 0;
+        RenderingDef rnd_def = new RenderingDefI();
+        // Check that the values do not match
+        Assert.assertNotEquals(re.getDefaultT(), t);
+        Assert.assertNotEquals(re.getDefaultZ(), z);
+        rnd_def.setDefaultT(omero.rtypes.rint(t));
+        rnd_def.setDefaultZ(omero.rtypes.rint(z));
+        RenderingModel model = re.getModel();
+        List<IObject> models = factory.getTypesService().allEnumerations(
+                RenderingModel.class.getName());
+        Iterator<IObject> j = models.iterator();
+        RenderingModel m;
+        long new_model_id = -1;
+        // Change the color model
+        while (j.hasNext()) {
+            m = (RenderingModel) j.next();
+            if (m.getId().getValue() != model.getId().getValue()) {
+                new_model_id = m.getId().getValue();
+                rnd_def.setModel(m);
+            }
+        }
+        Assert.assertTrue(new_model_id > -1);
+        Assert.assertNotEquals(model.getId().getValue(), new_model_id);
+        //Change the quantum Def
+        QuantumDef q_def = re.getQuantumDef();
+        rnd_def.setQuantization(q_def);
+        int cd_start = 10;
+        int cd_end = 245;
+        int bit_resolution = 7; // 2^3-1
+        if (q_def != null) {
+            //Check that the values do not match
+            Assert.assertNotEquals(q_def.getCdStart().getValue(), cd_start);
+            Assert.assertNotEquals(q_def.getCdEnd().getValue(), cd_end);
+            Assert.assertNotEquals(q_def.getBitResolution().getValue(), bit_resolution);
+            QuantumDef def = rnd_def.getQuantization();
+            //Change codomain interval
+            def.setCdStart(omero.rtypes.rint(cd_start));
+            def.setCdEnd(omero.rtypes.rint(cd_end));
+            def.setBitResolution(omero.rtypes.rint(bit_resolution));
+        }
+        //Change the channels
+        //Channel should be Red/green/Blue
+        int sizeC = p.getSizeC().getValue();
+        List<IObject> families = re.getAvailableFamilies();
+        List<ChannelBindingPrx> channels = new ArrayList<ChannelBindingPrx>(sizeC);
+        ChannelBindingPrx prx;
+        int null_channel = 1;
+        for (int i = 0; i < sizeC; i++) {
+            if (i == null_channel) {
+                prx = null;
+                rnd_def.addChannelBinding(new ChannelBindingI());
+                rnd_def.setChannelBinding(i, null);
+            } else {
+                prx = new ChannelBindingPrx();
+            }
+            channels.add(prx);
+            if (prx == null) {
+                continue;
+            }
+            Family f = re.getChannelFamily(i);
+            double start = re.getChannelWindowStart(i);
+            double end = re.getChannelWindowEnd(i);
+            Boolean active = re.isActive(i);
+            prx.start = start+1;
+            prx.end = end-1;
+            prx.active = !active;
+            // Changing active flag and window interval
+            ChannelBinding cb = rnd_def_original.getChannelBinding(i);
+            rnd_def.addChannelBinding(cb);
+            cb.setInputStart(omero.rtypes.rdouble(prx.start));
+            cb.setInputEnd(omero.rtypes.rdouble(prx.end));
+            cb.setActive(omero.rtypes.rbool(prx.active));
+            Iterator<IObject> k = families.iterator();
+            while (k.hasNext()) {
+                Family ff = (Family) k.next();
+                if (ff.getId().getValue() != f.getId().getValue()) {
+                    cb.setFamily(ff);
+                    prx.family = ff;
+                    break;
+                }
+            }
+            prx.coefficient = re.getChannelCurveCoefficient(i) + 1;
+            cb.setCoefficient(omero.rtypes.rdouble(prx.coefficient));
+            prx.ns = !re.getChannelNoiseReduction(i);
+            cb.setNoiseReduction(omero.rtypes.rbool(prx.ns));
+            prx.lut = "channel_"+i;
+            cb.setLookupTable(omero.rtypes.rstring(prx.lut));
+            int[] rgba = re.getRGBA(i);
+            prx.rgba[0] = 125+i;
+            cb.setRed(omero.rtypes.rint(prx.rgba[0]));
+            prx.rgba[1] = 125+2*i;
+            cb.setGreen(omero.rtypes.rint(prx.rgba[1]));
+            prx.rgba[2] = 125+3*i;
+            cb.setBlue(omero.rtypes.rint(prx.rgba[2]));
+            prx.rgba[3] = 125+4*i;
+            cb.setAlpha(omero.rtypes.rint(prx.rgba[3]));
+            //Check that the colors do not match
+            for (int l = 0; l < rgba.length; l++) {
+                Assert.assertNotEquals(rgba[l], prx.rgba[l]);
+            }
+            cb.addCodomainMapContext(new ReverseIntensityContextI());
+        }
+        //Apply the setting
+        re.updateSettings(rnd_def);
+        //Check the values
+        Assert.assertEquals(re.getDefaultT(), t);
+        Assert.assertEquals(re.getDefaultZ(), z);
+        Assert.assertEquals(re.getModel().getId().getValue(), new_model_id);
+        q_def = re.getQuantumDef();
+        if (q_def != null) {
+            Assert.assertEquals(q_def.getBitResolution().getValue(), bit_resolution);
+            Assert.assertEquals(q_def.getCdEnd().getValue(), cd_end);
+            Assert.assertEquals(q_def.getCdStart().getValue(), cd_start);
+        }
+        for (int i = 0; i < sizeC; i++) {
+            prx = channels.get(i);
+            if (prx != null) {
+                Assert.assertEquals(re.getChannelFamily(i).getId().getValue(),
+                        prx.family.getId().getValue());
+                Assert.assertEquals(re.getChannelWindowStart(i), prx.start);
+                Assert.assertEquals(re.getChannelWindowEnd(i), prx.end);
+                Assert.assertEquals(re.isActive(i), prx.active);
+                Assert.assertEquals(re.getChannelCurveCoefficient(i),
+                        prx.coefficient);
+                Assert.assertEquals(re.getChannelNoiseReduction(i), prx.ns);
+                Assert.assertEquals(re.getChannelLookupTable(i), prx.lut);
+                int[] values = re.getRGBA(i);
+                for (int k = 0; k < values.length; k++) {
+                    Assert.assertEquals(values[k], prx.rgba[k]);
+                }
+                List<IObject> codomains = re.getCodomainMapContext(i);
+                Assert.assertNotNull(codomains);
+                Assert.assertEquals(codomains.size(), 1);
+                CodomainMapContext ctx = (CodomainMapContext) codomains.get(0);
+                Assert.assertTrue(ctx instanceof ReverseIntensityContext);
+            } else {
+                ChannelBinding cb = rnd_def_original.getChannelBinding(i);
+                Assert.assertEquals(re.getChannelFamily(i).getId().getValue(),
+                        cb.getFamily().getId().getValue());
+                Assert.assertEquals(re.getChannelWindowStart(i),
+                        cb.getInputStart().getValue());
+                Assert.assertEquals(re.getChannelWindowEnd(i),
+                        cb.getInputEnd().getValue());
+                Assert.assertEquals(re.isActive(i), cb.getActive().getValue());
+                Assert.assertEquals(re.getChannelCurveCoefficient(i),
+                        cb.getCoefficient().getValue());
+                Assert.assertEquals(re.getChannelNoiseReduction(i),
+                        cb.getNoiseReduction().getValue());
+                Assert.assertEquals(re.getChannelLookupTable(i),
+                        cb.getLookupTable().getValue());
+                int[] values = re.getRGBA(i);
+                Assert.assertEquals(values[0], cb.getRed().getValue());
+                Assert.assertEquals(values[1], cb.getGreen().getValue());
+                Assert.assertEquals(values[2], cb.getBlue().getValue());
+                Assert.assertEquals(values[3], cb.getAlpha().getValue());
+                List<IObject> codomains = re.getCodomainMapContext(i);
+                Assert.assertEquals(cb.sizeOfSpatialDomainEnhancement(), 0);
+                Assert.assertEquals(codomains.size(), cb.sizeOfSpatialDomainEnhancement());
+            }
+        }
+    }
+
     //Inner class used to store rnd settings for channels
     class ChannelBindingPrx {
         Family family;
