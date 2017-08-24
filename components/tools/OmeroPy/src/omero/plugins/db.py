@@ -224,7 +224,6 @@ class DatabaseControl(BaseControl):
 -- To create your database:
 --
 --     createdb omero
---     createlang plpgsql omero
 --     psql omero < %s
 --
 
