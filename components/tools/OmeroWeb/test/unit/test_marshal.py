@@ -41,6 +41,7 @@ def basic_line(default_id):
     shape.y1 = rdouble(1.0)
     shape.x2 = rdouble(2.0)
     shape.y2 = rdouble(3.0)
+    # r=17,g=34,b=51,a=255
     shape.strokeColor = rint(ctypes.c_int(0x112233FF).value)
     return shape
 
@@ -64,6 +65,7 @@ def basic_polyline(request, default_id):
     shape = omero.model.PolylineI()
     shape.id = rlong(default_id)
     shape.points = rstring(points)
+    # r=17,g=34,b=51,a=0
     shape.strokeColor = rint(ctypes.c_int(0x11223300).value)
     return shape
 
@@ -125,7 +127,9 @@ def basic_ellipse(default_id):
     shape.y = rdouble(.1)
     shape.radiusX = rdouble(1.0)
     shape.radiusY = rdouble(.5)
+    # r=17,g=34,b=51,a=68
     shape.fillColor = rint(ctypes.c_int(0x11223344).value)
+    # r=255,g=254,b=253,a=252 (i.e. negative int value = -66052)
     shape.strokeColor = rint(ctypes.c_int(0xfffefdfc).value)
     return shape
 
