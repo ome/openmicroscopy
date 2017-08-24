@@ -21,6 +21,7 @@
 package integration.gateway;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -115,7 +116,7 @@ public class AdminFacilityTest extends GatewayTest {
     public void testAdminPrivileges() throws DSOutOfServiceException,
             DSAccessException {
         SecurityContext userCtx = new SecurityContext(exp.getGroupId());
-        List<String> privs = adminFacility.getAdminPrivileges(userCtx, exp);
+        Collection<String> privs = adminFacility.getAdminPrivileges(userCtx, exp);
         Assert.assertTrue(privs.isEmpty());
         
         adminFacility.setAdminPrivileges(userCtx, exp,
