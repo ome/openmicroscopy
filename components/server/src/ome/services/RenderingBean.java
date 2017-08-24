@@ -815,7 +815,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
             }
         }
         for (int w = 0; w < settings.sizeOfWaveRendering(); w++) {
+            if (w >= this.pixelsObj.getSizeC()) {
+                // Skip application of settings for channels which are beyond
+                // the currently looked up Image's number of channels.
+                break;
+            }
+
             ChannelBinding cb = settings.getChannelBinding(w);
+            if (cb == null) {
+                continue;
+            }
             // Emulate setActive(boolean)
             Boolean active = cb.getActive();
             if (active != null) {

@@ -527,10 +527,11 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * <li>{@link RenderingEngine#setChannelLookupTable(int, String)}</li>
      * </ul>
      * If one or more attributes that apply to a particular method are
-     * <code>null</code> it will be <b>skipped</b>. The underlying Renderer is
-     * not able to handle partial field updates.
-     *
-     * <b>NOTE:</b> Codomain mappings are ignored.
+     * <code>null</code> it will be <b>skipped</b> in its entirety. The
+     * underlying Renderer is not able to handle partial field updates.
+     * Furthermore, {@link ChannelBinding}s that are <code>null</code> and
+     * indexes in the {@link RenderingDef#WAVERENDERING} array greater than the
+     * currently looked up {@link Pixels#SIZEC} will be skipped.
      */
     public void updateSettings(RenderingDef settings);
 
