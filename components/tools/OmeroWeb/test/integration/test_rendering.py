@@ -108,7 +108,7 @@ class TestRendering(IWebTest):
                 act = "" if ch.isActive() else "-"
                 start = int(ch.getWindowStart())
                 end = int(ch.getWindowEnd())
-                rev = 'r' if ch.isReverseIntensity() else '-r'
+                rev = 'r' if ch.isInverted() else '-r'
                 color = ch.getColor().getHtml()
                 chs.append("%s%s|%s:%s%s$%s" % (act, i+1, start, end,
                                                 rev, color))

@@ -65,7 +65,7 @@ class TestImgDetail(IWebTest):
                 'start': 88,
                 'min': 88
             },
-            'reverseIntensity': False,
+            'inverted': False,
             'emissionWave': 500,
             'label': "500"
         }
