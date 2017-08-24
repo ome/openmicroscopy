@@ -3743,6 +3743,7 @@ public class RenderingEngineTest extends AbstractServerTest {
      * with more channels than the one used to initialize the rendering engines.
      * @throws Exception
      */
+    @Test
     public void testUpdateSettingsUsingSettingsfromImageWithMoreChannels() throws Exception {
         Image image = createBinaryImage(10, 10, 4, 4, 4);
         Image image_destination = createBinaryImage(10, 10, 4, 4, 3);
@@ -3784,7 +3785,7 @@ public class RenderingEngineTest extends AbstractServerTest {
             Assert.assertEquals(q_def.getCdStart().getValue(),
                     rnd_def.getQuantization().getCdStart().getValue());
         }
-        for (int i = 0; i < p.getSizeC().getValue(); i++) {
+        for (int i = 0; i < p_destination.getSizeC().getValue(); i++) {
             ChannelBinding cb = rnd_def.getChannelBinding(i);
             Assert.assertEquals(re.getChannelFamily(i).getId().getValue(),
                     cb.getFamily().getId().getValue());
