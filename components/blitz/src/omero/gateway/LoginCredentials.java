@@ -71,10 +71,12 @@ public class LoginCredentials {
 
     /**
      * Creates a new instance.
-     * @param args The connection arguments.
+     * 
+     * @param args
+     *            The connection arguments. Note: When using this constructor
+     *            the '#' character has to be escaped with a backslash!
      */
-    public LoginCredentials(String[] args)
-    {
+    public LoginCredentials(String[] args) {
         this();
         if (args == null) {
             throw new IllegalArgumentException("No connection arguments");
