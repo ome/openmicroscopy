@@ -1418,7 +1418,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     }
 
     /**
-     * Reverse the ome.model objectt into the corresponding codomain context.
+     * Reverse the ome.model object into the corresponding codomain context.
      * @param ctx The context to convert.
      * @return See above.
      */
