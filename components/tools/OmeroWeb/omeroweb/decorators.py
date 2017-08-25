@@ -475,7 +475,7 @@ class login_required(object):
             try:
                 retval = f(request, *args, **kwargs)
             finally:
-                # If f() raised Exception, e.g. Http404() we still need to cleanup services
+                # If f() raised Exception, e.g. Http404() we must still cleanup
                 try:
                     logger.debug(
                         'Doing connection cleanup? %s' % doConnectionCleanup)
@@ -485,7 +485,7 @@ class login_required(object):
                                 v.close()
                             conn.c.closeSession()
                 except:
-                    logger.warn('Failed to clean up connection.', exc_info=True)
+                    logger.warn('Failed to clean up connection', exc_info=True)
             return retval
         return update_wrapper(wrapped, f)
 
