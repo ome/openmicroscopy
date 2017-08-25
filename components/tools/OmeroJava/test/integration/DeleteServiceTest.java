@@ -3070,7 +3070,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnArray(lcs);
         Delete2 dc = Requests.delete().target(img1, img2).build();
         // Now delete the image.
-        doChange(client, factory, dc, true, null);
+        doChange(client, factory, dc, true);
         List<Long> ids = new ArrayList<Long>();
         ids.add(img1.getId().getValue());
         ids.add(img2.getId().getValue());
@@ -3225,7 +3225,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         }
         iUpdate.saveAndReturnArray(lcs);
         Delete2 dc = Requests.delete().target(img1, img2).build();
-        doChange(client, factory, dc, true, null);
+        doChange(client, factory, dc, true);
         // Now delete the image.
         List<Long> ids = new ArrayList<Long>();
         ids.add(img1.getId().getValue());
@@ -3344,7 +3344,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         }
         iUpdate.saveAndReturnArray(l);
         Delete2 dc = Requests.delete().target(img1, img2).build();
-        doChange(client, factory, dc, true, null);
+        doChange(client, factory, dc, true);
         List<Long> ids = new ArrayList<Long>();
         ids.add(img1.getId().getValue());
         ids.add(img2.getId().getValue());
@@ -3441,7 +3441,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 Collections.singletonList(img1.getId().getValue()),
                 Dataset.class.getSimpleName(),
                 Collections.singletonList(d.getId().getValue()));
-        doChange(client, factory, dc, true, null);
+        doChange(client, factory, dc, true);
         ParametersI param = new ParametersI();
         param.addId(img1.getId().getValue());
 
