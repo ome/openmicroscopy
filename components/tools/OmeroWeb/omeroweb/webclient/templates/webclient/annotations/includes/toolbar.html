@@ -149,7 +149,7 @@
             <span></span>
         </button>
         <ul class="dropdown">
-            {% if canDownload %}
+        {% if canDownload %}
             <!-- Here we handle a single image (in metadata general) - see below for multiple images (batch annotate) -->
             {% if not share and image.getImportedFilesInfo.count %}
               {% with filesetInfo=image.getImportedFilesInfo %}
@@ -203,22 +203,22 @@
               <a title="No original imported files to download">Download...</a>
             </li>
             {% endif %}
+        <!-- endif canDownload -->
+        {% endif %}
 
-            {% if not share %}
-            {% if image %}
+        {% if not share %}
+            {% if image and not image.requiresPixelsPyramid %}
             <li>
                 <a id="create-ometiff" href="{% url 'ome_tiff_script' image.id %}" 
                 title="Create OME-TIFF File for Download">Export as OME-TIFF...</a>
             </li>
             {% else %}
             <li class="disabled">
-                <a id="create-ometiff" href="#" class="disabled"
+                <a href="#" class="disabled"
                 title="Create OME-TIFF File for Download">Export as OME-TIFF...</a>
             </li>
-            <li>{{ manager.}}
             {% endif %}
-            {% endif %}
-            {% endif %}
+        {% endif %}
             
             {% if image %}
               {% with ex=canExportAsJpg %}
