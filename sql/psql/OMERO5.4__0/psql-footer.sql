@@ -2042,7 +2042,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.4DEV',  3,    'OMERO5.4DEV',   0,             'Initializing');
+             values ('OMERO5.4',  0,    'OMERO5.4',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -3427,9 +3427,9 @@ CREATE INDEX node_down ON node(down);
 -- Here we have finished initializing this database.
 
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
-  where currentVersion = 'OMERO5.4DEV' and
-        currentPatch = 3 and
-        previousVersion = 'OMERO5.4DEV' and
+  where currentVersion = 'OMERO5.4' and
+        currentPatch = 0 and
+        previousVersion = 'OMERO5.4' and
         previousPatch = 0;
 
 COMMIT;
