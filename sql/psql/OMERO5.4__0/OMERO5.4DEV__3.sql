@@ -54,7 +54,12 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
              VALUES ('OMERO5.4',     0,            'OMERO5.4DEV',   3);
 
--- TODO
+-- patch against 2017-SV5 regardless of if already patched
+
+DROP INDEX originalfile_repo_path_index;
+
+CREATE UNIQUE INDEX originalfile_repo_path_index ON originalfile
+    (repo, regexp_split_to_array('/' || path || name, '/+'));
 
 
 --

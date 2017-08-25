@@ -462,7 +462,12 @@ END;' LANGUAGE plpgsql;
 
 -- ... up to release version:
 
--- TODO
+-- patch against 2017-SV5 regardless of if already patched
+
+DROP INDEX originalfile_repo_path_index;
+
+CREATE UNIQUE INDEX originalfile_repo_path_index ON originalfile
+    (repo, regexp_split_to_array('/' || path || name, '/+'));
 
 
 --

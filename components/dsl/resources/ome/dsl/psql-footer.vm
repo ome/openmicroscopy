@@ -70,6 +70,13 @@ CREATE INDEX annotation_name ON annotation(name);
 CREATE INDEX namespace_displayname ON namespace(displayname);
 CREATE INDEX roi_name ON roi(name);
 
+-- protect against 2017-SV5
+
+DROP INDEX originalfile_repo_path_index;
+
+CREATE UNIQUE INDEX originalfile_repo_path_index ON originalfile
+    (repo, regexp_split_to_array('/' || path || name, '/+'));
+
 --
 -- Finally, a function for showing our permissions
 -- select id, ome_perms(permissions) FROM sometable...
