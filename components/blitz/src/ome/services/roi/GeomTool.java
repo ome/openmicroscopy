@@ -382,7 +382,7 @@ public class GeomTool {
                "where s.id in (:ids)").
            setParameterList("ids", shapeIds).list();
        if (results.size() != shapeIds.size()) {
-           throw new ApiUsageException("Given hape id(s) invalid");
+           throw new ApiUsageException("Given shape id(s) invalid");
        }
 
        ome.model.core.Image image = null;
