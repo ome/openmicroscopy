@@ -9555,6 +9555,12 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         return self._obj.getPrimaryPixels().getSizeC().val
 
+    def requiresPixelsPyramid(self):
+        """Returns True if Image Plane is over the max plane size."""
+        max_sizes = self._conn.getMaxPlaneSize()
+        print "BIG?", self.getSizeX() * self.getSizeY() > max_sizes[0] * max_sizes[1]
+        return self.getSizeX() * self.getSizeY() > max_sizes[0] * max_sizes[1]
+
     def clearDefaults(self):
         """
         Removes specific color settings from channels
