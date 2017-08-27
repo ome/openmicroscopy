@@ -8230,16 +8230,6 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             rp.close()
 
     @assert_pixels
-    def requiresPixelsPyramid(self):
-        pixels_id = self._obj.getPrimaryPixels().getId().val
-        rp = self._conn.createRawPixelsStore()
-        try:
-            rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
-            return rp.requiresPixelsPyramid()
-        finally:
-            rp.close()
-
-    @assert_pixels
     def getPrimaryPixels(self):
         """
         Loads pixels and returns object in a :class:`PixelsWrapper`
@@ -9558,7 +9548,6 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     def requiresPixelsPyramid(self):
         """Returns True if Image Plane is over the max plane size."""
         max_sizes = self._conn.getMaxPlaneSize()
-        print "BIG?", self.getSizeX() * self.getSizeY() > max_sizes[0] * max_sizes[1]
         return self.getSizeX() * self.getSizeY() > max_sizes[0] * max_sizes[1]
 
     def clearDefaults(self):
