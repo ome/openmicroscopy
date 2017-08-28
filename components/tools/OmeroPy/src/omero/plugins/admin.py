@@ -1295,7 +1295,7 @@ OMERO Diagnostics %s
             known_log_files = [
                 "Blitz-0.log", "Tables-0.log", "Processor-0.log",
                 "Indexer-0.log", "FileServer.log", "MonitorServer.log",
-                "DropBox.log", "TestDropBox.log", "OMEROweb.log"]
+                "DropBox.log", "TestDropBox.log"]
             files = log_dir.files()
             files = set([x.basename() for x in files])
             # Adding known names just in case
