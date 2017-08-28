@@ -32,6 +32,7 @@ Changes include:
 - reverted workaround for IcePy communicator leak
 - created minimal nginx configuration file that can be included in a fixed file
   to allow custom nginx options to be defined once (e.g. SSL options)
+- closed services when 404 occurs
 
 
 
