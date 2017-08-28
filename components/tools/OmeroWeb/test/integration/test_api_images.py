@@ -115,8 +115,9 @@ class TestImages(IWebTest):
         images_url = reverse('api_images', kwargs={'api_version': version})
         datasets_url = reverse('api_datasets', kwargs={'api_version': version})
 
-        # List ALL Images
-        rsp = get_json(django_client, images_url, {'group': groupId})
+        # List ALL Images for User1
+        rsp = get_json(django_client, images_url, {'group': groupId,
+                                                   'owner': conn.getUserId()})
         assert len(rsp['data']) == 6
         assert rsp['meta'] == {'totalCount': 6,
                                'limit': api_settings.API_LIMIT,
