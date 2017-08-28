@@ -1,6 +1,43 @@
 OMERO version history
 =====================
 
+5.4.0-m4 (August 2017)
+----------------------
+
+Developer preview release. Intended *only as a developer preview* for updating
+code before the full public release of 5.4.0. **Use at your own risk.**
+
+Changes include:
+
+- added method to JavaGateway to manipulate admin privileges
+- fixed graph policy rule to avoid stack overflow wheb moving large plates at once
+- fixed links to point to new website
+- fixed color convertion to rgba
+- fixed export as TIFF from webgateway
+- improved creating of rendering settings for image without any stats
+  e.g. 32bit images
+- fixed issue with jsonp decorator
+- fixed upload of script for admin with restricted privileges
+- fixed import bug in OMERO.insight
+- improved copy/paste of rendering setttings workflow in OMERO.web
+- fixed projection of images if the range of timepoint specified is not
+  the full range
+- added configuration to limit query that public user can do in OMERO.web
+- improved display of wells in OMERO.web
+- allowed admin with restricted privileges to create P/D for others in
+  OMERO.web
+- allowed the creation of admin with restricted privileges with password
+- added support to the creation of admin with restricted privileges in
+  OMERO.web
+- reverted workaround for IcePy communicator leak
+- created minimal nginx configuration file that can be included in a fixed file
+  to allow custom nginx options to be defined once (e.g. SSL options)
+
+
+
+This release also upgrades the version of Bio-Formats which OMERO uses to 5.6.0
+
+
 5.4.0-m3 (August 2017)
 ----------------------
 
