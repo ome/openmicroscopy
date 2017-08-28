@@ -68,7 +68,7 @@ class TestExperimenters(IWebTest):
         version = api_settings.API_VERSIONS[-1]
         # Delete (fake url - object doesn't need to exist for test)
         url_name = 'api_%s' % dtype.lower()
-        # NB: here the dtype and url do not map as they do elsewhere
+        # NB: here the dtype and url_name do not map as they do elsewhere
         if dtype is 'ExperimenterGroup':
             url_name = 'api_group'
         delete_url = reverse(url_name, kwargs={'api_version': version,
@@ -102,7 +102,7 @@ class TestExperimenters(IWebTest):
         assert_objects(conn, exp_json, exps, dtype="Experimenter")
 
         # Check we can follow link to Groups for first Experimenter
-        groups_url = exp_json[0]["url:groups"]
+        groups_url = exp_json[0]["url:experimentergroups"]
         rsp = get_json(django_client, groups_url)
         groups_json = rsp['data']
         grp_ids = [g['@id'] for g in groups_json]

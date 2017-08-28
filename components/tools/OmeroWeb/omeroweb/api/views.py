@@ -79,7 +79,7 @@ def api_base(request, api_version=None, **kwargs):
     """Base url of the webgateway json api for a specified version."""
     v = api_version
     rv = {'url:experimenters': build_url(request, 'api_experimenters', v),
-          'url:groups': build_url(request, 'api_groups', v),
+          'url:experimentergroups': build_url(request, 'api_groups', v),
           'url:projects': build_url(request, 'api_projects', v),
           'url:datasets': build_url(request, 'api_datasets', v),
           'url:images': build_url(request, 'api_images', v),
@@ -378,8 +378,8 @@ class ExperimenterView(ObjectView):
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
-        'url:groups': {'name': 'api_experimenter_groups',
-                       'kwargs': {'experimenter_id': 'OBJECT_ID'}},
+        'url:experimentergroups': {'name': 'api_experimenter_groups',
+                                   'kwargs': {'experimenter_id': 'OBJECT_ID'}},
     }
 
 
@@ -725,8 +725,8 @@ class ExperimentersView(ObjectsView):
     urls = {
         'url:experimenter': {'name': 'api_experimenter',
                              'kwargs': {'object_id': 'OBJECT_ID'}},
-        'url:groups': {'name': 'api_experimenter_groups',
-                       'kwargs': {'experimenter_id': 'OBJECT_ID'}},
+        'url:experimentergroups': {'name': 'api_experimenter_groups',
+                                   'kwargs': {'experimenter_id': 'OBJECT_ID'}},
     }
 
     def get_opts(self, request, **kwargs):
@@ -756,8 +756,8 @@ class ExperimenterGroupsView(ObjectsView):
 
     # Urls to add to marshalled object. See ProjectsView for more details
     urls = {
-        'url:groups': {'name': 'api_group',
-                       'kwargs': {'object_id': 'OBJECT_ID'}},
+        'url:experimentergroup': {'name': 'api_group',
+                                  'kwargs': {'object_id': 'OBJECT_ID'}},
         'url:experimenters': {'name': 'api_group_experimenters',
                               'kwargs': {'group_id': 'OBJECT_ID'}},
     }
