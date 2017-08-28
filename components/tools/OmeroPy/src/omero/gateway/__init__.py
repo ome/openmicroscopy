@@ -7412,8 +7412,8 @@ class _ChannelWrapper (BlitzObjectWrapper):
                            PixelsTypeuint16: 0,
                            PixelsTypeint32: -32768,
                            PixelsTypeuint32: 0,
-                           PixelsTypefloat: -32768,
-                           PixelsTypedouble: -32768}
+                           PixelsTypefloat: -2147483648,
+                           PixelsTypedouble: -2147483648}
                 pixtype = self._obj.getPixels(
                     ).getPixelsType().getValue().getValue()
                 return minVals[pixtype]
@@ -7438,8 +7438,8 @@ class _ChannelWrapper (BlitzObjectWrapper):
                            PixelsTypeuint16: 65535,
                            PixelsTypeint32: 32767,
                            PixelsTypeuint32: 65535,
-                           PixelsTypefloat: 32767,
-                           PixelsTypedouble: 32767}
+                           PixelsTypefloat: 2147483647,
+                           PixelsTypedouble: 2147483647}
                 pixtype = self._obj.getPixels(
                     ).getPixelsType().getValue().getValue()
                 return maxVals[pixtype]
