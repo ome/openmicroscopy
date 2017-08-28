@@ -1285,7 +1285,7 @@ class BlitzObjectWrapper (object):
                     rv = getattr(self._obj, attrName)
                     if hasattr(rv, 'val'):
                         if isinstance(rv.val, StringType):
-                            return rv.val
+                            return rv.val.decode('utf8')
                         # E.g. pixels.getPhysicalSizeX()
                         if hasattr(rv, "_unit"):
                             return rv
@@ -1305,7 +1305,8 @@ class BlitzObjectWrapper (object):
                 # If this is a _unit, then we ignore val
                 # since it's not an rtype to unwrap.
                 if not hasattr(rv, "_unit"):
-                    return rv.val
+                    return (isinstance(rv.val, StringType) and
+                            rv.val.decode('utf8') or rv.val)
             return rv
         raise AttributeError(
             "'%s' object has no attribute '%s'"
