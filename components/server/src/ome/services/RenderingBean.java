@@ -1216,7 +1216,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     @RolesAllowed("user")
     public void setChannelLookupTable(int w, String lookup) {
         StopWatch t0 = new Slf4JStopWatch(
-                "RenderingBean.setChannelLookupTable");
+                "omero.rendering_bean.setChannelLookupTable");
         rwl.readLock().lock();
 
         try {
@@ -1501,7 +1501,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setActive(int w, boolean active) {
-        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setActive");
+        StopWatch t0 = new Slf4JStopWatch("omero.rendering_bean.setActive");
         try {
             rwl.writeLock().lock();
             errorIfInvalidState();
@@ -1519,7 +1519,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setChannelWindow(int w, double start, double end) {
-        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setChannelWindow");
+        StopWatch t0 = new Slf4JStopWatch(
+                "omero.rendering_bean.setChannelWindow");
         rwl.writeLock().lock();
 
         try {
@@ -1538,7 +1539,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setCodomainInterval(int start, int end) {
-        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setCodomainInterval");
+        StopWatch t0 = new Slf4JStopWatch(
+                "omero.rendering_bean.setCodomainInterval");
         rwl.writeLock().lock();
         try {
             errorIfInvalidState();
@@ -1556,7 +1558,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setDefaultT(int t) {
-        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setDefaultT");
+        StopWatch t0 = new Slf4JStopWatch("omero.rendering_bean.setDefaultT");
         rwl.writeLock().lock();
 
         try {
@@ -1575,7 +1577,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setDefaultZ(int z) {
-        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setDefaultZ");
+        StopWatch t0 = new Slf4JStopWatch("omero.rendering_bean.setDefaultZ");
         rwl.writeLock().lock();
 
         try {
@@ -1594,7 +1596,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setModel(RenderingModel model) {
-        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setModel");
+        StopWatch t0 = new Slf4JStopWatch("omero.rendering_bean.setModel");
         rwl.writeLock().lock();
 
         try {
@@ -1615,7 +1617,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
     @RolesAllowed("user")
     public void setQuantizationMap(int w, Family family, double coefficient,
             boolean noiseReduction) {
-        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setQuantizationMap");
+        StopWatch t0 = new Slf4JStopWatch(
+                "omero.rendering_bean.setQuantizationMap");
         rwl.writeLock().lock();
 
         try {
@@ -1635,7 +1638,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setQuantumStrategy(int bitResolution) {
-        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setQuantumStrategy");
+        StopWatch t0 = new Slf4JStopWatch(
+                "omero.rendering_bean.setQuantumStrategy");
         rwl.writeLock().lock();
 
         try {
@@ -1654,7 +1658,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setRGBA(int w, int red, int green, int blue, int alpha) {
-        StopWatch t0 = new Slf4JStopWatch("RenderingBean.setRGBA");
+        StopWatch t0 = new Slf4JStopWatch("omero.rendering_bean.setRGBA");
         rwl.writeLock().lock();
 
         try {
