@@ -10,7 +10,7 @@ code before the full public release of 5.4.0. **Use at your own risk.**
 Changes include:
 
 - added method to JavaGateway to manipulate admin privileges
-- fixed graph policy rule to avoid stack overflow wheb moving large plates at once
+- fixed graph policy rule to avoid stack overflow when moving large plates at once
 - fixed links to point to new website
 - fixed color convertion to rgba
 - fixed export as TIFF from webgateway
