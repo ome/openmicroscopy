@@ -311,12 +311,19 @@ class TestHdfList(TestCase):
         monkeypatch.undo()
 
         # HdfList uses portalocker, test by mocking tables.open_file
-        self.mox.StubOutWithMock(tables, 'open_file')
-        tables.file._FILE_OPEN_POLICY = 'default'
-        tables.open_file(tmp, mode='w', title='OMERO HDF Measurement Storage',
-                         rootUEP='/').AndReturn(open(tmp))
+        if hasattr(tables, "open_file"):
+            self.mox.StubOutWithMock(tables, 'open_file')
+            tables.file._FILE_OPEN_POLICY = 'default'
+            tables.open_file(tmp, mode='w',
+                             title='OMERO HDF Measurement Storage',
+                             rootUEP='/').AndReturn(open(tmp))
 
-        self.mox.ReplayAll()
+            self.mox.ReplayAll()
+        else:
+            self.mox.StubOutWithMock(tables, 'openFile')
+            tables.openFile(tmp, mode='w',
+                            title='OMERO HDF Measurement Storage',
+                            rootUEP='/').AndReturn(open(tmp))
 
         monkeypatch.setattr(omero.tables, 'HDFLIST', hdflist2)
         with pytest.raises(omero.LockTimeout) as exc_info:
