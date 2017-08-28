@@ -202,6 +202,11 @@ class WebControl(BaseControl):
             "--no-wait", action="store_true",
             help="Do not wait on expired sessions clean-up")
 
+        parser.add(
+            sub, self.diagnostics,
+            "Run a set of checks on the current, "
+            "preferably active web server")
+
         #
         # Developer
         #
@@ -685,6 +690,23 @@ class WebControl(BaseControl):
             str(self.ctx.dir / "etc" / "ice.config") or str(ice_config)
         os.environ['PATH'] = str(os.environ.get('PATH', '.') + ':' +
                                  self.ctx.dir / 'bin')
+
+    def diagnostics(self, args):
+        # OMERO.web diagnostics
+        self.ctx.out("")
+        from omero.plugins.web import WebControl
+        try:
+            WebControl().status(args)
+        except Exception, e:
+            try:
+                self.ctx.out("OMERO.web error: %s" % e.message[1].message)
+            except:
+                self.ctx.out("OMERO.web not installed!")
+        try:
+            import django
+            self.ctx.out("Django version: %s" % django.get_version())
+        except:
+            self.ctx.err("Django not installed!")
 
 try:
     register("web", WebControl, HELP)
