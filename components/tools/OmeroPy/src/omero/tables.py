@@ -385,6 +385,9 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
             self._storage_factory = HDFLIST
         else:
             self._storage_factory = storage_factory
+        self.logger.info("Using storage factory: %s.%s",
+                         str(self._storage_factory.__module__),
+                         self._storage_factory.__class__.__name__)
 
     def _get_dir(self):
         """
