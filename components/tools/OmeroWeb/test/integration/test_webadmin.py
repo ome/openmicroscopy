@@ -259,11 +259,18 @@ class TestGroups(IWebTest):
         ome_name = exp.omeName.val
         django_client = self.new_django_client(ome_name, ome_name)
 
+        # Only users with "ModifyGroup" see "Create Group" btn on groups page
+        can_modify = 'ModifyGroup' in privileges
+        request_url = reverse('wagroups')
+        rsp = get(django_client, request_url)
+        groups_html = rsp.content
+        assert ('<span>Add new Group</span>' in groups_html) == can_modify
+
+        # Check new group form has correct fields for privileges
         request_url = reverse('wamanagegroupid', args=["new"])
         rsp = get(django_client, request_url)
         form_html = rsp.content
 
-        can_modify = 'ModifyGroup' in privileges
         assert ('name="name"' in form_html) == can_modify
         assert ('name="description"' in form_html) == can_modify
         assert ('name="permissions"' in form_html) == can_modify
@@ -271,3 +278,50 @@ class TestGroups(IWebTest):
         can_add_members = 'ModifyGroupMembership' in privileges
         assert ('name="owners"' in form_html) == can_add_members
         assert ('name="members"' in form_html) == can_add_members
+
+    @pytest.mark.parametrize("permissions",
+                             [["0", [0, 0, 0]],
+                              ["1", [1, 0, 0]],
+                              ["2", [1, 1, 0]],
+                              ["3", [1, 1, 1]],
+                              ])
+    def test_create_group_permissions(self, permissions):
+        """Test simple group creation."""
+        uuid = self.uuid()
+        request_url = reverse('wamanagegroupid', args=["create"])
+        pvalue, perms = permissions
+        data = {
+            "name": uuid,
+            "permissions": pvalue
+        }
+        redirect = post(self.django_root_client, request_url, data,
+                        status_code=302)
+        # Redirect location should be to 'groups' page
+        assert redirect.get('Location').endswith(reverse('wagroups'))
+
+        # Check that group was created
+        admin = self.client.sf.getAdminService()
+        group = admin.lookupGroup(uuid)
+
+        # permissions are: isGroupRead, isGroupAnnotate, isGroupWrite
+        group_perms = group.getDetails().getPermissions()
+        attrs = ("isGroupRead", "isGroupAnnotate", "isGroupWrite")
+        for (p, a) in zip(perms, attrs):
+            assert p == getattr(group_perms, a)()
+
+    @pytest.mark.parametrize("required_field",
+                             [["name", "This field is required"],
+                              ["permissions", "This field is required"]
+                              ])
+    def test_required_fields(self, required_field):
+        """Test form validation with required fields missing."""
+        uuid = self.uuid()
+        request_url = reverse('wamanagegroupid', args=["create"])
+        data = {
+            "name": uuid,
+            "permissions": "0"
+        }
+        field, error = required_field
+        del data[field]
+        rsp = post(self.django_root_client, request_url, data)
+        assert error in rsp.content
