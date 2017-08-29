@@ -943,6 +943,49 @@ class BaseControl(object):
             out += ","
         return out.rstrip(",")
 
+    def _sz_str(self, sz):
+        for x in ["KB", "MB", "GB"]:
+            sz /= 1000
+            if sz < 1000:
+                break
+        sz = "%.1f %s" % (sz, x)
+        return sz
+
+    def _item(self, cat, msg):
+        cat = cat + ":"
+        cat = "%-12s" % cat
+        self.ctx.out(cat, False)
+        msg = "%-30s " % msg
+        self.ctx.out(msg, False)
+
+    def _exists(self, p):
+        if p.isdir():
+            if not p.exists():
+                self.ctx.out("doesn't exist")
+            else:
+                self.ctx.out("exists")
+        else:
+            if not p.exists():
+                self.ctx.out("n/a")
+            else:
+                warn_regex = ('(-! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
+                              'warn(i(ng:)?)?\s')
+                err_regex = ('(!! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
+                             'error:?\s')
+                warn = 0
+                err = 0
+                for l in p.lines():
+                    # ensure errors/warnings search is case-insensitive
+                    lcl = l.lower()
+                    if re.match(warn_regex, lcl):
+                        warn += 1
+                    elif re.match(err_regex, lcl):
+                        err += 1
+                msg = ""
+                if warn or err:
+                    msg = " errors=%-4s warnings=%-4s" % (err, warn)
+                self.ctx.out("%-12s %s" % (self._sz_str(p.size), msg))
+
 
 class CLI(cmd.Cmd, Context):
     """

@@ -695,54 +695,10 @@ class WebControl(BaseControl):
                                  self.ctx.dir / 'bin')
 
     def diagnostics(self, args):
-        def sz_str(sz):
-            for x in ["KB", "MB", "GB"]:
-                sz /= 1000
-                if sz < 1000:
-                    break
-            sz = "%.1f %s" % (sz, x)
-            return sz
-
-        def item(cat, msg):
-            cat = cat + ":"
-            cat = "%-12s" % cat
-            self.ctx.out(cat, False)
-            msg = "%-30s " % msg
-            self.ctx.out(msg, False)
-
-        def exists(p):
-            if p.isdir():
-                if not p.exists():
-                    self.ctx.out("doesn't exist")
-                else:
-                    self.ctx.out("exists")
-            else:
-                if not p.exists():
-                    self.ctx.out("n/a")
-                else:
-                    warn_regex = ('(-! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
-                                  'warn(i(ng:)?)?\s')
-                    err_regex = ('(!! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
-                                 'error:?\s')
-                    warn = 0
-                    err = 0
-                    for l in p.lines():
-                        # ensure errors/warnings search is case-insensitive
-                        lcl = l.lower()
-                        if re.match(warn_regex, lcl):
-                            warn += 1
-                        elif re.match(err_regex, lcl):
-                            err += 1
-                    msg = ""
-                    if warn or err:
-                        msg = " errors=%-4s warnings=%-4s" % (err, warn)
-                    self.ctx.out("%-12s %s" % (sz_str(p.size), msg))
-
         # OMERO.web diagnostics
         self.ctx.out("")
-        from omero.plugins.web import WebControl
         try:
-            WebControl().status(args)
+            self.status(args)
         except Exception, e:
             try:
                 self.ctx.out("OMERO.web error: %s" % e.message[1].message)
@@ -757,16 +713,16 @@ class WebControl(BaseControl):
         if not args.no_logs:
             log_dir = self.ctx.dir / "var" / "log"
             self.ctx.out("")
-            item("Log dir", "%s" % log_dir.abspath())
+            self._item("Log dir", "%s" % log_dir.abspath())
             if not log_dir.exists():
                 self.ctx.out("")
                 self.ctx.out("No logs available")
                 return
             else:
-                exists(log_dir)
+                self._exists(log_dir)
                 log_file = "OMEROweb.log"
-                item("Log file ", log_file)
-                exists(log_dir / log_file)
+                self._item("Log file ", log_file)
+                self._exists(log_dir / log_file)
 
 try:
     register("web", WebControl, HELP)

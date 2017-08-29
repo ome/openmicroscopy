@@ -1117,55 +1117,12 @@ OMERO Diagnostics %s
 %s
         """ % ("="*80, VERSION, "="*80))
 
-        def sz_str(sz):
-            for x in ["KB", "MB", "GB"]:
-                sz /= 1000
-                if sz < 1000:
-                    break
-            sz = "%.1f %s" % (sz, x)
-            return sz
-
-        def item(cat, msg):
-            cat = cat + ":"
-            cat = "%-12s" % cat
-            self.ctx.out(cat, False)
-            msg = "%-30s " % msg
-            self.ctx.out(msg, False)
-
-        def exists(p):
-            if p.isdir():
-                if not p.exists():
-                    self.ctx.out("doesn't exist")
-                else:
-                    self.ctx.out("exists")
-            else:
-                if not p.exists():
-                    self.ctx.out("n/a")
-                else:
-                    warn_regex = ('(-! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
-                                  'warn(i(ng:)?)?\s')
-                    err_regex = ('(!! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
-                                 'error:?\s')
-                    warn = 0
-                    err = 0
-                    for l in p.lines():
-                        # ensure errors/warnings search is case-insensitive
-                        lcl = l.lower()
-                        if re.match(warn_regex, lcl):
-                            warn += 1
-                        elif re.match(err_regex, lcl):
-                            err += 1
-                    msg = ""
-                    if warn or err:
-                        msg = " errors=%-4s warnings=%-4s" % (err, warn)
-                    self.ctx.out("%-12s %s" % (sz_str(p.size), msg))
-
         def version(cmd):
             """
             Returns a true response only
             if a valid version was found.
             """
-            item("Commands", "%s" % " ".join(cmd))
+            self._item("Commands", "%s" % " ".join(cmd))
             try:
                 p = self.ctx.popen(cmd)
             except OSError:
@@ -1234,7 +1191,7 @@ OMERO Diagnostics %s
             self.ctx.out(
                 "No icegridadmin available: Cannot check server list")
         else:
-            item("Server", "icegridnode")
+            self._item("Server", "icegridnode")
             p = self.ctx.popen(self._cmd("-e", "server list"))  # popen
             rv = p.wait()
             io = p.communicate()
@@ -1249,7 +1206,7 @@ OMERO Diagnostics %s
                 servers = io[0].split()
                 servers.sort()
                 for s in servers:
-                    item("Server", "%s" % s)
+                    self._item("Server", "%s" % s)
                     p2 = self.ctx.popen(
                         self._cmd("-e", "server state %s" % s))  # popen
                     p2.wait()
@@ -1268,7 +1225,7 @@ OMERO Diagnostics %s
                 omesvcs = tuple((sname, fname) for sname, fname, status
                                 in services if "OMERO" in fname)
                 for sname, fname in omesvcs:
-                    item("Server", fname)
+                    self._item("Server", fname)
                     hsc = win32service.OpenService(
                         hscm, sname, win32service.SC_MANAGER_ALL_ACCESS)
                     logonuser = win32service.QueryServiceConfig(hsc)[7]
@@ -1284,13 +1241,13 @@ OMERO Diagnostics %s
 
             log_dir = self.ctx.dir / "var" / "log"
             self.ctx.out("")
-            item("Log dir", "%s" % log_dir.abspath())
+            self._item("Log dir", "%s" % log_dir.abspath())
             if not log_dir.exists():
                 self.ctx.out("")
                 self.ctx.out("No logs available")
                 return
             else:
-                exists(log_dir)
+                self._exists(log_dir)
 
             known_log_files = [
                 "Blitz-0.log", "Tables-0.log", "Processor-0.log",
@@ -1304,9 +1261,9 @@ OMERO Diagnostics %s
             files = list(files)
             files.sort()
             for x in files:
-                item("Log files", x)
-                exists(log_dir / x)
-            item("Log files", "Total size")
+                self._item("Log files", x)
+                self._exists(log_dir / x)
+            self._item("Log files", "Total size")
             sz = 0
             for x in log_dir.walkfiles():
                 sz += x.size
@@ -1343,7 +1300,7 @@ OMERO Diagnostics %s
                         lno = fileinput.filelineno()
                         for k, v in issues.items():
                             if k.match(line):
-                                item('Parsing %s' % file,
+                                self._item('Parsing %s' % file,
                                      "[line:%s] %s" % (lno, v))
                                 self.ctx.out("")
                                 break
@@ -1356,7 +1313,7 @@ OMERO Diagnostics %s
         self.ctx.out("")
 
         def env_val(val):
-            item("Environment", "%s=%s"
+            self._item("Environment", "%s=%s"
                  % (val, os.environ.get(val, "(unset)")))
             self.ctx.out("")
         env_val("OMERO_HOME")
@@ -1386,7 +1343,7 @@ OMERO Diagnostics %s
             applications.sort()
             for s in applications:
                 def port_val(port_type, value):
-                    item("%s %s port" % (s, port_type),
+                    self._item("%s %s port" % (s, port_type),
                          "%s" % value or "Not found")
                     self.ctx.out("")
                 p2 = self.ctx.popen(
@@ -1409,7 +1366,7 @@ OMERO Diagnostics %s
             if dir_size and dir_path_exists:
                 dir_size = self.getdirsize(omero_temp_dir)
                 dir_size = "   (Size: %s)" % dir_size
-            item("OMERO %s dir" % dir_name, "'%s'" % dir_path)
+            self._item("OMERO %s dir" % dir_name, "'%s'" % dir_path)
             self.ctx.out("Exists? %s\tIs writable? %s%s" %
                          (dir_path_exists, is_writable,
                           dir_size))
@@ -1419,7 +1376,7 @@ OMERO Diagnostics %s
         if memory:
             for k, v in sorted(memory.items()):
                 sb = " ".join([str(x) for x in v])
-                item("JVM settings", " %s" % (k[0].upper() + k[1:]))
+                self._item("JVM settings", " %s" % (k[0].upper() + k[1:]))
                 self.ctx.out("%s" % sb)
 
     def email(self, args):
