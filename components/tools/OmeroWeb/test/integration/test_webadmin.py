@@ -325,3 +325,54 @@ class TestGroups(IWebTest):
         del data[field]
         rsp = post(self.django_root_client, request_url, data)
         assert error in rsp.content
+
+    def test_validation_errors(self):
+        """Test creating or editing group with existing group name."""
+        uuid = self.uuid()
+        exp = self.new_user(privileges=['ModifyGroup',
+                                        'ModifyGroupMembership'])
+        ome_name = exp.omeName.val
+        django_client = self.new_django_client(ome_name, ome_name)
+
+        request_url = reverse('wamanagegroupid', args=["create"])
+        data = {
+            "name": "system",
+            "permissions": "0"
+        }
+        # Try to create - check error
+        rsp = post(django_client, request_url, data)
+        assert "This name already exists." in rsp.content
+        # Create group
+        data['name'] = uuid
+        post(django_client, request_url, data, status_code=302)
+
+        admin = self.client.sf.getAdminService()
+        group = admin.lookupGroup(uuid)
+
+        # Create a new user in this group, and in a different group
+        exp = self.new_user(group=group)
+        exp2 = self.new_user()
+
+        # Try to save - check duplicate name again...
+        request_url = reverse('wamanagegroupid', args=["save", group.id.val])
+        data = {
+            "name": "system",
+            "permissions": "0"
+        }
+        rsp = post(django_client, request_url, data)
+        assert "This name already exists." in rsp.content
+
+        # ...Fix name. Now we get error saving group with no members
+        # (removed user from their only group)
+        data['name'] = uuid
+        rsp = post(django_client, request_url, data)
+        assert "Can't remove user" in rsp.content
+
+        # Save and check we added members
+        data['members'] = [exp.id.val, exp2.id.val]
+        post(django_client, request_url, data, status_code=302)
+
+        group = admin.lookupGroup(uuid)
+        eids = [link.child.id.val for link in group.copyGroupExperimenterMap()]
+
+        assert set(eids) == set(data['members'])
