@@ -603,6 +603,12 @@ jQuery._WeblitzViewport = function (container, server, options) {
     this.setChannelActive(idx, !_this.loadedImg.channels[idx].active);
   };
 
+  this.setChannelReverseIntensity = function (idx, reverse, noreload) {
+    // Deprecated in OMERO 5.4.0
+    console.log('setChannelReverseIntensity() Deprecated in OMERO 5.4.0. Use setChannelInverted()')
+    this.setChannelInverted(idx, reverse, noreload)
+  }
+
   this.setChannelInverted = function (idx, inverted, noreload) {
     if (_this.loadedImg.channels[idx].inverted !== inverted) {
       _this.loadedImg.channels[idx].inverted = inverted;
