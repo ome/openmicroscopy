@@ -243,3 +243,31 @@ class TestExperimenters(IWebTest):
 
         privileges = [p.getValue().val for p in admin.getAdminPrivileges(exp)]
         assert privileges == ['Chown']
+
+
+class TestGroups(IWebTest):
+    """Test creation and editing of Groups."""
+
+    @pytest.mark.parametrize("privileges",
+                             [['ModifyGroup'],
+                              ['ModifyGroupMembership'],
+                              ['ModifyGroup', 'ModifyGroupMembership']
+                              ])
+    def test_new_group_form(self, privileges):
+        """Form should show correct fields for editing Group / Membership."""
+        exp = self.new_user(privileges=privileges)
+        ome_name = exp.omeName.val
+        django_client = self.new_django_client(ome_name, ome_name)
+
+        request_url = reverse('wamanagegroupid', args=["new"])
+        rsp = get(django_client, request_url)
+        form_html = rsp.content
+
+        can_modify = 'ModifyGroup' in privileges
+        assert ('id="id_name"' in form_html) == can_modify
+        assert ('id="id_description"' in form_html) == can_modify
+        assert ('id="id_permissions"' in form_html) == can_modify
+
+        can_add_members = 'ModifyGroupMembership' in privileges
+        assert ('id="id_owners"' in form_html) == can_add_members
+        assert ('id="id_members"' in form_html) == can_add_members
