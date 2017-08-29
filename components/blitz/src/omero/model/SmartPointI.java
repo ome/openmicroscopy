@@ -29,7 +29,7 @@ public class SmartPointI extends omero.model.PointI implements SmartShape {
                     t.transform(new Point2D.Double(point_x, point_y), null);
                 point_x = p.getX();
                 point_y = p.getY();
-        	 }
+            }
             cb.handle((int) point_x, (int) point_y);
         } catch (NullPointerException npe) {
             return;

@@ -63,7 +63,7 @@ public class PixelData {
 
     public  ome.util.PixelData getPlane(PixelBuffer buf, int z, int c, int t) {
         try {
-            return  buf.getPlane(z, c, t);
+            return buf.getPlane(z, c, t);
         } catch (IOException e) {
             throw new ResourceError("IOException: " + e);
         } catch (DimensionsOutOfBoundsException e) {
@@ -73,7 +73,7 @@ public class PixelData {
         }
     }
 
-    public boolean needsPyramid(Pixels pix) {
+    public boolean requiresPixelsPyramid(Pixels pix) {
         return data.requiresPixelsPyramid(pix);
     }
 

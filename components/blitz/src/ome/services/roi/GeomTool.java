@@ -396,7 +396,7 @@ public class GeomTool {
            if (image == null) {
                image = img;
                pixels = image.getPrimaryPixels();
-           } else if (image.getId() != img.getId())
+           } else if (!image.getId().equals(img.getId()))
                throw new ApiUsageException("All shapes have to be from the same image");
            // check if z/t unattached fallback values are not out of bounds
            if (zForUnattached < 0 || zForUnattached >= pixels.getSizeZ() ||
@@ -416,10 +416,10 @@ public class GeomTool {
        }
 
        // any point iteration in a tiled image is a lost cause
-       if (data.needsPyramid(pixels)) 
+       if (data.requiresPixelsPyramid(pixels)) 
            throw new ApiUsageException("This method can not handle tiled images yet.");
        // check for channels filter
-      Set<Integer> validChannels = null;
+       Set<Integer> validChannels = null;
        if (channels != null && channels.length > 0) {
            validChannels = new HashSet<Integer>(channels.length);
            for (int ch : channels) {
@@ -434,7 +434,7 @@ public class GeomTool {
        final int sizeY = pixels.getSizeY();
        // loop over shapes (grouped by z/t planes)
        for (final String key : zt_lookup.keySet()) {
-           final String [] keyTokens = key.split("/");
+           final String[] keyTokens = key.split("/");
            final int z = Integer.parseInt(keyTokens[0]);
            final int t = Integer.parseInt(keyTokens[1]);
 
@@ -451,7 +451,7 @@ public class GeomTool {
             	   int i = 0;
                    for (int c = 0; c < pixels.getSizeC(); c++) {
                        if (validChannels != null && 
-                           !validChannels.contains(new Integer(c))) continue;
+                           !validChannels.contains(c)) continue;
                        final int w = i;
                        stats.channelIds[w] = c;
                        final ome.util.PixelData pd = data.getPlane(buf, z, c, t);
