@@ -307,9 +307,6 @@ public interface IAdmin extends ServiceInterface {
     long createSystemUser(@NotNull
     Experimenter newSystemUser);
 
-    long createLightSystemUser(@NotNull Experimenter newSystemUser,
-            @NotNull @Validate(AdminPrivilege.class) List<AdminPrivilege> privileges);
-
     /**
      * Create and return a new system user. This user will be created with the
      * "System" (administration) group as default and will also be in the "user"

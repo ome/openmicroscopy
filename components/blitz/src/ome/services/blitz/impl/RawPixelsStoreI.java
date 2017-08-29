@@ -13,6 +13,7 @@ import ome.api.RawPixelsStore;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.ServerError;
 import omero.api.AMD_RawPixelsStore_calculateMessageDigest;
+import omero.api.AMD_RawPixelsStore_findMinMax;
 import omero.api.AMD_RawPixelsStore_getByteWidth;
 import omero.api.AMD_RawPixelsStore_getCol;
 import omero.api.AMD_RawPixelsStore_getHistogram;
@@ -249,6 +250,11 @@ public class RawPixelsStoreI extends AbstractPyramidServant implements
             int[] channels, int binCount, boolean globalRange, PlaneDef plane,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, channels, binCount, globalRange, plane);
+    }
+    
+    public void findMinMax_async(AMD_RawPixelsStore_findMinMax __cb,
+            int[] channels, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, channels);
     }
 
     public void getCol_async(AMD_RawPixelsStore_getCol __cb, int x, int z,

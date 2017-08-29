@@ -21,6 +21,7 @@ import omero.api.AMD_PyramidService_getTileSize;
 import omero.api.AMD_PyramidService_requiresPixelsPyramid;
 import omero.api.AMD_PyramidService_setResolutionLevel;
 import omero.api.AMD_RawPixelsStore_calculateMessageDigest;
+import omero.api.AMD_RawPixelsStore_findMinMax;
 import omero.api.AMD_RawPixelsStore_getByteWidth;
 import omero.api.AMD_RawPixelsStore_getCol;
 import omero.api.AMD_RawPixelsStore_getHistogram;
@@ -350,6 +351,11 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
         throw new UnsupportedOperationException("NYI");
     }
 
+    public void findMinMax_async(AMD_RawPixelsStore_findMinMax __cb,
+            int[] channels, Current __current) throws ServerError {
+        throw new UnsupportedOperationException("NYI");
+    }
+    
     public void activate_async(AMD_StatefulServiceInterface_activate __cb,
             Current __current) throws ServerError {
         throw new UnsupportedOperationException("NYI");

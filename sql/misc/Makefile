@@ -66,10 +66,6 @@ HAS_TEST = test -e $(TEST)
 # in order to make the two versions approach one another
 MAKE_DIFF = $(DIFF_CMD) $(TARGET)/$(2).schema $(TARGET)/$(1).schema > $(TARGET)/$(2).diff
 
-# Now assuming that users have installed plpgsql centrally
-#   (grep "CREATE PROCEDURAL LANGUAGE plpgsql" $(TARGET)/$(1).sql ||\
-#   createlang plpgsql $(PREFIX)$(1)) &&\
-
 MAKE_DB = \
 	($(PSQL_DROP) $(PREFIX)$(1) || echo 'DNE') &&\
 	$(PSQL_CREATE) $(PREFIX)$(1) &&\

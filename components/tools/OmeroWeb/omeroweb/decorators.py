@@ -238,6 +238,8 @@ class login_required(object):
                             'disabling OMERO.webpublic.')
                 settings.PUBLIC_ENABLED = False
                 return False
+            if settings.PUBLIC_GET_ONLY and (request.method != 'GET'):
+                return False
             if self.allowPublic is None:
                 return settings.PUBLIC_URL_FILTER.search(request.path) \
                     is not None
@@ -419,7 +421,7 @@ class login_required(object):
             return None
 
         session['connector'] = connector
-        return connection
+        return
 
     def __call__(ctx, f):
         """
@@ -470,18 +472,20 @@ class login_required(object):
 
                     # kwargs['error'] = request.GET.get('error')
                     kwargs['url'] = url
-
-            retval = f(request, *args, **kwargs)
             try:
-                logger.debug(
-                    'Doing connection cleanup? %s' % doConnectionCleanup)
-                if doConnectionCleanup:
-                    if conn is not None and conn.c is not None:
-                        for v in conn._proxies.values():
-                            v.close()
-                        conn.c.closeSession()
-            except:
-                logger.warn('Failed to clean up connection.', exc_info=True)
+                retval = f(request, *args, **kwargs)
+            finally:
+                # If f() raised Exception, e.g. Http404() we must still cleanup
+                try:
+                    logger.debug(
+                        'Doing connection cleanup? %s' % doConnectionCleanup)
+                    if doConnectionCleanup:
+                        if conn is not None and conn.c is not None:
+                            for v in conn._proxies.values():
+                                v.close()
+                            conn.c.closeSession()
+                except:
+                    logger.warn('Failed to clean up connection', exc_info=True)
             return retval
         return update_wrapper(wrapped, f)
 
