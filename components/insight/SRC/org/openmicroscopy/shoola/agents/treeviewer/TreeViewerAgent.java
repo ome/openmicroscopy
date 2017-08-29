@@ -147,7 +147,7 @@ public class TreeViewerAgent
 	}
 	
     /**
-     * Returns <code>true</code> if the currently logged in user is is allowed
+     * Returns <code>true</code> if the currently logged in user is allowed
      * to move objects to/from groups, <code>false</code> otherwise.
      * 
      * @return See above.
@@ -161,7 +161,7 @@ public class TreeViewerAgent
     }
 
     /**
-     * Returns <code>true</code> if the currently logged in user is is allowed
+     * Returns <code>true</code> if the currently logged in user is allowed
      * to edit groups, <code>false</code> otherwise.
      * 
      * @return See above.
@@ -175,7 +175,7 @@ public class TreeViewerAgent
     }
     
     /**
-     * Returns <code>true</code> if the currently logged in user is is allowed
+     * Returns <code>true</code> if the currently logged in user is allowed
      * to to add users to groups, <code>false</code> otherwise.
      * 
      * @return See above.
@@ -189,7 +189,7 @@ public class TreeViewerAgent
     }
 
     /**
-     * Returns <code>true</code> if the currently logged in user is is allowed
+     * Returns <code>true</code> if the currently logged in user is allowed
      * to edit users, <code>false</code> otherwise.
      * 
      * @return See above.
@@ -203,7 +203,7 @@ public class TreeViewerAgent
     }
     
     /**
-     * Returns <code>true</code> if the currently logged in user is is allowed
+     * Returns <code>true</code> if the currently logged in user is allowed
      * to upload scripts, <code>false</code> otherwise.
      * 
      * @return See above.
