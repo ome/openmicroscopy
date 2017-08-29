@@ -8365,7 +8365,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         return rv
 
     def setActiveChannels(self, channels, windows=None, colors=None,
-                          invertMaps=None):
+                          invertMaps=None, reverseMaps=None):
         """
         Sets the active channels on the rendering engine.
         Also sets rendering windows and channel colors
@@ -8392,6 +8392,11 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :param invertMaps:  List of boolean (or None). If True/False then
                             set/remove reverseIntensityMap on channel
         """
+        if reverseMaps is not None:
+            warnings.warn(
+                "setActiveChannels() reverseMaps parameter"
+                "deprecated in OMERO 5.4.0. Use invertMaps",
+                DeprecationWarning)
         abs_channels = [abs(c) for c in channels]
         idx = 0     # index of windows/colors args above
         for c in range(len(self.getChannels())):
