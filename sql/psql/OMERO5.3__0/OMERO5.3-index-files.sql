@@ -58,7 +58,7 @@ INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatc
 DROP INDEX originalfile_repo_path_index;
 
 CREATE UNIQUE INDEX originalfile_repo_path_index ON originalfile
-    (repo, regexp_split_to_array('/' || path || name, '/+'))
+    (repo, regexp_split_to_array('/' || path || name || '/', '/+'))
     WHERE repo IS NOT NULL;
 
 
