@@ -264,10 +264,10 @@ class TestGroups(IWebTest):
         form_html = rsp.content
 
         can_modify = 'ModifyGroup' in privileges
-        assert ('id="id_name"' in form_html) == can_modify
-        assert ('id="id_description"' in form_html) == can_modify
-        assert ('id="id_permissions"' in form_html) == can_modify
+        assert ('name="name"' in form_html) == can_modify
+        assert ('name="description"' in form_html) == can_modify
+        assert ('name="permissions"' in form_html) == can_modify
 
         can_add_members = 'ModifyGroupMembership' in privileges
-        assert ('id="id_owners"' in form_html) == can_add_members
-        assert ('id="id_members"' in form_html) == can_add_members
+        assert ('name="owners"' in form_html) == can_add_members
+        assert ('name="members"' in form_html) == can_add_members
