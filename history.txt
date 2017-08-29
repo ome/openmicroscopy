@@ -36,7 +36,7 @@ Changes include:
 - dropped support for CLI command ``admin ports``
 - added support to the Rendering engine to update a series of settings in one call
 - added infrastructure to load external CLI plugins
-- allowed the maven repository to be overriden
+- allowed the maven repository to be overridden
 - rolled back the display of tables in OMERO.web viewer
 
 
