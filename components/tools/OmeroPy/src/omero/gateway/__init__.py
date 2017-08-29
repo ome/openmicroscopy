@@ -7406,17 +7406,20 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if si is None:
             logger.info("getStatsInfo() is null. See #9695")
             try:
-                minVals = {PixelsTypeint8: -128,
-                           PixelsTypeuint8: 0,
-                           PixelsTypeint16: -32768,
-                           PixelsTypeuint16: 0,
-                           PixelsTypeint32: -32768,
-                           PixelsTypeuint32: 0,
-                           PixelsTypefloat: -2147483648,
-                           PixelsTypedouble: -2147483648}
-                pixtype = self._obj.getPixels(
-                    ).getPixelsType().getValue().getValue()
-                return minVals[pixtype]
+                if self._re is not None:
+                    return self._re.getPixelsTypeLowerBound(0)
+                else:
+                    minVals = {PixelsTypeint8: -128,
+                               PixelsTypeuint8: 0,
+                               PixelsTypeint16: -32768,
+                               PixelsTypeuint16: 0,
+                               PixelsTypeint32: -2147483648,
+                               PixelsTypeuint32: 0,
+                               PixelsTypefloat: -2147483648,
+                               PixelsTypedouble: -2147483648}
+                    pixtype = self._obj.getPixels(
+                        ).getPixelsType().getValue().getValue()
+                    return minVals[pixtype]
             except:     # Just in case we don't support pixType above
                 return None
         return si.getGlobalMin().val
@@ -7432,17 +7435,20 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if si is None:
             logger.info("getStatsInfo() is null. See #9695")
             try:
-                maxVals = {PixelsTypeint8: 127,
-                           PixelsTypeuint8: 255,
-                           PixelsTypeint16: 32767,
-                           PixelsTypeuint16: 65535,
-                           PixelsTypeint32: 32767,
-                           PixelsTypeuint32: 65535,
-                           PixelsTypefloat: 2147483647,
-                           PixelsTypedouble: 2147483647}
-                pixtype = self._obj.getPixels(
-                    ).getPixelsType().getValue().getValue()
-                return maxVals[pixtype]
+                if self._re is not None:
+                    return self._re.getPixelsTypeUpperBound(0)
+                else:
+                    maxVals = {PixelsTypeint8: 127,
+                               PixelsTypeuint8: 255,
+                               PixelsTypeint16: 32767,
+                               PixelsTypeuint16: 65535,
+                               PixelsTypeint32: 2147483647,
+                               PixelsTypeuint32: 4294967295,
+                               PixelsTypefloat: 2147483647,
+                               PixelsTypedouble: 2147483647}
+                    pixtype = self._obj.getPixels(
+                        ).getPixelsType().getValue().getValue()
+                    return maxVals[pixtype]
             except:     # Just in case we don't support pixType above
                 return None
         return si.getGlobalMax().val
