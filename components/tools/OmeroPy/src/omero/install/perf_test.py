@@ -354,10 +354,10 @@ class HdfReporter(Reporter):
         # Temporarily support old and new PyTables methods
         try:
             open_file = tables.open_file
-            create_rable = self.hdf.create_table
+            create_table = self.hdf.create_table
         except AttributeError:
             open_file = tables.openFile
-            create_rable = hdf.createTable
+            create_table = self.hdf.createTable
 
         self.hdf = open_file(self.file, "w")
         self.tbl = create_table("/", "report", {
