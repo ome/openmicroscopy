@@ -1026,23 +1026,34 @@ li.menu_back a {
 /** the center panel includes the draggable re-size handles either side **/
 
 #trayhandle_left {
-    position:absolute;
-    top:0px; left:0px; bottom:0px;
-    width: 1px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	width: 1px;
+	background-color: hsl(210,10%,85%);
 	z-index: 1;
 }
+
 #trayhandle_right {
-    position:absolute;
-    top:0px; right:0px; bottom:0px;
-    width: 1px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 1px;
+	background-color: hsl(210,10%,85%);
 	z-index: 1;
 }
+
 #center_container {
-    position:absolute;
-    left:350px; right:370px; top:0px; bottom:0px;
-    border: none;
-    background: #e5e5e5;
-	background:hsl(210,1%,98%); /* Must match #center_panel background-color */
+	position: absolute;
+	left: 350px;
+	right: 370px;
+	top: 0px;
+	bottom: 0px;
+	border: none;
+	background: #e5e5e5;
+	background: hsl(210, 1%, 98%); /* Must match #center_panel background-color */
 	/* I wish that background: hsl(220,8%,16%);*/
 }
 
@@ -1144,6 +1155,7 @@ li.menu_back a {
     left: 0;
     right: 0;
 }
+
 #dragRight {
     cursor: col-resize;
     position:absolute;
