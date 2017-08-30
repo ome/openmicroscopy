@@ -5654,7 +5654,7 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
 
         Returns a tuple of (query, clauses, params).
         Supported opts: 'group': <group_id> to filter by ExperimenterGroup
-                        'load_groups': <bool> to load ExperimenterGroups'
+                        'load_groups': <bool> to load ExperimenterGroups
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
@@ -5916,8 +5916,8 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         group.
         Returns a tuple of (query, clauses, params).
         Supported opts: 'experimenter': <experimenter_id> to filter by
-                                        ExperimenterGroup
-                        'load_experimenters': <bool> to load Experimenters'
+                                        Experimenter
+                        'load_experimenters': <bool> to load Experimenters
 
         :param opts:        Dictionary of optional parameters.
         :return:            Tuple of string, list, ParametersI
