@@ -20,6 +20,7 @@ IMAGE_NAME=${IMAGE_NAME:-test&acquisitionDate=2012-01-01_00-00-00&sizeZ=3&sizeT=
 MULTI_C_IMAGE_NAME=${MULTI_C_IMAGE_NAME:-test&acquisitionDate=2012-01-01_00-00-00&sizeC=3&sizeZ=3&sizeT=10.fake}
 TINY_IMAGE_NAME=${TINY_IMAGE_NAME:-test&acquisitionDate=2012-01-01_00-00-00.fake}
 MIF_IMAGE_NAME=${MIF_IMAGE_NAME:-test&series=3.fake}
+BIG_IMAGE_NAME=${BIG_IMAGE_NAME:-test&sizeX=4000&sizeY=4000.fake}
 PLATE_NAME=${PLATE_NAME:-test&plates=1&plateAcqs=2&plateRows=2&plateCols=3&fields=5&screens=0.fake}
 TINY_PLATE_NAME=${TINY_PLATE_NAME:-test&plates=1&plateAcqs=1&plateRows=1&plateCols=1&fields=1&screens=0.fake}
 BULK_ANNOTATION_CSV=${BULK_ANNOTATION_CSV:-bulk_annotation.csv}
@@ -97,6 +98,10 @@ for (( k=1; k<=2; k++ ))
 do
   bin/omero import -d $mcDs $MULTI_C_IMAGE_NAME --debug ERROR
 done
+
+# Create Dataset with Big Image
+bigDs=$(bin/omero obj new Dataset name='Big Images')
+bin/omero import -d $bigDs $BIG_IMAGE_NAME --debug ERROR
 
 # Import Plate and rename
 bin/omero import $PLATE_NAME --debug ERROR > plate_import.log 2>&1
