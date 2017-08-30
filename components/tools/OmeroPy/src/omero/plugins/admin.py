@@ -1301,7 +1301,7 @@ OMERO Diagnostics %s
                         for k, v in issues.items():
                             if k.match(line):
                                 self._item('Parsing %s' % file,
-                                     "[line:%s] %s" % (lno, v))
+                                           "[line:%s] %s" % (lno, v))
                                 self.ctx.out("")
                                 break
             except:
@@ -1314,7 +1314,7 @@ OMERO Diagnostics %s
 
         def env_val(val):
             self._item("Environment", "%s=%s"
-                 % (val, os.environ.get(val, "(unset)")))
+                       % (val, os.environ.get(val, "(unset)")))
             self.ctx.out("")
         env_val("OMERO_HOME")
         env_val("OMERO_NODE")
@@ -1344,7 +1344,7 @@ OMERO Diagnostics %s
             for s in applications:
                 def port_val(port_type, value):
                     self._item("%s %s port" % (s, port_type),
-                         "%s" % value or "Not found")
+                               "%s" % value or "Not found")
                     self.ctx.out("")
                 p2 = self.ctx.popen(
                     self._cmd("-e", "application describe %s" % s))
