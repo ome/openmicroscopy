@@ -44,8 +44,8 @@
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.fields_plugin.js"|add:url_suffix %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.omecut_plugin.js"|add:url_suffix %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.ometools_plugin.js"|add:url_suffix %}"></script>
-   <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.childcount_plugin.js"|add:url_suffix %}"></script>
-   <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.childcount_plugin.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js"|add:url_suffix %}"></script>
 
     <script type="text/javascript" src="{% static 'webclient/javascript/ome.chgrp.js'|add:url_suffix %}"></script>
 
@@ -770,116 +770,114 @@
 {% endblock %}
 
 
-
-
 {% block left %}
 
 <div class="left_panel_content">
 
-<div id="left_panel_tabs" class="left_panel_tabs_container ui-tabs">
+    <div id="left_panel_tabs" class="left_panel_tabs_container ui-tabs">
 
-    <ul id="left_panel_tab_list" class="ui-tabs-nav">
+        <ul id="left_panel_tab_list" class="ui-tabs-nav">
 
-        <!-- Remember to update this in public/public.html as well. We should change this, but for the meantime, you need to manually update the menu there too -->
+            <!-- Remember to update this in public/public.html as well. We should change this, but for the meantime, you need to manually update the menu there too -->
 
-        <li id="explore_tab" class="ui-state-default{% ifequal menu 'userdata' %} ui-tabs-active{% endifequal %}">
-            <a href="{% url 'load_template' 'userdata' %}" class="ui-tabs-anchor" title="Explore">{% trans "Explore" %}</a>
-        </li>
-        <li id="tags_tab" class="ui-state-default{% ifequal menu 'usertags' %} ui-tabs-active{% endifequal %}">
-            <a href="{% url 'load_template' 'usertags' %}" class="ui-tabs-anchor">{% trans "Tags" %}</a>
-        </li>
-        <li id="public_tab" class="ui-state-default">
-            <a href="{% url 'load_template' 'public' %}" class="ui-tabs-anchor">{% trans "Shares" %}</a>
-        </li>
-
-    </ul>
-
-    <!-- toolbar above tree -->
-    <div class="left_panel_toolbar" >
-
-        <!-- Show Projects toolbar for main page... -->
-        <ul class="toolbar">
-
-            {% if menu == 'userdata' %}
-
-                <li><input id="addprojectButton" class="button button-disabled" type="image"
-                           src="{% static "webclient/image/folder16.png" %}" alt="Create new project"
-                           title="Create new Project"/></li>
-                <li><input id="adddatasetButton" class="button button-disabled" type="image"
-                           src="{% static "webclient/image/folder_image16.png" %}" alt="Create new dataset"
-                           title="Create new Dataset"/></li>
-                <li><input id="addscreenButton" class="button button-disabled" type="image"
-                           src="{% static "webclient/image/folder_screen16.png" %}" alt="Create new screen"
-                           title="Create new Screen"/></li>
-
-            {% elif menu == 'usertags' %}
-
-                <li><input id="addtagsetButton" class="button button-disabled" type="image"
-                           title="Create new Tag Set"
-                           src="{% static "webclient/image/left_sidebar_icon_tags.png" %}"
-                           alt="Create new dataset"/></li>
-                <li><input id="addtagButton" class="button button-disabled" type="image" title="Create new Tag"
-                           src="{% static "webclient/image/left_sidebar_icon_tag.png" %}" alt="Create new project"/></li>
-
-            {% endif %}
-
-            <li class="seperator"></li>
-
-            <li><input id="cutButton" class="button button-disabled" type="image"
-                       src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Cut Link" title="Cut Link"/>
+            <li id="explore_tab" class="ui-state-default{% ifequal menu 'userdata' %} ui-tabs-active{% endifequal %}">
+                <a href="{% url 'load_template' 'userdata' %}" class="ui-tabs-anchor" title="Explore">{% trans "Explore" %}</a>
             </li>
-            <li><input id="copyButton" class="button button-disabled" type="image"
-                       src="{% static "webclient/image/icon_toolbar_copy.png" %}" alt="Copy Link"
-                       title="Copy a link to the selected object"/></li>
-            <li><input id="pasteButton" class="button button-disabled" type="image"
-                       src="{% static "webclient/image/icon_toolbar_paste.png" %}" alt="Paste Link"
-                       title="Paste the copied link"/></li>
-
-            <li class="seperator">
-
-            <li><input id="deleteButton" class="button button-disabled" type="image"
-                       src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Delete" title="Delete"/>
+            <li id="tags_tab" class="ui-state-default{% ifequal menu 'usertags' %} ui-tabs-active{% endifequal %}">
+                <a href="{% url 'load_template' 'usertags' %}" class="ui-tabs-anchor">{% trans "Tags" %}</a>
             </li>
-
-            <li class="seperator">
-
-            <li><input id="createshareButton" class="button button-disabled" type="image"
-                       src="{% static "webclient/image/icon_toolbar_share2.png" %}" alt="Create Share"
-                       title="Create Share"></li>
-
-            <li class="seperator"></li>
-
-            <li><input id="refreshButton" class="button" type="image"
-                       src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh">
+            <li id="public_tab" class="ui-state-default">
+                <a href="{% url 'load_template' 'public' %}" class="ui-tabs-anchor">{% trans "Shares" %}</a>
             </li>
 
         </ul>
 
-    </div>
+        <!-- toolbar above tree -->
+        <div class="left_panel_toolbar" >
 
-</div>
+            <!-- Show Projects toolbar for main page... -->
+            <ul class="toolbar">
 
-<div class="left_panel_tree_container">
+                {% if menu == 'userdata' %}
 
-    <div id="tree_details" class="left_panel_tree">
-        <div class="dataTree" id="dataTree"></div>
-    </div>
+                    <li><input id="addprojectButton" class="button button-disabled" type="image"
+                               src="{% static "webclient/image/folder16.png" %}" alt="Create new project"
+                               title="Create new Project"/></li>
+                    <li><input id="adddatasetButton" class="button button-disabled" type="image"
+                               src="{% static "webclient/image/folder_image16.png" %}" alt="Create new dataset"
+                               title="Create new Dataset"/></li>
+                    <li><input id="addscreenButton" class="button button-disabled" type="image"
+                               src="{% static "webclient/image/folder_screen16.png" %}" alt="Create new screen"
+                               title="Create new Screen"/></li>
 
-    <!-- Panel hidden unless needed for showing spatial birds eye view of Wells - see ome.spwgridview.js -->
-    <div id="well_details" class="left_panel_preview">
-        <div class="left_panel_preview__header">
-            <span class="left_panel_preview__title--centered
-                         left_panel_preview__title--medium">
-                Field positions in well
-            </span>
-            <a id="hide_well_birds_eye" class="left_panel_preview__close action" href="#">X</a>
+                {% elif menu == 'usertags' %}
+
+                    <li><input id="addtagsetButton" class="button button-disabled" type="image"
+                               title="Create new Tag Set"
+                               src="{% static "webclient/image/left_sidebar_icon_tags.png" %}"
+                               alt="Create new dataset"/></li>
+                    <li><input id="addtagButton" class="button button-disabled" type="image" title="Create new Tag"
+                               src="{% static "webclient/image/left_sidebar_icon_tag.png" %}" alt="Create new project"/></li>
+
+                {% endif %}
+
+                <li class="seperator"></li>
+
+                <li><input id="cutButton" class="button button-disabled" type="image"
+                           src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Cut Link" title="Cut Link"/>
+                </li>
+                <li><input id="copyButton" class="button button-disabled" type="image"
+                           src="{% static "webclient/image/icon_toolbar_copy.png" %}" alt="Copy Link"
+                           title="Copy a link to the selected object"/></li>
+                <li><input id="pasteButton" class="button button-disabled" type="image"
+                           src="{% static "webclient/image/icon_toolbar_paste.png" %}" alt="Paste Link"
+                           title="Paste the copied link"/></li>
+
+                <li class="seperator">
+
+                <li><input id="deleteButton" class="button button-disabled" type="image"
+                           src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Delete" title="Delete"/>
+                </li>
+
+                <li class="seperator">
+
+                <li><input id="createshareButton" class="button button-disabled" type="image"
+                           src="{% static "webclient/image/icon_toolbar_share2.png" %}" alt="Create Share"
+                           title="Create Share"></li>
+
+                <li class="seperator"></li>
+
+                <li><input id="refreshButton" class="button" type="image"
+                           src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh">
+                </li>
+
+            </ul>
+
         </div>
-        <div id="well_birds_eye_container" class="left_paneL_preview__content">
-            <div id="well_birds_eye" class="left_paneL_preview__well"></div>
-        </div>
+
     </div>
 
-</div>
+    <div class="left_panel_tree_container">
+
+        <div id="tree_details" class="left_panel_tree">
+            <div class="dataTree" id="dataTree"></div>
+        </div>
+
+        <!-- Panel hidden unless needed for showing spatial birds eye view of Wells - see ome.spwgridview.js -->
+        <div id="well_details" class="left_panel_preview">
+            <div class="left_panel_preview__header">
+                <span class="left_panel_preview__title--centered
+                             left_panel_preview__title--medium">
+                    Field positions in well
+                </span>
+                <a id="hide_well_birds_eye" class="left_panel_preview__close action" href="#">X</a>
+            </div>
+            <div id="well_birds_eye_container" class="left_paneL_preview__content">
+                <div id="well_birds_eye" class="left_paneL_preview__well"></div>
+            </div>
+        </div>
+
+    </div>
 
 </div>
 
