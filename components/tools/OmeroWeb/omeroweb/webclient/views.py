@@ -1164,8 +1164,6 @@ def api_annotations(request, conn=None, **kwargs):
 
     ann_type = r.get('type', None)
 
-    image_ids = [i for i in image_ids if i != '']
-
     anns, exps = tree.marshal_annotations(conn, project_ids=project_ids,
                                           dataset_ids=dataset_ids,
                                           image_ids=image_ids,
