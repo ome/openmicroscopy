@@ -316,7 +316,11 @@ public class CheckedPath {
      * slash.
      */
     protected String getDirname() {
-        return this.fsFile.toString() + FsFile.separatorChar;
+        if (FsFile.emptyPath.equals(this.fsFile)) {
+            return Character.toString(FsFile.separatorChar);
+        } else {
+            return FsFile.separatorChar + this.fsFile.toString() + FsFile.separatorChar;
+        }
     }
 
     /**
@@ -336,7 +340,11 @@ public class CheckedPath {
      * with separators including a trailing {@link FsFile#separatorChar}.
      */
     protected String getRelativePath() {
-        return this.parentDir + FsFile.separatorChar;
+        if (parentDir.isEmpty()) {
+            return Character.toString(FsFile.separatorChar);
+        } else {
+            return FsFile.separatorChar + this.parentDir + FsFile.separatorChar;
+        }
     }
 
     /**
