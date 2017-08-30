@@ -29,6 +29,7 @@ import org.hibernate.type.Type;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
 import ome.conditions.ApiUsageException;
@@ -189,12 +190,22 @@ public class OmeroInterceptor implements Interceptor {
     }
 
     /**
-     * Do not allow <q>.</q> and <q>..</q> components in file paths.
+     * Do not allow file paths who path component does not contain all the <q>/<q> characters including at its start and end.
+     * Not {@code private} for only access by {@link OmeroInterceptorTest} unit test.
      * @param filepath a file path
      * @return if the file path contains any prohibited components
      */
-    private static boolean isProblemFilepath(String filepath) {
-        for (final String component : Splitter.on('/').split(filepath)) {
+    static boolean isProblemFilepath(String pathComponentGiven, String nameComponentGiven) {
+        final String filepathGiven = pathComponentGiven + nameComponentGiven;
+        final Iterable<String> components = Splitter.on('/').omitEmptyStrings().split(filepathGiven);
+        final String filepathCanonical = "/" + Joiner.on('/').join(components);
+        final int lastComponent = filepathCanonical.lastIndexOf('/') + 1;
+        final String pathComponentCanonical = filepathCanonical.substring(0, lastComponent);
+        final String nameComponentCanonical = filepathCanonical.substring(lastComponent);
+        if (!(pathComponentGiven.equals(pathComponentCanonical) && nameComponentGiven.equals(nameComponentCanonical))) {
+            return true;
+        }
+        for (final String component : components) {
             switch (component) {
             case ".":
             case "..":
@@ -222,13 +233,15 @@ public class OmeroInterceptor implements Interceptor {
             Details newDetails = evaluateLinkages(iobj);
 
             if (previousState != null && iobj instanceof OriginalFile && !currentUser.current().isCurrentUserAdmin()) {
+                final int repoIndex = HibernateUtils.index(IDX_FILE_REPO, propertyNames);
                 final int pathIndex = HibernateUtils.index(IDX_FILE_PATH, propertyNames);
                 final int nameIndex = HibernateUtils.index(IDX_FILE_NAME, propertyNames);
+                final String currentRepo = (String) currentState[repoIndex];
                 final String currentPath = (String) currentState[pathIndex];
                 final String currentName = (String) currentState[nameIndex];
-                if (currentPath != null && currentName != null &&
+                if (currentRepo != null && currentPath != null && currentName != null &&
                         !(currentPath.equals(previousState[pathIndex]) && currentName.equals(previousState[nameIndex])) &&
-                        isProblemFilepath(currentPath + currentName)) {
+                        isProblemFilepath(currentPath, currentName)) {
                     throw new SecurityViolation("only administrators may introduce non-canonical OriginalFile path or name");
                 }
             }
