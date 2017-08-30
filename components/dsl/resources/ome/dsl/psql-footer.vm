@@ -792,7 +792,7 @@ create index originalfile_hash_index on originalfile (hash);
 -- protect against 2017-SV5
 
 CREATE UNIQUE INDEX originalfile_repo_path_index ON originalfile
-    (repo, regexp_split_to_array('/' || path || name, '/+'))
+    (repo, regexp_split_to_array('/' || path || name || '/', '/+'))
     WHERE repo IS NOT NULL;
 
 --
