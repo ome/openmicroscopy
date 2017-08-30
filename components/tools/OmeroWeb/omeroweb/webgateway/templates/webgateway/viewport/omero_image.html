@@ -34,6 +34,7 @@
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.postit.css"|add:url_suffix %}" />
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/farbtastic-1.2/farbtastic.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.colorbtn.css"|add:url_suffix %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "3rdparty/JQuerySpinBtn-1.3a/JQuerySpinBtn.css" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/omero_image.css"|add:url_suffix %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "3rdparty/panojs-2.0.0/panojs.css" %}" media="all" />
 
@@ -61,6 +62,7 @@
   {% include "webgateway/base/includes/jquery-ui.html" %}
 
     <script type="text/javascript" src="{% static "webgateway/js/ome.smartdialog.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/JQuerySpinBtn-1.3a/JQuerySpinBtn.js" %}"></script>
     <script type="text/javascript" src="{% static "webgateway/js/ome.colorbtn.js"|add:url_suffix %}"></script>
     <script type="text/javascript" src="{% static "webgateway/js/ome.postit.js"|add:url_suffix %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/jquery.selectboxes-2.2.6.js" %}"></script>
@@ -890,7 +892,7 @@
           </div>
           <div class="even row">
             <label for="wblitz-zoom">Zoom (%)</label><br />
-            <input type="number" class="spin-button" id="wblitz-zoom" value="100" onchange="zoomCheck(this)" size="5" />
+            <input type="text" class="spin-button" id="wblitz-zoom" value="100" onchange="zoomCheck(this)" size="5" />
             <button id="full-size"
                     title="Actual size"
                     onclick="viewport.setZoom(100)" ></button>
