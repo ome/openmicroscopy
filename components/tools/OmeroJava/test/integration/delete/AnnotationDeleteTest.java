@@ -512,7 +512,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
      * Test that {@link Delete2#typesToIgnore} runs faster than {@link omero.cmd.graphs.ChildOption#excludeType} on large data.
      * @throws Exception unexpected
      */
-    @Test
+    @Test(timeOut = 200000)
     public void testIgnoreTypesPerformance() throws Exception {
         newUserAndGroup("rwr---");
 
