@@ -406,15 +406,19 @@ class ImageEntry (ObjectEntry):
         if not os.path.exists(fpath):
             if not os.path.exists(os.path.dirname(fpath)):
                 os.makedirs(os.path.dirname(fpath))
-            # First try to download the image
-            try:
-                # print "Trying to get test image from " + TESTIMG_URL +
-                # self.filename
-                sys.stderr.write('<')
-                f = urllib2.urlopen(TESTIMG_URL + self.filename)
-                open(fpath, 'wb').write(f.read())
-            except urllib2.HTTPError:
-                raise IOError('No such file %s' % fpath)
+            if self.filename.endswith('.fake'):
+                # If it's a .fake file, simply create it
+                os.close(os.open(fpath, os.O_CREAT | os.O_EXCL))
+            else:
+                # First try to download the image
+                try:
+                    # print "Trying to get test image from " + TESTIMG_URL +
+                    # self.filename
+                    sys.stderr.write('<')
+                    f = urllib2.urlopen(TESTIMG_URL + self.filename)
+                    open(fpath, 'wb').write(f.read())
+                except urllib2.HTTPError:
+                    raise IOError('No such file %s' % fpath)
         host = dataset._conn.c.ic.getProperties().getProperty(
             'omero.host') or 'localhost'
         port = dataset._conn.c.ic.getProperties().getProperty(
