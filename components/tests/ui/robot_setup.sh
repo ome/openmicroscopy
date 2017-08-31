@@ -41,6 +41,7 @@ touch $TINY_IMAGE_NAME
 touch $PLATE_NAME
 touch $TINY_PLATE_NAME
 touch $MIF_IMAGE_NAME
+touch $BIG_IMAGE_NAME
 
 # Python script for setting posX and posY on wellsamples
 # Used below after importing a plate
