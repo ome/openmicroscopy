@@ -12,7 +12,6 @@
 import time
 import pytest
 import omero.columns
-import omero.tables
 import logging
 import tables
 import threading
@@ -23,6 +22,15 @@ from omero.rtypes import rint, rstring
 
 from library import TestCase
 from path import path
+
+
+if hasattr(tables, "open_file"):
+    import omero.hdfstorageV2 as storage_module
+else:
+    import omero.hdfstorageV1 as storage_module
+
+HdfList = storage_module.HdfList
+HdfStorage = storage_module.HdfStorage
 
 
 logging.basicConfig(level=logging.CRITICAL)
@@ -76,45 +84,45 @@ class TestHdfStorage(TestCase):
 
     def testInvalidFile(self):
         pytest.raises(
-            omero.ApiUsageException, omero.tables.HdfStorage, None, None)
+            omero.ApiUsageException, HdfStorage, None, None)
         pytest.raises(
-            omero.ApiUsageException, omero.tables.HdfStorage, '', self.lock)
+            omero.ApiUsageException, HdfStorage, '', self.lock)
         bad = path(self.tmpdir()) / "doesntexist" / "test.h5"
         pytest.raises(
-            omero.ApiUsageException, omero.tables.HdfStorage, bad, self.lock)
+            omero.ApiUsageException, HdfStorage, bad, self.lock)
 
     def testValidFile(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
+        hdf = HdfStorage(self.hdfpath(), self.lock)
         hdf.cleanup()
 
     def testLocking(self):
         tmp = str(self.hdfpath())
-        hdf1 = omero.tables.HdfStorage(tmp, self.lock)
+        hdf1 = HdfStorage(tmp, self.lock)
         with pytest.raises(omero.LockTimeout) as exc_info:
-            omero.tables.HdfStorage(tmp, self.lock)
+            HdfStorage(tmp, self.lock)
         assert exc_info.value.message.startswith('Path already in HdfList: ')
         hdf1.cleanup()
-        hdf3 = omero.tables.HdfStorage(tmp, self.lock)
+        hdf3 = HdfStorage(tmp, self.lock)
         hdf3.cleanup()
 
     def testSimpleCreation(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
+        hdf = HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, False)
         hdf.cleanup()
 
     def testCreationWithMetadata(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
+        hdf = HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, True)
         hdf.cleanup()
 
     def testAddSingleRow(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
+        hdf = HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, True)
         self.append(hdf, {"a": 1, "b": 2, "c": 3})
         hdf.cleanup()
 
     def testModifyRow(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
+        hdf = HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, True)
         self.append(hdf, {"a": 1, "b": 2, "c": 3})
         self.append(hdf, {"a": 5, "b": 6, "c": 7})
@@ -128,7 +136,7 @@ class TestHdfStorage(TestCase):
         hdf.cleanup()
 
     def testReadTicket1951(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
+        hdf = HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, True)
         self.append(hdf, {"a": 1, "b": 2, "c": 3})
         hdf.readCoordinates(hdf._stamp, [0], self.current)
@@ -136,7 +144,7 @@ class TestHdfStorage(TestCase):
         hdf.cleanup()
 
     def testSorting(self):  # Probably shouldn't work
-        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
+        hdf = HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, True)
         self.append(hdf, {"a": 0, "b": 2, "c": 3})
         self.append(hdf, {"a": 4, "b": 4, "c": 4})
@@ -149,7 +157,7 @@ class TestHdfStorage(TestCase):
         hdf.cleanup()
 
     def testInitializeInvalidColoumnNames(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
+        hdf = HdfStorage(self.hdfpath(), self.lock)
 
         with pytest.raises(omero.ApiUsageException) as exc:
             hdf.initialize([omero.columns.LongColumnI('')], None)
@@ -164,10 +172,10 @@ class TestHdfStorage(TestCase):
 
     def testInitializationOnInitializedFileFails(self):
         p = self.hdfpath()
-        hdf = omero.tables.HdfStorage(p, self.lock)
+        hdf = HdfStorage(p, self.lock)
         self.init(hdf, True)
         hdf.cleanup()
-        hdf = omero.tables.HdfStorage(p, self.lock)
+        hdf = HdfStorage(p, self.lock)
         try:
             self.init(hdf, True)
             assert False
@@ -191,11 +199,11 @@ class TestHdfStorage(TestCase):
         t = path(self.tmpdir())
         h = t / "test.h5"
         assert t.exists()
-        hdf = omero.tables.HdfStorage(h, self.lock)
+        hdf = HdfStorage(h, self.lock)
         hdf.cleanup()
 
     def testGetSetMetaMap(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
+        hdf = HdfStorage(self.hdfpath(), self.lock)
         self.init(hdf, False)
 
         hdf.add_meta_map({'a': rint(1)})
@@ -228,7 +236,7 @@ class TestHdfStorage(TestCase):
         hdf.cleanup()
 
     def testStringCol(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
+        hdf = HdfStorage(self.hdfpath(), self.lock)
         cols = [omero.columns.StringColumnI("name", "description", 16, None)]
         hdf.initialize(cols)
         cols[0].settable(hdf._HdfStorage__mea)  # Needed for size
@@ -246,7 +254,7 @@ class TestHdfStorage(TestCase):
     # ROIs
     #
     def testMaskColumn(self):
-        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
+        hdf = HdfStorage(self.hdfpath(), self.lock)
         mask = omero.columns.MaskColumnI('mask', 'desc', None)
         hdf.initialize([mask], None)
         mask.imageId = [1, 2]
@@ -292,19 +300,19 @@ class TestHdfList(TestCase):
 
     def testLocking(self, monkeypatch):
         lock1 = threading.RLock()
-        hdflist2 = omero.tables.HdfList()
+        hdflist2 = HdfList()
         lock2 = threading.RLock()
         tmp = str(self.hdfpath())
 
-        # Using omero.tables.HDFLIST
-        hdf1 = omero.tables.HdfStorage(tmp, lock1)
+        # Using HDFLIST
+        hdf1 = HdfStorage(tmp, lock1)
 
         # There are multiple guards against opening the same HDF5 file
 
         # PyTables includes a check
-        monkeypatch.setattr(omero.tables, 'HDFLIST', hdflist2)
+        monkeypatch.setattr(storage_module, 'HDFLIST', hdflist2)
         with pytest.raises(ValueError) as exc_info:
-            omero.tables.HdfStorage(tmp, lock2)
+            HdfStorage(tmp, lock2)
 
         assert exc_info.value.message.startswith(
             "The file '%s' is already opened. " % tmp)
@@ -325,9 +333,9 @@ class TestHdfList(TestCase):
                             title='OMERO HDF Measurement Storage',
                             rootUEP='/').AndReturn(open(tmp))
 
-        monkeypatch.setattr(omero.tables, 'HDFLIST', hdflist2)
+        monkeypatch.setattr(storage_module, 'HDFLIST', hdflist2)
         with pytest.raises(omero.LockTimeout) as exc_info:
-            omero.tables.HdfStorage(tmp, lock2)
+            HdfStorage(tmp, lock2)
         print exc_info.value
         assert (exc_info.value.message ==
                 'Cannot acquire exclusive lock on: %s' % tmp)
