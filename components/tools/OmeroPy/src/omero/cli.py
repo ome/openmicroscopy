@@ -943,6 +943,32 @@ class BaseControl(object):
             out += ","
         return out.rstrip(",")
 
+
+class DiagnosticsControl(BaseControl):
+    """
+    Superclass (and SPI-interface) for any control commands that would
+    like to provide a "diagnostics" method, like bin/omero admin diagnostics
+    and bin/omero web diagnostics. The top-level diagnostics command then
+    can find each such plugin and iterate over it.
+    """
+
+    def _add_diagnostics(self, parser, sub):
+        diagnostics = parser.add(
+            sub, self.diagnostics,
+            "Run a set of checks on the current, "
+            "preferably active ")
+        diagnostics.add_argument(
+            "--no-logs", action="store_true",
+            help="Skip log parsing")
+
+    def _diagnostics_banner(self, control_name):
+
+        self.ctx.out("""
+%s
+OMERO Diagnostics (%s) %s
+%s
+        """ % ("="*80, control_name, VERSION, "="*80))
+
     def _sz_str(self, sz):
         for x in ["KB", "MB", "GB"]:
             sz /= 1000

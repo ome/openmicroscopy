@@ -24,6 +24,7 @@ from omero_ext.argparse import FileType
 
 from omero.cli import BaseControl
 from omero.cli import CLI
+from omero.cli import DiagnosticsControl
 from omero.cli import VERSION
 
 
@@ -240,6 +241,29 @@ class HelpControl(BaseControl):
         elif args.topic:
             self.print_single_command_or_topic(args)
 
+
+DIAGNOSTICS_HELP = """ Call diagnostics on all subplugins """
+
+
+class CollectingDiagnosticsControl(BaseControl):
+    """
+    """
+
+    def _configure(self, parser):
+        self.__parser__ = parser  # For formatting later
+        parser.set_defaults(func=self.__call__)
+        parser.add_argument(
+            "--no-logs", action="store_true",
+            help="Skip log parsing")
+        # Argument list must match that of the
+        # DiagnosticsControl._add_diagnostics method
+
+    def __call__(self, args):
+        for name, control in sorted(self.ctx.controls.items()):
+            if isinstance(control, DiagnosticsControl):
+                control.diagnostics(args)
+
+
 controls = {
     "help": (HelpControl, "Syntax help for all commands"),
     "quit": (QuitControl, "Quit application"),
@@ -248,7 +272,9 @@ controls = {
 All arguments not understood vi %(prog)s will be passed to the shell.
 Use "--" to end parsing, e.g. '%(prog)s -- --help' for IPython help"""),
     "version": (VersionControl, "Version number"),
-    "load": (LoadControl, LOAD_HELP)}
+    "load": (LoadControl, LOAD_HELP),
+    "diagnostics": (CollectingDiagnosticsControl, DIAGNOSTICS_HELP),
+}
 
 try:
     for k, v in controls.items():

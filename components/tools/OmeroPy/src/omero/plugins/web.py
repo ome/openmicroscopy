@@ -10,7 +10,8 @@
 
 import traceback
 from datetime import datetime
-from omero.cli import BaseControl, CLI
+from omero.cli import DiagnosticsControl
+from omero.cli import CLI
 import platform
 import sys
 import os
@@ -116,7 +117,7 @@ def assert_config_argtype(func):
     return wraps(func)(config_argtype(func))
 
 
-class WebControl(BaseControl):
+class WebControl(DiagnosticsControl):
 
     # DEPRECATED: apache
     config_choices = (
@@ -130,6 +131,7 @@ class WebControl(BaseControl):
 
     def _configure(self, parser):
         sub = parser.sub()
+        self._add_diagnostics(parser, sub)
 
         parser.add(sub, self.help, "Extended help")
         start = parser.add(
@@ -201,14 +203,6 @@ class WebControl(BaseControl):
         clearsessions.add_argument(
             "--no-wait", action="store_true",
             help="Do not wait on expired sessions clean-up")
-
-        diagnostics = parser.add(
-            sub, self.diagnostics,
-            "Run a set of checks on the current, "
-            "preferably active web server")
-        diagnostics.add_argument(
-            "--no-logs", action="store_true",
-            help="Skip log parsing")
 
         #
         # Developer
@@ -695,8 +689,7 @@ class WebControl(BaseControl):
                                  self.ctx.dir / 'bin')
 
     def diagnostics(self, args):
-        # OMERO.web diagnostics
-        self.ctx.out("")
+        self._diagnostics_banner("web")
         try:
             self.status(args)
         except Exception, e:
