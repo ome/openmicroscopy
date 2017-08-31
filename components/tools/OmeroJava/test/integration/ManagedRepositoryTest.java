@@ -81,7 +81,7 @@ import com.google.common.collect.ImmutableMap;
 @Test(groups = { "integration", "fs" })
 public class ManagedRepositoryTest extends AbstractServerImportTest {
     /* temporary file manager for sources of file uploads */
-    private static final TempFileManager tempFileManager = new TempFileManager(
+    protected static final TempFileManager tempFileManager = new TempFileManager(
             "test-" + ManagedRepositoryTest.class.getSimpleName());
 
     /** Reference to the managed repository. */
@@ -161,7 +161,7 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
      * @throws IOException
      *             if the file could not be created
      */
-    private static File ensureFileExists(File directory, String filename)
+    protected static File ensureFileExists(File directory, String filename)
             throws IOException {
         final File file = new File(directory, filename);
 
