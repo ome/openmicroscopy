@@ -683,8 +683,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
 
   this.setChannelWindow = function (idx, start, end, noreload) {
     var channel = _this.loadedImg.channels[idx];
-    start = parseInt(start, 10);
-    end = parseInt(end, 10);
+    start = parseFloat(start, 10);
+    end = parseFloat(end, 10);
     if (start > end) {
       var t = start;
       start = end;
