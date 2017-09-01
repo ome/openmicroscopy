@@ -115,7 +115,6 @@ body {
 			
 			#login input[type=text], #login input[type=password] {
 				width:99%;
-				border-top:solid 1px (0,0,0,.9);
 				border: solid 1px rgba(0,0,0,.7);
 				-webkit-box-shadow: 0 1px 0 rgba(255,255,255,.2), inset 0 1px 1px rgba(0,0,0,.3);
 				-moz-box-shadow: 0 1px 0 rgba(255,255,255,.2), inset 0 1px 1px rgba(0,0,0,.3);
@@ -161,21 +160,15 @@ body {
 				-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 1px 2px rgba(0,0,0,.3);
 				-moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 1px 2px rgba(0,0,0,.3);
 				box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 1px 2px rgba(0,0,0,.3);
-				behavior: url(../../3rdparty/pie-1.0beta5/PIE.htc);
-				
+
 				padding:8px;
 				font-size:1.3em;
 				font-weight:bold;
 				color: hsl(210,70%,10%);
 				
 				text-shadow: 0 1px 0 rgba(255,255,255,.3);
-				behavior: url(../../3rdparty/pie-1.0beta5/PIE.htc);
-				
 				border-radius:5px;
-				behavior: url(../../3rdparty/pie-1.0beta5/PIE.htc);
-				
-				
-				border-radius:3px;
+
 				float:left;
 				margin-left:80px;
 				
