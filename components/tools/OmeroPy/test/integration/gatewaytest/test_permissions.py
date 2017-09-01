@@ -43,3 +43,25 @@ class TestPrivileges(ITest):
 
         expected = ['Sudo', 'ModifyGroup', 'ModifyUser']
         assert set(expected) == set(conn.getAdminPrivileges(exp.id.val))
+
+    def test_full_admin_privileges(self):
+        """Test full admin privileges check."""
+        conn = BlitzGateway(client_obj=self.root, try_super=True)
+        allPrivs = []
+        for p in conn.getEnumerationEntries('AdminPrivilege'):
+            allPrivs.append(p.getValue())
+        conn.updateAdminPrivileges(self.user.id.val, add=allPrivs)
+        test = conn.getCurrentAdminPrivileges()
+        assert set(allPrivs) == set(test)
+        assert conn.isFullAdmin()
+
+        conn.updateAdminPrivileges(self.user.id.val, remove=['Chown'])
+
+        privs = set(conn.getCurrentAdminPrivileges())
+        print "privs:"
+        print privs
+
+        print "all:"
+        print allPrivs
+
+        assert not conn.isFullAdmin()
