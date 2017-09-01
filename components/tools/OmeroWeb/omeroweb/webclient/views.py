@@ -2593,6 +2593,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         if o_type == "share":
             img_ids = request.GET.getlist('image',
                                           request.POST.getlist('image'))
+            if request.method == 'GET' and len(img_ids) == 0:
+                return HttpResponse("No images specified")
             images_to_share = list(conn.getObjects("Image", img_ids))
             if request.method == 'POST':
                 form = BasketShareForm(
