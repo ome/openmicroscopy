@@ -238,9 +238,9 @@
             $('#wblitz-ch'+i+'-cwslider')
                 .slider( "option", "min", Math.min(w.min, w.start) )   // extend range if needed
                 .slider( "option", "max", Math.max(w.max, w.end) );
-                $('#wblitz-ch'+i+'-color').attr('data-color', channels[i].color);
-                $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).change();
-                $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).change();
+            $('#wblitz-ch'+i+'-color').attr('data-color', channels[i].color);
+            $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).change();
+            $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).change();
         }
         // Colorpicker buttons store 'reverse-intensity' with .data() to populate colorbtn dialog
         $(".picker").each(function(i, pickerBtn) {
