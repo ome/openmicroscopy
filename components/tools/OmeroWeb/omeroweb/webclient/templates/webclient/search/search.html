@@ -211,163 +211,169 @@
         <p>{% trans "Searching feature enables you to search within the images, datasets, projects, plates and screens stored on the server. It supports single and multiple character wildcard searches." %}</p>
     </div>
 	{% endcomment %}
-	
-	<div class="left_panel_inner">
-	    
-		<form id="searching_form" class="standard_form" action="{% url 'load_searching' 'form' %}">
-					
-					<h2>{% trans "General Search" %}</h2>
 
-                    <div style="font-size: 120%; float: right; position: relative; top: -20px">
-                        <a id="showSearchHints" href="#" style="text-decoration:underline">
-                            Show search hints
+    <form id="searching_form" class="search_panel standard_form" action="{% url 'load_searching' 'form' %}">
 
-                            <span class="searching_info" data-content="? Single character wildcard<br>* Multiple character wildcard<br>'AND' Results will contain both terms. E.g: GFP AND H2B">
-                                <img src="{% static "webgateway/img/help16.png" %}" />
-                            </span>
-                        </a>
-                    </div>
+        <div class="search_panel_header">
 
-                    <div id="searchHints" style="display: none">
-                        <ul>
-                            <li> <strong> ? </strong> Single character wildcard</li>
-                            <li> <strong> * </strong> Multiple character wildcard</li>
-                            <li> <strong> AND </strong> Results will contain both terms. E.g: GFP AND H2B</li>
-                        </ul>
-                        <br>
-                        <div>
-                            For more info, see the
-                            <a title="Open link in new Tab" target="new" href="http://help.openmicroscopy.org/search.html">
-                                User Help</a>
-                            pages.
-                        </div>
-                    </div>
+            <div class="search_panel_header__text" >
 
-                    <div style="clear:both"></div>
-					
-						<label for="query">{% trans "Search" %}:</label>
-						<input class="search" type="text" name="query" value="{{ init.query }}" size="35"/>
-	                
-	            		<hr>
+                <div class="search_panel_header__text--title">
+                    <!-- h2 style has a bottom margin -->
+                    <h2 style="margin-bottom: 0">{% trans "General Search" %}</h2>
+                </div>
 
-	               	 	<label id="criteria">Search for:</label>
-	             
-	                    <ul class="criteria">
-	                        <li><input type="checkbox" name="datatype" value="images" CHECKED />{% trans "Images" %}</li>
-	                        <li><input type="checkbox" name="datatype" value="datasets" CHECKED />{% trans "Datasets" %}</li>
-	                        <li><input type="checkbox" name="datatype" value="projects" CHECKED />{% trans "Projects" %}</li>
-	                        <li><input type="checkbox" name="datatype" value="wells" CHECKED />{% trans "Wells" %}</li>
-	                        <li><input type="checkbox" name="datatype" value="plates" CHECKED />{% trans "Plates" %}</li>
-	                        <li><input type="checkbox" name="datatype" value="screens" CHECKED />{% trans "Screens" %}</li>
-	                    </ul>
+                <div class="search_panel_header__text--hints" >
+                    <a id="showSearchHints" class="search_tips__button" href="#">Show search hints</a>
+                    <span class="searching_info" data-content="? Single character wildcard<br>* Multiple character wildcard<br>'AND' Results will contain both terms. E.g: GFP AND H2B">
+                        <img class="search_tips__image" src="{% static "webgateway/img/help16.png" %}"/>
+                    </span>
+                </div>
 
-                        <hr>
+            </div>
 
-                        <label style="white-space:nowrap;">
-                            Restrict by Field:
-                            <span class="searching_info" data-content="Restrict search to specified fields.<br>If none chosen, we search across all fields">
-                                <img src="{% static "webgateway/img/help16.png" %}" />
-                            </span>
-                        </label>
-                 
-                        <ul class="criteria">
-                            <li><input type="checkbox" name="field" value="name" />{% trans "Name" %}</li>
-                            <li><input type="checkbox" name="field" value="description" />{% trans "Description" %}</li>
-                            <li style="white-space:nowrap;">
-                                <input type="checkbox" name="field" value="annotation" />{% trans "Annotations" %}<span class="searching_info" data-content="Includes file attachments, tags, comments etc">
-                                   <img src="{% static "webgateway/img/help16.png" %}" />
-                                </span>
-                            </li>
-                        </ul>
+            <!-- Hidden hints box shown when the user clicks to show hints -->
+            <div id="searchHints" style="display: none">
+                <ul>
+                    <li> <strong> ? </strong> Single character wildcard</li>
+                    <li> <strong> * </strong> Multiple character wildcard</li>
+                    <li> <strong> AND </strong> Results will contain both terms. E.g: GFP AND H2B</li>
+                </ul>
+                <br>
+                <div>
+                    For more info, see the
+                    <a title="Open link in new Tab" target="new" href="http://help.openmicroscopy.org/search.html">
+                        User Help</a>
+                    pages.
+                </div>
+            </div>
 
-                        <hr>
+        </div>
 
-                        <label>Scope:</label>
+        <div style="clear:both"></div>
 
-                        <br>
+            <label for="query">{% trans "Search" %}:</label>
+            <input class="search" name="query" value="{{ init.query }}" size="35"/>
 
-                        In group:
+            <hr>
 
-                        <select name="searchGroup" id="searchGroup">
-                            <option value="-1">All Groups</option>
-                            {% for grp in myGroups %}
-                                <option value="{{ grp.id }}">{{ grp.getName }}</option>
-                            {% endfor %}
-                        </select>
+            <label id="criteria">Search for:</label>
+
+            <ul class="criteria">
+                <li><input type="checkbox" name="datatype" value="images" CHECKED />{% trans "Images" %}</li>
+                <li><input type="checkbox" name="datatype" value="datasets" CHECKED />{% trans "Datasets" %}</li>
+                <li><input type="checkbox" name="datatype" value="projects" CHECKED />{% trans "Projects" %}</li>
+                <li><input type="checkbox" name="datatype" value="wells" CHECKED />{% trans "Wells" %}</li>
+                <li><input type="checkbox" name="datatype" value="plates" CHECKED />{% trans "Plates" %}</li>
+                <li><input type="checkbox" name="datatype" value="screens" CHECKED />{% trans "Screens" %}</li>
+            </ul>
+
+            <hr>
+
+            <label style="white-space:nowrap;">
+                Restrict by Field:
+                <span class="searching_info" data-content="Restrict search to specified fields.<br>If none chosen, we search across all fields">
+                    <img src="{% static "webgateway/img/help16.png" %}" />
+                </span>
+            </label>
+
+            <ul class="criteria">
+                <li><input type="checkbox" name="field" value="name" />{% trans "Name" %}</li>
+                <li><input type="checkbox" name="field" value="description" />{% trans "Description" %}</li>
+                <li style="white-space:nowrap;">
+                    <input type="checkbox" name="field" value="annotation" />{% trans "Annotations" %}<span class="searching_info" data-content="Includes file attachments, tags, comments etc">
+                       <img src="{% static "webgateway/img/help16.png" %}" />
+                    </span>
+                </li>
+            </ul>
+
+            <hr>
+
+            <label>Scope:</label>
+
+            <br>
+
+            In group:
+
+            <select name="searchGroup" id="searchGroup">
+                <option value="-1">All Groups</option>
+                {% for grp in myGroups %}
+                    <option value="{{ grp.id }}">{{ grp.getName }}</option>
+                {% endfor %}
+            </select>
 
 
-                        <br>
+            <br>
 
-                        Data owned by:
+            Data owned by:
 
-                        <!-- when 'All Groups' - can choose 'Me' or 'All users' -->
-                        <select name="ownedBy" id="searchByGroupMember--1">
-                            <option value="-1">All Users</option>
-                            {% for user in myColleagues %}}
-                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
-                                    {{ user.getFullName|truncateafter:"50" }}
-                                </option>
-                            {% endfor %}
-                        </select>
+            <!-- when 'All Groups' - can choose 'Me' or 'All users' -->
+            <select name="ownedBy" id="searchByGroupMember--1">
+                <option value="-1">All Users</option>
+                {% for user in myColleagues %}}
+                    <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                        {{ user.getFullName|truncateafter:"50" }}
+                    </option>
+                {% endfor %}
+            </select>
 
-                        <!-- for each group we can choose users - only show <select> for 1 group at a time -->
-                        {% for grp in groups %}
-                        <select name="ownedBy" id="searchByGroupMember-{{ grp.id }}">
-                            <option value="-1">All Members</option>
-                            {% for user in grp.leaders %}}
-                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
-                                    {{ user.getFullName|truncateafter:"50" }}
-                                </option>
-                            {% endfor %}
-                            {% for user in grp.colleagues %}}
-                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
-                                    {{ user.getFullName|truncateafter:"50" }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                        {% endfor %}
+            <!-- for each group we can choose users - only show <select> for 1 group at a time -->
+            {% for grp in groups %}
+            <select name="ownedBy" id="searchByGroupMember-{{ grp.id }}">
+                <option value="-1">All Members</option>
+                {% for user in grp.leaders %}}
+                    <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                        {{ user.getFullName|truncateafter:"50" }}
+                    </option>
+                {% endfor %}
+                {% for user in grp.colleagues %}}
+                    <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                        {{ user.getFullName|truncateafter:"50" }}
+                    </option>
+                {% endfor %}
+            </select>
+            {% endfor %}
 
-                        <hr>
+            <hr>
 
-                        <label for="startdateinput">{% trans "Date" %}:</label>
+            <label for="startdateinput">{% trans "Date" %}:</label>
 
-                        <select name="useAcquisitionDate" id="useAcquisitionDate">
-                            <option value="false" title="Date Imported / Created">Import date</option>
-                            <option value="true" title="Date Acquired, for Images only">Acquisition date</option>
-                        </select>
+            <select name="useAcquisitionDate" id="useAcquisitionDate">
+                <option value="false" title="Date Imported / Created">Import date</option>
+                <option value="true" title="Date Acquired, for Images only">Acquisition date</option>
+            </select>
 
-                        <span class="searching_info" data-content="Search by date imported / created or acquired.<br>
-                                Acquisition dates are for Images only.">
-                                <img src="{% static "webgateway/img/help16.png" %}" />
-                        </span>
+            <span class="searching_info" data-content="Search by date imported / created or acquired.<br>
+                    Acquisition dates are for Images only.">
+                    <img src="{% static "webgateway/img/help16.png" %}" />
+            </span>
 
-                        <br/>
-                        <span style="position: relative">
-                            <input type="text" id="startdateinput" name="startdateinput" size="12"
-                                value="{{ manager.criteria.period }}" title="Search for data 'From' this date"/>
-                            <span class="clearDate">
-                                <img src="{% static "webclient/image/icon_basic_delete.png" %}" />
-                            </span>
-                        </span>
-                        -
-                        <span style="position: relative">
-                            <input type="text" id="enddateinput" name="enddateinput" value="" size="12"
-                                title="Search for data 'To' this date. Leave blank for 'today'."/>
-                            <span class="clearDate">
-                                <img src="{% static "webclient/image/icon_basic_delete.png" %}" />
-                            </span>
-                        </span>
-                        <span id="daterange" data-content="The 'to' date will be today's date if left blank.">
-                                <img src="{% static "webgateway/img/help16.png" %}" />
-                        </span>
+            <br/>
+            <span style="position: relative">
+                <input type="text" id="startdateinput" name="startdateinput" size="12"
+                    value="{{ manager.criteria.period }}" title="Search for data 'From' this date"/>
+                <span class="clearDate">
+                    <img src="{% static "webclient/image/icon_basic_delete.png" %}" />
+                </span>
+            </span>
+            -
+            <span style="position: relative">
+                <input type="text" id="enddateinput" name="enddateinput" value="" size="12"
+                    title="Search for data 'To' this date. Leave blank for 'today'."/>
+                <span class="clearDate">
+                    <img src="{% static "webclient/image/icon_basic_delete.png" %}" />
+                </span>
+            </span>
+            <span id="daterange" data-content="The 'to' date will be today's date if left blank.">
+                    <img src="{% static "webgateway/img/help16.png" %}" />
+            </span>
 
-                        <hr>
-					
-			        <input id="search_button" type="submit" value="Search" />
-					 
-	    </form>    
+            <hr>
 
-    </div>
+        <input id="search_button" type="submit" value="Search" />
+
+    </form>
+
 </div>
 
 {% endblock %}
