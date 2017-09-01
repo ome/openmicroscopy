@@ -448,10 +448,11 @@ public class AdminFacility extends Facility {
             try {
                 List<IObject> tmp = gateway.getTypesService(ctx)
                         .allEnumerations("AdminPrivilege");
-                adminPrivileges = new ArrayList<String>(tmp.size());
+                List<String> tmp2 = new ArrayList<String>(tmp.size());
                 for (IObject obj : tmp)
-                    adminPrivileges.add(((AdminPrivilege) obj).getValue()
+                    tmp2.add(((AdminPrivilege) obj).getValue()
                             .getValue());
+                adminPrivileges = Collections.unmodifiableList(tmp2);
             } catch (Exception e) {
                 handleException(this, e, "Cannot get admin privileges.");
             }
@@ -542,5 +543,4 @@ public class AdminFacility extends Facility {
         }
         return null;
     }
-    
 }
