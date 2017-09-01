@@ -78,7 +78,9 @@ def api_versions(request, **kwargs):
 def api_base(request, api_version=None, **kwargs):
     """Base url of the webgateway json api for a specified version."""
     v = api_version
-    rv = {'url:projects': build_url(request, 'api_projects', v),
+    rv = {'url:experimenters': build_url(request, 'api_experimenters', v),
+          'url:experimentergroups': build_url(request, 'api_groups', v),
+          'url:projects': build_url(request, 'api_projects', v),
           'url:datasets': build_url(request, 'api_datasets', v),
           'url:images': build_url(request, 'api_images', v),
           'url:screens': build_url(request, 'api_screens', v),
@@ -366,6 +368,32 @@ class WellView(ObjectView):
                     self.add_data(ws['Image'], request, conn,
                                   image_urls, **kwargs)
         return marshalled
+
+
+class ExperimenterView(ObjectView):
+
+    OMERO_TYPE = 'Experimenter'
+
+    CAN_DELETE = False
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:experimentergroups': {'name': 'api_experimenter_groups',
+                                   'kwargs': {'experimenter_id': 'OBJECT_ID'}},
+    }
+
+
+class ExperimenterGroupView(ObjectView):
+
+    OMERO_TYPE = 'ExperimenterGroup'
+
+    CAN_DELETE = False
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:experimenters': {'name': 'api_group_experimenters',
+                              'kwargs': {'group_id': 'OBJECT_ID'}},
+    }
 
 
 class ObjectsView(ApiView):
@@ -684,6 +712,72 @@ class RoisView(ObjectsView):
             image = getIntOrDefault(request, 'image', None)
             if image is not None:
                 opts['image'] = image
+
+        return opts
+
+
+class ExperimentersView(ObjectsView):
+    """Handles GET for /experimenters/ to list Experimenters."""
+
+    OMERO_TYPE = 'Experimenter'
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:experimenter': {'name': 'api_experimenter',
+                             'kwargs': {'object_id': 'OBJECT_ID'}},
+        'url:experimentergroups': {'name': 'api_experimenter_groups',
+                                   'kwargs': {'experimenter_id': 'OBJECT_ID'}},
+    }
+
+    def get_opts(self, request, **kwargs):
+        """Add extra parameters to the opts dict."""
+        opts = super(ExperimentersView, self).get_opts(request, **kwargs)
+        # Default 'load_groups' is True for 5.3.x, but we don't need groups
+        opts['load_groups'] = False
+        # order_by lastName, firstName
+        opts['order_by'] = 'lower(obj.lastName), lower(obj.firstName)'
+
+        # at /groups/:group_id/experimenters/ we have 'group_id' in kwargs
+        if 'group_id' in kwargs:
+            opts['group'] = long(kwargs['group_id'])
+        else:
+            # filter by query /experimenters/?group=:id
+            group = getIntOrDefault(request, 'group', None)
+            if group is not None:
+                opts['group'] = group
+
+        return opts
+
+
+class ExperimenterGroupsView(ObjectsView):
+    """Handles GET for /groups/ to list ExperimenterGroups."""
+
+    OMERO_TYPE = 'ExperimenterGroup'
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:experimentergroup': {'name': 'api_group',
+                                  'kwargs': {'object_id': 'OBJECT_ID'}},
+        'url:experimenters': {'name': 'api_group_experimenters',
+                              'kwargs': {'group_id': 'OBJECT_ID'}},
+    }
+
+    def get_opts(self, request, **kwargs):
+        """Add extra parameters to the opts dict."""
+        opts = super(ExperimenterGroupsView, self).get_opts(request, **kwargs)
+        # Default 'load_experimenters' = True for 5.3.x, but we don't want them
+        opts['load_experimenters'] = False
+        # order_by group name
+        opts['order_by'] = 'lower(obj.name)'
+
+        # handle /experimenters/:experimenter_id/groups/
+        if 'experimenter_id' in kwargs:
+            opts['experimenter'] = long(kwargs['experimenter_id'])
+        else:
+            # filter by query /groups/?experimenter=:id
+            group = getIntOrDefault(request, 'experimenter', None)
+            if group is not None:
+                opts['experimenter'] = group
 
         return opts
 

@@ -483,8 +483,9 @@ def group_user_content(request, url=None, conn=None, **kwargs):
         system_groups = [
             conn.getAdminService().getSecurityRoles().userGroupId,
             conn.getAdminService().getSecurityRoles().guestGroupId]
-        groups = [g for g in conn.getObjects("ExperimenterGroup")
-                  if g.getId() not in system_groups]
+        groups = conn.getObjects("ExperimenterGroup",
+                                 opts={'load_experimenters': True})
+        groups = [g for g in groups if g.getId() not in system_groups]
         groups.sort(key=lambda x: x.getName().lower())
     else:
         groups = myGroups
@@ -1306,7 +1307,8 @@ def load_chgrp_groups(request, conn=None, **kwargs):
     # In case we were passed no objects or they weren't found
     if len(ownerIds) == 0:
         ownerIds = [conn.getUserId()]
-    for owner in conn.getObjects("Experimenter", ownerIds):
+    for owner in conn.getObjects("Experimenter", ownerIds,
+                                 opts={'load_groups': True}):
         # Each owner has a set of groups
         gids = []
         owners[owner.id] = owner.getFullName()

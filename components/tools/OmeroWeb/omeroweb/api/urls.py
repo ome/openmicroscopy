@@ -292,6 +292,54 @@ api_image_rois = url(
 GET ROIs that belong to an Image, using omero-marshal to generate json
 """
 
+api_experimenters = url(r'^v(?P<api_version>%s)/m/experimenters/$' % versions,
+                        views.ExperimentersView.as_view(),
+                        name='api_experimenters')
+"""
+GET Experimenters, using omero-marshal to generate json
+"""
+
+api_experimenter = url(r'^v(?P<api_version>%s)/m/experimenters/'
+                       '(?P<object_id>[0-9]+)/$' % versions,
+                       views.ExperimenterView.as_view(),
+                       name='api_experimenter')
+"""
+GET Experimenter, using omero-marshal to generate json
+"""
+
+api_group_experimenters = url(
+    r'^v(?P<api_version>%s)/m/experimentergroups/(?P<group_id>[0-9]+)'
+    '/experimenters/$' % versions,
+    views.ExperimentersView.as_view(),
+    name='api_group_experimenters')
+"""
+GET Experimenters in a Group, using omero-marshal to generate json
+"""
+
+api_groups = url(r'^v(?P<api_version>%s)/m/experimentergroups/$' % versions,
+                 views.ExperimenterGroupsView.as_view(),
+                 name='api_groups')
+"""
+GET ExperimenterGroups, using omero-marshal to generate json
+"""
+
+api_group = url(r'^v(?P<api_version>%s)/m/experimentergroups/'
+                '(?P<object_id>[0-9]+)/$' % versions,
+                views.ExperimenterGroupView.as_view(),
+                name='api_group')
+"""
+GET ExperimenterGroup, using omero-marshal to generate json
+"""
+
+api_experimenter_groups = url(
+    r'^v(?P<api_version>%s)/m/experimenters/(?P<experimenter_id>[0-9]+)'
+    '/experimentergroups/$' % versions,
+    views.ExperimenterGroupsView.as_view(),
+    name='api_experimenter_groups')
+"""
+GET Groups that an Experimenter is in, using omero-marshal to generate json
+"""
+
 urlpatterns = patterns(
     '',
     api_versions,
@@ -327,4 +375,10 @@ urlpatterns = patterns(
     api_plate_screens,
     api_rois,
     api_image_rois,
+    api_experimenters,
+    api_experimenter,
+    api_group_experimenters,
+    api_groups,
+    api_group,
+    api_experimenter_groups,
 )

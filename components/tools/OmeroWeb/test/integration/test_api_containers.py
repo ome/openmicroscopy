@@ -37,6 +37,7 @@ from omero.model import DatasetI, \
     WellSampleI
 from omero.rtypes import rstring, rint
 from omero_marshal import OME_SCHEMA_URL
+import copy
 
 
 def build_url(client, url_name, url_kwargs):
@@ -87,6 +88,7 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
         if extra is not None and i < len(extra):
             o2.update(extra[i])
         # remove any urls from json, if not in both objects
+        o1 = copy.deepcopy(o1)      # don't modify original
         for key in o1.keys():
             if key.startswith('url:') and key not in o2:
                 del(o1[key])
