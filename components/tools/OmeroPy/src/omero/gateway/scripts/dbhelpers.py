@@ -415,8 +415,9 @@ class ImageEntry (ObjectEntry):
                     # print "Trying to get test image from " + TESTIMG_URL +
                     # self.filename
                     sys.stderr.write('<')
-                    f = urllib2.urlopen(TESTIMG_URL + self.filename)
-                    open(fpath, 'wb').write(f.read())
+                    fin = urllib2.urlopen(TESTIMG_URL + self.filename)
+                    with open(fpath, 'wb') as fout:
+                        fout.write(fin.read())
                 except urllib2.HTTPError:
                     raise IOError('No such file %s' % fpath)
         host = dataset._conn.c.ic.getProperties().getProperty(
