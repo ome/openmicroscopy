@@ -38,6 +38,7 @@ from api_exceptions import BadRequestError, \
     NotFoundError
 from omeroweb.api.decorators import login_required, json_response
 from omeroweb.webgateway.util import getIntOrDefault
+from omeroweb.webgateway.marshal import eventContextMarshal
 
 
 def build_url(request, name, api_version, **kwargs):
@@ -87,6 +88,7 @@ def api_base(request, api_version=None, **kwargs):
           'url:token': build_url(request, 'api_token', v),
           'url:servers': build_url(request, 'api_servers', v),
           'url:login': build_url(request, 'api_login', v),
+          'url:eventcontext': build_url(request, 'api_eventcontext'. v),
           'url:save': build_url(request, 'api_save', v),
           'url:schema': OME_SCHEMA_URL}
     return rv
@@ -112,6 +114,14 @@ def api_servers(request, api_version, **kwargs):
             s['server'] = obj.server
         servers.append(s)
     return {'data': servers}
+
+
+@login_required()
+@json_response()
+def api_eventcontext(request, conn=None, **kwargs):
+    """Get the current eventContext."""
+    c = conn.getEventContext()
+    return eventContextMarshal(c)
 
 
 class ApiView(View):
