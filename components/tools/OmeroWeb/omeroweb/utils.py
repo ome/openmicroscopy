@@ -41,7 +41,9 @@ def reverse_with_params(*args, **kwargs):
     except NoReverseMatch:
         return url
     if qs:
-        url += '?' + urlencode(qs)
+        if not isinstance(qs, basestring):
+            qs = urlencode(qs)
+        url += '?' + qs
     return url
 
 
