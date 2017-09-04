@@ -3862,7 +3862,7 @@ class _BlitzGateway (object):
         return {'imageCount': len(imageIds), 'updateCount': updateCount}
 
     def createOriginalFileFromFileObj(self, fo, path, name, fileSize,
-                                      mimetype=None):
+                                      mimetype=None, ns=None):
         """
         Creates a :class:`OriginalFileWrapper` from a local file.
         File is uploaded to create an omero.model.OriginalFileI.
@@ -3875,8 +3875,15 @@ class _BlitzGateway (object):
         :param fileSize:                The file size
         :param mimetype:                The mimetype of the file. String.
                                         E.g. 'text/plain'
+        :param ns:                      Deprecated in 5.4.0. This is ignored
         :return:                        New :class:`OriginalFileWrapper`
         """
+        if ns is not None:
+            warnings.warn(
+                "Deprecated in 5.4.0. The ns parameter was added in error"
+                " and has always been ignored",
+                DeprecationWarning)
+
         updateService = self.getUpdateService()
         rawFileStore = self.createRawFileStore()
 
@@ -3924,7 +3931,7 @@ class _BlitzGateway (object):
 
     def createOriginalFileFromLocalFile(self, localPath,
                                         origFilePathAndName=None,
-                                        mimetype=None):
+                                        mimetype=None, ns=None):
         """
         Creates a :class:`OriginalFileWrapper` from a local file.
         File is uploaded to create an omero.model.OriginalFileI.
@@ -3937,8 +3944,14 @@ class _BlitzGateway (object):
                                         OriginalFile. If None, use localPath
         :param mimetype:                The mimetype of the file. String.
                                         E.g. 'text/plain'
+        :param ns:                      Deprecated in 5.4.0. This is ignored
         :return:                        New :class:`OriginalFileWrapper`
         """
+        if ns is not None:
+            warnings.warn(
+                "Deprecated in 5.4.0. The ns parameter was added in error"
+                " and has always been ignored",
+                DeprecationWarning)
         if origFilePathAndName is None:
             origFilePathAndName = localPath
         path, name = os.path.split(origFilePathAndName)
