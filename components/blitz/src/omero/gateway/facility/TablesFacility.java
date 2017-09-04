@@ -523,8 +523,11 @@ public class TablesFacility extends Facility {
     }
 
     /**
-     * Saves the (modified) {@link TableData} back to the server.
-     * Note: The size of Double/Float/Long arrays can't be changed!
+     * Saves the (modified) {@link TableData} back to the server. 
+     * Note:
+     * - Addition/Removal of columns/rows is not supported, only modification of
+     *   the values.
+     * - The size of Double/Float/Long arrays can't be changed!
      * 
      * @param ctx
      *            The {@link SecurityContext}
