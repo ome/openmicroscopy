@@ -32,7 +32,7 @@ Changes include:
   OMERO.web
 - reverted workaround for IcePy communicator leak
 - created minimal nginx configuration file that can be included in a fixed file
-  to allow custom nginx options to be defined once (e.g. SSL options)
+  to allow custom nginx options to be defined only once (e.g. SSL options)
 - closed services when 404 occurs
 - dropped support for CLI command ``admin ports``
 - added support to the Rendering engine to update a series of settings in one call
