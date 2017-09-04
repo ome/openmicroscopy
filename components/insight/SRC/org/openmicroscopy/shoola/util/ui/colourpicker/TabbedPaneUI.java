@@ -204,8 +204,8 @@ class TabbedPaneUI
         };
         colourSwatchButton.addActionListener(action);
         
-        revIntButton = new JCheckBox("Reverse Intensity");
-        revIntButton.setToolTipText("Reverse this channel's intensity");
+        revIntButton = new JCheckBox("Invert");
+        revIntButton.setToolTipText("Invert this channel's intensity");
         revIntButton.setSelected(control.getReverseIntensity());
         revIntButton.addActionListener(new ActionListener() {
             @Override

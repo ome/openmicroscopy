@@ -55,7 +55,7 @@ public class ReverseIntensityAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Reverse Intensity";
+    private static final String NAME = "Invert";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "";
