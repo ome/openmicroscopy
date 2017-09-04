@@ -88,7 +88,7 @@ def api_base(request, api_version=None, **kwargs):
           'url:token': build_url(request, 'api_token', v),
           'url:servers': build_url(request, 'api_servers', v),
           'url:login': build_url(request, 'api_login', v),
-          'url:eventcontext': build_url(request, 'api_eventcontext'. v),
+          'url:eventcontext': build_url(request, 'api_eventcontext', v),
           'url:save': build_url(request, 'api_save', v),
           'url:schema': OME_SCHEMA_URL}
     return rv
