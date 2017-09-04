@@ -100,3 +100,13 @@ def author_testimg_big(request, gatewaywrapper):
     gatewaywrapper.loginAsAuthor()
     rv = gatewaywrapper.getBigTestImage(autocreate=True)
     return rv
+
+
+@pytest.fixture(scope='function')
+def author_testimg_32float(request, gatewaywrapper):
+    """
+    logs in as Author and returns the float image, creating it first if needed.
+    """
+    gatewaywrapper.loginAsAuthor()
+    rv = gatewaywrapper.get32FloatTestImage(autocreate=True)
+    return rv
