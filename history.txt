@@ -42,6 +42,7 @@ Changes include:
 - fixed filtering issue in OMERO.web
 - removed unused 3rd party libraries in OMERO.web
 - improved layout in left-hand panel in OMERO.web
+- renamed "Reverse Intensity" command to "Invert" in image viewers
 
 
 This release also upgrades the version of Bio-Formats which OMERO uses to 5.6.0
