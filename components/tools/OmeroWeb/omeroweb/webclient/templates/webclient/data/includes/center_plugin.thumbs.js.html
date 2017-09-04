@@ -701,10 +701,8 @@ $(document).ready(function() {
         }
 
         // Tell jsTree how many elements are selected
+        // This event also bubbles up to $("body")
         $("#dataTree").trigger('selection_change.ome', inst.get_selected(true).length);
-
-        // Trigger the selection changed event
-        $("body").trigger('selection_change.ome');
 
         return false;
     }
