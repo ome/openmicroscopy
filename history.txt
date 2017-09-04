@@ -44,7 +44,6 @@ Changes include:
 - improved layout in left-hand panel in OMERO.web
 
 
-
 This release also upgrades the version of Bio-Formats which OMERO uses to 5.6.0
 
 
