@@ -19,7 +19,7 @@ Changes include:
 - fixed issue with JSONP decorator
 - fixed upload of scripts for administrators with restricted privileges
 - fixed import bug in OMERO.insight
-- improved copy/paste of rendering setttings workflow in OMERO.web
+- improved copy/paste of rendering settings workflow in OMERO.web
 - fixed projection of images if the range of timepoints specified is not
   the full range
 - added configuration to limit queries that public users can do in OMERO.web
