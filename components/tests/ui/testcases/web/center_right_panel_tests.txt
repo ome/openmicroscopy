@@ -169,4 +169,4 @@ Test Download Menu
     Download Option Available       Export as OME-TIFF...
     Download Option Available       Export as JPEG
     Download Option Available       Export as PNG
-    Download Option Not Available   Export as TIFF
+    Download Option Available       Export as TIFF
