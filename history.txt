@@ -1,8 +1,8 @@
 OMERO version history
 =====================
 
-5.4.0-m4 (August 2017)
-----------------------
+5.4.0-m4 (September 2017)
+-------------------------
 
 Developer preview release. Intended *only as a developer preview* for updating
 code before the full public release of 5.4.0. **Use at your own risk.**
@@ -12,22 +12,23 @@ Changes include:
 - added method to JavaGateway to manipulate admin privileges
 - fixed graph policy rule to avoid stack overflow when moving large plates at once
 - fixed links to point to new website
-- fixed color convertion to rgba
+- fixed color conversion to RGBA
 - fixed export as TIFF from webgateway
-- improved creating of rendering settings for image without any stats
+- improved creation of rendering settings for image without any stats
   e.g. 32bit images
-- fixed issue with jsonp decorator
-- fixed upload of script for admin with restricted privileges
+- fixed issue with JSONP decorator
+- fixed upload of scripts for administrators with restricted privileges
 - fixed import bug in OMERO.insight
 - improved copy/paste of rendering setttings workflow in OMERO.web
-- fixed projection of images if the range of timepoint specified is not
+- fixed projection of images if the range of timepoints specified is not
   the full range
-- added configuration to limit query that public user can do in OMERO.web
+- added configuration to limit queries that public users can do in OMERO.web
 - improved display of wells in OMERO.web
-- allowed admin with restricted privileges to create P/D for others in
-  OMERO.web
-- allowed the creation of admin with restricted privileges with password
-- added support to the creation of admin with restricted privileges in
+- allowed administrators with restricted privileges to create Project/Dataset
+  for others in OMERO.web
+- added method to create administrators with restricted privileges specifying
+  a password
+- added support for the creation of administrators with restricted privileges in
   OMERO.web
 - reverted workaround for IcePy communicator leak
 - created minimal nginx configuration file that can be included in a fixed file
