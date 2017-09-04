@@ -38,6 +38,9 @@ Changes include:
 - added infrastructure to load external CLI plugins
 - allowed the maven repository to be overridden
 - rolled back the display of tables in OMERO.web viewer
+- fixed filtering issue in OMERO.web
+- removed unused 3rd party libraries in OMERO.web
+- improved layout in left-hand panel in OMERO.web
 
 
 
