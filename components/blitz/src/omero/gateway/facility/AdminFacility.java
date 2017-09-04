@@ -446,13 +446,9 @@ public class AdminFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         if (adminPrivileges == null) {
             try {
-                List<IObject> tmp = gateway.getTypesService(ctx)
-                        .allEnumerations("AdminPrivilege");
-                List<String> tmp2 = new ArrayList<String>(tmp.size());
-                for (IObject obj : tmp)
-                    tmp2.add(((AdminPrivilege) obj).getValue()
-                            .getValue());
-                adminPrivileges = Collections.unmodifiableList(tmp2);
+                adminPrivileges = Collections.unmodifiableList(Utils
+                        .fromEnum(gateway.getTypesService(ctx).allEnumerations(
+                                "AdminPrivilege")));
             } catch (Exception e) {
                 handleException(this, e, "Cannot get admin privileges.");
             }
@@ -494,8 +490,8 @@ public class AdminFacility extends Facility {
     public boolean isFullAdmin(SecurityContext ctx, ExperimenterData user)
             throws DSOutOfServiceException, DSAccessException {
         try {
-            Collection<String> privs = getAdminPrivileges(ctx, user);
-            return privs.size() == getAvailableAdminPrivileges(ctx).size();
+            return getAdminPrivileges(ctx, user).size() == getAvailableAdminPrivileges(
+                    ctx).size();
         } catch (Exception e) {
             handleException(this, e, "Cannot get admin privileges.");
         }
