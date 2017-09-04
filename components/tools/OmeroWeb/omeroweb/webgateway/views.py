@@ -33,7 +33,8 @@ from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
-from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
+from marshal import imageMarshal, shapeMarshal, rgb_int2rgba, \
+    eventContextMarshal
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.views.generic import View
 from omeroweb.webadmin.forms import LoginForm
@@ -2792,12 +2793,7 @@ class LoginView(View):
     def handle_logged_in(self, request, conn, connector):
         """Return a response for successful login."""
         c = conn.getEventContext()
-        ctx = {}
-        for a in ['sessionId', 'sessionUuid', 'userId', 'userName', 'groupId',
-                  'groupName', 'isAdmin', 'eventId', 'eventType',
-                  'memberOfGroups', 'leaderOfGroups']:
-            if (hasattr(c, a)):
-                ctx[a] = getattr(c, a)
+        ctx = eventContextMarshal(c)
         return JsonResponse({"success": True, "eventContext": ctx})
 
     def handle_not_logged_in(self, request, error=None, form=None):

@@ -59,6 +59,13 @@ api_login = url(r'^v(?P<api_version>%s)/login/$' % versions,
 Login to OMERO. POST with 'username', 'password' and 'server' index
 """
 
+api_event_context = url(r'^v(?P<api_version>%s)/eventcontext/$' % versions,
+                        views.api_eventcontext,
+                        name='api_eventcontext')
+"""
+Get the current eventContext.
+"""
+
 api_save = url(r'^v(?P<api_version>%s)/m/save/$' % versions,
                views.SaveView.as_view(),
                name='api_save')
@@ -299,6 +306,7 @@ urlpatterns = patterns(
     api_token,
     api_servers,
     api_login,
+    api_event_context,
     api_save,
     api_projects,
     api_project,
