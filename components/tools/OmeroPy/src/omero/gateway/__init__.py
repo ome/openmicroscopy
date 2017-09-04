@@ -8397,6 +8397,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 "setActiveChannels() reverseMaps parameter"
                 "deprecated in OMERO 5.4.0. Use invertMaps",
                 DeprecationWarning)
+            if invertMaps is None:
+                invertMaps = reverseMaps
         abs_channels = [abs(c) for c in channels]
         idx = 0     # index of windows/colors args above
         for c in range(len(self.getChannels())):
