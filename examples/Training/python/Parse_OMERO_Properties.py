@@ -17,12 +17,6 @@ client = omero.client()
 
 omeroProperties = client.getProperties().getPropertiesForPrefix('omero')
 
-# Set encoding so that print statements or str(unicode) don't fail
-# in testing. See https://github.com/openmicroscopy/openmicroscopy/pull/5400
-import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
-
 # Configuration
 # =================================================================
 # These values will be imported by all the other training scripts.
