@@ -817,8 +817,9 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
         # 'reverse' is now deprecated (5.4.0). Also check for 'invert'
         invert_flags = _get_maps_enabled(r, 'inverted', img.getSizeC())
         # invert is True if 'invert' OR 'reverse' is enabled
-        invert_flags = [z[0] if z[0] is not None else z[1] for z in
-                        zip(invert_flags, reverses)]
+        if reverses is not None and invert_flags is not None:
+            invert_flags = [z[0] if z[0] is not None else z[1] for z in
+                            zip(invert_flags, reverses)]
     if 'c' in r:
         logger.debug("c="+r['c'])
         activechannels, windows, colors = _split_channel_info(r['c'])
