@@ -2332,9 +2332,7 @@ class _BlitzGateway (object):
         """
 
         if self.getEventContext().isAdmin:
-            allPrivs = []
-            for p in self.getEnumerationEntries('AdminPrivilege'):
-                allPrivs.append(p.getValue())
+            allPrivs = list(self.getEnumerationEntries('AdminPrivilege'))
             return len(allPrivs) == len(self.getCurrentAdminPrivileges())
 
         return False
