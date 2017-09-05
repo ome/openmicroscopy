@@ -46,22 +46,19 @@ class TestPrivileges(ITest):
 
     def test_full_admin_privileges(self):
         """Test full admin privileges check."""
-        conn = BlitzGateway(client_obj=self.root, try_super=True)
+        # root user
+        conn = BlitzGateway(client_obj=self.root)
+        assert conn.isFullAdmin()
+
+        # New user with All privileges
         allPrivs = []
         for p in conn.getEnumerationEntries('AdminPrivilege'):
             allPrivs.append(p.getValue())
-        conn.updateAdminPrivileges(self.user.id.val, add=allPrivs)
-        test = conn.getCurrentAdminPrivileges()
-        assert set(allPrivs) == set(test)
-        assert conn.isFullAdmin()
+        client1 = self.new_client(privileges=allPrivs)
+        conn1 = BlitzGateway(client_obj=client1)
+        assert conn1.isFullAdmin()
 
-        conn.updateAdminPrivileges(self.user.id.val, remove=['Chown'])
-
-        privs = set(conn.getCurrentAdminPrivileges())
-        print "privs:"
-        print privs
-
-        print "all:"
-        print allPrivs
-
-        assert not conn.isFullAdmin()
+        # New user with Restricted privileges
+        client2 = self.new_client(privileges=['Sudo', 'ReadSession'])
+        conn2 = BlitzGateway(client_obj=client2)
+        assert not conn2.isFullAdmin()
