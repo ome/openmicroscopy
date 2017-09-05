@@ -421,7 +421,7 @@ class login_required(object):
             return None
 
         session['connector'] = connector
-        return
+        return None
 
     def __call__(ctx, f):
         """
