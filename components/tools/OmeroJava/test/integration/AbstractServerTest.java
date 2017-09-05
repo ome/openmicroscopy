@@ -34,6 +34,7 @@ import ome.system.Login;
 import omero.ApiUsageException;
 import omero.RLong;
 import omero.RType;
+import omero.SecurityViolation;
 import omero.ServerError;
 import omero.rtypes;
 import omero.api.IAdminPrx;
@@ -935,7 +936,11 @@ public class AbstractServerTest extends AbstractTest {
         iAdmin = factory.getAdminService();
         iPix = factory.getPixelsService();
         roles = iAdmin.getSecurityRoles();
-        mmFactory = new ModelMockFactory(factory.getTypesService());
+        try {
+            mmFactory = new ModelMockFactory(factory.getTypesService());
+        } catch (SecurityViolation sv) {
+            mmFactory = null;
+        }
 
         importer = new OMEROMetadataStoreClient();
         importer.initialize(factory);
