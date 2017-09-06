@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -658,7 +658,7 @@ class ToolBar
                 controller.getAction(TreeViewerControl.FULLSCREEN));
         fullScreen.setSelected(model.isFullScreen());
         //bar.add(fullScreen);
-        if (TreeViewerAgent.isAdministrator()) {
+        if (TreeViewerAgent.isUploadScript()) {
             b = new JButton(controller.getAction(
                     TreeViewerControl.UPLOAD_SCRIPT));
             UIUtilities.unifiedButtonLookAndFeel(b);

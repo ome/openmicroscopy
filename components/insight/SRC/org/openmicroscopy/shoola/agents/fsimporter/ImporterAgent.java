@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -33,7 +33,6 @@ import javax.swing.JButton;
 import javax.swing.JMenuItem;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ActivitiesEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
@@ -108,6 +107,19 @@ public class ImporterAgent
         Boolean b = (Boolean) registry.lookup(LookupNames.USER_ADMINISTRATOR);
         if (b == null) return false;
         return b.booleanValue();
+    }
+    
+    /**
+     * Returns <code>true</code> if the currently logged in user is allowed to
+     * import for another user, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isImportAs() {
+        Boolean b = (Boolean) registry.lookup(LookupNames.PRIV_SUDO);
+        if (b == null)
+            b = Boolean.FALSE;
+        return isAdministrator() && b.booleanValue();
     }
 
     /**
