@@ -1168,10 +1168,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
         // Handle deprecated 'reverse' OR 'invert' codomain map
         if (m.reverse || m.inverted) {
           var enabled;
-          if (m.reverse) {
-            enabled = m.reverse.enabled;
-          } else {
+          if (m.inverted) {
             enabled = m.inverted.enabled;
+          } else {
+            enabled = m.reverse.enabled;
           }
           this.setChannelInverted(idx, enabled, true);
         }
