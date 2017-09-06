@@ -637,6 +637,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Define template used as an index page ``http://your_host/omero/``."
           "If None user is automatically redirected to the login page."
           "For example use 'webclient/index.html'. ")],
+    "omero.web.base_include_template":
+        ["BASE_INCLUDE_TEMPLATE",
+         None,
+         identity,
+         ("Template to be included in every page, at the end of the <body>")],
     "omero.web.login_redirect":
         ["LOGIN_REDIRECT",
          '{}',
@@ -1061,6 +1066,7 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
                 'omeroweb.custom_context_processor.url_suffix',
+                'omeroweb.custom_context_processor.base_include_template',
             ],
         },
     },
