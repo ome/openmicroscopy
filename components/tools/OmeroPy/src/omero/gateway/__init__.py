@@ -8687,6 +8687,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     @assert_re()
     def setReverseIntensity(self, channelIndex, reverse=True):
         """Deprecated in 5.4.0. Use setChannelInverted()."""
+        warnings.warn("Deprecated in 5.4.0. Use setChannelInverted()",
+                      DeprecationWarning)
         self.setChannelInverted(channelIndex, reverse)
 
     @assert_re()
