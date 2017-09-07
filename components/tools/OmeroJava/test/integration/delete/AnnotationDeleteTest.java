@@ -2,6 +2,7 @@
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration.delete;
 
 import integration.AbstractServerTest;
@@ -16,7 +17,9 @@ import ome.services.blitz.repo.path.FsFile;
 import omero.RLong;
 import omero.RString;
 import omero.api.RawFileStorePrx;
+import omero.cmd.CmdCallbackI;
 import omero.cmd.Delete2;
+import omero.cmd.HandlePrx;
 import omero.gateway.util.Requests;
 import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
@@ -26,6 +29,8 @@ import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Channel;
+import omero.model.CommentAnnotation;
+import omero.model.CommentAnnotationI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
@@ -47,7 +52,10 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.SetMultimap;
+import com.google.common.primitives.Ints;
 
 /**
  * Tests for deleting user ratings.
@@ -445,5 +453,122 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         doChange(request);
         assertDoesNotExist(files.get(1));
         assertDoesNotExist(attachments.get(2));
+    }
+
+    /**
+     * Test the effect of {@link Delete2#typesToIgnore}.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testIgnoreTypesEffect() throws Exception {
+        newUserAndGroup("rwr---");
+
+        /* create a commented image */
+        CommentAnnotation comment = new CommentAnnotationI();
+        comment.setTextValue(omero.rtypes.rstring("test for " + getClass().getSimpleName()));
+        ImageAnnotationLink link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(
+                mmFactory.createAnnotationLink(mmFactory.simpleImage(), comment));
+        Image image = link.getParent();
+        comment = (CommentAnnotation) link.getChild();
+
+        assertAllExist(link, image, comment);
+
+        /* ignoring tags still has the comment deleted along with the image */
+        Delete2 request = Requests.delete().target(image).build();
+        request.typesToIgnore = Collections.singletonList("TagAnnotation");
+        doChange(request);
+
+        assertNoneExist(link, image, comment);
+
+        /* create a commented image */
+        comment = new CommentAnnotationI();
+        comment.setTextValue(omero.rtypes.rstring("test for " + getClass().getSimpleName()));
+        link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(
+                mmFactory.createAnnotationLink(mmFactory.simpleImage(), comment));
+        image = link.getParent();
+        comment = (CommentAnnotation) link.getChild();
+
+        assertAllExist(link, image, comment);
+
+        /* ignoring links prevents image deletion because a link cannot have its parent removed */
+        request = Requests.delete().target(image).build();
+        request.typesToIgnore = Collections.singletonList("IAnnotationLink");
+        doChange(client, factory, request, false);
+
+        assertAllExist(link, image, comment);
+
+        /* ignoring all annotations allows image deletion although the comment remains */
+        request.typesToIgnore = Collections.singletonList("Annotation");
+        doChange(request);
+
+        assertDoesNotExist(link);
+        assertDoesNotExist(image);
+        assertExists(comment);
+
+        doChange(Requests.delete().target(comment).build());
+    }
+
+    /**
+     * Test that {@link Delete2#typesToIgnore} runs faster than {@link omero.cmd.graphs.ChildOption#excludeType} on large data.
+     * @throws Exception unexpected
+     */
+    @Test(timeOut = 200000)
+    public void testIgnoreTypesPerformance() throws Exception {
+        newUserAndGroup("rwr---");
+
+        /* add the same rating to many images */
+        LongAnnotation rating = new LongAnnotationI();
+        rating.setLongValue(omero.rtypes.rlong(3));
+        rating = (LongAnnotation) iUpdate.saveAndReturnObject(rating).proxy();
+        final List<IObject> toSave = new ArrayList<>();
+        while (toSave.size() < 2500) {
+            final ImageAnnotationLink link = new ImageAnnotationLinkI();
+            link.setParent(mmFactory.simpleImage());
+            link.setChild(rating);
+            toSave.add(link);
+        }
+        final List<ImageAnnotationLink> links = new ArrayList<>(toSave.size());
+        final List<Image> images = new ArrayList<>(toSave.size());
+        for (final IObject saved : iUpdate.saveAndReturnArray(toSave)) {
+            final ImageAnnotationLink link = (ImageAnnotationLink) saved;
+            links.add((ImageAnnotationLink) link.proxy());
+            images.add((Image) link.getParent().proxy());
+        }
+        final Iterator<ImageAnnotationLink> linkIterator = links.iterator();
+
+        /* repeatedly try deleting a single image annotation link */
+        final ListMultimap<Boolean, Long> durations = LinkedListMultimap.create();
+        int count = 0;
+        do {
+            for (final boolean isIgnoreTypes : new boolean[] {false, true}) {
+                /* can delete with excludeType or typesToIgnore for the rating */
+                final Delete2 request = Requests.delete().target(linkIterator.next()).build();
+                if (isIgnoreTypes) {
+                    request.typesToIgnore = Collections.singletonList("Annotation");
+                } else {
+                    request.childOptions = Collections.singletonList(Requests.option().excludeType("Annotation").build());
+                }
+                final long timeStart = System.currentTimeMillis();
+                final HandlePrx handle = factory.submit(request, null);
+                final CmdCallbackI callback = new CmdCallbackI(client, handle);
+                callback.loop(/* with Java 8 can use Math.toIntExact */
+                        Ints.checkedCast(scalingFactor), 20);
+                final long timeEnd = System.currentTimeMillis();
+                assertCmd(callback, true);
+                durations.put(isIgnoreTypes, timeEnd - timeStart);
+            }
+        } while (++count < 5);
+
+        /* clean up test data */
+        doChange(client, factory, Requests.delete().target(images.toArray(new IObject[images.size()])).build(), true, null, 5);
+
+        /* check that median performance is better when using typesToIgnore */
+        final List<Long> timesWithIgnore = new ArrayList<>(durations.get(true));
+        final List<Long> timesWithoutIgnore = new ArrayList<>(durations.get(false));
+        Assert.assertEquals(timesWithIgnore.size(), count);
+        Assert.assertEquals(timesWithoutIgnore.size(), count);
+        Collections.sort(timesWithIgnore);
+        Collections.sort(timesWithoutIgnore);
+        Assert.assertTrue(timesWithIgnore.get(count / 2) < timesWithoutIgnore.get(count / 2));
     }
 }
