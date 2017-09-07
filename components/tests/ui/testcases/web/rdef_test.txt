@@ -76,8 +76,8 @@ Check Inverted
     [Arguments]                             ${channelIdx}               ${checked}
     Click Element                           xpath=//button[@id="wblitz-ch${channelIdx}-color"]
     Wait Until Element Is Visible           id=cbpicker-box
-    Run Keyword If      ${checked}          Checkbox Should Be Selected                 id=reverseIntensity
-    ...                 ELSE                Checkbox Should Not Be Selected             id=reverseIntensity
+    Run Keyword If      ${checked}          Checkbox Should Be Selected                 id=invert
+    ...                 ELSE                Checkbox Should Not Be Selected             id=invert
     Click Element                           xpath=//div[contains(@class, 'cbpicker')]//div[contains(@class, 'postit-close-btn')]
     Element Should Not Be Visible           id=cbpicker-box
 
@@ -85,7 +85,7 @@ Toggle Inverted
     [Arguments]                             ${channelIdx}
     Click Element                           xpath=//button[@id="wblitz-ch${channelIdx}-color"]
     Wait Until Element Is Visible           id=cbpicker-box
-    Select Checkbox                         id=reverseIntensity
+    Select Checkbox                         id=invert
     Element Should Not Be Visible           id=cbpicker-box
 
 Wait For BlockUI
