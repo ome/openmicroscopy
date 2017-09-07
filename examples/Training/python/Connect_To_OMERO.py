@@ -60,6 +60,12 @@ if __name__ == '__main__':
     print "   Username:", user.getName()
     print "   Full Name:", user.getFullName()
 
+    # Check if you are an Administrator
+    print "   Is Admin:", conn.isAdmin()
+    if not conn.isFullAdmin():
+        # If 'Restricted Administrator' show privileges
+        print conn.getCurrentAdminPrivileges()
+
     print "Member of:"
     for g in conn.getGroupsMemberOf():
         print "   ID:", g.getName(), " Name:", g.getId()
