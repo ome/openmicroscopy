@@ -58,7 +58,7 @@ $.fn.colorbtn = function(cfg) {
       box.postit();
 
       var invertHtml = '<div><input id="invert" type="checkbox" style="width:20px"></input>';
-          invertHtml += '<label for="invert" style="font-size:15px; font-weight: normal;">Reverse Intensity</label></div>';
+          invertHtml += '<label for="invert" style="font-size:15px; font-weight: normal;">Invert</label></div>';
           invertHtml += '<div style="clear:both"></div>';
       $(invertHtml).appendTo(box);
 

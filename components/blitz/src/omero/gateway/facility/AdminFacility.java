@@ -21,6 +21,7 @@
 package omero.gateway.facility;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -308,7 +309,7 @@ public class AdminFacility extends Facility {
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
-    public List<String> getAdminPrivileges(SecurityContext ctx)
+    public Collection<String> getAdminPrivileges(SecurityContext ctx)
             throws DSOutOfServiceException, DSAccessException {
         return getAdminPrivileges(ctx, gateway.getLoggedInUser());
     }
@@ -328,7 +329,7 @@ public class AdminFacility extends Facility {
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
-    public List<String> getAdminPrivileges(SecurityContext ctx,
+    public Collection<String> getAdminPrivileges(SecurityContext ctx,
             ExperimenterData user) throws DSOutOfServiceException,
             DSAccessException {
         try {
@@ -350,7 +351,7 @@ public class AdminFacility extends Facility {
      * @param user
      *            The user.
      * @param privileges
-     *            The admin privileges
+     *            The admin privileges.
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in.
      * @throws DSAccessException
@@ -358,7 +359,7 @@ public class AdminFacility extends Facility {
      *             service.
      */
     public void setAdminPrivileges(SecurityContext ctx, ExperimenterData user,
-            List<String> privileges) throws DSOutOfServiceException,
+            Collection<String> privileges) throws DSOutOfServiceException,
             DSAccessException {
         try {
             IAdminPrx adm = gateway.getAdminService(ctx);
@@ -366,6 +367,62 @@ public class AdminFacility extends Facility {
                     AdminPrivilege.class, AdminPrivilegeI.class, privileges));
         } catch (Exception e) {
             handleException(this, e, "Cannot set admin privileges.");
+        }
+    }
+
+    /**
+     * Grant an user additional admin privileges.
+     * 
+     * @param ctx
+     *            The security context.
+     * @param user
+     *            The user.
+     * @param privileges
+     *            The admin privileges to grant.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public void addAdminPrivileges(SecurityContext ctx, ExperimenterData user,
+            Collection<String> privileges) throws DSOutOfServiceException,
+            DSAccessException {
+        try {
+            Collection<String> privs = getAdminPrivileges(ctx, user);
+            for (String priv : privileges)
+                if (!privs.contains(priv))
+                    privs.add(priv);
+            setAdminPrivileges(ctx, user, privs);
+        } catch (Exception e) {
+            handleException(this, e, "Cannot add admin privileges.");
+        }
+    }
+
+    /**
+     * Revoke admin privileges for a user
+     * 
+     * @param ctx
+     *            The security context.
+     * @param user
+     *            The user.
+     * @param privileges
+     *            The admin privileges to revoke.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public void removeAdminPrivileges(SecurityContext ctx,
+            ExperimenterData user, Collection<String> privileges)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            Collection<String> privs = getAdminPrivileges(ctx, user);
+            privs.removeAll(privileges);
+            setAdminPrivileges(ctx, user, privs);
+        } catch (Exception e) {
+            handleException(this, e, "Cannot remove admin privileges.");
         }
     }
 

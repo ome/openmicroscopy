@@ -466,6 +466,11 @@ $(document).ready(function() {
             $("#dataIcons li.row").each(function(){
                 iids.push($(this).attr("data-id"));
             });
+            // Check to ensure images are available for filtering
+            if (iids.length === 0) {
+                // No images to filter
+                return;
+            }
             var query = "image=" + iids.join("&image=");
             $.getJSON("{% url 'api_annotations' %}?type=rating&" + query, function(data){
                 // map imageId to rating... rdata = {'iid': hide?}
@@ -502,6 +507,11 @@ $(document).ready(function() {
             $("#dataIcons li.row").each(function(){
                 iids.push($(this).attr("data-id"));
             });
+            // Check to ensure images are available for filtering
+            if (iids.length === 0) {
+                // No images to filter
+                return;
+            }
             var query = "image=" + iids.join("&image=");
             // get ratings...
             $.getJSON("{% url 'api_annotations' %}?type=rating&" + query, function(data){
@@ -691,10 +701,8 @@ $(document).ready(function() {
         }
 
         // Tell jsTree how many elements are selected
+        // This event also bubbles up to $("body")
         $("#dataTree").trigger('selection_change.ome', inst.get_selected(true).length);
-
-        // Trigger the selection changed event
-        $("body").trigger('selection_change.ome');
 
         return false;
     }

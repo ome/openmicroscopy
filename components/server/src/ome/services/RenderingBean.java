@@ -68,6 +68,8 @@ import omeis.providers.re.quantum.QuantumFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -774,6 +776,99 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
+     *
+     * @see RenderingEngine#updateSettings(RenderingDef)
+     */
+    @RolesAllowed("user")
+    public void updateSettings(RenderingDef settings) {
+        if (settings == null) {
+            return;
+        }
+
+        // Emulate setModel(RenderingModel)
+        RenderingModel model = settings.getModel();
+        if (model != null) {
+            setModel(model);
+        }
+        // Emulate setDefaultZ(int)
+        Integer defaultZ = settings.getDefaultZ();
+        if (defaultZ != null) {
+            setDefaultZ(settings.getDefaultZ());
+        }
+        // Emulate setDefaultT(int)
+        Integer defaultT = settings.getDefaultT();
+        if (defaultT != null) {
+            setDefaultT(settings.getDefaultT());
+        }
+        QuantumDef quantumDef = settings.getQuantization();
+        if (quantumDef != null) {
+            // Emulate setQuantumStrategy(int)
+            Integer bitResolution = quantumDef.getBitResolution();
+            if (bitResolution != null) {
+                setQuantumStrategy(bitResolution);
+            }
+            // Emulate setCodmainInterval(int, int)
+            Integer start = quantumDef.getCdStart();
+            Integer end = quantumDef.getCdEnd();
+            if (start != null && end != null) {
+                setCodomainInterval(start, end);
+            }
+        }
+        for (int w = 0; w < settings.sizeOfWaveRendering(); w++) {
+            if (w >= this.pixelsObj.getSizeC()) {
+                // Skip application of settings for channels which are beyond
+                // the currently looked up Image's number of channels.
+                break;
+            }
+
+            ChannelBinding cb = settings.getChannelBinding(w);
+            if (cb == null) {
+                continue;
+            }
+            // Emulate setActive(boolean)
+            Boolean active = cb.getActive();
+            if (active != null) {
+                setActive(w, active);
+            }
+            // Emulate setChannelWindow(int, double, double)
+            Double start = cb.getInputStart();
+            Double end = cb.getInputEnd();
+            if (start != null && end != null) {
+                setChannelWindow(w, start, end);
+            }
+            // Emulate setQuantizationMap(int, Family, double, boolean)
+            Family family = cb.getFamily();
+            Double coefficient = cb.getCoefficient();
+            Boolean noiseReduction = cb.getNoiseReduction();
+            if (family != null && coefficient != null
+                    && noiseReduction != null) {
+                setQuantizationMap(w, family, coefficient, noiseReduction);
+            }
+            // Emulate setRGBA(int, int, int, int, int)
+            Integer red = cb.getRed();
+            Integer green = cb.getGreen();
+            Integer blue = cb.getBlue();
+            Integer alpha = cb.getAlpha();
+            if (red != null && green != null && blue != null && alpha != null) {
+                setRGBA(w, red, green, blue, alpha);
+            }
+            // Emulate setChannelLookupTable(int, String)
+            String lookupTable = cb.getLookupTable();
+            if (lookupTable != null) {
+                setChannelLookupTable(w, lookupTable);
+            }
+            // Emulate addCodomainMapToChannel(CodomainMapContext, int)
+            for (int i = 0; i < cb.sizeOfSpatialDomainEnhancement(); i++) {
+                ome.model.display.CodomainMapContext ctx = cb.getCodomainMapContext(i);
+                if (ctx != null) {
+                    addCodomainMapToChannel(reverse(ctx), w);
+                }
+            }
+        }
+    }
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
      * 
      * @see RenderingEngine#saveCurrentSettings()
      */
@@ -1120,6 +1215,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     @RolesAllowed("user")
     public void setChannelLookupTable(int w, String lookup) {
+        StopWatch t0 = new Slf4JStopWatch(
+                "omero.rendering_bean.setChannelLookupTable");
         rwl.readLock().lock();
 
         try {
@@ -1127,6 +1224,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setChannelLookupTable(w, lookup);
         } finally {
             rwl.readLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1319,6 +1417,19 @@ public class RenderingBean implements RenderingEngine, Serializable {
         return null;
     }
 
+    /**
+     * Reverse the ome.model object into the corresponding codomain context.
+     * @param ctx The context to convert.
+     * @return See above.
+     */
+    private CodomainMapContext reverse(ome.model.display.CodomainMapContext ctx)
+    {
+        if (ctx instanceof ome.model.display.ReverseIntensityContext) {
+            return new ReverseIntensityContext();
+        }
+        return null;
+    }
+
     /** Implemented as specified by the {@link RenderingEngine} interface. */
     @RolesAllowed("user")
     @Deprecated
@@ -1390,12 +1501,14 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setActive(int w, boolean active) {
+        StopWatch t0 = new Slf4JStopWatch("omero.rendering_bean.setActive");
         try {
             rwl.writeLock().lock();
             errorIfInvalidState();
             renderer.setActive(w, active);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1406,6 +1519,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setChannelWindow(int w, double start, double end) {
+        StopWatch t0 = new Slf4JStopWatch(
+                "omero.rendering_bean.setChannelWindow");
         rwl.writeLock().lock();
 
         try {
@@ -1413,6 +1528,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setChannelWindow(w, start, end);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1423,12 +1539,15 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setCodomainInterval(int start, int end) {
+        StopWatch t0 = new Slf4JStopWatch(
+                "omero.rendering_bean.setCodomainInterval");
         rwl.writeLock().lock();
         try {
             errorIfInvalidState();
             renderer.setCodomainInterval(start, end);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1439,6 +1558,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setDefaultT(int t) {
+        StopWatch t0 = new Slf4JStopWatch("omero.rendering_bean.setDefaultT");
         rwl.writeLock().lock();
 
         try {
@@ -1446,6 +1566,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setDefaultT(t);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1456,6 +1577,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setDefaultZ(int z) {
+        StopWatch t0 = new Slf4JStopWatch("omero.rendering_bean.setDefaultZ");
         rwl.writeLock().lock();
 
         try {
@@ -1463,6 +1585,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setDefaultZ(z);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1473,6 +1596,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setModel(RenderingModel model) {
+        StopWatch t0 = new Slf4JStopWatch("omero.rendering_bean.setModel");
         rwl.writeLock().lock();
 
         try {
@@ -1481,6 +1605,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setModel(m);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1492,6 +1617,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
     @RolesAllowed("user")
     public void setQuantizationMap(int w, Family family, double coefficient,
             boolean noiseReduction) {
+        StopWatch t0 = new Slf4JStopWatch(
+                "omero.rendering_bean.setQuantizationMap");
         rwl.writeLock().lock();
 
         try {
@@ -1500,6 +1627,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setQuantizationMap(w, f, coefficient, noiseReduction);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1510,6 +1638,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setQuantumStrategy(int bitResolution) {
+        StopWatch t0 = new Slf4JStopWatch(
+                "omero.rendering_bean.setQuantumStrategy");
         rwl.writeLock().lock();
 
         try {
@@ -1517,6 +1647,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setQuantumStrategy(bitResolution);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 
@@ -1527,6 +1658,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     @RolesAllowed("user")
     public void setRGBA(int w, int red, int green, int blue, int alpha) {
+        StopWatch t0 = new Slf4JStopWatch("omero.rendering_bean.setRGBA");
         rwl.writeLock().lock();
 
         try {
@@ -1534,6 +1666,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer.setRGBA(w, red, green, blue, alpha);
         } finally {
             rwl.writeLock().unlock();
+            t0.stop();
         }
     }
 

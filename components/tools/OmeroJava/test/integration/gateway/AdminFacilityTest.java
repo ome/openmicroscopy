@@ -21,6 +21,7 @@
 package integration.gateway;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +37,7 @@ import org.testng.annotations.Test;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 import omero.model.enums.AdminPrivilegeChgrp;
+import omero.model.enums.AdminPrivilegeChown;
 
 
 /**
@@ -114,12 +116,26 @@ public class AdminFacilityTest extends GatewayTest {
     public void testAdminPrivileges() throws DSOutOfServiceException,
             DSAccessException {
         SecurityContext userCtx = new SecurityContext(exp.getGroupId());
-        List<String> privs = adminFacility.getAdminPrivileges(userCtx, exp);
+        Collection<String> privs = adminFacility.getAdminPrivileges(userCtx, exp);
         Assert.assertTrue(privs.isEmpty());
+        
         adminFacility.setAdminPrivileges(userCtx, exp,
                 Collections.singletonList(AdminPrivilegeChgrp.value));
         privs = adminFacility.getAdminPrivileges(userCtx, exp);
         Assert.assertEquals(privs.size(), 1);
         Assert.assertEquals(privs.iterator().next(), AdminPrivilegeChgrp.value);
+        
+        adminFacility.addAdminPrivileges(userCtx, exp,
+                Collections.singletonList(AdminPrivilegeChown.value));
+        privs = adminFacility.getAdminPrivileges(userCtx, exp);
+        Assert.assertEquals(privs.size(), 2);
+        Assert.assertTrue(privs.contains(AdminPrivilegeChgrp.value));
+        Assert.assertTrue(privs.contains(AdminPrivilegeChown.value));
+        
+        adminFacility.removeAdminPrivileges(userCtx, exp,
+                Collections.singletonList(AdminPrivilegeChown.value));
+        privs = adminFacility.getAdminPrivileges(userCtx, exp);
+        Assert.assertEquals(privs.size(), 1);
+        Assert.assertTrue(privs.contains(AdminPrivilegeChgrp.value));
     }
 }

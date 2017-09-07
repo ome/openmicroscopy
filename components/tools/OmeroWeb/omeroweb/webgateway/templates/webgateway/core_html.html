@@ -55,5 +55,10 @@
 
 {% endblock %}
 
+
+    <!-- settings.BASE_INCLUDE_TEMPLATE included here -->
+    {% if base_include_template %}
+      {% include base_include_template %}
+    {% endif %}
 </body>
 </html>

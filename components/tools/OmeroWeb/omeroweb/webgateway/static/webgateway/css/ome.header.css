@@ -62,8 +62,7 @@
 	 background-image:-o-linear-gradient(top, hsl(212,8%,49%) 0%,hsl(212,8%,34%) 100%); /* Opera11.10+ */
 	 background-image:-ms-linear-gradient(top, hsl(212,8%,49%) 0%,hsl(212,8%,34%) 100%); /* IE10+ */
 	 filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#73787d', endColorstr='#505357',GradientType=0 ); /* IE6-9 */
-	 background:linear-gradient(top, hsl(212,8%,49%) 0%,hsl(212,8%,34%) 100%); /* W3C */ 
-     behavior: url(../../3rdparty/pie-1.0beta5/PIE.htc);
+	 background:linear-gradient(top, hsl(212,8%,49%) 0%,hsl(212,8%,34%) 100%); /* W3C */
 	 font-family: Helvetica,Arial,sans-serif;
 
 	 height: 35px;
@@ -96,7 +95,6 @@
 	 	
 	 	
 	 #middle_header_right {
-		 z-index:999;
 		 position:absolute;
 		 right:0;
 		 top:0;
@@ -290,7 +288,7 @@
 			
 		    color: #000;
 			position:absolute;
-			z-index:99;
+			z-index: 1;
 		}
 		
 		.info_panel {
@@ -448,8 +446,10 @@
 		}
 		
 		.dropdown {
-		    visibility:hidden;
-			padding:5px 0;
+			position: absolute;
+		    visibility: hidden;
+			padding: 5px 0;
+			z-index: 2;
 		}
 			
 			.dropdown li {
@@ -556,8 +556,7 @@
 		
 	    .dropdown_menu ul { 
 			visibility: hidden; 
-			left: 0px; 
-			z-index:50;
+			left: 0px;
 	        margin: 0;
 			position:absolute;
 		}
@@ -1001,13 +1000,10 @@ li.menu_back a {
 }
 
 #left_panel {
-    left:0px;
-    top:33px;
-    bottom:0px;
-    right:0px;
-    width:350px;
-    border-left: none;
-	overflow:hidden;
+	position: relative;
+	border-left: none;
+    width: 350px;
+	height: calc(100% - 33px);
 }
 
 #center_panel {
@@ -1029,25 +1025,35 @@ li.menu_back a {
 /** the center panel includes the draggable re-size handles either side **/
 
 #trayhandle_left {
-    position:absolute;
-    top:0px; left:0px; bottom:0px;
-    width: 1px;
-	z-index:9999;
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	width: 1px;
+	background-color: hsl(210,10%,85%);
+	z-index: 1;
 }
+
 #trayhandle_right {
-    position:absolute;
-    top:0px; right:0px; bottom:0px;
-    width: 1px;
-	z-index:9999;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 1px;
+	background-color: hsl(210,10%,85%);
+	z-index: 1;
 }
+
 #center_container {
-    position:absolute;
-    left:350px; right:370px; top:0px; bottom:0px;
-    border: none;
-    background: #e5e5e5;
-	background:hsl(210,1%,98%); /* Must match #center_panel background-color */
+	position: absolute;
+	left: 350px;
+	right: 370px;
+	top: 0px;
+	bottom: 0px;
+	border: none;
+	background: #e5e5e5;
+	background: hsl(210, 1%, 98%); /* Must match #center_panel background-color */
 	/* I wish that background: hsl(220,8%,16%);*/
-    z-index:10;
 }
 
 
@@ -1116,7 +1122,7 @@ li.menu_back a {
 }
 
 .verticalDragHandle {
-	z-index: 100;
+	z-index: 10;
 	width: 100%;
 	height: 8px;
 	left: 0;
@@ -1148,6 +1154,7 @@ li.menu_back a {
     left: 0;
     right: 0;
 }
+
 #dragRight {
     cursor: col-resize;
     position:absolute;

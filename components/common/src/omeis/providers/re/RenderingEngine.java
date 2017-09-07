@@ -11,6 +11,7 @@ import ome.api.StatefulServiceInterface;
 import ome.conditions.ValidationException;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
+import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.codomain.CodomainMapContext;
@@ -506,6 +507,34 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * @see #addCodomainMapToChannel(CodomainMapContext, int)
      */
     public void removeCodomainMapFromChannel(CodomainMapContext mapCtx, int w);
+
+    /**
+     * Updates the current rendering settings based on a provided rendering
+     * definition and associated sub-objects.
+     * @param settings Rendering definition to copy from. Each sub-object
+     * will be processed as though the specific method was called with
+     * related attributes provided as arguments. The following methods are
+     * called underneath: <ul>
+     * <li>{@link RenderingEngine#setModel(RenderingModel)}</li>
+     * <li>{@link RenderingEngine#setDefaultZ(int)}</li>
+     * <li>{@link RenderingEngine#setDefaultT(int)}</li>
+     * <li>{@link RenderingEngine#setQuantumStrategy(int)}</li>
+     * <li>{@link RenderingEngine#setCodomainInterval(int, int)}</li>
+     * <li>{@link RenderingEngine#setActive(int, boolean)}</li>
+     * <li>{@link RenderingEngine#setChannelWindow(int, double, double)}</li>
+     * <li>{@link RenderingEngine#setQuantizationMap(int, Family, double, boolean)}</li>
+     * <li>{@link RenderingEngine#setRGBA(int, int, int, int, int)}</li>
+     * <li>{@link RenderingEngine#setChannelLookupTable(int, String)}</li>
+     * </ul>
+     * If one or more attributes that apply to a particular method are
+     * <code>null</code> it will be <b>skipped</b> in its entirety. The
+     * underlying Renderer is not able to handle partial field updates.
+     * Furthermore, {@link ome.model.display.ChannelBinding} references that are
+     * <code>null</code> and indexes in the {@link RenderingDef#WAVERENDERING}
+     * array greater than the currently looked up {@link Pixels#SIZEC} will be
+     * skipped.
+     */
+    public void updateSettings(RenderingDef settings);
 
     /** Saves the current rendering settings in the database. */
     public void saveCurrentSettings();

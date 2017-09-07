@@ -50,7 +50,7 @@ def parse_url(lookup_view):
     url = None
     try:
         url = reverse_with_params(
-            lookup_view['viewname'],
+            viewname=lookup_view['viewname'],
             args=lookup_view['args'],
             query_string=lookup_view['query_string']
         )
@@ -421,7 +421,7 @@ class login_required(object):
             return None
 
         session['connector'] = connector
-        return connection
+        return None
 
     def __call__(ctx, f):
         """
@@ -472,18 +472,20 @@ class login_required(object):
 
                     # kwargs['error'] = request.GET.get('error')
                     kwargs['url'] = url
-
-            retval = f(request, *args, **kwargs)
             try:
-                logger.debug(
-                    'Doing connection cleanup? %s' % doConnectionCleanup)
-                if doConnectionCleanup:
-                    if conn is not None and conn.c is not None:
-                        for v in conn._proxies.values():
-                            v.close()
-                        conn.c.closeSession()
-            except:
-                logger.warn('Failed to clean up connection.', exc_info=True)
+                retval = f(request, *args, **kwargs)
+            finally:
+                # If f() raised Exception, e.g. Http404() we must still cleanup
+                try:
+                    logger.debug(
+                        'Doing connection cleanup? %s' % doConnectionCleanup)
+                    if doConnectionCleanup:
+                        if conn is not None and conn.c is not None:
+                            for v in conn._proxies.values():
+                                v.close()
+                            conn.c.closeSession()
+                except:
+                    logger.warn('Failed to clean up connection', exc_info=True)
             return retval
         return update_wrapper(wrapped, f)
 

@@ -16,7 +16,10 @@
   <properties file="${ivy.settings.dir}/build.properties"/>
   <properties file="${ivy.settings.dir}/local.properties"/>
   <properties file="${ivy.settings.dir}/../target/omero.version"/>
-  <property name="local-maven2-dir" value="${user.home}/.m2/repository/"/>
+  <property name="local-maven2-dir" value="${user.home}/.m2/repository/"
+      override="false"/> <!-- deprecated - use maven.repo.local instead -->
+  <property name="maven.repo.local" value="${local-maven2-dir}"
+      override="false"/>
 
   <settings defaultResolver="${omero.resolver}"/>
 
@@ -28,7 +31,7 @@
            while maven is for any stable, unchanging jar that is being
            downloaded -->
       <cache name="local" basedir="${ivy.settings.dir}/../lib/cache"/>
-      <cache name="maven" basedir="${local-maven2-dir}"
+      <cache name="maven" basedir="${maven.repo.local}"
         artifactPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"
         ivyPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].xml"
         lockStrategy="artifact-lock"
@@ -55,10 +58,10 @@
           checkmodified="true" changingMatcher="regexp"
           changingPattern=".*SNAPSHOT.*"
           cache="local" descriptor="required">
-        <artifact pattern="${local-maven2-dir}/[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"/>
-        <ivy pattern="${local-maven2-dir}/[orgPath]/[module]/[revision]/[artifact]-[revision].xml"/>
+        <artifact pattern="${maven.repo.local}/[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+        <ivy pattern="${maven.repo.local}/[orgPath]/[module]/[revision]/[artifact]-[revision].xml"/>
         <!-- Ivy pattern for artifacts installed locally via Maven -->
-        <ivy pattern="${local-maven2-dir}/[orgPath]/[module]/[revision]/[module]-[revision].pom"/>
+        <ivy pattern="${maven.repo.local}/[orgPath]/[module]/[revision]/[module]-[revision].pom"/>
       </filesystem>
 
       <!-- Remote downloads; cached to '~/.m2/repository' -->
