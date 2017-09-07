@@ -170,7 +170,7 @@ class TestRendering(IWebTest):
         image = conn.getObject("Image", iid)
         image.resetDefaults()
         image.setColorRenderingModel()
-        image.setReverseIntensity(0, True)
+        image.setChannelInverted(0, True)
         image.saveDefaults()
         image = conn.getObject("Image", iid)
 
@@ -197,13 +197,14 @@ class TestRendering(IWebTest):
 
         # channel info is supposed to match
         expChannels = image.getChannels()
-        revs = [True, False, False]    # expected reverse intensity flags
+        inverted = [True, False, False]    # expected reverse intensity flags
         for i, c in enumerate(channels):
             assert c['active'] == expChannels[i].isActive()
             assert c['start'] == expChannels[i].getWindowStart()
             assert c['end'] == expChannels[i].getWindowEnd()
             assert c['color'] == expChannels[i].getColor().getHtml()
-            assert c['reverseIntensity'] == revs[i]
+            assert c['reverseIntensity'] == inverted[i]
+            assert c['inverted'] == inverted[i]
 
         # id and owner check
         assert rdefs[0].get("id") is not None
