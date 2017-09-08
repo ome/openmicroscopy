@@ -32,7 +32,7 @@ before_install:
     # Changing the value for sudo will also need to be reviewed at the same time
     # This will need to be reviewed when the issue above is fixed
     - export PATH=/usr/bin/:$PATH
-    - sudo apt-get install -y zeroc-ice35 python-imaging python-numpy python-tables python-yaml
+    - sudo apt-get install -y zeroc-ice35 python-imaging python-tables python-yaml
     # upgrade numexpr to fix table test failures
     - pip install -U numexpr
     - pip install --user pytest
