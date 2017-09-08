@@ -34,7 +34,7 @@ before_install:
     - export PATH=/usr/bin/:$PATH
     - sudo apt-get install -y zeroc-ice35 python-imaging python-numpy python-tables python-yaml
     # upgrade numexpr to fix table test failures
-    - pip install -U numexpr
+    - sudo pip install -U numexpr
     - pip install --user pytest
     - if [[ $BUILD == 'build-python' ]]; then pip install --user -r ./components/tools/OmeroWeb/requirements-py27-all-ice35.txt; fi
     - export PATH=$PATH:$HOME/.local/bin
