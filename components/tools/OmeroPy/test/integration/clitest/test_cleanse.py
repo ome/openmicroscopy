@@ -37,12 +37,14 @@ class TestCleanse(CLITest):
 
     def testCleanseAdminOnly(self, capsys):
         """Test cleanse is admin-only"""
-        data_dir = self.root.sf.getConfigService().getConfigValue("omero.data.dir")
+        config_service = self.root.sf.getConfigService()
+        data_dir = config_service.getConfigValue("omero.data.dir")
         self.args += [data_dir]
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
         assert err.endswith("SecurityViolation: Admins only!\n")
+
 
 class TestCleanseRoot(RootCLITest):
 
@@ -53,9 +55,11 @@ class TestCleanseRoot(RootCLITest):
 
     def testCleanseAdminOnly(self, capsys):
         """Test cleanse works for root with expected output"""
-        data_dir = self.root.sf.getConfigService().getConfigValue("omero.data.dir")
+        config_service = self.root.sf.getConfigService()
+        data_dir = config_service.getConfigValue("omero.data.dir")
         self.args += [data_dir]
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
-        output_string = "Removing empty directories from...\n " + data_dir + "ManagedRepository\n"
+        output_string_start = "Removing empty directories from...\n "
+        output_string = output_string_start + data_dir + "ManagedRepository\n"
         assert output_string in out
