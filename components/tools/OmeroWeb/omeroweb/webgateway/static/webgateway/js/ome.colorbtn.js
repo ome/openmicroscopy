@@ -57,10 +57,10 @@ $.fn.colorbtn = function(cfg) {
       var box = jQuery("#"+this.cfg.prefix+"-box").append('<h1>Choose color</h1>');
       box.postit();
 
-      var reverseIntensityHtml = '<div><input id="reverseIntensity" type="checkbox" style="width:20px"></input>';
-          reverseIntensityHtml += '<label for="reverseIntensity" style="font-size:15px; font-weight: normal;">Invert</label></div>';
-          reverseIntensityHtml += '<div style="clear:both"></div>';
-      $(reverseIntensityHtml).appendTo(box);
+      var invertHtml = '<div><input id="invert" type="checkbox" style="width:20px"></input>';
+          invertHtml += '<label for="invert" style="font-size:15px; font-weight: normal;">Invert</label></div>';
+          invertHtml += '<div style="clear:both"></div>';
+      $(invertHtml).appendTo(box);
 
       // Add Lookup Table list - gets populated in show_picker() below.
       var $luts = $('<div id="' + this.cfg.prefix + '-luts" class="lutpicker"></div>').appendTo(box);
@@ -161,7 +161,7 @@ $.fn.colorbtn = function(cfg) {
       $('.cpickerPane').hide();
       $luts.show();
       $('.showColorPicker a').html('Show Color Picker');
-      $('#reverseIntensity').prop('checked', reverse_intensity);
+      $('#invert').prop('checked', reverse_intensity);
       // Highlight current color/lut
       $("label", $luts).css('background', 'none');
       $("label[for='" + currColor + "']", $luts).css('background', '#cddcfc')
@@ -175,7 +175,7 @@ $.fn.colorbtn = function(cfg) {
         self.attr('data-picked-color', this.value);
         ok_callback();
       });
-      $("#reverseIntensity").off('click').click(function(){
+      $("#invert").off('click').click(function(){
         self.data('data-reverse-intensity', this.checked);
         ok_callback();
       });

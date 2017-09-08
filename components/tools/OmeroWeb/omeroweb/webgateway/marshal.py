@@ -71,7 +71,9 @@ def channelMarshal(channel):
     chan = {'emissionWave': channel.getEmissionWave(),
             'label': channel.getLabel(),
             'color': channel.getColor().getHtml(),
-            'reverseIntensity': channel.isReverseIntensity(),
+            # 'reverseIntensity' is deprecated. Use 'inverted'
+            'inverted': channel.isInverted(),
+            'reverseIntensity': channel.isInverted(),
             'window': {'min': channel.getWindowMin(),
                        'max': channel.getWindowMax(),
                        'start': channel.getWindowStart(),
