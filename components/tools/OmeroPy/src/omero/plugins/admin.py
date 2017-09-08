@@ -31,7 +31,7 @@ from omero.cli import admin_only
 from omero.cli import CLI
 from omero.cli import DirectoryType
 from omero.cli import NonZeroReturnCode
-from omero.cli import VERSION
+from omero.cli import DiagnosticsControl
 from omero.cli import UserGroupControl
 
 from omero.model.enums import AdminPrivilegeReadSession
@@ -79,7 +79,9 @@ if platform.system() == 'Windows':
     HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 
-class AdminControl(WriteableConfigControl, UserGroupControl):
+class AdminControl(DiagnosticsControl,
+                   WriteableConfigControl,
+                   UserGroupControl):
 
     def _complete(self, text, line, begidx, endidx):
         """
@@ -97,6 +99,7 @@ class AdminControl(WriteableConfigControl, UserGroupControl):
 
     def _configure(self, parser):
         sub = parser.sub()
+        self._add_diagnostics(parser, sub)
         self.actions = {}
 
         class Action(object):
@@ -165,14 +168,6 @@ already be running. This may automatically restart some server components.""")
             "fixpyramids",
             "Remove empty pyramid pixels files (admins only)").parser
         # See cleanse options below
-
-        diagnostics = Action(
-            "diagnostics",
-            ("Run a set of checks on the current, "
-             "preferably active server")).parser
-        diagnostics.add_argument(
-            "--no-logs", action="store_true",
-            help="Skip log parsing")
 
         email = Action(
             "email",
@@ -1087,6 +1082,8 @@ present, the user will enter a console""")
     @with_config
     def diagnostics(self, args, config):
 
+        self._diagnostics_banner("admin")
+
         from xml.etree.ElementTree import XML
         from omero.install.jvmcfg import read_settings
 
@@ -1110,12 +1107,6 @@ present, the user will enter a console""")
         omero_temp_dir = gettempdir()
         omero_temp_dir = os.path.abspath(
             os.path.join(omero_temp_dir, os.path.pardir, os.path.pardir))
-
-        self.ctx.out("""
-%s
-OMERO Diagnostics %s
-%s
-        """ % ("="*80, VERSION, "="*80))
 
         def version(cmd):
             """
