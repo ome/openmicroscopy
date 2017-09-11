@@ -672,146 +672,138 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
     template = "webadmin/group_form.html"
     msgs = []
 
+    user_privileges = conn.getCurrentAdminPrivileges()
+    can_modify_group = 'ModifyGroup' in user_privileges
+    can_add_member = 'ModifyGroupMembership' in user_privileges
+
     experimenters = list(conn.getObjects("Experimenter"))
     experimenters.sort(key=lambda x: x.getLastName().lower())
 
-    def getEditFormContext():
-        group = conn.getObject("ExperimenterGroup", gid)
-        ownerIds = [e.id for e in group.getOwners()]
-        memberIds = [m.id for m in group.getMembers()]
-        permissions = getActualPermissions(group)
-        can_modify_group = 'ModifyGroup' in conn.getCurrentAdminPrivileges()
-        can_add_member = 'ModifyGroupMembership' in \
-            conn.getCurrentAdminPrivileges()
-        system_groups = [
-            conn.getAdminService().getSecurityRoles().systemGroupId,
-            conn.getAdminService().getSecurityRoles().userGroupId,
-            conn.getAdminService().getSecurityRoles().guestGroupId]
-        group_is_current_or_system = (
-            (conn.getEventContext().groupId == long(gid)) or
-            (long(gid) in system_groups))
-        form = GroupForm(initial={
-            'name': group.name,
-            'description': group.description,
-            'permissions': permissions,
-            'owners': ownerIds,
-            'members': memberIds,
-            'experimenters': experimenters},
-            can_modify_group=can_modify_group,
-            can_add_member=can_add_member,
-            group_is_current_or_system=group_is_current_or_system)
-        admins = [conn.getAdminService().getSecurityRoles().rootId]
-        if long(gid) in system_groups:
-            # prevent removing 'root' or yourself from group if it's a system
-            # group
-            admins.append(conn.getUserId())
-        return {'form': form, 'gid': gid, 'permissions': permissions,
-                'admins': admins, 'can_modify_group': can_modify_group}
+    system_groups = [
+        conn.getAdminService().getSecurityRoles().systemGroupId,
+        conn.getAdminService().getSecurityRoles().userGroupId,
+        conn.getAdminService().getSecurityRoles().guestGroupId]
 
-    if action == 'new':
-        can_modify_group = 'ModifyGroup' in conn.getCurrentAdminPrivileges()
-        can_add_member = 'ModifyGroupMembership' in \
-            conn.getCurrentAdminPrivileges()
-        form = GroupForm(initial={'experimenters': experimenters,
-                                  'permissions': 0},
-                         can_add_member=can_add_member)
-        context = {'form': form, 'can_modify_group': can_modify_group}
+    initial = {'experimenters': experimenters,
+               'permissions': 0}
+    group_is_system = False
+    name_check = False
+    data = None
+    if gid is not None:
+        group = conn.getObject("ExperimenterGroup", gid)
+        initial['name'] = group.name
+        initial['description'] = group.description
+        initial['owners'] = [e.id for e in group.getOwners()]
+        initial['members'] = [m.id for m in group.getMembers()]
+        initial['permissions'] = getActualPermissions(group)
+        group_is_system = long(gid) in system_groups
+    if request.method == 'POST':
+        data = request.POST.copy()
+        # name needs to be unique
+        old_name = group.name if gid is not None else None
+        name_check = conn.checkGroupName(request.POST.get('name'), old_name)
+    form = GroupForm(initial=initial,
+                     data=data,
+                     name_check=name_check,
+                     can_modify_group=can_modify_group,
+                     can_add_member=can_add_member,
+                     group_is_system=group_is_system)
+
+    context = {'form': form}
+
+    if action == 'new' or action == 'edit':
+        # form prepared above - nothing else needed
+        pass
     elif action == 'create':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid",
                                                 args=["new"]))
         else:
-            name_check = conn.checkGroupName(request.POST.get('name'))
-            form = GroupForm(initial={'experimenters': experimenters},
-                             data=request.POST.copy(), name_check=name_check)
             if form.is_valid():
                 logger.debug("Create group form:" + str(form.cleaned_data))
-                name = form.cleaned_data['name']
-                description = form.cleaned_data['description']
-                owners = form.cleaned_data['owners']
-                members = form.cleaned_data['members']
-                permissions = form.cleaned_data['permissions']
-
-                perm = setActualPermissions(permissions)
-                listOfOwners = getSelectedExperimenters(conn, owners)
-                gid = conn.createGroup(name, perm, listOfOwners, description)
-                new_members = getSelectedExperimenters(
-                    conn, mergeLists(members, owners))
-                group = conn.getObject("ExperimenterGroup", gid)
-                conn.setMembersOfGroup(group, new_members)
+                if can_modify_group:
+                    name = form.cleaned_data['name']
+                    description = form.cleaned_data['description']
+                    permissions = form.cleaned_data['permissions']
+                    perm = setActualPermissions(permissions)
+                    gid = conn.createGroup(name, perm, description)
+                if can_add_member:
+                    owners = form.cleaned_data['owners']
+                    members = form.cleaned_data['members']
+                    group = conn.getObject("ExperimenterGroup", gid)
+                    listOfOwners = getSelectedExperimenters(conn, owners)
+                    conn.setOwnersOfGroup(group, listOfOwners)
+                    new_members = getSelectedExperimenters(
+                        conn, mergeLists(members, owners))
+                    conn.setMembersOfGroup(group, new_members)
 
                 return HttpResponseRedirect(reverse("wagroups"))
-            context = {'form': form}
-    elif action == 'edit':
-        context = getEditFormContext()
     elif action == 'save':
-        group = conn.getObject("ExperimenterGroup", gid)
-        can_add_member = 'ModifyGroupMembership' in \
-            conn.getCurrentAdminPrivileges()
-
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid",
                                                 args=["edit", group.id]))
         else:
-            permissions = getActualPermissions(group)
-
-            name_check = conn.checkGroupName(request.POST.get('name'),
-                                             group.name)
-            form = GroupForm(initial={'experimenters': experimenters},
-                             data=request.POST.copy(), name_check=name_check,
-                             can_add_member=can_add_member)
-            context = {'form': form, 'gid': gid, 'permissions': permissions}
             if form.is_valid():
                 logger.debug("Update group form:" + str(form.cleaned_data))
-                name = form.cleaned_data['name']
-                description = form.cleaned_data['description']
-                owners = form.cleaned_data['owners']
-                permissions = form.cleaned_data['permissions']
-                members = form.cleaned_data['members']
+                if can_modify_group:
+                    name = form.cleaned_data['name']
+                    description = form.cleaned_data['description']
+                    permissions = form.cleaned_data['permissions']
 
-                listOfOwners = getSelectedExperimenters(conn, owners)
-                if permissions != int(permissions):
-                    perm = setActualPermissions(permissions)
-                else:
-                    perm = None
-
-                context = getEditFormContext()
-                context['ome'] = {}
-
-                try:
-                    msgs = conn.updateGroup(group, name, perm, listOfOwners,
-                                            description)
-                except omero.SecurityViolation, ex:
-                    if ex.message.startswith('Cannot change permissions'):
-                        msgs.append("Downgrade to private group not currently"
-                                    " possible")
+                    if permissions != int(permissions):
+                        perm = setActualPermissions(permissions)
                     else:
-                        msgs.append(ex.message)
+                        perm = None
+
+                    try:
+                        msgs = conn.updateGroup(group, name, perm, description)
+                    except omero.SecurityViolation, ex:
+                        if ex.message.startswith('Cannot change permissions'):
+                            msgs.append("Downgrade to private group not"
+                                        " currently possible")
+                        else:
+                            msgs.append(ex.message)
 
                 removalFails = []
                 if can_add_member:
+                    owners = form.cleaned_data['owners']
+                    members = form.cleaned_data['members']
+
+                    listOfOwners = getSelectedExperimenters(conn, owners)
+                    conn.setOwnersOfGroup(group, listOfOwners)
                     new_members = getSelectedExperimenters(
                         conn, mergeLists(members, owners))
                     removalFails = conn.setMembersOfGroup(group, new_members)
 
                 if len(removalFails) == 0 and len(msgs) == 0:
                     return HttpResponseRedirect(reverse("wagroups"))
-                # If we've failed to remove user...
 
+                # If we've failed to remove user...
                 # prepare error messages
                 for e in removalFails:
                     url = reverse("wamanageexperimenterid",
                                   args=["edit", e.id])
                     msgs.append("Can't remove user <a href='%s'>%s</a> from"
                                 " their only group" % (url, e.getFullName()))
-                # refresh the form and add messages
-                context = getEditFormContext()
+                # Refresh form (ignore POST data)
+                context['form'] = GroupForm(initial=initial,
+                                            name_check=name_check,
+                                            can_modify_group=can_modify_group,
+                                            can_add_member=can_add_member,
+                                            group_is_system=group_is_system)
 
     else:
         return HttpResponseRedirect(reverse("wagroups"))
 
     context['userId'] = conn.getEventContext().userId
     context['template'] = template
+    context['can_modify_group'] = can_modify_group
+    context['can_add_member'] = can_add_member
+    context['gid'] = gid
+    # prevent removing 'root' or yourself from group if it's a system group
+    context['admins'] = [conn.getAdminService().getSecurityRoles().rootId]
+    if group_is_system:
+        context['admins'].append(conn.getUserId())
 
     if len(msgs) > 0:
         context['ome'] = {}

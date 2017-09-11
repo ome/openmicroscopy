@@ -44,8 +44,8 @@
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.fields_plugin.js"|add:url_suffix %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.omecut_plugin.js"|add:url_suffix %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.ometools_plugin.js"|add:url_suffix %}"></script>
-   <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.childcount_plugin.js"|add:url_suffix %}"></script>
-   <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.childcount_plugin.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js"|add:url_suffix %}"></script>
 
     <script type="text/javascript" src="{% static 'webclient/javascript/ome.chgrp.js'|add:url_suffix %}"></script>
 
@@ -770,134 +770,156 @@
 {% endblock %}
 
 
-
-
 {% block left %}
 
-    <div id="left_panel_tabs" class="absolute_fill ui-tabs">
-	
-		
+<div class="left_panel_content">
+
+    <div id="left_panel_tabs" class="left_panel_tabs_container ui-tabs">
+
         <ul id="left_panel_tab_list" class="ui-tabs-nav">
-			
-			<!-- Remember to update this in public/public.html as well. We should change this, but for the meantime, you need to manually update the menu there too -->
-			
-	        <li id="explore_tab" class="ui-state-default{% ifequal menu 'userdata' %} ui-tabs-active{% endifequal %}">
+
+            <!-- Remember to update this in public/public.html as well. We should change this, but for the meantime, you need to manually update the menu there too -->
+
+            <li id="explore_tab" class="ui-state-default{% ifequal menu 'userdata' %} ui-tabs-active{% endifequal %}">
                 <a href="{% url 'load_template' 'userdata' %}" class="ui-tabs-anchor" title="Explore">{% trans "Explore" %}</a>
             </li>
-	        <li id="tags_tab" class="ui-state-default{% ifequal menu 'usertags' %} ui-tabs-active{% endifequal %}">
+            <li id="tags_tab" class="ui-state-default{% ifequal menu 'usertags' %} ui-tabs-active{% endifequal %}">
                 <a href="{% url 'load_template' 'usertags' %}" class="ui-tabs-anchor">{% trans "Tags" %}</a>
             </li>
-	        <li id="public_tab" class="ui-state-default">
+            <li id="public_tab" class="ui-state-default">
                 <a href="{% url 'load_template' 'public' %}" class="ui-tabs-anchor">{% trans "Shares" %}</a>
             </li>
-       
-	    </ul>
+
+        </ul>
 
         <!-- toolbar above tree -->
-        <div>
+        <div class="left_panel_toolbar" >
 
             <!-- Show Projects toolbar for main page... -->
             <ul class="toolbar">
 
-            {% ifequal menu 'usertags' %}
-                <li><input id="addtagsetButton" class="button button-disabled" type="image" title="Create new Tag Set"
-                    src="{% static "webclient/image/left_sidebar_icon_tags.png" %}" alt="Create new dataset" /></li>
-                <li><input id="addtagButton" class="button button-disabled" type="image" title="Create new Tag"
-                    src="{% static "webclient/image/left_sidebar_icon_tag.png" %}" alt="Create new project" /></li>
-            {% else %}
-					
-			<li><input id="addprojectButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder16.png" %}" alt="Create new project" title="Create new Project" /></li>
-			<li><input id="adddatasetButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_image16.png" %}" alt="Create new dataset" title="Create new Dataset" /></li>
-			<li><input id="addscreenButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_screen16.png" %}" alt="Create new screen" title="Create new Screen" /></li>
+                {% if menu == 'userdata' %}
 
-            {% endifequal %}
-			
-			<li class="seperator"></li>
-			
-			<li><input id="cutButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Cut Link" title="Cut Link" /> </li>
-            <li><input id="copyButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}" alt="Copy Link" title="Copy a link to the selected object" /> </li>
-			<li><input id="pasteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}" alt="Paste Link" title="Paste the copied link" /> </li>
+                    <li><input id="addprojectButton" class="button button-disabled" type="image"
+                               src="{% static "webclient/image/folder16.png" %}" alt="Create new project"
+                               title="Create new Project"/></li>
+                    <li><input id="adddatasetButton" class="button button-disabled" type="image"
+                               src="{% static "webclient/image/folder_image16.png" %}" alt="Create new dataset"
+                               title="Create new Dataset"/></li>
+                    <li><input id="addscreenButton" class="button button-disabled" type="image"
+                               src="{% static "webclient/image/folder_screen16.png" %}" alt="Create new screen"
+                               title="Create new Screen"/></li>
 
+                {% elif menu == 'usertags' %}
 
-			<li class="seperator">
-			
-			<li><input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Delete" title="Delete" /> </li>
+                    <li><input id="addtagsetButton" class="button button-disabled" type="image"
+                               title="Create new Tag Set"
+                               src="{% static "webclient/image/left_sidebar_icon_tags.png" %}"
+                               alt="Create new dataset"/></li>
+                    <li><input id="addtagButton" class="button button-disabled" type="image" title="Create new Tag"
+                               src="{% static "webclient/image/left_sidebar_icon_tag.png" %}" alt="Create new project"/></li>
 
-            <li class="seperator">
+                {% endif %}
 
-			<li><input id="createshareButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_share2.png" %}" alt="Create Share" title="Create Share"></li>
+                <li class="seperator"></li>
 
-			<li class="seperator"></li>
-			
-			<li><input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh"> </li>
-					
+                <li><input id="cutButton" class="button button-disabled" type="image"
+                           src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Cut Link" title="Cut Link"/>
+                </li>
+                <li><input id="copyButton" class="button button-disabled" type="image"
+                           src="{% static "webclient/image/icon_toolbar_copy.png" %}" alt="Copy Link"
+                           title="Copy a link to the selected object"/></li>
+                <li><input id="pasteButton" class="button button-disabled" type="image"
+                           src="{% static "webclient/image/icon_toolbar_paste.png" %}" alt="Paste Link"
+                           title="Paste the copied link"/></li>
+
+                <li class="seperator">
+
+                <li><input id="deleteButton" class="button button-disabled" type="image"
+                           src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Delete" title="Delete"/>
+                </li>
+
+                <li class="seperator">
+
+                <li><input id="createshareButton" class="button button-disabled" type="image"
+                           src="{% static "webclient/image/icon_toolbar_share2.png" %}" alt="Create Share"
+                           title="Create Share"></li>
+
+                <li class="seperator"></li>
+
+                <li><input id="refreshButton" class="button" type="image"
+                           src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh">
+                </li>
+
             </ul>
-            
 
-            <div class="clear"></div>
+        </div>
 
-            <div id="tree_details" class="left_panel_inner">
-                <div class="dataTree" id="dataTree"></div>
+    </div>
+
+    <div class="left_panel_tree_container">
+
+        <div id="tree_details" class="left_panel_tree">
+            <div class="dataTree" id="dataTree"></div>
+        </div>
+
+        <!-- Panel hidden unless needed for showing spatial birds eye view of Wells - see ome.spwgridview.js -->
+        <div id="well_details" class="left_panel_preview">
+            <div class="left_panel_preview__header">
+                <span class="left_panel_preview__title--centered
+                             left_panel_preview__title--medium">
+                    Field positions in well
+                </span>
+                <a id="hide_well_birds_eye" class="left_panel_preview__close action" href="#">X</a>
+            </div>
+            <div id="well_birds_eye_container" class="left_paneL_preview__content">
+                <div id="well_birds_eye" class="left_paneL_preview__well"></div>
             </div>
         </div>
 
-        <!-- hidden form for delete dialogs -->
-        <div id="delete-dialog-form" title="Delete" style="display:none"
-                data-url="{% url 'manage_action_containers' 'deletemany' %}"
-                data-fileset-check-url="{% url 'fileset_check' 'delete' %}">
-            <p id="deleteOthersWarning" class='error' style="font-size: 120%; font-weight: bold">
-                Warning: Some objects you selected are owned by other users.
-            </p>
-            <p>Are you sure you want to delete the selected <span id="delete_type">Images</span>?</p>
-            <p>If yes:</p>
-            <form>
-            <fieldset style="border: 0px solid white">
-                <input type="checkbox" name="delete_anns" id="delete_anns" />
-                Also delete any Annotations that become 'orphans'?<br/>
-            </fieldset>
-            </form>
-        </div>
-
-        <!-- hidden dialog for new Container -->
-        <form id="new-container-form" title="New..." style="display:none">
-            <p>Create a new <span id="new_container_type">Container</span>...</p>
-            <p id="new_pds_owner_controls">
-                <img class="new_pds_owner_icon" src="{% static 'webclient/image/icon_settings_user.png' %}">
-                <label>Assign to Owner:</label> <span id="new_pds_owner"></span>
-                {{ new_container_form.owner }}
-            <p>
-                <label for="id_name">Name:</label>
-                {{ new_container_form.name }}
-            </p>
-            <p style="margin-bottom: 5px">
-                <label for="id_description">Description:</label><br />
-                {{ new_container_form.description }}
-            </p>
-        </form>
-
-        <!-- hidden form for chgrp -->
-        <form id="chgrp-form" title="Move to Group" action="{% url 'chgrp' %}" style="display:none" method="POST">{% csrf_token %}
-        </form>
-
     </div>
 
-    <!-- Panel hidden unless needed for showing spatial birds eye view of Wells - see ome.spwgridview.js -->
-{#    <div id="left_panel_bottom" class="left_panel_inner"#}
-{#         style="top: auto; height: 0; border-top: solid 1px hsl(210,10%,85%);">#}
+</div>
 
-    <div id="left_panel_bottom" class="left_panel_inner">
-        <div class="left_panel_inner__header">
-            <span class="left_panel_inner__title--centered
-                         left_panel_inner__title--medium">
-                Field positions in well
-            </span>
-            <a id="hide_well_birds_eye" class="left_panel_inner__close action" href="#">X</a>
-        </div>
-        <div id="well_birds_eye_container">
-            <div id="well_birds_eye" class=""
-                 style="top: 4px; left: -6px; position: relative; margin:auto; border-right: none; overflow: visible;"></div>
-        </div>
-    </div>
+<!-- hidden form for delete dialogs -->
+<div id="delete-dialog-form" title="Delete" style="display:none"
+        data-url="{% url 'manage_action_containers' 'deletemany' %}"
+        data-fileset-check-url="{% url 'fileset_check' 'delete' %}">
+    <p id="deleteOthersWarning" class='error' style="font-size: 120%; font-weight: bold">
+        Warning: Some objects you selected are owned by other users.
+    </p>
+    <p>Are you sure you want to delete the selected <span id="delete_type">Images</span>?</p>
+    <p>If yes:</p>
+    <form>
+    <fieldset style="border: 0px solid white">
+        <input type="checkbox" name="delete_anns" id="delete_anns" />
+        Also delete any Annotations that become 'orphans'?<br/>
+    </fieldset>
+    </form>
+</div>
+
+<!-- hidden dialog for new Container -->
+<form id="new-container-form" title="New..." style="display:none">
+    <p>Create a new <span id="new_container_type">Container</span>...</p>
+    <p id="new_pds_owner_controls">
+        <img class="new_pds_owner_icon" src="{% static 'webclient/image/icon_settings_user.png' %}">
+        <label>Assign to Owner:</label> <span id="new_pds_owner"></span>
+        {{ new_container_form.owner }}
+    <p>
+        <label for="id_name">Name:</label>
+        {{ new_container_form.name }}
+    </p>
+    <p style="margin-bottom: 5px">
+        <label for="id_description">Description:</label><br />
+        {{ new_container_form.description }}
+    </p>
+</form>
+
+<!-- hidden form for chgrp -->
+<form id="chgrp-form" title="Move to Group" action="{% url 'chgrp' %}" style="display:none" method="POST">{% csrf_token %}
+</form>
+
+
 {% endblock %}
 
 

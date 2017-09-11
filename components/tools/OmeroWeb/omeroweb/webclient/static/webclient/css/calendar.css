@@ -16,15 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
-
-
- 
- .left_panel_inner > table { 
-	 -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.1); /* Saf3.0+, Chrome */
-	    -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.1); /* FF3.5+ */
-	         box-shadow: 0 1px 1px rgba(0,0,0,0.1); /* Opera 10.5, IE 9.0 */
- }
 
 
 
@@ -80,18 +71,22 @@
     
     
 /* Actual table
- */ 
+ */
 
-	.left_panel_inner > table {
-	    text-align: center;
-	    width: 100%;
-		position:relative;
-		top:0px;
-		-webkit-border-radius:4px; /* Saf3+, Chrome */
-		   -moz-border-radius:4px; /* FF1+ */
-		        border-radius:4px; /* Opera 10.5, IE 9 */ 
-	}
+.left_panel_calendar > table {
+    text-align: center;
+    width: 100%;
+    position: relative;
+    top: 0px;
 
+    -webkit-border-radius: 4px; /* Saf3+, Chrome */
+    -moz-border-radius: 4px; /* FF1+ */
+    border-radius: 4px; /* Opera 10.5, IE 9 */
+
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); /* Saf3.0+, Chrome */
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); /* FF3.5+ */
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); /* Opera 10.5, IE 9.0 */
+}
 
 
 /* Header - Days */    

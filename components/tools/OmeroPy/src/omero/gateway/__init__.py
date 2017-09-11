@@ -7406,17 +7406,20 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if si is None:
             logger.info("getStatsInfo() is null. See #9695")
             try:
-                minVals = {PixelsTypeint8: -128,
-                           PixelsTypeuint8: 0,
-                           PixelsTypeint16: -32768,
-                           PixelsTypeuint16: 0,
-                           PixelsTypeint32: -32768,
-                           PixelsTypeuint32: 0,
-                           PixelsTypefloat: -32768,
-                           PixelsTypedouble: -32768}
-                pixtype = self._obj.getPixels(
-                    ).getPixelsType().getValue().getValue()
-                return minVals[pixtype]
+                if self._re is not None:
+                    return self._re.getPixelsTypeLowerBound(0)
+                else:
+                    minVals = {PixelsTypeint8: -128,
+                               PixelsTypeuint8: 0,
+                               PixelsTypeint16: -32768,
+                               PixelsTypeuint16: 0,
+                               PixelsTypeint32: -2147483648,
+                               PixelsTypeuint32: 0,
+                               PixelsTypefloat: -2147483648,
+                               PixelsTypedouble: -2147483648}
+                    pixtype = self._obj.getPixels(
+                        ).getPixelsType().getValue().getValue()
+                    return minVals[pixtype]
             except:     # Just in case we don't support pixType above
                 return None
         return si.getGlobalMin().val
@@ -7432,22 +7435,30 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if si is None:
             logger.info("getStatsInfo() is null. See #9695")
             try:
-                maxVals = {PixelsTypeint8: 127,
-                           PixelsTypeuint8: 255,
-                           PixelsTypeint16: 32767,
-                           PixelsTypeuint16: 65535,
-                           PixelsTypeint32: 32767,
-                           PixelsTypeuint32: 65535,
-                           PixelsTypefloat: 32767,
-                           PixelsTypedouble: 32767}
-                pixtype = self._obj.getPixels(
-                    ).getPixelsType().getValue().getValue()
-                return maxVals[pixtype]
+                if self._re is not None:
+                    return self._re.getPixelsTypeUpperBound(0)
+                else:
+                    maxVals = {PixelsTypeint8: 127,
+                               PixelsTypeuint8: 255,
+                               PixelsTypeint16: 32767,
+                               PixelsTypeuint16: 65535,
+                               PixelsTypeint32: 2147483647,
+                               PixelsTypeuint32: 4294967295,
+                               PixelsTypefloat: 2147483647,
+                               PixelsTypedouble: 2147483647}
+                    pixtype = self._obj.getPixels(
+                        ).getPixelsType().getValue().getValue()
+                    return maxVals[pixtype]
             except:     # Just in case we don't support pixType above
                 return None
         return si.getGlobalMax().val
 
     def isReverseIntensity(self):
+        """Deprecated in 5.4.0. Use isInverted()."""
+        warnings.warn("Deprecated. Use isInverted()", DeprecationWarning)
+        return self.isInverted()
+
+    def isInverted(self):
         """
         Returns True if this channel has ReverseIntensityContext
         set on it.
@@ -8360,7 +8371,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         return rv
 
     def setActiveChannels(self, channels, windows=None, colors=None,
-                          reverseMaps=None):
+                          invertMaps=None, reverseMaps=None):
         """
         Sets the active channels on the rendering engine.
         Also sets rendering windows and channel colors
@@ -8384,17 +8395,24 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                             Must be list for each channel
         :param colors:      List of colors. ['F00', None, '00FF00'].
                             Must be item for each channel
-        :param reverseMaps: List of boolean (or None). If True/False then
+        :param invertMaps:  List of boolean (or None). If True/False then
                             set/remove reverseIntensityMap on channel
         """
+        if reverseMaps is not None:
+            warnings.warn(
+                "setActiveChannels() reverseMaps parameter"
+                "deprecated in OMERO 5.4.0. Use invertMaps",
+                DeprecationWarning)
+            if invertMaps is None:
+                invertMaps = reverseMaps
         abs_channels = [abs(c) for c in channels]
         idx = 0     # index of windows/colors args above
         for c in range(len(self.getChannels())):
             self._re.setActive(c, (c+1) in channels, self._conn.SERVICE_OPTS)
             if (c+1) in channels:
-                if (reverseMaps is not None and
-                        reverseMaps[idx] is not None):
-                    self.setReverseIntensity(c, reverseMaps[idx])
+                if (invertMaps is not None and
+                        invertMaps[idx] is not None):
+                    self.setReverseIntensity(c, invertMaps[idx])
                 if (windows is not None and
                         windows[idx][0] is not None and
                         windows[idx][1] is not None):
@@ -8674,20 +8692,27 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
     @assert_re()
     def setReverseIntensity(self, channelIndex, reverse=True):
+        """Deprecated in 5.4.0. Use setChannelInverted()."""
+        warnings.warn("Deprecated in 5.4.0. Use setChannelInverted()",
+                      DeprecationWarning)
+        self.setChannelInverted(channelIndex, reverse)
+
+    @assert_re()
+    def setChannelInverted(self, channelIndex, inverted=True):
         """
         Sets or removes a ReverseIntensityMapContext from the
         specified channel. If set, the intensity of the channel
-        is mapped in reverse: brightest -> darkest.
+        is inverted: brightest -> darkest.
 
         :param channelIndex:    The index of channel (int)
-        :param reverse:         If True, set reverse intensity (boolean)
+        :param inverted:        If True, set inverted (boolean)
         """
         r = omero.romio.ReverseIntensityMapContext()
         # Always remove map from channel
         # (doesn't throw exception, even if not on channel)
         self._re.removeCodomainMapFromChannel(r, channelIndex)
-        # If we want to reverse, add it to the channel (again)
-        if reverse:
+        # If we want to invert, add it to the channel (again)
+        if inverted:
             self._re.addCodomainMapToChannel(r, channelIndex)
 
     @assert_re(ignoreExceptions=(omero.ConcurrencyException))
@@ -8745,6 +8770,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     'start': w.getInputStart().val,
                     'end': w.getInputEnd().val,
                     'color': color.getHtml(),
+                    # 'reverseIntensity' is deprecated. Use 'inverted'
+                    'inverted': reverse,
                     'reverseIntensity': reverse,
                     'rgb': {'red': w.getRed().val,
                             'green': w.getGreen().val,

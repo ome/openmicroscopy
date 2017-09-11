@@ -50,7 +50,7 @@ def parse_url(lookup_view):
     url = None
     try:
         url = reverse_with_params(
-            lookup_view['viewname'],
+            viewname=lookup_view['viewname'],
             args=lookup_view['args'],
             query_string=lookup_view['query_string']
         )
@@ -421,7 +421,7 @@ class login_required(object):
             return None
 
         session['connector'] = connector
-        return
+        return None
 
     def __call__(ctx, f):
         """

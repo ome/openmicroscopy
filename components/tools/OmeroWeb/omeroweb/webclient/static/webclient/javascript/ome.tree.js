@@ -47,6 +47,7 @@ $(function() {
     })
     .on('selection_change.ome', function(e, nElements) {
         multiselection = nElements > 1;
+        // NB: Don't return false - let event bubble up to $("body")
     })
     .on('copy_node.jstree', function(e, data) {
         /**

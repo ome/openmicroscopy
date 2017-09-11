@@ -508,12 +508,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
          "Enable and disable the OMERO.web public user functionality."],
     "omero.web.public.url_filter":
         ["PUBLIC_URL_FILTER",
-         r'^/(?!webadmin)',
+         r'(?#This regular expression matches nothing)a^',
          re.compile,
-         ("Set a URL filter for which the OMERO.web public user is allowed to"
-          " navigate. The idea is that you can create the public pages"
-          " yourself (see OMERO.web framework since we do not provide public"
-          " pages.")],
+         ("Set a regular expression that matches URLs the public user is"
+          "allowed to access. If this is not set, no URLS will be"
+          "publicly available.")],
     "omero.web.public.get_only":
         ["PUBLIC_GET_ONLY",
          "true",
@@ -637,6 +636,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Define template used as an index page ``http://your_host/omero/``."
           "If None user is automatically redirected to the login page."
           "For example use 'webclient/index.html'. ")],
+    "omero.web.base_include_template":
+        ["BASE_INCLUDE_TEMPLATE",
+         None,
+         identity,
+         ("Template to be included in every page, at the end of the <body>")],
     "omero.web.login_redirect":
         ["LOGIN_REDIRECT",
          '{}',
@@ -1061,6 +1065,7 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
                 'omeroweb.custom_context_processor.url_suffix',
+                'omeroweb.custom_context_processor.base_include_template',
             ],
         },
     },

@@ -17,6 +17,9 @@ package omeis.providers.re.codomain;
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * @since OME2.2
+ * 
+ * @deprecated This class will be renamed to InverseIntensityContext (or similar) in
+ *             future versions
  */
 public class ReverseIntensityContext extends CodomainMapContext {
 

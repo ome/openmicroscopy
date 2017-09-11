@@ -604,8 +604,14 @@ jQuery._WeblitzViewport = function (container, server, options) {
   };
 
   this.setChannelReverseIntensity = function (idx, reverse, noreload) {
-    if (_this.loadedImg.channels[idx].reverseIntensity !== reverse) {
-      _this.loadedImg.channels[idx].reverseIntensity = reverse;
+    // Deprecated in OMERO 5.4.0
+    console.log('setChannelReverseIntensity() Deprecated in OMERO 5.4.0. Use setChannelInverted()')
+    this.setChannelInverted(idx, reverse, noreload)
+  }
+
+  this.setChannelInverted = function (idx, inverted, noreload) {
+    if (_this.loadedImg.channels[idx].inverted !== inverted) {
+      _this.loadedImg.channels[idx].inverted = inverted;
       _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
       if (!noreload) {
         _load();
@@ -948,7 +954,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
             e1.channels[i].color == e2.channels[i].color &&
             e1.channels[i].windowStart == e2.channels[i].windowStart &&
             e1.channels[i].windowEnd == e2.channels[i].windowEnd &&
-            e1.channels[i].reverseIntensity == e2.channels[i].reverseIntensity &&
+            e1.channels[i].inverted == e2.channels[i].inverted &&
             e1.channels[i].metalabel == e2.channels[i].metalabel)) {
         return false;
       }
@@ -965,7 +971,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
                      color: channels[i].color,
                      windowStart: channels[i].window.start,
                      windowEnd: channels[i].window.end,
-                     reverseIntensity: channels[i].reverseIntensity,
+                     inverted: channels[i].inverted,
                      metalabel: channels[i].metalabel};
       entry.channels.push(channel);
     }
@@ -991,7 +997,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
         this.setChannelColor(i, entry.channels[i].color, true);
         this.setChannelActive(i, entry.channels[i].active, true);
         this.setChannelLabel(i, entry.channels[i].metalabel, true);
-        this.setChannelReverseIntensity(i, entry.channels[i].reverseIntensity, true);
+        this.setChannelInverted(i, entry.channels[i].inverted, true);
       }
       _load();
     }
@@ -1071,7 +1077,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       ch += '|' + channels[i].window.start + ':' + channels[i].window.end;
       ch += '$' + OME.rgbToHex(channels[i].color);
       chs.push(ch);
-      maps_json.push({'reverse': {'enabled': channels[i].reverseIntensity}});
+      maps_json.push({'inverted': {'enabled': channels[i].inverted}});
     }
     query.push('c=' + chs.join(','));
     /* Rendering Model */
@@ -1142,9 +1148,9 @@ jQuery._WeblitzViewport = function (container, server, options) {
         if (t.length > 1) {
           t = t[1].split('$');
           if (t[0].endsWith('-r')) {
-            this.setChannelReverseIntensity(idx, false, true);
+            this.setChannelInverted(idx, false, true);
           } else if (t[0].endsWith('r')) {
-            this.setChannelReverseIntensity(idx, true, true);
+            this.setChannelInverted(idx, true, true);
           }
           t[0] = t[0].replace('-r', '').replace('r', '');  // remove 'r' if present
           var range = t[0].split(':');
@@ -1159,8 +1165,15 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
     if (query.maps) {
       query.maps.map(function(m, idx){
-        if (m.reverse) {
-          this.setChannelReverseIntensity(idx, m.reverse.enabled, true);
+        // Handle deprecated 'reverse' OR 'invert' codomain map
+        if (m.reverse || m.inverted) {
+          var enabled;
+          if (m.inverted) {
+            enabled = m.inverted.enabled;
+          } else {
+            enabled = m.reverse.enabled;
+          }
+          this.setChannelInverted(idx, enabled, true);
         }
       }.bind(this));
     }
