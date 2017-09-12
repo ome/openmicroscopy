@@ -775,7 +775,7 @@ def _set_quantization_maps(quant_json, img):
             quant_json = json.loads(quant_json)
 
         size_c = len(quant_json)
-        if size_c is None:
+        if size_c == 0:
             return
 
         channels = img.getChannels()
@@ -786,12 +786,12 @@ def _set_quantization_maps(quant_json, img):
         for c in range(size_c):
             family = quant_json[i]['family']
             if family is None:
+                i += 1
                 continue
             if img.getFamilies().get(family.lower(), None) is None:
+                i += 1
                 continue
-            coeff = quant_json[i].get('coefficient', None)
-            if coeff is None:
-                coeff = 1.0
+            coeff = quant_json[i].get('coefficient', 1.0)
             img.setQuantizationMap(i, family, float(coeff))
             i += 1
     except:
@@ -892,10 +892,8 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
             pass
     img.setProjection(p)
     img.setProjectionRange(pStart, pEnd)
-
     img.setInvertedAxis(bool(r.get('ia', "0") == "1"))
     compress_quality = r.get('q', None)
-
     if saveDefs:
         'z' in r and img.setDefaultZ(long(r['z'])-1)
         't' in r and img.setDefaultT(long(r['t'])-1)
