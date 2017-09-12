@@ -47,7 +47,7 @@ Changes include:
 - fixed label position for wells
 - fixed bug in url if no images in a share
 - fixed login redirect issue
-- prevented right-hand panel to load twice
+- prevented right-hand panel from loading twice
 - improved handling of images without stats to determine rendering settings
 
 
