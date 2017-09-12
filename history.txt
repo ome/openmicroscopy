@@ -43,6 +43,12 @@ Changes include:
 - removed unused 3rd party libraries in OMERO.web
 - improved layout in left-hand panel in OMERO.web
 - renamed "Reverse Intensity" command to "Invert" in image viewers
+- changed the public url_filter default value to no value
+- fixed label position for wells
+- fixed bug in url if no images in a share
+- fixed login redirect issue
+- prevented right-hand panel to load twice
+- improved handling of images without stats to determine rendering settings
 
 
 This release also upgrades the version of Bio-Formats which OMERO uses to 5.7.0
