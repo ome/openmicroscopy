@@ -61,5 +61,6 @@ class TestCleanseRoot(RootCLITest):
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
         output_string_start = "Removing empty directories from...\n "
-        output_string = output_string_start + data_dir + "ManagedRepository\n"
+        mrepo_dir = config_service.getConfigValue("omero.managed.dir")
+        output_string = mrepo_dir.replace("//", "/")
         assert output_string in out
