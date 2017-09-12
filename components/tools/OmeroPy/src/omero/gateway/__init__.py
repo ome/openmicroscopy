@@ -8747,16 +8747,16 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     @assert_re()
     def getFamilies(self):
         """
-        Gets a list of available families.
+        Gets a dict of available families.
 
         :return:    Families
-        :rtype:     List of :class:`BlitzObjectWrapper`
+        :rtype:     Dict
         """
         if not len(self._qf):
             for f in [BlitzObjectWrapper(self._conn, f)
                       for f in self._re.getAvailableFamilies()]:
                 self._qf[f.value.lower()] = f
-        return self._qf.values()
+        return self._qf
 
     @assert_re()
     def setQuantizationMap(self, channelIndex, family, coefficient):
@@ -8767,10 +8767,9 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :param family:          The family (string)
         :param coefficient:     The coefficient (float)
         """
-        self.getFamilies()
-        f = self._qf.get("linear")
+        f = self.getFamilies().get("linear")
         try:
-            f = self._qf.get(str(family).lower(), f)
+            f = self._qf.get(family.lower(), f)
         except:
             pass
 

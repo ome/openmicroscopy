@@ -762,6 +762,42 @@ def _get_signature_from_request(request):
     return rv
 
 
+def _set_quantization_maps(quant_json, img):
+    """
+    Parses 'quant_maps' query string json,
+    setting the quantization map for the listed channel (if given)
+    """
+    if img is None:
+        return
+
+    try:
+        if isinstance(quant_json, (unicode, str)):
+            quant_json = json.loads(quant_json)
+
+        size_c = len(quant_json)
+        if size_c is None:
+            return
+
+        channels = img.getChannels()
+        if (size_c > len(channels)):
+            size_c = len(channels)
+
+        i = 0
+        for c in range(size_c):
+            family = quant_json[i]['family']
+            if family is None:
+                continue
+            if img.getFamilies().get(family.lower(), None) is None:
+                continue
+            coeff = quant_json[i].get('coefficient', None)
+            if coeff is None:
+                coeff = 1.0
+            img.setQuantizationMap(i, family, float(coeff))
+            i += 1
+    except:
+        logger.debug('Failed to set quantization map: %s' % quant_json)
+
+
 def _get_maps_enabled(request, name, sizeC=0):
     """
     Parses 'maps' query string from request
@@ -820,6 +856,12 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
         if reverses is not None and invert_flags is not None:
             invert_flags = [z[0] if z[0] is not None else z[1] for z in
                             zip(invert_flags, reverses)]
+
+    # more rendering settings per channel: quantization maps
+    # just applied, not saved at the moment
+    if 'quant_maps' in r:
+        _set_quantization_maps(r['quant_maps'], img)
+
     if 'c' in r:
         logger.debug("c="+r['c'])
         activechannels, windows, colors = _split_channel_info(r['c'])
@@ -834,6 +876,7 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
                                      invert_flags):
             logger.debug(
                 "Something bad happened while setting the active channels...")
+
     if r.get('m', None) == 'g':
         img.setGreyscaleRenderingModel()
     elif r.get('m', None) == 'c':
@@ -852,6 +895,7 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
 
     img.setInvertedAxis(bool(r.get('ia', "0") == "1"))
     compress_quality = r.get('q', None)
+
     if saveDefs:
         'z' in r and img.setDefaultZ(long(r['z'])-1)
         't' in r and img.setDefaultT(long(r['t'])-1)
