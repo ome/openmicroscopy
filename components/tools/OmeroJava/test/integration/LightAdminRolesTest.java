@@ -23,15 +23,20 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import omero.RLong;
 import omero.RString;
 import omero.SecurityViolation;
 import omero.ServerError;
+import omero.api.IAdminPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IScriptPrx;
+import omero.api.ITypesPrx;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.Chown2;
@@ -40,6 +45,7 @@ import omero.gateway.util.Requests.Delete2Builder;
 import omero.gateway.util.Utils;
 import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
+import omero.model.ContrastMethod;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
@@ -48,6 +54,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.FileAnnotation;
+import omero.model.GroupExperimenterMap;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -2436,5 +2443,69 @@ public class LightAdminRolesTest extends RolesTests {
                 }
             }
         return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    @Test
+    public void testDeleteEnumerationsbyRestrictedSystemUser() throws Exception {
+        final IAdminPrx svc = root.getSession().getAdminService();
+        final List<AdminPrivilege> expectedPrivileges = new ArrayList<AdminPrivilege>();
+        final String lightAdminName = UUID.randomUUID().toString();
+        final String lightAdminPassword = UUID.randomUUID().toString();
+        Experimenter lightAdmin = createExperimenterI(lightAdminName, "test", "user");
+        final long lightAdminId = svc.createRestrictedSystemUserWithPassword(lightAdmin,
+                expectedPrivileges, omero.rtypes.rstring(lightAdminPassword));
+        lightAdmin = svc.getExperimenter(lightAdminId);
+        omero.client client = newOmeroClient();
+        client.createSession(lightAdminName, lightAdminPassword);
+        init(client);
+        //try to delete an enum type. The type is not important
+        final ITypesPrx types_svc = factory.getTypesService();
+        List<IObject> types = types_svc.allEnumerations(ContrastMethod.class.getName());
+        Iterator<IObject> i = types.iterator();
+        while (i.hasNext()) {
+            types_svc.deleteEnumeration(i.next());
+        }
+    }
+
+    @Test
+    public void testResetEnumerationsbyRestrictedSystemUser() throws Exception {
+        final IAdminPrx svc = root.getSession().getAdminService();
+        final List<AdminPrivilege> expectedPrivileges = new ArrayList<AdminPrivilege>();
+        final String lightAdminName = UUID.randomUUID().toString();
+        final String lightAdminPassword = UUID.randomUUID().toString();
+        Experimenter lightAdmin = createExperimenterI(lightAdminName, "test", "user");
+        final long lightAdminId = svc.createRestrictedSystemUserWithPassword(lightAdmin,
+                expectedPrivileges, omero.rtypes.rstring(lightAdminPassword));
+        lightAdmin = svc.getExperimenter(lightAdminId);
+        omero.client client = newOmeroClient();
+        client.createSession(lightAdminName, lightAdminPassword);
+        init(client);
+        //try to delete an enum type. The type is not important
+        final ITypesPrx types_svc = factory.getTypesService();
+        types_svc.resetEnumerations(ContrastMethod.class.getName());
+    }
+
+    @Test(expectedExceptions = omero.ValidationException.class)
+    public void testUpdateEnumerationsbyRestrictedSystemUser() throws Exception {
+        final IAdminPrx svc = root.getSession().getAdminService();
+        final List<AdminPrivilege> expectedPrivileges = new ArrayList<AdminPrivilege>();
+        final String lightAdminName = UUID.randomUUID().toString();
+        final String lightAdminPassword = UUID.randomUUID().toString();
+        Experimenter lightAdmin = createExperimenterI(lightAdminName, "test", "user");
+        final long lightAdminId = svc.createRestrictedSystemUserWithPassword(lightAdmin,
+                expectedPrivileges, omero.rtypes.rstring(lightAdminPassword));
+        lightAdmin = svc.getExperimenter(lightAdminId);
+        omero.client client = newOmeroClient();
+        client.createSession(lightAdminName, lightAdminPassword);
+        init(client);
+        //try to delete an enum type. The type is not important
+        final ITypesPrx types_svc = factory.getTypesService();
+        List<IObject> types = types_svc.allEnumerations(ContrastMethod.class.getName());
+        Iterator<IObject> i = types.iterator();
+        while (i.hasNext()) {
+            ContrastMethod o = (ContrastMethod) i.next();
+            o.setValue(omero.rtypes.rstring("foo"));
+            types_svc.updateEnumeration(o);
+        }
     }
 }
