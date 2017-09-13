@@ -762,42 +762,6 @@ def _get_signature_from_request(request):
     return rv
 
 
-def _set_quantization_maps(quant_json, img):
-    """
-    Parses 'quant_maps' query string json,
-    setting the quantization map for the listed channel (if given)
-    """
-    if img is None:
-        return
-
-    try:
-        if isinstance(quant_json, (unicode, str)):
-            quant_json = json.loads(quant_json)
-
-        size_c = len(quant_json)
-        if size_c == 0:
-            return
-
-        channels = img.getChannels()
-        if (size_c > len(channels)):
-            size_c = len(channels)
-
-        i = 0
-        for c in range(size_c):
-            family = quant_json[i]['family']
-            if family is None:
-                i += 1
-                continue
-            if img.getFamilies().get(family.lower(), None) is None:
-                i += 1
-                continue
-            coeff = quant_json[i].get('coefficient', 1.0)
-            img.setQuantizationMap(i, family, float(coeff))
-            i += 1
-    except:
-        logger.debug('Failed to set quantization map: %s' % quant_json)
-
-
 def _get_maps_enabled(request, name, sizeC=0):
     """
     Parses 'maps' query string from request
@@ -860,7 +824,10 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
     # more rendering settings per channel: quantization maps
     # just applied, not saved at the moment
     if 'quant_maps' in r:
-        _set_quantization_maps(r['quant_maps'], img)
+        try:
+            img.setQuantizationMaps(json.loads(r['quant_maps']))
+        except:
+            logger.debug('Failed to set quantization maps')
 
     if 'c' in r:
         logger.debug("c="+r['c'])

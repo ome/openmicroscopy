@@ -401,3 +401,58 @@ class TestRDefs (object):
                 assert c.getFamily().getValue() == fam.getValue()
                 assert c.getCoefficient() == 0.5
                 i += 1
+
+    def testQuantizationSettingsBulk(self, gatewaywrapper):
+        """
+        Tests whether quantization settings are properly applied
+        using the 'bulk' method
+        """
+        self.image = gatewaywrapper.getTestImage()
+        channels = self.image.getChannels()
+
+        # collect initial values
+        settings = []
+        for chan in channels:
+            settings.append({
+                "family": chan.getFamily().getValue(),
+                "coefficient": chan.getCoefficient()
+            })
+
+        # input checks that leave the original values unaffected
+        self.image.setQuantizationMaps(None)
+        i = 0
+        for chan in channels:
+            assert settings[i] == {
+                "family": channels[i].getFamily().getValue(),
+                "coefficient": channels[i].getCoefficient()
+            }
+            i += 0
+        self.image.setQuantizationMaps(["nonsense", 8])
+        i = 0
+        for chan in channels:
+            assert settings[i] == {
+                "family": channels[i].getFamily().getValue(),
+                "coefficient": channels[i].getCoefficient()
+            }
+            i += 0
+
+        # now try to set 1 more channel than the image has
+        # also: channel 0 setting is invalid, channel 2 correct
+        error_case = {
+            "family": "error",
+            "coefficient": 10000
+        }
+        correct_case = {
+            "family": "logarithmic",
+            "coefficient": 0.3
+        }
+        test_cases = [error_case, correct_case, correct_case]
+        self.image.setQuantizationMaps(test_cases)
+        assert settings[0] == {
+            "family": channels[0].getFamily().getValue(),
+            "coefficient": channels[0].getCoefficient()
+        }
+        assert correct_case == {
+            "family": channels[1].getFamily().getValue(),
+            "coefficient": channels[1].getCoefficient()
+        }

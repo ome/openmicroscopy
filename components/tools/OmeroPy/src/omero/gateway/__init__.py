@@ -8787,6 +8787,26 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         self._re.setQuantizationMap(channelIndex, f._obj, c, False)
 
+    @assert_re()
+    def setQuantizationMaps(self, maps):
+        """
+        Sets the quantization strategy using the given list
+        of mapping information (for each entry, i.e. channel)
+        e.g. [{'family': 'linear', coefficient: 1.0}]
+
+        :param maps:     list of quantization settings
+        """
+        if not isinstance(maps, list):
+            return
+
+        i = 0
+        for m in maps:
+            if isinstance(m, dict):
+                family = m.get('family', None)
+                coefficient = m.get('coefficient', 1.0)
+                self.setQuantizationMap(i, family, coefficient)
+            i += 1
+
     @assert_re(ignoreExceptions=(omero.ConcurrencyException))
     def getRenderingDefId(self):
         """
