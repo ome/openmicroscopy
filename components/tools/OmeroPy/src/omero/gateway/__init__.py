@@ -8761,12 +8761,16 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     @assert_re()
     def setQuantizationMap(self, channelIndex, family, coefficient):
         """
-        Sets the quantization strategy according to the given family
+        Sets the quantization strategy to the given family
+        and coefficient
 
         :param channelIndex:    The index of channel (int)
         :param family:          The family (string)
         :param coefficient:     The coefficient (float)
         """
+        if channelIndex < 0 or channelIndex >= self.getSizeC():
+            return
+
         f = self.getFamilies().get("linear")
         try:
             f = self._qf.get(family.lower(), f)
