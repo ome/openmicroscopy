@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import ome.model.enums.EventType;
 import omero.RLong;
 import omero.RString;
 import omero.SecurityViolation;
@@ -2445,6 +2446,12 @@ public class LightAdminRolesTest extends RolesTests {
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
+    /**
+     * Tests if an enumeration not used can be deleted.
+     * This should pass but it can be restored using the method
+     * <code>resetEnumerations</code>.
+     * @throws Exception
+     */
     @Test
     public void testDeleteEnumerationsbyRestrictedSystemUser() throws Exception {
         final IAdminPrx svc = root.getSession().getAdminService();
@@ -2461,14 +2468,21 @@ public class LightAdminRolesTest extends RolesTests {
         //try to delete an enum type. The type is not important
         final ITypesPrx types_svc = factory.getTypesService();
         List<IObject> types = types_svc.allEnumerations(ContrastMethod.class.getName());
+        int n = types.size();
+        Assert.assertTrue(n > 0);
         Iterator<IObject> i = types.iterator();
         while (i.hasNext()) {
             types_svc.deleteEnumeration(i.next());
         }
     }
 
-    @Test
-    public void testResetEnumerationsbyRestrictedSystemUser() throws Exception {
+    /**
+     * Tests if an enumeration already used can be deleted.
+     * This should fail.
+     * @throws Exception
+     */
+    @Test(expectedExceptions = omero.ValidationException.class)
+    public void testDeleteUsedEnumerationsbyRestrictedSystemUser() throws Exception {
         final IAdminPrx svc = root.getSession().getAdminService();
         final List<AdminPrivilege> expectedPrivileges = new ArrayList<AdminPrivilege>();
         final String lightAdminName = UUID.randomUUID().toString();
@@ -2482,9 +2496,49 @@ public class LightAdminRolesTest extends RolesTests {
         init(client);
         //try to delete an enum type. The type is not important
         final ITypesPrx types_svc = factory.getTypesService();
+        List<IObject> types = types_svc.allEnumerations(EventType.class.getName());
+        Iterator<IObject> i = types.iterator();
+        while (i.hasNext()) {
+            types_svc.deleteEnumeration(i.next());
+        }
+    }
+
+    /**
+     * Tests if a deleted enumeration can be restored.
+     * @throws Exception
+     */
+    @Test
+    public void testResetEnumerationsbyRestrictedSystemUser() throws Exception {
+        final IAdminPrx svc = root.getSession().getAdminService();
+        final List<AdminPrivilege> expectedPrivileges = new ArrayList<AdminPrivilege>();
+        final String lightAdminName = UUID.randomUUID().toString();
+        final String lightAdminPassword = UUID.randomUUID().toString();
+        Experimenter lightAdmin = createExperimenterI(lightAdminName, "test", "user");
+        final long lightAdminId = svc.createRestrictedSystemUserWithPassword(lightAdmin,
+                expectedPrivileges, omero.rtypes.rstring(lightAdminPassword));
+        lightAdmin = svc.getExperimenter(lightAdminId);
+        omero.client client = newOmeroClient();
+        client.createSession(lightAdminName, lightAdminPassword);
+        init(client);
+        final ITypesPrx types_svc = factory.getTypesService();
+        List<IObject> types = types_svc.allEnumerations(ContrastMethod.class.getName());
+        int n = types.size();
+        Iterator<IObject> i = types.iterator();
+        while (i.hasNext()) {
+            types_svc.deleteEnumeration(i.next());
+        }
+        types = types_svc.allEnumerations(ContrastMethod.class.getName());
+        Assert.assertEquals(types.size(), 0);
+        types_svc.resetEnumerations(ContrastMethod.class.getName());
+        types = types_svc.allEnumerations(ContrastMethod.class.getName());
+        Assert.assertEquals(types.size(), n);
         types_svc.resetEnumerations(ContrastMethod.class.getName());
     }
 
+    /**
+     * Tests if an enumeration can be updated.
+     * @throws Exception
+     */
     @Test(expectedExceptions = omero.ValidationException.class)
     public void testUpdateEnumerationsbyRestrictedSystemUser() throws Exception {
         final IAdminPrx svc = root.getSession().getAdminService();
