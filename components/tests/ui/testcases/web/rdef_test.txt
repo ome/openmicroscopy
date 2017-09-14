@@ -238,10 +238,10 @@ Test Owners Rdef
     Textfield Value Should Be               wblitz-ch0-cw-end           255
 
     # Need user to save an Rdef that is different from 'Imported'
-    # Save Channel 'Green' and Window End: 100
+    # Save Channel 'Green' and Window End: 100.5
     Unselect Checkbox                       rd-wblitz-rmodel
     Pick Color                              00FF00
-    Input Text                              id=wblitz-ch0-cw-end        100
+    Input Text                              id=wblitz-ch0-cw-end        100.5
     Click Element                           id=rdef-setdef-btn
     Wait For BlockUI
 
@@ -269,7 +269,7 @@ Test Owners Rdef
     # Set to Owner's (click on thumbnail)
     Click Element                           xpath=//button[contains(@class, 'rdef')][descendant::span[contains(@class, 'owner')]]
     Wait For Channel Color                  00FF00
-    Textfield Value Should Be               wblitz-ch0-cw-end           100
+    Textfield Value Should Be               wblitz-ch0-cw-end           100.5
     Checkbox Should Not Be Selected         rd-wblitz-rmodel
 
     # Set to Full Range
@@ -289,8 +289,8 @@ Test Owners Rdef
     Wait For Channel Color                  FF0000
     Textfield Value Should Be               wblitz-ch0-cw-end           255
 
-    # New settings (White channel, max 200) and 'Copy'
-    Input Text                              id=wblitz-ch0-cw-end        200
+    # New settings (White channel, end) and 'Copy'
+    Input Text                              id=wblitz-ch0-cw-end        200.2
     Pick Color                              FFFFFF
     Click Element                           xpath=//button[@id='rdef-copy-btn']
     Wait For Toolbar Button Enabled         rdef-paste-btn
@@ -304,7 +304,7 @@ Test Owners Rdef
     Select Image By Id                      ${imageId_2}
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  FFFFFF
-    Textfield Value Should Be               wblitz-ch0-cw-end           200
+    Textfield Value Should Be               wblitz-ch0-cw-end           200.2
 
     # Test Set Owner's in same way on first Image
     ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/a/img@src
@@ -314,7 +314,7 @@ Test Owners Rdef
     Click Element                           id=image_icon-${imageId}
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  00FF00
-    Textfield Value Should Be               wblitz-ch0-cw-end           100
+    Textfield Value Should Be               wblitz-ch0-cw-end           100.5
 
     # Test "Set Imported" on first Image
     ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/a/img@src
@@ -352,7 +352,7 @@ Test Owners Rdef
     Reload Page
     Wait Until Page Contains Element        id=wblitz-ch0
     Click Link                              Edit
-    Textfield Value Should Be               wblitz-ch0-cw-end    200
+    Textfield Value Should Be               wblitz-ch0-cw-end    200.2
 
 
 Test Rdef Save
