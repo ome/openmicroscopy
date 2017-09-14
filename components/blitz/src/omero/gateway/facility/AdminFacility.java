@@ -38,6 +38,7 @@ import omero.model.AdminPrivilegeI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
+import omero.model.IObject;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.sys.Roles;
@@ -60,6 +61,9 @@ public class AdminFacility extends Facility {
     /** Reference to the roles.*/
     private Roles roles;
 
+    /** All available admin privileges */
+    private Collection<String> adminPrivileges;
+    
     /**
      * Creates a new instance.
      * @param gateway Reference to the gateway.
@@ -427,6 +431,74 @@ public class AdminFacility extends Facility {
     }
 
     /**
+     * Get all available admin privileges
+     * 
+     * @param ctx
+     *            The security context.
+     * @return See above.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Collection<String> getAvailableAdminPrivileges(SecurityContext ctx)
+            throws DSOutOfServiceException, DSAccessException {
+        if (adminPrivileges == null) {
+            try {
+                adminPrivileges = Collections.unmodifiableList(Utils
+                        .fromEnum(gateway.getTypesService(ctx).allEnumerations(
+                                "AdminPrivilege")));
+            } catch (Exception e) {
+                handleException(this, e, "Cannot get admin privileges.");
+            }
+        }
+        return adminPrivileges;
+    }
+
+    /**
+     * Checks if the currently logged in user has full admin privileges
+     * 
+     * @param ctx
+     *            The security context.
+     * @return See above.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public boolean isFullAdmin(SecurityContext ctx)
+            throws DSOutOfServiceException, DSAccessException {
+        return isFullAdmin(ctx, gateway.getLoggedInUser());
+    }
+
+    /**
+     * Checks if a user has full admin privileges
+     * 
+     * @param ctx
+     *            The security context.
+     * @param user
+     *            The user.
+     * @return See above.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public boolean isFullAdmin(SecurityContext ctx, ExperimenterData user)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            return getAdminPrivileges(ctx, user).size() == getAvailableAdminPrivileges(
+                    ctx).size();
+        } catch (Exception e) {
+            handleException(this, e, "Cannot get admin privileges.");
+        }
+        return false;
+    }
+
+    /**
      * Creates the permissions corresponding to the specified level.
      *
      * @param level
@@ -467,5 +539,4 @@ public class AdminFacility extends Facility {
         }
         return null;
     }
-
 }

@@ -137,5 +137,13 @@ public class AdminFacilityTest extends GatewayTest {
         privs = adminFacility.getAdminPrivileges(userCtx, exp);
         Assert.assertEquals(privs.size(), 1);
         Assert.assertTrue(privs.contains(AdminPrivilegeChgrp.value));
+        
+        Collection<String> allPrivs = adminFacility.getAvailableAdminPrivileges(userCtx);
+        adminFacility.addAdminPrivileges(userCtx, exp, allPrivs);
+        Assert.assertTrue(adminFacility.isFullAdmin(userCtx, exp));
+        
+        adminFacility.removeAdminPrivileges(userCtx, exp,
+                Collections.singletonList(AdminPrivilegeChown.value));
+        Assert.assertFalse(adminFacility.isFullAdmin(userCtx, exp));
     }
 }
