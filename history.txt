@@ -49,6 +49,7 @@ Changes include:
 - fixed login redirect issue
 - prevented right-hand panel from loading twice
 - improved handling of images without stats to determine rendering settings
+- added options to export images in plate as OME-TIFF
 
 
 This release also upgrades the version of Bio-Formats which OMERO uses to 5.7.0
