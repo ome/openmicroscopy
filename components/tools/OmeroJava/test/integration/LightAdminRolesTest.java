@@ -38,7 +38,9 @@ import omero.api.IAdminPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IScriptPrx;
 import omero.api.ITypesPrx;
+import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
+import omero.api.SearchPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.Chown2;
 import omero.gateway.util.Requests;
@@ -2562,4 +2564,39 @@ public class LightAdminRolesTest extends RolesTests {
             types_svc.updateEnumeration(o);
         }
     }
+
+    @Test
+    public void testIndexObjectbyRestrictedSystemUser() throws Exception {
+        final IAdminPrx svc = root.getSession().getAdminService();
+        final List<AdminPrivilege> expectedPrivileges = new ArrayList<AdminPrivilege>();
+        final String lightAdminName = UUID.randomUUID().toString();
+        final String lightAdminPassword = UUID.randomUUID().toString();
+        Experimenter lightAdmin = createExperimenterI(lightAdminName, "test", "user");
+        final long lightAdminId = svc.createRestrictedSystemUserWithPassword(lightAdmin,
+                expectedPrivileges, omero.rtypes.rstring(lightAdminPassword));
+        lightAdmin = svc.getExperimenter(lightAdminId);
+        omero.client client = newOmeroClient();
+        client.createSession(lightAdminName, lightAdminPassword);
+        init(client);
+        final IUpdatePrx service = factory.getUpdateService();
+        Image image = new ImageI();
+        image.setName(omero.rtypes.rstring("Image with A - 11 reagent"));
+        image = (Image) service.saveAndReturnObject(image);
+        service.indexObject(image);
+        SearchPrx prx = factory.createSearchService();
+        prx.onlyType(Image.class.getName());
+        prx.byFullText("\"A \\- 11\"");
+        boolean found = false;
+        while (prx.hasNext()) {
+            for (IObject obj : prx.results()) {
+                if (image.getClass().isAssignableFrom(obj.getClass())) {
+                    if (obj.getId().equals(image.getId())) {
+                        found = true;
+                    }
+                }
+            }
+        }
+        Assert.assertTrue(found);
+    }
+
 }
