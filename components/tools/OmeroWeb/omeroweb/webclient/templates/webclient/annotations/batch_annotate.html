@@ -1,4 +1,3 @@
-{% extends "webgateway/core_html.html" %}
 {% load i18n %}
 {% load common_filters %}
 {% load common_tags %}
@@ -6,7 +5,7 @@
 
 {% comment %}
 <!--
-  Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2017 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -24,11 +23,6 @@
 -->
 {% endcomment %}
 
-{% block link %}
-    <!-- overwrite body.css -->
-{% endblock %}
-
-{% block script %}
 
     <script type="text/javascript">
 
@@ -107,9 +101,7 @@
             
     </script>
     
-{% endblock %}
 
-{% block body %}
 
 <!-- Used to check against current selection when loading panel via AJAX -->
 <div id="object-ids" style="display:none">{{ link_string }}</div>
@@ -179,4 +171,3 @@
     {% endfor %}
 
 </div>
-{% endblock %}
