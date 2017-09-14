@@ -25,7 +25,8 @@ from omero.plugins.ldap import LdapControl
 
 import pytest
 
-subcommands = ["active", "list", "discover", "create", "getdn", "setdn"]
+subcommands = ["active", "discover", "create", "getdn", "setdn"]
+# 'list' command is available to non-admins
 
 
 class TestLDAP(CLITest):
