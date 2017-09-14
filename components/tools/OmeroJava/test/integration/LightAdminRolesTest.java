@@ -2565,6 +2565,10 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
+    /**
+     * Tests that any member in the system group can index the data.
+     * @throws Exception
+     */
     @Test
     public void testIndexObjectbyRestrictedSystemUser() throws Exception {
         final IAdminPrx svc = root.getSession().getAdminService();
