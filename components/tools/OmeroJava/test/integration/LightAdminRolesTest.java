@@ -209,8 +209,7 @@ public class LightAdminRolesTest extends RolesTests {
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         /* lightAdmin possibly sudoes on behalf of normalUser, depending on test case.*/
         if (isSudoing) sudo(new ExperimenterI(normalUser.userId, false));
 
@@ -1107,8 +1106,8 @@ public class LightAdminRolesTest extends RolesTests {
         /* lightAdmin or otherUser try to create links between their own image and normalUser's Dataset
          * and between their own Dataset and normalUser's Project.*/
         try {
-            DatasetImageLink linkOfDatasetImage = linkParentToChild(sentDat, sentOwnImage);
-            ProjectDatasetLink linkOfProjectDataset = linkParentToChild(sentProj, sentOwnDat);
+            linkParentToChild(sentDat, sentOwnImage);
+            linkParentToChild(sentProj, sentOwnDat);
             Assert.assertTrue(isExpectLinkingSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectLinkingSuccess, se.toString());
@@ -1363,7 +1362,7 @@ public class LightAdminRolesTest extends RolesTests {
         loginUser(normalUser);
         Image image = mmFactory.createImage();
         Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
-        Pixels pixelsOfImage = sentImage.getPrimaryPixels();
+        sentImage.getPrimaryPixels();
         Roi roi = new RoiI();
         roi.addShape(new RectangleI());
         roi.setImage((Image) sentImage.proxy());
@@ -1371,7 +1370,7 @@ public class LightAdminRolesTest extends RolesTests {
         assertOwnedBy(sentImage, normalUser);
         assertOwnedBy(roi, normalUser);
         /* lightAdmin logs in and tries to delete the ROI.*/
-        final EventContext lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         doChange(client, factory, Requests.delete().target(roi).build(), isExpectSuccessDeleteROI);
         /* Check the ROI was deleted, whereas the image exists.*/
@@ -1630,8 +1629,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeWriteScriptRepo.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         IScriptPrx iScript = factory.getScriptService();
         /* lightAdmin fetches a script from the server.*/
@@ -1705,7 +1703,7 @@ public class LightAdminRolesTest extends RolesTests {
         }
         /* Another light admin (anotherLightAdmin) with appropriate permissions
          * uploads the script as a new script.*/
-        final EventContext anotherLightAdmin = loginNewAdmin(true, AdminPrivilegeWriteScriptRepo.value);
+        loginNewAdmin(true, AdminPrivilegeWriteScriptRepo.value);
         iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         final long testScriptId = iScript.uploadOfficialScript(testScriptName, actualScript);
@@ -1771,8 +1769,7 @@ public class LightAdminRolesTest extends RolesTests {
         final EventContext otherUser = newUserAndGroup(groupPermissions);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
         final ExperimenterGroup group = new ExperimenterGroupI(otherUser.groupId, false);
         try {
@@ -1802,8 +1799,7 @@ public class LightAdminRolesTest extends RolesTests {
         final ExperimenterGroup otherGroup = newGroupAddUser("rwr-r-", normalUser.userId);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
         try {
             iAdmin.removeGroups(user, Collections.singletonList(otherGroup));
@@ -1827,8 +1823,7 @@ public class LightAdminRolesTest extends RolesTests {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
         final ExperimenterGroup group = new ExperimenterGroupI(normalUser.groupId, false);
         try {
@@ -1856,8 +1851,7 @@ public class LightAdminRolesTest extends RolesTests {
         final EventContext normalUser = newUserAndGroup(groupPermissions, true);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
         final ExperimenterGroup group = new ExperimenterGroupI(normalUser.groupId, false);
         try {
@@ -1889,8 +1883,7 @@ public class LightAdminRolesTest extends RolesTests {
         final long newGroupId = newUserAndGroup(groupPermissions).groupId;
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyUser.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         final Experimenter newUser = new ExperimenterI();
         newUser.setOmeName(omero.rtypes.rstring(UUID.randomUUID().toString()));
         newUser.setFirstName(omero.rtypes.rstring("August"));
@@ -1947,7 +1940,7 @@ public class LightAdminRolesTest extends RolesTests {
             permissions.add(AdminPrivilegeWriteFile.value);
             permissions.add(AdminPrivilegeWriteOwned.value);
         }
-        final EventContext lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         /* lightAdmin declares and defines the createdAdmin they are
          * attempting to create (createdAdmin). Permissions will be the same for lightAdmin
          * and createdAdmin.*/
@@ -1986,8 +1979,7 @@ public class LightAdminRolesTest extends RolesTests {
         final long newUserId = newUserAndGroup(groupPermissions).userId;
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyUser.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         final Experimenter newUser = (Experimenter) iQuery.get("Experimenter", newUserId);
         newUser.setConfig(ImmutableList.of(new NamedValue("color", "green")));
         try {
@@ -2017,8 +2009,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* Set up the permissions for lightAdmin.*/
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroup.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         try {
             iAdmin.createGroup(newGroup);
             Assert.assertTrue(isExpectSuccessCreateGroup);
@@ -2045,8 +2036,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* Set up the permissions for the lightAdmin.*/
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroup.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         /* lightAdmin tries to downgrade the group to all possible permission levels and
          * also tries to edit the LDAP settings.*/
         final ExperimenterGroup newGroup = (ExperimenterGroup) iQuery.get("ExperimenterGroup", newGroupId);
