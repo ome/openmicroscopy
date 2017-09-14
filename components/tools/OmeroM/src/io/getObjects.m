@@ -72,7 +72,7 @@ assert(~strcmp(objectType.class, 'omero.model.PlateAcquisition'),...
 
 % Throw exception if type is roi
 assert(~strcmp(objectType.class, 'omero.model.Roi'),...
-    ['Rois are loaded via Roi server. ']);
+    ['Rois have to be loaded via roi service. ']);
 
 % Check optional input parameters
 defaultParameters = omero.sys.ParametersI();
