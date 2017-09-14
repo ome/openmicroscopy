@@ -19,6 +19,7 @@
 
 package integration;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,6 +90,7 @@ import omero.model.enums.AdminPrivilegeWriteScriptRepo;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -2547,4 +2549,47 @@ public class LightAdminRolesTest extends RolesTests {
         Assert.assertTrue(found);
     }
 
+    @Test(expectedExceptions = omero.SecurityViolation.class)
+    public void testModifyScriptUsingUploadFromClientbyRestrictedSystemUser() throws Exception {
+        logNewAdminWithoutPrivileges();
+        IScriptPrx iScript = factory.getScriptService();
+        /* lightAdmin fetches a script from the server.*/
+        OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
+        String actualScript;
+        RawFileStorePrx rfs = null;
+        try {
+            rfs = factory.createRawFileStore();
+            rfs.setFileId(scriptFile.getId().getValue());
+            actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
+        } finally {
+            if (rfs != null) rfs.close();
+        }
+        /* lightAdmin tries uploading the script as a new script in normalUser's group.*/
+        iScript = factory.getScriptService();
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+        File file = new File(testScriptName);
+        FileUtils.writeStringToFile(file, actualScript);
+        client.upload(file, scriptFile);
+    }
+
+    @Test(expectedExceptions = omero.SecurityViolation.class)
+    public void testUploadFromClientbyRestrictedSystemUser() throws Exception {
+        newUserAndGroup("rwrw--");
+        OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory
+                .createOriginalFile());
+        long ofId = of.getId().getValue();
+        RawFileStorePrx rfPrx = factory.createRawFileStore();
+        try {
+            rfPrx.setFileId(ofId);
+            rfPrx.write(new byte[] { 1, 2, 3, 4 }, 0, 4);
+            of = rfPrx.save();
+        } finally {
+            rfPrx.close();
+        }
+        logNewAdminWithoutPrivileges();
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+        File file = new File(testScriptName);
+        FileUtils.writeStringToFile(file, "test");
+        client.upload(file, of);
+    }
 }
