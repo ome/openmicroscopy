@@ -1622,7 +1622,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testOfficialSciptUploadNoSudo(boolean isPrivileged, String groupPermissions) throws Exception {
+    public void testOfficialScriptUploadNoSudo(boolean isPrivileged, String groupPermissions) throws Exception {
         /* isPrivileged translates in this test into WriteScriptRepo permission, see below.*/
         boolean isExpectSuccessUploadOfficialScript = isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
