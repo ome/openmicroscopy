@@ -26,6 +26,10 @@ from omero.cli import NonZeroReturnCode
 import omero.plugins.admin
 import pytest
 import omero
+import omero.gateway
+import os.path
+
+all_grps = {'omero.group': '-1'}
 
 
 class TestCleanse(CLITest):
@@ -51,9 +55,10 @@ class TestCleanseRoot(RootCLITest):
     def setup_method(self, method):
         super(TestCleanseRoot, self).setup_method(method)
         self.cli.register("admin", omero.plugins.admin.AdminControl, "TEST")
+        self.import_args = self.args
         self.args += ["admin", "cleanse"]
 
-    def testCleanseAdminOnly(self, capsys):
+    def testCleanseBasic(self, capsys):
         """Test cleanse works for root with expected output"""
         config_service = self.root.sf.getConfigService()
         data_dir = config_service.getConfigValue("omero.data.dir")
@@ -64,3 +69,52 @@ class TestCleanseRoot(RootCLITest):
         mrepo_dir = config_service.getConfigValue("omero.managed.dir")
         output_string = output_string_start + mrepo_dir.replace("//", "/")
         assert output_string in out
+
+    def testCleanseNonsenseName(self, tmpdir, capsys):
+        """Test cleanse removes a file when originalFile"""
+        """has nonsensical name"""
+        name = "nonsensical"
+        image = self.import_fake_file()
+        fileset = self.get_fileset(image)
+        fileset_id = fileset.getId()
+        params = omero.sys.ParametersI()
+        params.addId(fileset_id)
+        query = ("select details.group.id, originalFile.id, "
+                 "originalFile.path from FilesetEntry where fileset.id = :id")
+        queryService = self.root.sf.getQueryService()
+        result = queryService.projection(query, params, all_grps)
+        group_id = result[0][0].getValue()
+        group_ctx = {'omero.group': str(group_id)}
+        orig_file_id = result[0][1].getValue()
+        path_in_mrepo = result[0][2].getValue()
+        query = 'from OriginalFile o where o.id = :id'
+        params_file = omero.sys.ParametersI()
+        params_file.addId(orig_file_id)
+        orig_file = queryService.findByQuery(query, params_file, group_ctx)
+        orig_file_name = orig_file.getName().getValue()
+        config_service = self.root.sf.getConfigService()
+        mrepo_dir = config_service.getConfigValue("omero.managed.dir")
+        path = mrepo_dir + '/' + path_in_mrepo
+        path = path.replace("//", "/")
+        assert os.path.exists(path)
+        orig_file_path = path + '/' + orig_file_name
+        orig_file_path = orig_file_path.replace("//", "/")
+        assert os.path.isfile(orig_file_path)
+        orig_file.setName(omero.rtypes.rstring(name))
+        update_service = self.root.sf.getUpdateService()
+        update_service.saveAndReturnObject(orig_file, group_ctx)
+
+        data_dir = config_service.getConfigValue("omero.data.dir")
+        self.args += [data_dir]
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        assert os.path.exists(path)
+        assert os.path.isfile(orig_file_path)
+
+        query = ("select o from FilesetJobLink l "
+                 "join l.parent as fs join l.child as j "
+                 "join j.originalFileLinks l2 join l2.child as o "
+                 "where fs.id = :id and "
+                 "o.mimetype = 'application/omero-log-file'")
+        logfile = queryService.findByQuery(query, params, group_ctx)
+        logfile.getName().getValue()
