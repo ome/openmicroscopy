@@ -255,7 +255,7 @@ public class TestEngine
         System.err.println(String.format(
                 "Usage: %s [OPTION]... [TARGET DIRECTORY]\n" +
                 "Imports one or more files into an OMERO instance and tests\n" +
-                "metadata.\n"
+                "metadata.\n"+
                 "Optional arguments:\n" +
                 "  -s\tOMERO server hostname\n" +
                 "  -u\tOMERO username\n" +
