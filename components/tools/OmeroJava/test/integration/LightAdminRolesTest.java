@@ -92,6 +92,7 @@ import omero.sys.ParametersI;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -103,6 +104,14 @@ import com.google.common.collect.ImmutableList;
  * @since 5.4.0
  */
 public class LightAdminRolesTest extends RolesTests {
+
+    @Override
+    @AfterClass
+    public void tearDown() throws Exception {
+        final ITypesPrx svc = root.getSession().getTypesService();
+        svc.resetEnumerations(ContrastMethod.class.getName());
+        super.tearDown();
+    }
 
     /**
      * Creates a new administrator without any privileges
@@ -2459,9 +2468,17 @@ public class LightAdminRolesTest extends RolesTests {
         int n = types.size();
         Assert.assertTrue(n > 0);
         Iterator<IObject> i = types.iterator();
+        int count = 0;
         while (i.hasNext()) {
-            types_svc.deleteEnumeration(i.next());
+            try {
+                types_svc.deleteEnumeration(i.next());
+                count++;
+            } catch (Exception e) {
+                //an exception is thrown if the enumeration is used.
+                //Not all entries should have been used
+            }
         }
+        Assert.assertTrue(count > 0);
     }
 
     /**
@@ -2492,11 +2509,19 @@ public class LightAdminRolesTest extends RolesTests {
         List<IObject> types = types_svc.allEnumerations(ContrastMethod.class.getName());
         int n = types.size();
         Iterator<IObject> i = types.iterator();
+        List<IObject> deleted = new ArrayList<IObject>();
         while (i.hasNext()) {
-            types_svc.deleteEnumeration(i.next());
+            IObject ho = i.next();
+            try {
+                types_svc.deleteEnumeration(ho);
+                deleted.add(ho);
+;            } catch (Exception e) {
+                //Could not delete since it is already used.
+            }
         }
+        Assert.assertTrue(deleted.size() > 0);
         types = types_svc.allEnumerations(ContrastMethod.class.getName());
-        Assert.assertEquals(types.size(), 0);
+        Assert.assertEquals(types.size(), deleted.size());
         types_svc.resetEnumerations(ContrastMethod.class.getName());
         types = types_svc.allEnumerations(ContrastMethod.class.getName());
         Assert.assertEquals(types.size(), n);
@@ -2568,6 +2593,7 @@ public class LightAdminRolesTest extends RolesTests {
         iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         File file = new File(testScriptName);
+        file.deleteOnExit();
         FileUtils.writeStringToFile(file, actualScript);
         client.upload(file, scriptFile);
     }
@@ -2589,6 +2615,7 @@ public class LightAdminRolesTest extends RolesTests {
         logNewAdminWithoutPrivileges();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         File file = new File(testScriptName);
+        file.deleteOnExit();
         FileUtils.writeStringToFile(file, "test");
         client.upload(file, of);
     }
