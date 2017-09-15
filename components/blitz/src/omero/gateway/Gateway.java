@@ -85,7 +85,6 @@ import omero.gateway.model.GroupData;
 import omero.gateway.util.PojoMapper;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
-import Ice.ConnectionRefusedException;
 import Ice.DNSException;
 import Ice.SocketException;
 
@@ -142,6 +141,9 @@ public class Gateway {
     /** Property to indicate that a stateless service has been created */
     public static final String PROP_STATELESS_SERVICE_CREATED = "PROP_STATELESS_SERVICE_CREATED";
 
+    /** Regex matching ICE Session ID */
+    private static final String ICE_SESSION_ID_REGEX = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}";
+    
     /** Reference to a {@link Logger} */
     private Logger log;
 
@@ -1030,38 +1032,35 @@ public class Gateway {
         }
         secureClient.setAgent(c.getApplicationName());
         ServiceFactoryPrx entryEncrypted = null;
-        boolean session = false;
-        ServiceFactoryPrx guestSession = null;
-        try {
-            // Check if it is a session first
-            guestSession = secureClient.createSession("guest", "guest");
-            guestSession.getSessionService().getSession(username);
-            session = true;
-        } catch (Throwable e) {
-            // thrown if it is not a session, session has expired, or
-            // the guest login doesn't exist on the server
-        }
-        finally {
-            if (guestSession != null) 
-                secureClient.closeSession();
-        }
-        try {
-            if (session) {
+        
+        boolean connected = false;
+        if (isSessionID(username)) {
+            try {
                 entryEncrypted = secureClient.joinSession(username);
-            } else {
+                connected = true;
+            } catch (Exception e) {
+                // Although username looks like a session ID it apparently isn't
+                // one.
+                log.warn(this, new LogMessage("Could not join session "
+                        + username + " , trying username/password login next.",
+                        e));
+            }
+        }
+        if (!connected) {
+            try {
                 if (args != null) {
                     entryEncrypted = secureClient.createSession();
                 } else {
                     entryEncrypted = secureClient.createSession(c.getUser()
                             .getUsername(), c.getUser().getPassword());
                 }
+            } catch (Exception e1) {
+                // close the session again before passing on the exception
+                secureClient.closeSession();
+                throw e1;
             }
-        } 
-        catch (Exception e1) {
-            // close the session again before passing on the exception
-            secureClient.closeSession();
-            throw e1;
         }
+
         this.pcs.firePropertyChange(PROP_SESSION_CREATED, null,
                 secureClient.getSessionId());
         serverVersion = entryEncrypted.getConfigService().getVersion();
@@ -1099,6 +1098,18 @@ public class Gateway {
         return secureClient;
     }
 
+    /**
+     * Checks if a String could be an ICE session ID.
+     * 
+     * @param s
+     *            The String to check
+     * @return <code>true</code> if it could be a session ID, <code>false</code>
+     *         otherwise.
+     */
+    private boolean isSessionID(String s) {
+        return s != null && s.matches(ICE_SESSION_ID_REGEX);
+    }
+    
     /**
      * Logs in a certain user
      * 
