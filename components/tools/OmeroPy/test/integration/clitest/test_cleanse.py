@@ -22,6 +22,7 @@
 
 from test.integration.clitest.cli import CLITest, RootCLITest
 from omero.cli import NonZeroReturnCode
+from omero.cmd import Delete2
 
 import omero.plugins.admin
 import pytest
@@ -74,8 +75,9 @@ class TestCleanseRoot(RootCLITest):
         """Test cleanse removes a file when originalFile"""
         """has nonsensical name"""
         name = "nonsensical"
-        image = self.import_fake_file()
-        fileset = self.get_fileset(image)
+        images = self.import_fake_file()
+        ids = [image.id.val for image in images]
+        fileset = self.get_fileset(images)
         fileset_id = fileset.getId()
         params = omero.sys.ParametersI()
         params.addId(fileset_id)
@@ -103,14 +105,6 @@ class TestCleanseRoot(RootCLITest):
         orig_file.setName(omero.rtypes.rstring(name))
         update_service = self.root.sf.getUpdateService()
         update_service.saveAndReturnObject(orig_file, group_ctx)
-
-        data_dir = config_service.getConfigValue("omero.data.dir")
-        self.args += [data_dir]
-        self.cli.invoke(self.args, strict=True)
-        out, err = capsys.readouterr()
-        assert os.path.exists(path)
-        assert os.path.isfile(orig_file_path)
-
         query = ("select o from FilesetJobLink l "
                  "join l.parent as fs join l.child as j "
                  "join j.originalFileLinks l2 join l2.child as o "
@@ -118,3 +112,16 @@ class TestCleanseRoot(RootCLITest):
                  "o.mimetype = 'application/omero-log-file'")
         logfile = queryService.findByQuery(query, params, group_ctx)
         logfile.getName().getValue()
+
+        command = Delete2(targetObjects={"Image": ids})
+        handle = self.client.sf.submit(command)
+        self.wait_on_cmd(self.client, handle)
+        assert os.path.exists(path)
+        assert os.path.isfile(orig_file_path)
+
+        data_dir = config_service.getConfigValue("omero.data.dir")
+        self.args += [data_dir]
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        assert not os.path.isfile(orig_file_path)
+        assert not os.path.exists(path)
