@@ -19,9 +19,7 @@ import ome.util.checksum.ChecksumType;
 
 /**
  * This tests planar and sub-planar data retrieval using a known good ROMIO
- * binary repository data file. The data file can be downloaded at:
- * <a href="http://users.openmicroscopy.org.uk/~callan/100.bz2"/> and its 
- * decompressed MD5 digest is <code>4034ae78a03d74fd27c80681cdf6a695</code>.
+ * binary repository data file.
  * 
  * @author Chris Allan <callan@glencoesoftware.com>
  *

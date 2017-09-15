@@ -13,7 +13,7 @@ from types import StringTypes
 from path import path
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
-TESTIMG_URL = 'http://downloads.openmicroscopy.org/images/gateway_tests/'
+TESTIMG_URL = 'https://downloads.openmicroscopy.org/images/gateway_tests/'
 DEFAULT_GROUP_PERMS = 'rwr---'
 
 if not omero.gateway.BlitzGateway.ICE_CONFIG:

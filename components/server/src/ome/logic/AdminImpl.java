@@ -1072,9 +1072,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      *
      * @see IAdmin#changePermissions(IObject, Permissions)
      * @see <a
-     *      href="http://trac.openmicroscopy.org.uk/ome/ticket/293">ticket:293</a>
+     *      href="https://trac.openmicroscopy.org.uk/ome/ticket/293">ticket:293</a>
      * @see <a
-     *      href="http://trac.openmicroscopy.org.uk/ome/ticket/1434">ticket:1434</a>
+     *      href="https://trac.openmicroscopy.org.uk/ome/ticket/1434">ticket:1434</a>
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)

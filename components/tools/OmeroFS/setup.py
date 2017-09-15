@@ -22,14 +22,15 @@ use_setuptools(to_dir='../../../lib/repository')
 from setuptools import setup
 from omero_version import omero_version as ov
 
+url="https://docs.openmicroscopy.org/latest/omero/developers/Server/FS.html"
 setup(name="OmeroFS",
       version=ov,
       description="OMERO.fs server for watching directories",
       long_description="OMERO.fs server for watching directories",
-      author="Colin Blackburn",
-      author_email="",
-      url="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroFs",
-      download_url="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroFs",
+      author="The Open Microscopy Team",
+      author_email="ome-devel@lists.openmicroscopy.org.uk",
+      url=url,
+      download_url=url,
       package_dir={"": "target"},
       packages=[''],
       cmdclass={'test': PyTest},

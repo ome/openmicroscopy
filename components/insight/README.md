@@ -17,7 +17,7 @@
   ---------------------
 
   The OMERO.insight Project is a sub-project of the Open Microscopy Environment
-  Project (OME, http://www.openmicroscopy.org/) that focuses on delivering a
+  Project (OME, https://www.openmicroscopy.org/) that focuses on delivering a
   client for the visualization and manipulation of both image data and metadata
   maintained at an OMERO server site.
   OMERO.insight is completely written in Java.

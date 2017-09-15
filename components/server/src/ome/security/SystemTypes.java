@@ -43,7 +43,7 @@ public class SystemTypes {
      * classes which cannot be created by regular users.
      * 
      * @see <a
-     *      href="http://trac.openmicroscopy.org.uk/ome/ticket/156">ticket156</a>
+     *      href="https://trac.openmicroscopy.org.uk/ome/ticket/156">ticket156</a>
      */
     public boolean isSystemType(Class<?> klass) {
 

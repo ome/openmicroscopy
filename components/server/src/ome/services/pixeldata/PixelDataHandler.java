@@ -104,7 +104,7 @@ public class PixelDataHandler extends SimpleWork {
      * Handles only single elements from the {@link PersistentEventLogLoader}
      * in order to keep transactions short and safe.
      *
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/5814">ticket:5814</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/5814">ticket:5814</a>
      */
     public void handleEventLog(EventLog eventLog, Session session, ServiceFactory sf) {
         final long start = System.currentTimeMillis();

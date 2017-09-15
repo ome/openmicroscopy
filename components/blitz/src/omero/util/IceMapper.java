@@ -932,7 +932,7 @@ public class IceMapper extends ome.util.ModelMapper implements
      * {@link ArrayList}s will be returned. The need for this arose from the
      * decision to have no {@link Set}s in the Ice Java mapping.
      * 
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/684">Trac ticket #684</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/684">Trac ticket #684</a>
      */
     public Collection reverse(Collection source, Class targetType) { // FIXME
         // throws

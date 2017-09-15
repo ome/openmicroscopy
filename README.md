@@ -9,4 +9,4 @@ For general guidance on contributing to OME projects, see
 https://docs.openmicroscopy.org/contributing/
 
 If you are looking for something else, please refer to the main OME website
-http://www.openmicroscopy.org
+https://www.openmicroscopy.org

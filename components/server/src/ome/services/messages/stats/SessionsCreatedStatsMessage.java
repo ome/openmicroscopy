@@ -15,7 +15,7 @@ package ome.services.messages.stats;
  * by other subsystems to slow down, or "throttle", execution.
  * 
  * @see <a
- *      href="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroThrottling">OmeroThrottling</a>
+ *      href="https://docs.openmicroscopy.org/latest/omero/developers/Server/Throttling.html">OMERO Throttling</a>
  */
 public class SessionsCreatedStatsMessage extends
         AbstractStatsMessage {

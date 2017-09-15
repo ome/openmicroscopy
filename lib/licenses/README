@@ -663,7 +663,7 @@
 
   Artifacts:    metakit-*.jar
   Project:      A library for reading Metakit database files.
-  Web Site:     http://www.openmicroscopy.org/bio-formats
+  Web Site:     https://www.openmicroscopy.org/bio-formats
   License:      General Public License (GPL), Version 2
   License File: gpl-v2.0.txt
 
@@ -720,7 +720,7 @@
 
   Artifacts:    ome-common-*.jar
   Project:      Contains common I/O, date parsing, and XML processing classes.
-  Web Site:     http://www.openmicroscopy.org/bio-formats
+  Web Site:     https://www.openmicroscopy.org/bio-formats
   License:      BSD License
   License File: bsd.txt
 

@@ -255,10 +255,7 @@ public class TestEngine
         System.err.println(String.format(
                 "Usage: %s [OPTION]... [TARGET DIRECTORY]\n" +
                 "Imports one or more files into an OMERO instance and tests\n" +
-                "metadata. More information about the test engine can be found at:\n" +
-                "\n" +
-                "http://trac.openmicroscopy.org.uk/wiki/ImporterTestEngine\n" +
-                "\n" +
+                "metadata.\n"
                 "Optional arguments:\n" +
                 "  -s\tOMERO server hostname\n" +
                 "  -u\tOMERO username\n" +

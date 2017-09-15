@@ -59,7 +59,7 @@ public class IniFileLoader {
     /**
      * Public in order to configure LogAppenderProxy, but then the value
      * might as well be configured in the log4j.properties file
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/1479">Trac ticket #1479</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/1479">Trac ticket #1479</a>
      */
     public final static String LOGFILE = LOGDIR + File.separator
             + "importer.log";
@@ -152,7 +152,7 @@ public class IniFileLoader {
      */
     public String getHomeUrl()
     {
-        return staticPref("General", "url", "http://www.openmicroscopy.org/site/products/omero/feature-list");
+        return staticPref("General", "url", "https://www.openmicroscopy.org/site/products/omero/feature-list");
     }
 
     /**
@@ -160,7 +160,7 @@ public class IniFileLoader {
      */
     public String getForumUrl()
     {
-        return staticPref("General", "forumUrl", "http://www.openmicroscopy.org/community/");
+        return staticPref("General", "forumUrl", "https://www.openmicroscopy.org/community/");
     }
 
     /**

@@ -481,7 +481,7 @@ class TestPermissions(ITest):
         # Locally this test always fails as the two times are
         # the same order of magnitude. This may be an indication that
         # the relevant ticket:
-        # http://trac.openmicroscopy.org/ome/ticket/3136
+        # https://trac.openmicroscopy.org/ome/ticket/3136
         # is still valid. Does the ticket need re-opening
         # or does the test condition need relaxing?
         assert elapsed1 < (0.1 * elapsed2),\

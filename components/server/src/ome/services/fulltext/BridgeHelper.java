@@ -53,7 +53,7 @@ public abstract class BridgeHelper implements FieldBridge,
      * Simpler wrapper to handle superclass proxy objects (e.g. Annotation)
      * which do * not behave properly with instanceof checks.
      *
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/5076">ticket:5076</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/5076">ticket:5076</a>
      */
     @SuppressWarnings("unchecked")
     public static <T> T getProxiedObject(T proxy) {

@@ -72,7 +72,7 @@ public class SessionFactory implements MethodInterceptor {
     /**
      * Returns a session active for the current thread. The returned
      * instance will be wrapped with AOP to prevent certain usage.
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/73">Trac ticket #73</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/73">Trac ticket #73</a>
      * @return a wrapped active Hibernate session
      */
     public Session getSession() {

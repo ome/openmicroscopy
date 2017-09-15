@@ -519,7 +519,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
     /**
      * Uses bulk update
-     * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/1654">ticket:1654</a>
+     * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/1654">ticket:1654</a>
      */
     private void clearRois(Session session, Image i) {
 

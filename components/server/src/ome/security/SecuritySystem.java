@@ -109,7 +109,7 @@ public interface SecuritySystem {
      * If refresh is false, returns the current {@link EventContext} stored
      * in the session. Otherwise, reloads the context to have the most
      * up-to-date information.
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/4011">Trac ticket #4011</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/4011">Trac ticket #4011</a>
      *
      * @param refresh if the event context should first be reloaded
      * @return the event context
@@ -238,11 +238,11 @@ public interface SecuritySystem {
      * a {@link ExperimenterGroup} value, then throw as well.
      *
      * @see <a
-     *      href="http://trac.openmicroscopy.org.uk/ome/ticket/1434>1434</a>
+     *      href="https://trac.openmicroscopy.org.uk/ome/ticket/1434>1434</a>
      * @see <a
-     *      href="http://trac.openmicroscopy.org.uk/ome/ticket/1769>1769</a>
+     *      href="https://trac.openmicroscopy.org.uk/ome/ticket/1769>1769</a>
      * @see <a
-     *      href="http://trac.openmicroscopy.org.uk/ome/ticket/9474>9474</a>
+     *      href="https://trac.openmicroscopy.org.uk/ome/ticket/9474>9474</a>
      * @param details the details
      * @return if the graph is critical
      */
