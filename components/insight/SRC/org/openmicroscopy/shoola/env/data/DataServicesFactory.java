@@ -54,6 +54,7 @@ import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.facility.AdminFacility;
 
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -687,6 +688,8 @@ public class DataServicesFactory
             try {
                 List<String> privs = omeroGateway.getGateway()
                         .getAdminService(ctx).getEventContext().adminPrivileges;
+                registry.bind(LookupNames.PRIV_FULL, omeroGateway.getGateway()
+                        .getFacility(AdminFacility.class).isFullAdmin(ctx));
                 registry.bind(
                         LookupNames.PRIV_EDIT_USER,
                         privs.contains(omero.model.enums.AdminPrivilegeModifyUser.value));
@@ -701,7 +704,8 @@ public class DataServicesFactory
                         .contains(omero.model.enums.AdminPrivilegeWriteScriptRepo.value));
                 registry.bind(LookupNames.PRIV_SUDO, privs
                         .contains(omero.model.enums.AdminPrivilegeSudo.value));
-            } catch (ServerError e1) {
+            } catch (Exception e1) {
+                registry.bind(LookupNames.PRIV_FULL, false);
                 registry.bind(LookupNames.PRIV_EDIT_USER, false);
                 registry.bind(LookupNames.PRIV_EDIT_GROUP, false);
                 registry.bind(LookupNames.PRIV_GROUP_ADD, false);
@@ -732,6 +736,7 @@ public class DataServicesFactory
 				reg.bind(LookupNames.BINARY_AVAILABLE, b);
 				reg.bind(LookupNames.HELP_ON_LINE_SEARCH, url);
 				
+				reg.bind(LookupNames.PRIV_FULL, registry.lookup(LookupNames.PRIV_FULL));
 				reg.bind(LookupNames.PRIV_EDIT_USER, registry.lookup(LookupNames.PRIV_EDIT_USER));
 				reg.bind(LookupNames.PRIV_EDIT_GROUP, registry.lookup(LookupNames.PRIV_EDIT_GROUP));
 				reg.bind(LookupNames.PRIV_MOVE_GROUP, registry.lookup(LookupNames.PRIV_MOVE_GROUP));
