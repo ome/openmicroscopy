@@ -52,7 +52,8 @@ if os.path.exists("target"):
 else:
     packages = [""]
 
-url="https://docs.openmicroscopy.org/latest/omero/developers"
+url = 'https://docs.openmicroscopy.org/latest/omero/developers'
+
 setup(
     name="omero_client",
     version=ov,

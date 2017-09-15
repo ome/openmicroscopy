@@ -22,7 +22,7 @@ use_setuptools(to_dir='../../../lib/repository')
 from setuptools import setup
 from omero_version import omero_version as ov
 
-url="https://docs.openmicroscopy.org/latest/omero/developers/Server/FS.html"
+url = 'https://docs.openmicroscopy.org/latest/omero/developers/Server/FS.html'
 setup(name="OmeroFS",
       version=ov,
       description="OMERO.fs server for watching directories",
