@@ -1,5 +1,5 @@
-# Python installation requirements for OMERO.web
-# ==============================================
+# Deprecated: Python installation requirements for OMERO.web
+# ==========================================================
 #
 #     pip install -r requirements-redis.txt
 #
