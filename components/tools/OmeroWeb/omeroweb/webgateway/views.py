@@ -820,12 +820,10 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
         if reverses is not None and invert_flags is not None:
             invert_flags = [z[0] if z[0] is not None else z[1] for z in
                             zip(invert_flags, reverses)]
-
-    # more rendering settings per channel: quantization maps
-    # just applied, not saved at the moment
-    if 'quant_maps' in r:
         try:
-            img.setQuantizationMaps(json.loads(r['quant_maps']))
+            # quantization maps (just applied, not saved at the moment)
+            qm = [m['quantization'] for m in json.loads(r['maps'])]
+            img.setQuantizationMaps(qm)
         except:
             logger.debug('Failed to set quantization maps')
 
