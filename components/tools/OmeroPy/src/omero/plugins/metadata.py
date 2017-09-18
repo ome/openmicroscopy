@@ -143,7 +143,7 @@ class MetadataControl(BaseControl):
         bulkanns = parser.add(sub, self.bulkanns)
         mapanns = parser.add(sub, self.mapanns)
         allanns = parser.add(sub, self.allanns)
-        testtables = parser.add(sub, self.testtables)
+        parser.add(sub, self.testtables)
         rois = parser.add(sub, self.rois)
         populate = parser.add(sub, self.populate)
         populateroi = parser.add(sub, self.populateroi)
