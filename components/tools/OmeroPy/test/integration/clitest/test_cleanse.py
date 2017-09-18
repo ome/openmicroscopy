@@ -26,11 +26,7 @@ from omero.cmd import Delete2
 
 import omero.plugins.admin
 import pytest
-import omero
-import omero.gateway
 import os.path
-
-all_grps = {'omero.group': '-1'}
 
 
 class TestCleanse(CLITest):
@@ -58,6 +54,7 @@ class TestCleanseRoot(RootCLITest):
         self.cli.register("admin", omero.plugins.admin.AdminControl, "TEST")
         self.import_args = self.args
         self.args += ["admin", "cleanse"]
+        self.group_ctx = {'omero.group': str(self.group.id.val)}
 
     def testCleanseBasic(self, capsys):
         """Test cleanse works for root with expected output"""
@@ -71,57 +68,85 @@ class TestCleanseRoot(RootCLITest):
         output_string = output_string_start + mrepo_dir.replace("//", "/")
         assert output_string in out
 
-    def testCleanseNonsenseName(self, tmpdir, capsys):
-        """Test cleanse removes a file when originalFile"""
-        """has nonsensical name"""
-        name = "nonsensical"
-        images = self.import_fake_file()
-        ids = [image.id.val for image in images]
-        fileset = self.get_fileset(images)
-        fileset_id = fileset.getId()
+    def testCleanseNonsenseName(self, capsys):
+        """
+        Test cleanse removes file on disk after OriginalFile
+        name was changed to nonsense and its Image was deleted
+        """
+        # import image and retrieve the OriginalFile
+        # (orig_file), its name and path
+        image = self.import_fake_file()[0]
+        fileset = self.get_fileset([image])
         params = omero.sys.ParametersI()
-        params.addId(fileset_id)
-        query = ("select details.group.id, originalFile.id, "
-                 "originalFile.path from FilesetEntry where fileset.id = :id")
+        params.addId(fileset.getId())
+        q = ("select originalFile.id, originalFile.path "
+             "from FilesetEntry where fileset.id = :id")
         queryService = self.root.sf.getQueryService()
-        result = queryService.projection(query, params, all_grps)
-        group_id = result[0][0].getValue()
-        group_ctx = {'omero.group': str(group_id)}
-        orig_file_id = result[0][1].getValue()
-        path_in_mrepo = result[0][2].getValue()
-        query = 'from OriginalFile o where o.id = :id'
-        params_file = omero.sys.ParametersI()
-        params_file.addId(orig_file_id)
-        orig_file = queryService.findByQuery(query, params_file, group_ctx)
+        result = queryService.projection(q, params, self.group_ctx)
+        orig_file_id = result[0][0].getValue()
+        path_in_mrepo = result[0][1].getValue()
+        orig_file = self.query.get("OriginalFile", orig_file_id)
         orig_file_name = orig_file.getName().getValue()
         config_service = self.root.sf.getConfigService()
         mrepo_dir = config_service.getConfigValue("omero.managed.dir")
-        path = mrepo_dir + '/' + path_in_mrepo
-        path = path.replace("//", "/")
-        assert os.path.exists(path)
-        orig_file_path = path + '/' + orig_file_name
+        orig_file_path = mrepo_dir + '/' + path_in_mrepo
         orig_file_path = orig_file_path.replace("//", "/")
-        assert os.path.isfile(orig_file_path)
-        orig_file.setName(omero.rtypes.rstring(name))
+        assert os.path.exists(orig_file_path)
+        orig_file_path_and_name = orig_file_path + '/' + orig_file_name
+        orig_file_path_and_name = orig_file_path_and_name.replace("//", "/")
+        assert os.path.isfile(orig_file_path_and_name)
+
+        # retrieve the logfile, its name and path
+        q = ("select o from FilesetJobLink l "
+             "join l.parent as fs join l.child as j "
+             "join j.originalFileLinks l2 join l2.child as o "
+             "where fs.id = :id and "
+             "o.mimetype = 'application/omero-log-file'")
+        logfile = queryService.findByQuery(q, params, self.group_ctx)
+        logfile_name = logfile.getName().getValue()
+        logfile_path_in_mrepo = logfile.getPath().getValue()
+        logfile_path = mrepo_dir + '/' + logfile_path_in_mrepo
+        logfile_path = logfile_path.replace("//", "/")
+        assert os.path.exists(logfile_path)
+        logfile_path_and_name = logfile_path + '/' + logfile_name
+        logfile_path_and_name = logfile_path_and_name.replace("//", "/")
+        assert os.path.isfile(logfile_path_and_name)
+
+        # change the names of original_file and logfile to nonsense
+        name = "nonsensical"
         update_service = self.root.sf.getUpdateService()
-        update_service.saveAndReturnObject(orig_file, group_ctx)
-        query = ("select o from FilesetJobLink l "
-                 "join l.parent as fs join l.child as j "
-                 "join j.originalFileLinks l2 join l2.child as o "
-                 "where fs.id = :id and "
-                 "o.mimetype = 'application/omero-log-file'")
-        logfile = queryService.findByQuery(query, params, group_ctx)
-        logfile.getName().getValue()
+        orig_file.setName(omero.rtypes.rstring(name))
+        update_service.saveAndReturnObject(orig_file, self.group_ctx)
+        logfile.setName(omero.rtypes.rstring(name))
+        update_service.saveAndReturnObject(logfile, self.group_ctx)
 
-        command = Delete2(targetObjects={"Image": ids})
-        handle = self.client.sf.submit(command)
-        self.wait_on_cmd(self.client, handle)
-        assert os.path.exists(path)
-        assert os.path.isfile(orig_file_path)
-
+        # run the cleanse command, which will not delete
+        # the files on disk
         data_dir = config_service.getConfigValue("omero.data.dir")
         self.args += [data_dir]
         self.cli.invoke(self.args, strict=True)
+        assert os.path.exists(orig_file_path)
+        assert os.path.isfile(orig_file_path_and_name)
+        assert os.path.exists(logfile_path)
+        assert os.path.isfile(logfile_path_and_name)
+
+        # delete the image, which will not delete
+        # the files on disk because of the nonsensical name
+        # of orig_file and logfile
+        command = Delete2(targetObjects={"Image": [image.id.val]})
+        handle = self.client.sf.submit(command)
+        self.wait_on_cmd(self.client, handle)
+        assert os.path.exists(orig_file_path)
+        assert os.path.isfile(orig_file_path_and_name)
+        assert os.path.exists(logfile_path)
+        assert os.path.isfile(logfile_path_and_name)
+
+        # run cleanse command again, which will now delete the
+        # files on disk, the original file, the logfile
+        # and their directories
+        self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
-        assert not os.path.isfile(orig_file_path)
-        assert not os.path.exists(path)
+        assert not os.path.exists(orig_file_path)
+        assert not os.path.isfile(orig_file_path_and_name)
+        assert not os.path.exists(logfile_path)
+        assert not os.path.isfile(logfile_path_and_name)
