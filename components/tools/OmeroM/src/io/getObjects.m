@@ -70,6 +70,10 @@ assert(~strcmp(objectType.class, 'omero.model.PlateAcquisition'),...
     ['Plate acquisitions are loaded together with plates. '...
     'Use getPlates() instead.']);
 
+% Throw exception if type is roi
+assert(~strcmp(objectType.class, 'omero.model.Roi'),...
+    ['Rois have to be loaded via roi service. ']);
+
 % Check optional input parameters
 defaultParameters = omero.sys.ParametersI();
 defaultContext = java.util.HashMap;
