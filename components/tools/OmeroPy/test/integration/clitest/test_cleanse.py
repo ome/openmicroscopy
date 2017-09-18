@@ -55,17 +55,24 @@ class TestCleanseRoot(RootCLITest):
         self.import_args = self.args
         self.args += ["admin", "cleanse"]
         self.group_ctx = {'omero.group': str(self.group.id.val)}
+        config_service = self.root.sf.getConfigService()
+        self.mrepo_dir = config_service.getConfigValue("omero.managed.dir")
+        self.data_dir = config_service.getConfigValue("omero.managed.dir")
+
+    def make_path(self, path_in_mrepo, filename=None):
+        if filename is None:
+            path = self.mrepo_dir + '/' + path_in_mrepo
+        else:
+            path = self.mrepo_dir + '/' + path_in_mrepo + '/' + filename
+        return path.replace("//", "/")
 
     def testCleanseBasic(self, capsys):
         """Test cleanse works for root with expected output"""
-        config_service = self.root.sf.getConfigService()
-        data_dir = config_service.getConfigValue("omero.data.dir")
-        self.args += [data_dir]
+        self.args += [self.data_dir]
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
-        output_string_start = "Removing empty directories from...\n "
-        mrepo_dir = config_service.getConfigValue("omero.managed.dir")
-        output_string = output_string_start + mrepo_dir.replace("//", "/")
+        output_start = "Removing empty directories from...\n "
+        output_string = output_start + self.mrepo_dir.replace("//", "/")
         assert output_string in out
 
     def testCleanseNonsenseName(self, capsys):
@@ -79,21 +86,17 @@ class TestCleanseRoot(RootCLITest):
         fileset = self.get_fileset([image])
         params = omero.sys.ParametersI()
         params.addId(fileset.getId())
-        q = ("select originalFile.id, originalFile.path "
+        q = ("select originalFile.path, originalFile.id "
              "from FilesetEntry where fileset.id = :id")
         queryService = self.root.sf.getQueryService()
         result = queryService.projection(q, params, self.group_ctx)
-        orig_file_id = result[0][0].getValue()
-        path_in_mrepo = result[0][1].getValue()
+        path_in_mrepo = result[0][0].getValue()
+        orig_file_path = self.make_path(path_in_mrepo)
+        assert os.path.exists(orig_file_path)
+        orig_file_id = result[0][1].getValue()
         orig_file = self.query.get("OriginalFile", orig_file_id)
         orig_file_name = orig_file.getName().getValue()
-        config_service = self.root.sf.getConfigService()
-        mrepo_dir = config_service.getConfigValue("omero.managed.dir")
-        orig_file_path = mrepo_dir + '/' + path_in_mrepo
-        orig_file_path = orig_file_path.replace("//", "/")
-        assert os.path.exists(orig_file_path)
-        orig_file_path_and_name = orig_file_path + '/' + orig_file_name
-        orig_file_path_and_name = orig_file_path_and_name.replace("//", "/")
+        orig_file_path_and_name = self.make_path(path_in_mrepo, orig_file_name)
         assert os.path.isfile(orig_file_path_and_name)
 
         # retrieve the logfile, its name and path
@@ -104,12 +107,10 @@ class TestCleanseRoot(RootCLITest):
              "o.mimetype = 'application/omero-log-file'")
         logfile = queryService.findByQuery(q, params, self.group_ctx)
         logfile_name = logfile.getName().getValue()
-        logfile_path_in_mrepo = logfile.getPath().getValue()
-        logfile_path = mrepo_dir + '/' + logfile_path_in_mrepo
-        logfile_path = logfile_path.replace("//", "/")
+        path_in_mrepo = logfile.getPath().getValue()
+        logfile_path = self.make_path(path_in_mrepo)
         assert os.path.exists(logfile_path)
-        logfile_path_and_name = logfile_path + '/' + logfile_name
-        logfile_path_and_name = logfile_path_and_name.replace("//", "/")
+        logfile_path_and_name = self.make_path(path_in_mrepo, logfile_name)
         assert os.path.isfile(logfile_path_and_name)
 
         # change the names of original_file and logfile to nonsense
@@ -122,8 +123,7 @@ class TestCleanseRoot(RootCLITest):
 
         # run the cleanse command, which will not delete
         # the files on disk
-        data_dir = config_service.getConfigValue("omero.data.dir")
-        self.args += [data_dir]
+        self.args += [self.data_dir]
         self.cli.invoke(self.args, strict=True)
         assert os.path.exists(orig_file_path)
         assert os.path.isfile(orig_file_path_and_name)
