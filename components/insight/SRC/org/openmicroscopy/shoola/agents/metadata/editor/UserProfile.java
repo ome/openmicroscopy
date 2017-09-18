@@ -669,8 +669,8 @@ class UserProfile
         loginArea.setText(user.getUserName());
         loginArea.setEnabled(false);
         loginArea.setEditable(false);
-        if (MetadataViewerAgent.isAdministrator() &&
-                !model.isSystemUser(user.getId()) && !model.isSelf()) {
+        if (MetadataViewerAgent.isEditUser() &&
+                !model.isSystemUser(user.getId())) {
             loginArea.setEnabled(true);
             loginArea.getDocument().addDocumentListener(this);
         }
@@ -910,8 +910,8 @@ class UserProfile
             add(Box.createVerticalStrut(5), c);
             c.gridy++;
             boolean ldap = model.isLDAP();
-            loginArea.setEnabled(!ldap);
-            loginArea.setEditable(!ldap);
+            loginArea.setEnabled(!ldap && MetadataViewerAgent.isEditUser());
+            loginArea.setEditable(!ldap && MetadataViewerAgent.isEditUser());
             if (ldap) {
                 model.fireLDAPDetailsLoading();
             } else {
