@@ -27,6 +27,7 @@ sys = __import__("sys")  # Python sys
 tables = __import__("tables")  # Pytables
 
 VERSION = '2'
+RETRIES = 20
 
 
 def slen(rv):
@@ -364,7 +365,8 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
             self, ctx,
             table_cast=omero.grid.TablePrx.uncheckedCast,
             internal_repo_cast=omero.grid.InternalRepositoryPrx.checkedCast,
-            storage_factory=None):
+            storage_factory=None,
+            retries=None):
 
         omero.util.Servant.__init__(self, ctx, needs_session=True)
 
@@ -374,9 +376,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         self._internal_repo_cast = internal_repo_cast
 
         self.__stores = []
-        self._get_dir()
-        self._get_uuid()
-        self._get_repo()
+
         if storage_factory is None:
             if hasattr(tables, "open_file"):
                 from omero.hdfstorageV2 import HDFLIST
@@ -388,6 +388,25 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         self.logger.info("Using storage factory: %s.%s",
                          str(self._storage_factory.__module__),
                          self._storage_factory.__class__.__name__)
+
+        e = None
+        self.repo_svc = None
+        if retries is None:
+            retries = RETRIES
+
+        for x in range(retries):
+            try:
+                self._get_dir()
+                self._get_uuid()
+                self._get_repo()
+            except Exception, e:
+                self.logger.warn("Failed to find repo_svc: %s" % e)
+
+            if self.repo_svc:
+                break
+
+        if e:
+            raise e
 
     def _get_dir(self):
         """
