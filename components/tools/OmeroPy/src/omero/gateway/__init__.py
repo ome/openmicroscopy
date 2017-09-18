@@ -3956,9 +3956,9 @@ class _BlitzGateway (object):
             origFilePathAndName = localPath
         path, name = os.path.split(origFilePathAndName)
         fileSize = os.path.getsize(localPath)
-        with open(localPath, 'rb') as fileHandle
-            return self.createOriginalFileFromFileObj(
-                fileHandle, path, name, fileSize, mimetype)
+        with open(localPath, 'rb') as fileHandle:
+            return self.createOriginalFileFromFileObj(fileHandle, path, name,
+                                                      fileSize, mimetype)
 
     def createFileAnnfromLocalFile(self, localPath, origFilePathAndName=None,
                                    mimetype=None, ns=None, desc=None):
