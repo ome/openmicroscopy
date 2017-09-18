@@ -8771,9 +8771,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         if channelIndex < 0 or channelIndex >= self.getSizeC():
             return
 
-        f = self.getFamilies().get("linear")
+        families = self.getFamilies()
+        f = families.get("linear")
         try:
-            f = self._qf.get(family.lower(), f)
+            f = families.get(family.lower(), f)
         except:
             pass
 
@@ -8799,13 +8800,11 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         if not isinstance(maps, list):
             return
 
-        i = 0
-        for m in maps:
+        for i, m in enumerate(maps):
             if isinstance(m, dict):
                 family = m.get('family', None)
                 coefficient = m.get('coefficient', 1.0)
                 self.setQuantizationMap(i, family, coefficient)
-            i += 1
 
     @assert_re(ignoreExceptions=(omero.ConcurrencyException))
     def getRenderingDefId(self):

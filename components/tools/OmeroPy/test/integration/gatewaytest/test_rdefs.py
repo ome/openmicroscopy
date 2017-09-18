@@ -420,21 +420,17 @@ class TestRDefs (object):
 
         # input checks that leave the original values unaffected
         self.image.setQuantizationMaps(None)
-        i = 0
-        for chan in channels:
+        for i, chan in enumerate(channels):
             assert settings[i] == {
                 "family": channels[i].getFamily().getValue(),
                 "coefficient": channels[i].getCoefficient()
             }
-            i += 0
         self.image.setQuantizationMaps(["nonsense", 8])
-        i = 0
-        for chan in channels:
+        for i, chan in enumerate(channels):
             assert settings[i] == {
                 "family": channels[i].getFamily().getValue(),
                 "coefficient": channels[i].getCoefficient()
             }
-            i += 0
 
         # now try to set 1 more channel than the image has
         # also: channel 0 setting is invalid, channel 2 correct
