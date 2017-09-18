@@ -47,6 +47,7 @@ import omero.gateway.util.Utils;
 import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
 import omero.model.ContrastMethod;
+import omero.model.ContrastMethodI;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
@@ -2461,24 +2462,31 @@ public class LightAdminRolesTest extends RolesTests {
      */
     @Test
     public void testDeleteEnumerationsbyRestrictedSystemUser() throws Exception {
+        //root create an enumeration first
+        ContrastMethod ho = new ContrastMethodI();
+        ho.setValue(omero.rtypes.rstring("testDeleteEnumerationsbyRestrictedSystemUser"));
+        final ITypesPrx ts = root.getSession().getTypesService();
+        List<IObject> types = ts.allEnumerations(ContrastMethod.class.getName());
+        int n = types.size();
+        ho = (ContrastMethod) ts.createEnumeration(ho);
+        types = ts.allEnumerations(ContrastMethod.class.getName());
+        Assert.assertEquals(types.size(), (n+1));
         logNewAdminWithoutPrivileges();
         //try to delete an enum type. The type is not important
         final ITypesPrx types_svc = factory.getTypesService();
-        List<IObject> types = types_svc.allEnumerations(ContrastMethod.class.getName());
-        int n = types.size();
-        Assert.assertTrue(n > 0);
+        types = types_svc.allEnumerations(ContrastMethod.class.getName());
+        int m = types.size();
+        Assert.assertEquals(m, (n+1));
         Iterator<IObject> i = types.iterator();
-        int count = 0;
         while (i.hasNext()) {
-            try {
-                types_svc.deleteEnumeration(i.next());
-                count++;
-            } catch (Exception e) {
-                //an exception is thrown if the enumeration is used.
-                //Not all entries should have been used
+            IObject o = i.next();
+            if (o.getId().getValue() == ho.getId().getValue()) {
+                types_svc.deleteEnumeration(ho);
+                break;
             }
         }
-        Assert.assertTrue(count > 0);
+        types = types_svc.allEnumerations(ContrastMethod.class.getName());
+        Assert.assertEquals(m, n);
     }
 
     /**
@@ -2504,28 +2512,23 @@ public class LightAdminRolesTest extends RolesTests {
      */
     @Test
     public void testResetEnumerationsbyRestrictedSystemUser() throws Exception {
+      //root create an enumeration first
+        ContrastMethod ho = new ContrastMethodI();
+        ho.setValue(omero.rtypes.rstring("testResetEnumerationsbyRestrictedSystemUser"));
+        final ITypesPrx ts = root.getSession().getTypesService();
+        List<IObject> types = ts.allEnumerations(ContrastMethod.class.getName());
+        int n = types.size();
+        ho = (ContrastMethod) ts.createEnumeration(ho);
+        types = ts.allEnumerations(ContrastMethod.class.getName());
+        Assert.assertEquals(types.size(), (n+1));
         logNewAdminWithoutPrivileges();
         final ITypesPrx types_svc = factory.getTypesService();
-        List<IObject> types = types_svc.allEnumerations(ContrastMethod.class.getName());
-        int n = types.size();
-        Iterator<IObject> i = types.iterator();
-        List<IObject> deleted = new ArrayList<IObject>();
-        while (i.hasNext()) {
-            IObject ho = i.next();
-            try {
-                types_svc.deleteEnumeration(ho);
-                deleted.add(ho);
-;            } catch (Exception e) {
-                //Could not delete since it is already used.
-            }
-        }
-        Assert.assertTrue(deleted.size() > 0);
         types = types_svc.allEnumerations(ContrastMethod.class.getName());
-        Assert.assertEquals(types.size(), deleted.size());
+        int m = types.size();
+        Assert.assertEquals(types.size(), (n+1));
         types_svc.resetEnumerations(ContrastMethod.class.getName());
         types = types_svc.allEnumerations(ContrastMethod.class.getName());
-        Assert.assertEquals(types.size(), n);
-        types_svc.resetEnumerations(ContrastMethod.class.getName());
+        Assert.assertEquals(types.size(), m);
     }
 
     /**
