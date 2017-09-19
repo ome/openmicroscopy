@@ -119,7 +119,7 @@ public class LightAdminRolesTest extends RolesTests {
      * and create a new {@link omero.client}.
      */
     protected EventContext logNewAdminWithoutPrivileges() throws Exception {
-        return loginNewAdmin(true, new ArrayList<String>());
+        return loginNewAdmin(true, Collections.<String>emptyList());
     }
 
     /**
@@ -2491,7 +2491,7 @@ public class LightAdminRolesTest extends RolesTests {
 
     /**
      * Tests if an enumeration already used can be deleted.
-     * This should fail.
+     * An exception should be thrown.
      * @throws Exception
      */
     @Test(expectedExceptions = omero.ValidationException.class)
@@ -2507,28 +2507,26 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Tests if a deleted enumeration can be restored.
+     * Resets the enumerations
      * @throws Exception
      */
     @Test
     public void testResetEnumerationsbyRestrictedSystemUser() throws Exception {
-      //root create an enumeration first
+        logNewAdminWithoutPrivileges();
         ContrastMethod ho = new ContrastMethodI();
         ho.setValue(omero.rtypes.rstring("testResetEnumerationsbyRestrictedSystemUser"));
-        final ITypesPrx ts = root.getSession().getTypesService();
-        List<IObject> types = ts.allEnumerations(ContrastMethod.class.getName());
-        int n = types.size();
-        ho = (ContrastMethod) ts.createEnumeration(ho);
-        types = ts.allEnumerations(ContrastMethod.class.getName());
-        Assert.assertEquals(types.size(), (n+1));
-        logNewAdminWithoutPrivileges();
         final ITypesPrx types_svc = factory.getTypesService();
+        List<IObject> types = types_svc.allEnumerations(ContrastMethod.class.getName());
+        //original number of enumerations
+        int n = types.size();
+        ho = (ContrastMethod) types_svc.createEnumeration(ho);
         types = types_svc.allEnumerations(ContrastMethod.class.getName());
-        int m = types.size();
+        //check that an enumeration has been added
         Assert.assertEquals(types.size(), (n+1));
+        types_svc.deleteEnumeration(ho);
         types_svc.resetEnumerations(ContrastMethod.class.getName());
         types = types_svc.allEnumerations(ContrastMethod.class.getName());
-        Assert.assertEquals(types.size(), m);
+        Assert.assertEquals(types.size(), n);
     }
 
     /**
@@ -2577,6 +2575,11 @@ public class LightAdminRolesTest extends RolesTests {
         Assert.assertTrue(found);
     }
 
+    /**
+     * Tests f it possible to modify a script using the upload method from
+     * omero.client
+     * @throws Exception
+     */
     @Test(expectedExceptions = omero.SecurityViolation.class)
     public void testModifyScriptUsingUploadFromClientbyRestrictedSystemUser() throws Exception {
         logNewAdminWithoutPrivileges();
@@ -2601,6 +2604,11 @@ public class LightAdminRolesTest extends RolesTests {
         client.upload(file, scriptFile);
     }
 
+    /**
+     * Tests if it possible to upload a file owned by another user using
+     * the upload method from omero.client
+     * @throws Exception
+     */
     @Test(expectedExceptions = omero.SecurityViolation.class)
     public void testUploadFromClientbyRestrictedSystemUser() throws Exception {
         newUserAndGroup("rwrw--");
@@ -2622,4 +2630,5 @@ public class LightAdminRolesTest extends RolesTests {
         FileUtils.writeStringToFile(file, "test");
         client.upload(file, of);
     }
+
 }
