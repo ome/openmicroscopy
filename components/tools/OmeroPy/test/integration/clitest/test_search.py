@@ -82,6 +82,7 @@ class TestSearch(CLITest):
         else:
             with pytest.raises(NonZeroReturnCode):
                 results = self.go()
+    
 
     def test_search_basic(self):
         self.mkimage()
@@ -173,9 +174,10 @@ class TestSearch(CLITest):
         args = ["Dataset", txt, _from, _to]
         self.assertSearch(args, name=self._uuid_ds)
 
-    def test_search_index_by_user(self):
+    def test_search_index_by_user(self, capsys):
         self.mkimage()
         short = self.short()
-        with pytest.raises(Exception) as exc:
-            self.assertSearch(("Image", short + "*", "--index"))
-        assert 'Only admin can index object' in str(exc.value)
+        self.args.extend(("Image", short + "*", "--index"))
+        self.cli.invoke(self.args, strict=False)
+        o, e = capsys.readouterr()
+        assert 'Only admin can index object' in str(e)
