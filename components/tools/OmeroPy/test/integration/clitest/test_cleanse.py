@@ -52,7 +52,6 @@ class TestCleanseRoot(RootCLITest):
     def setup_method(self, method):
         super(TestCleanseRoot, self).setup_method(method)
         self.cli.register("admin", omero.plugins.admin.AdminControl, "TEST")
-        self.import_args = self.args
         self.args += ["admin", "cleanse"]
         self.group_ctx = {'omero.group': str(self.group.id.val)}
         config_service = self.root.sf.getConfigService()
@@ -150,3 +149,28 @@ class TestCleanseRoot(RootCLITest):
         assert not os.path.isfile(orig_file_path_and_name)
         assert not os.path.exists(logfile_path)
         assert not os.path.isfile(logfile_path_and_name)
+
+
+class TestCleanseRestrictedAdmin(CLITest):
+
+    # make the user in this test a member of system group
+    DEFAULT_SYSTEM = True
+    # make the new member of system group to a Restricted
+    # Admin with no privileges
+    DEFAULT_PRIVILEGES = []
+
+    def setup_method(self, method):
+        super(TestCleanseRestrictedAdmin, self).setup_method(method)
+        self.cli.register("admin", omero.plugins.admin.AdminControl, "TEST")
+        self.args += ["admin", "cleanse"]
+
+    def testCleanseRestrictedAdmin(self, capsys):
+        """Test cleanse cannot be run by Restricted Admin"""
+        config_service = self.root.sf.getConfigService()
+        data_dir = config_service.getConfigValue("omero.data.dir")
+        self.args += [data_dir]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        output_end = "SecurityViolation: Admin restrictions: ReadSession\n"
+        assert err.endswith(output_end)

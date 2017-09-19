@@ -93,6 +93,16 @@ class ITest(object):
     # If the new user created in setup_class should own their group
     # Can be overriden by test instances
     DEFAULT_GROUP_OWNER = False
+    # If the new user created in setup_class should
+    # be member of system group. This is to be
+    # set to True if the new user should be Restricted Admin
+    # Can be overriden by test instances
+    DEFAULT_SYSTEM = False
+    # If the new user created in setup_class is system group member
+    # default value None makes the new user to Full Admin
+    # For Restricted Admin with no privileges, set the value to []
+    # Can be overriden by test instances
+    DEFAULT_PRIVILEGES = None
 
     @classmethod
     def setup_class(cls):
@@ -115,7 +125,10 @@ class ITest(object):
             raise Exception("Could not initiate a root connection")
 
         cls.group = cls.new_group(perms=cls.DEFAULT_PERMS)
-        cls.user = cls.new_user(group=cls.group, owner=cls.DEFAULT_GROUP_OWNER)
+        cls.user = cls.new_user(group=cls.group,
+                                owner=cls.DEFAULT_GROUP_OWNER,
+                                system=cls.DEFAULT_SYSTEM,
+                                privileges=cls.DEFAULT_PRIVILEGES)
         cls.client = omero.client()  # ok because adds self
         cls.__clients.add(cls.client)
         cls.client.setAgent("OMERO.py.test")
