@@ -172,3 +172,10 @@ class TestSearch(CLITest):
         _to = "--to=%s" % self.days_ago(-1)
         args = ["Dataset", txt, _from, _to]
         self.assertSearch(args, name=self._uuid_ds)
+
+    def test_search_index_by_user(self):
+        self.mkimage()
+        short = self.short()
+        with pytest.raises(Exception) as exc:
+            self.assertSearch(("Image", short + "*", "--index"))
+        assert 'Only admin can index object' in str(exc.value)
