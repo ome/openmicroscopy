@@ -1,7 +1,7 @@
 /*
  * ome.io.nio.PixelsService
  *
- *   Copyright 2006-2013 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -31,6 +31,7 @@ import ome.io.bioformats.BfPixelBuffer;
 import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.messages.MissingPyramidMessage;
 import ome.io.messages.MissingStatsInfoMessage;
+import ome.io.nio.Utils.FailedTileLoopException;
 import ome.parameters.Parameters;
 import ome.system.metrics.Metrics;
 import ome.system.metrics.Timer;
@@ -401,7 +402,7 @@ public class PixelsService extends AbstractFileSystemService
             final int tenPercent = Math.max((int) totalTiles / 10, 1);
             Utils.forEachTile(new TileLoopIteration() {
                 public void run(int z, int c, int t, int x, int y, int w,
-                            int h, int tileCount)
+                            int h, int tileCount) throws FailedTileLoopException
             {
                 if (log.isInfoEnabled()
                     && tileCount % tenPercent == 0)
@@ -438,13 +439,15 @@ public class PixelsService extends AbstractFileSystemService
                         log.warn("Error clearing empty or incomplete pixel " +
                                  "buffer.", e2);
                     }
-                    return;
+                    throw new Utils.FailedTileLoopException();
                 }
             }
             }, source, (int) tileSize.getWidth(), (int) tileSize.getHeight());
 
             log.info("SUCCESS -- Pyramid created for pixels id:" + pixels.getId());
 
+        } catch (FailedTileLoopException ftle) {
+            log.error("Failed: completed tile count = " + ftle.getTileCount());
         }
 
         finally
