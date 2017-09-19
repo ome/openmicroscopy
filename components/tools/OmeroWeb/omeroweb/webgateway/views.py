@@ -822,7 +822,7 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
                             zip(invert_flags, reverses)]
         try:
             # quantization maps (just applied, not saved at the moment)
-            qm = [m['quantization'] for m in json.loads(r['maps'])]
+            qm = [m.get('quantization') for m in json.loads(r['maps'])]
             img.setQuantizationMaps(qm)
         except:
             logger.debug('Failed to set quantization maps')
