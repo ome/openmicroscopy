@@ -40,6 +40,7 @@ import ome.security.policy.PolicyService;
 import ome.system.EventContext;
 import ome.system.Roles;
 import ome.tools.hibernate.HibernateUtils;
+import ome.util.PermDetails;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Session;
@@ -278,8 +279,7 @@ public class BasicACLVoter implements ACLVoter {
         Assert.notNull(iObject);
         Class<?> cls = iObject.getClass();
 
-        boolean sysType = sysTypes.isSystemType(cls)
-            || sysTypes.isInSystemGroup(iObject.getDetails());
+        boolean sysType = sysTypes.isSystemType(cls);
 
         // Note: removed restriction from #1769 that admins can only
         // create objects belonging to the current user. Instead,
@@ -321,8 +321,7 @@ public class BasicACLVoter implements ACLVoter {
             throws SecurityViolation {
         Assert.notNull(iObject);
 
-        boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
-            sysTypes.isInSystemGroup(iObject.getDetails());
+        boolean sysType = sysTypes.isSystemType(iObject.getClass());
 
         if (sysType) {
             throw new SecurityViolation(iObject + " is a System-type, and may be created only through privileged APIs.");
@@ -350,8 +349,7 @@ public class BasicACLVoter implements ACLVoter {
     public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
         Assert.notNull(iObject);
 
-        boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
-            sysTypes.isInSystemGroup(iObject.getDetails());
+        boolean sysType = sysTypes.isSystemType(iObject.getClass());
 
         if (!sysType && currentUser.isGraphCritical(iObject.getDetails())) { // ticket:1769
             throw new GroupSecurityViolation(iObject +"-modification violates " +
@@ -431,8 +429,7 @@ public class BasicACLVoter implements ACLVoter {
             throw new InternalException("trustedDetails are null!");
         }
 
-        final boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
-            sysTypes.isInSystemGroup(d);
+        final boolean sysType = sysTypes.isSystemType(iObject.getClass());
         final boolean sysTypeOrUsrGroup = sysType ||
             sysTypes.isInUserGroup(d);
 
@@ -610,20 +607,16 @@ public class BasicACLVoter implements ACLVoter {
      * @return the permissions integer, possibly adjusted
      */
     private int addChgrpChownRestrictionBits(Class<? extends IObject> objectClass, Details details, int allow) {
-        if (details.getOwner() == null || details.getGroup() == null) {
-            /* probably a system type, either way we cannot judge on this basis */
-            return allow;
-        }
         final EventContext ec = currentUser.getCurrentEventContext();
         final Set<AdminPrivilege> privileges = ec.getCurrentAdminPrivileges();
         final boolean isChgrpPrivilege = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_CHGRP));
         final boolean isChownPrivilege = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_CHOWN));
         final int chgrpBit = 1 << Permissions.CHGRPRESTRICTION;
         final int chownBit = 1 << Permissions.CHOWNRESTRICTION;
-        if (isChgrpPrivilege || ec.getCurrentUserId().equals(details.getOwner().getId())) {
+        if (isChgrpPrivilege || details.getOwner() != null && ec.getCurrentUserId().equals(details.getOwner().getId())) {
             allow |= chgrpBit;
         }
-        if (isChownPrivilege || ec.getLeaderOfGroupsList().contains(details.getGroup().getId())) {
+        if (isChownPrivilege || details.getGroup() != null && ec.getLeaderOfGroupsList().contains(details.getGroup().getId())) {
             allow |= chownBit;
         }
         if ((allow & chgrpBit) > 0 && !chgrpPermittedClasses.isEmpty()) {
@@ -655,6 +648,12 @@ public class BasicACLVoter implements ACLVoter {
 
     public void postProcess(IObject object) {
         if (object.isLoaded()) {
+            if (object instanceof PermDetails) {
+                object = ((PermDetails) object).getInternalContext();
+                if (!object.isLoaded()) {
+                    return; // EARLY EXIT
+                }
+            }
             Details details = object.getDetails();
             // Sets context values.
             this.currentUser.applyContext(details,

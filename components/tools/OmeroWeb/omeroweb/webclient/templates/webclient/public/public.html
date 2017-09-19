@@ -457,35 +457,46 @@
 
 {% block left %}
 
-<div id="left_panel_tabs" class="absolute_fill ui-tabs">
+<div class="left_panel_content">
+
+<div id="left_panel_tabs" class="left_panel_tabs_container ui-tabs">
+
     <ul id="left_panel_tab_list" class="ui-tabs-nav">
         <li id="explore_tab" class="ui-state-default"><a href="{% url 'load_template' 'userdata' %}" class="ui-tabs-anchor" title="Explore">{% trans "Explore" %}</a></li>
         <li id="tags_tab" class="ui-state-default"><a href="{% url 'load_template' 'usertags' %}" class="ui-tabs-anchor">{% trans "Tags" %}</a></li>
         <li id="public_tab" class="ui-state-default ui-tabs-active"><a class="ui-tabs-anchor">{% trans "Shares" %}</a></li>
     </ul>
 
-    <div id="Public">
+    <div class="left_panel_toolbar" id="Public">
         <div class="toolbar">
             <ul id="buttons">
 
                 <li>
-                    <input id="removecontentButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Remove content" title="Remove content" /> 
+                    <input id="removecontentButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_cut.png" %}" alt="Remove content" title="Remove content" />
                 </li>
 
                 <li class=seperator></li>
 
                 <li>
-                <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh"> 
+                <input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh">
                 </li>
 
             </ul>
         </div>
-
-        <div id="tree_details" class="left_panel_inner">
-            <div class="datashareTree" id="dataTree"></div>
-        </div>
     </div>
+
 </div>
+
+<div class="left_panel_tree_container">
+
+    <div id="tree_details" class="left_panel_tree">
+        <div class="datashareTree" id="dataTree"></div>
+    </div>
+
+</div>
+
+</div>
+
 {% endblock %}
 
 

@@ -10,5 +10,5 @@ This simplifies deployment, but is less secure since this directory may not
 belong to you. To further secure your installation, make all path references
 absolute.
 
-See http://www.openmicroscopy.org/site/support/omero5.2/sysadmins/grid.html for
+See https://docs.openmicroscopy.org/latest/omero/sysadmins/grid.html for
 more information.

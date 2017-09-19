@@ -21,7 +21,10 @@ import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.Request;
+import omero.gateway.Gateway;
+import omero.gateway.LoginCredentials;
 import omero.gateway.util.Requests;
+import omero.log.SimpleLogger;
 import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
 import omero.model.Experimenter;
@@ -48,6 +51,7 @@ import com.google.common.collect.Sets;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 
@@ -1920,12 +1924,10 @@ public class AdminServiceTest extends AbstractServerTest {
     }
 
     /**
-     * Test creating a light administrator.
-     * @throws ServerError unexpected
+     * @return a proper non-empty subset of the available light administrator privileges
+     * @throws ServerError if the list of all light administrator privileges could not be obtained from the server
      */
-    @Test
-    public void testCreateLightSystemUser() throws ServerError {
-        final IAdminPrx svc = root.getSession().getAdminService();
+    private List<AdminPrivilege> getAdminPrivilegeSubset() throws ServerError {
         boolean useNext = false;
         final List<AdminPrivilege> expectedPrivileges = new ArrayList<>();
         boolean addedSome = false;
@@ -1941,13 +1943,24 @@ public class AdminServiceTest extends AbstractServerTest {
         }
         Assert.assertTrue(addedSome);
         Assert.assertTrue(skippedSome);
+        return expectedPrivileges;
+    }
+
+    /**
+     * Test creating a light administrator.
+     * @throws ServerError unexpected
+     */
+    @Test
+    public void testCreateRestrictedSystemUser() throws ServerError {
+        final IAdminPrx svc = root.getSession().getAdminService();
+        final List<AdminPrivilege> expectedPrivileges = getAdminPrivilegeSubset();
         final Set<String> expectedPrivilegeNames = new HashSet<>();
         for (final AdminPrivilege privilege : expectedPrivileges) {
             expectedPrivilegeNames.add(privilege.getValue().getValue());
         }
         final String lightAdminName = UUID.randomUUID().toString();
         Experimenter lightAdmin = createExperimenterI(lightAdminName, "test", "user");
-        final long lightAdminId = svc.createLightSystemUser(lightAdmin, expectedPrivileges);
+        final long lightAdminId = svc.createRestrictedSystemUser(lightAdmin, expectedPrivileges);
         final List<AdminPrivilege> actualPrivileges = svc.getAdminPrivileges(new ExperimenterI(lightAdminId, false));
         final Set<String> actualPrivilegeNames = new HashSet<>();
         for (final AdminPrivilege privilege : actualPrivileges) {
@@ -1961,6 +1974,53 @@ public class AdminServiceTest extends AbstractServerTest {
             }
         }
         Assert.fail("new light system user must be member of system group");
+    }
+
+    /**
+     * Test creating a light administrator with a password.
+     * @throws ServerError unexpected
+     * @throws DSOutOfServiceException if login as the new light administrator failed
+     */
+    @Test
+    public void testCreateRestrictedSystemUserWithPassword() throws ServerError, DSOutOfServiceException {
+        final IAdminPrx svc = root.getSession().getAdminService();
+        final List<AdminPrivilege> expectedPrivileges = getAdminPrivilegeSubset();
+        final Set<String> expectedPrivilegeNames = new HashSet<>();
+        for (final AdminPrivilege privilege : expectedPrivileges) {
+            expectedPrivilegeNames.add(privilege.getValue().getValue());
+        }
+        final String lightAdminName = UUID.randomUUID().toString();
+        final String lightAdminPassword = UUID.randomUUID().toString();
+        Experimenter lightAdmin = createExperimenterI(lightAdminName, "test", "user");
+        final long lightAdminId = svc.createRestrictedSystemUserWithPassword(lightAdmin, expectedPrivileges,
+                omero.rtypes.rstring(lightAdminPassword));
+        final List<AdminPrivilege> actualPrivileges = svc.getAdminPrivileges(new ExperimenterI(lightAdminId, false));
+        final Set<String> actualPrivilegeNames = new HashSet<>();
+        for (final AdminPrivilege privilege : actualPrivileges) {
+            actualPrivilegeNames.add(privilege.getValue().getValue());
+        }
+        Assert.assertEquals(actualPrivilegeNames, expectedPrivilegeNames);
+        lightAdmin = svc.lookupExperimenter(lightAdminName);
+        boolean isInSystemGroup = false;
+        for (final GroupExperimenterMap group : lightAdmin.copyGroupExperimenterMap()) {
+            if (group.getParent().getId().getValue() == roles.systemGroupId) {
+                isInSystemGroup = true;
+                break;
+            }
+        }
+        Assert.assertTrue(isInSystemGroup, "new light system user must be member of system group");
+        final LoginCredentials credentials = new LoginCredentials();
+        credentials.getServer().setHostname(root.getProperty("omero.host"));
+        credentials.getServer().setPort(Integer.parseInt(root.getProperty("omero.port")));
+        credentials.getUser().setUsername(lightAdminName);
+        credentials.getUser().setPassword(lightAdminPassword);
+        final Gateway gateway = new Gateway(new SimpleLogger());
+        try {
+            final ExperimenterData lightAdminData = gateway.connect(credentials);
+            Assert.assertEquals(lightAdminData.getId(), lightAdmin.getId().getValue());
+        } finally {
+            gateway.disconnect();
+        }
     }
 
     /**

@@ -56,7 +56,7 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
 	        qb.join("objective.correction", "co", true, true);
         }
         
-        // see http://trac.openmicroscopy.org.uk/ome/ticket/296
+        // see https://trac.openmicroscopy.org.uk/ome/ticket/296
         if (Image.class.isAssignableFrom(klass)) {
             qb.where();
             qb.and("img.id in (:ids)");

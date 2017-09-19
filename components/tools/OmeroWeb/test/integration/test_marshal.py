@@ -21,11 +21,9 @@
 Test json methods of webgateway
 """
 
-import json
-
 from django.core.urlresolvers import reverse
 
-from omeroweb.testlib import IWebTest, _get_response
+from omeroweb.testlib import IWebTest, get_json
 
 
 class TestImgDetail(IWebTest):
@@ -47,8 +45,8 @@ class TestImgDetail(IWebTest):
 
         json_url = reverse('webgateway.views.imageData_json', args=[iid])
         data = {}
-        img_data = _get_response_json(self.django_client, json_url,
-                                      data, status_code=200)
+        img_data = get_json(self.django_client, json_url, data,
+                            status_code=200)
 
         # Not a big image - tiles should be False with no other tiles metadata
         assert img_data['tiles'] is False
@@ -68,6 +66,7 @@ class TestImgDetail(IWebTest):
                 'min': 88
             },
             'reverseIntensity': False,
+            'inverted': False,
             'emissionWave': 500,
             'label': "500"
         }
@@ -131,12 +130,3 @@ class TestImgDetail(IWebTest):
                 'height': 24
             }
         }
-
-
-# Helpers
-def _get_response_json(django_client, request_url,
-                       query_string, status_code=200):
-    rsp = _get_response(django_client, request_url, query_string, status_code)
-    # allow 'text/javascript'?
-    # assert rsp.get('Content-Type') == 'application/json'
-    return json.loads(rsp.content)

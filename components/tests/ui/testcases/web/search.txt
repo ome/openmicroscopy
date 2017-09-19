@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation     Tests Search on Web
-...               https://www.openmicroscopy.org/private/ome-internal/testing_scenarios/Search.html
+...               https://docs.openmicroscopy.org/internal/testing_scenarios/Search.html
 
 Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
@@ -27,7 +27,7 @@ ${XpathWellThumb}       xpath=//table[@id='dataTable']//img[contains(@src,'well1
 ${XpathTable}           xpath=//table[@id='dataTable']
 ${XpathTableColumn}     xpath=//table[@id='dataTable']//tr/td[position()=3]
 ${XPathAlertText}       xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//p
-${RandomClick}          xpath=//form[@id="searching_form"]/h2
+${RandomClick}          xpath=//form[@id="searching_form"]//h2
 ${AlertWindow}          xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//div[contains(@class, 'ui-dialog-buttonset')]//*[contains(text(),"OK")]
 ${SearchInProgress}     xpath=//div[@id='content_details']//img[contains(@src,'webgateway/img/spinner.gif')]
 ${QueryError}           xpath=//div[@id='content_details']//div[contains(@class,'error')]

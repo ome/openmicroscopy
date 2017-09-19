@@ -16,7 +16,7 @@ import ome.util.messages.InternalMessage;
  * by other subsystems to slow down, or "throttle", execution.
  * 
  * @see <a
- *      href="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroThrottling">OmeroThrottling</a>
+ *      href="https://docs.openmicroscopy.org/latest/omero/developers/Server/Throttling.html">OMERO Throttling</a>
  */
 public abstract class AbstractStatsMessage extends InternalMessage {
 

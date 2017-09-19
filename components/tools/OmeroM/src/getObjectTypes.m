@@ -22,8 +22,8 @@ function types = getObjectTypes()
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-names = {'project', 'dataset', 'image', 'screen', 'plate', 'plateacquisition'};
-classnames = {'Project', 'Dataset', 'Image', 'Screen', 'Plate', 'PlateAcquisition'};
+names = {'project', 'dataset', 'image', 'screen', 'plate', 'plateacquisition', 'roi'};
+classnames = {'Project', 'Dataset', 'Image', 'Screen', 'Plate', 'PlateAcquisition', 'Roi'};
 types = createObjectDictionary(names, classnames);
 
 for i = 1 : numel(types)

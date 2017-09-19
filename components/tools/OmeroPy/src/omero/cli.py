@@ -37,6 +37,7 @@ import errno
 from threading import Lock
 from path import path
 from contextlib import contextmanager
+from functools import wraps
 
 from omero_ext.argparse import ArgumentError
 from omero_ext.argparse import ArgumentTypeError
@@ -599,23 +600,28 @@ class Context:
 #
 
 
-def admin_only(func):
+def admin_only(*fargs):
     """
-    Checks that the current user is an admin or throws an exception.
+    Checks that the current user is an admin and has sufficient privileges,
+    or throws an exception.
     """
-    def _check_admin(*args, **kwargs):
-        args = list(args)
-        self = args[0]
-        plugin_args = args[1]
-        client = self.ctx.conn(plugin_args)
-        ec = client.sf.getAdminService().getEventContext()
-        if not ec.isAdmin:
-            self.error_admin_only(fatal=True)
-        return func(*args, **kwargs)
-
-    from omero.util.decorators import wraps
-    _check_admin = wraps(func)(_check_admin)
-    return _check_admin
+    def _admin_only(func):
+        @wraps(func)
+        def _check_admin(*args, **kwargs):
+            self = args[0]
+            plugin_args = args[1]
+            client = self.ctx.conn(plugin_args)
+            ec = client.sf.getAdminService().getEventContext()
+            have_privs = set(ec.adminPrivileges)
+            need_privs = set(fargs)
+            if not ec.isAdmin:
+                self.error_admin_only(fatal=True)
+            elif not need_privs <= have_privs:
+                self.error_admin_only_privs(need_privs - have_privs,
+                                            fatal=True)
+            return func(*args, **kwargs)
+        return _check_admin
+    return _admin_only
 
 
 class BaseControl(object):
@@ -915,6 +921,12 @@ class BaseControl(object):
             self.ctx.die(code, msg)
         else:
             self.ctx.err(msg)
+
+    def error_admin_only_privs(self, restrictions,
+                               msg="SecurityViolation: Admin restrictions: ",
+                               code=111, fatal=True):
+        msg += ", ".join(sorted(restrictions))
+        self.error_admin_only(msg=msg, code=code, fatal=fatal)
 
     def _order_and_range_ids(self, ids):
         from itertools import groupby
@@ -1388,7 +1400,17 @@ class CLI(cmd.Cmd, Context):
         in the parser
         """
 
-        for plugin_path in self._plugin_paths:
+        paths = set(self._plugin_paths)
+        for x in sys.path:
+            x = path(x)
+            if x.isdir():
+                x = x / "omero" / "plugins"
+                if x.exists():
+                    paths.add(x)
+            else:
+                if self.isdebug:
+                    print "Can't load %s" % x
+        for plugin_path in paths:
             self.loadpath(path(plugin_path))
 
         self.configure_plugins()

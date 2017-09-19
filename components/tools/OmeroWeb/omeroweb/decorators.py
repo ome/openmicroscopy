@@ -50,7 +50,7 @@ def parse_url(lookup_view):
     url = None
     try:
         url = reverse_with_params(
-            lookup_view['viewname'],
+            viewname=lookup_view['viewname'],
             args=lookup_view['args'],
             query_string=lookup_view['query_string']
         )
@@ -238,6 +238,8 @@ class login_required(object):
                             'disabling OMERO.webpublic.')
                 settings.PUBLIC_ENABLED = False
                 return False
+            if settings.PUBLIC_GET_ONLY and (request.method != 'GET'):
+                return False
             if self.allowPublic is None:
                 return settings.PUBLIC_URL_FILTER.search(request.path) \
                     is not None
@@ -297,7 +299,7 @@ class login_required(object):
                 server_id = settings.PUBLIC_SERVER_ID
             username = settings.PUBLIC_USER
             password = settings.PUBLIC_PASSWORD
-            is_secure = request.GET.get('ssl', False)
+            is_secure = settings.SECURE
             logger.debug('Is SSL? %s' % is_secure)
             # Try and use a cached OMERO.webpublic user session key.
             public_user_connector = self.get_public_user_connector()
@@ -339,7 +341,7 @@ class login_required(object):
         userip = get_client_ip(request)
         session = request.session
         request = request.GET
-        is_secure = request.get('ssl', False)
+        is_secure = settings.SECURE
         logger.debug('Is SSL? %s' % is_secure)
         connector = session.get('connector', None)
         logger.debug('Connector: %s' % connector)
@@ -419,7 +421,7 @@ class login_required(object):
             return None
 
         session['connector'] = connector
-        return connection
+        return None
 
     def __call__(ctx, f):
         """
@@ -470,18 +472,20 @@ class login_required(object):
 
                     # kwargs['error'] = request.GET.get('error')
                     kwargs['url'] = url
-
-            retval = f(request, *args, **kwargs)
             try:
-                logger.debug(
-                    'Doing connection cleanup? %s' % doConnectionCleanup)
-                if doConnectionCleanup:
-                    if conn is not None and conn.c is not None:
-                        for v in conn._proxies.values():
-                            v.close()
-                        conn.c.closeSession()
-            except:
-                logger.warn('Failed to clean up connection.', exc_info=True)
+                retval = f(request, *args, **kwargs)
+            finally:
+                # If f() raised Exception, e.g. Http404() we must still cleanup
+                try:
+                    logger.debug(
+                        'Doing connection cleanup? %s' % doConnectionCleanup)
+                    if doConnectionCleanup:
+                        if conn is not None and conn.c is not None:
+                            for v in conn._proxies.values():
+                                v.close()
+                            conn.c.closeSession()
+                except:
+                    logger.warn('Failed to clean up connection', exc_info=True)
             return retval
         return update_wrapper(wrapped, f)
 

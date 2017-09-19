@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * register all its {@link Ice.ObjectFactory} instances with the
  * {@link Ice.Communicator}.
  *
- * @see <a href="http://trac.openmicroscopy.org/ome/ticket/6340">Trac ticket #6340</a>
+ * @see <a href="https://trac.openmicroscopy.org/ome/ticket/6340">Trac ticket #6340</a>
  */
 public abstract class ObjectFactoryRegistry {
 

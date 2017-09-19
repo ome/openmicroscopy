@@ -80,7 +80,7 @@ public interface LocalAdmin extends ome.api.IAdmin {
      * @param password the user's password
      * @param readOnly if the password check should be transactionally read-only
      * @return if the user's password is correct
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/4626">Trac ticket #4626</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/4626">Trac ticket #4626</a>
      */
     boolean checkPassword(String user, String password, boolean readOnly);
 

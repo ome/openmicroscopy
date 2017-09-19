@@ -121,6 +121,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
             final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
             arguments.addParameter("targetObjects", targetObjects);
             arguments.addParameter("childOptions", childOptions);
+            arguments.addParameter("typesToIgnore", typesToIgnore);
             arguments.addParameter("dryRun", dryRun);
             LOGGER.debug("request: " + arguments);
         }
@@ -128,6 +129,8 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
         this.helper = helper;
         helper.setSteps(dryRun ? 4 : 6);
         this.graphHelper = new GraphHelper(helper, graphPathBean);
+
+        graphPolicy = IgnoreTypePolicy.getIgnoreTypePolicy(graphPolicy, graphHelper.getClassesFromNames(typesToIgnore));
 
         graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
                 aclVoter, graphPathBean, unnullable, new InternalProcessor(), dryRun);

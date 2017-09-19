@@ -72,5 +72,5 @@ Copyright
 .. _ZeroC IcePy: https://zeroc.com/
 .. _Pillow: https://python-pillow.org/
 .. _NumPy: http://matplotlib.org/
-.. _Running and writing tests: http://www.openmicroscopy.org/site/support/omero5.3/developers/testing.html
+.. _Running and writing tests: https://docs.openmicroscopy.org/latest/omero/developers/testing.html
 

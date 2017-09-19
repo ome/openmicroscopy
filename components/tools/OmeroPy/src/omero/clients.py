@@ -1006,7 +1006,6 @@ class BaseClient(object):
                 # * Ice.DNSException
             finally:
                 oldIc.destroy()
-                del oldIc._impl  # WORKAROUND ticket:2007
 
         finally:
             self.__lock.release()

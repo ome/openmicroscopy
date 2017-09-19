@@ -572,6 +572,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         @return:            Generator yielding Images
         @rtype:             L{ImageWrapper} generator
         """
+        warnings.warn(
+            "Deprecated as of OMERO 5.4.0. "
+            "Use getObjects('Image', opts={'dataset': id})",
+            DeprecationWarning)
 
         q = self.getQueryService()
         p = omero.sys.ParametersI()
@@ -599,16 +603,13 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 self, e.copyDatasetLinks()[0])}
             yield ImageWrapper(self, e, None, **kwargs)
 
-    def createDataset(self, name, description=None, img_ids=None):
+    def createDataset(self, name, description=None, img_ids=None, owner=None):
         """
         Creates a Dataset and adds images if img_ids is specified.
         Returns the new Dataset ID.
         """
-        ds = omero.model.DatasetI()
-        ds.name = rstring(str(name))
-        if description is not None and description != "":
-            ds.description = rstring(str(description))
-        dsid = self.saveAndReturnId(ds)
+        dsid = self.createContainer("dataset", name,
+                                    description=description, owner=owner)
         if img_ids is not None:
             iids = [int(i) for i in img_ids]
             links = []
@@ -617,12 +618,14 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 link.setParent(omero.model.DatasetI(dsid, False))
                 link.setChild(omero.model.ImageI(iid, False))
                 links.append(link)
-            self.saveArray(links)
+            self.saveArray(links, owner=owner)
         return dsid
 
     def createProject(self, name, description=None):
         """ Creates new Project and returns ID """
-
+        warnings.warn(
+            "Deprecated as of OMERO 5.4.0. Use createContainer()",
+            DeprecationWarning)
         pr = omero.model.ProjectI()
         pr.name = rstring(str(name))
         if description is not None and description != "":
@@ -631,7 +634,9 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
     def createScreen(self, name, description=None):
         """ Creates new Screen and returns ID """
-
+        warnings.warn(
+            "Deprecated as of OMERO 5.4.0. Use createContainer()",
+            DeprecationWarning)
         sc = omero.model.ScreenI()
         sc.name = rstring(str(name))
         if description is not None and description != "":
@@ -640,7 +645,9 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
     def createTag(self, name, description=None):
         """ Creates new Tag and returns ID """
-
+        warnings.warn(
+            "Deprecated as of OMERO 5.4.0. Use createContainer()",
+            DeprecationWarning)
         tag = omero.model.TagAnnotationI()
         tag.textValue = rstring(str(name))
         if description is not None and description != "":
@@ -649,7 +656,9 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
     def createTagset(self, name, description=None):
         """ Creates new Tag Set and returns ID """
-
+        warnings.warn(
+            "Deprecated as of OMERO 5.4.0. Use createContainer()",
+            DeprecationWarning)
         tag = omero.model.TagAnnotationI()
         tag.textValue = rstring(str(name))
         tag.ns = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
@@ -657,16 +666,25 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             tag.description = rstring(str(description))
         return self.saveAndReturnId(tag)
 
-    def createContainer(self, dtype, name, description=None):
-        """ Creates new Project, Dataset or Screen and returns ID """
-
+    def createContainer(self, dtype, name, description=None, owner=None):
+        """Creates Project, Dataset, Screen, Tag or Tagset and returns ID."""
         dtype = dtype.lower()
         if dtype == "project":
-            return self.createProject(name, description)
+            c = omero.model.ProjectI()
         elif dtype == "dataset":
-            return self.createDataset(name, description)
+            c = omero.model.DatasetI()
         elif dtype == "screen":
-            return self.createScreen(name, description)
+            c = omero.model.ScreenI()
+        if dtype == "tag" or dtype == "tagset":
+            c = omero.model.TagAnnotationI()
+            c.textValue = rstring(str(name))
+            if dtype == "tagset":
+                c.ns = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
+        else:
+            c.name = rstring(str(name))
+
+        oid = self.saveAndReturnId(c, owner=owner)
+        return oid
 
     # DATA RETRIVAL BY TAGs
     def findTag(self, name, desc=None):
@@ -1003,8 +1021,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["name"] = rstring(smart_str(name))
+        ctx = self.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(-1)
         sql = "select g from ExperimenterGroup as g where g.name = (:name)"
-        grs = query_serv.findAllByQuery(sql, p, self.SERVICE_OPTS)
+        grs = query_serv.findAllByQuery(sql, p, ctx)
         if len(grs) > 0:
             return True
         else:
@@ -1016,11 +1036,13 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         if email == old_email:
             return False
         query_serv = self.getQueryService()
+        ctx = self.SERVICE_OPTS.copy()
+        ctx.setOmeroGroup(-1)
         p = omero.sys.Parameters()
         p.map = {}
         p.map["email"] = rstring(smart_str(email))
         sql = "select e from Experimenter as e where e.email = (:email)"
-        exps = query_serv.findAllByQuery(sql, p, self.SERVICE_OPTS)
+        exps = query_serv.findAllByQuery(sql, p, ctx)
         if len(exps) > 0:
             return True
         else:
@@ -1062,7 +1084,8 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             rstring(str(old_password)), rstring(str(password)))
 
     def createExperimenter(self, omeName, firstName, lastName, email, isAdmin,
-                           isActive, defaultGroup, otherGroups, password,
+                           isActive, defaultGroupId, otherGroupIds, password,
+                           privileges=None,
                            middleName=None, institution=None):
         """
         Create and return a new user in the given groups with password.
@@ -1078,11 +1101,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         @type isAdmin Boolean
         @param isActive Active user (user can log in).
         @type isActive Boolean
-        @param defaultGroup Instance of ExperimenterGroup selected as a first
-                            active group.
-        @type defaultGroup ExperimenterGroupI
-        @param otherGroups List of ExperimenterGroup instances. Can be empty.
-        @type otherGroups L{ExperimenterGroupI}
+        @param defaultGroupId Default active group ID.
+        @type defaultGroupId ExperimenterGroupI
+        @param otherGroupIds List of Group IDs. Can be empty.
+        @type otherGroupIds L{ExperimenterGroupI}
         @param password Must pass validation in the security sub-system.
         @type password String
         @param middleName A middle name.
@@ -1104,26 +1126,47 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                                     rstring(str(institution)) or None)
         experimenter.ldap = rbool(False)
 
+        admin_serv = self.getAdminService()
         listOfGroups = list()
         # system group
         if isAdmin:
-            g = self.getObject("ExperimenterGroup",
-                               attributes={'name': 'system'})
-            listOfGroups.append(g._obj)
+            gid = admin_serv.getSecurityRoles().systemGroupId
+            listOfGroups.append(ExperimenterGroupI(gid, False))
 
         # user group
         if isActive:
-            g = self.getObject("ExperimenterGroup",
-                               attributes={'name': 'user'})
-            listOfGroups.append(g._obj)
+            gid = admin_serv.getSecurityRoles().userGroupId
+            listOfGroups.append(ExperimenterGroupI(gid, False))
 
-        for g in otherGroups:
-            listOfGroups.append(g._obj)
+        for i in otherGroupIds:
+            listOfGroups.append(ExperimenterGroupI(i, False))
 
-        admin_serv = self.getAdminService()
-        return admin_serv.createExperimenterWithPassword(
-            experimenter, rstring(str(password)), defaultGroup._obj,
-            listOfGroups)
+        defaultGroup = ExperimenterGroupI(defaultGroupId, False)
+
+        if privileges is not None:
+            if defaultGroupId not in otherGroupIds:
+                listOfGroups.append(ExperimenterGroupI(defaultGroupId, False))
+
+            admin_privileges = []
+            for p in privileges:
+                privilege = omero.model.AdminPrivilegeI()
+                privilege.setValue(rstring(p))
+                admin_privileges.append(privilege)
+            exp_id = admin_serv.createRestrictedSystemUserWithPassword(
+                experimenter, admin_privileges, rstring(password))
+            exp = ExperimenterI(exp_id, False)
+
+            if 'ModifyGroupMembership' in self.getCurrentAdminPrivileges():
+                admin_serv.addGroups(exp, listOfGroups)
+                admin_serv.setDefaultGroup(exp, defaultGroup)
+
+        else:
+            # This will handle empty listOfGroups
+            exp = admin_serv.createExperimenterWithPassword(
+                experimenter, rstring(password), defaultGroup,
+                listOfGroups)
+
+        return exp
 
     def updateExperimenter(self, experimenter, omeName, firstName, lastName,
                            email, isAdmin, isActive, defaultGroup,
@@ -1226,19 +1269,20 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         if len(rmGroups) > 0 and can_mod:
             admin_serv.removeGroups(up_exp, rmGroups)
 
-    def setConfigRoles(self, experimenter_id, experimenter_form):
+    def get_privileges_from_form(self, experimenter_form):
         """
-        Save 'AdminPrivilege' roles from Experimenter Form
+        Get 'AdminPrivilege' roles from Experimenter Form
+
+        Returns None if Role is User
         """
-        def createPrivilege(value):
-            privilege = omero.model.AdminPrivilegeI()
-            privilege.setValue(rstring(value))
-            return privilege
         privileges = []
+        role = experimenter_form.cleaned_data['role']
+        if role not in ('restricted_administrator', 'administrator'):
+            return None
         # If user is Admin, we give them ALL privileges!
-        if experimenter_form.cleaned_data['role'] == 'administrator':
+        if role == 'administrator':
             for p in self.getEnumerationEntries('AdminPrivilege'):
-                privileges.append(createPrivilege(p.getValue()))
+                privileges.append(p.getValue())
         else:
             # Otherwise, restrict to 'checked' privileges on form
             form_privileges = ['Chgrp',
@@ -1249,22 +1293,53 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                                'Sudo']
             for p in form_privileges:
                 if experimenter_form.cleaned_data[p]:
-                    privileges.append(createPrivilege(p))
+                    privileges.append(p)
             # 'Delete', 'Write' and 'Script' checkboxes update several roles
             if experimenter_form.cleaned_data['Delete']:
-                privileges.append(createPrivilege('DeleteFile'))
-                privileges.append(createPrivilege('DeleteManagedRepo'))
-                privileges.append(createPrivilege('DeleteOwned'))
+                privileges.append('DeleteFile')
+                privileges.append('DeleteManagedRepo')
+                privileges.append('DeleteOwned')
             if experimenter_form.cleaned_data['Write']:
-                privileges.append(createPrivilege('WriteFile'))
-                privileges.append(createPrivilege('WriteManagedRepo'))
-                privileges.append(createPrivilege('WriteOwned'))
+                privileges.append('WriteFile')
+                privileges.append('WriteManagedRepo')
+                privileges.append('WriteOwned')
             if experimenter_form.cleaned_data['Script']:
-                privileges.append(createPrivilege('WriteScriptRepo'))
-                privileges.append(createPrivilege('DeleteScriptRepo'))
-        # Save config...
-        self.getAdminService().setAdminPrivileges(
-            ExperimenterI(experimenter_id, False), privileges)
+                privileges.append('WriteScriptRepo')
+                privileges.append('DeleteScriptRepo')
+        return privileges
+
+    def get_privileges_for_form(self, privileges):
+        """
+        Maps the various server-side privileges for ExperimenterForm.
+
+        For example, 'Delete' privilege is True only if all of
+        'DeleteOwned', 'DeleteFile' and 'DeleteManagedRepo' are True
+        """
+        enabled = []
+        delete_perms = []
+        write_perms = []
+        script_perms = []
+
+        for privilege in privileges:
+            if privilege in ('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo'):
+                delete_perms.append(privilege)
+            elif privilege in ('WriteOwned', 'WriteFile', 'WriteManagedRepo'):
+                write_perms.append(privilege)
+            elif privilege in ('WriteScriptRepo', 'DeleteScriptRepo'):
+                script_perms.append(privilege)
+            else:
+                enabled.append(privilege)
+        # if ALL the Delete/Write permissions are found, Delete/Write is True
+        if set(delete_perms) == \
+                set(('DeleteOwned', 'DeleteFile', 'DeleteManagedRepo')):
+            enabled.append('Delete')
+        if set(write_perms) == \
+                set(('WriteOwned', 'WriteFile', 'WriteManagedRepo')):
+            enabled.append('Write')
+        if set(script_perms) == \
+                set(('WriteScriptRepo', 'DeleteScriptRepo')):
+            enabled.append('Script')
+        return enabled
 
     def setMembersOfGroup(self, group, new_members):
         """
@@ -1328,65 +1403,53 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             admin_serv.removeGroups(e, [group._obj])
         return failures
 
-    def setOwnersOfGroup(self, group, new_owners):
+    def setOwnersOfGroup(self, group, owners):
         """
-        Change members of the group.
+        Set owners of group
 
-        @param group            An existing ExperimenterGroup instance.
-        @type group             ExperimenterGroupI
-        @param new_members      List of new new Experimenter Ids.
-        @type new_members       L{Long}
+        @param group        A new ExperimenterGroup instance.
+        @type group         ExperimenterGroupI
+        @param owners       List of Experimenter instances. Can be empty.
+        @type owners        L{ExperimenterI}
         """
 
-        experimenters = list(self.getObjects("Experimenter"))
+        up_gr = group._obj
 
-        new_ownersIds = [no.id for no in new_owners]
+        # old list of owners
+        old_owners = []
+        for oex in group.copyGroupExperimenterMap():
+            if oex is None:
+                continue
+            if oex.owner.val:
+                old_owners.append(oex.child)
 
-        old_owners = group.getOwners()
-        old_ownersIds = [oo.id for oo in old_owners]
+        add_exps = []
+        rm_exps = []
+        # remove
+        for oex in old_owners:
+            flag = False
+            for nex in owners:
+                if nex._obj.id.val == oex.id.val:
+                    flag = True
+            if not flag:
+                rm_exps.append(oex)
 
-        old_available = list()
-        for e in experimenters:
-            if e.id not in old_ownersIds:
-                old_available.append(e)
-        old_availableIds = [oa.id for oa in old_available]
-
-        new_available = list()
-        for e in experimenters:
-            if e.id not in new_ownersIds:
-                new_available.append(e)
-
-        new_availableIds = [na.id for na in new_available]
-
-        rm_exps = list(set(old_ownersIds) - set(new_ownersIds))
-        add_exps = list(set(old_availableIds) - set(new_availableIds))
-
-        to_remove = list()
-        to_add = list()
-        for e in experimenters:
-            if e.id in rm_exps:
-                # removing user from their default group #9193
-                # if e.getDefaultGroup().id != group.id:
-                to_remove.append(e._obj)
-            if e.id in add_exps:
-                to_add.append(e._obj)
+        # add
+        for nex in owners:
+            flag = False
+            for oex in old_owners:
+                if oex.id.val == nex._obj.id.val:
+                    flag = True
+            if not flag:
+                add_exps.append(nex._obj)
 
         admin_serv = self.getAdminService()
-        admin_serv.addGroupOwners(group._obj, to_add)
-        admin_serv.removeGroupOwners(group._obj, to_remove)
+        if add_exps:
+            admin_serv.addGroupOwners(up_gr, add_exps)
+        if rm_exps:
+            admin_serv.removeGroupOwners(up_gr, rm_exps)
 
-    # def deleteExperimenter(self, experimenter):
-    #    """
-    #    Removes a user by removing the password information for that user as
-    #    well as all GroupExperimenterMap instances.
-    #
-    #    @param user     Experimenter to be deleted. Not null.
-    #    @type user      ExperimenterI
-    #    """
-    #    admin_serv = self.getAdminService()
-    #    admin_serv.deleteExperimenter(experimenter)
-
-    def createGroup(self, name, permissions, owners=list(), description=None):
+    def createGroup(self, name, permissions, description=None):
         """
         Create and return a new group with the given owners.
 
@@ -1410,20 +1473,11 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         admin_serv = self.getAdminService()
         gr_id = admin_serv.createGroup(new_gr)
-        group = admin_serv.getGroup(gr_id)
-
-        listOfOwners = list()
-        for exp in owners:
-            listOfOwners.append(exp._obj)
-        if listOfOwners:
-            admin_serv.addGroupOwners(group, listOfOwners)
         return gr_id
 
-    def updateGroup(self, group, name, permissions, owners=list(),
-                    description=None):
+    def updateGroup(self, group, name, permissions, description=None):
         """
-        Update an existing user including groups user is a member of.
-        Password cannot be changed by calling that method.
+        Update an existing group.
 
         @param group        A new ExperimenterGroup instance.
         @type group         ExperimenterGroupI
@@ -1431,8 +1485,6 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         @type name          String
         @param permissions  Permissions instances.
         @type permissions   L{PermissionsI}
-        @param owners       List of Experimenter instances. Can be empty.
-        @type owners        L{ExperimenterI}
         @param description  A description.
         @type description   String
 
@@ -1444,53 +1496,14 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             (description != "" and description is not None) and
             rstring(str(description)) or None)
 
-        # old list of owners
-        old_owners = list()
-        for oex in up_gr.copyGroupExperimenterMap():
-            if oex is None:
-                continue
-            if oex.owner.val:
-                old_owners.append(oex.child)
-
-        add_exps = list()
-        rm_exps = list()
-
-        can_mod = 'ModifyGroupMembership' in self.getCurrentAdminPrivileges()
-        if can_mod:
-            # remove
-            for oex in old_owners:
-                flag = False
-                for nex in owners:
-                    if nex._obj.id.val == oex.id.val:
-                        flag = True
-                if not flag:
-                    rm_exps.append(oex)
-
-            # add
-            for nex in owners:
-                flag = False
-                for oex in old_owners:
-                    if oex.id.val == nex._obj.id.val:
-                        flag = True
-                if not flag:
-                    add_exps.append(nex._obj)
-
         msgs = []
         admin_serv = self.getAdminService()
-        # Should we update updateGroup so this would be atomic?
         admin_serv.updateGroup(up_gr)
 
-        if str(permissions) == str(up_gr.details.getPermissions()):
-            permissions = None
-
-        if permissions is not None:
+        if str(permissions) != str(up_gr.details.getPermissions()):
             err = self.updatePermissions(group, permissions)
             if err is not None:
                 msgs.append(err)
-        if add_exps:
-            admin_serv.addGroupOwners(up_gr, add_exps)
-        if rm_exps:
-            admin_serv.removeGroupOwners(up_gr, rm_exps)
         return msgs
 
     def updateMyAccount(self, experimenter, firstName, lastName, email,
@@ -1572,7 +1585,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 cb.close(True)
         return message
 
-    def saveObject(self, obj):
+    def saveObject(self, obj, owner=None):
         """
         Provide method for directly updating object graphs. Act recursively on
         the entire object graph, replacing placeholders and details where
@@ -1585,10 +1598,13 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                         null.
         @type obj       ObjectI
         """
+        ctx = self.SERVICE_OPTS.copy()
+        if owner is not None:
+            ctx.setOmeroUser(owner)
         u = self.getUpdateService()
-        u.saveObject(obj, self.SERVICE_OPTS)
+        u.saveObject(obj, ctx)
 
-    def saveArray(self, objs):
+    def saveArray(self, objs, owner=None):
         """
         Provide method for directly updating list of object graphs. Act
         recursively on the entire object graph, replacing placeholders and
@@ -1601,10 +1617,13 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                         entity. Not null.
         @type obj       L{ObjectI}
         """
+        ctx = self.SERVICE_OPTS.copy()
+        if owner is not None:
+            ctx.setOmeroUser(owner)
         u = self.getUpdateService()
-        u.saveArray(objs, self.SERVICE_OPTS)
+        u.saveArray(objs, ctx)
 
-    def saveAndReturnObject(self, obj):
+    def saveAndReturnObject(self, obj, owner=None):
         """
         Provide method for directly updating object graphs and return it. Act
         recursively on the entire object graph, replacing placeholders and
@@ -1620,12 +1639,15 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         @rtype          ObjectI
         """
         u = self.getUpdateService()
-        res = u.saveAndReturnObject(obj, self.SERVICE_OPTS)
+        ctx = self.SERVICE_OPTS.copy()
+        if owner is not None:
+            ctx.setOmeroUser(owner)
+        res = u.saveAndReturnObject(obj, ctx)
         res.unload()
         obj = omero.gateway.BlitzObjectWrapper(self, res)
         return obj
 
-    def saveAndReturnId(self, obj):
+    def saveAndReturnId(self, obj, owner=None):
         """
         Provide method for directly updating object graphs and return ID. Act
         recursively on the entire object graph, replacing placeholders and
@@ -1641,7 +1663,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         @rtype          Long
         """
         u = self.getUpdateService()
-        res = u.saveAndReturnObject(obj, self.SERVICE_OPTS)
+        ctx = self.SERVICE_OPTS.copy()
+        if owner is not None:
+            ctx.setOmeroUser(owner)
+        res = u.saveAndReturnObject(obj, ctx)
         res.unload()
         return res.id.val
 

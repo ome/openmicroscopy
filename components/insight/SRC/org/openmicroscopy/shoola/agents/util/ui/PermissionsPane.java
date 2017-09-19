@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -504,7 +504,7 @@ public class PermissionsPane
 		if (readOnlyGroupBox != null) readOnlyGroupBox.setEnabled(enabled);
 		if (readOnlyPublicBox != null) readOnlyPublicBox.setEnabled(enabled);
 		if (readWriteGroupBox != null)
-			readWriteGroupBox.setEnabled(admin);
+			readWriteGroupBox.setEnabled(enabled);
 		if (readAnnotateGroupBox != null)
 			readAnnotateGroupBox.setEnabled(enabled);
 		publicBox.addActionListener(this);

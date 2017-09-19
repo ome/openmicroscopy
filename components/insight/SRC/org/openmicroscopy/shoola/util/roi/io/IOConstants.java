@@ -60,7 +60,7 @@ public class IOConstants
 	/** The tag in the pixelsidtag listing all the files saved under pixels id. */
 	public static final String FILE_TAG = "file";
 	/** Name space for the fileMap object. */
-	public final static String FILEMAP_XML_NAMESPACE = "http://www.openmicroscopy.org.uk";
+	public final static String FILEMAP_XML_NAMESPACE = "https://www.openmicroscopy.org";
 	/** Version number for the filemap object. */
 	public final static String FILEMAP_XML_VERSION = "1.0";
 	/** Version tag for fileMap object. */
@@ -73,7 +73,7 @@ public class IOConstants
 	public final static String PIXELSSET_TAG = "pixelset";
 
 	public final static String SVG_NAMESPACE = "http://www.w3.org/2000/svg";
-	public final static String ROI_NAMESPACE = "http://www.openmicroscopy.org.uk";
+	public final static String ROI_NAMESPACE = "https://www.openmicroscopy.org";
 	public final static String VERSION_TAG = "version";
 	public final static String SVG_VERSION = "1.2";
 	public final static String SVG_XLINK_VALUE = "http://www.w3.org/1999/xlink";

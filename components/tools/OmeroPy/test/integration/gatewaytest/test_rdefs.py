@@ -117,6 +117,13 @@ class TestRDefs (object):
             assert channel.getWindowStart() == start
             assert channel.getWindowEnd() == end
 
+    def testFloatDefaultMinMax(self, author_testimg_32float):
+        """ Test the default min/max values for 32bit float images """
+        channels = author_testimg_32float.getChannels()
+        for channel in channels:
+            assert channel.getWindowMin() == -2147483648
+            assert channel.getWindowMax() == 2147483647
+
     def testEmissionWave(self, author_testimg_tiny):
         """ """
         assert self.channels[0].getEmissionWave() == 457
@@ -231,7 +238,6 @@ class TestRDefs (object):
         Test we can list rdefs for an image and they correspond to the
         rdefs we've set.
         """
-
         # Admin saves Rdef (greyscale)
         gatewaywrapper.loginAsAdmin()
         adminId = gatewaywrapper.gateway.getUserId()

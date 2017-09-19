@@ -83,14 +83,6 @@
 					{% endcomment %}
 					
 			  		{{ form.server }}
-						
-				   <div id="ssl">
-					   <!--Padlock Image -->
-					   {{ form.ssl.help_text|safe }}{% if form.ssl.field.required %}*{% endif %}
-					   <!--Padlock Checkbox -->
-					   {{ form.ssl }}
-					   {{ form.ssl.errors }}
-				   </div>
 			   
 			   <!-- Form Error -->
 				{% if form.server.errors %}
@@ -140,7 +132,7 @@
 		OMERO.web {{ version }}.<br/>
 		&copy; 2007-{{ build_year }} University of Dundee &amp; Open Microscopy Environment<br/>
 		OMERO is distributed under the terms of the GNU GPL.
-		For more information, visit <a href="http://www.openmicroscopy.org">openmicroscopy.org</a><br/>
+		For more information, visit <a href="https://www.openmicroscopy.org">openmicroscopy.org</a><br/>
 
         <img src="{% static 'webgateway/img/OME_logo_grey_110.png' %}"/>
     </p>

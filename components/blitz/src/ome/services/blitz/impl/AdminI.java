@@ -30,7 +30,8 @@ import omero.api.AMD_IAdmin_containedGroups;
 import omero.api.AMD_IAdmin_createExperimenter;
 import omero.api.AMD_IAdmin_createExperimenterWithPassword;
 import omero.api.AMD_IAdmin_createGroup;
-import omero.api.AMD_IAdmin_createLightSystemUser;
+import omero.api.AMD_IAdmin_createRestrictedSystemUser;
+import omero.api.AMD_IAdmin_createRestrictedSystemUserWithPassword;
 import omero.api.AMD_IAdmin_createSystemUser;
 import omero.api.AMD_IAdmin_createUser;
 import omero.api.AMD_IAdmin_deleteExperimenter;
@@ -196,10 +197,17 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
     }
 
     @Override
-    public void createLightSystemUser_async(AMD_IAdmin_createLightSystemUser __cb,
+    public void createRestrictedSystemUser_async(AMD_IAdmin_createRestrictedSystemUser __cb,
             Experimenter experimenter, List<AdminPrivilege> privileges,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, experimenter, privileges);
+    }
+
+    @Override
+    public void createRestrictedSystemUserWithPassword_async(AMD_IAdmin_createRestrictedSystemUserWithPassword __cb,
+            Experimenter experimenter, List<AdminPrivilege> privileges,
+            RString password, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, experimenter, privileges, password);
     }
 
     public void createUser_async(AMD_IAdmin_createUser __cb,

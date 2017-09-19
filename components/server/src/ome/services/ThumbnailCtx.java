@@ -49,7 +49,7 @@ public class ThumbnailCtx
      * their callers that for whatever reason the desired Thumbnail is not
      * available, in which case the caller can use a *Direct method instead.
      *
-     * See <a href="http://trac.openmicroscopy.org/ome/ticket/10618">ticket:10618</a>
+     * See <a href="https://trac.openmicroscopy.org/ome/ticket/10618">ticket:10618</a>
      */
     public static class NoThumbnail extends Exception {
 

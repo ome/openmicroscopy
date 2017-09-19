@@ -42,6 +42,9 @@ import string
 
 from omero_ext import portalocker
 from omero.install.python_warning import py27_only, PYTHON_WARNING
+from omero.util.concurrency import get_event
+from utils import sort_properties_to_tuple
+from connector import Server
 
 logger = logging.getLogger(__name__)
 
@@ -161,9 +164,6 @@ LOGGING = {
 }
 
 
-# Load custom settings from etc/grid/config.xml
-# Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
-from omero.util.concurrency import get_event
 CONFIG_XML = os.path.join(OMERO_HOME, 'etc', 'grid', 'config.xml')
 count = 10
 event = get_event("websettings")
@@ -447,6 +447,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " delete stale data using the cache session store backend, see "
           ":djangodoc:`Django cached session documentation <topics/http/"
           "sessions/#using-cached-sessions>` for more details.")],
+    "omero.web.secure":
+        ["SECURE",
+         "false",
+         parse_boolean,
+         ("Force all backend OMERO.server connections to use SSL.")],
     "omero.web.session_cookie_age":
         ["SESSION_COOKIE_AGE",
          86400,
@@ -503,12 +508,16 @@ CUSTOM_SETTINGS_MAPPINGS = {
          "Enable and disable the OMERO.web public user functionality."],
     "omero.web.public.url_filter":
         ["PUBLIC_URL_FILTER",
-         r'^/(?!webadmin)',
+         r'(?#This regular expression matches nothing)a^',
          re.compile,
-         ("Set a URL filter for which the OMERO.web public user is allowed to"
-          " navigate. The idea is that you can create the public pages"
-          " yourself (see OMERO.web framework since we do not provide public"
-          " pages.")],
+         ("Set a regular expression that matches URLs the public user is"
+          "allowed to access. If this is not set, no URLS will be"
+          "publicly available.")],
+    "omero.web.public.get_only":
+        ["PUBLIC_GET_ONLY",
+         "true",
+         parse_boolean,
+         "Restrict public users to GET requests only"],
     "omero.web.public.server_id":
         ["PUBLIC_SERVER_ID", 1, int, "Server to authenticate against."],
     "omero.web.public.user":
@@ -603,8 +612,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Customize webclient login page with your own logo. Logo images "
           "should ideally be 150 pixels high or less and will appear above "
           "the OMERO logo. You will need to host the image somewhere else "
-          "and link to it with"
-          " ``\"http://www.openmicroscopy.org/site/logo.jpg\"``.")],
+          "and link to it with the OMERO logo.")],
     "omero.web.login_view":
         ["LOGIN_VIEW", "weblogin", str, None],
     "omero.web.staticfile_dirs":
@@ -628,6 +636,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Define template used as an index page ``http://your_host/omero/``."
           "If None user is automatically redirected to the login page."
           "For example use 'webclient/index.html'. ")],
+    "omero.web.base_include_template":
+        ["BASE_INCLUDE_TEMPLATE",
+         None,
+         identity,
+         ("Template to be included in every page, at the end of the <body>")],
     "omero.web.login_redirect":
         ["LOGIN_REDIRECT",
          '{}',
@@ -1052,6 +1065,7 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
                 'omeroweb.custom_context_processor.url_suffix',
+                'omeroweb.custom_context_processor.base_include_template',
             ],
         },
     },
@@ -1232,17 +1246,13 @@ MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 # omeroweb.connector.Connector object
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
-
-# Load server list and freeze
-from utils import sort_properties_to_tuple
-
+# Load custom settings from etc/grid/config.xml
+# Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
 # MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
 MIDDLEWARE_CLASSES = sort_properties_to_tuple(MIDDLEWARE_CLASSES_LIST)  # noqa
 
+
 # Load server list and freeze
-from connector import Server
-
-
 def load_server_list():
     for s in SERVER_LIST:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
         server = (len(s) > 2) and unicode(s[2]) or None

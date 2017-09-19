@@ -39,7 +39,10 @@ from omero.cli import CmdControl
 from omero.cli import CLI
 from omero.cli import ProxyStringType
 from omero.gateway import BlitzGateway
-
+from omero.model.enums import (
+    AdminPrivilegeChown,
+    AdminPrivilegeWriteOwned, AdminPrivilegeWriteManagedRepo,
+    AdminPrivilegeDeleteOwned, AdminPrivilegeDeleteManagedRepo)
 from omero.rtypes import rstring
 from omero.rtypes import unwrap
 from omero.sys import Principal
@@ -457,7 +460,7 @@ Examples:
             tb.row(idx, *tuple(values))
         self.ctx.out(str(tb.build()))
 
-    @admin_only
+    @admin_only(AdminPrivilegeWriteManagedRepo, AdminPrivilegeChown)
     def mkdir(self, args):
         """Make a new directory (admin-only)
 
@@ -483,7 +486,8 @@ omero.fs.repo.path are all set to be owned by the root user.
         mrepo.makeDir(args.new_dir, args.parents)
 
     @windows_warning
-    @admin_only
+    @admin_only(AdminPrivilegeWriteOwned, AdminPrivilegeWriteManagedRepo,
+                AdminPrivilegeDeleteOwned, AdminPrivilegeDeleteManagedRepo)
     def rename(self, args):
         """Moves an existing fileset to a new location (admin-only)
 
@@ -782,7 +786,7 @@ Examples:
                 117,
                 "Log file not accessible for Fileset:%s" % args.fileset.id.val)
 
-    @admin_only
+    @admin_only()
     def set_repo(self, args):
         """Change configuration properties for single repositories
         """

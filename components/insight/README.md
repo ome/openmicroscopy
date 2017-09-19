@@ -17,7 +17,7 @@
   ---------------------
 
   The OMERO.insight Project is a sub-project of the Open Microscopy Environment
-  Project (OME, http://www.openmicroscopy.org/) that focuses on delivering a
+  Project (OME, https://www.openmicroscopy.org/) that focuses on delivering a
   client for the visualization and manipulation of both image data and metadata
   maintained at an OMERO server site.
   OMERO.insight is completely written in Java.
@@ -69,7 +69,7 @@
   Developing OMERO.insight
   ------------------------
 
-  See http://www.openmicroscopy.org/site/support/omero5.2/developers/index.html#insight
+  See https://docs.openmicroscopy.org/latest/omero/developers/index.html#insight
 
 
 
@@ -79,7 +79,7 @@
   This software is licensed under the terms of the GNU General Public
   License (GPL), the full text of which can be found in /lib/licenses/gpl.txt or
   the top level LICENSE.txt. See /lib/licenses/README and
-  http://www.openmicroscopy.org/site/about/licensing-attribution for further details.
+  https://www.openmicroscopy.org/licensing/ for further details.
 
 
 

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -100,7 +100,7 @@ class GroupProfile
     	ref = (GroupData) model.getRefObject();
     	namePane = new JTextField();
     	descriptionPane = new JTextField();
-    	final boolean mayChangePermissions = model.isAdministrator() || model.isGroupLeader(ref);
+    	final boolean mayChangePermissions = model.isGroupLeader(ref) || MetadataViewerAgent.isEditGroup();
     	//permission level
 
     	permissionsPane = new PermissionsPane(ref.getPermissions(),
@@ -113,7 +113,8 @@ class GroupProfile
     	permissionsPane.addPropertyChangeListener(this);
     	namePane.setText(ref.getName());
     	descriptionPane.setText(ref.getDescription());
-    	canEdit = mayChangePermissions && !model.isSystemGroup(ref.getId());
+    	canEdit = mayChangePermissions &&
+    	        !model.isSystemGroup(ref.getId());
     	namePane.setEditable(canEdit);
     	namePane.setEnabled(canEdit);
     	descriptionPane.setEditable(canEdit);

@@ -23,6 +23,7 @@
 		class="ome.logic.RenderingSettingsImpl">
 		<property name="pixelsMetadata" ref="internal-ome.api.IPixels" />
 		<property name="pixelsData" ref="/OMERO/Pixels" />
+		<property name="rawPixelsStore" ref="internal-ome.api.RawPixelsStore"/>
 	</bean>
 
 	<bean id="managed-ome.api.IRenderingSettings"

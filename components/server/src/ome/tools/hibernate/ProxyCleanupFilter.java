@@ -46,7 +46,7 @@ import org.hibernate.collection.AbstractPersistentCollection;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 1.0
- * @see <a href="http://trac.openmicroscopy.org/ome/ticket/8277">Trac ticket #8277</a>
+ * @see <a href="https://trac.openmicroscopy.org/ome/ticket/8277">Trac ticket #8277</a>
  */
 public class ProxyCleanupFilter extends ContextFilter {
 

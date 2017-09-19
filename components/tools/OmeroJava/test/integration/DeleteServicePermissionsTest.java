@@ -1,25 +1,30 @@
 /*
- *   Copyright 2006-2015 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import omero.api.IAdminPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.cmd.Delete2;
 import omero.cmd.DoAll;
 import omero.cmd.Request;
 import omero.constants.metadata.NSINSIGHTRATING;
 import omero.gateway.util.Requests;
+import omero.model.AdminPrivilege;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
+import omero.model.ExperimenterGroupI;
+import omero.model.ExperimenterI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -112,7 +117,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         DoAll all = new DoAll();
         all.requests = commands;
-        doChange(client, factory, all, false, null);
+        doChange(client, factory, all, false);
 
         // Now log the original user back in
         disconnect();
@@ -1083,4 +1088,38 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         assertDoesNotExist(img);
     }
 
+    /**
+     * Test that restricted administrators cannot always delete others' data from the <tt>system</tt> group.
+     * @param isRootOwner is the data owner <tt>root</tt>?
+     * @param isRootDeleting is the data deleter <tt>root</tt>?
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "test cases using two Boolean arguments")
+    public void testDeleteSystemImage(boolean isRootOwner, boolean isRootDeleting) throws Exception {
+        final boolean isExpectSuccess = isRootDeleting || !isRootOwner;
+        final EventContext lightAdmin;
+        if (isRootOwner && isRootDeleting) {
+            lightAdmin = null;
+        } else {
+            final IAdminPrx iAdminRoot = root.getSession().getAdminService();
+            lightAdmin = newUserInGroup(new ExperimenterGroupI(roles.systemGroupId, false), false);
+            iAdminRoot.setAdminPrivileges(new ExperimenterI(lightAdmin.userId, false), Collections.<AdminPrivilege>emptyList());
+        }
+        if (isRootOwner) {
+            logRootIntoGroup(roles.systemGroupId);
+        } else {
+            loginUser(lightAdmin);
+        }
+        Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage()).proxy();
+        if (isRootOwner != isRootDeleting) {
+            if (isRootDeleting) {
+                logRootIntoGroup(roles.systemGroupId);
+            } else {
+                loginUser(lightAdmin);
+            }
+        }
+        image = (Image) iQuery.get("Image", image.getId().getValue());
+        Assert.assertEquals(image.getDetails().getPermissions().canDelete(), isExpectSuccess);
+        doChange(client, factory, Requests.delete().target(image).build(), isExpectSuccess);
+    }
 }

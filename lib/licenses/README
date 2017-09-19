@@ -276,21 +276,21 @@
 
   Artifacts:    formats-api-*.jar
   Project:      Top-level reader and writer APIs.
-  Web Site:     http://www.openmicroscopy.org/site/products/bio-formats
+  Web Site:     https://www.openmicroscopy.org/bio-formats
   License:      BSD License
   License File: bsd.txt
 
 
   Artifacts:    formats-bsd-*.jar
   Project:      Reader and writer implementations that are BSD-licensed.
-  Web Site:     http://www.openmicroscopy.org/site/products/bio-formats
+  Web Site:     https://www.openmicroscopy.org/bio-formats
   License:      BSD License
   License File: bsd.txt
 
 
   Artifacts:    formats-gpl-*.jar
   Project:      A library for reading and writing popular microscopy file formats.
-  Web Site:     http://www.openmicroscopy.org/site/products/bio-formats
+  Web Site:     https://www.openmicroscopy.org/bio-formats
   License:      GNU General Public License v2+
   License File: gpl.txt
 
@@ -663,7 +663,7 @@
 
   Artifacts:    metakit-*.jar
   Project:      A library for reading Metakit database files.
-  Web Site:     http://www.openmicroscopy.org/site/products/bio-formats
+  Web Site:     https://www.openmicroscopy.org/bio-formats
   License:      General Public License (GPL), Version 2
   License File: gpl-v2.0.txt
 
@@ -720,7 +720,7 @@
 
   Artifacts:    ome-common-*.jar
   Project:      Contains common I/O, date parsing, and XML processing classes.
-  Web Site:     http://www.openmicroscopy.org/site/products/bio-formats
+  Web Site:     https://www.openmicroscopy.org/bio-formats
   License:      BSD License
   License File: bsd.txt
 
@@ -746,14 +746,14 @@
 
   Artifacts:    ome-xml-*.jar
   Project:      A library for working with OME-XML metadata structures.
-  Web Site:     http://www.openmicroscopy.org/site/support/ome-model/ome-xml/java-library.html
+  Web Site:     https://docs.openmicroscopy.org/ome-model/
   License:      BSD License
   License File: bsd.txt
 
 
   Artifacts:    specification-*.jar
   Project:      The OME Data Model specification.
-  Web Site:     http://www.openmicroscopy.org/site/support/ome-model
+  Web Site:     https://docs.openmicroscopy.org/ome-model/
   License:      BSD License or Creative Commons Attribution 3.0 Unported License
   License File: bsd.txt
 
@@ -1114,11 +1114,6 @@
   License File: mit.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/ie8_pngfix/*    
-  License:      MIT License
-  License File: mit.txt
-
-
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery-ui-1.10.4/*
   Project:      jQuery UI - open source library of interface components.
   Web Site:     http://jqueryui.com/
@@ -1154,25 +1149,12 @@
   License File: mit.txt, gpl-v3.0.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/JQuerySpinBtn-1.3a/*
-  Web Site:     http://www.softwareunity.com/jquery/JQuerySpinBtn/
-  License:      MIT License
-  License File: mit.txt
-
-
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/panojs-2.0.0/*
   Project:      An interactive JavaScript widget for panning and zooming a panoramic image
                 stitched together dynamically from smaller tiles. 
   Web Site:     http://www.dimin.net/software/panojs/
   License:      MIT License
   License File: mit.txt
-
-
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/pie-1.0beta5/*
-  Project:      progressive internet explorer
-  Web Site:     http://css3pie.com/
-  License:      Apache License, version 2 and GNU GENERAL PUBLIC LICENSE version 2
-  License File: apache-v2.0.txt, gpl-v2.0.txt
 
 
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/raphael-2.1.0/*

@@ -316,8 +316,22 @@ public interface IAdmin extends ServiceInterface {
      * @param privileges the privileges to set for the user
      * @return id of the newly created {@link Experimenter}
      */
-    long createLightSystemUser(@NotNull Experimenter newSystemUser,
+    long createRestrictedSystemUser(@NotNull Experimenter newSystemUser,
             @NotNull @Validate(AdminPrivilege.class) List<AdminPrivilege> privileges);
+
+    /**
+     * Create and return a new system user. This user will be created with the
+     * "System" (administration) group as default and will also be in the "user"
+     * group.
+     *
+     * @param newSystemUser a new {@link Experimenter} instance
+     * @param privileges the privileges to set for the user
+     * @param password the password to set for the user
+     * @return id of the newly created {@link Experimenter}
+     */
+    long createRestrictedSystemUserWithPassword(@NotNull Experimenter newSystemUser,
+            @NotNull @Validate(AdminPrivilege.class) List<AdminPrivilege> privileges,
+            @Hidden String password);
 
     /**
      * create and return a new user in the given groups.
@@ -364,7 +378,7 @@ public interface IAdmin extends ServiceInterface {
      * 
      * @param group  a new {@link ExperimenterGroup} instance. Not null.
      * @return id of the newly created {@link ExperimenterGroup}
-     * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/1434">ticket:1434"</a>
+     * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/1434">ticket:1434"</a>
      */
     long createGroup(ExperimenterGroup group);
 
@@ -587,8 +601,8 @@ public interface IAdmin extends ServiceInterface {
      *            Possibly null to allow logging in with no password.
      * @throws ome.conditions.SecurityViolation
      *             if the user is not authenticated with a password.
-     * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/911">ticket:911</a>
-     * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/3201">ticket:3201</a>
+     * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/911">ticket:911</a>
+     * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/3201">ticket:3201</a>
      */
     void changePassword(@Hidden
     String newPassword);

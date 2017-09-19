@@ -2054,7 +2054,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
     /**
      * Test that users may write official scripts only if they are a member of the <tt>system</tt> group and
      * have the <tt>WriteScriptRepo</tt> privilege.
-     * Attempts creation of a file in another user's group via {@link omero.api.IScriptPrx#uploadOfficialScript(String, String)}.
+     * Attempts creation of a file in the <q>user</q> group via {@link omero.api.IScriptPrx#uploadOfficialScript(String, String)}.
      * @param isAdmin if to test a member of the <tt>system</tt> group
      * @param isRestricted if to test a user who does <em>not</em> have the <tt>WriteScriptRepo</tt> privilege
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
@@ -2072,10 +2072,9 @@ public class LightAdminPrivilegesTest extends RolesTests {
         rfs.setFileId(scriptFile.getId().getValue());
         final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
         rfs.close();
-        /* try uploading the script as a new script in the normal user's group */
+        /* try uploading the script as a new script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
         iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         long testScriptId = -1;
@@ -2762,7 +2761,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
 
     /**
      * Test that administrators may give users only privileges that they themselves have.
-     * Attempts editng privileges via {@link omero.api.IUpdatePrx}.
+     * Attempts editing privileges via {@link omero.api.IUpdatePrx}.
      * @param isHasSudo if the administrator has the <tt>Sudo</tt> privilege
      * @param isGrantsSudo if the target user should be given the <tt>Sudo</tt> privilege
      * @param isEditsAdmin if the target user should be an administrator
@@ -2776,7 +2775,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         Experimenter newUser = createExperimenterI(UUID.randomUUID().toString(), getClass().getSimpleName(), "Test");
         final long newUserId;
         if (isEditsAdmin) {
-            newUserId = iAdmin.createLightSystemUser(newUser, Collections.<AdminPrivilege>emptyList());
+            newUserId = iAdmin.createRestrictedSystemUser(newUser, Collections.<AdminPrivilege>emptyList());
         } else {
             final String groupName = newUserAndGroup("rwr---", false).groupName;
             loginUser(actor);

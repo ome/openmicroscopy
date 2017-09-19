@@ -50,8 +50,8 @@
                     var selected = $.grep($('#id_members').data('chosen').results_data, function(item){
                         return item.value == userId;
                     });
-                    $("#id_owners_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current').find("a").first().unbind("click").remove();
-                    $("#id_members_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current').find("a").first().unbind("click").remove();
+                    $("#id_owners_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current');
+                    $("#id_members_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current');
                 }
                 
                 // Since we want to disable removal of 'system' users from chosen, this hides the 'X'
@@ -136,9 +136,9 @@
             
             
             <input type="submit" 
-                {% if not can_modify_group %}
+                {% if not can_modify_group%}{% if not can_add_member %}
                     disabled title="You don't have permissions to edit Groups"
-                {% endif %}
+                {% endif %}{% endif %}
                 value="{% trans 'Save' %}" />
             <div style="clear: both"></div>
         </div>
@@ -146,7 +146,7 @@
 
     <p>
         Full details on various Permissions levels can be found on the 
-        <a href="http://www.openmicroscopy.org/site/support/omero5.2/sysadmins/server-permissions.html" target="new">
+        <a href="https://docs.openmicroscopy.org/latest/omero/sysadmins/server-permissions.html" target="new">
             OMERO Permissions
         </a>
         page.

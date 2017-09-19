@@ -803,20 +803,18 @@ BEGIN
           INSERT INTO _lock_ids (id, name) VALUES (Lid, seq);
       END IF;
 
+      PERFORM pg_advisory_lock(1, Lid);
+
       BEGIN
-        PERFORM pg_advisory_lock(1, Lid);
+          PERFORM nextval(seq) FROM generate_series(1, increment);
+          SELECT currval(seq) INTO nv;
       EXCEPTION
-        WHEN undefined_function THEN
-          RAISE DEBUG ''No function pg_advisory_lock'';
+          WHEN OTHERS THEN
+              PERFORM pg_advisory_unlock(1, Lid);
+          RAISE;
       END;
-      PERFORM nextval(seq) FROM generate_series(1, increment);
-      SELECT currval(seq) INTO nv;
-      BEGIN
-        PERFORM pg_advisory_unlock(1, Lid);
-      EXCEPTION
-        WHEN undefined_function THEN
-          RAISE DEBUG ''No function pg_advisory_unlock'';
-      END;
+
+      PERFORM pg_advisory_unlock(1, Lid);
 
       RETURN nv;
 
@@ -2044,7 +2042,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.4DEV',  2,    'OMERO5.4DEV',   0,             'Initializing');
+             values ('OMERO5.4DEV',  3,    'OMERO5.4DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -3430,7 +3428,7 @@ CREATE INDEX node_down ON node(down);
 
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.4DEV' and
-        currentPatch = 2 and
+        currentPatch = 3 and
         previousVersion = 'OMERO5.4DEV' and
         previousPatch = 0;
 

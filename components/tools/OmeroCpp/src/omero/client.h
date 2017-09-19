@@ -60,7 +60,7 @@ namespace omero {
      *
      * For more information, see:
      *
-     *    http://trac.openmicroscopy.org.uk/ome/wiki/ClientDesign
+     *    https://docs.openmicroscopy.org/latest/omero/developers/GettingStarted.html
      *
      */
     class OMERO_CLIENT client : public IceUtil::Shared {

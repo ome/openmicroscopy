@@ -113,7 +113,7 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
 
     @Test(groups = "ticket:357")
     // quirky because of defaultTag
-    // see http://trac.openmicroscopy.org.uk/ome/ticket/357
+    // see https://trac.openmicroscopy.org.uk/ome/ticket/357
     public void testPixelsLocksImage() throws Exception {
         Pixels p = ObjectFactory.createPixelGraph(null);
         Image i = new Image();
@@ -162,7 +162,7 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
 
     @Test(groups = "ticket:357")
     // quirky because of defaultTag
-    // see http://trac.openmicroscopy.org.uk/ome/ticket/357
+    // see https://trac.openmicroscopy.org.uk/ome/ticket/357
     public void testImageCanBeUnlockedFromPixels() throws Exception {
         assertContains(metadata.getLockChecks(Image.class), Pixels.class
                 .getName(), "image");

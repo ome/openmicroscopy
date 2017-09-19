@@ -23,7 +23,7 @@ Tests display of metadata in webclient
 import omero
 
 from omeroweb.testlib import IWebTest
-from omeroweb.testlib import _get_response
+from omeroweb.testlib import get
 
 from django.core.urlresolvers import reverse
 from omero.model.enums import UnitsLength
@@ -44,8 +44,7 @@ class TestCoreMetadata(IWebTest):
         # show right panel for image
         request_url = reverse('load_metadata_details', args=['image', iid])
         data = {}
-        rsp = _get_response(self.django_client, request_url,
-                            data, status_code=200)
+        rsp = get(self.django_client, request_url, data, status_code=200)
         html = rsp.content
         # Units are µm by default
         assert "Pixels Size (XYZ) (µm):" in html
@@ -60,8 +59,7 @@ class TestCoreMetadata(IWebTest):
         conn.getUpdateService().saveObject(p)
 
         # Should now be showning pixels
-        rsp = _get_response(self.django_client,
-                            request_url, data, status_code=200)
+        rsp = get(self.django_client, request_url, data, status_code=200)
         html = rsp.content
         assert "Pixels Size (XYZ):" in html
         assert "1.20 (pixel)" in html
@@ -82,6 +80,5 @@ class TestCoreMetadata(IWebTest):
                               args=['image', img.id.val])
 
         # Just check that the metadata panel is loaded
-        rsp = _get_response(self.django_client, request_url,
-                            {}, status_code=200)
+        rsp = get(self.django_client, request_url, status_code=200)
         assert "no_pixels" in rsp.content

@@ -229,7 +229,7 @@
             $('#wblitz-ch'+i+'-cwslider').find('.ui-slider-range').addClass('lutBackground')
                 .css(sliderLutBgStyle)
                 .css({'background-color': '#' + color,
-                      'transform': channels[i].reverseIntensity ? 'scaleX(-1)' : ''});
+                      'transform': channels[i].inverted ? 'scaleX(-1)' : ''});
             // Channel button beside slider
             $('#rd-wblitz-ch'+i)
                 .css('background-color', '#' + color)
@@ -244,7 +244,7 @@
         }
         // Colorpicker buttons store 'reverse-intensity' with .data() to populate colorbtn dialog
         $(".picker").each(function(i, pickerBtn) {
-            $(pickerBtn).data('data-reverse-intensity', channels[i].reverseIntensity);
+            $(pickerBtn).data('data-reverse-intensity', channels[i].inverted);
         });
         hidePicker();
 
@@ -287,7 +287,7 @@
             }
             viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').attr('data-color'), true);
             revInt = $('#wblitz-ch'+i+'-color').data('data-reverse-intensity');
-            if (revInt !== undefined) {viewport.setChannelReverseIntensity(i, revInt, true);}
+            if (revInt !== undefined) {viewport.setChannelInverted(i, revInt, true);}
             var noreload = ((i+1) < viewport.getCCount());    // prevent reload, except on the last loop
             viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value, noreload);
         }
@@ -327,8 +327,8 @@
 
             var wellsUrl = PLATE_WELLS_URL_999.replace('999', tmp.wellId),
                 linksUrl = PLATE_LINKS_URL_999.replace('999', tmp.wellId);
-            loadBulkAnnotations(wellsUrl, tmp.wellId);
-            loadBulkAnnotations(linksUrl, tmp.wellId);
+            loadBulkAnnotations(wellsUrl, 'Well-' + tmp.wellId);
+            loadBulkAnnotations(linksUrl, 'Well-' + tmp.wellId);
         }
     };
 
@@ -566,7 +566,7 @@
 
         /* Prepare color picker buttons */
         $(".picker").each(function(i, pickerBtn) {
-            $(pickerBtn).data('data-reverse-intensity', channels[i].reverseIntensity);
+            $(pickerBtn).data('data-reverse-intensity', channels[i].inverted);
         });
         $(".picker")
             .colorbtn({'server': viewport.viewport_server})

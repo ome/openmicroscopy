@@ -11,6 +11,7 @@
 import sys
 
 from omero.cli import UserGroupControl, CLI, ExceptionHandler, admin_only
+from omero.model.enums import AdminPrivilegeModifyGroup
 
 HELP = """Group administration methods"""
 defaultperms = {
@@ -46,7 +47,7 @@ unlinks other users' annotations from data. The change to private will
 fail if different users' data is too closely related to be separated.
 
 More information is available at:
-http://www.openmicroscopy.org/site/support/omero5.2/sysadmins/\
+https://docs.openmicroscopy.org/latest/omero/sysadmins/\
 server-permissions.html
         """
 
@@ -133,7 +134,7 @@ server-permissions.html
         except ValueError, ve:
             self.ctx.die(505, str(ve))
 
-    @admin_only
+    @admin_only(AdminPrivilegeModifyGroup)
     def add(self, args):
 
         import omero

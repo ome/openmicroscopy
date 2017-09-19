@@ -20,7 +20,6 @@
 package integration.chown;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -57,7 +56,6 @@ import omero.model.FolderImageLinkI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
-import omero.model.ImageAnnotationLinkI;
 import omero.model.Instrument;
 import omero.model.MapAnnotation;
 import omero.model.MapAnnotationI;
@@ -122,7 +120,7 @@ public class PermissionsTest extends AbstractServerTest {
     @AfterClass
     public void deleteTestImages() throws Exception {
         final Delete2 delete = Requests.delete().target("Image").id(testImages).build();
-        doChange(root, root.getSession(), delete, true);
+        doChange(root, root.getSession(), delete, true, null, 2);
         clearTestImages();
     }
 
@@ -435,6 +433,7 @@ public class PermissionsTest extends AbstractServerTest {
      * @param isRecipientInGroup if the user receiving data by means of the {@link Chown2} request is a member of the data's group
      * @param isExpectSuccessOneTargetUser if the one-user chown is expected to succeed
      * @param isExpectSuccessTwoTargetUsers if the two-users chown is expected to succeed
+     * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testChownAllBelongingToUser.pptx">graphical explanation</a>
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown targetUser test cases")

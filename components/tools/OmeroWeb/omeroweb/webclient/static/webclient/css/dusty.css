@@ -867,11 +867,6 @@ button::-moz-focus-inner {
 		font-weight:bold;
 	}
 
-	.ui-dialog p, .ui-dialog span {
-		display:inline-block;
-		/*font-size:1.2em;*/
-	}
-
 	
 		.ui-dialog .ui-dialog-titlebar-close span { 
 			display: block; 
@@ -945,7 +940,10 @@ button::-moz-focus-inner {
 		
 
 
-
+	.new_pds_owner_icon {
+		width: 16px;
+		height: 16px;
+	}
 
 
 

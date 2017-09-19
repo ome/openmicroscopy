@@ -336,7 +336,7 @@ public class SessionI implements _SessionOperations {
 
     /**
      * Called if this isn't a kill-everything event.
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/9330">Trac ticket #9330</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/9330">Trac ticket #9330</a>
      */
     public void cleanupSelf() {
         if (log.isInfoEnabled()) {
@@ -359,7 +359,7 @@ public class SessionI implements _SessionOperations {
      * the entire instance, then we should still close down the stateless
      * services for this instance as well as remove ourselves from the adapter.
      *
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/9330">Trac ticket #9330</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/9330">Trac ticket #9330</a>
      */
     public void doDestroy() {
 

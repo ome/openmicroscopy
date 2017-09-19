@@ -39,6 +39,10 @@ ip.addRequired('parentId', @(x) isempty(x) || (isvector(x) && isnumeric(x)));
 ip.parse(session, annotation, parentType, parentId);
 objectType = objectTypes(strcmp(parentType, objectNames));
 
+% Throw exception if type is roi
+assert(~strcmp(objectType.class, 'omero.model.Roi'),...
+    ['Cannot link annotations to rois. ']);
+
 % Get the parent object
 if isnumeric(parentId),
     parent = getObjects(session, parentType, parentId);

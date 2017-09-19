@@ -272,7 +272,7 @@ public class CurrentDetails implements PrincipalHolder {
             return false;
         }
 
-        final boolean isSysType =  sysTypes.isSystemType(object.getClass()) || sysTypes.isInSystemGroup(object.getDetails());
+        final boolean isSysType =  sysTypes.isSystemType(object.getClass());
         final Set<AdminPrivilege> privileges = ec.getCurrentAdminPrivileges();
 
         if (isSysType) {

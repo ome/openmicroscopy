@@ -51,7 +51,7 @@ public interface SessionContext extends EventContext {
      * Synchronized counter which can be passed between {@link SessionContext}
      * instances as they are recreated.
      *
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/2804">ticket:2804</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/2804">ticket:2804</a>
      */
     public class Count {
         private final Logger log = LoggerFactory.getLogger(Count.class);

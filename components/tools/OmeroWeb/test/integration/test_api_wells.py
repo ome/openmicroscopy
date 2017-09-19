@@ -19,7 +19,7 @@
 
 """Tests querying Wells with web json api."""
 
-from omeroweb.testlib import IWebTest, _get_response_json
+from omeroweb.testlib import IWebTest, get_json
 from django.core.urlresolvers import reverse
 from omeroweb.api import api_settings
 import pytest
@@ -200,7 +200,7 @@ class TestWells(IWebTest):
         wells_url = reverse('api_wells', kwargs={'api_version': version})
 
         # List ALL Wells in both plates
-        rsp = _get_response_json(django_client, wells_url, {})
+        rsp = get_json(django_client, wells_url)
         assert len(rsp['data']) == 8
 
         # Filter Wells by Plate
@@ -212,7 +212,7 @@ class TestWells(IWebTest):
             wells = [w._obj for w in plate_wrapper.listChildren()]
             wells.sort(cmp_column_row)
             payload = {'plate': plate.id.val}
-            rsp = _get_response_json(django_client, wells_url, payload)
+            rsp = get_json(django_client, wells_url, payload)
             # Manual check that Images are loaded but Pixels are not
             assert len(rsp['data']) == well_count
             assert rsp['meta']['totalCount'] == well_count
@@ -244,7 +244,7 @@ class TestWells(IWebTest):
                             kwargs={'object_id': plate_id,
                                     'api_version': version})
 
-        rsp = _get_response_json(client, plate_url, {})
+        rsp = get_json(client, plate_url)
         plate_json = rsp['data']
 
         # Construct the urls we expect...
@@ -272,7 +272,7 @@ class TestWells(IWebTest):
                                'omero:wellsampleIndex': list(idx)}])
 
         # Browse to /plate/:id/plateacquisitions/
-        rsp = _get_response_json(client, plate_acq_link, {})
+        rsp = get_json(client, plate_acq_link)
         plate_acq_json = rsp['data']
 
         # Construct data & urls we expect...
@@ -311,7 +311,7 @@ class TestWells(IWebTest):
         for well, has_image in zip(wells, [True, False]):
             well_url = reverse('api_well', kwargs={'api_version': version,
                                                    'object_id': well.id.val})
-            rsp = _get_response_json(django_client, well_url, {})
+            rsp = get_json(django_client, well_url)
             well_json = rsp['data']
             # Manually check for image and Pixels loaded
             assert ('WellSamples' in well_json) == has_image
