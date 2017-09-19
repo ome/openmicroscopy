@@ -95,7 +95,7 @@ class SearchControl(HqlControl):
 
         if args.index:
             if not self.ctx.get_event_context().isAdmin:
-                raise Exception("Only admin can index object")
+                self.ctx.die(432, "Only admin can index object")
 
             try:
                 parts = args.type.split(":")
