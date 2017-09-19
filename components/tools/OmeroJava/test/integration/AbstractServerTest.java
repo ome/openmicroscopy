@@ -930,9 +930,9 @@ public class AbstractServerTest extends AbstractTest {
         clean();
 
         this.client = client;
+        factory = client.getSession();
         EventContext ctx = null;
         try {
-            factory = client.getSession();
             iQuery = factory.getQueryService();
             iUpdate = factory.getUpdateService();
             iAdmin = factory.getAdminService();
