@@ -51,13 +51,13 @@ class WriterTextCst
 {
 
     private static final String FC = 
-        "http://www.openmicroscopy.org/XMLschemas/OME/FC/ome.xsd";
+        "https://www.openmicroscopy.org/XMLschemas/OME/FC/ome.xsd";
     
     private static final String STD = 
-        "http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd";
+        "https://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd";
     
     private static final String BIN = 
-      "http://www.openmicroscopy.org/XMLschemas/BinaryFile/RC1/BinaryFile.xsd";
+      "https://www.openmicroscopy.org/XMLschemas/BinaryFile/RC1/BinaryFile.xsd";
     
     private static final String XSI =
         "http://www.w3.org/2001/XMLSchema-instance";

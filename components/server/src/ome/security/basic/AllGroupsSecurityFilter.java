@@ -48,9 +48,9 @@ import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0
  * @see <a
- *      href="http://trac.openmicroscopy.org.uk/ome/ticket/117">ticket117</a>
+ *      href="https://trac.openmicroscopy.org.uk/ome/ticket/117">ticket117</a>
  * @see <a
- *      href="http://trac.openmicroscopy.org.uk/ome/ticket/1154">ticket1154</a>
+ *      href="https://trac.openmicroscopy.org.uk/ome/ticket/1154">ticket1154</a>
  */
 public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
 

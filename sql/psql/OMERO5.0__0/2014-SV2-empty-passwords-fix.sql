@@ -2,7 +2,7 @@ BEGIN;
 
 --
 -- See:
--- http://www.openmicroscopy.org/info/vulnerabilities/2014-SV2-empty-passwords
+-- https://www.openmicroscopy.org/security/advisories/2014-SV2-empty-passwords/
 --
 -- Fix all the users who have an empty password.
 --

@@ -48,7 +48,7 @@ BEGIN
 
     sql := ''SELECT * FROM ''||tbl||'';'';
     FOR rec IN EXECUTE sql LOOP
-        RAISE EXCEPTION ''Table is not empty: % Please contact the OME developers for more information -- http://www.openmicroscopy.org/site/community'', tbl;
+        RAISE EXCEPTION ''Table is not empty: % Please contact the OME developers for more information -- https://www.openmicroscopy.org/support/'', tbl;
     END LOOP;
 
 END;' LANGUAGE plpgsql;

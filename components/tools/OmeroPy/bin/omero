@@ -103,7 +103,7 @@ try:
         This means that your installation is incomplete. Contact
         the OME mailing lists for more information:
 
-        http://www.openmicroscopy.org/site/community
+        https://www.openmicroscopy.org/site/community
 
         If you are building from source, please supply the build log
         as well as which version you are building from. If you

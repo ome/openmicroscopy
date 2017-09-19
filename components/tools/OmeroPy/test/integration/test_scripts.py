@@ -165,7 +165,7 @@ class TestScripts(ITest):
 
     def testRunScript(self):
         # Trying to run script as described:
-        # http://trac.openmicroscopy.org.uk/ome/browser/trunk/components/blitz/resources/omero/api/IScript.ice#L40
+        # https://github.com/openmicroscopy/openmicroscopy/blob/develop/components/blitz/resources/omero/api/IScript.ice#L40
         root_client = self.new_client(system=True)
         scriptService = root_client.sf.getScriptService()
         uuid = self.uuid()

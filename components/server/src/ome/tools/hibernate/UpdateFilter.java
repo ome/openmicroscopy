@@ -127,7 +127,7 @@ public class UpdateFilter extends ContextFilter {
 
     /**
      * Prevents CountPerOwner from being loaded unnecessarily.
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/3978">Trac ticket #3978</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/3978">Trac ticket #3978</a>
      */
     @Override
     public Map filter(String fieldId, Map m) {

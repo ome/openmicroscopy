@@ -189,7 +189,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      * @param username a user's name
      * @param mapper the map to contexts
      * @return a non-{@code null} Experimenter
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/2557">Trac ticket #2557</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/2557">Trac ticket #2557</a>
      */
     @SuppressWarnings("unchecked")
     private Experimenter mapUserName(String username, PersonContextMapper mapper) {

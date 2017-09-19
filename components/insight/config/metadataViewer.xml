@@ -21,5 +21,5 @@
        </structuredEntry>
      </fonts>
    </resources>
-   <entry name="HelpDowngrade">http://www.openmicroscopy.org/info/downgrade</entry>
+   <entry name="HelpDowngrade">https://docs.openmicroscopy.org/latest/omero/developers/Model/XsltTransformations.html</entry>
 </agent>

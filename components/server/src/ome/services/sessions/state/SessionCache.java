@@ -49,7 +49,7 @@ import com.google.common.collect.MapMaker;
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.2.1
- * @see <a href="http://trac.openmicroscopy.org/ome/ticket/3173">ticket:3173</a>
+ * @see <a href="https://trac.openmicroscopy.org/ome/ticket/3173">ticket:3173</a>
  */
 public class SessionCache implements ApplicationContextAware {
 
@@ -644,8 +644,8 @@ public class SessionCache implements ApplicationContextAware {
      * Provides the reloading logic of the {@link SessionCache} for the
      * {@link SessionManagerImpl} to use.
      *
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/4011">ticket:4011</a>
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/5849">ticket:5849</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/4011">ticket:4011</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/5849">ticket:5849</a>
      */
     public void reload(String id) {
 

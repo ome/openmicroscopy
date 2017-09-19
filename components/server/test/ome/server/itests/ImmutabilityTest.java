@@ -38,7 +38,7 @@ public class ImmutabilityTest extends AbstractManagedContextTest {
         i.getDetails().setCreationEvent(newEvent);
 
         // This fails because it gets silently copied to our new instance. See:
-        // http://trac.openmicroscopy.org.uk/ome/ticket/346
+        // https://trac.openmicroscopy.org.uk/ome/ticket/346
         // i = iUpdate.saveAndReturnObject(i);
         // assertEquals( i.getDetails().getCreationEvent().getId(),
         // oldEvent.getId());

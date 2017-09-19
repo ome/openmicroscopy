@@ -21,7 +21,7 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.0
- * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/800">#800</a>
+ * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/800">#800</a>
  */
 public class Preference implements BeanNameAware {
 

@@ -48,9 +48,9 @@ import org.hibernate.search.bridge.builtin.DateBridge;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
- * @see <a href="http://trac.openmicroscopy.org.uk/ome/FileParsers">Parsers</a
+ * @see <a href="https://trac.openmicroscopy.org.uk/ome/FileParsers">Parsers</a
  *      href>
- * @see <a href="http://trac.openmicroscopy.org.uk/ome/SearchBridges">Bridges</a
+ * @see <a href="https://trac.openmicroscopy.org.uk/ome/SearchBridges">Bridges</a
  *      href>
  */
 @Deprecated
@@ -93,7 +93,7 @@ public class FullTextBridge extends BridgeHelper {
      *            set of {@link FieldBridge bridge classes} which will be
      *            instantiated via a no-arg constructor.
      * @see <a
-     *      href="http://trac.openmicroscopy.org.uk/ome/SearchBridges">Bridges</a
+     *      href="https://trac.openmicroscopy.org.uk/ome/SearchBridges">Bridges</a
      *      href>
      */
     @SuppressWarnings("unchecked")

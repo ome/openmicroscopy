@@ -343,7 +343,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
     }
     
     /**
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/1204">Trac ticket #1204</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/1204">Trac ticket #1204</a>
      */
     private void worldReadable(IObject obj) {
         Permissions p = obj.getDetails().getPermissions();

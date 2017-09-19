@@ -20,5 +20,5 @@
 %   % But be sure to close the connetion.
 %   omero_client.closeSession()
 %
-% See the <a href="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroMatlab">OMERO Matlab developers' page</a> for more information.
+% See the <a href="https://docs.openmicroscopy.org/latest/omero/developers/Matlab.html">OMERO Matlab developers' page</a> for more information.
 %

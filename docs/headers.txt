@@ -68,7 +68,7 @@
     #       Creative Commons, 444 Castro Street, Suite 900,
     #       Mountain View, California, 94041, USA.
     # For attribution instructions, visit
-    #       http://www.openmicroscopy.org/info/attribution
+    #       https://www.openmicroscopy.org/citing-ome/
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 

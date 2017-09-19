@@ -52,15 +52,17 @@ if os.path.exists("target"):
 else:
     packages = [""]
 
+url = 'https://docs.openmicroscopy.org/latest/omero/developers'
+
 setup(
     name="omero_client",
     version=ov,
     description="Python bindings to the OMERO.blitz server",
     long_description="Python bindings to the OMERO.blitz server.",
-    author="Josh Moore",
-    author_email="josh@glencoesoftware.com",
-    url="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroPy",
-    download_url="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroPy",
+    author="The Open Microscopy Team",
+    author_email="ome-devel@lists.openmicroscopy.org.uk",
+    url=url,
+    download_url=url,
     package_dir={"": "target"},
     packages=packages,
     package_data={

@@ -37,7 +37,7 @@ import ome.tools.lsid.LsidUtils;
  * @author Josh Moore, josh.moore at gmx.de
  * @since 3.0-M3
  * @see <a
- *      href="http://trac.openmicroscopy.org.uk/ome/wiki/ObjectModel">wiki:ObjectModel</a>
+ *      href="https://trac.openmicroscopy.org.uk/ome/wiki/ObjectModel">wiki:ObjectModel</a>
  */
 public abstract class HibernateUtils {
 

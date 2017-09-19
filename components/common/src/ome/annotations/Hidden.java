@@ -1,6 +1,4 @@
 /*
- * ome.annotations.Hideen
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -16,9 +14,8 @@ import java.lang.annotation.Target;
  * hidden from logging output.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @since 3.0-M3
- * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/209">ticket:209</a>
+ * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/209">ticket:209</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)

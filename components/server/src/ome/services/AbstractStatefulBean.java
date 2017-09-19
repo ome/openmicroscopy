@@ -38,7 +38,7 @@ public abstract class AbstractStatefulBean implements SelfConfigurableService,
     /**
      * True if any write operation took place on this bean.
      * Allows for updating the database representation if needed.
-     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/1961">ticket:1961</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/1961">ticket:1961</a>
      */
     protected transient boolean modified;
 
