@@ -82,7 +82,6 @@ class TestSearch(CLITest):
         else:
             with pytest.raises(NonZeroReturnCode):
                 results = self.go()
-    
 
     def test_search_basic(self):
         self.mkimage()
