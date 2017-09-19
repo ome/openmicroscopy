@@ -2486,7 +2486,7 @@ public class LightAdminRolesTest extends RolesTests {
             }
         }
         types = types_svc.allEnumerations(ContrastMethod.class.getName());
-        Assert.assertEquals(m, n);
+        Assert.assertEquals(types.size(), n);
     }
 
     /**
