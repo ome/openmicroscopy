@@ -449,7 +449,7 @@ class HdfStorage(object):
                 # Metadata methods were generally broken for v1 tables so
                 # the introduction of internal metadata attributes is unlikely
                 # to affect anyone.
-                # http://trac.openmicroscopy.org.uk/ome/ticket/12606
+                # https://trac.openmicroscopy.org.uk/ome/ticket/12606
                 msg = 'Tables metadata is only supported for OMERO.tables >= 2'
                 self.logger.error(msg)
                 raise omero.ApiUsageException(None, None, msg)
