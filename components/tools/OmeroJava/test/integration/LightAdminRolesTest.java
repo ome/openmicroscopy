@@ -2507,25 +2507,33 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Resets the enumerations
+     * Tests if deleted enumeration can be reset
      * @throws Exception
      */
     @Test
     public void testResetEnumerationsbyRestrictedSystemUser() throws Exception {
         logNewAdminWithoutPrivileges();
-        ContrastMethod ho = new ContrastMethodI();
-        ho.setValue(omero.rtypes.rstring("testResetEnumerationsbyRestrictedSystemUser"));
         final ITypesPrx types_svc = factory.getTypesService();
         List<IObject> types = types_svc.allEnumerations(ContrastMethod.class.getName());
-        //original number of enumerations
         int n = types.size();
-        ho = (ContrastMethod) types_svc.createEnumeration(ho);
+        Iterator<IObject> i = types.iterator();
+        int count = 0;
+        while (i.hasNext()) {
+            try {
+                types_svc.deleteEnumeration(i.next());
+                count++;
+            } catch (Exception e) {
+                //Cannot delete the enumeration since it is used
+            }
+        }
+        //not all enum are used so we should have deleted at least one
+        Assert.assertTrue(count > 0);
         types = types_svc.allEnumerations(ContrastMethod.class.getName());
-        //check that an enumeration has been added
-        Assert.assertEquals(types.size(), (n+1));
-        types_svc.deleteEnumeration(ho);
+        Assert.assertEquals(types.size(), (n-count));
+        //reset the deleted enumerations
         types_svc.resetEnumerations(ContrastMethod.class.getName());
         types = types_svc.allEnumerations(ContrastMethod.class.getName());
+        //We should be back to the original list
         Assert.assertEquals(types.size(), n);
     }
 
@@ -2576,7 +2584,7 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Tests f it possible to modify a script using the upload method from
+     * Tests if it possible to modify a script using the upload method from
      * omero.client
      * @throws Exception
      */
