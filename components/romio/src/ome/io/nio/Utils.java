@@ -1,7 +1,7 @@
 /*
  * ome.io.nio.Utils
  *
- *   Copyright 2011 University of Dundee. All rights reserved.
+ *   Copyright 2011-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -24,11 +24,12 @@ public class Utils
      * <code>x + tileWidth > sizeX</code>.
      * @param tileHeight <b>Maximum</b> height of the tile requested. The tile
      * request itself will be smaller if <code>y + tileHeight > sizeY</code>.
+     * @throws FailedTileLoopException if the tile loop was aborted; exception bears completed tile count
      * @return The total number of tiles iterated over.
      */
     public static int forEachTile(TileLoopIteration iteration,
                                   PixelBuffer pixelBuffer,
-                                  int tileWidth, int tileHeight)
+                                  int tileWidth, int tileHeight) throws FailedTileLoopException
 
     {
         int sizeX = pixelBuffer.getSizeX();
@@ -50,11 +51,12 @@ public class Utils
      * @param tileHeight <b>Maximum</b> height of the tile requested. The tile
      * request itself will be smaller if <code>y + tileHeight > sizeY</code>.
      * @return The total number of tiles iterated over.
+     * @throws FailedTileLoopException if the tile loop was aborted; exception bears completed tile count
      */
     public static int forEachTile(TileLoopIteration iteration,
                                   int sizeX, int sizeY, int sizeZ,
                                   int sizeC, int sizeT,
-                                  int tileWidth, int tileHeight)
+                                  int tileWidth, int tileHeight) throws FailedTileLoopException
     {
         int tileCount = 0;
         int x, y, w, h;
@@ -84,7 +86,12 @@ public class Utils
                             {
                                 h = sizeY - y;
                             }
-                            iteration.run(z, c, t, x, y, w, h, tileCount);
+                            try {
+                                iteration.run(z, c, t, x, y, w, h, tileCount);
+                            } catch (FailedTileLoopException ftle) {
+                                ftle.setTileCount(tileCount);
+                                throw ftle;
+                            }
                             tileCount++;
                         }
                     }
@@ -92,5 +99,22 @@ public class Utils
             }
         }
         return tileCount;
+    }
+
+    /**
+     * The processing of a tile failed so abort the loop.
+     */
+    @SuppressWarnings("serial")
+    public static class FailedTileLoopException extends Exception {
+
+        private Integer tileCount = null;
+
+        public void setTileCount(Integer tileCount) {
+            this.tileCount = tileCount;
+        }
+
+        public Integer getTileCount() {
+            return tileCount;
+        }
     }
 }
