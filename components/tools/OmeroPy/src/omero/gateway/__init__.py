@@ -7496,6 +7496,34 @@ class _ChannelWrapper (BlitzObjectWrapper):
                 reverse = True
         return reverse
 
+    def getFamily(self):
+        """
+        Returns the channel family
+
+        :return:    the channel family
+        :rtype:     String
+        """
+        if self._re is None:
+            return None
+
+        f = self._re.getChannelFamily(self._idx)
+        if f is None:
+            return f
+
+        return f.getValue()
+
+    def getCoefficient(self):
+        """
+        Returns the channel coefficient
+
+        :return:    the channel coefficient
+        :rtype:     float
+        """
+        if self._re is None:
+            return None
+
+        return self._re.getChannelCurveCoefficient(self._idx)
+
 ChannelWrapper = _ChannelWrapper
 
 
@@ -7571,6 +7599,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     _re = None
     _pd = None
     _rm = {}
+    _qf = {}
     _pixels = None
     _archivedFileCount = None
     _filesetFileCount = None
@@ -8725,6 +8754,68 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         # If we want to invert, add it to the channel (again)
         if inverted:
             self._re.addCodomainMapToChannel(r, channelIndex)
+
+    @assert_re()
+    def getFamilies(self):
+        """
+        Gets a dict of available families.
+
+        :return:    Families
+        :rtype:     Dict
+        """
+        if not len(self._qf):
+            for f in [BlitzObjectWrapper(self._conn, f)
+                      for f in self._re.getAvailableFamilies()]:
+                self._qf[f.value.lower()] = f
+        return self._qf
+
+    @assert_re()
+    def setQuantizationMap(self, channelIndex, family, coefficient):
+        """
+        Sets the quantization strategy to the given family
+        and coefficient
+
+        :param channelIndex:    The index of channel (int)
+        :param family:          The family (string)
+        :param coefficient:     The coefficient (float)
+        """
+        if channelIndex < 0 or channelIndex >= self.getSizeC():
+            return
+
+        families = self.getFamilies()
+        f = families.get("linear")
+        try:
+            f = families.get(family.lower(), f)
+        except:
+            pass
+
+        c = 1.0
+        try:
+            c = float(coefficient)
+            if c < 0 or c > 1.0:
+                c = 1.0
+        except:
+            pass
+
+        self._re.setQuantizationMap(channelIndex, f._obj, c, False)
+
+    @assert_re()
+    def setQuantizationMaps(self, maps):
+        """
+        Sets the quantization strategy using the given list
+        of mapping information (for each entry, i.e. channel)
+        e.g. [{'family': 'linear', coefficient: 1.0}]
+
+        :param maps:     list of quantization settings
+        """
+        if not isinstance(maps, list):
+            return
+
+        for i, m in enumerate(maps):
+            if isinstance(m, dict):
+                family = m.get('family', None)
+                coefficient = m.get('coefficient', 1.0)
+                self.setQuantizationMap(i, family, coefficient)
 
     @assert_re(ignoreExceptions=(omero.ConcurrencyException))
     def getRenderingDefId(self):

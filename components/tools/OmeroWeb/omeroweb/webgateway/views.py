@@ -820,6 +820,13 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
         if reverses is not None and invert_flags is not None:
             invert_flags = [z[0] if z[0] is not None else z[1] for z in
                             zip(invert_flags, reverses)]
+        try:
+            # quantization maps (just applied, not saved at the moment)
+            qm = [m.get('quantization') for m in json.loads(r['maps'])]
+            img.setQuantizationMaps(qm)
+        except:
+            logger.debug('Failed to set quantization maps')
+
     if 'c' in r:
         logger.debug("c="+r['c'])
         activechannels, windows, colors = _split_channel_info(r['c'])
@@ -834,6 +841,7 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
                                      invert_flags):
             logger.debug(
                 "Something bad happened while setting the active channels...")
+
     if r.get('m', None) == 'g':
         img.setGreyscaleRenderingModel()
     elif r.get('m', None) == 'c':
@@ -849,7 +857,6 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
             pass
     img.setProjection(p)
     img.setProjectionRange(pStart, pEnd)
-
     img.setInvertedAxis(bool(r.get('ia', "0") == "1"))
     compress_quality = r.get('q', None)
     if saveDefs:
