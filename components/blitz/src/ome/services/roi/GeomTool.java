@@ -412,13 +412,16 @@ public class GeomTool {
        if (data.requiresPixelsPyramid(pixels)) 
            throw new ApiUsageException("This method cannot handle tiled images yet.");
        // check for channels filter
-       Set<Integer> validChannels = null;
+       Set<Integer> validChannels = new HashSet<Integer>();
        if (channels != null && channels.length > 0) {
-           validChannels = new HashSet<Integer>(channels.length);
            for (int ch : channels) {
                if (ch < 0 || ch >= pixels.getSizeC())
                    throw new ApiUsageException("Given channel(s) out of bounds.");
                validChannels.add(ch);
+           }
+       } else {
+           for (int j=0; j<pixels.getSizeC();j++) {
+               validChannels.add(j);
            }
        }
 
@@ -435,17 +438,14 @@ public class GeomTool {
 
            for (ome.model.roi.Shape shape : zt_lookup.get(key)) {
                final SmartShape smartShape = (SmartShape) new ShapeMapper().map(shape);
-               final int size_stats = 
-                   validChannels != null ? validChannels.size() : pixels.getSizeC();
+               final int size_stats = validChannels.size();
                final ShapeStats stats = makeStats(size_stats);
                stats.shapeId = shape.getId();
                final double[] sumOfSquares = new double[size_stats];
 
                try (final PixelBuffer buf = data.getBuffer(pixelId)) {
             	   int i = 0;
-                   for (int c = 0; c < pixels.getSizeC(); c++) {
-                       if (validChannels != null && 
-                           !validChannels.contains(c)) continue;
+                   for (int c : validChannels) {
                        final int w = i;
                        stats.channelIds[w] = c;
                        final ome.util.PixelData pd = data.getPlane(buf, z, c, t);
