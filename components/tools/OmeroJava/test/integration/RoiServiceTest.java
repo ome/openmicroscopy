@@ -722,7 +722,7 @@ public class RoiServiceTest extends AbstractServerTest {
         inputs.add(new Object[] { ids, new Integer(0), new Integer(-10), new int[] {},
             "wrong fallback t" });
         inputs.add(new Object[] { ids, new Integer(0), new Integer(0), new int[] {200},
-            "wrong channel" });
+            "wrong channels" });
 
         // all these inputs should trigger an ApiUssageException
         for (Object [] in : inputs) {

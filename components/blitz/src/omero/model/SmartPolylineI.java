@@ -25,7 +25,7 @@ public class SmartPolylineI extends omero.model.PolylineI implements SmartShape 
             return;
         }
         final PathIterator it = s.getPathIterator(Util.getAwtTransform(transform));
-        double [] vals = new double[] {0,0,0,0,0,0};
+        double [] vals = new double[] {0, 0, 0, 0, 0, 0};
         double [] last_point = null;
         while (!it.isDone()) {
             it.currentSegment(vals);

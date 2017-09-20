@@ -241,17 +241,24 @@ public interface SmartShape {
         
         public static Set<Point2D> getQuantizedLinePoints(Line2D line, Set<Point2D> points) {
             if (line == null) return null;
-            
+
+            final Set<Point2D> set =
+                (points instanceof LinkedHashSet) ?
+                    points : new LinkedHashSet<Point2D>();
+
             Point2D start = line.getP1();
             Point2D end = line.getP2();
             Point2D m = new Point2D.Double(
                 end.getX()-start.getX(), end.getY()-start.getY());
             double lengthM = (Math.sqrt(m.getX()*m.getX()+m.getY()*m.getY()));
+            if (lengthM == 0) {
+                set.add(
+                    new Point2D.Double(
+                        Math.floor(start.getX()), Math.floor(start.getY())));
+                return set;
+            }
             Point2D mNorm = new Point2D.Double(m.getX()/lengthM,m.getY()/lengthM);
             
-            final Set<Point2D> set = 
-                (points instanceof LinkedHashSet) ? 
-                    points : new LinkedHashSet<Point2D>();
             for (double i = 0 ; i <= (lengthM + 0.1) ; i += 0.1) {
                 final Point2D pt = 
                     new Point2D.Double(
