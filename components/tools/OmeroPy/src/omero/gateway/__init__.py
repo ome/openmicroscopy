@@ -3888,9 +3888,15 @@ class _BlitzGateway (object):
         :param fileSize:                The file size
         :param mimetype:                The mimetype of the file. String.
                                         E.g. 'text/plain'
-        :param ns:                      The file namespace
+        :param ns:                      Deprecated in 5.4.0. This is ignored
         :return:                        New :class:`OriginalFileWrapper`
         """
+        if ns is not None:
+            warnings.warn(
+                "Deprecated in 5.4.0. The ns parameter was added in error"
+                " and has always been ignored",
+                DeprecationWarning)
+
         updateService = self.getUpdateService()
         rawFileStore = self.createRawFileStore()
 
@@ -3951,19 +3957,21 @@ class _BlitzGateway (object):
                                         OriginalFile. If None, use localPath
         :param mimetype:                The mimetype of the file. String.
                                         E.g. 'text/plain'
-        :param ns:                      The namespace of the file.
+        :param ns:                      Deprecated in 5.4.0. This is ignored
         :return:                        New :class:`OriginalFileWrapper`
         """
+        if ns is not None:
+            warnings.warn(
+                "Deprecated in 5.4.0. The ns parameter was added in error"
+                " and has always been ignored",
+                DeprecationWarning)
         if origFilePathAndName is None:
             origFilePathAndName = localPath
         path, name = os.path.split(origFilePathAndName)
         fileSize = os.path.getsize(localPath)
-        fileHandle = open(localPath, 'rb')
-        try:
-            return self.createOriginalFileFromFileObj(
-                fileHandle, path, name, fileSize, mimetype, ns)
-        finally:
-            fileHandle.close()
+        with open(localPath, 'rb') as fileHandle:
+            return self.createOriginalFileFromFileObj(fileHandle, path, name,
+                                                      fileSize, mimetype)
 
     def createFileAnnfromLocalFile(self, localPath, origFilePathAndName=None,
                                    mimetype=None, ns=None, desc=None):
@@ -3988,7 +3996,7 @@ class _BlitzGateway (object):
 
         # create and upload original file
         originalFile = self.createOriginalFileFromLocalFile(
-            localPath, origFilePathAndName, mimetype, ns)
+            localPath, origFilePathAndName, mimetype)
 
         # create FileAnnotation, set ns & description and return wrapped obj
         fa = omero.model.FileAnnotationI()
