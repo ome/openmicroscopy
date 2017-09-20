@@ -94,6 +94,9 @@ class SearchControl(HqlControl):
         import omero.all
 
         if args.index:
+            if not self.ctx.get_event_context().isAdmin:
+                self.ctx.die(432, "Only admin can index object")
+
             try:
                 parts = args.type.split(":")
                 kls = parts[0].strip()
@@ -157,6 +160,7 @@ class SearchControl(HqlControl):
 
             finally:
                 search.close()
+
 
 try:
     register("search", SearchControl, HELP)
