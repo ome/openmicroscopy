@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,7 @@ package integration.gateway;
 
 import integration.AbstractServerTest;
 import omero.gateway.Gateway;
+import omero.gateway.JoinSessionCredentials;
 import omero.gateway.LoginCredentials;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ExperimenterData;
@@ -69,6 +70,31 @@ public class GatewayUsageTest extends AbstractServerTest
         Gateway gw = new Gateway(new SimpleLogger());
         ExperimenterData root = gw.connect(c);
         Assert.assertNotNull(root);
+        gw.disconnect();
+    }
+    
+    @Test
+    public void testLoginWithSessionID() throws DSOutOfServiceException {
+        omero.client client = new omero.client();
+        String[] args = new String[4];
+        args[0] = "--omero.host=" + client.getProperty("omero.host");
+        args[1] = "--omero.port=" + client.getProperty("omero.port");
+        args[2] = "--omero.user=root";
+        args[3] = "--omero.pass=" + client.getProperty("omero.rootpass");
+        LoginCredentials c = new LoginCredentials(args);
+        Gateway gw = new Gateway(new SimpleLogger());
+        ExperimenterData root = gw.connect(c);
+        String sessionId = gw.getSessionId(root);
+
+        Gateway gw2 = new Gateway(new SimpleLogger());
+        JoinSessionCredentials c2 = new JoinSessionCredentials(sessionId,
+                client.getProperty("omero.host"), Integer.parseInt(client
+                        .getProperty("omero.port")));
+        ExperimenterData root2 = gw2.connect(c2);
+        Assert.assertNotNull(root2);
+        Assert.assertEquals(gw2.getSessionId(root2), sessionId);
+        gw2.disconnect();
+
         gw.disconnect();
     }
     

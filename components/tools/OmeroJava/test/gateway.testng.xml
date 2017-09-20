@@ -3,14 +3,15 @@
 	<test name="OmeroJava.Gateway">
 		<classes>
 		    <!-- Explicitly list all test classes to ensure they are run in the right sequence -->
-			<class name="integration.gateway.AdminFacilityTest" />
+		    <class name="integration.gateway.GatewayUsageTest" />
+			<!--  <class name="integration.gateway.AdminFacilityTest" />
 			<class name="integration.gateway.DataManagerFacilityTest" />
 			<class name="integration.gateway.BrowseFacilityTest" />
 			<class name="integration.gateway.SearchFacilityTest" />
 			<class name="integration.gateway.RawDataFacilityTest" />
 			<class name="integration.gateway.MetadataFacilityTest" />
 			<class name="integration.gateway.ROIFacilityTest" />
-			<class name="integration.gateway.TablesFacilityTest" />
+			<class name="integration.gateway.TablesFacilityTest" /> -->
 		</classes>
 	</test>
 </suite>
