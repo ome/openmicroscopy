@@ -364,8 +364,10 @@ public class GeomTool {
             List<Long> shapeIds, 
             int zForUnattached, int tForUnattached,
             int[] channels) {
-        if (shapeIds == null || shapeIds.isEmpty()) 
+        if (shapeIds == null || shapeIds.isEmpty())
             throw new ApiUsageException("Provide a non empty list of shape ids.");
+        if (channels == null || channels.length == 0)
+            throw new ApiUsageException("Provide a non empty array of channels.");
 
        // fetch shapes from db and perform some basic checks
         final Session session = factory.getSession();
@@ -411,7 +413,8 @@ public class GeomTool {
        // any point iteration in a tiled image is a lost cause
        if (data.requiresPixelsPyramid(pixels)) 
            throw new ApiUsageException("This method cannot handle tiled images yet.");
-       // check for channels filter
+
+       // check if given channels are valid
        Set<Integer> validChannels = new HashSet<Integer>();
        if (channels != null && channels.length > 0) {
            for (int ch : channels) {
@@ -419,13 +422,9 @@ public class GeomTool {
                    throw new ApiUsageException("Given channel(s) out of bounds.");
                validChannels.add(ch);
            }
-       } else {
-           for (int j=0; j<pixels.getSizeC();j++) {
-               validChannels.add(j);
-           }
        }
 
-       // common info for all shapes 
+       // common info for all shapes
        final long pixelId = pixels.getId();
        final int sizeX = pixels.getSizeX();
        final int sizeY = pixels.getSizeY();

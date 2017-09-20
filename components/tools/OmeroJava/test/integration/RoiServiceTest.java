@@ -710,21 +710,25 @@ public class RoiServiceTest extends AbstractServerTest {
         // some basic inputs checks
         final List<Object[]> inputs = new ArrayList<Object[]>();
         inputs.add(new Object[] {
-            null, new Integer(0), new Integer(0), new int[] {}, "null ids"});
+            null, new Integer(0), new Integer(0), new int[] {0}, "null ids"});
         inputs.add(new Object[] {
-            new ArrayList<Long>(), new Integer(0), new Integer(0), new int[] {},
+            new ArrayList<Long>(), new Integer(0), new Integer(0), new int[] {0},
             "empty ids" });
         inputs.add(new Object[] {
             Arrays.asList(new Long[] {new Long (-1)}), new Integer(0), new Integer(0),
-            new int[] {}, "erroneous id" });
-        inputs.add(new Object[] { ids, new Integer(10), new Integer(10), new int[] {},
+            new int[] {0}, "erroneous id" });
+        inputs.add(new Object[] { ids, new Integer(10), new Integer(10), new int[] {0},
             "wrong fallback z" });
-        inputs.add(new Object[] { ids, new Integer(0), new Integer(-10), new int[] {},
+        inputs.add(new Object[] { ids, new Integer(0), new Integer(-10), new int[] {0},
             "wrong fallback t" });
         inputs.add(new Object[] { ids, new Integer(0), new Integer(0), new int[] {200},
             "wrong channels" });
+        inputs.add(new Object[] { ids, new Integer(0), new Integer(0), null,
+            "missing channels" });
+        inputs.add(new Object[] { ids, new Integer(0), new Integer(0), new int[] {},
+            "empty channels" });
 
-        // all these inputs should trigger an ApiUssageException
+        // all these inputs should trigger an ApiUsageException
         for (Object [] in : inputs) {
             boolean succeeded = false;
             try {
@@ -737,7 +741,7 @@ public class RoiServiceTest extends AbstractServerTest {
         }
 
         // call again with valid params and assert results
-        final ShapeStats [] stats = svc.getShapeStatsRestricted(ids, 0, 0, null);
+        final ShapeStats [] stats = svc.getShapeStatsRestricted(ids, 0, 0, new int[] {0});
         for (final ShapeStats calcStats : stats) {
             final ShapeStats expStats = testAndAssertData.get(calcStats.shapeId);
             assertEquals(calcStats.pointsCount[0], expStats.pointsCount[0]);
