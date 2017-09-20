@@ -7496,7 +7496,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         Returns the channel coefficient
 
         :return:    the channel coefficient
-        :rtype:     double
+        :rtype:     float
         """
         if self._re is None:
             return None
