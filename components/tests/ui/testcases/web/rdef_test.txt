@@ -166,6 +166,10 @@ Test Rdef Copy Paste Save
     Wait For Toolbar Button Disabled        rdef-setdef-btn
     Element Text Should Be                  id=wblitz-z-curr        ${defaultZ}
 
+    # Set start / end slider values
+    Input Text                              id=wblitz-ch0-cw-start      111
+    Input Text                              id=wblitz-ch0-cw-end        222
+
     # Color-picker, Yellow then Blue.
     Pick Color          FFFF00
     Pick Color          0000FF
@@ -212,6 +216,8 @@ Test Rdef Copy Paste Save
     # Paste (Blue channel)
     Click Element                           xpath=//button[@id='rdef-paste-btn']
     Wait For Channel Color                  0000FF
+    Textfield Value Should Be               wblitz-ch0-cw-start     111
+    Textfield Value Should Be               wblitz-ch0-cw-end       222
 
     # Save to all (Blue channel)
     Click Element                           id=rdef-save-all
