@@ -519,8 +519,8 @@ class HdfStorage(object):
                      start, stop, step):
         self.__initcheck()
         try:
-            return self.__mea.getWhereList(condition, variables, None,
-                                           start, stop, step).tolist()
+            return self.__mea.get_where_list(condition, variables, None,
+                                             start, stop, step).tolist()
         except (NameError, SyntaxError, TypeError, ValueError), err:
             aue = omero.ApiUsageException()
             aue.message = "Bad condition: %s, %s" % (condition, variables)
