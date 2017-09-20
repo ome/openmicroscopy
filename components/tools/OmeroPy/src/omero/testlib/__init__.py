@@ -535,7 +535,10 @@ class ITest(object):
                  email=None, privileges=None):
         """
         :owner: If user is to be an owner of the created group
-        :system: If user is to be a system admin
+        :system: If user is to be a system group member
+        :privileges: If system group member is to have privileges
+                     privileges=None gives all privileges (full admin)
+                     privileges=[] gives no privileges
         """
 
         if not cls.root:
