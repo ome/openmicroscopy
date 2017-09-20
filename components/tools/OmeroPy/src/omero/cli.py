@@ -600,7 +600,7 @@ class Context:
 #
 
 
-def admin_only(*fargs):
+def admin_only(*fargs, **fkwargs):
     """
     Checks that the current user is an admin and has sufficient privileges,
     or throws an exception.
@@ -613,7 +613,22 @@ def admin_only(*fargs):
             client = self.ctx.conn(plugin_args)
             ec = client.sf.getAdminService().getEventContext()
             have_privs = set(ec.adminPrivileges)
-            need_privs = set(fargs)
+
+            if fargs:
+                need_privs = set(fargs)
+            else:
+                full_admin = fkwargs.get("full_admin", True)
+                if not full_admin:
+                    need_privs = set()
+                else:
+                    try:
+                        types = client.sf.getTypesService()
+                        privs = types.allEnumerations("AdminPrivileges")
+                        need_privs = set([x.getValue() for x in privs])
+                    except:
+                        # If the user can't load enums assume the worst
+                        self.error_admin_only(fatal=True)
+
             if not ec.isAdmin:
                 self.error_admin_only(fatal=True)
             elif not need_privs <= have_privs:

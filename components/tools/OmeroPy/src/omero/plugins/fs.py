@@ -786,12 +786,6 @@ Examples:
                 117,
                 "Log file not accessible for Fileset:%s" % args.fileset.id.val)
 
-    @admin_only()
-    def set_repo(self, args):
-        """Change configuration properties for single repositories
-        """
-        pass
-
     def get_managed_repo(self, client):
         """
         For the moment this assumes there's only one.

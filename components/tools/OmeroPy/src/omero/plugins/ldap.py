@@ -95,7 +95,7 @@ to users.""")
         for x in (active, list, getdn, setdn, discover, create):
             x.add_login_arguments()
 
-    @admin_only()
+    @admin_only(full_admin=False)  # IConfig privilege
     def active(self, args):
         c = self.ctx.conn(args)
         ildap = c.sf.getLdapService()
@@ -105,7 +105,6 @@ to users.""")
         else:
             self.ctx.die(1, "No")
 
-    @admin_only()
     def list(self, args):
         c = self.ctx.conn(args)
         iadmin = c.sf.getAdminService()
@@ -132,7 +131,7 @@ to users.""")
                 count += 1
         self.ctx.out(str(tb.build()))
 
-    @admin_only()
+    @admin_only(full_admin=False)  # ILdap privilege
     def getdn(self, args):
         c = self.ctx.conn(args)
         iadmin = c.sf.getAdminService()
@@ -174,7 +173,7 @@ to users.""")
     def update_user(self, iupdate, user):
         iupdate.saveObject(user)
 
-    @admin_only()
+    @admin_only(full_admin=False)  # See update_user/update_group
     def setdn(self, args):
         c = self.ctx.conn(args)
         iupdate = c.sf.getUpdateService()
@@ -203,7 +202,7 @@ to users.""")
             elif isinstance(obj, Experimenter):
                 self.update_user(iupdate, obj)
 
-    @admin_only()
+    @admin_only(full_admin=False)  # ILdap privilege
     def discover(self, args):
         c = self.ctx.conn(args)
         ildap = c.sf.getLdapService()

@@ -2324,6 +2324,19 @@ class _BlitzGateway (object):
 
         return self.getEventContext().isAdmin
 
+    def isFullAdmin(self):
+        """
+        Checks if a user has full administration privileges.
+
+        :return:    Boolean
+        """
+
+        if self.getEventContext().isAdmin:
+            allPrivs = list(self.getEnumerationEntries('AdminPrivilege'))
+            return len(allPrivs) == len(self.getCurrentAdminPrivileges())
+
+        return False
+
     def isLeader(self, gid=None):
         """
         Is the current group (or a specified group) led by the current user?
