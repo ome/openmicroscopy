@@ -142,7 +142,7 @@ public class Gateway {
     public static final String PROP_STATELESS_SERVICE_CREATED = "PROP_STATELESS_SERVICE_CREATED";
 
     /** Regex matching ICE Session ID */
-    private static final String ICE_SESSION_ID_REGEX = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}";
+    public static final String ICE_SESSION_ID_REGEX = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}";
     
     /** Reference to a {@link Logger} */
     private Logger log;
@@ -402,15 +402,15 @@ public class Gateway {
      * @param user
      *            The user to get the session ID for
      * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
-    public String getSessionId(ExperimenterData user) {
-        try {
-            Connector c = getConnector(new SecurityContext(user.getGroupId()),
-                    false, false);
-            if (c != null) {
-                return c.getClient().getSessionId();
-            }
-        } catch (DSOutOfServiceException e) {
+    public String getSessionId(ExperimenterData user)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(new SecurityContext(user.getGroupId()),
+                false, false);
+        if (c != null) {
+            return c.getClient().getSessionId();
         }
         return null;
     }
