@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import ome.model.acquisition.Detector;
+import ome.model.enums.DetectorType;
 import ome.model.enums.EventType;
 import omero.RLong;
 import omero.RString;
@@ -112,7 +112,7 @@ public class LightAdminRolesTest extends RolesTests {
     public void tearDown() throws Exception {
         final ITypesPrx svc = root.getSession().getTypesService();
         svc.resetEnumerations(ContrastMethod.class.getName());
-        svc.resetEnumerations(Detector.class.getName());
+        svc.resetEnumerations(DetectorType.class.getName());
         super.tearDown();
     }
 
@@ -2516,7 +2516,7 @@ public class LightAdminRolesTest extends RolesTests {
     public void testResetEnumerationsbyRestrictedSystemUser() throws Exception {
         logNewAdminWithoutPrivileges();
         final ITypesPrx types_svc = factory.getTypesService();
-        List<IObject> types = types_svc.allEnumerations(Detector.class.getName());
+        List<IObject> types = types_svc.allEnumerations(DetectorType.class.getName());
         int n = types.size();
         Iterator<IObject> i = types.iterator();
         int count = 0;
@@ -2530,11 +2530,11 @@ public class LightAdminRolesTest extends RolesTests {
         }
         //not all enum are used so we should have deleted at least one
         Assert.assertTrue(count > 0);
-        types = types_svc.allEnumerations(Detector.class.getName());
+        types = types_svc.allEnumerations(DetectorType.class.getName());
         Assert.assertEquals(types.size(), (n-count));
         //reset the deleted enumerations
-        types_svc.resetEnumerations(Detector.class.getName());
-        types = types_svc.allEnumerations(Detector.class.getName());
+        types_svc.resetEnumerations(DetectorType.class.getName());
+        types = types_svc.allEnumerations(DetectorType.class.getName());
         //We should be back to at the original list. Other enum might have been
         //added by other tests.
         Assert.assertTrue(types.size() >= n);
