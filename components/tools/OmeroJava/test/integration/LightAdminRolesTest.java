@@ -2535,7 +2535,7 @@ public class LightAdminRolesTest extends RolesTests {
         //reset the deleted enumerations
         types_svc.resetEnumerations(DetectorType.class.getName());
         types = types_svc.allEnumerations(DetectorType.class.getName());
-        //We should be back to at the original list. Other enum might have been
+        //We should be back to the original list. Other enum might have been
         //added by other tests.
         Assert.assertTrue(types.size() >= n);
     }
@@ -2587,8 +2587,7 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Tests if it possible to modify a script using the upload method from
-     * omero.client
+     * Tests if a script can be modified using the upload method from omero.client.
      * @throws Exception
      */
     @Test(expectedExceptions = omero.SecurityViolation.class)
@@ -2616,8 +2615,8 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Tests if it possible to upload a file owned by another user using
-     * the upload method from omero.client
+     * Tests if a file owned by another usert can be uploaded using the upload
+     * method from omero.client.
      * @throws Exception
      */
     @Test(expectedExceptions = omero.SecurityViolation.class)
