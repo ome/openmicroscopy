@@ -20,6 +20,9 @@
  */
 package integration.gateway;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import integration.AbstractServerTest;
 import omero.gateway.Gateway;
 import omero.gateway.JoinSessionCredentials;
@@ -51,10 +54,13 @@ public class GatewayUsageTest extends AbstractServerTest
         c.getServer().setPort(Integer.parseInt(port));
         c.getUser().setUsername("root");
         c.getUser().setPassword(client.getProperty("omero.rootpass"));
-        Gateway gw = new Gateway(new SimpleLogger());
-        ExperimenterData root = gw.connect(c);
-        Assert.assertNotNull(root);
-        gw.disconnect();
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
+            ExperimenterData root = gw.connect(c);
+            Assert.assertNotNull(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
     }
 
     @Test
@@ -67,10 +73,13 @@ public class GatewayUsageTest extends AbstractServerTest
         args[2] = "--omero.user=root";
         args[3] = "--omero.pass="+client.getProperty("omero.rootpass");
         LoginCredentials c = new LoginCredentials(args);
-        Gateway gw = new Gateway(new SimpleLogger());
-        ExperimenterData root = gw.connect(c);
-        Assert.assertNotNull(root);
-        gw.disconnect();
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
+            ExperimenterData root = gw.connect(c);
+            Assert.assertNotNull(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
     }
     
     @Test
@@ -82,20 +91,65 @@ public class GatewayUsageTest extends AbstractServerTest
         args[2] = "--omero.user=root";
         args[3] = "--omero.pass=" + client.getProperty("omero.rootpass");
         LoginCredentials c = new LoginCredentials(args);
-        Gateway gw = new Gateway(new SimpleLogger());
-        ExperimenterData root = gw.connect(c);
-        String sessionId = gw.getSessionId(root);
+        
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
+            ExperimenterData root = gw.connect(c);
+            String sessionId = gw.getSessionId(root);
+            try (Gateway gw2 = new Gateway(new SimpleLogger())) {
+                JoinSessionCredentials c2 = new JoinSessionCredentials(
+                        sessionId, client.getProperty("omero.host"),
+                        Integer.parseInt(client.getProperty("omero.port")));
+                ExperimenterData root2 = gw2.connect(c2);
+                Assert.assertNotNull(root2);
+                Assert.assertEquals(gw2.getSessionId(root2), sessionId);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Assert.fail();
+            }
+        } catch (Exception e1) {
+            e1.printStackTrace();
+            Assert.fail();
+        }
+    }
+    
+    Boolean sessionActive = null;
 
-        Gateway gw2 = new Gateway(new SimpleLogger());
-        JoinSessionCredentials c2 = new JoinSessionCredentials(sessionId,
-                client.getProperty("omero.host"), Integer.parseInt(client
-                        .getProperty("omero.port")));
-        ExperimenterData root2 = gw2.connect(c2);
-        Assert.assertNotNull(root2);
-        Assert.assertEquals(gw2.getSessionId(root2), sessionId);
-        gw2.disconnect();
+    @Test
+    public void testAutoClose() throws DSOutOfServiceException {
+        omero.client client = new omero.client();
+        String[] args = new String[4];
+        args[0] = "--omero.host=" + client.getProperty("omero.host");
+        args[1] = "--omero.port=" + client.getProperty("omero.port");
+        args[2] = "--omero.user=root";
+        args[3] = "--omero.pass=" + client.getProperty("omero.rootpass");
+        LoginCredentials c = new LoginCredentials(args);
 
-        gw.disconnect();
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
+            // do nothing; checks that auto close of non-connected Gateway
+            // doesn't throw any exceptions.
+        } catch (Exception e1) {
+            e1.printStackTrace();
+            Assert.fail();
+        }
+
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
+            gw.addPropertyChangeListener(new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if (Gateway.PROP_SESSION_CREATED.matches(evt.getPropertyName()))
+                        sessionActive = Boolean.TRUE;
+                    if (Gateway.PROP_SESSION_CLOSED.matches(evt.getPropertyName()))
+                        sessionActive = Boolean.FALSE;
+                }
+            });
+            Assert.assertNull(sessionActive);
+            gw.connect(c);
+            Assert.assertTrue(sessionActive);
+        } catch (Exception e1) {
+            e1.printStackTrace();
+            Assert.fail();
+        }
+        Assert.assertFalse(sessionActive);
     }
     
     @Test
@@ -109,9 +163,7 @@ public class GatewayUsageTest extends AbstractServerTest
         c.getUser().setUsername("root");
         c.getUser().setPassword("wrongPassword");
 
-        Gateway gw = new Gateway(new SimpleLogger());
-
-        try {
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
             gw.connect(c);
             Assert.fail("Connection should have failed");
         } catch (Exception e) {
@@ -120,7 +172,8 @@ public class GatewayUsageTest extends AbstractServerTest
         }
 
         c.getServer().setHostname("UnknownHost");
-        try {
+        
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
             gw.connect(c);
             Assert.fail("Connection should have failed");
         } catch (Exception e) {

@@ -101,7 +101,7 @@ import com.google.common.collect.Multimaps;
  * @since 5.1
  */
 
-public class Gateway {
+public class Gateway implements AutoCloseable {
 
     /** Property to indicate that a {@link Connector} has been created */
     public static final String PROP_CONNECTOR_CREATED = "PROP_CONNECTOR_CREATED";
@@ -1653,5 +1653,11 @@ public class Gateway {
             }
         }
         return c;
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (connected)
+            disconnect();
     }
 }
