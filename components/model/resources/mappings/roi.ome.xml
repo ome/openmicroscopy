@@ -96,6 +96,7 @@
                         <optional name="textValue" type="text"/>
                 </properties>
         </type>
+        <!-- Warning: Path is DEPRECATED and may be removed in OMERO 6.0. -->
         <type id="ome.model.roi.Path" discriminator="path" superclass="ome.model.roi.Shape">
                 <properties>
                         <optional name="d" type="text"/><!-- e.g. "M 100 100 L 300 100 L 200 300 z" -->
