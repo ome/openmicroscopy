@@ -2615,7 +2615,7 @@ public class LightAdminRolesTest extends RolesTests {
     }
 
     /**
-     * Tests if a file owned by another usert can be uploaded using the upload
+     * Tests if a file owned by another user can be uploaded using the upload
      * method from omero.client.
      * @throws Exception
      */
