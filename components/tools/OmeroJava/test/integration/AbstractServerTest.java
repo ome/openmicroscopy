@@ -931,21 +931,27 @@ public class AbstractServerTest extends AbstractTest {
 
         this.client = client;
         factory = client.getSession();
-        iQuery = factory.getQueryService();
-        iUpdate = factory.getUpdateService();
-        iAdmin = factory.getAdminService();
-        iPix = factory.getPixelsService();
-        roles = iAdmin.getSecurityRoles();
+        EventContext ctx = null;
         try {
+            iQuery = factory.getQueryService();
+            iUpdate = factory.getUpdateService();
+            iAdmin = factory.getAdminService();
+            iPix = factory.getPixelsService();
+            roles = iAdmin.getSecurityRoles();
             mmFactory = new ModelMockFactory(factory.getTypesService());
+            importer = new OMEROMetadataStoreClient();
+            importer.initialize(factory);
+            ctx = iAdmin.getEventContext();
         } catch (SecurityViolation sv) {
             mmFactory = null;
+            iAdmin = null;
+            iQuery = null;
+            iUpdate = null;
+            iPix = null;
+            importer = null;
         }
 
-        importer = new OMEROMetadataStoreClient();
-        importer.initialize(factory);
-
-        return iAdmin.getEventContext();
+        return ctx;
     }
 
     /**
