@@ -956,7 +956,7 @@ class DiagnosticsControl(BaseControl):
         diagnostics = parser.add(
             sub, self.diagnostics,
             "Run a set of checks on the current, "
-            "preferably active ")
+            "preferably active server")
         diagnostics.add_argument(
             "--no-logs", action="store_true",
             help="Skip log parsing")
