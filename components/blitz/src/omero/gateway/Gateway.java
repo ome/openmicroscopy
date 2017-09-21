@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -140,9 +141,6 @@ public class Gateway {
 
     /** Property to indicate that a stateless service has been created */
     public static final String PROP_STATELESS_SERVICE_CREATED = "PROP_STATELESS_SERVICE_CREATED";
-
-    /** Regex matching ICE Session ID */
-    public static final String ICE_SESSION_ID_REGEX = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}";
     
     /** Reference to a {@link Logger} */
     private Logger log;
@@ -1107,7 +1105,12 @@ public class Gateway {
      *         otherwise.
      */
     private boolean isSessionID(String s) {
-        return s != null && s.matches(ICE_SESSION_ID_REGEX);
+        try {
+            UUID.fromString(s);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
     }
     
     /**

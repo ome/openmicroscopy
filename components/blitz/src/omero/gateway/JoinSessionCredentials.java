@@ -20,6 +20,8 @@
  */
 package omero.gateway;
 
+import java.util.UUID;
+
 /**
  * Holds all necessary information needed for joining an active OMERO server
  * session
@@ -41,11 +43,9 @@ public class JoinSessionCredentials extends LoginCredentials {
         // simply set the session ID as username, everything else is
         // handled in Gateway.createSession(LoginCredentials)
         super(sessionId, "", host);
-
-        if (sessionId == null
-                || !sessionId.matches(Gateway.ICE_SESSION_ID_REGEX))
-            throw new IllegalArgumentException(sessionId
-                    + " is not a valid session ID.");
+        
+        // Check that the sessionId is an UUID
+        UUID.fromString(sessionId);
     }
 
     /**
@@ -62,10 +62,8 @@ public class JoinSessionCredentials extends LoginCredentials {
         // simply set the session ID as username, everything else is
         // handled in Gateway.createSession(LoginCredentials)
         super(sessionId, "", host, port);
-
-        if (sessionId == null
-                || !sessionId.matches(Gateway.ICE_SESSION_ID_REGEX))
-            throw new IllegalArgumentException(sessionId
-                    + " is not a valid session ID.");
+        
+        // Check that the sessionId is an UUID
+        UUID.fromString(sessionId);
     }
 }
