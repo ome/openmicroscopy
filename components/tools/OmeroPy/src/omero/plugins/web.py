@@ -10,7 +10,8 @@
 
 import traceback
 from datetime import datetime
-from omero.cli import BaseControl, CLI
+from omero.cli import DiagnosticsControl
+from omero.cli import CLI
 import platform
 import sys
 import os
@@ -116,7 +117,7 @@ def assert_config_argtype(func):
     return wraps(func)(config_argtype(func))
 
 
-class WebControl(BaseControl):
+class WebControl(DiagnosticsControl):
 
     # DEPRECATED: apache
     config_choices = (
@@ -130,6 +131,7 @@ class WebControl(BaseControl):
 
     def _configure(self, parser):
         sub = parser.sub()
+        self._add_diagnostics(parser, sub)
 
         parser.add(sub, self.help, "Extended help")
         start = parser.add(
@@ -685,6 +687,35 @@ class WebControl(BaseControl):
             str(self.ctx.dir / "etc" / "ice.config") or str(ice_config)
         os.environ['PATH'] = str(os.environ.get('PATH', '.') + ':' +
                                  self.ctx.dir / 'bin')
+
+    def diagnostics(self, args):
+        self._diagnostics_banner("web")
+        try:
+            self.status(args)
+        except Exception, e:
+            try:
+                self.ctx.out("OMERO.web error: %s" % e.message[1].message)
+            except:
+                self.ctx.out("OMERO.web not installed!")
+        try:
+            import django
+            self.ctx.out("Django version: %s" % django.get_version())
+        except:
+            self.ctx.err("Django not installed!")
+
+        if not args.no_logs:
+            log_dir = self.ctx.dir / "var" / "log"
+            self.ctx.out("")
+            self._item("Log dir", "%s" % log_dir.abspath())
+            if not log_dir.exists():
+                self.ctx.out("")
+                self.ctx.out("No logs available")
+                return
+            else:
+                self._exists(log_dir)
+                log_file = "OMEROweb.log"
+                self._item("Log file ", log_file)
+                self._exists(log_dir / log_file)
 
 try:
     register("web", WebControl, HELP)

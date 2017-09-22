@@ -959,6 +959,75 @@ class BaseControl(object):
         return out.rstrip(",")
 
 
+class DiagnosticsControl(BaseControl):
+    """
+    Superclass (and SPI-interface) for any control commands that would
+    like to provide a "diagnostics" method, like bin/omero admin diagnostics
+    and bin/omero web diagnostics. The top-level diagnostics command then
+    can find each such plugin and iterate over it.
+    """
+
+    def _add_diagnostics(self, parser, sub):
+        diagnostics = parser.add(
+            sub, self.diagnostics,
+            "Run a set of checks on the current, "
+            "preferably active server")
+        diagnostics.add_argument(
+            "--no-logs", action="store_true",
+            help="Skip log parsing")
+
+    def _diagnostics_banner(self, control_name):
+
+        self.ctx.out("""
+%s
+OMERO Diagnostics (%s) %s
+%s
+        """ % ("="*80, control_name, VERSION, "="*80))
+
+    def _sz_str(self, sz):
+        for x in ["KB", "MB", "GB"]:
+            sz /= 1000
+            if sz < 1000:
+                break
+        sz = "%.1f %s" % (sz, x)
+        return sz
+
+    def _item(self, cat, msg):
+        cat = cat + ":"
+        cat = "%-12s" % cat
+        self.ctx.out(cat, False)
+        msg = "%-30s " % msg
+        self.ctx.out(msg, False)
+
+    def _exists(self, p):
+        if p.isdir():
+            if not p.exists():
+                self.ctx.out("doesn't exist")
+            else:
+                self.ctx.out("exists")
+        else:
+            if not p.exists():
+                self.ctx.out("n/a")
+            else:
+                warn_regex = ('(-! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
+                              'warn(i(ng:)?)?\s')
+                err_regex = ('(!! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
+                             'error:?\s')
+                warn = 0
+                err = 0
+                for l in p.lines():
+                    # ensure errors/warnings search is case-insensitive
+                    lcl = l.lower()
+                    if re.match(warn_regex, lcl):
+                        warn += 1
+                    elif re.match(err_regex, lcl):
+                        err += 1
+                msg = ""
+                if warn or err:
+                    msg = " errors=%-4s warnings=%-4s" % (err, warn)
+                self.ctx.out("%-12s %s" % (self._sz_str(p.size), msg))
+
+
 class CLI(cmd.Cmd, Context):
     """
     Command line interface class. Supports various styles of executing the
