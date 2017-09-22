@@ -398,17 +398,34 @@ class MetadataControl(BaseControl):
 
     def testtables(self, args):
         "Tests whether tables can be created and initialized"
-        client = self.ctx.conn(args)
+        client, conn = self._clientconn(args)
 
         sf = client.getSession()
         sr = sf.sharedResources()
         table = sr.newTable(1, 'testtables')
         if table is None:
             self.ctx.die(100, "Failed to create Table")
+
+        # If we have a table...
+        initialized = False
         try:
             table.initialize([])
+            initialized = True
         except:
+            pass
+        finally:
+            table.close()
+
+        try:
+            orig_file = table.getOriginalFile()
+            conn.deleteObject(orig_file)
+        except:
+            # Anything else to do here?
+            pass
+
+        if not initialized:
             self.ctx.die(100, "Failed to initialize Table")
+
 
     # WRITE
 
