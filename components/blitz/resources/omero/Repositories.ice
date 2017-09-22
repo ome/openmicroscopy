@@ -533,6 +533,11 @@ module omero {
         };
 
         /**
+         * With {@link RawAccessRequest} available log levels for {@code path} to be used when command is {@code log}.
+         **/
+        enum LogLevel { Trace, Debug, Info, Warn, Error };
+
+        /**
          * Command object which will be parsed by the internal
          * repository given by ""repo"". This command will *only*
          * be processed if the user has sufficient rights (e.g.

@@ -23,6 +23,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
+
 import Ice.Current;
 
 import ome.io.nio.FileBuffer;
@@ -37,6 +40,7 @@ import omero.cmd.IRequest;
 import omero.cmd.Response;
 import omero.cmd.Unknown;
 import omero.grid.InternalRepositoryPrx;
+import omero.grid.LogLevel;
 import omero.grid.RawAccessRequest;
 import omero.grid.RepositoryException;
 import omero.model.ChecksumAlgorithm;
@@ -53,11 +57,21 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
 
     private static Logger log = LoggerFactory.getLogger(RawAccessRequestI.class);
 
+    private static ImmutableMap<String, LogLevel> logLevels;
+
     private final Registry reg;
 
     protected Helper helper;
 
     protected InternalRepositoryPrx repo;
+
+    static {
+        final ImmutableMap.Builder<String, LogLevel> builder = ImmutableMap.builder();
+        for (final LogLevel value : LogLevel.values()) {
+            builder.put(value.name().toLowerCase(), value);
+        }
+        logLevels = builder.build();
+    }
 
     public RawAccessRequestI(Registry reg) {
         this.reg = reg;
@@ -246,6 +260,31 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
             } else {
                 throw new omero.ApiUsageException(null, null,
                         "Command: " + command + " takes just one argument");
+            }
+        } else if ("log".equals(command)) {
+            final LogLevel logLevel = path == null ? null : logLevels.get(path.toLowerCase());
+            if (logLevel == null) {
+                throw new omero.ApiUsageException(null, null,
+                        "Command: " + command + " requires path value of: " + Joiner.on(", ").join(logLevels.keySet()));
+            }
+            for (final String arg : args) {
+                switch (logLevel) {
+                case Trace:
+                    log.trace(arg);
+                    break;
+                case Debug:
+                    log.debug(arg);
+                    break;
+                case Info:
+                    log.info(arg);
+                    break;
+                case Warn:
+                    log.warn(arg);
+                    break;
+                case Error:
+                    log.error(arg);
+                    break;
+                }
             }
         } else {
             throw new omero.ApiUsageException(null, null,
