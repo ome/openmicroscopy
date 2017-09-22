@@ -426,7 +426,6 @@ class MetadataControl(BaseControl):
         if not initialized:
             self.ctx.die(100, "Failed to initialize Table")
 
-
     # WRITE
 
     def populate(self, args):
