@@ -47,10 +47,15 @@ class TestCleanse(CLITest):
         assert err.endswith("SecurityViolation: Admins only!\n")
 
 
-class TestCleanseRoot(RootCLITest):
+class TestCleanseFullAdmin(RootCLITest):
+
+    # make the user in this test a member of system group
+    DEFAULT_SYSTEM = True
+    # make the new member of system group to a Full Admin
+    DEFAULT_PRIVILEGES = None
 
     def setup_method(self, method):
-        super(TestCleanseRoot, self).setup_method(method)
+        super(TestCleanseFullAdmin, self).setup_method(method)
         self.cli.register("admin", omero.plugins.admin.AdminControl, "TEST")
         self.args += ["admin", "cleanse"]
         self.group_ctx = {'omero.group': str(self.group.id.val)}
@@ -157,7 +162,7 @@ class TestCleanseRestrictedAdmin(CLITest):
     DEFAULT_SYSTEM = True
     # make the new member of system group to a Restricted
     # Admin with no privileges
-    DEFAULT_PRIVILEGES = []
+    DEFAULT_PRIVILEGES = ()
 
     def setup_method(self, method):
         super(TestCleanseRestrictedAdmin, self).setup_method(method)

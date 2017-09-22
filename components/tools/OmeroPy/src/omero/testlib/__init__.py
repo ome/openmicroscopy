@@ -100,7 +100,7 @@ class ITest(object):
     DEFAULT_SYSTEM = False
     # If the new user created in setup_class is system group member
     # default value None makes the new user to Full Admin
-    # For Restricted Admin with no privileges, set the value to []
+    # For Restricted Admin with no privileges, set the value to ()
     # Can be overriden by test instances
     DEFAULT_PRIVILEGES = None
 
