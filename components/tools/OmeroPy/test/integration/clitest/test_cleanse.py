@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-from test.integration.clitest.cli import CLITest, RootCLITest
+from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.cmd import Delete2
 
@@ -47,7 +47,7 @@ class TestCleanse(CLITest):
         assert err.endswith("SecurityViolation: Admins only!\n")
 
 
-class TestCleanseFullAdmin(RootCLITest):
+class TestCleanseFullAdmin(CLITest):
 
     # make the user in this test a member of system group
     DEFAULT_SYSTEM = True
@@ -71,7 +71,7 @@ class TestCleanseFullAdmin(RootCLITest):
         return path.replace("//", "/")
 
     def testCleanseBasic(self, capsys):
-        """Test cleanse works for root with expected output"""
+        """Test cleanse works for Full Admin with expected output"""
         self.args += [self.data_dir]
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
