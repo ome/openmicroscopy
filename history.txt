@@ -1,6 +1,68 @@
 OMERO version history
 =====================
 
+5.4.0-m4 (September 2017)
+-------------------------
+
+Developer preview release. Intended *only as a developer preview* for updating
+code before the full public release of 5.4.0. **Use at your own risk.**
+
+Changes include:
+
+- added method to JavaGateway to manipulate admin privileges
+- fixed graph policy rule to avoid stack overflow when moving large plates at once
+- fixed links to point to new website
+- fixed color conversion to RGBA
+- fixed export as TIFF from webgateway
+- improved creation of rendering settings for image without any stats
+  e.g. 32bit images
+- fixed issue with JSONP decorator
+- fixed upload of scripts for administrators with restricted privileges
+- fixed import bug in OMERO.insight
+- improved copy/paste of rendering settings workflow in OMERO.web
+- fixed projection of images if the range of timepoints specified is not
+  the full range
+- added configuration to limit queries that public users can do in OMERO.web
+- improved display of wells in OMERO.web
+- allowed administrators with restricted privileges to create Project/Dataset
+  for others in OMERO.web
+- added method to create administrators with restricted privileges specifying
+  a password
+- added support for the creation of administrators with restricted privileges in
+  OMERO.web
+- reverted workaround for IcePy communicator leak
+- created minimal nginx configuration file that can be included in a fixed file
+  to allow custom nginx options to be defined only once (e.g. SSL options)
+- closed services when 404 occurs
+- dropped support for CLI command ``admin ports``
+- added support to the Rendering engine to update a series of settings in one call
+- added infrastructure to load external CLI plugins
+- allowed the maven repository to be overridden
+- rolled back the display of tables in OMERO.web viewer
+- fixed filtering issue in OMERO.web
+- removed unused 3rd party libraries in OMERO.web
+- improved layout in left-hand panel in OMERO.web
+- renamed "Reverse Intensity" command to "Invert" in image viewers
+- changed the public url_filter default value to no value
+- fixed label position for wells
+- fixed bug in URL if no images in a share
+- fixed login redirect issue
+- prevented right-hand panel from loading twice
+- improved handling of images without stats to determine rendering settings
+- added options to export images in plate as OME-TIFF
+- added ability to transfer all the data of a given user using CLI
+- added support for PyTables version 3.4+
+- deprecated Path Object in OMERO model
+- updated URL to point to new website, docs and downloads
+- added method to OMERO.py to manipulate advanced rendering settings
+- installed django-redis when installing web requirements
+- added tests for cleanse
+- reviewed calculation of stats in RoiService
+
+
+This release also upgrades the version of Bio-Formats which OMERO uses to 5.7.1
+
+
 5.4.0-m3 (August 2017)
 ----------------------
 
@@ -50,11 +112,16 @@ Changes include:
   admin tasks without having admin privileges e.g. import for others
 - added specific installation instructions for Debian 9
 
+5.3.4 (September 2017)
+----------------------
+
+This is a security release - see the
+:secvuln:`security advisory <2017-SV5-filename-2>` for further details.
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
 `5.5.3 <https://www.openmicroscopy.org/2017/07/05/bio-formats-5-5-3.html>`_.
 
-
+It is highly recommended that you upgrade your server.
 
 5.3.3 (June 2017)
 -----------------
@@ -120,8 +187,7 @@ Developer updates include:
 - added ROIs support to the Web API
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
-`5.5.0 <http://www.openmicroscopy.org/2017/05/08/bio-formats-5-5-0.html>`_.
-
+`5.5.0 <https://www.openmicroscopy.org/2017/05/08/bio-formats-5-5-0.html>`_.
 
 5.3.1 (April 2017)
 ------------------
@@ -138,7 +204,7 @@ Improvements include:
 - added support for large image export as jpeg/png from OMERO.insight
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
-`5.4.1 <http://www.openmicroscopy.org/2017/04/13/bio-formats-5-4-1.html>`_.
+`5.4.1 <https://www.openmicroscopy.org/2017/04/13/bio-formats-5-4-1.html>`_.
 
 5.3.0 (March 2017)
 ------------------
@@ -233,7 +299,7 @@ This is a release aimed at system administrators or developers wanting to
 build OMERO with Ice 3.6.3.
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
-`5.1.10 <http://www.openmicroscopy.org/2016/05/09/bio-formats-5-1-10.html>`_.
+`5.1.10 <https://www.openmicroscopy.org/2016/05/09/bio-formats-5-1-10.html>`_.
 
 All scripts handling Regions of Interest (ROIs) now support ROI not linked to
 any plane as defined by the OME Model.
@@ -318,7 +384,7 @@ System administrator updates include:
    existing servers and adding it to the documentation as soon as we can)
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
-`5.1.9 <http://www.openmicroscopy.org/2016/04/18/bio-formats-5-1-9.html>`_.
+`5.1.9 <https://www.openmicroscopy.org/2016/04/18/bio-formats-5-1-9.html>`_.
 
 5.2.2 (February 2016)
 ---------------------
@@ -363,7 +429,7 @@ Note that the OMERO Virtual Appliance has been discontinued and will not be
 updated for version 5.2.2 or any later releases.
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
-`5.1.8 <http://www.openmicroscopy.org/2016/02/15/bio-formats-5-1-8.html>`_.
+`5.1.8 <https://www.openmicroscopy.org/2016/02/15/bio-formats-5-1-8.html>`_.
 
 5.2.1 (December 2015)
 ---------------------
@@ -392,7 +458,7 @@ Developer updates include:
 -  minimal-omero-client and pom-omero-client clean-up
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
-5.1.7.
+`5.1.7 <https://www.openmicroscopy.org/2015/12/07/bio-formats-5-1-7.html>`_.
 
 5.2.0 (November 2015)
 ----------------------
