@@ -304,7 +304,7 @@ class UserProfile
         UIUtilities.unifiedButtonLookAndFeel(deletePhoto);
         deletePhoto.setVisible(false);
         loginArea = new JTextField();
-        boolean a = MetadataViewerAgent.isAdministrator();
+        boolean a = MetadataViewerAgent.isEditUser();
         loginArea.setEnabled(a);
         loginArea.setEditable(a);
         adminBox = new JCheckBox();
@@ -359,6 +359,7 @@ class UserProfile
         GroupData defaultGroup = user.getDefaultGroup();
 
         groupsBox = new JComboBox();
+        groupsBox.setEnabled(MetadataViewerAgent.isEditUser() || model.isSelf());
         SelectableComboBoxModel m = new SelectableComboBoxModel();
         Iterator<GroupData> i = groups.iterator();
         GroupData g;
@@ -385,7 +386,7 @@ class UserProfile
         permissionsPane.disablePermissions();
 
         ExperimenterData logUser = model.getCurrentUser();
-        if (MetadataViewerAgent.isAdministrator()) {
+        if (MetadataViewerAgent.isEditUser()) {
             //Check that the user is not the one currently logged.
             oldPassword.setVisible(false);
             adminBox.setVisible(true);
@@ -399,8 +400,9 @@ class UserProfile
             //indicate if the user is an administrator
             admin = isUserAdministrator();
             adminBox.setSelected(admin);
-            adminBox.setEnabled(!model.isSelf() &&
-                    !model.isSystemUser(user.getId()));
+            adminBox.setEnabled(!model.isSelf()
+                    && !model.isSystemUser(user.getId())
+                    && MetadataViewerAgent.isFullAdministrator());
             ownerBox.addChangeListener(this);
             ownerBox.setEnabled(!model.isSystemUser(user.getId()));
         } else {
@@ -483,7 +485,7 @@ class UserProfile
                     setUserPhoto(null);
                 }
             });
-            if (groups.size() > 1) {
+            if (groups.size() > 1 && MetadataViewerAgent.isEditUser()) {
                 groupsBox.addActionListener(new ActionListener() {
 
                     /**
@@ -528,7 +530,7 @@ class UserProfile
         ExperimenterData user = (ExperimenterData) model.getRefObject();
         ExperimenterData loggedInUser = MetadataViewerAgent.getUserDetails();
         if (user.getId() == loggedInUser.getId())
-            return MetadataViewerAgent.isAdministrator();
+            return MetadataViewerAgent.isEditUser();
         List<GroupData> groups = user.getGroups();
         Iterator<GroupData> i = groups.iterator();
         GroupData g;
@@ -629,7 +631,7 @@ class UserProfile
     {
         ExperimenterData user = (ExperimenterData) model.getRefObject();
         boolean editable = model.isUserOwner(user);
-        if (!editable) editable = MetadataViewerAgent.isAdministrator();
+        if (!editable) editable = MetadataViewerAgent.isEditUser();
         details = EditorUtil.convertExperimenter(user);
         JPanel content = new JPanel();
         content.setBorder(BorderFactory.createTitledBorder("User"));
@@ -667,8 +669,8 @@ class UserProfile
         loginArea.setText(user.getUserName());
         loginArea.setEnabled(false);
         loginArea.setEditable(false);
-        if (MetadataViewerAgent.isAdministrator() &&
-                !model.isSystemUser(user.getId()) && !model.isSelf()) {
+        if (MetadataViewerAgent.isEditUser() &&
+                !model.isSystemUser(user.getId())) {
             loginArea.setEnabled(true);
             loginArea.getDocument().addDocumentListener(this);
         }
@@ -807,7 +809,7 @@ class UserProfile
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;
         c.weightx = 0.0; 
-        if (MetadataViewerAgent.isAdministrator()) {
+        if (MetadataViewerAgent.isEditUser()) {
             content.add(UIUtilities.setTextFont(PASSWORD_NEW), c);
             c.gridx++;
             c.gridwidth = GridBagConstraints.REMAINDER;
@@ -899,7 +901,7 @@ class UserProfile
         c.weightx = 1.0;
         add(buildContentPanel(), c);
         if (model.isUserOwner(model.getRefObject()) ||
-                MetadataViewerAgent.isAdministrator()) {
+                MetadataViewerAgent.isEditUser()) {
             c.gridy++;
             JPanel buttonPanel = UIUtilities.buildComponentPanel(saveButton);
             buttonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -908,8 +910,8 @@ class UserProfile
             add(Box.createVerticalStrut(5), c);
             c.gridy++;
             boolean ldap = model.isLDAP();
-            loginArea.setEnabled(!ldap);
-            loginArea.setEditable(!ldap);
+            loginArea.setEnabled(!ldap && MetadataViewerAgent.isEditUser());
+            loginArea.setEditable(!ldap && MetadataViewerAgent.isEditUser());
             if (ldap) {
                 model.fireLDAPDetailsLoading();
             } else {
@@ -1087,7 +1089,7 @@ class UserProfile
         }
         if (!original.getUserName().equals(value)) a = true;
         //if admin 
-        if (MetadataViewerAgent.isAdministrator()) a = true;
+        if (MetadataViewerAgent.isEditUser()) a = true;
         if (a) {
             Map<ExperimenterData, UserCredentials> m =
                     new HashMap<ExperimenterData, UserCredentials>();

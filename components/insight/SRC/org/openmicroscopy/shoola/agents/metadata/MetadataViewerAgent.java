@@ -131,7 +131,21 @@ public class MetadataViewerAgent
 		if (b == null) return false;
 		return b.booleanValue();
 	}
-	
+    
+    /**
+     * Returns <code>true</code> if the currently logged in user is a full
+     * administrator
+     * 
+     * @return See above.
+     */
+    public static boolean isFullAdministrator() {
+        Boolean b = (Boolean) registry.lookup(LookupNames.PRIV_FULL);
+        if (b == null)
+            b = Boolean.FALSE;
+
+        return isAdministrator() && b.booleanValue();
+    }
+    
 	/**
 	 * Returns the context for an administrator.
 	 * 
@@ -449,7 +463,7 @@ public class MetadataViewerAgent
     }
 
     /**
-     * Returns <code>true</code> if the currently logged in user is is allowed
+     * Returns <code>true</code> if the currently logged in user is allowed
      * to edit groups, <code>false</code> otherwise.
      * 
      * @return See above.
@@ -462,4 +476,17 @@ public class MetadataViewerAgent
         return isAdministrator() && b.booleanValue();
     }
 
+    /**
+     * Returns <code>true</code> if the currently logged in user is allowed
+     * to edit users, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isEditUser() {
+        Boolean b = (Boolean) registry.lookup(LookupNames.PRIV_EDIT_USER);
+        if (b == null)
+            b = Boolean.FALSE;
+
+        return isAdministrator() && b.booleanValue();
+    }
 }
