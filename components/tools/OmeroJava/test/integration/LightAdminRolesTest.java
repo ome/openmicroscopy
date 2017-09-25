@@ -19,20 +19,27 @@
 
 package integration;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import ome.model.enums.DetectorType;
+import ome.model.enums.EventType;
 import omero.RLong;
 import omero.RString;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IScriptPrx;
+import omero.api.ITypesPrx;
+import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
+import omero.api.SearchPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.Chown2;
 import omero.gateway.util.Requests;
@@ -40,6 +47,8 @@ import omero.gateway.util.Requests.Delete2Builder;
 import omero.gateway.util.Utils;
 import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
+import omero.model.ContrastMethod;
+import omero.model.ContrastMethodI;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
@@ -83,7 +92,9 @@ import omero.model.enums.AdminPrivilegeWriteScriptRepo;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -95,6 +106,23 @@ import com.google.common.collect.ImmutableList;
  * @since 5.4.0
  */
 public class LightAdminRolesTest extends RolesTests {
+
+    @Override
+    @AfterClass
+    public void tearDown() throws Exception {
+        final ITypesPrx svc = root.getSession().getTypesService();
+        svc.resetEnumerations(ContrastMethod.class.getName());
+        svc.resetEnumerations(DetectorType.class.getName());
+        super.tearDown();
+    }
+
+    /**
+     * Creates a new administrator without any privileges
+     * and create a new {@link omero.client}.
+     */
+    protected EventContext logNewAdminWithoutPrivileges() throws Exception {
+        return loginNewAdmin(true, Collections.<String>emptyList());
+    }
 
     /**
      * Create a light administrator, with a specific privilege, and log in as them.
@@ -195,8 +223,7 @@ public class LightAdminRolesTest extends RolesTests {
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         /* lightAdmin possibly sudoes on behalf of normalUser, depending on test case.*/
         if (isSudoing) sudo(new ExperimenterI(normalUser.userId, false));
 
@@ -1093,8 +1120,8 @@ public class LightAdminRolesTest extends RolesTests {
         /* lightAdmin or otherUser try to create links between their own image and normalUser's Dataset
          * and between their own Dataset and normalUser's Project.*/
         try {
-            DatasetImageLink linkOfDatasetImage = linkParentToChild(sentDat, sentOwnImage);
-            ProjectDatasetLink linkOfProjectDataset = linkParentToChild(sentProj, sentOwnDat);
+            linkParentToChild(sentDat, sentOwnImage);
+            linkParentToChild(sentProj, sentOwnDat);
             Assert.assertTrue(isExpectLinkingSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectLinkingSuccess, se.toString());
@@ -1349,7 +1376,7 @@ public class LightAdminRolesTest extends RolesTests {
         loginUser(normalUser);
         Image image = mmFactory.createImage();
         Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
-        Pixels pixelsOfImage = sentImage.getPrimaryPixels();
+        sentImage.getPrimaryPixels();
         Roi roi = new RoiI();
         roi.addShape(new RectangleI());
         roi.setImage((Image) sentImage.proxy());
@@ -1357,7 +1384,7 @@ public class LightAdminRolesTest extends RolesTests {
         assertOwnedBy(sentImage, normalUser);
         assertOwnedBy(roi, normalUser);
         /* lightAdmin logs in and tries to delete the ROI.*/
-        final EventContext lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         doChange(client, factory, Requests.delete().target(roi).build(), isExpectSuccessDeleteROI);
         /* Check the ROI was deleted, whereas the image exists.*/
@@ -1609,15 +1636,14 @@ public class LightAdminRolesTest extends RolesTests {
      * @throws Exception unexpected
      */
     @Test(dataProvider = "isPrivileged cases")
-    public void testOfficialSciptUploadNoSudo(boolean isPrivileged, String groupPermissions) throws Exception {
+    public void testOfficialScriptUploadNoSudo(boolean isPrivileged, String groupPermissions) throws Exception {
         /* isPrivileged translates in this test into WriteScriptRepo permission, see below.*/
         boolean isExpectSuccessUploadOfficialScript = isPrivileged;
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeWriteScriptRepo.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         IScriptPrx iScript = factory.getScriptService();
         /* lightAdmin fetches a script from the server.*/
@@ -1691,7 +1717,7 @@ public class LightAdminRolesTest extends RolesTests {
         }
         /* Another light admin (anotherLightAdmin) with appropriate permissions
          * uploads the script as a new script.*/
-        final EventContext anotherLightAdmin = loginNewAdmin(true, AdminPrivilegeWriteScriptRepo.value);
+        loginNewAdmin(true, AdminPrivilegeWriteScriptRepo.value);
         iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         final long testScriptId = iScript.uploadOfficialScript(testScriptName, actualScript);
@@ -1757,8 +1783,7 @@ public class LightAdminRolesTest extends RolesTests {
         final EventContext otherUser = newUserAndGroup(groupPermissions);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
         final ExperimenterGroup group = new ExperimenterGroupI(otherUser.groupId, false);
         try {
@@ -1788,8 +1813,7 @@ public class LightAdminRolesTest extends RolesTests {
         final ExperimenterGroup otherGroup = newGroupAddUser("rwr-r-", normalUser.userId);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
         try {
             iAdmin.removeGroups(user, Collections.singletonList(otherGroup));
@@ -1813,8 +1837,7 @@ public class LightAdminRolesTest extends RolesTests {
         final EventContext normalUser = newUserAndGroup(groupPermissions);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
         final ExperimenterGroup group = new ExperimenterGroupI(normalUser.groupId, false);
         try {
@@ -1842,8 +1865,7 @@ public class LightAdminRolesTest extends RolesTests {
         final EventContext normalUser = newUserAndGroup(groupPermissions, true);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         final Experimenter user = new ExperimenterI(normalUser.userId, false);
         final ExperimenterGroup group = new ExperimenterGroupI(normalUser.groupId, false);
         try {
@@ -1875,8 +1897,7 @@ public class LightAdminRolesTest extends RolesTests {
         final long newGroupId = newUserAndGroup(groupPermissions).groupId;
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyUser.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         final Experimenter newUser = new ExperimenterI();
         newUser.setOmeName(omero.rtypes.rstring(UUID.randomUUID().toString()));
         newUser.setFirstName(omero.rtypes.rstring("August"));
@@ -1933,7 +1954,7 @@ public class LightAdminRolesTest extends RolesTests {
             permissions.add(AdminPrivilegeWriteFile.value);
             permissions.add(AdminPrivilegeWriteOwned.value);
         }
-        final EventContext lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         /* lightAdmin declares and defines the createdAdmin they are
          * attempting to create (createdAdmin). Permissions will be the same for lightAdmin
          * and createdAdmin.*/
@@ -1972,8 +1993,7 @@ public class LightAdminRolesTest extends RolesTests {
         final long newUserId = newUserAndGroup(groupPermissions).userId;
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyUser.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         final Experimenter newUser = (Experimenter) iQuery.get("Experimenter", newUserId);
         newUser.setConfig(ImmutableList.of(new NamedValue("color", "green")));
         try {
@@ -2003,8 +2023,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* Set up the permissions for lightAdmin.*/
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroup.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         try {
             iAdmin.createGroup(newGroup);
             Assert.assertTrue(isExpectSuccessCreateGroup);
@@ -2031,8 +2050,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* Set up the permissions for the lightAdmin.*/
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroup.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        loginNewAdmin(true, permissions);
         /* lightAdmin tries to downgrade the group to all possible permission levels and
          * also tries to edit the LDAP settings.*/
         final ExperimenterGroup newGroup = (ExperimenterGroup) iQuery.get("ExperimenterGroup", newGroupId);
@@ -2437,4 +2455,190 @@ public class LightAdminRolesTest extends RolesTests {
             }
         return testCases.toArray(new Object[testCases.size()][]);
     }
+
+    /**
+     * Tests if an enumeration not used can be deleted.
+     * This should pass but it can be restored using the method
+     * <code>resetEnumerations</code>.
+     * @throws Exception
+     */
+    @Test
+    public void testDeleteEnumerationsbyRestrictedSystemUser() throws Exception {
+        //root create an enumeration first
+        ContrastMethod ho = new ContrastMethodI();
+        ho.setValue(omero.rtypes.rstring("testDeleteEnumerationsbyRestrictedSystemUser"));
+        final ITypesPrx ts = root.getSession().getTypesService();
+        List<IObject> types = ts.allEnumerations(ContrastMethod.class.getName());
+        int n = types.size();
+        ho = (ContrastMethod) ts.createEnumeration(ho);
+        types = ts.allEnumerations(ContrastMethod.class.getName());
+        Assert.assertEquals(types.size(), (n+1));
+        logNewAdminWithoutPrivileges();
+        //try to delete an enum type. The type is not important
+        final ITypesPrx types_svc = factory.getTypesService();
+        types = types_svc.allEnumerations(ContrastMethod.class.getName());
+        int m = types.size();
+        Assert.assertEquals(m, (n+1));
+        Iterator<IObject> i = types.iterator();
+        while (i.hasNext()) {
+            IObject o = i.next();
+            if (o.getId().getValue() == ho.getId().getValue()) {
+                types_svc.deleteEnumeration(ho);
+                break;
+            }
+        }
+        types = types_svc.allEnumerations(ContrastMethod.class.getName());
+        Assert.assertEquals(types.size(), n);
+    }
+
+    /**
+     * Tests if an enumeration already used can be deleted.
+     * An exception should be thrown.
+     * @throws Exception
+     */
+    @Test(expectedExceptions = omero.ValidationException.class)
+    public void testDeleteUsedEnumerationsbyRestrictedSystemUser() throws Exception {
+        logNewAdminWithoutPrivileges();
+        //try to delete an enum type. The type is not important
+        final ITypesPrx types_svc = factory.getTypesService();
+        List<IObject> types = types_svc.allEnumerations(EventType.class.getName());
+        Iterator<IObject> i = types.iterator();
+        while (i.hasNext()) {
+            types_svc.deleteEnumeration(i.next());
+        }
+    }
+
+    /**
+     * Tests if deleted enumeration can be reset
+     * @throws Exception
+     */
+    @Test
+    public void testResetEnumerationsbyRestrictedSystemUser() throws Exception {
+        logNewAdminWithoutPrivileges();
+        final ITypesPrx types_svc = factory.getTypesService();
+        List<IObject> types = types_svc.allEnumerations(DetectorType.class.getName());
+        int n = types.size();
+        Iterator<IObject> i = types.iterator();
+        int count = 0;
+        while (i.hasNext()) {
+            try {
+                types_svc.deleteEnumeration(i.next());
+                count++;
+            } catch (Exception e) {
+                //Cannot delete the enumeration since it is used
+            }
+        }
+        //not all enum are used so we should have deleted at least one
+        Assert.assertTrue(count > 0);
+        types = types_svc.allEnumerations(DetectorType.class.getName());
+        Assert.assertEquals(types.size(), (n-count));
+        //reset the deleted enumerations
+        types_svc.resetEnumerations(DetectorType.class.getName());
+        types = types_svc.allEnumerations(DetectorType.class.getName());
+        //We should be back to the original list. Other enum might have been
+        //added by other tests.
+        Assert.assertTrue(types.size() >= n);
+    }
+
+    /**
+     * Tests if an enumeration can be updated.
+     * @throws Exception
+     */
+    @Test(expectedExceptions = omero.ValidationException.class)
+    public void testUpdateEnumerationsbyRestrictedSystemUser() throws Exception {
+        logNewAdminWithoutPrivileges();
+        //try to update an enum type. The type is not important
+        final ITypesPrx types_svc = factory.getTypesService();
+        List<IObject> types = types_svc.allEnumerations(ContrastMethod.class.getName());
+        Iterator<IObject> i = types.iterator();
+        while (i.hasNext()) {
+            ContrastMethod o = (ContrastMethod) i.next();
+            o.setValue(omero.rtypes.rstring("foo"));
+            types_svc.updateEnumeration(o);
+        }
+    }
+
+    /**
+     * Tests that any member in the system group can index the data.
+     * @throws Exception
+     */
+    @Test
+    public void testIndexObjectbyRestrictedSystemUser() throws Exception {
+        logNewAdminWithoutPrivileges();
+        final IUpdatePrx service = factory.getUpdateService();
+        Image image = new ImageI();
+        image.setName(omero.rtypes.rstring("Image with A - 11 reagent"));
+        image = (Image) service.saveAndReturnObject(image);
+        service.indexObject(image);
+        SearchPrx prx = factory.createSearchService();
+        prx.onlyType(Image.class.getName());
+        prx.byFullText("\"A \\- 11\"");
+        boolean found = false;
+        while (prx.hasNext()) {
+            for (IObject obj : prx.results()) {
+                if (image.getClass().isAssignableFrom(obj.getClass())) {
+                    if (obj.getId().equals(image.getId())) {
+                        found = true;
+                    }
+                }
+            }
+        }
+        Assert.assertTrue(found);
+    }
+
+    /**
+     * Tests if a script can be modified using the upload method from omero.client.
+     * @throws Exception
+     */
+    @Test(expectedExceptions = omero.SecurityViolation.class)
+    public void testModifyScriptUsingUploadFromClientbyRestrictedSystemUser() throws Exception {
+        logNewAdminWithoutPrivileges();
+        IScriptPrx iScript = factory.getScriptService();
+        /* lightAdmin fetches a script from the server.*/
+        OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
+        String actualScript;
+        RawFileStorePrx rfs = null;
+        try {
+            rfs = factory.createRawFileStore();
+            rfs.setFileId(scriptFile.getId().getValue());
+            actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
+        } finally {
+            if (rfs != null) rfs.close();
+        }
+        /* lightAdmin tries uploading the script as a new script in normalUser's group.*/
+        iScript = factory.getScriptService();
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+        File file = new File(testScriptName);
+        file.deleteOnExit();
+        FileUtils.writeStringToFile(file, actualScript);
+        client.upload(file, scriptFile);
+    }
+
+    /**
+     * Tests if a file owned by another user can be uploaded using the upload
+     * method from omero.client.
+     * @throws Exception
+     */
+    @Test(expectedExceptions = omero.SecurityViolation.class)
+    public void testUploadFromClientbyRestrictedSystemUser() throws Exception {
+        newUserAndGroup("rwrw--");
+        OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory
+                .createOriginalFile());
+        long ofId = of.getId().getValue();
+        RawFileStorePrx rfPrx = factory.createRawFileStore();
+        try {
+            rfPrx.setFileId(ofId);
+            rfPrx.write(new byte[] { 1, 2, 3, 4 }, 0, 4);
+            of = rfPrx.save();
+        } finally {
+            rfPrx.close();
+        }
+        logNewAdminWithoutPrivileges();
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+        File file = new File(testScriptName);
+        file.deleteOnExit();
+        FileUtils.writeStringToFile(file, "test");
+        client.upload(file, of);
+    }
+
 }
