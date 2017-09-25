@@ -788,7 +788,12 @@ create index originalfile_mime_index on originalfile (mimetype);
 create index originalfile_path_index on originalfile (path);
 create index originalfile_repo_index on originalfile (repo);
 create index originalfile_hash_index on originalfile (hash);
-create unique index originalfile_repo_path_index on originalfile (repo, path, name) where repo is not null;
+
+-- protect against 2017-SV5
+
+CREATE UNIQUE INDEX originalfile_repo_path_index ON originalfile
+    (repo, regexp_split_to_array('/' || path || name || '/', '/+'))
+    WHERE repo IS NOT NULL;
 
 --
 -- end ticket:2201

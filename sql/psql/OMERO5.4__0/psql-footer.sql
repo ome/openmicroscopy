@@ -2042,7 +2042,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.4DEV',  3,    'OMERO5.4DEV',   0,             'Initializing');
+             values ('OMERO5.4',  0,    'OMERO5.4',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2690,7 +2690,12 @@ create index originalfile_mime_index on originalfile (mimetype);
 create index originalfile_path_index on originalfile (path);
 create index originalfile_repo_index on originalfile (repo);
 create index originalfile_hash_index on originalfile (hash);
-create unique index originalfile_repo_path_index on originalfile (repo, path, name) where repo is not null;
+
+-- protect against 2017-SV5
+
+CREATE UNIQUE INDEX originalfile_repo_path_index ON originalfile
+    (repo, regexp_split_to_array('/' || path || name || '/', '/+'))
+    WHERE repo IS NOT NULL;
 
 --
 -- end ticket:2201
@@ -3427,9 +3432,9 @@ CREATE INDEX node_down ON node(down);
 -- Here we have finished initializing this database.
 
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
-  where currentVersion = 'OMERO5.4DEV' and
-        currentPatch = 3 and
-        previousVersion = 'OMERO5.4DEV' and
+  where currentVersion = 'OMERO5.4' and
+        currentPatch = 0 and
+        previousVersion = 'OMERO5.4' and
         previousPatch = 0;
 
 COMMIT;

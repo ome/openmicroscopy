@@ -9,7 +9,6 @@
 -- To create your database:
 --
 --     createdb omero
---     createlang plpgsql omero
 --     psql omero < %(SCRIPT)s
 --
 --

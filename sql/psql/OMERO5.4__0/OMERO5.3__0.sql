@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.3__0 to OMERO5.4DEV__3.
+--- OMERO5 release upgrade from OMERO5.3__0 to OMERO5.4__0.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.4DEV',  3,            'OMERO5.3',      0);
+             VALUES ('OMERO5.4',     0,            'OMERO5.3',      0);
 
 -- ... up to patch 0:
 
@@ -459,6 +459,17 @@ BEGIN
       RETURN nv;
 
 END;' LANGUAGE plpgsql;
+
+-- ... up to release version:
+
+-- patch against 2017-SV5 regardless of if already patched
+
+DROP INDEX originalfile_repo_path_index;
+
+CREATE UNIQUE INDEX originalfile_repo_path_index ON originalfile
+    (repo, regexp_split_to_array('/' || path || name || '/', '/+'))
+    WHERE repo IS NOT NULL;
+
 
 --
 -- FINISHED
