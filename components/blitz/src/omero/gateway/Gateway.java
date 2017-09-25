@@ -179,7 +179,7 @@ public class Gateway implements AutoCloseable {
     
     /** Flag to indicate that executor threads should be shutdown on disconnect */
     private boolean executorShutdownOnDisconnect = false;
-    
+
     /**
      * Creates a new Gateway instance
      * @param log A {@link Logger}
@@ -1234,7 +1234,9 @@ public class Gateway implements AutoCloseable {
             c = i.next();
             if (c.needsKeepAlive()) {
                 if (!c.keepSessionAlive()) {
-                    throw new DSOutOfServiceException("Network not available");
+                    // Session has died, e. g. due to server restart.
+                    // Remove connectors, so new ones will be created as requested.
+                    groupConnectorMap.removeAll(c.getGroupID());
                 }
             }
         }
@@ -1517,9 +1519,10 @@ public class Gateway implements AutoCloseable {
                             ConnectionStatus.NETWORK);
                 }
                 if (!c.keepSessionAlive()) {
-                    throw new DSOutOfServiceException(
-                            "Network down. Session not alive",
-                            ConnectionStatus.LOST_CONNECTION);
+                    // Session has died, e. g. due to server restart.
+                    // Remove connectors, so a new ones will be created.
+                    groupConnectorMap.removeAll(c.getGroupID());
+                    c = null;
                 }
             }
         }
