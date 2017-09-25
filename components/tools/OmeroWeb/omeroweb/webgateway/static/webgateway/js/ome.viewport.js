@@ -73,7 +73,7 @@ var Metadata = function () {
       if (this.rdefs.invertAxis) {
         var t = this.size.t;
         this.size.t = this.size.z;
-        his.size.z = t;
+        this.size.z = t;
       }
     this.current.zoom = 100;
   };
