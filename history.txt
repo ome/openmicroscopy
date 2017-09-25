@@ -57,6 +57,7 @@ Changes include:
 - added method to OMERO.py to manipulate advanced rendering settings
 - installed django-redis when installing web requirements
 - added tests for cleanse
+- reviewed calculation of stats in RoiService
 
 
 This release also upgrades the version of Bio-Formats which OMERO uses to 5.7.1
