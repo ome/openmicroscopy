@@ -70,7 +70,7 @@
 		<properties>
 		</properties>
 	</type>
-        <!-- Deprecated -->
+	<!-- Warning: ImportJob is DEPRECATED and may be removed in OMERO 6.0. -->
 	<type id="ome.model.jobs.ImportJob" superclass="ome.model.jobs.Job">
 		<!-- Note: ImportJob is not in model-->
 		<properties>
