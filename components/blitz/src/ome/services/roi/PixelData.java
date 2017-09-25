@@ -16,6 +16,7 @@ import ome.conditions.ValidationException;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
+import ome.model.core.Pixels;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,42 @@ public class PixelData {
                 pd.dispose();
             }
         }
+    }
+
+    /**
+     * Returns the {@link ome.util.PixelData} for plane given its z, c and t
+     * as well as a {@link PixelBuffer}
+     *
+     * @param buf the {@link PixelBuffer}
+     * @param z the Z
+     * @param c the C
+     * @param t the T
+     * @return the ome.util.PixelData for the plane
+     */
+    public ome.util.PixelData getPlane(PixelBuffer buf, int z, int c, int t) {
+        try {
+            return buf.getPlane(z, c, t);
+        } catch (IOException e) {
+            throw new ResourceError("IOException: " + e);
+        } catch (DimensionsOutOfBoundsException e) {
+            throw new ApiUsageException("DimensionsOutOfBounds: " + e);
+        } catch (IndexOutOfBoundsException iobe) {
+            throw new ValidationException("IndexOutOfBounds: " + iobe);
+        }
+    }
+
+    /**
+     * Returns whether a pyramid should be used for the given {@link Pixels}.
+     * This usually implies that this is a "Big image" and therefore will
+     * need tiling.
+     *
+     * @see PixelsService#requiresPixelsPyramid(Pixels)
+     * @param pix the pixels
+     * @return {@code true} if a pyramid should be used, {@code false}
+     *         otherwise
+     */
+    public boolean requiresPixelsPyramid(Pixels pix) {
+        return data.requiresPixelsPyramid(pix);
     }
 
 }

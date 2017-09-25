@@ -10,10 +10,14 @@ package omero.model;
 import static omero.rtypes.rdouble;
 
 import java.awt.Shape;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import org.apache.batik.parser.AWTPathProducer;
 import org.apache.batik.parser.DefaultPointsHandler;
@@ -214,7 +218,57 @@ public interface SmartShape {
                     }
                 }
             }
+        }
 
+        public static java.awt.geom.AffineTransform getAwtTransform(AffineTransform transform) {
+            if (transform == null) return null;
+            return 
+                new java.awt.geom.AffineTransform(
+                    transform.getA00().getValue(),
+                    transform.getA10().getValue(),
+                    transform.getA01().getValue(),
+                    transform.getA11().getValue(),
+                    transform.getA02().getValue(),
+                    transform.getA12().getValue());
+        }
+
+        public static Shape transformAwtShape(Shape shape, AffineTransform transform) {
+            if (transform == null) return shape;
+            final java.awt.geom.AffineTransform t = 
+                SmartShape.Util.getAwtTransform(transform);
+            return t.createTransformedShape(shape);
+        }
+        
+        public static Set<Point2D> getQuantizedLinePoints(Line2D line, Set<Point2D> points) {
+            if (line == null) return null;
+
+            final Set<Point2D> set =
+                (points instanceof LinkedHashSet) ?
+                    points : new LinkedHashSet<Point2D>();
+
+            Point2D start = line.getP1();
+            Point2D end = line.getP2();
+            Point2D m = new Point2D.Double(
+                end.getX()-start.getX(), end.getY()-start.getY());
+            double lengthM = (Math.sqrt(m.getX()*m.getX()+m.getY()*m.getY()));
+            if (lengthM == 0) {
+                set.add(
+                    new Point2D.Double(
+                        Math.floor(start.getX()), Math.floor(start.getY())));
+                return set;
+            }
+            Point2D mNorm = new Point2D.Double(m.getX()/lengthM,m.getY()/lengthM);
+            
+            for (double i = 0 ; i <= (lengthM + 0.1) ; i += 0.1) {
+                final Point2D pt = 
+                    new Point2D.Double(
+                        start.getX()+i*mNorm.getX(),
+                        start.getY()+i*mNorm.getY());
+                set.add(
+                    new Point2D.Double(Math.floor(pt.getX()), Math.floor(pt.getY())));
+            }
+            
+            return set;
         }
     }
 

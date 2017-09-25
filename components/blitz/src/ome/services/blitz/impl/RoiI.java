@@ -48,6 +48,7 @@ import omero.api.AMD_IRoi_getRoiMeasurements;
 import omero.api.AMD_IRoi_getRoiStats;
 import omero.api.AMD_IRoi_getShapeStats;
 import omero.api.AMD_IRoi_getShapeStatsList;
+import omero.api.AMD_IRoi_getShapeStatsRestricted;
 import omero.api.AMD_IRoi_getTable;
 import omero.api.AMD_IRoi_uploadMask;
 import omero.api.RoiOptions;
@@ -240,6 +241,26 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
             public Object doWork(Session session, ServiceFactory sf) {
                 List<Long> shapesInRoi = sql.getShapeIds(roiId);
                 return geomTool.getStats(shapesInRoi);
+            }
+        }));
+    }
+
+    public void getShapeStatsRestricted_async(AMD_IRoi_getShapeStatsRestricted __cb,
+        final List<Long> shapeIdList, final int zForUnattached, final int tForUnattached,
+        final int[] channels, Current __current) throws ServerError {
+
+        final IceMapper mapper = new IceMapper(IceMapper.UNMAPPED);
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+                .getExecutor(), factory.principal, new SimpleWork(this,
+                "getShapeStatsRestricted", 
+                shapeIdList, zForUnattached, tForUnattached, channels) {
+
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return
+                    geomTool.getStatsRestricted(
+                        shapeIdList, zForUnattached, tForUnattached, channels);
             }
         }));
     }

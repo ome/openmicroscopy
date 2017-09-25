@@ -11,14 +11,23 @@ import static omero.rtypes.rdouble;
 
 import java.awt.Shape;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.List;
 import java.util.Random;
 
 public class SmartLineI extends omero.model.LineI implements SmartShape {
 
     public void areaPoints(PointCallback cb) {
-        throw new UnsupportedOperationException();
+        Shape s = asAwtShape();
+        if (s == null) {
+            return;
+        }
+        if (transform != null) s = Util.transformAwtShape(s, transform);
+        final Set<Point2D> points = Util.getQuantizedLinePoints((Line2D) s, null);
+        for (Point2D p : points)
+            cb.handle((int) p.getX(), (int) p.getY());
     }
     
     public Shape asAwtShape() {

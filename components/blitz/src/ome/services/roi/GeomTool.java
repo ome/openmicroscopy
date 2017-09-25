@@ -13,9 +13,11 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.conditions.ApiUsageException;
@@ -29,6 +31,7 @@ import ome.util.SqlAction;
 import omero.api.RoiStats;
 import omero.api.ShapePoints;
 import omero.api.ShapeStats;
+import omero.model.AffineTransformI;
 import omero.model.Ellipse;
 import omero.model.Line;
 import omero.model.Point;
@@ -44,6 +47,10 @@ import omero.util.ObjectFactoryRegistry.ObjectFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
 import org.hibernate.Query;
 import org.hibernate.Session;
 
@@ -247,7 +254,6 @@ public class GeomTool {
             final ome.model.roi.Shape shape = (ome.model.roi.Shape) session
                     .createQuery(
                             "select s from Shape s "
-                                    + "left outer join fetch s.channels selected " // optional
                                     + "join fetch s.roi r join fetch r.image i "
                                     + "join fetch i.pixels p join fetch p.channels c "
                                     + "join fetch c.logicalChannel lc "
@@ -354,6 +360,132 @@ public class GeomTool {
 
     }
 
+    public ShapeStats [] getStatsRestricted(
+            List<Long> shapeIds, 
+            int zForUnattached, int tForUnattached,
+            int[] channels) {
+        if (shapeIds == null || shapeIds.isEmpty())
+            throw new ApiUsageException("Provide a non empty list of shape ids.");
+        if (channels == null || channels.length == 0)
+            throw new ApiUsageException("Provide a non empty array of channels.");
+
+       // fetch shapes from db and perform some basic checks
+        final Session session = factory.getSession();
+        List results =
+           session.createQuery(
+               "select distinct s from Shape s " +
+               "left join fetch s.transform t left join fetch s.roi r " +
+               "join fetch r.image i join fetch i.pixels p " +
+               "where s.id in (:ids)").
+           setParameterList("ids", shapeIds).list();
+       if (results.size() != shapeIds.size()) {
+           throw new ApiUsageException("Given shape id(s) invalid");
+       }
+
+       final List<ShapeStats> shapeStats =
+               new ArrayList<ShapeStats>(shapeIds.size());
+       final Multimap<String, ome.model.roi.Shape> zt_lookup = HashMultimap.create();
+       ome.model.core.Image image = null;
+       ome.model.core.Pixels pixels = null;
+
+       for (final Object r : results) {
+           final ome.model.roi.Shape shape = (ome.model.roi.Shape) r;
+           final ome.model.roi.Roi roi = shape.getRoi();
+           final ome.model.core.Image img = roi.getImage();
+
+           // check if all shapes come from the same image
+           if (image == null) {
+               image = img;
+               pixels = image.getPrimaryPixels();
+           } else if (!image.getId().equals(img.getId()))
+               throw new ApiUsageException("All shapes have to be from the same image");
+           // check if z/t unattached fallback values are not out of bounds
+           if (zForUnattached < 0 || zForUnattached >= pixels.getSizeZ() ||
+               tForUnattached < 0 || tForUnattached >= pixels.getSizeT())
+               throw new ApiUsageException(
+                   "Fallback value(s) for unattached z/t shapes are out of bounds");
+           // if we have unattached z/t we use the unattached z,t fallback
+           final int theZ = shape.getTheZ() != null ? shape.getTheZ() : zForUnattached;
+           final int theT = shape.getTheT() != null ? shape.getTheT() : tForUnattached;
+           zt_lookup.put(theZ + "/" + theT, shape);
+       }
+
+       // any point iteration in a tiled image is a lost cause
+       if (data.requiresPixelsPyramid(pixels)) 
+           throw new ApiUsageException("This method cannot handle tiled images yet.");
+
+       // check if given channels are valid
+       Set<Integer> validChannels = new HashSet<Integer>();
+       if (channels != null && channels.length > 0) {
+           for (int ch : channels) {
+               if (ch < 0 || ch >= pixels.getSizeC())
+                   throw new ApiUsageException("Given channel(s) out of bounds.");
+               validChannels.add(ch);
+           }
+       }
+
+       // common info for all shapes
+       final long pixelId = pixels.getId();
+       final int sizeX = pixels.getSizeX();
+       final int sizeY = pixels.getSizeY();
+
+       // loop over shapes (grouped by z/t planes)
+       for (final String key : zt_lookup.keySet()) {
+           final String[] keyTokens = key.split("/");
+           final int z = Integer.parseInt(keyTokens[0]);
+           final int t = Integer.parseInt(keyTokens[1]);
+
+           for (ome.model.roi.Shape shape : zt_lookup.get(key)) {
+               final SmartShape smartShape = (SmartShape) new ShapeMapper().map(shape);
+               final int size_stats = validChannels.size();
+               final ShapeStats stats = makeStats(size_stats);
+               stats.shapeId = shape.getId();
+               final double[] sumOfSquares = new double[size_stats];
+
+               try (final PixelBuffer buf = data.getBuffer(pixelId)) {
+            	   int i = 0;
+                   for (int c : validChannels) {
+                       final int w = i;
+                       stats.channelIds[w] = c;
+                       final ome.util.PixelData pd = data.getPlane(buf, z, c, t);
+                       smartShape.areaPoints(
+                           new SmartShape.PointCallback() {
+                               public void handle(int x, int y) {
+                                   // we won't use pixels outside of the image 
+                                   if (x < 0 || y < 0 || x >= sizeX || y >= sizeY) return;
+                                   stats.pointsCount[w]++;
+                                   double value = pd.getPixelValue(sizeX * y + x);
+                                   stats.min[w] = Math.min(value, stats.min[w]);
+                                   stats.max[w] = Math.max(value, stats.max[w]);
+                                   stats.sum[w] += value;
+                                   sumOfSquares[w] += value * value;
+                               }
+                           });
+                       pd.dispose();
+                       i++;
+                   }
+               } catch (IOException io) {
+                   log.error("Error closing buffer", io);
+               }
+
+               for (int w = 0; w < size_stats; w++) {
+                   if (stats.pointsCount[w] > 0) {
+                       stats.mean[w] = stats.sum[w] / stats.pointsCount[w];
+                       if (stats.pointsCount[w] > 1) {
+                           double sigmaSquare =
+                               (sumOfSquares[w] - stats.sum[w] * stats.mean[w]) /
+                               (stats.pointsCount[w] - 1);
+                           if (sigmaSquare > 0) stats.stdDev[w] = Math.sqrt(sigmaSquare);
+                       }
+                   }
+               }
+               shapeStats.add(stats);
+           }
+       }
+       
+       return shapeStats.toArray(new ShapeStats[] {});
+    }
+
     /**
      * Maps from multiple possible user-provided names of shapes (e.g.
      * "::omero::model::Text", "Text", "TextI", "omero.model.TextI",
@@ -451,11 +583,17 @@ public class GeomTool {
                 IObject iobj = (IObject) source;
                 omero.model.IObject robj = (omero.model.IObject) o;
                 robj.setId(rlong(iobj.getId()));
-                robj.unload();
+                // this seems to me the least unintrusive way to remedy
+                // the copying of the affine tranform
+                // the other being the .combined files
+                // which as is just cast for the transform 
+                // (effectively losing info)
+                if (robj instanceof AffineTransformI)
+                    ((AffineTransformI) robj).copyObject(source, this);
+                else robj.unload();
             }
 
             return source;
-
         }
 
     }

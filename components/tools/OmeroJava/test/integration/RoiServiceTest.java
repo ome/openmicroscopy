@@ -6,30 +6,50 @@
  */
 package integration;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IRoiPrx;
+import omero.api.RawPixelsStorePrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
+import omero.api.ShapeStats;
 import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
+import omero.model.AffineTransform;
+import omero.model.AffineTransformI;
 import omero.model.Annotation;
+import omero.model.Ellipse;
+import omero.model.EllipseI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.Line;
+import omero.model.LineI;
 import omero.model.OriginalFile;
 import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
 import omero.model.PlateI;
+import omero.model.Point;
+import omero.model.PointI;
+import omero.model.Polygon;
+import omero.model.PolygonI;
+import omero.model.Polyline;
+import omero.model.PolylineI;
 import omero.model.Rectangle;
 import omero.model.RectangleI;
 import omero.model.Roi;
@@ -517,5 +537,218 @@ public class RoiServiceTest extends AbstractServerTest {
         }
         roi = (RoiI) iUpdate.saveAndReturnObject(roi);
         return roi;
+    }
+
+    private Map<Long, ShapeStats> setUpForStatsTest() throws Exception {
+        // create image
+        Image img = mmFactory.createImage(
+            10, 10, 1, 1, 1, ModelMockFactory.UINT8);
+        img = (Image) iUpdate.saveAndReturnObject(img);
+
+        // set binary data to more easily check results
+        // we create a checkerboard pattern of 5x5 pixels
+        // left at 0,0 the quadrants alternate between all 0 or 0xFF
+        // 00 FF
+        // FF 00
+        RawPixelsStorePrx rawPixStore = factory.createRawPixelsStore();
+        rawPixStore.setPixelsId(img.getPrimaryPixels().getId().getValue(), true);
+        byte [] bytes = new byte[10*10];
+        for (int y=0;y<10;y++)
+            for (int x=0;x<10;x++) {
+                if ((y<5 && x>4) || (y>4 && x<5))
+                    bytes[y*10 + x] = Byte.MAX_VALUE;
+            }
+        rawPixStore.setPlane(bytes, 0, 0, 0);
+
+        // create roi with shapes
+        Roi roi = new RoiI();
+        roi.setImage(img);
+
+        // a rectangle fully in the FF quandrant
+        final Rectangle rect = new RectangleI();
+        rect.setX(omero.rtypes.rdouble(5));
+        rect.setY(omero.rtypes.rdouble(0));
+        rect.setWidth(omero.rtypes.rdouble(4));
+        rect.setHeight(omero.rtypes.rdouble(4));
+        rect.setTheC(omero.rtypes.rint(0));
+        rect.setTheZ(omero.rtypes.rint(0));
+        rect.setTheT(omero.rtypes.rint(0));
+        roi.addShape(rect);
+
+        // a line rectangle crossing 00/FF horizontally
+        final Line line = new LineI();
+        line.setX1(omero.rtypes.rdouble(0));
+        line.setY1(omero.rtypes.rdouble(1));
+        line.setX2(omero.rtypes.rdouble(9));
+        line.setY2(omero.rtypes.rdouble(1));
+        line.setTheC(omero.rtypes.rint(0));
+        line.setTheZ(omero.rtypes.rint(0));
+        line.setTheT(omero.rtypes.rint(0));
+        roi.addShape(line);
+
+        // an ellipse across the upper 2 quadrants
+        final Ellipse ellipse = new EllipseI();
+        ellipse.setX(omero.rtypes.rdouble(4.5));
+        ellipse.setY(omero.rtypes.rdouble(2.5));
+        ellipse.setRadiusX(omero.rtypes.rdouble(5));
+        ellipse.setRadiusY(omero.rtypes.rdouble(2.5));
+        ellipse.setTheC(omero.rtypes.rint(0));
+        ellipse.setTheZ(omero.rtypes.rint(0));
+        ellipse.setTheT(omero.rtypes.rint(0));
+        roi.addShape(ellipse);
+
+        // a point at the origin translated
+        // into the FF quandrant
+        final Point point = new PointI();
+        point.setX(omero.rtypes.rdouble(0.5));
+        point.setY(omero.rtypes.rdouble(0.5));
+        point.setTheC(omero.rtypes.rint(0));
+        point.setTheZ(omero.rtypes.rint(0));
+        point.setTheT(omero.rtypes.rint(0));
+        final AffineTransform t =  new AffineTransformI();
+        t.setA00(omero.rtypes.rdouble(1));
+        t.setA01(omero.rtypes.rdouble(0));
+        t.setA02(omero.rtypes.rdouble(2.5));
+        t.setA10(omero.rtypes.rdouble(0));
+        t.setA11(omero.rtypes.rdouble(1));
+        t.setA12(omero.rtypes.rdouble(7.5));
+        point.setTransform(t);
+        roi.addShape(point);
+
+        // a polyline (forming triangle)
+        final Polyline polyline = new PolylineI();
+        polyline.setPoints(
+            omero.rtypes.rstring("0,0 9,9 0,9 0,0"));
+        polyline.setTheC(omero.rtypes.rint(0));
+        polyline.setTheZ(omero.rtypes.rint(0));
+        polyline.setTheT(omero.rtypes.rint(0));
+        roi.addShape(polyline);
+
+        // a polygon the shape of a rectangle
+        // transformed onto the entire image
+        final Polygon polygon = new PolygonI();
+        polygon.setPoints(
+            omero.rtypes.rstring("-2.5,2.5 0,2.5 0,0 -2.5,0 -2.5,2.5"));
+        polygon.setTheC(omero.rtypes.rint(0));
+        polygon.setTheZ(omero.rtypes.rint(0));
+        polygon.setTheT(omero.rtypes.rint(0));
+        final AffineTransform t2 =  new AffineTransformI();
+        t2.setA00(omero.rtypes.rdouble(0));
+        t2.setA01(omero.rtypes.rdouble(4));
+        t2.setA02(omero.rtypes.rdouble(0));
+        t2.setA10(omero.rtypes.rdouble(-4));
+        t2.setA11(omero.rtypes.rdouble(0));
+        t2.setA12(omero.rtypes.rdouble(0));
+        polygon.setTransform(t2);
+        roi.addShape(polygon);
+        roi = (RoiI) iUpdate.saveAndReturnObject(roi);
+
+        // add all shape ids to the list to be queried
+        // and their expected stats
+        final Map<Long, ShapeStats> shapeList =
+            new HashMap<Long, ShapeStats>();
+        final ShapeStats [] expShapeStats = new ShapeStats[] {
+            new ShapeStats( // rectangle in FF
+                0, new long[] {0}, new long[] {16},
+                new double[] {Byte.MAX_VALUE},
+                new double[] {Byte.MAX_VALUE},
+                new double[] {16*Byte.MAX_VALUE},
+                new double[] {(double)Byte.MAX_VALUE},
+                new double[1]),
+            new ShapeStats( // horizontal line across
+                0, new long[] {0}, new long[] {10},
+                new double[] {0},
+                new double[] {Byte.MAX_VALUE},
+                new double[] {5*Byte.MAX_VALUE},
+                new double[] {((double)5*Byte.MAX_VALUE)/10},
+                new double[1]),
+            new ShapeStats( // ellipse center upper half
+                0, new long[] {0}, new long[] {36},
+                new double[] {0},
+                new double[] {Byte.MAX_VALUE},
+                new double[] {15*Byte.MAX_VALUE},
+                new double[] {((double)15*Byte.MAX_VALUE)/36},
+                new double[1]),
+            new ShapeStats( // point translated FF
+                0, new long[] {0}, new long[] {1},
+                new double[] {Byte.MAX_VALUE},
+                new double[] {Byte.MAX_VALUE},
+                new double[] {Byte.MAX_VALUE},
+                new double[] {(double)Byte.MAX_VALUE},
+                new double[1]),
+            new ShapeStats( // a polyline (forming a triangle)
+                0, new long[] {0}, new long[] {3*10},
+                new double[] {0},
+                new double[] {Byte.MAX_VALUE},
+                new double[] {10*Byte.MAX_VALUE},
+                new double[] {((double)10*Byte.MAX_VALUE)/30},
+                new double[1]),
+            new ShapeStats( // a polygon transformed onto image)
+                0, new long[] {0}, new long[] {10*10},
+                new double[] {0},
+                new double[] {Byte.MAX_VALUE},
+                new double[] {50*Byte.MAX_VALUE},
+                new double[] {((double) 50*Byte.MAX_VALUE)/100},
+                new double[1])
+        };
+        for (int i=0; i<roi.sizeOfShapes();i++) {
+            shapeList.put(
+                roi.getShape(i).getId().getValue(),
+                expShapeStats[i]);
+        }
+
+        return shapeList;
+    }
+
+    @Test
+    public void testStatsBasicUsageAndInputChecks() throws Exception {
+        IRoiPrx svc = factory.getRoiService();
+
+        final Map<Long,ShapeStats> testAndAssertData = setUpForStatsTest();
+        final List<Long> ids = new ArrayList<Long>(testAndAssertData.keySet());
+
+        // some basic inputs checks
+        final List<Object[]> inputs = new ArrayList<Object[]>();
+        inputs.add(new Object[] {
+            null, new Integer(0), new Integer(0), new int[] {0}, "null ids"});
+        inputs.add(new Object[] {
+            new ArrayList<Long>(), new Integer(0), new Integer(0), new int[] {0},
+            "empty ids" });
+        inputs.add(new Object[] {
+            Arrays.asList(new Long[] {new Long (-1)}), new Integer(0), new Integer(0),
+            new int[] {0}, "erroneous id" });
+        inputs.add(new Object[] { ids, new Integer(10), new Integer(10), new int[] {0},
+            "wrong fallback z" });
+        inputs.add(new Object[] { ids, new Integer(0), new Integer(-10), new int[] {0},
+            "wrong fallback t" });
+        inputs.add(new Object[] { ids, new Integer(0), new Integer(0), new int[] {200},
+            "wrong channels" });
+        inputs.add(new Object[] { ids, new Integer(0), new Integer(0), null,
+            "missing channels" });
+        inputs.add(new Object[] { ids, new Integer(0), new Integer(0), new int[] {},
+            "empty channels" });
+
+        // all these inputs should trigger an ApiUsageException
+        for (Object [] in : inputs) {
+            boolean succeeded = false;
+            try {
+                svc.getShapeStatsRestricted(
+                    (List<Long>) in[0], (Integer) in[1], (Integer)in[2], (int []) in[3]);
+            } catch(ApiUsageException any) {
+                succeeded = true;
+            } catch (Exception anythingElse) {}
+            assertTrue(succeeded, "testStatsBasicUsageAndInputChecks: " + in[4]);
+        }
+
+        // call again with valid params and assert results
+        final ShapeStats [] stats = svc.getShapeStatsRestricted(ids, 0, 0, new int[] {0});
+        for (final ShapeStats calcStats : stats) {
+            final ShapeStats expStats = testAndAssertData.get(calcStats.shapeId);
+            assertEquals(calcStats.pointsCount[0], expStats.pointsCount[0]);
+            assertEquals(calcStats.min[0], expStats.min[0]);
+            assertEquals(calcStats.max[0], expStats.max[0]);
+            assertEquals(calcStats.sum[0], expStats.sum[0]);
+            assertEquals(calcStats.mean[0], expStats.mean[0]);
+        }
     }
 }

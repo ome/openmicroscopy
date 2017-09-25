@@ -21,6 +21,7 @@ public class SmartRectI extends omero.model.RectangleI implements SmartShape {
         if (s == null) {
             return;
         }
+        if (transform != null) s = Util.transformAwtShape(s, transform);
         Rectangle2D r = s.getBounds2D();
         Util.pointsByBoundingBox(s, r, cb);
     }
