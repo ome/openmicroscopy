@@ -26,6 +26,10 @@ try:
     import numpy
     tables = __import__("tables")  # Pytables
     has_pytables = True
+    if hasattr(tables, "open_file"):
+        has_pytables3 = True
+    else:
+        has_pytables3 = False
 except ImportError:
     has_pytables = False
 
@@ -89,7 +93,10 @@ class AbstractColumn(object):
         if rowNumbers is None or len(rowNumbers) == 0:
             rows = tbl.read()
         else:
-            rows = tbl.readCoordinates(rowNumbers)
+            if has_pytables3:
+                rows = tbl.read_coordinates(rowNumbers)
+            else:
+                rows = tbl.readCoordinates(rowNumbers)
         self.fromrows(rows)
 
     def read(self, tbl, start, stop):
@@ -501,7 +508,10 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
         try:
             masks = getattr(p, "%s_masks" % n)
         except tables.NoSuchNodeError:
-            masks = f.createVLArray(p, "%s_masks" % n, tables.UInt8Atom())
+            if has_pytables3:
+                masks = f.create_vlarray(p, "%s_masks" % n, tables.UInt8Atom())
+            else:
+                masks = f.createVLArray(p, "%s_masks" % n, tables.UInt8Atom())
         return masks
 
 # Helpers

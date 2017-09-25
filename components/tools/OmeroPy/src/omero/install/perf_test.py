@@ -350,8 +350,17 @@ class HdfReporter(Reporter):
     def __init__(self, dir):
         import tables
         self.file = str(dir / "report.hdf")
-        self.hdf = tables.openFile(self.file, "w")
-        self.tbl = self.hdf.createTable("/", "report", {
+
+        # Temporarily support old and new PyTables methods
+        try:
+            open_file = tables.open_file
+            create_table = self.hdf.create_table
+        except AttributeError:
+            open_file = tables.openFile
+            create_table = self.hdf.createTable
+
+        self.hdf = open_file(self.file, "w")
+        self.tbl = create_table("/", "report", {
             "Command": tables.StringCol(pos=0, itemsize=64),
             "Start": tables.Float64Col(pos=1),
             "Stop": tables.Float64Col(pos=2),

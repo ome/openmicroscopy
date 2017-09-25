@@ -22,6 +22,9 @@ from path import path
 
 logging.basicConfig(level=logging.DEBUG)
 
+# Don't retry since we expect errors
+omero.tables.RETRIES = 1
+
 
 class communicator_provider(object):
     def __init__(self, ic=None):
