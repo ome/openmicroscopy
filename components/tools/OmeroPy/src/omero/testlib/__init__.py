@@ -538,7 +538,7 @@ class ITest(object):
         :system: If user is to be a system group member
         :privileges: If system group member is to have privileges
                      privileges=None gives all privileges (full admin)
-                     privileges=[] gives no privileges
+                     privileges=() gives no privileges
         """
 
         if not cls.root:
