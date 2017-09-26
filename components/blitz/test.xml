@@ -12,7 +12,7 @@
   <dependencies defaultconfmapping="test->*">
     <dependency name="blitz" rev="${omero.version}" changing="true"/>
     <dependency name="common-test" rev="${omero.version}" changing="true"/>
-    <dependency org="omero" name="omero-icemock" rev="${versions.ice}"/>
+    <dependency org="omero" name="omero-icemock" rev="${versions.omeromock}"/>
     <dependency org="nl.javadude.assumeng" name="assumeng" rev="1.2.4"/>
   </dependencies>
 </ivy-module>

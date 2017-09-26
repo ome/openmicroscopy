@@ -351,12 +351,18 @@
                     <then>
                         <property name="versions.ice" value="${versions.ice35}"/>
                         <property name="versions.ice_lib" value="${versions.ice35_lib}"/>
+                        <property name="versions.icedb" value="${versions.icedb35}"/>
+                        <property name="versions.omeromock" value="${versions.omeromock35}"/>
+                        <property name="versions.omeroshares" value="${versions.omeroshares35}"/>
                     </then>
                 </if>
                 <if><matches string="${executable.ice.version}" pattern="^3[.]6"/>
                     <then>
                         <property name="versions.ice" value="${versions.ice36}"/>
                         <property name="versions.ice_lib" value="${versions.ice36_lib}"/>
+                        <property name="versions.icedb" value="${versions.icedb36}"/>
+                        <property name="versions.omeromock" value="${versions.omeromock36}"/>
+                        <property name="versions.omeroshares" value="${versions.omeroshares36}"/>
                     </then>
                 </if>
             </then>
@@ -365,6 +371,9 @@
                 <then>
                     <property name="versions.ice" value="${versions.ice35}"/>
                     <property name="versions.ice_lib" value="${versions.ice35_lib}"/>
+                    <property name="versions.icedb" value="${versions.icedb35}"/>
+                    <property name="versions.omeromock" value="${versions.omeromock35}"/>
+                    <property name="versions.omeroshares" value="${versions.omeroshares35}"/>
                 </then>
             </elseif>
             <elseif>
@@ -372,6 +381,9 @@
                 <then>
                     <property name="versions.ice" value="${versions.ice36}"/>
                     <property name="versions.ice_lib" value="${versions.ice36_lib}"/>
+                    <property name="versions.icedb" value="${versions.icedb36}"/>
+                    <property name="versions.omeromock" value="${versions.omeromock36}"/>
+                    <property name="versions.omeroshares" value="${versions.omeroshares36}"/>
                 </then>
             </elseif>
             <else>
