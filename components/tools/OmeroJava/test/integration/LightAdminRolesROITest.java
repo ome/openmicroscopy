@@ -90,7 +90,7 @@ public class LightAdminRolesROITest extends RolesTests {
         /* lightAdmin logs in.*/
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
 
         /* lightAdmin tries to set ROI on normalUser's image.*/
         Roi roi = new RoiI();
@@ -208,7 +208,7 @@ public class LightAdminRolesROITest extends RolesTests {
         assertOwnedBy(roi, normalUser);
         /* lightAdmin logs in and tries to delete the ROI.*/
         loginNewAdmin(true, permissions);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         doChange(client, factory, Requests.delete().target(roi).build(), isExpectSuccessDeleteROI);
         /* Check the ROI was deleted, whereas the image exists.*/
         if (isExpectSuccessDeleteROI) {

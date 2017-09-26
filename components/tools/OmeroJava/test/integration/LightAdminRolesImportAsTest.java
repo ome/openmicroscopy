@@ -97,7 +97,7 @@ public class LightAdminRolesImportAsTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         /* lightAdmin creates Dataset in the normalUser's group
          * (lightAdmin is not member of that group).*/
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = null;
         /* Creation of Dataset success is governed by
@@ -202,7 +202,7 @@ public class LightAdminRolesImportAsTest extends RolesTests {
 
         /* lightAdmin tries to create Project and Dataset on behalf of the normalUser
          * in normalUser's group.*/
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         Project proj = mmFactory.simpleProject();
         Dataset dat = mmFactory.simpleDataset();
         Project sentProj = null;
@@ -298,7 +298,7 @@ public class LightAdminRolesImportAsTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         /* lightAdmin creates a Dataset in lightAdmin's group and imports
          * an image into it.*/
-        client.getImplicitContext().put("omero.group", Long.toString(lightAdmin.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(lightAdmin.groupId));
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
         /* Import an Image into the created Dataset.*/

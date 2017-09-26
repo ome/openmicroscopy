@@ -106,7 +106,7 @@ public class LightAdminRolesLinkUserTest extends RolesTests {
         } else {
             loginUser(otherUser);
         }
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         Image ownImage = mmFactory.createImage();
         Image sentOwnImage = (Image) iUpdate.saveAndReturnObject(ownImage);
         Dataset ownDat = mmFactory.simpleDataset();
@@ -158,7 +158,7 @@ public class LightAdminRolesLinkUserTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         /* Create an image, Dataset and Project as normalUser in normalUser's group.*/
         loginUser(normalUser);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         Image image = mmFactory.createImage();
         Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
         Dataset dat = mmFactory.simpleDataset();
@@ -166,7 +166,7 @@ public class LightAdminRolesLinkUserTest extends RolesTests {
         Project proj = mmFactory.simpleProject();
         Project sentProj = (Project) iUpdate.saveAndReturnObject(proj);
         loginUser(lightAdmin);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         /* lightAdmin checks that the canLink value on all the objects to be linked
          * matches the isExpectLinkingSuccess boolean.*/
         Assert.assertEquals(getCurrentPermissions(sentImage).canLink(), isExpectLinkingSuccess);

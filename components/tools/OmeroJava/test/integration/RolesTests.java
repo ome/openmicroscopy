@@ -403,7 +403,7 @@ public class RolesTests extends AbstractServerImportTest {
         lightAdmin = loginNewAdmin(true, permissions);
         sudo(new ExperimenterI(normalUser.userId, false));
         /* Create a Dataset and Project being sudoed as normalUser.*/
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         Project sentProj = (Project) iUpdate.saveAndReturnObject(mmFactory.simpleProject());
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
         /* Import an image for the normalUser into the normalUser's default group
@@ -420,7 +420,7 @@ public class RolesTests extends AbstractServerImportTest {
         /* Take care of post-import workflows which do not use sudo.*/
         if (!isSudoing) {
             loginUser(lightAdmin);
-            client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+            client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         }
         /* Check that lightAdmin can delete the objects
          * created on behalf of normalUser only if lightAdmin has sufficient permissions.

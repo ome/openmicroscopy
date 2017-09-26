@@ -97,7 +97,7 @@ public class LightAdminRolesScriptTest extends RolesTests {
         /* Login as lightAdmin.*/
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         /* lightAdmin tries to create a fileAttachment in normalUser's group.*/
         FileAnnotation fileAnnotation = mmFactory.createFileAnnotation();
         OriginalFile originalFile;
@@ -182,7 +182,7 @@ public class LightAdminRolesScriptTest extends RolesTests {
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeWriteScriptRepo.value);
         loginNewAdmin(true, permissions);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         IScriptPrx iScript = factory.getScriptService();
         /* lightAdmin fetches a script from the server.*/
         OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
@@ -240,7 +240,7 @@ public class LightAdminRolesScriptTest extends RolesTests {
         if (isPrivileged) permissions.add(AdminPrivilegeDeleteScriptRepo.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         IScriptPrx iScript = factory.getScriptService();
         /* lightAdmin fetches a script from the server.*/
         OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
@@ -272,7 +272,7 @@ public class LightAdminRolesScriptTest extends RolesTests {
         assertExists(testScript);
         /* lightAdmin tries deleting the script.*/
         loginUser(lightAdmin);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         iScript = factory.getScriptService();
         try {
             iScript.deleteScript(testScriptId);

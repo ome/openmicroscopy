@@ -104,7 +104,7 @@ public class LightAdminRolesDeleteTest extends RolesTests {
         } else {
             loginUser(otherUser);
         }
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         /* Check that lightAdmin or otherUser can delete the objects
          * of normalUser only if lightAdmin has sufficient permissions or it is read-write group.
          * Note that deletion of the Project
@@ -188,10 +188,10 @@ public class LightAdminRolesDeleteTest extends RolesTests {
          * on the object retrieved by the lightAdmin matches the deletePassing
          * boolean.*/
         loginUser(lightAdmin);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         Assert.assertEquals(getCurrentPermissions(sentDataset).canDelete(), deletePassingOwnedGroup);
         doChange(client, factory, Requests.delete().target(sentDataset).build(), deletePassingOwnedGroup);
-        client.getImplicitContext().put("omero.group", Long.toString(otherUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(otherUser.groupId));
         Assert.assertEquals(getCurrentPermissions(sentOtherDataset).canDelete(), deletePassingNotOwnedGroup);
         doChange(client, factory, Requests.delete().target(sentOtherDataset).build(), deletePassingNotOwnedGroup);
         /* Check the existence/non-existence of the objects as appropriate.*/

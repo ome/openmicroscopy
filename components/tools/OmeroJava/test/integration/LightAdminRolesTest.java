@@ -130,7 +130,7 @@ public class LightAdminRolesTest extends RolesTests {
         Assert.assertEquals(getCurrentPermissions(sentProj).canEdit(), isExpectSuccess);
         /* Try to rename the Project.*/
         final String changedName = "ChangedNameOfLightAdmin";
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         long id = sentProj.getId().getValue();
         final Project retrievedUnrenamedProject = (Project) iQuery.get("Project", id);
         retrievedUnrenamedProject.setName(omero.rtypes.rstring(changedName));

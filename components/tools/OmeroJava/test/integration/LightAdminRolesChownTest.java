@@ -107,7 +107,7 @@ public class LightAdminRolesChownTest extends RolesTests {
          * boolean in each case.*/
         Assert.assertEquals(getCurrentPermissions(image).canChown(), chownImagePassing);
         /* Get into correct group context and check all cases.*/
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         /* lightAdmin tries to chown the image.*/
         doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownImagePassing);
         /* ChecK the results of the chown when lightAdmin is sudoed,
@@ -168,7 +168,7 @@ public class LightAdminRolesChownTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         /* normalUser creates two sets of Project/Dataset/Image hierarchy in their default group.*/
         loginUser(normalUser);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
         Image image1 = mmFactory.createImage();
         Image image2 = mmFactory.createImage();
         Image sentImage1 = (Image) iUpdate.saveAndReturnObject(image1);
@@ -187,7 +187,7 @@ public class LightAdminRolesChownTest extends RolesTests {
         ProjectDatasetLink linkOfProjectDataset2 = linkParentToChild(sentProj2, sentDat2);
 
         /* normalUser creates two sets of Project/Dataset?Image hierarchy in the other group (anotherGroup).*/
-        client.getImplicitContext().put("omero.group", Long.toString(anotherGroup.getId().getValue()));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(anotherGroup.getId().getValue()));
         Image image1AnotherGroup = mmFactory.createImage();
         Image image2AnotherGroup = mmFactory.createImage();
         Image sentImage1AnootherGroup = (Image) iUpdate.saveAndReturnObject(image1AnotherGroup);
