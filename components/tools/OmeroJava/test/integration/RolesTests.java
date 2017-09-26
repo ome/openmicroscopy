@@ -76,7 +76,7 @@ public class RolesTests extends AbstractServerImportTest {
      * @return test cases for fileAnnotation workflow in testFileAttachmentNoSudo
      */
     @DataProvider(name = "fileAttachment privileges cases")
-    public Object[][] provideFileAttachmentPrivilegesCases() {
+    protected Object[][] provideFileAttachmentPrivilegesCases() {
         int index = 0;
         final int PERM_CHOWN = index++;
         final int PERM_WRITEOWNED = index++;
@@ -109,7 +109,7 @@ public class RolesTests extends AbstractServerImportTest {
      * @return test cases for testCreateLinkImportSudo and testEdit
      */
     @DataProvider(name = "isSudoing and WriteOwned privileges cases")
-    public Object[][] provideIsSudoingAndWriteOwned() {
+    protected Object[][] provideIsSudoingAndWriteOwned() {
         int index = 0;
         final int IS_SUDOING = index++;
         final int PERM_WRITEOWNED = index++;
@@ -190,7 +190,7 @@ public class RolesTests extends AbstractServerImportTest {
      * testLinkNoSudo and testROIAndRenderingSettingsNoSudo
      */
     @DataProvider(name = "WriteOwned and Chown privileges cases")
-    public Object[][] provideWriteOwnedAndChown() {
+    protected Object[][] provideWriteOwnedAndChown() {
         int index = 0;
         final int PERM_WRITEOWNED = index++;
         final int PERM_CHOWN = index++;
@@ -223,7 +223,7 @@ public class RolesTests extends AbstractServerImportTest {
      * {@link #testLinkMemberOfGroupNoSudo}
      */
     @DataProvider(name = "WriteOwned and isAdmin cases")
-    public Object[][] provideWriteOwnedAndIsAdmin() {
+    protected Object[][] provideWriteOwnedAndIsAdmin() {
         int index = 0;
         final int PERM_WRITEOWNED = index++;
         final int IS_ADMIN = index++;
@@ -255,7 +255,7 @@ public class RolesTests extends AbstractServerImportTest {
      * @return Chgrp and Chown test cases for testImporterAsNoSudoChgrpChownWorkflow
      */
     @DataProvider(name = "Chgrp and Chown privileges cases")
-    public Object[][] provideChgrpAndChown() {
+    protected Object[][] provideChgrpAndChown() {
         int index = 0;
         final int PERM_CHGRP = index++;
         final int PERM_CHOWN = index++;
@@ -288,7 +288,7 @@ public class RolesTests extends AbstractServerImportTest {
      * @return createLightAdmin test cases for {@link #testModifyUserCreateLight}
      */
     @DataProvider(name = "createLightAdmin cases")
-    public Object[][] provideCreateLightAdminCases() {
+    protected Object[][] provideCreateLightAdminCases() {
         int index = 0;
         final int PERM_MODIFYUSER = index++;
         final int LIGHT_ADMIN_TYPES = index++;
@@ -313,7 +313,7 @@ public class RolesTests extends AbstractServerImportTest {
      * @return isSudoing and Chown test cases for testChown
      */
     @DataProvider(name = "isSudoing and Chown privileges cases")
-    public Object[][] provideIsSudoingAndChown() {
+    protected Object[][] provideIsSudoingAndChown() {
         int index = 0;
         final int IS_SUDOING = index++;
         final int PERM_CHOWN = index++;
@@ -347,7 +347,7 @@ public class RolesTests extends AbstractServerImportTest {
      * means specifically WriteScriptRepo privilege).
      */
     @DataProvider(name = "isPrivileged cases")
-    public Object[][] provideIsPrivilegedCases() {
+    protected Object[][] provideIsPrivilegedCases() {
         int index = 0;
         final int IS_PRIVILEGED = index++;
         final int GROUP_PERMS = index++;
