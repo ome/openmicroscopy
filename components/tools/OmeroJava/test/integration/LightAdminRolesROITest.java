@@ -29,6 +29,8 @@ import omero.RLong;
 import omero.SecurityViolation;
 import omero.api.IRenderingSettingsPrx;
 import omero.gateway.util.Requests;
+import omero.model.Experimenter;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Pixels;
@@ -75,14 +77,16 @@ public class LightAdminRolesROITest extends RolesTests {
         /* The only necessary additional permission for the whole workflow (creation & chown)
          * to succeed is permChown.*/
         boolean isExpectSuccessCreateAndChown = isExpectSuccessCreateROIRndSettings && permChown;
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_group_id = normalUser[0].getId().getValue();
+        final long user_id = normalUser[1].getId().getValue();
         /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
 
         /* normalUser creates an image with pixels in normalUser's group.*/
-        loginUser(normalUser);
+        loginUser(((Experimenter) normalUser[1]).getOmeName().getValue());
         Image image = mmFactory.createImage();
         Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
         Pixels pixelsOfImage = sentImage.getPrimaryPixels();
@@ -90,7 +94,7 @@ public class LightAdminRolesROITest extends RolesTests {
         /* lightAdmin logs in.*/
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
 
         /* lightAdmin tries to set ROI on normalUser's image.*/
         Roi roi = new RoiI();
@@ -136,7 +140,7 @@ public class LightAdminRolesROITest extends RolesTests {
                     new ParametersI().addId(rDef.getId())).get(0).get(0)).getValue();
             assertOwnedBy(roi, lightAdmin);
             assertOwnedBy(rDef, lightAdmin);
-            assertOwnedBy((new ImageI(imageId, false)), normalUser);
+            assertOwnedBy((new ImageI(imageId, false)), user_id);
         } else {
             /* ROI and Rnd settings (rDef) must be null as they could not be set.*/
             roi = (Roi) iQuery.findByQuery("FROM Roi WHERE image.id = :id",
@@ -154,22 +158,22 @@ public class LightAdminRolesROITest extends RolesTests {
             /* Note that in read-only group, the chown of ROI would fail, see
              * https://trello.com/c/7o4q2Tkt/745-fix-graphs-for-mixed-ownership-read-only.
              * The workaround used here is to chown both the image and the ROI.*/
-            doChange(client, factory, Requests.chown().target(roi, sentImage).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
-            doChange(client, factory, Requests.chown().target(rDef).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
+            doChange(client, factory, Requests.chown().target(roi, sentImage).toUser(user_id).build(), isExpectSuccessCreateAndChown);
+            doChange(client, factory, Requests.chown().target(rDef).toUser(user_id).build(), isExpectSuccessCreateAndChown);
             /* Retrieve the image corresponding to the ROI and Rnd settings.*/
             long imageId = ((RLong) iQuery.projection(
                     "SELECT rdef.pixels.image.id FROM RenderingDef rdef WHERE rdef.id = :id",
                     new ParametersI().addId(rDef.getId())).get(0).get(0)).getValue();
             if (isExpectSuccessCreateAndChown) {
                 /* First case: Workflow succeeded for creation and chown, all belongs to normalUser.*/
-                assertOwnedBy(roi, normalUser);
-                assertOwnedBy(rDef, normalUser);
-                assertOwnedBy((new ImageI (imageId, false)), normalUser);
+                assertOwnedBy(roi, user_id);
+                assertOwnedBy(rDef, user_id);
+                assertOwnedBy((new ImageI (imageId, false)), user_id);
             } else {
                 /* Second case: Creation succeeded, but the chown failed.*/
                 assertOwnedBy(roi, lightAdmin);
                 assertOwnedBy(rDef, lightAdmin);
-                assertOwnedBy((new ImageI(imageId, false)), normalUser);
+                assertOwnedBy((new ImageI(imageId, false)), user_id);
             }
         } else {
             /* Third case: Creation did not succeed, and chown was not attempted.*/
@@ -190,13 +194,15 @@ public class LightAdminRolesROITest extends RolesTests {
     @Test(dataProvider = "isPrivileged cases")
     public void testROIDelete(boolean isPrivileged, String groupPermissions) throws Exception {
         boolean isExpectSuccessDeleteROI = isPrivileged;
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_group_id = normalUser[0].getId().getValue();
+        final long user_id = normalUser[1].getId().getValue();
         /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeDeleteOwned.value);
 
         /* normalUser creates an image with pixels and ROI in normalUser's group.*/
-        loginUser(normalUser);
+        loginUser(((Experimenter) normalUser[1]).getOmeName().getValue());
         Image image = mmFactory.createImage();
         Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
         sentImage.getPrimaryPixels();
@@ -204,11 +210,11 @@ public class LightAdminRolesROITest extends RolesTests {
         roi.addShape(new RectangleI());
         roi.setImage((Image) sentImage.proxy());
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
-        assertOwnedBy(sentImage, normalUser);
-        assertOwnedBy(roi, normalUser);
+        assertOwnedBy(sentImage, user_id);
+        assertOwnedBy(roi, user_id);
         /* lightAdmin logs in and tries to delete the ROI.*/
         loginNewAdmin(true, permissions);
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
         doChange(client, factory, Requests.delete().target(roi).build(), isExpectSuccessDeleteROI);
         /* Check the ROI was deleted, whereas the image exists.*/
         if (isExpectSuccessDeleteROI) {

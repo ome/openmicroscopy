@@ -22,11 +22,15 @@
 package integration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
+import omero.api.IAdminPrx;
 import omero.gateway.util.Requests;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
+import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterI;
 import omero.model.IObject;
@@ -78,10 +82,14 @@ public class LightAdminRolesChownTest extends RolesTests {
         final boolean annotationsChownExpectSuccess = chownImagePassing &&
                 (groupPermissions.equals("rw----") || groupPermissions.equals("rwr---"));
 
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
-        final EventContext anotherUser = newUserAndGroup(groupPermissions);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_id = normalUser[1].getId().getValue();
+        final long user_group_id = normalUser[0].getId().getValue();
+
+        final IObject[] otherUser = others.get(groupPermissions);
+        final long other_id = otherUser[1].getId().getValue();
         /* Create a Dataset as the normalUser and import into it */
-        loginUser(normalUser);
+        loginUser(((Experimenter) normalUser[1]).getOmeName().getValue());
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
         List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
@@ -97,7 +105,7 @@ public class LightAdminRolesChownTest extends RolesTests {
         if (permChown) permissions.add(AdminPrivilegeChown.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        sudo(new ExperimenterI(normalUser.userId, false));
+        sudo((Experimenter) normalUser[1]);
 
         /* Take care of workflows which do not use sudo.*/
         if (!isSudoing) {
@@ -107,40 +115,40 @@ public class LightAdminRolesChownTest extends RolesTests {
          * boolean in each case.*/
         Assert.assertEquals(getCurrentPermissions(image).canChown(), chownImagePassing);
         /* Get into correct group context and check all cases.*/
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
         /* lightAdmin tries to chown the image.*/
-        doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownImagePassing);
+        doChange(client, factory, Requests.chown().target(image).toUser(other_id).build(), chownImagePassing);
         /* ChecK the results of the chown when lightAdmin is sudoed,
          * which should fail in any case.*/
         if (isSudoing) {
-            assertOwnedBy(image, normalUser);
-            assertOwnedBy(originalFile, normalUser);
-            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
+            assertOwnedBy(image, user_id);
+            assertOwnedBy(originalFile, user_id);
+            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, user_id);
         /* Check the chown was successful for both the image and the annotations
          * when the permissions for chowning both
          * the image as well as the annotations on it are sufficient.*/
         } else if (chownImagePassing && annotationsChownExpectSuccess) {
-            assertOwnedBy(image, anotherUser);
-            assertOwnedBy(originalFile, anotherUser);
+            assertOwnedBy(image, other_id);
+            assertOwnedBy(originalFile, other_id);
             /* Annotations will be chowned because
              * groupPermissions are private or read-only (captured in boolean
              * annotationsChownExpectSuccess).*/
-            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, anotherUser);
+            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, other_id);
         /* Check the chown was successful for the image but not the annotations
          * in case the annotationsChownExpectSuccess is false, i.e. in read-only and private group.*/
         } else if (chownImagePassing && !annotationsChownExpectSuccess){
-            assertOwnedBy(image, anotherUser);
-            assertOwnedBy(originalFile, anotherUser);
-            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
+            assertOwnedBy(image, other_id);
+            assertOwnedBy(originalFile, other_id);
+            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, user_id);
         } else {
         /* In the remaining case, the chown will fail, as the chownPassingWhenNotSudoing
          * is false because permChown was not given. All objects belong to normalUser.*/
-            assertOwnedBy(image, normalUser);
-            assertOwnedBy(originalFile, normalUser);
-            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
+            assertOwnedBy(image, user_id);
+            assertOwnedBy(originalFile, user_id);
+            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, user_id);
         }
         /* In any case, the image must be in the right group.*/
-        assertInGroup(image, normalUser.groupId);
+        assertInGroup(image, user_group_id);
     }
 
 
@@ -158,17 +166,25 @@ public class LightAdminRolesChownTest extends RolesTests {
     public void testChownAllBelongingToUser(boolean isPrivileged, String groupPermissions) throws Exception {
         /* Chown privilege is sufficient for the workflow.*/
         final boolean chownPassing = isPrivileged;
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
-        ExperimenterGroup anotherGroup = newGroupAddUser(groupPermissions, normalUser.userId, false);
-        final EventContext recipient = newUserInGroup(anotherGroup, false);
-        /* Set up the light admin's permissions for this test.*/
-        List<String> permissions = new ArrayList<String>();
-        if (isPrivileged) permissions.add(AdminPrivilegeChown.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_id = normalUser[1].getId().getValue();
+        final long user_group_id = normalUser[0].getId().getValue();
+        ExperimenterGroup anotherGroup = newGroupAddUser(groupPermissions,  user_id, false);
+        //Add a new user to the group
+        IAdminPrx rootAdmin = root.getSession().getAdminService();
+        String uuid = UUID.randomUUID().toString();
+        Experimenter recipient = new ExperimenterI();
+        recipient.setOmeName(omero.rtypes.rstring(uuid));
+        recipient.setFirstName(omero.rtypes.rstring("integration"));
+        recipient.setLastName(omero.rtypes.rstring("tester"));
+        recipient.setLdap(omero.rtypes.rbool(false));
+        long recipient_id = newUserInGroupWithPassword(recipient, anotherGroup, uuid);
+        recipient = rootAdmin.getExperimenter(recipient_id);
+        rootAdmin.addGroups(recipient, Arrays.asList(anotherGroup));
+
         /* normalUser creates two sets of Project/Dataset/Image hierarchy in their default group.*/
-        loginUser(normalUser);
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+        loginUser(((Experimenter) normalUser[1]).getOmeName().getValue());
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
         Image image1 = mmFactory.createImage();
         Image image2 = mmFactory.createImage();
         Image sentImage1 = (Image) iUpdate.saveAndReturnObject(image1);
@@ -205,45 +221,47 @@ public class LightAdminRolesChownTest extends RolesTests {
         ProjectDatasetLink linkOfProjectDataset1AnotherGroup = linkParentToChild(sentProj1AnootherGroup, sentDat1AnotherGroup);
         ProjectDatasetLink linkOfProjectDataset2AnotherGroup = linkParentToChild(sentProj2AnotherGroup, sentDat2AnotherGroup);
         /* lightAdmin tries to transfers all normalUser's data to recipient.*/
-        loginUser(lightAdmin);
+        /* Set up the light admin's permissions for this test.*/
+        List<String> permissions = new ArrayList<String>();
+        if (isPrivileged) permissions.add(AdminPrivilegeChown.value);
+        loginNewAdmin(true, permissions);
         /* In order to be able to operate in both groups, get all groups context.*/
         mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
         /* Check on one selected object only (sentProj1AnotherGroup) the value
          * of canChown. The value must match the chownPassing boolean.*/
         Assert.assertEquals(getCurrentPermissions(sentProj1AnootherGroup).canChown(), chownPassing);
         /* Check that transfer proceeds only if chownPassing boolean is true.*/
-        doChange(client, factory, Requests.chown().targetUsers(normalUser.userId).toUser(recipient.userId).build(), chownPassing);
+        doChange(client, factory, Requests.chown().targetUsers(user_id).toUser(recipient_id).build(), chownPassing);
         if (!chownPassing) {
             /* Finish the test if no transfer of data could proceed.*/
             return;
         }
         /* Check the transfer of all the data in normalUser's group was successful,
          * first checking ownership of the first hierarchy set.*/
-        assertOwnedBy(sentProj1, recipient);
-        assertOwnedBy(sentDat1, recipient);
-        assertOwnedBy(sentImage1, recipient);
-        assertOwnedBy(linkOfDatasetImage1, recipient);
-        assertOwnedBy(linkOfProjectDataset1, recipient);
+        assertOwnedBy(sentProj1, recipient_id);
+        assertOwnedBy(sentDat1, recipient_id);
+        assertOwnedBy(sentImage1, recipient_id);
+        assertOwnedBy(linkOfDatasetImage1, recipient_id);
+        assertOwnedBy(linkOfProjectDataset1, recipient_id);
         /* Check ownership of the second hierarchy set.*/
-        assertOwnedBy(sentProj2, recipient);
-        assertOwnedBy(sentDat2, recipient);
-        assertOwnedBy(sentImage2, recipient);
-        assertOwnedBy(linkOfDatasetImage2, recipient);
-        assertOwnedBy(linkOfProjectDataset2, recipient);
+        assertOwnedBy(sentProj2, recipient_id);
+        assertOwnedBy(sentDat2, recipient_id);
+        assertOwnedBy(sentImage2, recipient_id);
+        assertOwnedBy(linkOfDatasetImage2, recipient_id);
+        assertOwnedBy(linkOfProjectDataset2, recipient_id);
         /* Check ownership of the objects in anotherGroup,
          * first checking ownership of the first hierarchy.*/
-        assertOwnedBy(sentProj1AnootherGroup, recipient);
-        assertOwnedBy(sentDat1AnotherGroup, recipient);
-        assertOwnedBy(sentImage1AnootherGroup, recipient);
-        assertOwnedBy(linkOfDatasetImage1AnotherGroup, recipient);
-        assertOwnedBy(linkOfProjectDataset1AnotherGroup, recipient);
+        assertOwnedBy(sentProj1AnootherGroup, recipient_id);
+        assertOwnedBy(sentDat1AnotherGroup, recipient_id);
+        assertOwnedBy(sentImage1AnootherGroup, recipient_id);
+        assertOwnedBy(linkOfDatasetImage1AnotherGroup, recipient_id);
+        assertOwnedBy(linkOfProjectDataset1AnotherGroup, recipient_id);
         /* Check ownership of the second hierarchy set in anotherGroup.*/
-        assertOwnedBy(sentProj2AnotherGroup, recipient);
-        assertOwnedBy(sentDat2AnotherGroup, recipient);
-        assertOwnedBy(sentImage1AnootherGroup, recipient);
-        assertOwnedBy(linkOfDatasetImage2AnotherGroup, recipient);
-        assertOwnedBy(linkOfProjectDataset2AnotherGroup, recipient);
+        assertOwnedBy(sentProj2AnotherGroup, recipient_id);
+        assertOwnedBy(sentDat2AnotherGroup, recipient_id);
+        assertOwnedBy(sentImage1AnootherGroup, recipient_id);
+        assertOwnedBy(linkOfDatasetImage2AnotherGroup, recipient_id);
+        assertOwnedBy(linkOfProjectDataset2AnotherGroup, recipient_id);
     }
-
 
 }

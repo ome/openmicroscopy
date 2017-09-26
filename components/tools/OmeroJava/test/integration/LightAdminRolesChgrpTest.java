@@ -26,7 +26,7 @@ import java.util.List;
 
 import omero.gateway.util.Requests;
 import omero.model.Dataset;
-import omero.model.ExperimenterI;
+import omero.model.Experimenter;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.OriginalFile;
@@ -44,7 +44,7 @@ import org.testng.annotations.Test;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 5.4
  */
-public class LightAdminRolesChrpTest extends RolesTests {
+public class LightAdminRolesChgrpTest extends RolesTests {
 
 
     /**
@@ -69,9 +69,11 @@ public class LightAdminRolesChrpTest extends RolesTests {
             throws Exception {
         /* Set up a user and three groups, the user being a member of
          * two of the groups.*/
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_id = normalUser[1].getId().getValue();
+        final long user_group_id = normalUser[0].getId().getValue();
         /* Group where the user is a member.*/
-        final long normalUsersOtherGroupId = newGroupAddUser(groupPermissions, normalUser.userId, false).getId().getValue();
+        final long normalUsersOtherGroupId = newGroupAddUser(groupPermissions, user_id).getId().getValue();
         /* If normalUser (data owner) is member of target group,
          * Chgrp action passes when lightAdmin is
          * Sudoed as the normalUser (data owner) or when Chgrp permission is given to lightAdmin.
@@ -79,7 +81,7 @@ public class LightAdminRolesChrpTest extends RolesTests {
          * which are unique on the image.*/
         boolean isExpectSuccessInMemberGroup = permChgrp || isSudoing;
         /* Create a Dataset as normalUser and import into it.*/
-        loginUser(normalUser);
+        loginUser(((Experimenter) normalUser[1]).getOmeName().getValue());
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
         List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
@@ -95,7 +97,7 @@ public class LightAdminRolesChrpTest extends RolesTests {
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        sudo(new ExperimenterI(normalUser.userId, false));
+        sudo((Experimenter) normalUser[1]);
 
         /* Take care of workflows which do not use sudo.*/
         if (!isSudoing) {
@@ -116,13 +118,13 @@ public class LightAdminRolesChrpTest extends RolesTests {
             /* Annotations on the image changed the group with the image.*/
             assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUsersOtherGroupId);
         } else {
-            assertInGroup(image, normalUser.groupId);
-            assertInGroup(originalFile, normalUser.groupId);
+            assertInGroup(image, user_group_id);
+            assertInGroup(originalFile, user_group_id);
             /* The annotations were not moved.*/
-            assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUser.groupId);
+            assertInGroup(annotOriginalFileAnnotationTagAndLinks, user_group_id);
         }
         /* In any case, the image should still belong to normalUser.*/
-        assertOwnedBy(image, normalUser);
+        assertOwnedBy(image, user_id);
     }
 
     /**
@@ -149,7 +151,9 @@ public class LightAdminRolesChrpTest extends RolesTests {
             throws Exception {
         /* Set up a user (normalUser) and two groups, the normalUser being a member of
          * only one of the groups.*/
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_id = normalUser[1].getId().getValue();
+        final long user_group_id = normalUser[0].getId().getValue();
         /* group where the normalUser is not member */
         final long anotherGroupId = newUserAndGroup(groupPermissions).groupId;
         /* When normalUser (data owner) is not member of the target group,
@@ -164,7 +168,7 @@ public class LightAdminRolesChrpTest extends RolesTests {
          * chgrp might be successful.*/
         final boolean canChgrpExpectedTrue = permChgrp || isSudoing;
         /* Create a Dataset as the normalUser and import into it.*/
-        loginUser(normalUser);
+        loginUser(((Experimenter) normalUser[1]).getOmeName().getValue());
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
         List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
@@ -180,7 +184,7 @@ public class LightAdminRolesChrpTest extends RolesTests {
         if (permChgrp) permissions.add(AdminPrivilegeChgrp.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        sudo(new ExperimenterI(normalUser.userId, false));
+        sudo((Experimenter) normalUser[1]);
 
         /* Take care of workflows which do not use sudo.*/
         if (!isSudoing) {
@@ -205,13 +209,13 @@ public class LightAdminRolesChrpTest extends RolesTests {
             assertInGroup(annotOriginalFileAnnotationTagAndLinks, anotherGroupId);
         } else {
             /* Check that the image is still in its original group (normalUser's group).*/
-            assertInGroup(image, normalUser.groupId);
-            assertInGroup(originalFile, normalUser.groupId);
+            assertInGroup(image, user_group_id);
+            assertInGroup(originalFile, user_group_id);
             /* The annotations stayed with the image in the normalUser's group.*/
-            assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUser.groupId);
+            assertInGroup(annotOriginalFileAnnotationTagAndLinks, user_group_id);
         }
         /* In any case, the image should still belong to normalUser.*/
-        assertOwnedBy(image, normalUser);
+        assertOwnedBy(image, user_id);
     }
 
 }

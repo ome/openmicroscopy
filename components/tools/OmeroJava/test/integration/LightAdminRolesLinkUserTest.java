@@ -31,8 +31,10 @@ import omero.gateway.util.Requests;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
+import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
@@ -84,18 +86,21 @@ public class LightAdminRolesLinkUserTest extends RolesTests {
                 (permWriteOwned && !groupPermissions.equals("rw----") || groupPermissions.equals("rwrw--"));
         boolean isExpectLinkingSuccessUser = groupPermissions.equals("rwrw--");
         final boolean isExpectLinkingSuccess = isAdmin ? isExpectLinkingSuccessAdmin : isExpectLinkingSuccessUser;
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
-        final EventContext otherUser = newUserAndGroup(groupPermissions);
-        ExperimenterGroup normalUsergroup = new ExperimenterGroupI(normalUser.groupId, false);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_group_id = normalUser[0].getId().getValue();
+
+        final IObject[] otherUser = others.get(groupPermissions);
+        final long other_id = otherUser[1].getId().getValue();
+        ExperimenterGroup normalUsergroup = new ExperimenterGroupI(user_group_id, false);
         /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (permWriteOwned) permissions.add(AdminPrivilegeWriteOwned.value);
         final EventContext lightAdmin = loginNewAdmin(true, permissions);
         /* root adds lightAdmin to normalUser's group.*/
-        logRootIntoGroup(normalUser);
-        normalUsergroup = addUsers(normalUsergroup, ImmutableList.of(lightAdmin.userId, otherUser.userId), false);
+        logRootIntoGroup(user_group_id);
+        normalUsergroup = addUsers(normalUsergroup, ImmutableList.of(lightAdmin.userId, other_id), false);
         /* Create Dataset and Project as normalUser in normalUser's group.*/
-        loginUser(normalUser);
+        loginUser(((Experimenter) normalUser[1]).getOmeName().getValue());
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
         Project proj = mmFactory.simpleProject();
@@ -104,9 +109,9 @@ public class LightAdminRolesLinkUserTest extends RolesTests {
         if (isAdmin) {
             loginUser(lightAdmin);
         } else {
-            loginUser(otherUser);
+            loginUser(((Experimenter) otherUser[1]).getOmeName().getValue());
         }
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
         Image ownImage = mmFactory.createImage();
         Image sentOwnImage = (Image) iUpdate.saveAndReturnObject(ownImage);
         Dataset ownDat = mmFactory.simpleDataset();
@@ -149,7 +154,9 @@ public class LightAdminRolesLinkUserTest extends RolesTests {
          * fail in all cases.*/
         boolean isExpectLinkingSuccess = permWriteOwned && !groupPermissions.equals("rw----");
         boolean isExpectSuccessLinkAndChown = isExpectLinkingSuccess && permChown;
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_group_id = normalUser[0].getId().getValue();
+        final long user_id = normalUser[1].getId().getValue();
         /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);
@@ -157,8 +164,8 @@ public class LightAdminRolesLinkUserTest extends RolesTests {
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
         /* Create an image, Dataset and Project as normalUser in normalUser's group.*/
-        loginUser(normalUser);
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+        loginUser(((Experimenter) normalUser[1]).getOmeName().getValue());
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
         Image image = mmFactory.createImage();
         Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
         Dataset dat = mmFactory.simpleDataset();
@@ -166,7 +173,7 @@ public class LightAdminRolesLinkUserTest extends RolesTests {
         Project proj = mmFactory.simpleProject();
         Project sentProj = (Project) iUpdate.saveAndReturnObject(proj);
         loginUser(lightAdmin);
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
         /* lightAdmin checks that the canLink value on all the objects to be linked
          * matches the isExpectLinkingSuccess boolean.*/
         Assert.assertEquals(getCurrentPermissions(sentImage).canLink(), isExpectLinkingSuccess);
@@ -198,9 +205,9 @@ public class LightAdminRolesLinkUserTest extends RolesTests {
          * on the Project would not transfer ownership links owned by non-owners
          * of the Project/Dataset/Image objects (chown on mixed ownership hierarchy does not chown objects
          * owned by other users).*/
-        Chown2 chown = Requests.chown().target(linkOfDatasetImage).toUser(normalUser.userId).build();
+        Chown2 chown = Requests.chown().target(linkOfDatasetImage).toUser(user_id).build();
         doChange(client, factory, chown, isExpectSuccessLinkAndChown);
-        chown = Requests.chown().target(linkOfProjectDataset).toUser(normalUser.userId).build();
+        chown = Requests.chown().target(linkOfProjectDataset).toUser(user_id).build();
         doChange(client, factory, chown, isExpectSuccessLinkAndChown);
 
         /* Check the ownership of the links, Image, Dataset and Project.*/
@@ -210,12 +217,12 @@ public class LightAdminRolesLinkUserTest extends RolesTests {
         final long linkProjectDatasetId = ((RLong) iQuery.projection(
                 "SELECT id FROM ProjectDatasetLink WHERE parent.id  = :id",
                 new ParametersI().addId(sentProj.getId())).get(0).get(0)).getValue();
-        assertOwnedBy(sentImage, normalUser);
-        assertOwnedBy(sentDat, normalUser);
-        assertOwnedBy(sentProj, normalUser);
+        assertOwnedBy(sentImage, user_id);
+        assertOwnedBy(sentDat, user_id);
+        assertOwnedBy(sentProj, user_id);
         if (isExpectSuccessLinkAndChown) {
-            assertOwnedBy((new DatasetImageLinkI(linkDatasetImageId, false)), normalUser);
-            assertOwnedBy((new ProjectDatasetLinkI(linkProjectDatasetId, false)), normalUser);
+            assertOwnedBy((new DatasetImageLinkI(linkDatasetImageId, false)), user_id);
+            assertOwnedBy((new ProjectDatasetLinkI(linkProjectDatasetId, false)), user_id);
         } else {
             assertOwnedBy((new DatasetImageLinkI(linkDatasetImageId, false)), lightAdmin);
             assertOwnedBy((new ProjectDatasetLinkI(linkProjectDatasetId, false)), lightAdmin);

@@ -450,6 +450,26 @@ public class AbstractServerTest extends AbstractTest {
     /**
      * Assert that the given object is owned by the given owner.
      * @param object a model object
+     * @param expectedOwnerID a user's ID
+     * @throws ServerError unexpected
+     */
+    protected void assertOwnedBy(IObject object, long expectedOwnerID) throws ServerError {
+        assertOwnedBy(Collections.singleton(object), expectedOwnerID);
+    }
+
+    /**
+     * Assert that the given objects are owned by the given owner.
+     * @param objects some model objects
+     * @param expectedOwnerID a user's ID
+     * @throws ServerError unexpected
+     */
+    protected void assertOwnedBy(Collection<? extends IObject> objects, long expectedOwnerID) throws ServerError {
+        verifyObjectProperty(objects, expectedOwnerID, DetailsProperty.OWNER);
+    }
+
+    /**
+     * Assert that the given object is owned by the given owner.
+     * @param object a model object
      * @param expectedOwner a user's event context
      * @throws ServerError unexpected
      */
@@ -807,6 +827,19 @@ public class AbstractServerTest extends AbstractTest {
         client.getSession().setSecurityContext(
                 new ExperimenterGroupI(g.getId(), false));
         return init(client);
+    }
+
+    /**
+     * Logs in the user.
+     *
+     * @param userName The name of the user.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    protected void loginUser(String userName) throws Exception {
+        omero.client client = newOmeroClient();
+        client.createSession(userName, userName);
+        init(client);
     }
 
     /**

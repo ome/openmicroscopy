@@ -32,6 +32,7 @@ import omero.api.IScriptPrx;
 import omero.api.RawFileStorePrx;
 import omero.gateway.util.Requests;
 import omero.gateway.util.Requests.Delete2Builder;
+import omero.model.Experimenter;
 import omero.model.FileAnnotation;
 import omero.model.IObject;
 import omero.model.Image;
@@ -83,7 +84,9 @@ public class LightAdminRolesScriptTest extends RolesTests {
          * fileAttachment to normalUser.*/
         boolean isExpectSuccessCreateFileAttAndChown = isExpectSuccessCreateFileAttachment && permChown;
         boolean isExpectSuccessCreateLinkAndChown = isExpectSuccessLinkFileAttachemnt && permChown;
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_group_id = normalUser[0].getId().getValue();
+        final long user_id = normalUser[1].getId().getValue();
         /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (permChown) permissions.add(AdminPrivilegeChown.value);
@@ -91,13 +94,12 @@ public class LightAdminRolesScriptTest extends RolesTests {
         if (permWriteFile) permissions.add(AdminPrivilegeWriteFile.value);
 
         /* normalUser creates an image with pixels in normalUser's group.*/
-        loginUser(normalUser);
+        loginUser(((Experimenter) normalUser[1]).getOmeName().getValue());
         Image image = mmFactory.createImage();
         Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
         /* Login as lightAdmin.*/
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+        final EventContext lightAdmin = loginNewAdmin(true, permissions);
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
         /* lightAdmin tries to create a fileAttachment in normalUser's group.*/
         FileAnnotation fileAnnotation = mmFactory.createFileAnnotation();
         OriginalFile originalFile;
@@ -132,11 +134,11 @@ public class LightAdminRolesScriptTest extends RolesTests {
         /* lightAdmin tries to transfer the ownership of fileAnnotation to normalUser.
          * The test was terminated (see above) in all cases
          * in which the fileAnnotation was not created.*/
-        doChange(client, factory, Requests.chown().target(fileAnnotation).toUser(normalUser.userId).build(), isExpectSuccessCreateFileAttAndChown);
+        doChange(client, factory, Requests.chown().target(fileAnnotation).toUser(user_id).build(), isExpectSuccessCreateFileAttAndChown);
         if (isExpectSuccessCreateFileAttAndChown) {
             /* First case: fileAnnotation creation and chowning succeeded.*/
-            assertOwnedBy(fileAnnotation, normalUser);
-            assertOwnedBy(originalFile, normalUser);
+            assertOwnedBy(fileAnnotation, user_id);
+            assertOwnedBy(originalFile, user_id);
         } else {
             /* Second case: creation of fileAnnotation succeeded, but the chown failed.*/
             assertOwnedBy(fileAnnotation, lightAdmin);
@@ -148,15 +150,15 @@ public class LightAdminRolesScriptTest extends RolesTests {
         /* lightAdmin tries to transfer the ownership of link to normalUser.
          * The test was terminated (see above) in all cases
          * in which the link was not created.*/
-        doChange(client, factory, Requests.chown().target(link).toUser(normalUser.userId).build(), isExpectSuccessCreateLinkAndChown);
+        doChange(client, factory, Requests.chown().target(link).toUser(user_id).build(), isExpectSuccessCreateLinkAndChown);
         if (isExpectSuccessCreateLinkAndChown) {
             /* First case: link was created and chowned, the whole workflow succeeded.*/
             link = (ImageAnnotationLink) iQuery.findByQuery("FROM ImageAnnotationLink l JOIN FETCH"
                     + " l.child JOIN FETCH l.parent WHERE l.child.id = :id",
                     new ParametersI().addId(fileAnnotation.getId()));
-            assertOwnedBy(link, normalUser);
-            assertOwnedBy(fileAnnotation, normalUser);
-            assertOwnedBy(originalFile, normalUser);
+            assertOwnedBy(link, user_id);
+            assertOwnedBy(fileAnnotation, user_id);
+            assertOwnedBy(originalFile, user_id);
         } else {
             /* Second case: link was created but could not be chowned.*/
             link = (ImageAnnotationLink) iQuery.findByQuery("FROM ImageAnnotationLink l JOIN FETCH"
@@ -177,12 +179,13 @@ public class LightAdminRolesScriptTest extends RolesTests {
     public void testOfficialScriptUploadNoSudo(boolean isPrivileged, String groupPermissions) throws Exception {
         /* isPrivileged translates in this test into WriteScriptRepo permission, see below.*/
         boolean isExpectSuccessUploadOfficialScript = isPrivileged;
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_group_id = normalUser[0].getId().getValue();
         /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeWriteScriptRepo.value);
         loginNewAdmin(true, permissions);
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
         IScriptPrx iScript = factory.getScriptService();
         /* lightAdmin fetches a script from the server.*/
         OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
@@ -208,7 +211,7 @@ public class LightAdminRolesScriptTest extends RolesTests {
             return;
         }
         /* Check that the new script exists in the "user" group.*/
-        loginUser(normalUser);
+        loginUser(((Experimenter) normalUser[1]).getOmeName().getValue());
         scriptFile = (OriginalFile) iQuery.get("OriginalFile", testScriptId);
         Assert.assertEquals(scriptFile.getDetails().getOwner().getId().getValue(), roles.rootId);
         Assert.assertEquals(scriptFile.getDetails().getGroup().getId().getValue(), roles.userGroupId);
@@ -235,12 +238,13 @@ public class LightAdminRolesScriptTest extends RolesTests {
     @Test(dataProvider = "isPrivileged cases")
     public void testOfficialScriptDeleteNoSudo(boolean isPrivileged, String groupPermissions) throws Exception {
         boolean isExpectSuccessDeleteOfficialScript = isPrivileged;
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
+
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_group_id = normalUser[0].getId().getValue();
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeDeleteScriptRepo.value);
-        final EventContext lightAdmin;
-        lightAdmin = loginNewAdmin(true, permissions);
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+        final EventContext lightAdmin = loginNewAdmin(true, permissions);
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
         IScriptPrx iScript = factory.getScriptService();
         /* lightAdmin fetches a script from the server.*/
         OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
@@ -272,7 +276,7 @@ public class LightAdminRolesScriptTest extends RolesTests {
         assertExists(testScript);
         /* lightAdmin tries deleting the script.*/
         loginUser(lightAdmin);
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
         iScript = factory.getScriptService();
         try {
             iScript.deleteScript(testScriptId);
@@ -281,7 +285,7 @@ public class LightAdminRolesScriptTest extends RolesTests {
             Assert.assertFalse(isExpectSuccessDeleteOfficialScript);
         }
         /* normalUser checks if the script was deleted or left intact.*/
-        loginUser(normalUser);
+        loginUser(((Experimenter) normalUser[1]).getOmeName().getValue());
         if (isExpectSuccessDeleteOfficialScript) {
             assertDoesNotExist(testScript);
         } else {

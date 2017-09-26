@@ -24,7 +24,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.BeforeClass;
@@ -36,6 +39,7 @@ import ome.services.blitz.repo.path.FsFile;
 import omero.RString;
 import omero.SecurityViolation;
 import omero.ServerError;
+import omero.api.IAdminPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.gateway.util.Utils;
 import omero.grid.ImportLocation;
@@ -43,6 +47,8 @@ import omero.model.AdminPrivilege;
 import omero.model.AdminPrivilegeI;
 import omero.model.Dataset;
 import omero.model.Experimenter;
+import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.FileAnnotation;
 import omero.model.IObject;
@@ -71,6 +77,49 @@ public class RolesTests extends AbstractServerImportTest {
             "test-" + LightAdminRolesTest.class.getSimpleName());
 
     protected File fakeImageFile = null;
+
+    protected IObject[] new_user_and_group(String value)
+            throws Exception {
+        Permissions perms = new PermissionsI(value);
+        IAdminPrx rootAdmin = root.getSession().getAdminService();
+        String uuid = UUID.randomUUID().toString();
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(omero.rtypes.rstring(uuid));
+        g.setLdap(omero.rtypes.rbool(false));
+        g.getDetails().setPermissions(perms);
+        g = new ExperimenterGroupI(rootAdmin.createGroup(g), false);
+
+        uuid = UUID.randomUUID().toString();
+        Experimenter e = new ExperimenterI();
+        e.setOmeName(omero.rtypes.rstring(uuid));
+        e.setFirstName(omero.rtypes.rstring("integration"));
+        e.setLastName(omero.rtypes.rstring("tester"));
+        e.setLdap(omero.rtypes.rbool(false));
+        long id = newUserInGroupWithPassword(e, g, uuid);
+        e = rootAdmin.getExperimenter(id);
+        rootAdmin.addGroups(e, Arrays.asList(g));
+        IObject[] ids = new IObject[2];
+        ids[0] = g;
+        ids[1] = e;
+        return ids;
+    }
+
+    // Create a map of permissions/ newUserGroup
+    final Map<String, IObject[]> users = new HashMap<String, IObject[]>();
+    final Map<String, IObject[]> others = new HashMap<String, IObject[]>();
+    final String[] permissions = new String[] {"rw----", "rwr---", "rwra--", "rwrw--"};
+
+    @Override
+    @BeforeClass
+    protected void setUp() throws Exception {
+        super.setUp();
+        for (int i = 0; i < permissions.length; i++) {
+            users.put(permissions[i], new_user_and_group(permissions[i]));
+        }
+        for (int i = 0; i < permissions.length; i++) {
+            others.put(permissions[i], new_user_and_group(permissions[i]));
+        }
+    }
 
     /**
      * @return test cases for fileAnnotation workflow in testFileAttachmentNoSudo
@@ -606,8 +655,8 @@ public class RolesTests extends AbstractServerImportTest {
      * @throws Exception if the light administrator could not be created
      */
     protected EventContext loginNewAdmin(boolean isAdmin, List <String> permissions) throws Exception {
-        final EventContext ctx = isAdmin ? newUserInGroup(iAdmin.lookupGroup(roles.systemGroupName), false) : newUserAndGroup("rwr-r-");
         final ServiceFactoryPrx rootSession = root.getSession();
+        final EventContext ctx = isAdmin ? newUserInGroup(rootSession.getAdminService().lookupGroup(roles.systemGroupName), false) : newUserAndGroup("rwr-r-");
         Experimenter user = new ExperimenterI(ctx.userId, false);
         user = (Experimenter) rootSession.getQueryService().get("Experimenter", ctx.userId);
         final List<AdminPrivilege> privileges = Utils.toEnum(AdminPrivilege.class, AdminPrivilegeI.class, permissions);

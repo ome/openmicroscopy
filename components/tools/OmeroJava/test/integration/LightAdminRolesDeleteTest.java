@@ -29,7 +29,7 @@ import omero.gateway.util.Requests;
 import omero.model.Dataset;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
-import omero.model.ExperimenterI;
+import omero.model.Experimenter;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.OriginalFile;
@@ -74,18 +74,22 @@ public class LightAdminRolesDeleteTest extends RolesTests {
          * and image (with original file) when isAdmin. When not isAdmin, only in
          * read-write group deletion of others data is possible.*/
         boolean deletePassing = (permDeleteOwned && isAdmin) || groupPermissions.equals("rwrw--");
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
-        final EventContext otherUser = newUserAndGroup(groupPermissions);
-        ExperimenterGroup normalUsergroup = new ExperimenterGroupI(normalUser.groupId, false);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_id = normalUser[1].getId().getValue();
+        final long user_group_id = normalUser[0].getId().getValue();
+
+        final IObject[] otherUser = others.get(groupPermissions);
+        final long other_id = otherUser[1].getId().getValue();
+        ExperimenterGroup normalUsergroup = new ExperimenterGroupI(user_group_id, false);
         /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
         final EventContext lightAdmin = loginNewAdmin(true, permissions);
         /* root adds lightAdmin to normalUser's group.*/
-        logRootIntoGroup(normalUser);
-        normalUsergroup = addUsers(normalUsergroup, ImmutableList.of(lightAdmin.userId, otherUser.userId), false);
+        logRootIntoGroup(user_group_id);
+        normalUsergroup = addUsers(normalUsergroup, ImmutableList.of(lightAdmin.userId, other_id), false);
         /* normalUser creates a Dataset and Project.*/
-        loginUser(normalUser);
+        loginUser(((Experimenter) normalUser[1]).getOmeName().getValue());
         Project sentProj = (Project) iUpdate.saveAndReturnObject(mmFactory.simpleProject());
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
         /* normalUser imports an image
@@ -93,7 +97,7 @@ public class LightAdminRolesDeleteTest extends RolesTests {
         List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
         OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
         Image image = (Image) originalFileAndImage.get(1);
-        assertOwnedBy(image, normalUser);
+        assertOwnedBy(image, user_id);
         /* normalUser links the Project and the Dataset.*/
         ProjectDatasetLink projectDatasetLink = linkParentToChild(sentProj, sentDat);
         IObject datasetImageLink = iQuery.findByQuery(
@@ -103,9 +107,9 @@ public class LightAdminRolesDeleteTest extends RolesTests {
         if (isAdmin) {
             loginUser(lightAdmin);
         } else {
-            loginUser(otherUser);
+            loginUser(((Experimenter) otherUser[1]).getOmeName().getValue());
         }
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
         /* Check that lightAdmin or otherUser can delete the objects
          * of normalUser only if lightAdmin has sufficient permissions or it is read-write group.
          * Note that deletion of the Project
@@ -127,7 +131,7 @@ public class LightAdminRolesDeleteTest extends RolesTests {
         doChange(client, factory, Requests.delete().target(sentProj).build(), deletePassing);
 
         /* Check the existence/non-existence of the objects as appropriate.*/
-        logRootIntoGroup(normalUser);
+        logRootIntoGroup(user_group_id);
         if (deletePassing) {
             assertDoesNotExist(originalFile);
             assertDoesNotExist(image);
@@ -163,23 +167,26 @@ public class LightAdminRolesDeleteTest extends RolesTests {
          * not owned. For deletion in group which is owned, no privilege is necessary.*/
         boolean deletePassingNotOwnedGroup = isPrivileged;
         boolean deletePassingOwnedGroup = true;
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
-        final EventContext otherUser = newUserAndGroup(groupPermissions);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_group_id = normalUser[0].getId().getValue();
+
+        final IObject[] otherUser = others.get(groupPermissions);
+        final long other_group_id = otherUser[0].getId().getValue();
         /* Set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (isPrivileged) permissions.add(AdminPrivilegeDeleteOwned.value);
         final EventContext lightAdmin = loginNewAdmin(true, permissions);
-        ExperimenterGroup ownedGroup = new ExperimenterGroupI(normalUser.groupId, false);
-        ExperimenterGroup notOwnedGroup = new ExperimenterGroupI(otherUser.groupId, false);
+        ExperimenterGroup ownedGroup = new ExperimenterGroupI(user_group_id, false);
+        ExperimenterGroup notOwnedGroup = new ExperimenterGroupI(other_group_id, false);
         /* root adds lightAdmin to normalUser's group as owner.*/
-        logRootIntoGroup(normalUser);
+        logRootIntoGroup(user_group_id);
         ownedGroup = addUsers(ownedGroup, Collections.singletonList(lightAdmin.userId), true);
         /* normalUser creates a Dataset in ownGroup.*/
-        loginUser(normalUser);
+        loginUser(((Experimenter) normalUser[1]).getOmeName().getValue());
         final Dataset sentDataset = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
         /* otherUser creates a Dataset in notOwnGroup.*/
-        loginUser(otherUser);
+        loginUser(((Experimenter) otherUser[1]).getOmeName().getValue());
         final Dataset sentOtherDataset = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
         /* Check that the Datasets are in their groups as expected.*/
         assertInGroup(sentDataset, ownedGroup);
@@ -189,10 +196,10 @@ public class LightAdminRolesDeleteTest extends RolesTests {
          * on the object retrieved by the lightAdmin matches the deletePassing
          * boolean.*/
         loginUser(lightAdmin);
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
         Assert.assertEquals(getCurrentPermissions(sentDataset).canDelete(), deletePassingOwnedGroup);
         doChange(client, factory, Requests.delete().target(sentDataset).build(), deletePassingOwnedGroup);
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(otherUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(other_group_id));
         Assert.assertEquals(getCurrentPermissions(sentOtherDataset).canDelete(), deletePassingNotOwnedGroup);
         doChange(client, factory, Requests.delete().target(sentOtherDataset).build(), deletePassingNotOwnedGroup);
         /* Check the existence/non-existence of the objects as appropriate.*/
@@ -224,16 +231,19 @@ public class LightAdminRolesDeleteTest extends RolesTests {
          * and image (with original file) when not sudoing. When sudoing, no other
          * permission is needed.*/
         boolean deletePassing = permDeleteOwned || isSudoing;
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_id = normalUser[1].getId().getValue();
+        final long user_group_id = normalUser[0].getId().getValue();
+
         /* Set up the light admin's permissions for this test */
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
         if (permDeleteOwned) permissions.add(AdminPrivilegeDeleteOwned.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        sudo(new ExperimenterI(normalUser.userId, false));
+        sudo((Experimenter) normalUser[1]);
         /* Create a Dataset and Project being sudoed as normalUser.*/
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
         Project sentProj = (Project) iUpdate.saveAndReturnObject(mmFactory.simpleProject());
         Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
         /* Import an image for the normalUser into the normalUser's default group
@@ -241,7 +251,7 @@ public class LightAdminRolesDeleteTest extends RolesTests {
         List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
         OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
         Image image = (Image) originalFileAndImage.get(1);
-        assertOwnedBy(image, normalUser);
+        assertOwnedBy(image, user_id);
         /* Link the Project and the Dataset.*/
         ProjectDatasetLink projectDatasetLink = linkParentToChild(sentProj, sentDat);
         IObject datasetImageLink = iQuery.findByQuery(
@@ -250,7 +260,7 @@ public class LightAdminRolesDeleteTest extends RolesTests {
         /* Take care of post-import workflows which do not use sudo.*/
         if (!isSudoing) {
             loginUser(lightAdmin);
-            client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+            client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
         }
         /* Check that lightAdmin can delete the objects
          * created on behalf of normalUser only if lightAdmin has sufficient permissions.

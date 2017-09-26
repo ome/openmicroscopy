@@ -105,7 +105,9 @@ public class LightAdminRolesTest extends RolesTests {
     public void testEdit(boolean isSudoing, boolean permWriteOwned,
             String groupPermissions) throws Exception {
         final boolean isExpectSuccess = isSudoing || permWriteOwned;
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_group_id = normalUser[0].getId().getValue();
+        final long user_id = normalUser[1].getId().getValue();
         /* Set up the light admin's permissions for this test.*/
         List<String> permissions = new ArrayList<String>();
         permissions.add(AdminPrivilegeSudo.value);
@@ -113,7 +115,7 @@ public class LightAdminRolesTest extends RolesTests {
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
         /* Create Project as normalUser.*/
-        loginUser(normalUser);
+        loginUser(((Experimenter) normalUser[1]).getOmeName().getValue());
         Project proj = mmFactory.simpleProject();
         final String originalName = "OriginalNameOfNormalUser";
         proj.setName(omero.rtypes.rstring(originalName));
@@ -121,12 +123,14 @@ public class LightAdminRolesTest extends RolesTests {
         String savedOriginalName = sentProj.getName().getValue().toString();
         loginUser(lightAdmin);
         /* As lightAdmin, sudo as the normalUser if this should be the case.*/
-        if (isSudoing) sudo(new ExperimenterI(normalUser.userId, false));
+        if (isSudoing) {
+            sudo((Experimenter) normalUser[1]);
+        }
         /* Check that the canEdit flag on the created project is as expected.*/
         Assert.assertEquals(getCurrentPermissions(sentProj).canEdit(), isExpectSuccess);
         /* Try to rename the Project.*/
         final String changedName = "ChangedNameOfLightAdmin";
-        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(normalUser.groupId));
+        client.getImplicitContext().put(omero.constants.GROUP.value, Long.toString(user_group_id));
         long id = sentProj.getId().getValue();
         final Project retrievedUnrenamedProject = (Project) iQuery.get("Project", id);
         retrievedUnrenamedProject.setName(omero.rtypes.rstring(changedName));
@@ -139,13 +143,13 @@ public class LightAdminRolesTest extends RolesTests {
             Assert.assertFalse(isExpectSuccess, se.toString());
         }
         String savedChangedName = sentProj.getName().getValue().toString();
-        logRootIntoGroup(normalUser.groupId);
+        logRootIntoGroup(user_group_id);
         final String retrievedName = ((RString) iQuery.projection(
                 "SELECT name FROM Project p WHERE p.id = :id",
                 new ParametersI().addId(sentProj.getId())).get(0).get(0)).getValue();
         /* Check that the Project still belongs to normalUser and the name of the Project
          * was changed and saved or original name is retained as appropriate.*/
-        assertOwnedBy(sentProj, normalUser);
+        assertOwnedBy(sentProj, user_id);
         if (isExpectSuccess) {
             Assert.assertEquals(savedChangedName, retrievedName);
             Assert.assertEquals(savedChangedName, changedName);
@@ -155,11 +159,6 @@ public class LightAdminRolesTest extends RolesTests {
         }
     }
 
-
- 
-
-
-    
     /**
      * Light admin (lightAdmin) tries to modify group membership.
      * lightAdmin will succeed if they have <tt>ModifyGroupMembership</tt> privilege.
@@ -173,13 +172,14 @@ public class LightAdminRolesTest extends RolesTests {
     public void testModifyGroupMembershipAddUser(boolean isPrivileged, String groupPermissions) throws Exception {
         /* isPrivileged translates in this test into ModifyGroupMembership permission, see below.*/
         boolean isExpectSuccessAddUserToGroup = isPrivileged;
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_id = normalUser[1].getId().getValue();
         /* One extra group is needed to add the existing normalUser to.*/
         final EventContext otherUser = newUserAndGroup(groupPermissions);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
         loginNewAdmin(true, permissions);
-        final Experimenter user = new ExperimenterI(normalUser.userId, false);
+        final Experimenter user = new ExperimenterI(user_id, false);
         final ExperimenterGroup group = new ExperimenterGroupI(otherUser.groupId, false);
         try {
             iAdmin.addGroups(user, Collections.singletonList(group));
@@ -203,13 +203,15 @@ public class LightAdminRolesTest extends RolesTests {
             String groupPermissions) throws Exception {
         /* isPrivileged translates in this test into ModifyGroupMembership permission, see below.*/
         boolean isExpectSuccessRemoveUserFromGroup = isPrivileged;
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_id = normalUser[1].getId().getValue();
+        final long user_group_id = normalUser[0].getId().getValue();
         /* One extra group is needed from which normalUser removal will be attempted.*/
-        final ExperimenterGroup otherGroup = newGroupAddUser("rwr-r-", normalUser.userId);
+        final ExperimenterGroup otherGroup = newGroupAddUser("rwr-r-", user_group_id);
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
         loginNewAdmin(true, permissions);
-        final Experimenter user = new ExperimenterI(normalUser.userId, false);
+        final Experimenter user = new ExperimenterI(user_id, false);
         try {
             iAdmin.removeGroups(user, Collections.singletonList(otherGroup));
             Assert.assertTrue(isExpectSuccessRemoveUserFromGroup);
@@ -229,12 +231,14 @@ public class LightAdminRolesTest extends RolesTests {
     public void testModifyGroupMembershipMakeOwner(boolean isPrivileged, String groupPermissions) throws Exception {
         /* isPrivileged translates in this test into ModifyGroupMembership permission, see below.*/
         boolean isExpectSuccessMakeOwnerOfGroup= isPrivileged;
-        final EventContext normalUser = newUserAndGroup(groupPermissions);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_id = normalUser[1].getId().getValue();
+        final long user_group_id = normalUser[0].getId().getValue();
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
         loginNewAdmin(true, permissions);
-        final Experimenter user = new ExperimenterI(normalUser.userId, false);
-        final ExperimenterGroup group = new ExperimenterGroupI(normalUser.groupId, false);
+        final Experimenter user = new ExperimenterI(user_id, false);
+        final ExperimenterGroup group = new ExperimenterGroupI(user_group_id, false);
         try {
             iAdmin.setGroupOwner(group, user);
             Assert.assertTrue(isExpectSuccessMakeOwnerOfGroup);
@@ -257,12 +261,14 @@ public class LightAdminRolesTest extends RolesTests {
         boolean isExpectSuccessUnsetOwnerOfGroup= isPrivileged;
         /* Set up the normalUser and make him an Owner by passing "true" in the
          * newUserAndGroup method argument.*/
-        final EventContext normalUser = newUserAndGroup(groupPermissions, true);
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_id = normalUser[1].getId().getValue();
+        final long user_group_id = normalUser[0].getId().getValue();
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroupMembership.value);
         loginNewAdmin(true, permissions);
-        final Experimenter user = new ExperimenterI(normalUser.userId, false);
-        final ExperimenterGroup group = new ExperimenterGroupI(normalUser.groupId, false);
+        final Experimenter user = new ExperimenterI(user_id, false);
+        final ExperimenterGroup group = new ExperimenterGroupI(user_group_id, false);
         try {
             iAdmin.unsetGroupOwner(group, user);
             Assert.assertTrue(isExpectSuccessUnsetOwnerOfGroup);
@@ -289,7 +295,8 @@ public class LightAdminRolesTest extends RolesTests {
             String groupPermissions) throws Exception {
         /* isPrivileged translates in this test into ModifyUser permission, see below.*/
         boolean isExpectSuccessCreateUser= isPrivileged;
-        final long newGroupId = newUserAndGroup(groupPermissions).groupId;
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_group_id = normalUser[0].getId().getValue();
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyUser.value);
         loginNewAdmin(true, permissions);
@@ -299,9 +306,8 @@ public class LightAdminRolesTest extends RolesTests {
         newUser.setLastName(omero.rtypes.rstring("Köhler"));
         newUser.setLdap(omero.rtypes.rbool(false));
         try {
-            final long userGroupId = iAdmin.getSecurityRoles().userGroupId;
-            final List<ExperimenterGroup> groups = ImmutableList.<ExperimenterGroup>of(new ExperimenterGroupI(userGroupId, false));
-            iAdmin.createExperimenter(newUser, new ExperimenterGroupI(newGroupId, false), groups);
+            final List<ExperimenterGroup> groups = ImmutableList.<ExperimenterGroup>of(new ExperimenterGroupI(user_group_id, false));
+            iAdmin.createExperimenter(newUser, new ExperimenterGroupI(user_group_id, false), groups);
             Assert.assertTrue(isExpectSuccessCreateUser);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccessCreateUser);
@@ -385,11 +391,12 @@ public class LightAdminRolesTest extends RolesTests {
             String groupPermissions) throws Exception {
         /* isPrivileged translates in this test into ModifyUser permission, see below.*/
         boolean isExpectSuccessEditUser= isPrivileged;
-        final long newUserId = newUserAndGroup(groupPermissions).userId;
+        final IObject[] normalUser = users.get(groupPermissions);
+        final long user_id = normalUser[1].getId().getValue();
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyUser.value);
         loginNewAdmin(true, permissions);
-        final Experimenter newUser = (Experimenter) iQuery.get("Experimenter", newUserId);
+        final Experimenter newUser = (Experimenter) iQuery.get("Experimenter", user_id);
         newUser.setConfig(ImmutableList.of(new NamedValue("color", "green")));
         try {
             iAdmin.updateExperimenter(newUser);
@@ -441,14 +448,15 @@ public class LightAdminRolesTest extends RolesTests {
         boolean isExpectSuccessEditGroup = isPrivileged;
         /* Set up the new group as Read-Write as part of the edit test will be a downgrade
          * of that group to all group types by the lightAdmin.*/
-        final long newGroupId = newUserAndGroup("rwrw--").groupId;
+        final IObject[] normalUser = users.get("rwrw--");
+        final long user_group_id = normalUser[0].getId().getValue();
         /* Set up the permissions for the lightAdmin.*/
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeModifyGroup.value);
         loginNewAdmin(true, permissions);
         /* lightAdmin tries to downgrade the group to all possible permission levels and
          * also tries to edit the LDAP settings.*/
-        final ExperimenterGroup newGroup = (ExperimenterGroup) iQuery.get("ExperimenterGroup", newGroupId);
+        final ExperimenterGroup newGroup = (ExperimenterGroup) iQuery.get("ExperimenterGroup", user_group_id);
         newGroup.getDetails().setPermissions(new PermissionsI(groupPermissions));
         newGroup.setLdap(omero.rtypes.rbool(true));
         try {
@@ -625,7 +633,8 @@ public class LightAdminRolesTest extends RolesTests {
      */
     @Test(expectedExceptions = omero.SecurityViolation.class)
     public void testUploadFromClientbyRestrictedSystemUser() throws Exception {
-        newUserAndGroup("rwrw--");
+        final IObject[] normalUser = users.get("rwrw--");
+        loginUser(((Experimenter) normalUser[1]).getOmeName().getValue());
         OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory
                 .createOriginalFile());
         long ofId = of.getId().getValue();
