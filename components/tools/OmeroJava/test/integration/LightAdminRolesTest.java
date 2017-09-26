@@ -22,7 +22,6 @@ package integration;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -91,9 +90,6 @@ public class LightAdminRolesTest extends RolesTests {
         svc.resetEnumerations(DetectorType.class.getName());
         super.tearDown();
     }
-
-
-   
 
     /**
      * Test that a light admin can edit the name of a project
