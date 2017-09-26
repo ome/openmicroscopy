@@ -27,10 +27,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 
@@ -39,7 +37,6 @@ import omero.RString;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
-import omero.gateway.util.Requests;
 import omero.gateway.util.Utils;
 import omero.grid.ImportLocation;
 import omero.model.AdminPrivilege;
@@ -54,13 +51,9 @@ import omero.model.ImageAnnotationLink;
 import omero.model.OriginalFile;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
-import omero.model.Project;
-import omero.model.ProjectDatasetLink;
 import omero.model.Session;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
-import omero.model.enums.AdminPrivilegeDeleteOwned;
-import omero.model.enums.AdminPrivilegeSudo;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.sys.Principal;
