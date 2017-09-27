@@ -938,7 +938,7 @@ public class AbstractServerTest extends AbstractTest {
             iAdmin = factory.getAdminService();
             iPix = factory.getPixelsService();
             roles = iAdmin.getSecurityRoles();
-            mmFactory = new ModelMockFactory(factory.getTypesService());
+            mmFactory = new ModelMockFactory(root.getSession().getTypesService());
             importer = new OMEROMetadataStoreClient();
             importer.initialize(factory);
             ctx = iAdmin.getEventContext();
