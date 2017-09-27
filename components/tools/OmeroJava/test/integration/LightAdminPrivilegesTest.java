@@ -115,7 +115,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
     @BeforeClass
     public void populateAllPrivileges() throws ServerError {
         final ImmutableSet.Builder<AdminPrivilege> privileges = ImmutableSet.builder();
-        for (final IObject privilege : factory.getTypesService().allEnumerations("AdminPrivilege")) {
+        for (final IObject privilege : root.getSession().getTypesService().allEnumerations("AdminPrivilege")) {
             privileges.add((AdminPrivilege) privilege);
         }
         allPrivileges = privileges.build();
