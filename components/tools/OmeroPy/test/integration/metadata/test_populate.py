@@ -962,14 +962,16 @@ class TestPopulateMetadataHelper(ITest):
         assert len(oas) == fixture.annCount
         fixture.assert_child_annotations(oas)
 
-    def _test_delete_map_annotation_context(self, fixture, batch_size):
+    def _test_delete_map_annotation_context(
+            self, fixture, batch_size, deleteoptions=None, linksonly=False):
         # self._test_bulk_to_map_annotation_context()
         assert len(fixture.get_child_annotations()) == fixture.annCount
 
         cfg = fixture.get_cfg()
 
         target = fixture.get_target()
-        ctx = DeleteMapAnnotationContext(self.client, target, cfg=cfg)
+        ctx = DeleteMapAnnotationContext(
+            self.client, target, cfg=cfg, options=deleteoptions)
         ctx.parse()
         assert len(fixture.get_child_annotations()) == fixture.annCount
 
@@ -978,7 +980,10 @@ class TestPopulateMetadataHelper(ITest):
         else:
             ctx.write_to_omero(batch_size=batch_size)
         assert len(fixture.get_child_annotations()) == 0
-        assert len(fixture.get_all_map_annotations()) == 0
+        if linksonly:
+            assert len(fixture.get_all_map_annotations()) == fixture.annCount
+        else:
+            assert len(fixture.get_all_map_annotations()) == 0
 
 
 @pythonminver
@@ -1075,6 +1080,39 @@ class TestPopulateMetadata(TestPopulateMetadataHelper):
         self._test_parsing_context(fixture_fail, 2)
         with raises(MapAnnotationPrimaryKeyException):
             self._test_bulk_to_map_annotation_context(fixture_fail, 2)
+
+
+@pythonminver
+class TestPopulateMetadataDeleteOptions(TestPopulateMetadataHelperPerMethod):
+
+    # Could we get awaty with testing just one fixture since the focus is on
+    # the delete options, not the annotated object?
+    METADATA_DELETE_FIXTURES = (
+        Screen2Plates,
+        Plate2Wells,
+        Dataset2Images,
+        Project2Datasets,
+    )
+    METADATA_DELETE_IDS = [
+        x().__class__.__name__ for x in METADATA_DELETE_FIXTURES]
+
+    @mark.parametrize(
+        "fixture", METADATA_DELETE_FIXTURES, ids=METADATA_DELETE_IDS)
+    @mark.parametrize("deleteoption", ('childoptions', 'typestoignore'))
+    def testPopulateMetadataDeleteLinksOnly(self, fixture, deleteoption):
+        """
+        Similar to testPopulateMetadata but test advanced delete options
+        """
+        if deleteoption == 'childoptions':
+            options = {'childoptions': [{'excludeType': ['Annotation']}]}
+        if deleteoption == 'typestoignore':
+            options = {'typestoignore': ['Annotation']}
+        fixture = fixture()
+        fixture.init(self)
+        t = self._test_parsing_context(fixture, 2)
+        self._assert_parsing_context_values(t, fixture)
+        self._test_bulk_to_map_annotation_context(fixture, 2)
+        self._test_delete_map_annotation_context(fixture, 2, options, True)
 
 
 @pythonminver

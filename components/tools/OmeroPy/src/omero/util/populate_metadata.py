@@ -36,6 +36,7 @@ from collections import defaultdict
 
 import omero.clients
 from omero import CmdError
+from omero.cmd.graphs import ChildOption
 from omero.rtypes import rlist, rstring, unwrap
 from omero.model import DatasetAnnotationLinkI, DatasetI, FileAnnotationI
 from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ScreenI
@@ -1622,11 +1623,20 @@ class DeleteMapAnnotationContext(_QueryContext):
                 self._write_to_omero_batch(
                     {"%sAnnotationLink" % objtype: batch}, loops, ms)
         for batch in self._batch(self.fileannids, sz=batch_size):
-            self._write_to_omero_batch({"FileAnnotation": batch},
-                                       loops, ms)
+            self._write_to_omero_batch(
+                {"FileAnnotation": batch}, loops, ms)
 
-    def _write_to_omero_batch(self, to_delete, loops=10, ms=500):
-        delCmd = omero.cmd.Delete2(targetObjects=to_delete)
+    def _write_to_omero_batch(
+            self, to_delete, loops=10, ms=500):
+        # options[childoptions] must be a list of dicts
+        # options[typestoignore] must be a list of strings
+        childoptions = [ChildOption(**kw)for kw in
+                        self.options.get('childoptions', [])]
+        typestoignore = self.options.get('typestoignore', [])
+        delCmd = omero.cmd.Delete2(
+            targetObjects=to_delete,
+            childOptions=childoptions,
+            typesToIgnore=typestoignore)
         try:
             callback = self.client.submit(
                 delCmd, loops=loops, ms=ms, failontimeout=True)
