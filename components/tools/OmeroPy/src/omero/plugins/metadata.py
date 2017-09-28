@@ -143,6 +143,7 @@ class MetadataControl(BaseControl):
         bulkanns = parser.add(sub, self.bulkanns)
         mapanns = parser.add(sub, self.mapanns)
         allanns = parser.add(sub, self.allanns)
+        parser.add(sub, self.testtables)
         rois = parser.add(sub, self.rois)
         populate = parser.add(sub, self.populate)
         populateroi = parser.add(sub, self.populateroi)
@@ -394,6 +395,36 @@ class MetadataControl(BaseControl):
         if args.report:
             indent = 0
         self._output_ann(md, get_anns, args.parents, indent)
+
+    def testtables(self, args):
+        "Tests whether tables can be created and initialized"
+        client, conn = self._clientconn(args)
+
+        sf = client.getSession()
+        sr = sf.sharedResources()
+        table = sr.newTable(1, 'testtables')
+        if table is None:
+            self.ctx.die(100, "Failed to create Table")
+
+        # If we have a table...
+        initialized = False
+        try:
+            table.initialize([])
+            initialized = True
+        except:
+            pass
+        finally:
+            table.close()
+
+        try:
+            orig_file = table.getOriginalFile()
+            conn.deleteObject(orig_file)
+        except:
+            # Anything else to do here?
+            pass
+
+        if not initialized:
+            self.ctx.die(100, "Failed to initialize Table")
 
     # WRITE
 
