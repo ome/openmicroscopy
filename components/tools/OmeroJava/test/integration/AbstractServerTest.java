@@ -299,6 +299,9 @@ public class AbstractServerTest extends AbstractTest {
         }
     }
 
+    /**
+     * Creates the import if not already initialized and returns it.
+     */
     protected OMEROMetadataStoreClient createImporter() throws Exception
     {
 
