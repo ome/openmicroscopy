@@ -192,7 +192,7 @@ public class AbstractServerTest extends AbstractTest {
     protected Roles roles;
 
     /** Reference to the importer store. */
-    protected OMEROMetadataStoreClient importer;
+    private OMEROMetadataStoreClient importer;
 
     /** Helper class creating mock object. */
     protected ModelMockFactory mmFactory;
@@ -291,10 +291,20 @@ public class AbstractServerTest extends AbstractTest {
     @Override
     @AfterClass
     public void tearDown() throws Exception {
+        clean();
         for (omero.client c : clients) {
             if (c != null) {
                 c.__del__();
             }
+        }
+    }
+
+    protected OMEROMetadataStoreClient createImporter() 
+    {
+        try {
+            importer = new OMEROMetadataStoreClient();
+            importer.initialize(factory);
+        } catch (Exception e) {
         }
     }
 
@@ -939,8 +949,6 @@ public class AbstractServerTest extends AbstractTest {
             iPix = factory.getPixelsService();
             roles = iAdmin.getSecurityRoles();
             mmFactory = new ModelMockFactory(root.getSession().getTypesService());
-            importer = new OMEROMetadataStoreClient();
-            importer.initialize(factory);
             ctx = iAdmin.getEventContext();
         } catch (SecurityViolation sv) {
             mmFactory = null;
@@ -948,7 +956,6 @@ public class AbstractServerTest extends AbstractTest {
             iQuery = null;
             iUpdate = null;
             iPix = null;
-            importer = null;
         }
 
         return ctx;
@@ -1306,6 +1313,9 @@ public class AbstractServerTest extends AbstractTest {
     protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
             File file, String format, boolean metadata, IObject target)
             throws Throwable {
+        if (importer == null) {
+            importer = createImporter();
+        }        
         String[] paths = new String[1];
         paths[0] = file.getAbsolutePath();
         ImportConfig config = new ImportConfig();
@@ -1324,7 +1334,7 @@ public class AbstractServerTest extends AbstractTest {
         };
         ImportCandidates candidates = new ImportCandidates(reader, paths, o);
 
-        ImportLibrary library = new ImportLibrary(importer, reader);
+        ImportLibrary library = new ImportLibrary(createImporter(), reader);
         library.addObserver(o);
 
         ImportContainer ic = candidates.getContainers().get(0);
