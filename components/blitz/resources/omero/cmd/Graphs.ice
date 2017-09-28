@@ -202,6 +202,11 @@ module omero {
          * Delete model objects.
          **/
         class Delete2 extends GraphModify2 {
+                /**
+                 * Ignore in the operation all objects of these types.
+                 **/
+                ["deprecated:experimental: may be wholly removed in next major version"]
+                omero::api::StringSet typesToIgnore;
         };
 
         /**
