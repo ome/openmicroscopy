@@ -299,13 +299,13 @@ public class AbstractServerTest extends AbstractTest {
         }
     }
 
-    protected OMEROMetadataStoreClient createImporter() 
+    protected OMEROMetadataStoreClient createImporter() throws Exception
     {
-        try {
+        if (importer == null) {
             importer = new OMEROMetadataStoreClient();
             importer.initialize(factory);
-        } catch (Exception e) {
         }
+        return importer;
     }
 
     /**
