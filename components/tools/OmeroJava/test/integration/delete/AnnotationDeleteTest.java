@@ -560,7 +560,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         } while (++count < 5);
 
         /* clean up test data */
-        doChange(client, factory, Requests.delete().target(images.toArray(new IObject[images.size()])).build(), true, null, 5);
+        doChange(client, factory, Requests.delete().target(images.toArray(new IObject[images.size()])).build(), true, 5L);
 
         /* check that median performance is better when using typesToIgnore */
         final List<Long> timesWithIgnore = new ArrayList<>(durations.get(true));
