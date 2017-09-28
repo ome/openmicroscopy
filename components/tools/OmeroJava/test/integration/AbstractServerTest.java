@@ -301,9 +301,22 @@ public class AbstractServerTest extends AbstractTest {
 
     protected OMEROMetadataStoreClient createImporter() throws Exception
     {
+
         if (importer == null) {
-            importer = new OMEROMetadataStoreClient();
-            importer.initialize(factory);
+            try {
+                importer = new OMEROMetadataStoreClient();
+                importer.initialize(factory);
+            } catch (Exception e) {
+                if (importer != null) {
+                    try {
+                        importer.closeServices();
+                    } catch (Exception ex) {
+                        //the initial error will be thrown
+                    }
+                    importer = null;
+                }
+                throw e;
+            }
         }
         return importer;
     }
