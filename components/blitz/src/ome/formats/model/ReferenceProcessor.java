@@ -114,16 +114,16 @@ public class ReferenceProcessor implements ModelProcessor {
               indexes.put(Index.IMAGE_INDEX, indexArray[0]);
               indexes.put(Index.CHANNEL_INDEX, indexArray[1]);
             } else {
-              throw new RuntimeException(
-                  String.format("Unable to synchronize reference %s --> %s",
-                                reference, target));
+                log.warn("Ignoring target class " + target+", not handled yet.");
+                continue;
             }
             container = store.getIObjectContainer(targetClass, indexes);
           }
           // Add our LSIDs to the string based reference cache.
           references.add(reference.toString());
         }
-        String lsid = targetClass == null? target.toString() : container.LSID;
+        String lsid = targetClass == null || container == null ? target.toString()
+                : container.LSID;
         // We don't want to overwrite any existing references that may
         // have come from other LSID mappings (such as a generated
         // LSID) so add any existing LSIDs to the list of references.
