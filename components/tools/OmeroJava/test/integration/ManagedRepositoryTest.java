@@ -590,14 +590,14 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
         newUserInGroup(new ExperimenterGroupI(roles.systemGroupId, false), false);
 
         try (final AutoCloseable igc = new ImplicitGroupContext(targetGroup)) {
-        /* create and import a fake image */
-        final File localPath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
-        final File localFile = ensureFileExists(localPath, UUID.randomUUID().toString() + ".fake");
-        importFileset(Collections.singletonList(localFile.toString()));
+            /* create and import a fake image */
+            final File localPath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
+            final File localFile = ensureFileExists(localPath, UUID.randomUUID().toString() + ".fake");
+            importFileset(Collections.singletonList(localFile.toString()));
 
-        /* check that the import was into the intended group */
-        final OriginalFile remoteFile = (OriginalFile) iQuery.findByString("OriginalFile", "name", localFile.getName());
-        Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), targetGroup);
+            /* check that the import was into the intended group */
+            final OriginalFile remoteFile = (OriginalFile) iQuery.findByString("OriginalFile", "name", localFile.getName());
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), targetGroup);
         }
     }
 
