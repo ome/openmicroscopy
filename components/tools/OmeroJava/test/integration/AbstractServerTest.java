@@ -2369,7 +2369,17 @@ public class AbstractServerTest extends AbstractTest {
         return provideEveryBooleanCombination(4);
     }
 
+    /**
+     * Override the Ice implicit call context with a group ID.
+     * Removes the override upon closing.
+     * @author m.t.b.carroll@ixod.org
+     * @since 5.4.0
+     */
     protected class ImplicitGroupContext implements AutoCloseable {
+        /**
+         * Set the implicit group context to the given group.
+         * @param groupId a group ID
+         */
         ImplicitGroupContext(long groupId) {
             if (client.getImplicitContext().containsKey(Login.OMERO_GROUP)) {
                 throw new IllegalStateException("group context already set");
@@ -2377,8 +2387,12 @@ public class AbstractServerTest extends AbstractTest {
             client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(groupId));
         }
 
-        ImplicitGroupContext(RLong id) {
-            this(id.getValue());
+        /**
+         * Set the implicit group context.
+         * @param groupId a group ID
+         */
+        ImplicitGroupContext(RLong groupId) {
+            this(groupId.getValue());
         }
 
         @Override
@@ -2387,7 +2401,17 @@ public class AbstractServerTest extends AbstractTest {
         }
     }
 
+    /**
+     * Override the Ice implicit call context with all-groups.
+     * Removes the override upon closing.
+     * @author m.t.b.carroll@ixod.org
+     * @since 5.4.0
+     */
     protected class ImplicitAllGroupsContext extends ImplicitGroupContext {
+        /**
+         * Set the implicit group context to all-groups.
+         * @param groupId a group ID
+         */
         ImplicitAllGroupsContext() {
             super(-1);
         }
