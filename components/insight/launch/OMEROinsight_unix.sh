@@ -38,5 +38,12 @@ if [ -z "$CLIENTS_HOME" ]; then
 fi
 CLIENTS_HOME="$(dirname "$CLIENTS_HOME")"
 
+MODULE_ARGS=""
+JAVA_VERSION=`java -version 2>&1`
+if [ -z "${JAVA_VERSION##*build 9*}" ]
+then
+        MODULE_ARGS="--add-modules java.activation"
+fi
+
 cd "$CLIENTS_HOME"
-java -Xms256000000 -Xmx1024000000 -jar omero.insight.jar
+java -Xms256000000 -Xmx1024000000 $MODULE_ARGS -jar omero.insight.jar
