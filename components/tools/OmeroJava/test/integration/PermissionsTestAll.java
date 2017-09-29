@@ -235,7 +235,7 @@ public class PermissionsTestAll extends AbstractServerTest {
                 }
             }
 
-            client.closeSession();
+            client.__del__();
         }
     }
 
