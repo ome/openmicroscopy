@@ -1332,15 +1332,15 @@ public class LightAdminRolesTest extends RolesTests {
         }
 
         /* normalUser creates two sets of Project/Dataset?Image hierarchy in the other group (anotherGroup).*/
-        final Image sentImage1AnootherGroup, sentImage2AnotherGroup;
+        final Image sentImage1AnotherGroup, sentImage2AnotherGroup;
         final Dataset sentDat1AnotherGroup, sentDat2AnotherGroup;
-        final Project sentProj1AnootherGroup, sentProj2AnotherGroup;
+        final Project sentProj1AnotherGroup, sentProj2AnotherGroup;
         final DatasetImageLink linkOfDatasetImage1AnotherGroup, linkOfDatasetImage2AnotherGroup;
         final ProjectDatasetLink linkOfProjectDataset1AnotherGroup, linkOfProjectDataset2AnotherGroup;
         try (final AutoCloseable igc = new ImplicitGroupContext(anotherGroup.getId())) {
         Image image1AnotherGroup = mmFactory.createImage();
         Image image2AnotherGroup = mmFactory.createImage();
-        sentImage1AnootherGroup = (Image) iUpdate.saveAndReturnObject(image1AnotherGroup);
+        sentImage1AnotherGroup = (Image) iUpdate.saveAndReturnObject(image1AnotherGroup);
         sentImage2AnotherGroup = (Image) iUpdate.saveAndReturnObject(image2AnotherGroup);
         Dataset dat1AnotherGroup = mmFactory.simpleDataset();
         Dataset dat2AnotherGroup = mmFactory.simpleDataset();
@@ -1348,11 +1348,11 @@ public class LightAdminRolesTest extends RolesTests {
         sentDat2AnotherGroup = (Dataset) iUpdate.saveAndReturnObject(dat2AnotherGroup);
         Project proj1AnotherGroup = mmFactory.simpleProject();
         Project proj2AnotherGroup = mmFactory.simpleProject();
-        sentProj1AnootherGroup = (Project) iUpdate.saveAndReturnObject(proj1AnotherGroup);
+        sentProj1AnotherGroup = (Project) iUpdate.saveAndReturnObject(proj1AnotherGroup);
         sentProj2AnotherGroup = (Project) iUpdate.saveAndReturnObject(proj2AnotherGroup);
-        linkOfDatasetImage1AnotherGroup = linkParentToChild(sentDat1AnotherGroup, sentImage1AnootherGroup);
+        linkOfDatasetImage1AnotherGroup = linkParentToChild(sentDat1AnotherGroup, sentImage1AnotherGroup);
         linkOfDatasetImage2AnotherGroup = linkParentToChild(sentDat2AnotherGroup, sentImage2AnotherGroup);
-        linkOfProjectDataset1AnotherGroup = linkParentToChild(sentProj1AnootherGroup, sentDat1AnotherGroup);
+        linkOfProjectDataset1AnotherGroup = linkParentToChild(sentProj1AnotherGroup, sentDat1AnotherGroup);
         linkOfProjectDataset2AnotherGroup = linkParentToChild(sentProj2AnotherGroup, sentDat2AnotherGroup);
         }
         /* lightAdmin tries to transfers all normalUser's data to recipient.*/
@@ -1361,7 +1361,7 @@ public class LightAdminRolesTest extends RolesTests {
         try (final AutoCloseable igc = new ImplicitAllGroupsContext()) {
         /* Check on one selected object only (sentProj1AnotherGroup) the value
          * of canChown. The value must match the chownPassing boolean.*/
-        Assert.assertEquals(getCurrentPermissions(sentProj1AnootherGroup).canChown(), chownPassing);
+        Assert.assertEquals(getCurrentPermissions(sentProj1AnotherGroup).canChown(), chownPassing);
         /* Check that transfer proceeds only if chownPassing boolean is true.*/
         doChange(client, factory, Requests.chown().targetUsers(normalUser.userId).toUser(recipient.userId).build(), chownPassing);
         if (!chownPassing) {
@@ -1383,15 +1383,15 @@ public class LightAdminRolesTest extends RolesTests {
         assertOwnedBy(linkOfProjectDataset2, recipient);
         /* Check ownership of the objects in anotherGroup,
          * first checking ownership of the first hierarchy.*/
-        assertOwnedBy(sentProj1AnootherGroup, recipient);
+        assertOwnedBy(sentProj1AnotherGroup, recipient);
         assertOwnedBy(sentDat1AnotherGroup, recipient);
-        assertOwnedBy(sentImage1AnootherGroup, recipient);
+        assertOwnedBy(sentImage1AnotherGroup, recipient);
         assertOwnedBy(linkOfDatasetImage1AnotherGroup, recipient);
         assertOwnedBy(linkOfProjectDataset1AnotherGroup, recipient);
         /* Check ownership of the second hierarchy set in anotherGroup.*/
         assertOwnedBy(sentProj2AnotherGroup, recipient);
         assertOwnedBy(sentDat2AnotherGroup, recipient);
-        assertOwnedBy(sentImage1AnootherGroup, recipient);
+        assertOwnedBy(sentImage1AnotherGroup, recipient);
         assertOwnedBy(linkOfDatasetImage2AnotherGroup, recipient);
         assertOwnedBy(linkOfProjectDataset2AnotherGroup, recipient);
         }
