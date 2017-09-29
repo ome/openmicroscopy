@@ -23,14 +23,14 @@ additions to OMERO.cli; and many fixes and performance improvements:
 -  added support for transfering ownership of all the data of a given user
    using CLI
 -  renamed "Reverse Intensity" command to "Invert" in image viewers
+-  added support for ImageColumn with Screen and Plate targets in the
+   populate_metadata script
 -  OMERO.web UI fixes:
 
    * improved display of Plates and Wells
    * fixed label position for Wells
    * added the ability to display Image and Well metadata in the Tables
      section for the same Plate
-   * added support for ImageColumn with Screen and Plate targets in the
-     populate_metadata script
    * improved copy/paste of rendering settings workflow
    * improved layout in left-hand panel
    * fixed filtering issue
