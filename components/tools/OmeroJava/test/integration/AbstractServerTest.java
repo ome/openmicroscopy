@@ -2371,6 +2371,9 @@ public class AbstractServerTest extends AbstractTest {
 
     protected class ImplicitGroupContext implements AutoCloseable {
         ImplicitGroupContext(long groupId) {
+            if (client.getImplicitContext().containsKey(Login.OMERO_GROUP)) {
+                throw new IllegalStateException("group context already set");
+            }
             client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(groupId));
         }
 
