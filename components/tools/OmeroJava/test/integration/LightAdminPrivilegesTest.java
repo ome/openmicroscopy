@@ -227,13 +227,13 @@ public class LightAdminPrivilegesTest extends RolesTests {
         Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChgrp.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(otherGroupId)) {
-        Assert.assertEquals(getCurrentPermissions(folder).canChgrp(), isExpectSuccess);
-        doChange(client, factory, Requests.chgrp().target(folder).toGroup(otherGroupId).build(), isExpectSuccess);
-        if (isExpectSuccess) {
-            folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
-            Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
-            Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), otherGroupId);
-        }
+            Assert.assertEquals(getCurrentPermissions(folder).canChgrp(), isExpectSuccess);
+            doChange(client, factory, Requests.chgrp().target(folder).toGroup(otherGroupId).build(), isExpectSuccess);
+            if (isExpectSuccess) {
+                folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
+                Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
+                Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), otherGroupId);
+            }
         }
     }
 
@@ -254,17 +254,17 @@ public class LightAdminPrivilegesTest extends RolesTests {
         Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChgrp.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(folder).canChgrp(), isExpectSuccess);
-        folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
-        folder.getDetails().setGroup(otherGroup);
-        try {
-            folder = (Folder) iUpdate.saveAndReturnObject(folder);
-            Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
-            Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), otherGroup.getId().getValue());
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            Assert.assertEquals(getCurrentPermissions(folder).canChgrp(), isExpectSuccess);
+            folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
+            folder.getDetails().setGroup(otherGroup);
+            try {
+                folder = (Folder) iUpdate.saveAndReturnObject(folder);
+                Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
+                Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), otherGroup.getId().getValue());
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
     }
 
@@ -285,13 +285,13 @@ public class LightAdminPrivilegesTest extends RolesTests {
         final EventContext otherUser = newUserInGroup(normalUser);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChown.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(folder).canChown(), isExpectSuccess);
-        doChange(client, factory, Requests.chown().target(folder).toUser(otherUser.userId).build(), isExpectSuccess);
-        if (isExpectSuccess) {
-            folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
-            Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), otherUser.userId);
-            Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-        }
+            Assert.assertEquals(getCurrentPermissions(folder).canChown(), isExpectSuccess);
+            doChange(client, factory, Requests.chown().target(folder).toUser(otherUser.userId).build(), isExpectSuccess);
+            if (isExpectSuccess) {
+                folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
+                Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), otherUser.userId);
+                Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+            }
         }
     }
 
@@ -312,17 +312,17 @@ public class LightAdminPrivilegesTest extends RolesTests {
         final EventContext otherUser = newUserInGroup(normalUser);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChown.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(folder).canChown(), isExpectSuccess);
-        folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
-        folder.getDetails().setOwner(new ExperimenterI(otherUser.userId, false));
-        try {
-            folder = (Folder) iUpdate.saveAndReturnObject(folder);
-            Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), otherUser.userId);
-            Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            Assert.assertEquals(getCurrentPermissions(folder).canChown(), isExpectSuccess);
+            folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
+            folder.getDetails().setOwner(new ExperimenterI(otherUser.userId, false));
+            try {
+                folder = (Folder) iUpdate.saveAndReturnObject(folder);
+                Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), otherUser.userId);
+                Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
     }
 
@@ -364,16 +364,16 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteFile.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
-        repo = getRepository(Repository.OTHER);
-        try {
-            final HandlePrx handle = repo.deletePaths(new String[] {testScriptName}, false, false);
-            final CmdCallbackI callback = new CmdCallbackI(client, handle);
-            callback.loop(20, scalingFactor);
-            assertCmd(callback, isExpectSuccess);
-        } catch (Ice.LocalException ue) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
+            repo = getRepository(Repository.OTHER);
+            try {
+                final HandlePrx handle = repo.deletePaths(new String[] {testScriptName}, false, false);
+                final CmdCallbackI callback = new CmdCallbackI(client, handle);
+                callback.loop(20, scalingFactor);
+                assertCmd(callback, isExpectSuccess);
+            } catch (Ice.LocalException ue) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
         /* check the content of the script */
         loginUser(normalUser);
@@ -412,8 +412,8 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteFile.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(file).canDelete(), isExpectSuccess);
-        doChange(client, factory, Requests.delete().target(file).build(), isExpectSuccess);
+            Assert.assertEquals(getCurrentPermissions(file).canDelete(), isExpectSuccess);
+            doChange(client, factory, Requests.delete().target(file).build(), isExpectSuccess);
         }
     }
 
@@ -455,14 +455,14 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteFile.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
-        iScript = factory.getScriptService();
-        try {
-            iScript.deleteScript(testScriptId);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
+            iScript = factory.getScriptService();
+            try {
+                iScript.deleteScript(testScriptId);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
         /* check if the script was deleted or left intact */
         loginUser(normalUser);
@@ -516,17 +516,17 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteManagedRepo.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(remoteFile).canDelete(), isExpectSuccess);
-        final RepositoryPrx repo = getRepository(Repository.MANAGED);
-        try {
-            final String remoteFilename = remoteFile.getPath().getValue() + remoteFile.getName().getValue();
-            final HandlePrx handle = repo.deletePaths(new String[] {remoteFilename}, false, false);
-            final CmdCallbackI callback = new CmdCallbackI(client, handle);
-            callback.loop(20, scalingFactor);
-            assertCmd(callback, isExpectSuccess);
-        } catch (Ice.LocalException ue) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            Assert.assertEquals(getCurrentPermissions(remoteFile).canDelete(), isExpectSuccess);
+            final RepositoryPrx repo = getRepository(Repository.MANAGED);
+            try {
+                final String remoteFilename = remoteFile.getPath().getValue() + remoteFile.getName().getValue();
+                final HandlePrx handle = repo.deletePaths(new String[] {remoteFilename}, false, false);
+                final CmdCallbackI callback = new CmdCallbackI(client, handle);
+                callback.loop(20, scalingFactor);
+                assertCmd(callback, isExpectSuccess);
+            } catch (Ice.LocalException ue) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
         /* check the existence of the file */
         loginUser(normalUser);
@@ -569,8 +569,8 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteManagedRepo.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(remoteFile).canDelete(), isExpectSuccess);
-        doChange(client, factory, Requests.delete().target(remoteFile).build(), isExpectSuccess);
+            Assert.assertEquals(getCurrentPermissions(remoteFile).canDelete(), isExpectSuccess);
+            doChange(client, factory, Requests.delete().target(remoteFile).build(), isExpectSuccess);
         }
     }
 
@@ -590,8 +590,8 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteOwned.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(folder).canDelete(), isExpectSuccess);
-        doChange(client, factory, Requests.delete().target(folder).build(), isExpectSuccess);
+            Assert.assertEquals(getCurrentPermissions(folder).canDelete(), isExpectSuccess);
+            doChange(client, factory, Requests.delete().target(folder).build(), isExpectSuccess);
         }
     }
 
@@ -634,16 +634,16 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
-        repo = getRepository(Repository.SCRIPT);
-        try {
-            final HandlePrx handle = repo.deletePaths(new String[] {testScriptName}, false, false);
-            final CmdCallbackI callback = new CmdCallbackI(client, handle);
-            callback.loop(20, scalingFactor);
-            assertCmd(callback, isExpectSuccess);
-        } catch (Ice.LocalException ue) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
+            repo = getRepository(Repository.SCRIPT);
+            try {
+                final HandlePrx handle = repo.deletePaths(new String[] {testScriptName}, false, false);
+                final CmdCallbackI callback = new CmdCallbackI(client, handle);
+                callback.loop(20, scalingFactor);
+                assertCmd(callback, isExpectSuccess);
+            } catch (Ice.LocalException ue) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
         /* check the content of the script */
         loginUser(normalUser);
@@ -704,8 +704,8 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
-        doChange(client, factory, Requests.delete().target(testScript).build(), isExpectSuccess);
+            Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
+            doChange(client, factory, Requests.delete().target(testScript).build(), isExpectSuccess);
         }
         /* check the content of the script */
         loginUser(normalUser);
@@ -768,14 +768,14 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
-        iScript = factory.getScriptService();
-        try {
-            iScript.deleteScript(testScriptId);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
+            iScript = factory.getScriptService();
+            try {
+                iScript.deleteScript(testScriptId);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
         /* check if the script was deleted or left intact */
         loginUser(normalUser);
@@ -1415,14 +1415,14 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        repo = getRepository(Repository.OTHER);
-        final String filename = userDirectory + '/' + UUID.randomUUID();
-        try {
-            repo.makeDir(filename, false);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            repo = getRepository(Repository.OTHER);
+            final String filename = userDirectory + '/' + UUID.randomUUID();
+            try {
+                repo.makeDir(filename, false);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
     }
 
@@ -1449,14 +1449,14 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        repo = getRepository(Repository.OTHER);
-        final String filename = userDirectory + '/' + UUID.randomUUID();
-        try {
-            factory.sharedResources().newTable(repo.root().getId().getValue(), filename).close();
-            Assert.assertTrue(isExpectSuccess);
-        } catch (Ice.LocalException se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            repo = getRepository(Repository.OTHER);
+            final String filename = userDirectory + '/' + UUID.randomUUID();
+            try {
+                factory.sharedResources().newTable(repo.root().getId().getValue(), filename).close();
+                Assert.assertTrue(isExpectSuccess);
+            } catch (Ice.LocalException se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
     }
 
@@ -1480,14 +1480,14 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        repo = getRepository(Repository.OTHER);
-        final String filename = userDirectory + '/' + UUID.randomUUID();
-        try {
-            repo.register(filename, null);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            repo = getRepository(Repository.OTHER);
+            final String filename = userDirectory + '/' + UUID.randomUUID();
+            try {
+                repo.register(filename, null);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
     }
 
@@ -1516,16 +1516,16 @@ public class LightAdminPrivilegesTest extends RolesTests {
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         final long testScriptId;
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        iScript = factory.getScriptService();
-        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        try {
-            testScriptId = iScript.uploadScript(testScriptName, actualScript);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-            /* upload failed so finish here */
-            return;
-        }
+            iScript = factory.getScriptService();
+            final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+            try {
+                testScriptId = iScript.uploadScript(testScriptName, actualScript);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+                /* upload failed so finish here */
+                return;
+            }
         }
         /* check that the new script exists */
         loginUser(normalUser);
@@ -1555,16 +1555,16 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        OriginalFile file = mmFactory.createOriginalFile();
-        file.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
-        try {
-            file = (OriginalFile) iUpdate.saveAndReturnObject(file);
-            Assert.assertEquals(file.getDetails().getOwner().getId().getValue(), normalUser.userId);
-            Assert.assertEquals(file.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            OriginalFile file = mmFactory.createOriginalFile();
+            file.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
+            try {
+                file = (OriginalFile) iUpdate.saveAndReturnObject(file);
+                Assert.assertEquals(file.getDetails().getOwner().getId().getValue(), normalUser.userId);
+                Assert.assertEquals(file.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
     }
 
@@ -1601,22 +1601,22 @@ public class LightAdminPrivilegesTest extends RolesTests {
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         final byte[] fileContentBlank;
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(file).canEdit(), isExpectSuccess);
-        fileContentBlank = new byte[fileContentOriginal.length];
-        try {
-            rfs = factory.createRawFileStore();
-            rfs.setFileId(fileId);
-            rfs.write(fileContentBlank, 0, fileContentBlank.length);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        } finally {
+            Assert.assertEquals(getCurrentPermissions(file).canEdit(), isExpectSuccess);
+            fileContentBlank = new byte[fileContentOriginal.length];
             try {
-                rfs.close();
+                rfs = factory.createRawFileStore();
+                rfs.setFileId(fileId);
+                rfs.write(fileContentBlank, 0, fileContentBlank.length);
+                Assert.assertTrue(isExpectSuccess);
             } catch (ServerError se) {
-                /* cannot try to close */
+                Assert.assertFalse(isExpectSuccess);
+            } finally {
+                try {
+                    rfs.close();
+                } catch (ServerError se) {
+                    /* cannot try to close */
+                }
             }
-        }
         }
         /* check the resulting file content */
         loginUser(normalUser);
@@ -1667,22 +1667,22 @@ public class LightAdminPrivilegesTest extends RolesTests {
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         final byte[] fileContentBlank;
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
-        repo = getRepository(Repository.OTHER);
-        fileContentBlank = new byte[fileContentOriginal.length];
-        try {
-            rfs = repo.file(testScriptName, "rw");
-            rfs.write(fileContentBlank, 0, fileContentBlank.length);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        } finally {
+            Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
+            repo = getRepository(Repository.OTHER);
+            fileContentBlank = new byte[fileContentOriginal.length];
             try {
-                rfs.close();
-            } catch (Ice.CommunicatorDestroyedException cde) {
-                /* cannot try to close */
+                rfs = repo.file(testScriptName, "rw");
+                rfs.write(fileContentBlank, 0, fileContentBlank.length);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            } finally {
+                try {
+                    rfs.close();
+                } catch (Ice.CommunicatorDestroyedException cde) {
+                    /* cannot try to close */
+                }
             }
-        }
         }
         /* check the content of the script */
         loginUser(normalUser);
@@ -1724,15 +1724,15 @@ public class LightAdminPrivilegesTest extends RolesTests {
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         final String newScript;
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
-        iScript = factory.getScriptService();
-        newScript = originalScript + "\n# this script is a copy of another";
-        try {
-            iScript.editScript(new OriginalFileI(testScriptId, false), newScript);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
+            iScript = factory.getScriptService();
+            newScript = originalScript + "\n# this script is a copy of another";
+            try {
+                iScript.editScript(new OriginalFileI(testScriptId, false), newScript);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
         /* check the permissions on the script */
         loginUser(normalUser);
@@ -1764,17 +1764,17 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        file = (OriginalFile) iQuery.get("OriginalFile", file.getId().getValue());
-        Assert.assertEquals(getCurrentPermissions(file).canEdit(), isExpectSuccess);
-        final String newFilename = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
-        file.setName(omero.rtypes.rstring(newFilename));
-        try {
-            file = (OriginalFile) iUpdate.saveAndReturnObject(file);
-            Assert.assertEquals(file.getName().getValue(), newFilename);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            file = (OriginalFile) iQuery.get("OriginalFile", file.getId().getValue());
+            Assert.assertEquals(getCurrentPermissions(file).canEdit(), isExpectSuccess);
+            final String newFilename = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
+            file.setName(omero.rtypes.rstring(newFilename));
+            try {
+                file = (OriginalFile) iUpdate.saveAndReturnObject(file);
+                Assert.assertEquals(file.getName().getValue(), newFilename);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
     }
 
@@ -1794,21 +1794,21 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        final ImportLocation importLocation;
-        try {
-            importLocation = importFileset(Collections.singletonList(fakeImageFile.getPath()));
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-            /* no file to check */
-            return;
-        }
-        final RString imagePath = omero.rtypes.rstring(importLocation.sharedPath + FsFile.separatorChar);
-        final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
-        final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
-                "FROM OriginalFile o WHERE o.path = :path AND o.name = :name AND o.details.group.id = :group_id",
-                new ParametersI().add("path", imagePath).add("name", imageName).addLong("group_id", normalUser.groupId));
-        Assert.assertNotNull(remoteFile);
+            final ImportLocation importLocation;
+            try {
+                importLocation = importFileset(Collections.singletonList(fakeImageFile.getPath()));
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+                /* no file to check */
+                return;
+            }
+            final RString imagePath = omero.rtypes.rstring(importLocation.sharedPath + FsFile.separatorChar);
+            final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
+            final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
+                    "FROM OriginalFile o WHERE o.path = :path AND o.name = :name AND o.details.group.id = :group_id",
+                    new ParametersI().add("path", imagePath).add("name", imageName).addLong("group_id", normalUser.groupId));
+            Assert.assertNotNull(remoteFile);
         }
     }
 
@@ -1834,8 +1834,8 @@ public class LightAdminPrivilegesTest extends RolesTests {
                 "SELECT id, hasher.value, hash FROM OriginalFile " +
                 "WHERE name = :name AND path = :path AND details.group.id = :group_id",
                 new ParametersI().add("name", omero.rtypes.rstring(fakeImageFile.getName()))
-                                 .add("path", omero.rtypes.rstring(repoPath))
-                                 .add("group_id", omero.rtypes.rlong(normalUser.groupId))).get(0);
+                .add("path", omero.rtypes.rstring(repoPath))
+                .add("group_id", omero.rtypes.rlong(normalUser.groupId))).get(0);
         final long imageFileId = ((RLong) results.get(0)).getValue();
         final String hasherOriginal = ((RString) results.get(1)).getValue();
         final String hashOriginal = ((RString) results.get(2)).getValue();
@@ -1844,21 +1844,21 @@ public class LightAdminPrivilegesTest extends RolesTests {
                 isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
         final String hasherChanged;
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(new OriginalFileI(imageFileId, false)).canEdit(), isExpectSuccess);
-        final ManagedRepositoryPrx repo = ManagedRepositoryPrxHelper.checkedCast(getRepository(Repository.MANAGED));
-        if (ChecksumAlgorithmSHA1160.value.equals(hasherOriginal)) {
-            hasherChanged = ChecksumAlgorithmMurmur3128.value;
-        } else {
-            hasherChanged = ChecksumAlgorithmSHA1160.value;
-        }
-        try {
-            final ChecksumAlgorithm hasherAlgorithm = new ChecksumAlgorithmI();
-            hasherAlgorithm.setValue(omero.rtypes.rstring(hasherChanged));
-            repo.setChecksumAlgorithm(hasherAlgorithm, Collections.singletonList(imageFileId));
-            Assert.assertTrue(isExpectSuccess);
-        } catch (Ice.LocalException | ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            Assert.assertEquals(getCurrentPermissions(new OriginalFileI(imageFileId, false)).canEdit(), isExpectSuccess);
+            final ManagedRepositoryPrx repo = ManagedRepositoryPrxHelper.checkedCast(getRepository(Repository.MANAGED));
+            if (ChecksumAlgorithmSHA1160.value.equals(hasherOriginal)) {
+                hasherChanged = ChecksumAlgorithmMurmur3128.value;
+            } else {
+                hasherChanged = ChecksumAlgorithmSHA1160.value;
+            }
+            try {
+                final ChecksumAlgorithm hasherAlgorithm = new ChecksumAlgorithmI();
+                hasherAlgorithm.setValue(omero.rtypes.rstring(hasherChanged));
+                repo.setChecksumAlgorithm(hasherAlgorithm, Collections.singletonList(imageFileId));
+                Assert.assertTrue(isExpectSuccess);
+            } catch (Ice.LocalException | ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
         /* check the effect on the image's hash and hasher */
         loginUser(normalUser);
@@ -1903,25 +1903,25 @@ public class LightAdminPrivilegesTest extends RolesTests {
                 isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
         final byte[] fileContentBlank;
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(remoteFile).canEdit(), isExpectSuccess);
-        final RepositoryPrx repo = getRepository(Repository.MANAGED);
-        fileContentBlank = new byte[(int) (fakeImageFile.length() + 16)];
-        RawFileStorePrx rfs = null;
-        try {
-            rfs = repo.file(remoteFile.getPath().getValue() + remoteFile.getName().getValue(), "rw");
-            rfs.write(fileContentBlank, 0, fileContentBlank.length);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        } finally {
+            Assert.assertEquals(getCurrentPermissions(remoteFile).canEdit(), isExpectSuccess);
+            final RepositoryPrx repo = getRepository(Repository.MANAGED);
+            fileContentBlank = new byte[(int) (fakeImageFile.length() + 16)];
+            RawFileStorePrx rfs = null;
             try {
-                if (rfs != null) {
-                    rfs.close();
+                rfs = repo.file(remoteFile.getPath().getValue() + remoteFile.getName().getValue(), "rw");
+                rfs.write(fileContentBlank, 0, fileContentBlank.length);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            } finally {
+                try {
+                    if (rfs != null) {
+                        rfs.close();
+                    }
+                } catch (Ice.CommunicatorDestroyedException cde) {
+                    /* cannot try to close */
                 }
-            } catch (Ice.CommunicatorDestroyedException cde) {
-                /* cannot try to close */
             }
-        }
         }
         /* check the resulting file size */
         loginUser(normalUser);
@@ -1944,16 +1944,16 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteOwned.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Folder folder = mmFactory.simpleFolder();
-        folder.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
-        try {
-            folder = (Folder) iUpdate.saveAndReturnObject(folder);
-            Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
-            Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            Folder folder = mmFactory.simpleFolder();
+            folder.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
+            try {
+                folder = (Folder) iUpdate.saveAndReturnObject(folder);
+                Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
+                Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
     }
 
@@ -1973,17 +1973,17 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteOwned.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
-        Assert.assertEquals(getCurrentPermissions(folder).canEdit(), isExpectSuccess);
-        final String newFolderName = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
-        folder.setName(omero.rtypes.rstring(newFolderName));
-        try {
-            folder = (Folder) iUpdate.saveAndReturnObject(folder);
-            Assert.assertEquals(folder.getName().getValue(), newFolderName);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
+            Assert.assertEquals(getCurrentPermissions(folder).canEdit(), isExpectSuccess);
+            final String newFolderName = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
+            folder.setName(omero.rtypes.rstring(newFolderName));
+            try {
+                folder = (Folder) iUpdate.saveAndReturnObject(folder);
+                Assert.assertEquals(folder.getName().getValue(), newFolderName);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
     }
 
@@ -2007,14 +2007,14 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        repo = getRepository(Repository.SCRIPT);
-        final String filename = userDirectory + '/' + UUID.randomUUID();
-        try {
-            repo.makeDir(filename, false);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            repo = getRepository(Repository.SCRIPT);
+            final String filename = userDirectory + '/' + UUID.randomUUID();
+            try {
+                repo.makeDir(filename, false);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
     }
 
@@ -2041,15 +2041,15 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        repo = getRepository(Repository.SCRIPT);
-        final String filename = userDirectory + '/' + UUID.randomUUID();
-        try {
-            // TODO: test is broken because SharedResources.newTable ignores its repo ID argument
-            factory.sharedResources().newTable(repo.root().getId().getValue(), filename).close();
-            Assert.assertTrue(isExpectSuccess);
-        } catch (Ice.LocalException se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            repo = getRepository(Repository.SCRIPT);
+            final String filename = userDirectory + '/' + UUID.randomUUID();
+            try {
+                // TODO: test is broken because SharedResources.newTable ignores its repo ID argument
+                factory.sharedResources().newTable(repo.root().getId().getValue(), filename).close();
+                Assert.assertTrue(isExpectSuccess);
+            } catch (Ice.LocalException se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
     }
 
@@ -2073,14 +2073,14 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        repo = getRepository(Repository.SCRIPT);
-        final String filename = userDirectory + '/' + UUID.randomUUID();
-        try {
-            repo.register(filename, null);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            repo = getRepository(Repository.SCRIPT);
+            final String filename = userDirectory + '/' + UUID.randomUUID();
+            try {
+                repo.register(filename, null);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
     }
 
@@ -2173,22 +2173,22 @@ public class LightAdminPrivilegesTest extends RolesTests {
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
         final byte[] fileContentBlank;
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
-        repo = getRepository(Repository.SCRIPT);
-        fileContentBlank = new byte[fileContentOriginal.length];
-        try {
-            rfs = repo.file(testScriptName, "rw");
-            rfs.write(fileContentBlank, 0, fileContentBlank.length);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        } finally {
+            Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
+            repo = getRepository(Repository.SCRIPT);
+            fileContentBlank = new byte[fileContentOriginal.length];
             try {
-                rfs.close();
-            } catch (Ice.CommunicatorDestroyedException cde) {
-                /* cannot try to close */
+                rfs = repo.file(testScriptName, "rw");
+                rfs.write(fileContentBlank, 0, fileContentBlank.length);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            } finally {
+                try {
+                    rfs.close();
+                } catch (Ice.CommunicatorDestroyedException cde) {
+                    /* cannot try to close */
+                }
             }
-        }
         }
         /* check the content of the script */
         loginUser(normalUser);
@@ -2233,16 +2233,16 @@ public class LightAdminPrivilegesTest extends RolesTests {
         OriginalFile testScript;
         final String newScript;
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        testScript = new OriginalFileI(testScriptId, false);
-        Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
-        iScript = factory.getScriptService();
-        newScript = originalScript + "\n# this script is a copy of another";
-        try {
-            iScript.editScript(testScript, newScript);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            testScript = new OriginalFileI(testScriptId, false);
+            Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
+            iScript = factory.getScriptService();
+            newScript = originalScript + "\n# this script is a copy of another";
+            try {
+                iScript.editScript(testScript, newScript);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
         /* check the permissions on the script */
         loginUser(normalUser);
@@ -2277,17 +2277,17 @@ public class LightAdminPrivilegesTest extends RolesTests {
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        file = (OriginalFile) iQuery.get("OriginalFile", file.getId().getValue());
-        Assert.assertEquals(getCurrentPermissions(file).canEdit(), isExpectSuccess);
-        final String newFilename = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
-        file.setName(omero.rtypes.rstring(newFilename));
-        try {
-            file = (OriginalFile) iUpdate.saveAndReturnObject(file);
-            Assert.assertEquals(file.getName().getValue(), newFilename);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess);
-        }
+            file = (OriginalFile) iQuery.get("OriginalFile", file.getId().getValue());
+            Assert.assertEquals(getCurrentPermissions(file).canEdit(), isExpectSuccess);
+            final String newFilename = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
+            file.setName(omero.rtypes.rstring(newFilename));
+            try {
+                file = (OriginalFile) iUpdate.saveAndReturnObject(file);
+                Assert.assertEquals(file.getName().getValue(), newFilename);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess);
+            }
         }
     }
 

@@ -230,68 +230,68 @@ public class LightAdminRolesTest extends RolesTests {
         /* lightAdmin tries to create Project and Dataset on behalf of the normalUser
          * in normalUser's group.*/
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Project proj = mmFactory.simpleProject();
-        Dataset dat = mmFactory.simpleDataset();
-        Project sentProj = null;
-        Dataset sentDat = null;
-        /* lightAdmin sets the normalUser as the owner of the newly created Project/Dataset but only
-         * in cases in which lightAdmin is not sudoing (if sudoing, the created Project/Dataset
-         * already belong to normalUser).*/
-        if (!isSudoing) {
-            proj.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
-            dat.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
-        }
-        /* Check lightAdmin can or cannot save the created Project and Dataset as appropriate
-         * (see definition of isExpectSuccessCreate above).*/
-        try {
-            sentProj = (Project) iUpdate.saveAndReturnObject(proj);
-            sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-            Assert.assertTrue(isExpectSuccessCreate);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccessCreate);
-        }
-        /* Check the owner of the Project and Dataset (P/D) is the normalUser in all cases
-         * the P/D were created, in all other cases P/D should be null.*/
-        if (isExpectSuccessCreate) {
-            assertOwnedBy(sentProj, normalUser);
-            assertOwnedBy(sentDat, normalUser);
-        } else {
-            Assert.assertNull(sentProj);
-            Assert.assertNull(sentDat);
-        }
-        /* Finish the test if lightAdmin is not sudoing.
-         * Further tests of this test method deal with import and linking
-         * for normalUser by lightAdmin who sudoes on behalf of normalUser.
-         * Imports and linking for others while NOT using Sudo
-         * are covered in other test methods in this class.*/
-        if (!isSudoing) return;
+            Project proj = mmFactory.simpleProject();
+            Dataset dat = mmFactory.simpleDataset();
+            Project sentProj = null;
+            Dataset sentDat = null;
+            /* lightAdmin sets the normalUser as the owner of the newly created Project/Dataset but only
+             * in cases in which lightAdmin is not sudoing (if sudoing, the created Project/Dataset
+             * already belong to normalUser).*/
+            if (!isSudoing) {
+                proj.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
+                dat.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
+            }
+            /* Check lightAdmin can or cannot save the created Project and Dataset as appropriate
+             * (see definition of isExpectSuccessCreate above).*/
+            try {
+                sentProj = (Project) iUpdate.saveAndReturnObject(proj);
+                sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+                Assert.assertTrue(isExpectSuccessCreate);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccessCreate);
+            }
+            /* Check the owner of the Project and Dataset (P/D) is the normalUser in all cases
+             * the P/D were created, in all other cases P/D should be null.*/
+            if (isExpectSuccessCreate) {
+                assertOwnedBy(sentProj, normalUser);
+                assertOwnedBy(sentDat, normalUser);
+            } else {
+                Assert.assertNull(sentProj);
+                Assert.assertNull(sentDat);
+            }
+            /* Finish the test if lightAdmin is not sudoing.
+             * Further tests of this test method deal with import and linking
+             * for normalUser by lightAdmin who sudoes on behalf of normalUser.
+             * Imports and linking for others while NOT using Sudo
+             * are covered in other test methods in this class.*/
+            if (!isSudoing) return;
 
-        /* Check that after sudo, lightAdmin can import and write the originalFile
-         * of the imported image on behalf of the normalUser into the created Dataset.*/
-        List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
-        OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
-        Image image = (Image) originalFileAndImage.get(1);
+            /* Check that after sudo, lightAdmin can import and write the originalFile
+             * of the imported image on behalf of the normalUser into the created Dataset.*/
+            List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+            OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
+            Image image = (Image) originalFileAndImage.get(1);
 
-        /* Check the canLink() boolean for both Dataset and Project.
-         * lightAdmin is always sudoing in this part of the test.
-         * Thus canLink() is always true, because lightAdmin is sudoed
-         * on behalf of the owner of the objects (normalUser).*/
-        Assert.assertTrue(getCurrentPermissions(sentProj).canLink());
-        Assert.assertTrue(getCurrentPermissions(sentDat).canLink());
-        /* Check that being sudoed, lightAdmin can link the Project and Dataset of normalUser.*/
-        ProjectDatasetLink projectDatasetLink = linkParentToChild(sentProj, sentDat);
+            /* Check the canLink() boolean for both Dataset and Project.
+             * lightAdmin is always sudoing in this part of the test.
+             * Thus canLink() is always true, because lightAdmin is sudoed
+             * on behalf of the owner of the objects (normalUser).*/
+            Assert.assertTrue(getCurrentPermissions(sentProj).canLink());
+            Assert.assertTrue(getCurrentPermissions(sentDat).canLink());
+            /* Check that being sudoed, lightAdmin can link the Project and Dataset of normalUser.*/
+            ProjectDatasetLink projectDatasetLink = linkParentToChild(sentProj, sentDat);
 
-        /* Check the owner of the image, its originalFile, imageDatasetLink and projectDatasetLink
-         * is normalUser and the image and its originalFile are in normalUser's group.*/
-        final IObject imageDatasetLink = iQuery.findByQuery(
-                "FROM DatasetImageLink WHERE child.id = :id",
-                new ParametersI().addId(image.getId().getValue()));
-        assertInGroup(originalFile, normalUser.groupId);
-        assertOwnedBy(originalFile, normalUser);
-        assertInGroup(image, normalUser.groupId);
-        assertOwnedBy(image, normalUser);
-        assertOwnedBy(imageDatasetLink, normalUser);
-        assertOwnedBy(projectDatasetLink, normalUser);
+            /* Check the owner of the image, its originalFile, imageDatasetLink and projectDatasetLink
+             * is normalUser and the image and its originalFile are in normalUser's group.*/
+            final IObject imageDatasetLink = iQuery.findByQuery(
+                    "FROM DatasetImageLink WHERE child.id = :id",
+                    new ParametersI().addId(image.getId().getValue()));
+            assertInGroup(originalFile, normalUser.groupId);
+            assertOwnedBy(originalFile, normalUser);
+            assertInGroup(image, normalUser.groupId);
+            assertOwnedBy(image, normalUser);
+            assertOwnedBy(imageDatasetLink, normalUser);
+            assertOwnedBy(projectDatasetLink, normalUser);
         }
     }
 
@@ -330,61 +330,61 @@ public class LightAdminRolesTest extends RolesTests {
         final ProjectDatasetLink projectDatasetLink;
         final DatasetImageLink datasetImageLink;
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        sentProj = (Project) iUpdate.saveAndReturnObject(mmFactory.simpleProject());
-        sentDat = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
-        /* Import an image for the normalUser into the normalUser's default group
-         * and target it into the created Dataset.*/
-        List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
-        originalFile = (OriginalFile) originalFileAndImage.get(0);
-        image = (Image) originalFileAndImage.get(1);
-        assertOwnedBy(image, normalUser);
-        /* Link the Project and the Dataset.*/
-        projectDatasetLink = linkParentToChild(sentProj, sentDat);
-        datasetImageLink = (DatasetImageLink) iQuery.findByQuery(
-                "FROM DatasetImageLink WHERE child.id = :id",
-                new ParametersI().addId(image.getId()));
+            sentProj = (Project) iUpdate.saveAndReturnObject(mmFactory.simpleProject());
+            sentDat = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
+            /* Import an image for the normalUser into the normalUser's default group
+             * and target it into the created Dataset.*/
+            List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+            originalFile = (OriginalFile) originalFileAndImage.get(0);
+            image = (Image) originalFileAndImage.get(1);
+            assertOwnedBy(image, normalUser);
+            /* Link the Project and the Dataset.*/
+            projectDatasetLink = linkParentToChild(sentProj, sentDat);
+            datasetImageLink = (DatasetImageLink) iQuery.findByQuery(
+                    "FROM DatasetImageLink WHERE child.id = :id",
+                    new ParametersI().addId(image.getId()));
         }
         /* Take care of post-import workflows which do not use sudo.*/
         if (!isSudoing) {
             loginUser(lightAdmin);
         }
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        /* Check that lightAdmin can delete the objects
-         * created on behalf of normalUser only if lightAdmin has sufficient permissions.
-         * Note that deletion of the Project
-         * would delete the whole hierarchy, which was successfully tested
-         * during writing of this test. The order of the below delete() commands
-         * is intentional, as the ability to delete the links and Project/Dataset/Image separately is
-         * tested in this way.
-         * Also check that the canDelete boolean on the object retrieved
-         * by the lightAdmin matches the deletePassing boolean.*/
-        Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
-        doChange(client, factory, Requests.delete().target(datasetImageLink).build(), deletePassing);
-        Assert.assertEquals(getCurrentPermissions(projectDatasetLink).canDelete(), deletePassing);
-        doChange(client, factory, Requests.delete().target(projectDatasetLink).build(), deletePassing);
-        Assert.assertEquals(getCurrentPermissions(image).canDelete(), deletePassing);
-        doChange(client, factory, Requests.delete().target(image).build(), deletePassing);
-        Assert.assertEquals(getCurrentPermissions(sentDat).canDelete(), deletePassing);
-        doChange(client, factory, Requests.delete().target(sentDat).build(), deletePassing);
-        Assert.assertEquals(getCurrentPermissions(sentProj).canDelete(), deletePassing);
-        doChange(client, factory, Requests.delete().target(sentProj).build(), deletePassing);
+            /* Check that lightAdmin can delete the objects
+             * created on behalf of normalUser only if lightAdmin has sufficient permissions.
+             * Note that deletion of the Project
+             * would delete the whole hierarchy, which was successfully tested
+             * during writing of this test. The order of the below delete() commands
+             * is intentional, as the ability to delete the links and Project/Dataset/Image separately is
+             * tested in this way.
+             * Also check that the canDelete boolean on the object retrieved
+             * by the lightAdmin matches the deletePassing boolean.*/
+            Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
+            doChange(client, factory, Requests.delete().target(datasetImageLink).build(), deletePassing);
+            Assert.assertEquals(getCurrentPermissions(projectDatasetLink).canDelete(), deletePassing);
+            doChange(client, factory, Requests.delete().target(projectDatasetLink).build(), deletePassing);
+            Assert.assertEquals(getCurrentPermissions(image).canDelete(), deletePassing);
+            doChange(client, factory, Requests.delete().target(image).build(), deletePassing);
+            Assert.assertEquals(getCurrentPermissions(sentDat).canDelete(), deletePassing);
+            doChange(client, factory, Requests.delete().target(sentDat).build(), deletePassing);
+            Assert.assertEquals(getCurrentPermissions(sentProj).canDelete(), deletePassing);
+            doChange(client, factory, Requests.delete().target(sentProj).build(), deletePassing);
 
-        /* Check the existence/non-existence of the objects as appropriate.*/
-        if (deletePassing) {
-            assertDoesNotExist(originalFile);
-            assertDoesNotExist(image);
-            assertDoesNotExist(sentDat);
-            assertDoesNotExist(sentProj);
-            assertDoesNotExist(datasetImageLink);
-            assertDoesNotExist(projectDatasetLink);
-        } else {
-            assertExists(originalFile);
-            assertExists(image);
-            assertExists(sentDat);
-            assertExists(sentProj);
-            assertExists(datasetImageLink);
-            assertExists(projectDatasetLink);
-        }
+            /* Check the existence/non-existence of the objects as appropriate.*/
+            if (deletePassing) {
+                assertDoesNotExist(originalFile);
+                assertDoesNotExist(image);
+                assertDoesNotExist(sentDat);
+                assertDoesNotExist(sentProj);
+                assertDoesNotExist(datasetImageLink);
+                assertDoesNotExist(projectDatasetLink);
+            } else {
+                assertExists(originalFile);
+                assertExists(image);
+                assertExists(sentDat);
+                assertExists(sentProj);
+                assertExists(datasetImageLink);
+                assertExists(projectDatasetLink);
+            }
         }
     }
 
@@ -440,25 +440,25 @@ public class LightAdminRolesTest extends RolesTests {
             loginUser(otherUser);
         }
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        /* Check that lightAdmin or otherUser can delete the objects
-         * of normalUser only if lightAdmin has sufficient permissions or it is read-write group.
-         * Note that deletion of the Project
-         * would delete the whole hierarchy, which was successfully tested
-         * during writing of this test. The order of the below delete() commands
-         * is intentional, as the ability to delete the links and Project/Dataset/Image separately is
-         * tested in this way.
-         * Also check that the canDelete boolean on the object retrieved by the lightAdmin
-         * or otherUser matches the deletePassing boolean.*/
-        Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
-        doChange(client, factory, Requests.delete().target(datasetImageLink).build(), deletePassing);
-        Assert.assertEquals(getCurrentPermissions(projectDatasetLink).canDelete(), deletePassing);
-        doChange(client, factory, Requests.delete().target(projectDatasetLink).build(), deletePassing);
-        Assert.assertEquals(getCurrentPermissions(image).canDelete(), deletePassing);
-        doChange(client, factory, Requests.delete().target(image).build(), deletePassing);
-        Assert.assertEquals(getCurrentPermissions(sentDat).canDelete(), deletePassing);
-        doChange(client, factory, Requests.delete().target(sentDat).build(), deletePassing);
-        Assert.assertEquals(getCurrentPermissions(sentProj).canDelete(), deletePassing);
-        doChange(client, factory, Requests.delete().target(sentProj).build(), deletePassing);
+            /* Check that lightAdmin or otherUser can delete the objects
+             * of normalUser only if lightAdmin has sufficient permissions or it is read-write group.
+             * Note that deletion of the Project
+             * would delete the whole hierarchy, which was successfully tested
+             * during writing of this test. The order of the below delete() commands
+             * is intentional, as the ability to delete the links and Project/Dataset/Image separately is
+             * tested in this way.
+             * Also check that the canDelete boolean on the object retrieved by the lightAdmin
+             * or otherUser matches the deletePassing boolean.*/
+            Assert.assertEquals(getCurrentPermissions(datasetImageLink).canDelete(), deletePassing);
+            doChange(client, factory, Requests.delete().target(datasetImageLink).build(), deletePassing);
+            Assert.assertEquals(getCurrentPermissions(projectDatasetLink).canDelete(), deletePassing);
+            doChange(client, factory, Requests.delete().target(projectDatasetLink).build(), deletePassing);
+            Assert.assertEquals(getCurrentPermissions(image).canDelete(), deletePassing);
+            doChange(client, factory, Requests.delete().target(image).build(), deletePassing);
+            Assert.assertEquals(getCurrentPermissions(sentDat).canDelete(), deletePassing);
+            doChange(client, factory, Requests.delete().target(sentDat).build(), deletePassing);
+            Assert.assertEquals(getCurrentPermissions(sentProj).canDelete(), deletePassing);
+            doChange(client, factory, Requests.delete().target(sentProj).build(), deletePassing);
         }
 
         /* Check the existence/non-existence of the objects as appropriate.*/
@@ -490,7 +490,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @param isPrivileged if to test a user who has the <tt>DeleteOwned</tt> privilege
      * @param groupPermissions to test the effect of group permission level
      * @throws Exception unexpected
-    */
+     */
     @Test(dataProvider = "isPrivileged cases")
     public void testDeleteGroupOwner(boolean isPrivileged,
             String groupPermissions) throws Exception {
@@ -525,19 +525,19 @@ public class LightAdminRolesTest extends RolesTests {
          * boolean.*/
         loginUser(lightAdmin);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(sentDataset).canDelete(), deletePassingOwnedGroup);
-        doChange(client, factory, Requests.delete().target(sentDataset).build(), deletePassingOwnedGroup);
+            Assert.assertEquals(getCurrentPermissions(sentDataset).canDelete(), deletePassingOwnedGroup);
+            doChange(client, factory, Requests.delete().target(sentDataset).build(), deletePassingOwnedGroup);
         }
         try (final AutoCloseable igc = new ImplicitGroupContext(otherUser.groupId)) {
-        Assert.assertEquals(getCurrentPermissions(sentOtherDataset).canDelete(), deletePassingNotOwnedGroup);
-        doChange(client, factory, Requests.delete().target(sentOtherDataset).build(), deletePassingNotOwnedGroup);
-        /* Check the existence/non-existence of the objects as appropriate.*/
-        assertDoesNotExist(sentDataset);
-        if (deletePassingNotOwnedGroup) {
-            assertDoesNotExist(sentOtherDataset);
-        } else {
-            assertExists(sentOtherDataset);
-        }
+            Assert.assertEquals(getCurrentPermissions(sentOtherDataset).canDelete(), deletePassingNotOwnedGroup);
+            doChange(client, factory, Requests.delete().target(sentOtherDataset).build(), deletePassingNotOwnedGroup);
+            /* Check the existence/non-existence of the objects as appropriate.*/
+            assertDoesNotExist(sentDataset);
+            if (deletePassingNotOwnedGroup) {
+                assertDoesNotExist(sentOtherDataset);
+            } else {
+                assertExists(sentOtherDataset);
+            }
         }
     }
 
@@ -577,17 +577,17 @@ public class LightAdminRolesTest extends RolesTests {
         /* Try to rename the Project.*/
         final String changedName = "ChangedNameOfLightAdmin";
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        long id = sentProj.getId().getValue();
-        final Project retrievedUnrenamedProject = (Project) iQuery.get("Project", id);
-        retrievedUnrenamedProject.setName(omero.rtypes.rstring(changedName));
-        /* Check that lightAdmin can edit the Project of normalUser only when
-         * lightAdmin is equipped with sufficient permissions, captured in boolean isExpectSuccess.*/
-        try {
-            sentProj = (Project) iUpdate.saveAndReturnObject(retrievedUnrenamedProject);
-            Assert.assertTrue(isExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccess, se.toString());
-        }
+            long id = sentProj.getId().getValue();
+            final Project retrievedUnrenamedProject = (Project) iQuery.get("Project", id);
+            retrievedUnrenamedProject.setName(omero.rtypes.rstring(changedName));
+            /* Check that lightAdmin can edit the Project of normalUser only when
+             * lightAdmin is equipped with sufficient permissions, captured in boolean isExpectSuccess.*/
+            try {
+                sentProj = (Project) iUpdate.saveAndReturnObject(retrievedUnrenamedProject);
+                Assert.assertTrue(isExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccess, se.toString());
+            }
         }
         String savedChangedName = sentProj.getName().getValue().toString();
         logRootIntoGroup(normalUser.groupId);
@@ -662,26 +662,26 @@ public class LightAdminRolesTest extends RolesTests {
         }
         /* In order to find the image in whatever group, get to all groups context.*/
         try (final AutoCloseable igc = new ImplicitAllGroupsContext()) {
-        /* lightAdmin tries to move the image into another group of the normalUser
-         * which should succeed if sudoing and also in case
-         * the light admin has Chgrp permissions
-         * (i.e. isExpectSuccessInMemberGroup is true). Also check that
-         * the canChgrp boolean matches the isExpectSuccessInMemberGroup boolean value */
-        Assert.assertEquals(getCurrentPermissions(image).canChgrp(), isExpectSuccessInMemberGroup);
-        doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), isExpectSuccessInMemberGroup);
-        if (isExpectSuccessInMemberGroup) {
-            assertInGroup(image, normalUsersOtherGroupId);
-            assertInGroup(originalFile, normalUsersOtherGroupId);
-            /* Annotations on the image changed the group with the image.*/
-            assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUsersOtherGroupId);
-        } else {
-            assertInGroup(image, normalUser.groupId);
-            assertInGroup(originalFile, normalUser.groupId);
-            /* The annotations were not moved.*/
-            assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUser.groupId);
-        }
-        /* In any case, the image should still belong to normalUser.*/
-        assertOwnedBy(image, normalUser);
+            /* lightAdmin tries to move the image into another group of the normalUser
+             * which should succeed if sudoing and also in case
+             * the light admin has Chgrp permissions
+             * (i.e. isExpectSuccessInMemberGroup is true). Also check that
+             * the canChgrp boolean matches the isExpectSuccessInMemberGroup boolean value */
+            Assert.assertEquals(getCurrentPermissions(image).canChgrp(), isExpectSuccessInMemberGroup);
+            doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), isExpectSuccessInMemberGroup);
+            if (isExpectSuccessInMemberGroup) {
+                assertInGroup(image, normalUsersOtherGroupId);
+                assertInGroup(originalFile, normalUsersOtherGroupId);
+                /* Annotations on the image changed the group with the image.*/
+                assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUsersOtherGroupId);
+            } else {
+                assertInGroup(image, normalUser.groupId);
+                assertInGroup(originalFile, normalUser.groupId);
+                /* The annotations were not moved.*/
+                assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUser.groupId);
+            }
+            /* In any case, the image should still belong to normalUser.*/
+            assertOwnedBy(image, normalUser);
         }
     }
 
@@ -749,29 +749,29 @@ public class LightAdminRolesTest extends RolesTests {
         /* In order to find the image in whatever group, get all groups context.*/
         try (final AutoCloseable igc = new ImplicitAllGroupsContext()) {
 
-        /* Try to move the image into anotherGroup the normalUser
-         * is not a member of, which should fail in all cases
-         * except the lightAdmin has Chgrp permission and is not sudoing
-         * (i.e. chgrpNoSudoExpectSuccessAnyGroup is true). Also check the
-         * the canChgrp boolean.*/
-        Assert.assertEquals(getCurrentPermissions(image).canChgrp(), canChgrpExpectedTrue);
-        doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(),
-                chgrpNonMemberExpectSuccess);
-        if (chgrpNonMemberExpectSuccess) {
-            /* Check that the image and its original file moved to another group.*/
-            assertInGroup(image, anotherGroupId);
-            assertInGroup(originalFile, anotherGroupId);
-            /* check the annotations on the image changed the group as expected */
-            assertInGroup(annotOriginalFileAnnotationTagAndLinks, anotherGroupId);
-        } else {
-            /* Check that the image is still in its original group (normalUser's group).*/
-            assertInGroup(image, normalUser.groupId);
-            assertInGroup(originalFile, normalUser.groupId);
-            /* The annotations stayed with the image in the normalUser's group.*/
-            assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUser.groupId);
-        }
-        /* In any case, the image should still belong to normalUser.*/
-        assertOwnedBy(image, normalUser);
+            /* Try to move the image into anotherGroup the normalUser
+             * is not a member of, which should fail in all cases
+             * except the lightAdmin has Chgrp permission and is not sudoing
+             * (i.e. chgrpNoSudoExpectSuccessAnyGroup is true). Also check the
+             * the canChgrp boolean.*/
+            Assert.assertEquals(getCurrentPermissions(image).canChgrp(), canChgrpExpectedTrue);
+            doChange(client, factory, Requests.chgrp().target(image).toGroup(anotherGroupId).build(),
+                    chgrpNonMemberExpectSuccess);
+            if (chgrpNonMemberExpectSuccess) {
+                /* Check that the image and its original file moved to another group.*/
+                assertInGroup(image, anotherGroupId);
+                assertInGroup(originalFile, anotherGroupId);
+                /* check the annotations on the image changed the group as expected */
+                assertInGroup(annotOriginalFileAnnotationTagAndLinks, anotherGroupId);
+            } else {
+                /* Check that the image is still in its original group (normalUser's group).*/
+                assertInGroup(image, normalUser.groupId);
+                assertInGroup(originalFile, normalUser.groupId);
+                /* The annotations stayed with the image in the normalUser's group.*/
+                assertInGroup(annotOriginalFileAnnotationTagAndLinks, normalUser.groupId);
+            }
+            /* In any case, the image should still belong to normalUser.*/
+            assertOwnedBy(image, normalUser);
         }
     }
 
@@ -833,39 +833,39 @@ public class LightAdminRolesTest extends RolesTests {
         Assert.assertEquals(getCurrentPermissions(image).canChown(), chownImagePassing);
         /* Get into correct group context and check all cases.*/
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        /* lightAdmin tries to chown the image.*/
-        doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownImagePassing);
-        /* ChecK the results of the chown when lightAdmin is sudoed,
-         * which should fail in any case.*/
-        if (isSudoing) {
-            assertOwnedBy(image, normalUser);
-            assertOwnedBy(originalFile, normalUser);
-            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
-        /* Check the chown was successful for both the image and the annotations
-         * when the permissions for chowning both
-         * the image as well as the annotations on it are sufficient.*/
-        } else if (chownImagePassing && annotationsChownExpectSuccess) {
-            assertOwnedBy(image, anotherUser);
-            assertOwnedBy(originalFile, anotherUser);
-            /* Annotations will be chowned because
-             * groupPermissions are private or read-only (captured in boolean
-             * annotationsChownExpectSuccess).*/
-            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, anotherUser);
-        /* Check the chown was successful for the image but not the annotations
-         * in case the annotationsChownExpectSuccess is false, i.e. in read-only and private group.*/
-        } else if (chownImagePassing && !annotationsChownExpectSuccess){
-            assertOwnedBy(image, anotherUser);
-            assertOwnedBy(originalFile, anotherUser);
-            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
-        } else {
-        /* In the remaining case, the chown will fail, as the chownPassingWhenNotSudoing
-         * is false because permChown was not given. All objects belong to normalUser.*/
-            assertOwnedBy(image, normalUser);
-            assertOwnedBy(originalFile, normalUser);
-            assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
-        }
-        /* In any case, the image must be in the right group.*/
-        assertInGroup(image, normalUser.groupId);
+            /* lightAdmin tries to chown the image.*/
+            doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownImagePassing);
+            /* ChecK the results of the chown when lightAdmin is sudoed,
+             * which should fail in any case.*/
+            if (isSudoing) {
+                assertOwnedBy(image, normalUser);
+                assertOwnedBy(originalFile, normalUser);
+                assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
+                /* Check the chown was successful for both the image and the annotations
+                 * when the permissions for chowning both
+                 * the image as well as the annotations on it are sufficient.*/
+            } else if (chownImagePassing && annotationsChownExpectSuccess) {
+                assertOwnedBy(image, anotherUser);
+                assertOwnedBy(originalFile, anotherUser);
+                /* Annotations will be chowned because
+                 * groupPermissions are private or read-only (captured in boolean
+                 * annotationsChownExpectSuccess).*/
+                assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, anotherUser);
+                /* Check the chown was successful for the image but not the annotations
+                 * in case the annotationsChownExpectSuccess is false, i.e. in read-only and private group.*/
+            } else if (chownImagePassing && !annotationsChownExpectSuccess){
+                assertOwnedBy(image, anotherUser);
+                assertOwnedBy(originalFile, anotherUser);
+                assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
+            } else {
+                /* In the remaining case, the chown will fail, as the chownPassingWhenNotSudoing
+                 * is false because permChown was not given. All objects belong to normalUser.*/
+                assertOwnedBy(image, normalUser);
+                assertOwnedBy(originalFile, normalUser);
+                assertOwnedBy(annotOriginalFileAnnotationTagAndLinks, normalUser);
+            }
+            /* In any case, the image must be in the right group.*/
+            assertInGroup(image, normalUser.groupId);
         }
     }
 
@@ -911,72 +911,72 @@ public class LightAdminRolesTest extends RolesTests {
         /* lightAdmin creates Dataset in the normalUser's group
          * (lightAdmin is not member of that group).*/
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Dataset dat = mmFactory.simpleDataset();
-        Dataset sentDat = null;
-        /* Creation of Dataset success is governed by
-         * createDatasetExpectSuccess boolean (defined above).*/
-        try {
-            sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-            Assert.assertTrue(createDatasetExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(createDatasetExpectSuccess, se.toString());
-        }
-        /* As lightAdmin, import an Image into the created Dataset.*/
-        OriginalFile originalFile = null;
-        Image image = null;
-        /* Import success is governed by importNotYourGroupExpectSuccess boolean (defined above).*/
-        try {
-            List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
-            originalFile = (OriginalFile) originalFileAndImage.get(0);
-            image = (Image) originalFileAndImage.get(1);
-            Assert.assertTrue(importNotYourGroupExpectSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(importNotYourGroupExpectSuccess, se.toString());
-        }
-        /* Check the ownership and group of the original file and the image.*/
-        if (importNotYourGroupExpectSuccess) {
-            assertOwnedBy(originalFile, lightAdmin);
-            assertInGroup(originalFile, normalUser.groupId);
-            assertOwnedBy(image, lightAdmin);
-            assertInGroup(image, normalUser.groupId);
-        /* In case the import was not successful, Image does not exist.
-         * Further testing is not interesting in such case.*/
-        } else {
-            Assert.assertNull(originalFile, "if import failed, the originalFile should be null");
-            Assert.assertNull(image, "if import failed, the image should be null");
-            return;
-        }
-        /* Check that the canChown value on the Dataset matches the boolean
-         * createDatasetImportNotYourGroupAndChownExpectSuccess.*/
-        Assert.assertEquals(getCurrentPermissions(sentDat).canChown(),
-                createDatasetImportNotYourGroupAndChownExpectSuccess);
-        /* lightAdmin tries to change the ownership of the Dataset to normalUser.*/
-        doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(),
-                createDatasetImportNotYourGroupAndChownExpectSuccess);
-        final DatasetImageLink link = (DatasetImageLink) iQuery.findByQuery(
-                "FROM DatasetImageLink WHERE parent.id = :id",
-                new ParametersI().addId(sentDat.getId()));
-        /* Check that image, dataset and link are in the normalUser's group
-         * and belong to normalUser in case the workflow succeeded.*/
-        if (createDatasetImportNotYourGroupAndChownExpectSuccess) {
-            assertOwnedBy(image, normalUser);
-            assertInGroup(image, normalUser.groupId);
-            assertOwnedBy(sentDat, normalUser);
-            assertInGroup(sentDat, normalUser.groupId);
-            assertOwnedBy(link, normalUser);
-            assertInGroup(link, normalUser.groupId);
-            assertOwnedBy(originalFile, normalUser);
-            assertInGroup(originalFile, normalUser.groupId);
-        /* Check that the image, dataset and link still belong
-         * to lightAdmin as the chown failed, but are in the group of normalUser.*/
-        } else {
-            assertOwnedBy(image, lightAdmin);
-            assertInGroup(image, normalUser.groupId);
-            assertOwnedBy(sentDat, lightAdmin);
-            assertInGroup(sentDat, normalUser.groupId);
-            assertOwnedBy(link, lightAdmin);
-            assertInGroup(link, normalUser.groupId);
-        }
+            Dataset dat = mmFactory.simpleDataset();
+            Dataset sentDat = null;
+            /* Creation of Dataset success is governed by
+             * createDatasetExpectSuccess boolean (defined above).*/
+            try {
+                sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+                Assert.assertTrue(createDatasetExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(createDatasetExpectSuccess, se.toString());
+            }
+            /* As lightAdmin, import an Image into the created Dataset.*/
+            OriginalFile originalFile = null;
+            Image image = null;
+            /* Import success is governed by importNotYourGroupExpectSuccess boolean (defined above).*/
+            try {
+                List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+                originalFile = (OriginalFile) originalFileAndImage.get(0);
+                image = (Image) originalFileAndImage.get(1);
+                Assert.assertTrue(importNotYourGroupExpectSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(importNotYourGroupExpectSuccess, se.toString());
+            }
+            /* Check the ownership and group of the original file and the image.*/
+            if (importNotYourGroupExpectSuccess) {
+                assertOwnedBy(originalFile, lightAdmin);
+                assertInGroup(originalFile, normalUser.groupId);
+                assertOwnedBy(image, lightAdmin);
+                assertInGroup(image, normalUser.groupId);
+                /* In case the import was not successful, Image does not exist.
+                 * Further testing is not interesting in such case.*/
+            } else {
+                Assert.assertNull(originalFile, "if import failed, the originalFile should be null");
+                Assert.assertNull(image, "if import failed, the image should be null");
+                return;
+            }
+            /* Check that the canChown value on the Dataset matches the boolean
+             * createDatasetImportNotYourGroupAndChownExpectSuccess.*/
+            Assert.assertEquals(getCurrentPermissions(sentDat).canChown(),
+                    createDatasetImportNotYourGroupAndChownExpectSuccess);
+            /* lightAdmin tries to change the ownership of the Dataset to normalUser.*/
+            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(),
+                    createDatasetImportNotYourGroupAndChownExpectSuccess);
+            final DatasetImageLink link = (DatasetImageLink) iQuery.findByQuery(
+                    "FROM DatasetImageLink WHERE parent.id = :id",
+                    new ParametersI().addId(sentDat.getId()));
+            /* Check that image, dataset and link are in the normalUser's group
+             * and belong to normalUser in case the workflow succeeded.*/
+            if (createDatasetImportNotYourGroupAndChownExpectSuccess) {
+                assertOwnedBy(image, normalUser);
+                assertInGroup(image, normalUser.groupId);
+                assertOwnedBy(sentDat, normalUser);
+                assertInGroup(sentDat, normalUser.groupId);
+                assertOwnedBy(link, normalUser);
+                assertInGroup(link, normalUser.groupId);
+                assertOwnedBy(originalFile, normalUser);
+                assertInGroup(originalFile, normalUser.groupId);
+                /* Check that the image, dataset and link still belong
+                 * to lightAdmin as the chown failed, but are in the group of normalUser.*/
+            } else {
+                assertOwnedBy(image, lightAdmin);
+                assertInGroup(image, normalUser.groupId);
+                assertOwnedBy(sentDat, lightAdmin);
+                assertInGroup(sentDat, normalUser.groupId);
+                assertOwnedBy(link, lightAdmin);
+                assertInGroup(link, normalUser.groupId);
+            }
         }
     }
 
@@ -1015,68 +1015,68 @@ public class LightAdminRolesTest extends RolesTests {
         final Dataset sentDat;
         final Image sentImage;
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Image image = mmFactory.createImage();
-        sentImage = (Image) iUpdate.saveAndReturnObject(image);
-        Dataset dat = mmFactory.simpleDataset();
-        sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-        Project proj = mmFactory.simpleProject();
-        sentProj = (Project) iUpdate.saveAndReturnObject(proj);
+            Image image = mmFactory.createImage();
+            sentImage = (Image) iUpdate.saveAndReturnObject(image);
+            Dataset dat = mmFactory.simpleDataset();
+            sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+            Project proj = mmFactory.simpleProject();
+            sentProj = (Project) iUpdate.saveAndReturnObject(proj);
         }
         loginUser(lightAdmin);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        /* lightAdmin checks that the canLink value on all the objects to be linked
-         * matches the isExpectLinkingSuccess boolean.*/
-        Assert.assertEquals(getCurrentPermissions(sentImage).canLink(), isExpectLinkingSuccess);
-        Assert.assertEquals(getCurrentPermissions(sentDat).canLink(), isExpectLinkingSuccess);
-        Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), isExpectLinkingSuccess);
-        /* lightAdmin tries to create links between the image and Dataset
-         * and between Dataset and Project.
-         * If links could not be created, finish the test.*/
-        DatasetImageLink linkOfDatasetImage = new DatasetImageLinkI();
-        ProjectDatasetLink linkOfProjectDataset = new ProjectDatasetLinkI();
-        try {
-            linkOfDatasetImage = linkParentToChild(sentDat, sentImage);
-            linkOfProjectDataset = linkParentToChild(sentProj, sentDat);
-            Assert.assertTrue(isExpectLinkingSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectLinkingSuccess, se.toString());
-            return;
-        }
+            /* lightAdmin checks that the canLink value on all the objects to be linked
+             * matches the isExpectLinkingSuccess boolean.*/
+            Assert.assertEquals(getCurrentPermissions(sentImage).canLink(), isExpectLinkingSuccess);
+            Assert.assertEquals(getCurrentPermissions(sentDat).canLink(), isExpectLinkingSuccess);
+            Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), isExpectLinkingSuccess);
+            /* lightAdmin tries to create links between the image and Dataset
+             * and between Dataset and Project.
+             * If links could not be created, finish the test.*/
+            DatasetImageLink linkOfDatasetImage = new DatasetImageLinkI();
+            ProjectDatasetLink linkOfProjectDataset = new ProjectDatasetLinkI();
+            try {
+                linkOfDatasetImage = linkParentToChild(sentDat, sentImage);
+                linkOfProjectDataset = linkParentToChild(sentProj, sentDat);
+                Assert.assertTrue(isExpectLinkingSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectLinkingSuccess, se.toString());
+                return;
+            }
 
-        /* Check that the value of canChown boolean on the links is matching
-         * the isExpectSuccessLinkAndChown boolean.*/
-        Assert.assertEquals(getCurrentPermissions(linkOfDatasetImage).canChown(), isExpectSuccessLinkAndChown);
-        Assert.assertEquals(getCurrentPermissions(linkOfProjectDataset).canChown(), isExpectSuccessLinkAndChown);
+            /* Check that the value of canChown boolean on the links is matching
+             * the isExpectSuccessLinkAndChown boolean.*/
+            Assert.assertEquals(getCurrentPermissions(linkOfDatasetImage).canChown(), isExpectSuccessLinkAndChown);
+            Assert.assertEquals(getCurrentPermissions(linkOfProjectDataset).canChown(), isExpectSuccessLinkAndChown);
 
-        /* lightAdmin transfers the ownership of both links to normalUser.
-         * The success of the whole linking and chowning
-         * operation is captured in boolean isExpectSuccessLinkAndChown. Note that the
-         * ownership of the links must be transferred explicitly, as the Chown feature
-         * on the Project would not transfer ownership links owned by non-owners
-         * of the Project/Dataset/Image objects (chown on mixed ownership hierarchy does not chown objects
-         * owned by other users).*/
-        Chown2 chown = Requests.chown().target(linkOfDatasetImage).toUser(normalUser.userId).build();
-        doChange(client, factory, chown, isExpectSuccessLinkAndChown);
-        chown = Requests.chown().target(linkOfProjectDataset).toUser(normalUser.userId).build();
-        doChange(client, factory, chown, isExpectSuccessLinkAndChown);
+            /* lightAdmin transfers the ownership of both links to normalUser.
+             * The success of the whole linking and chowning
+             * operation is captured in boolean isExpectSuccessLinkAndChown. Note that the
+             * ownership of the links must be transferred explicitly, as the Chown feature
+             * on the Project would not transfer ownership links owned by non-owners
+             * of the Project/Dataset/Image objects (chown on mixed ownership hierarchy does not chown objects
+             * owned by other users).*/
+            Chown2 chown = Requests.chown().target(linkOfDatasetImage).toUser(normalUser.userId).build();
+            doChange(client, factory, chown, isExpectSuccessLinkAndChown);
+            chown = Requests.chown().target(linkOfProjectDataset).toUser(normalUser.userId).build();
+            doChange(client, factory, chown, isExpectSuccessLinkAndChown);
 
-        /* Check the ownership of the links, Image, Dataset and Project.*/
-        final long linkDatasetImageId = ((RLong) iQuery.projection(
-                "SELECT id FROM DatasetImageLink WHERE parent.id  = :id",
-                new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
-        final long linkProjectDatasetId = ((RLong) iQuery.projection(
-                "SELECT id FROM ProjectDatasetLink WHERE parent.id  = :id",
-                new ParametersI().addId(sentProj.getId())).get(0).get(0)).getValue();
-        assertOwnedBy(sentImage, normalUser);
-        assertOwnedBy(sentDat, normalUser);
-        assertOwnedBy(sentProj, normalUser);
-        if (isExpectSuccessLinkAndChown) {
-            assertOwnedBy((new DatasetImageLinkI(linkDatasetImageId, false)), normalUser);
-            assertOwnedBy((new ProjectDatasetLinkI(linkProjectDatasetId, false)), normalUser);
-        } else {
-            assertOwnedBy((new DatasetImageLinkI(linkDatasetImageId, false)), lightAdmin);
-            assertOwnedBy((new ProjectDatasetLinkI(linkProjectDatasetId, false)), lightAdmin);
-        }
+            /* Check the ownership of the links, Image, Dataset and Project.*/
+            final long linkDatasetImageId = ((RLong) iQuery.projection(
+                    "SELECT id FROM DatasetImageLink WHERE parent.id  = :id",
+                    new ParametersI().addId(sentDat.getId())).get(0).get(0)).getValue();
+            final long linkProjectDatasetId = ((RLong) iQuery.projection(
+                    "SELECT id FROM ProjectDatasetLink WHERE parent.id  = :id",
+                    new ParametersI().addId(sentProj.getId())).get(0).get(0)).getValue();
+            assertOwnedBy(sentImage, normalUser);
+            assertOwnedBy(sentDat, normalUser);
+            assertOwnedBy(sentProj, normalUser);
+            if (isExpectSuccessLinkAndChown) {
+                assertOwnedBy((new DatasetImageLinkI(linkDatasetImageId, false)), normalUser);
+                assertOwnedBy((new ProjectDatasetLinkI(linkProjectDatasetId, false)), normalUser);
+            } else {
+                assertOwnedBy((new DatasetImageLinkI(linkDatasetImageId, false)), lightAdmin);
+                assertOwnedBy((new ProjectDatasetLinkI(linkProjectDatasetId, false)), lightAdmin);
+            }
         }
     }
 
@@ -1130,24 +1130,24 @@ public class LightAdminRolesTest extends RolesTests {
             loginUser(otherUser);
         }
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Image ownImage = mmFactory.createImage();
-        Image sentOwnImage = (Image) iUpdate.saveAndReturnObject(ownImage);
-        Dataset ownDat = mmFactory.simpleDataset();
-        Dataset sentOwnDat = (Dataset) iUpdate.saveAndReturnObject(ownDat);
-        /* lightAdmin or otherUser checks that the canLink value on all the objects to be linked
-         * is true (for own image) and for other people's objects (sentProj, sentDat) the canLink
-         * are matching the expected behavior (see booleans isExpectLinkingSuccess... definitions).*/
-        Assert.assertTrue(getCurrentPermissions(sentOwnImage).canLink());
-        Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), isExpectLinkingSuccess);
-        /* lightAdmin or otherUser try to create links between their own image and normalUser's Dataset
-         * and between their own Dataset and normalUser's Project.*/
-        try {
-            linkParentToChild(sentDat, sentOwnImage);
-            linkParentToChild(sentProj, sentOwnDat);
-            Assert.assertTrue(isExpectLinkingSuccess);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectLinkingSuccess, se.toString());
-        }
+            Image ownImage = mmFactory.createImage();
+            Image sentOwnImage = (Image) iUpdate.saveAndReturnObject(ownImage);
+            Dataset ownDat = mmFactory.simpleDataset();
+            Dataset sentOwnDat = (Dataset) iUpdate.saveAndReturnObject(ownDat);
+            /* lightAdmin or otherUser checks that the canLink value on all the objects to be linked
+             * is true (for own image) and for other people's objects (sentProj, sentDat) the canLink
+             * are matching the expected behavior (see booleans isExpectLinkingSuccess... definitions).*/
+            Assert.assertTrue(getCurrentPermissions(sentOwnImage).canLink());
+            Assert.assertEquals(getCurrentPermissions(sentProj).canLink(), isExpectLinkingSuccess);
+            /* lightAdmin or otherUser try to create links between their own image and normalUser's Dataset
+             * and between their own Dataset and normalUser's Project.*/
+            try {
+                linkParentToChild(sentDat, sentOwnImage);
+                linkParentToChild(sentProj, sentOwnDat);
+                Assert.assertTrue(isExpectLinkingSuccess);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectLinkingSuccess, se.toString());
+            }
         }
     }
 
@@ -1186,100 +1186,100 @@ public class LightAdminRolesTest extends RolesTests {
         final OriginalFile originalFile;
         final Image image;
         try (final AutoCloseable igc = new ImplicitGroupContext(lightAdmin.groupId)) {
-        Dataset dat = mmFactory.simpleDataset();
-        sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
-        /* Import an Image into the created Dataset.*/
-        List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
-        originalFile = (OriginalFile) originalFileAndImage.get(0);
-        image = (Image) originalFileAndImage.get(1);
-        /* Check that originalFile and the image
-         * corresponding to the originalFile are in the right group.*/
-        assertOwnedBy(originalFile, lightAdmin);
-        assertInGroup(originalFile, lightAdmin.groupId);
-        assertOwnedBy(image, lightAdmin);
-        assertInGroup(image, lightAdmin.groupId);
+            Dataset dat = mmFactory.simpleDataset();
+            sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+            /* Import an Image into the created Dataset.*/
+            List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
+            originalFile = (OriginalFile) originalFileAndImage.get(0);
+            image = (Image) originalFileAndImage.get(1);
+            /* Check that originalFile and the image
+             * corresponding to the originalFile are in the right group.*/
+            assertOwnedBy(originalFile, lightAdmin);
+            assertInGroup(originalFile, lightAdmin.groupId);
+            assertOwnedBy(image, lightAdmin);
+            assertInGroup(image, lightAdmin.groupId);
         }
 
         /* In order to find the image in whatever group, get all groups context.*/
         try (final AutoCloseable igc = new ImplicitAllGroupsContext()) {
-        /* Check that the value of canChgrp on the dataset is true.
-         * Note that although the move into normalUser's group might fail,
-         * lightAdmin could be moving the dataset into some group where they are member,
-         * and thus the canChgrp must be "true".*/
-        Assert.assertTrue(getCurrentPermissions(sentDat).canChgrp());
-        /* lightAdmin tries to move the dataset (and with it the linked image)
-         * from lightAdmin's group to normalUser's group,
-         * which should succeed in case the light admin has Chgrp permissions.*/
-        doChange(client, factory, Requests.chgrp().target(sentDat).toGroup(normalUser.groupId).build(), permChgrp);
-        /* Check the group of the moved objects.*/
-        final DatasetImageLink datasetImageLink = (DatasetImageLink) iQuery.findByQuery(
-                "FROM DatasetImageLink WHERE parent.id = :id",
-                new ParametersI().addId(sentDat.getId()));
-        if (permChgrp) {
-            assertInGroup(originalFile, normalUser.groupId);
-            assertInGroup(image, normalUser.groupId);
-            assertInGroup(sentDat, normalUser.groupId);
-            assertInGroup(datasetImageLink, normalUser.groupId);
-        } else {
-            assertInGroup(originalFile, lightAdmin.groupId);
-            assertInGroup(image, lightAdmin.groupId);
-            assertInGroup(sentDat, lightAdmin.groupId);
-            assertInGroup(datasetImageLink, lightAdmin.groupId);
-        }
-        /* Check that the canChown boolean on Dataset is matching permChown boolean.*/
-        Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), permChown);
-        /* lightAdmin tries to transfer the ownership of Dataset to normalUser.
-         * Chowning the Dataset succeeds if lightAdmin has Chown privilege.
-         * Successful chowning of the dataset transfers the ownership of the linked image
-         * and the link too.*/
-        doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), permChown);
-        /* Boolean importYourGroupAndChgrpAndChownExpectSuccess
-         * captures permChown and permChgrp. Check the objects ownership and groups.*/
-        if (importYourGroupAndChgrpAndChownExpectSuccess) {
-            /* First case: The whole "import for others" workflow succeeds.
-             * Image, Dataset and link are in normalUser's group and belong to normalUser.*/
-            assertOwnedBy(originalFile, normalUser);
-            assertInGroup(originalFile, normalUser.groupId);
-            assertOwnedBy(image, normalUser);
-            assertInGroup(image, normalUser.groupId);
-            assertOwnedBy(sentDat, normalUser);
-            assertInGroup(sentDat, normalUser.groupId);
-            assertOwnedBy(datasetImageLink, normalUser);
-            assertInGroup(datasetImageLink, normalUser.groupId);
-        } else if (permChown) {
-            /* Second case: Chown succeeds, but Chgrp fails.
-             * Image, Dataset and link belong to the normalUser, but are in lightAdmin's group */
-            assertOwnedBy(originalFile, normalUser);
-            assertInGroup(originalFile, lightAdmin.groupId);
-            assertOwnedBy(image, normalUser);
-            assertInGroup(image, lightAdmin.groupId);
-            assertOwnedBy(sentDat, normalUser);
-            assertInGroup(sentDat, lightAdmin.groupId);
-            assertOwnedBy(datasetImageLink, normalUser);
-            assertInGroup(datasetImageLink, lightAdmin.groupId);
-        } else if (permChgrp) {
-            /* Third case: Chgrp succeeds, but Chown fails.
-             * Image, Dataset and link are in normalUser's group but belong to lightAdmin.*/
-            assertOwnedBy(originalFile, lightAdmin);
-            assertInGroup(originalFile, normalUser.groupId);
-            assertOwnedBy(image, lightAdmin);
-            assertInGroup(image, normalUser.groupId);
-            assertOwnedBy(sentDat, lightAdmin);
-            assertInGroup(sentDat, normalUser.groupId);
-            assertOwnedBy(datasetImageLink, lightAdmin);
-            assertInGroup(datasetImageLink, normalUser.groupId);
-        } else {
-            /* Fourth case: Ghgrp and Chown both fail.
-             * Image, Dataset and link are in lightAdmin's group and belong to lightAdmin.*/
-            assertOwnedBy(originalFile, lightAdmin);
-            assertInGroup(originalFile, lightAdmin.groupId);
-            assertOwnedBy(image, lightAdmin);
-            assertInGroup(image, lightAdmin.groupId);
-            assertOwnedBy(sentDat, lightAdmin);
-            assertInGroup(sentDat, lightAdmin.groupId);
-            assertOwnedBy(datasetImageLink, lightAdmin);
-            assertInGroup(datasetImageLink, lightAdmin.groupId);
-        }
+            /* Check that the value of canChgrp on the dataset is true.
+             * Note that although the move into normalUser's group might fail,
+             * lightAdmin could be moving the dataset into some group where they are member,
+             * and thus the canChgrp must be "true".*/
+            Assert.assertTrue(getCurrentPermissions(sentDat).canChgrp());
+            /* lightAdmin tries to move the dataset (and with it the linked image)
+             * from lightAdmin's group to normalUser's group,
+             * which should succeed in case the light admin has Chgrp permissions.*/
+            doChange(client, factory, Requests.chgrp().target(sentDat).toGroup(normalUser.groupId).build(), permChgrp);
+            /* Check the group of the moved objects.*/
+            final DatasetImageLink datasetImageLink = (DatasetImageLink) iQuery.findByQuery(
+                    "FROM DatasetImageLink WHERE parent.id = :id",
+                    new ParametersI().addId(sentDat.getId()));
+            if (permChgrp) {
+                assertInGroup(originalFile, normalUser.groupId);
+                assertInGroup(image, normalUser.groupId);
+                assertInGroup(sentDat, normalUser.groupId);
+                assertInGroup(datasetImageLink, normalUser.groupId);
+            } else {
+                assertInGroup(originalFile, lightAdmin.groupId);
+                assertInGroup(image, lightAdmin.groupId);
+                assertInGroup(sentDat, lightAdmin.groupId);
+                assertInGroup(datasetImageLink, lightAdmin.groupId);
+            }
+            /* Check that the canChown boolean on Dataset is matching permChown boolean.*/
+            Assert.assertEquals(getCurrentPermissions(sentDat).canChown(), permChown);
+            /* lightAdmin tries to transfer the ownership of Dataset to normalUser.
+             * Chowning the Dataset succeeds if lightAdmin has Chown privilege.
+             * Successful chowning of the dataset transfers the ownership of the linked image
+             * and the link too.*/
+            doChange(client, factory, Requests.chown().target(sentDat).toUser(normalUser.userId).build(), permChown);
+            /* Boolean importYourGroupAndChgrpAndChownExpectSuccess
+             * captures permChown and permChgrp. Check the objects ownership and groups.*/
+            if (importYourGroupAndChgrpAndChownExpectSuccess) {
+                /* First case: The whole "import for others" workflow succeeds.
+                 * Image, Dataset and link are in normalUser's group and belong to normalUser.*/
+                assertOwnedBy(originalFile, normalUser);
+                assertInGroup(originalFile, normalUser.groupId);
+                assertOwnedBy(image, normalUser);
+                assertInGroup(image, normalUser.groupId);
+                assertOwnedBy(sentDat, normalUser);
+                assertInGroup(sentDat, normalUser.groupId);
+                assertOwnedBy(datasetImageLink, normalUser);
+                assertInGroup(datasetImageLink, normalUser.groupId);
+            } else if (permChown) {
+                /* Second case: Chown succeeds, but Chgrp fails.
+                 * Image, Dataset and link belong to the normalUser, but are in lightAdmin's group */
+                assertOwnedBy(originalFile, normalUser);
+                assertInGroup(originalFile, lightAdmin.groupId);
+                assertOwnedBy(image, normalUser);
+                assertInGroup(image, lightAdmin.groupId);
+                assertOwnedBy(sentDat, normalUser);
+                assertInGroup(sentDat, lightAdmin.groupId);
+                assertOwnedBy(datasetImageLink, normalUser);
+                assertInGroup(datasetImageLink, lightAdmin.groupId);
+            } else if (permChgrp) {
+                /* Third case: Chgrp succeeds, but Chown fails.
+                 * Image, Dataset and link are in normalUser's group but belong to lightAdmin.*/
+                assertOwnedBy(originalFile, lightAdmin);
+                assertInGroup(originalFile, normalUser.groupId);
+                assertOwnedBy(image, lightAdmin);
+                assertInGroup(image, normalUser.groupId);
+                assertOwnedBy(sentDat, lightAdmin);
+                assertInGroup(sentDat, normalUser.groupId);
+                assertOwnedBy(datasetImageLink, lightAdmin);
+                assertInGroup(datasetImageLink, normalUser.groupId);
+            } else {
+                /* Fourth case: Ghgrp and Chown both fail.
+                 * Image, Dataset and link are in lightAdmin's group and belong to lightAdmin.*/
+                assertOwnedBy(originalFile, lightAdmin);
+                assertInGroup(originalFile, lightAdmin.groupId);
+                assertOwnedBy(image, lightAdmin);
+                assertInGroup(image, lightAdmin.groupId);
+                assertOwnedBy(sentDat, lightAdmin);
+                assertInGroup(sentDat, lightAdmin.groupId);
+                assertOwnedBy(datasetImageLink, lightAdmin);
+                assertInGroup(datasetImageLink, lightAdmin.groupId);
+            }
         }
     }
 
@@ -1313,22 +1313,22 @@ public class LightAdminRolesTest extends RolesTests {
         final DatasetImageLink linkOfDatasetImage1, linkOfDatasetImage2;
         final ProjectDatasetLink linkOfProjectDataset1, linkOfProjectDataset2;
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        Image image1 = mmFactory.createImage();
-        Image image2 = mmFactory.createImage();
-        sentImage1 = (Image) iUpdate.saveAndReturnObject(image1);
-        sentImage2 = (Image) iUpdate.saveAndReturnObject(image2);
-        Dataset dat1 = mmFactory.simpleDataset();
-        Dataset dat2 = mmFactory.simpleDataset();
-        sentDat1 = (Dataset) iUpdate.saveAndReturnObject(dat1);
-        sentDat2 = (Dataset) iUpdate.saveAndReturnObject(dat2);
-        Project proj1 = mmFactory.simpleProject();
-        Project proj2 = mmFactory.simpleProject();
-        sentProj1 = (Project) iUpdate.saveAndReturnObject(proj1);
-        sentProj2 = (Project) iUpdate.saveAndReturnObject(proj2);
-        linkOfDatasetImage1 = linkParentToChild(sentDat1, sentImage1);
-        linkOfDatasetImage2 = linkParentToChild(sentDat2, sentImage2);
-        linkOfProjectDataset1 = linkParentToChild(sentProj1, sentDat1);
-        linkOfProjectDataset2 = linkParentToChild(sentProj2, sentDat2);
+            Image image1 = mmFactory.createImage();
+            Image image2 = mmFactory.createImage();
+            sentImage1 = (Image) iUpdate.saveAndReturnObject(image1);
+            sentImage2 = (Image) iUpdate.saveAndReturnObject(image2);
+            Dataset dat1 = mmFactory.simpleDataset();
+            Dataset dat2 = mmFactory.simpleDataset();
+            sentDat1 = (Dataset) iUpdate.saveAndReturnObject(dat1);
+            sentDat2 = (Dataset) iUpdate.saveAndReturnObject(dat2);
+            Project proj1 = mmFactory.simpleProject();
+            Project proj2 = mmFactory.simpleProject();
+            sentProj1 = (Project) iUpdate.saveAndReturnObject(proj1);
+            sentProj2 = (Project) iUpdate.saveAndReturnObject(proj2);
+            linkOfDatasetImage1 = linkParentToChild(sentDat1, sentImage1);
+            linkOfDatasetImage2 = linkParentToChild(sentDat2, sentImage2);
+            linkOfProjectDataset1 = linkParentToChild(sentProj1, sentDat1);
+            linkOfProjectDataset2 = linkParentToChild(sentProj2, sentDat2);
         }
 
         /* normalUser creates two sets of Project/Dataset?Image hierarchy in the other group (anotherGroup).*/
@@ -1338,62 +1338,62 @@ public class LightAdminRolesTest extends RolesTests {
         final DatasetImageLink linkOfDatasetImage1AnotherGroup, linkOfDatasetImage2AnotherGroup;
         final ProjectDatasetLink linkOfProjectDataset1AnotherGroup, linkOfProjectDataset2AnotherGroup;
         try (final AutoCloseable igc = new ImplicitGroupContext(anotherGroup.getId())) {
-        Image image1AnotherGroup = mmFactory.createImage();
-        Image image2AnotherGroup = mmFactory.createImage();
-        sentImage1AnotherGroup = (Image) iUpdate.saveAndReturnObject(image1AnotherGroup);
-        sentImage2AnotherGroup = (Image) iUpdate.saveAndReturnObject(image2AnotherGroup);
-        Dataset dat1AnotherGroup = mmFactory.simpleDataset();
-        Dataset dat2AnotherGroup = mmFactory.simpleDataset();
-        sentDat1AnotherGroup = (Dataset) iUpdate.saveAndReturnObject(dat1AnotherGroup);
-        sentDat2AnotherGroup = (Dataset) iUpdate.saveAndReturnObject(dat2AnotherGroup);
-        Project proj1AnotherGroup = mmFactory.simpleProject();
-        Project proj2AnotherGroup = mmFactory.simpleProject();
-        sentProj1AnotherGroup = (Project) iUpdate.saveAndReturnObject(proj1AnotherGroup);
-        sentProj2AnotherGroup = (Project) iUpdate.saveAndReturnObject(proj2AnotherGroup);
-        linkOfDatasetImage1AnotherGroup = linkParentToChild(sentDat1AnotherGroup, sentImage1AnotherGroup);
-        linkOfDatasetImage2AnotherGroup = linkParentToChild(sentDat2AnotherGroup, sentImage2AnotherGroup);
-        linkOfProjectDataset1AnotherGroup = linkParentToChild(sentProj1AnotherGroup, sentDat1AnotherGroup);
-        linkOfProjectDataset2AnotherGroup = linkParentToChild(sentProj2AnotherGroup, sentDat2AnotherGroup);
+            Image image1AnotherGroup = mmFactory.createImage();
+            Image image2AnotherGroup = mmFactory.createImage();
+            sentImage1AnotherGroup = (Image) iUpdate.saveAndReturnObject(image1AnotherGroup);
+            sentImage2AnotherGroup = (Image) iUpdate.saveAndReturnObject(image2AnotherGroup);
+            Dataset dat1AnotherGroup = mmFactory.simpleDataset();
+            Dataset dat2AnotherGroup = mmFactory.simpleDataset();
+            sentDat1AnotherGroup = (Dataset) iUpdate.saveAndReturnObject(dat1AnotherGroup);
+            sentDat2AnotherGroup = (Dataset) iUpdate.saveAndReturnObject(dat2AnotherGroup);
+            Project proj1AnotherGroup = mmFactory.simpleProject();
+            Project proj2AnotherGroup = mmFactory.simpleProject();
+            sentProj1AnotherGroup = (Project) iUpdate.saveAndReturnObject(proj1AnotherGroup);
+            sentProj2AnotherGroup = (Project) iUpdate.saveAndReturnObject(proj2AnotherGroup);
+            linkOfDatasetImage1AnotherGroup = linkParentToChild(sentDat1AnotherGroup, sentImage1AnotherGroup);
+            linkOfDatasetImage2AnotherGroup = linkParentToChild(sentDat2AnotherGroup, sentImage2AnotherGroup);
+            linkOfProjectDataset1AnotherGroup = linkParentToChild(sentProj1AnotherGroup, sentDat1AnotherGroup);
+            linkOfProjectDataset2AnotherGroup = linkParentToChild(sentProj2AnotherGroup, sentDat2AnotherGroup);
         }
         /* lightAdmin tries to transfers all normalUser's data to recipient.*/
         loginUser(lightAdmin);
         /* In order to be able to operate in both groups, get all groups context.*/
         try (final AutoCloseable igc = new ImplicitAllGroupsContext()) {
-        /* Check on one selected object only (sentProj1AnotherGroup) the value
-         * of canChown. The value must match the chownPassing boolean.*/
-        Assert.assertEquals(getCurrentPermissions(sentProj1AnotherGroup).canChown(), chownPassing);
-        /* Check that transfer proceeds only if chownPassing boolean is true.*/
-        doChange(client, factory, Requests.chown().targetUsers(normalUser.userId).toUser(recipient.userId).build(), chownPassing);
-        if (!chownPassing) {
-            /* Finish the test if no transfer of data could proceed.*/
-            return;
-        }
-        /* Check the transfer of all the data in normalUser's group was successful,
-         * first checking ownership of the first hierarchy set.*/
-        assertOwnedBy(sentProj1, recipient);
-        assertOwnedBy(sentDat1, recipient);
-        assertOwnedBy(sentImage1, recipient);
-        assertOwnedBy(linkOfDatasetImage1, recipient);
-        assertOwnedBy(linkOfProjectDataset1, recipient);
-        /* Check ownership of the second hierarchy set.*/
-        assertOwnedBy(sentProj2, recipient);
-        assertOwnedBy(sentDat2, recipient);
-        assertOwnedBy(sentImage2, recipient);
-        assertOwnedBy(linkOfDatasetImage2, recipient);
-        assertOwnedBy(linkOfProjectDataset2, recipient);
-        /* Check ownership of the objects in anotherGroup,
-         * first checking ownership of the first hierarchy.*/
-        assertOwnedBy(sentProj1AnotherGroup, recipient);
-        assertOwnedBy(sentDat1AnotherGroup, recipient);
-        assertOwnedBy(sentImage1AnotherGroup, recipient);
-        assertOwnedBy(linkOfDatasetImage1AnotherGroup, recipient);
-        assertOwnedBy(linkOfProjectDataset1AnotherGroup, recipient);
-        /* Check ownership of the second hierarchy set in anotherGroup.*/
-        assertOwnedBy(sentProj2AnotherGroup, recipient);
-        assertOwnedBy(sentDat2AnotherGroup, recipient);
-        assertOwnedBy(sentImage1AnotherGroup, recipient);
-        assertOwnedBy(linkOfDatasetImage2AnotherGroup, recipient);
-        assertOwnedBy(linkOfProjectDataset2AnotherGroup, recipient);
+            /* Check on one selected object only (sentProj1AnotherGroup) the value
+             * of canChown. The value must match the chownPassing boolean.*/
+            Assert.assertEquals(getCurrentPermissions(sentProj1AnotherGroup).canChown(), chownPassing);
+            /* Check that transfer proceeds only if chownPassing boolean is true.*/
+            doChange(client, factory, Requests.chown().targetUsers(normalUser.userId).toUser(recipient.userId).build(), chownPassing);
+            if (!chownPassing) {
+                /* Finish the test if no transfer of data could proceed.*/
+                return;
+            }
+            /* Check the transfer of all the data in normalUser's group was successful,
+             * first checking ownership of the first hierarchy set.*/
+            assertOwnedBy(sentProj1, recipient);
+            assertOwnedBy(sentDat1, recipient);
+            assertOwnedBy(sentImage1, recipient);
+            assertOwnedBy(linkOfDatasetImage1, recipient);
+            assertOwnedBy(linkOfProjectDataset1, recipient);
+            /* Check ownership of the second hierarchy set.*/
+            assertOwnedBy(sentProj2, recipient);
+            assertOwnedBy(sentDat2, recipient);
+            assertOwnedBy(sentImage2, recipient);
+            assertOwnedBy(linkOfDatasetImage2, recipient);
+            assertOwnedBy(linkOfProjectDataset2, recipient);
+            /* Check ownership of the objects in anotherGroup,
+             * first checking ownership of the first hierarchy.*/
+            assertOwnedBy(sentProj1AnotherGroup, recipient);
+            assertOwnedBy(sentDat1AnotherGroup, recipient);
+            assertOwnedBy(sentImage1AnotherGroup, recipient);
+            assertOwnedBy(linkOfDatasetImage1AnotherGroup, recipient);
+            assertOwnedBy(linkOfProjectDataset1AnotherGroup, recipient);
+            /* Check ownership of the second hierarchy set in anotherGroup.*/
+            assertOwnedBy(sentProj2AnotherGroup, recipient);
+            assertOwnedBy(sentDat2AnotherGroup, recipient);
+            assertOwnedBy(sentImage1AnotherGroup, recipient);
+            assertOwnedBy(linkOfDatasetImage2AnotherGroup, recipient);
+            assertOwnedBy(linkOfProjectDataset2AnotherGroup, recipient);
         }
     }
 
@@ -1427,14 +1427,14 @@ public class LightAdminRolesTest extends RolesTests {
         /* lightAdmin logs in and tries to delete the ROI.*/
         loginNewAdmin(true, permissions);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        doChange(client, factory, Requests.delete().target(roi).build(), isExpectSuccessDeleteROI);
-        /* Check the ROI was deleted, whereas the image exists.*/
-        if (isExpectSuccessDeleteROI) {
-            assertDoesNotExist(roi);
-        } else {
-            assertExists(roi);
-        }
-        assertExists(sentImage);
+            doChange(client, factory, Requests.delete().target(roi).build(), isExpectSuccessDeleteROI);
+            /* Check the ROI was deleted, whereas the image exists.*/
+            if (isExpectSuccessDeleteROI) {
+                assertDoesNotExist(roi);
+            } else {
+                assertExists(roi);
+            }
+            assertExists(sentImage);
         }
     }
 
@@ -1476,90 +1476,90 @@ public class LightAdminRolesTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
 
-        /* lightAdmin tries to set ROI on normalUser's image.*/
-        Roi roi = new RoiI();
-        roi.addShape(new RectangleI());
-        roi.setImage((Image) sentImage.proxy());
-        try {
-            roi = (Roi) iUpdate.saveAndReturnObject(roi);
-            /* Check the value of canAnnotate on the sentImage.
-             * The value must be true as the ROI can be saved.*/
-            Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
-            Assert.assertTrue(isExpectSuccessCreateROIRndSettings);
-        } catch (SecurityViolation sv) {
-            /* Check the value of canAnnotate on the sentImage.
-             * The value must be false as the ROI cannot be saved.*/
-            Assert.assertFalse(getCurrentPermissions(sentImage).canAnnotate());
-            Assert.assertFalse(isExpectSuccessCreateROIRndSettings);
-        }
+            /* lightAdmin tries to set ROI on normalUser's image.*/
+            Roi roi = new RoiI();
+            roi.addShape(new RectangleI());
+            roi.setImage((Image) sentImage.proxy());
+            try {
+                roi = (Roi) iUpdate.saveAndReturnObject(roi);
+                /* Check the value of canAnnotate on the sentImage.
+                 * The value must be true as the ROI can be saved.*/
+                Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
+                Assert.assertTrue(isExpectSuccessCreateROIRndSettings);
+            } catch (SecurityViolation sv) {
+                /* Check the value of canAnnotate on the sentImage.
+                 * The value must be false as the ROI cannot be saved.*/
+                Assert.assertFalse(getCurrentPermissions(sentImage).canAnnotate());
+                Assert.assertFalse(isExpectSuccessCreateROIRndSettings);
+            }
 
-        /* lightAdmin tries to set rendering settings on normalUser's image
-         * using setOriginalSettingsInSet method.*/
-        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
-        try {
-            prx.setOriginalSettingsInSet(Pixels.class.getName(),
-                    Arrays.asList(pixelsOfImage.getId().getValue()));
-            /* Check the value of canAnnotate on the sentImage.
-             * The value must be true as the Rnd settings can be saved.*/
-            Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
-            Assert.assertTrue(isExpectSuccessCreateROIRndSettings);
-        } catch (SecurityViolation sv) {
-            /* Check the value of canAnnotate on the sentImage.
-             * The value must be false as the Rnd settings cannot be saved.*/
-            Assert.assertFalse(getCurrentPermissions(sentImage).canAnnotate());
-            Assert.assertFalse(isExpectSuccessCreateROIRndSettings, sv.toString());
-        }
-        /* Retrieve the image corresponding to the ROI and Rnd settings
-         * (if they could be set) and check the ROI and rendering settings
-         * belong to lightAdmin, whereas the image belongs to normalUser.*/
-        RenderingDef rDef = (RenderingDef) iQuery.findByQuery("FROM RenderingDef WHERE pixels.id = :id",
-                new ParametersI().addId(pixelsOfImage.getId()));
-        if (isExpectSuccessCreateROIRndSettings) {
-            long imageId = ((RLong) iQuery.projection(
-                    "SELECT rdef.pixels.image.id FROM RenderingDef rdef WHERE rdef.id = :id",
-                    new ParametersI().addId(rDef.getId())).get(0).get(0)).getValue();
-            assertOwnedBy(roi, lightAdmin);
-            assertOwnedBy(rDef, lightAdmin);
-            assertOwnedBy((new ImageI(imageId, false)), normalUser);
-        } else {
-            /* ROI and Rnd settings (rDef) must be null as they could not be set.*/
-            roi = (Roi) iQuery.findByQuery("FROM Roi WHERE image.id = :id",
-                    new ParametersI().addId(sentImage.getId()));
-            Assert.assertNull(roi);
-            Assert.assertNull(rDef);
-        }
-        /* lightAdmin tries to chown the ROI and the rendering settings (rDef) to normalUser.
-         * Only attempt the canChown check and the chown if the ROI and rendering settings exist.*/
-        if (isExpectSuccessCreateROIRndSettings) {
-            /* Check the value of canChown on the ROI and rendering settings (rDef) matches
-             * the boolean isExpectSuccessCreateAndChownRndSettings.*/
-            Assert.assertEquals(getCurrentPermissions(roi).canChown(), isExpectSuccessCreateAndChown);
-            Assert.assertEquals(getCurrentPermissions(rDef).canChown(), isExpectSuccessCreateAndChown);
-            /* Note that in read-only group, the chown of ROI would fail, see
-             * https://trello.com/c/7o4q2Tkt/745-fix-graphs-for-mixed-ownership-read-only.
-             * The workaround used here is to chown both the image and the ROI.*/
-            doChange(client, factory, Requests.chown().target(roi, sentImage).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
-            doChange(client, factory, Requests.chown().target(rDef).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
-            /* Retrieve the image corresponding to the ROI and Rnd settings.*/
-            long imageId = ((RLong) iQuery.projection(
-                    "SELECT rdef.pixels.image.id FROM RenderingDef rdef WHERE rdef.id = :id",
-                    new ParametersI().addId(rDef.getId())).get(0).get(0)).getValue();
-            if (isExpectSuccessCreateAndChown) {
-                /* First case: Workflow succeeded for creation and chown, all belongs to normalUser.*/
-                assertOwnedBy(roi, normalUser);
-                assertOwnedBy(rDef, normalUser);
-                assertOwnedBy((new ImageI (imageId, false)), normalUser);
-            } else {
-                /* Second case: Creation succeeded, but the chown failed.*/
+            /* lightAdmin tries to set rendering settings on normalUser's image
+             * using setOriginalSettingsInSet method.*/
+            IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+            try {
+                prx.setOriginalSettingsInSet(Pixels.class.getName(),
+                        Arrays.asList(pixelsOfImage.getId().getValue()));
+                /* Check the value of canAnnotate on the sentImage.
+                 * The value must be true as the Rnd settings can be saved.*/
+                Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
+                Assert.assertTrue(isExpectSuccessCreateROIRndSettings);
+            } catch (SecurityViolation sv) {
+                /* Check the value of canAnnotate on the sentImage.
+                 * The value must be false as the Rnd settings cannot be saved.*/
+                Assert.assertFalse(getCurrentPermissions(sentImage).canAnnotate());
+                Assert.assertFalse(isExpectSuccessCreateROIRndSettings, sv.toString());
+            }
+            /* Retrieve the image corresponding to the ROI and Rnd settings
+             * (if they could be set) and check the ROI and rendering settings
+             * belong to lightAdmin, whereas the image belongs to normalUser.*/
+            RenderingDef rDef = (RenderingDef) iQuery.findByQuery("FROM RenderingDef WHERE pixels.id = :id",
+                    new ParametersI().addId(pixelsOfImage.getId()));
+            if (isExpectSuccessCreateROIRndSettings) {
+                long imageId = ((RLong) iQuery.projection(
+                        "SELECT rdef.pixels.image.id FROM RenderingDef rdef WHERE rdef.id = :id",
+                        new ParametersI().addId(rDef.getId())).get(0).get(0)).getValue();
                 assertOwnedBy(roi, lightAdmin);
                 assertOwnedBy(rDef, lightAdmin);
                 assertOwnedBy((new ImageI(imageId, false)), normalUser);
+            } else {
+                /* ROI and Rnd settings (rDef) must be null as they could not be set.*/
+                roi = (Roi) iQuery.findByQuery("FROM Roi WHERE image.id = :id",
+                        new ParametersI().addId(sentImage.getId()));
+                Assert.assertNull(roi);
+                Assert.assertNull(rDef);
             }
-        } else {
-            /* Third case: Creation did not succeed, and chown was not attempted.*/
-            Assert.assertNull(roi);
-            Assert.assertNull(rDef);
-        }
+            /* lightAdmin tries to chown the ROI and the rendering settings (rDef) to normalUser.
+             * Only attempt the canChown check and the chown if the ROI and rendering settings exist.*/
+            if (isExpectSuccessCreateROIRndSettings) {
+                /* Check the value of canChown on the ROI and rendering settings (rDef) matches
+                 * the boolean isExpectSuccessCreateAndChownRndSettings.*/
+                Assert.assertEquals(getCurrentPermissions(roi).canChown(), isExpectSuccessCreateAndChown);
+                Assert.assertEquals(getCurrentPermissions(rDef).canChown(), isExpectSuccessCreateAndChown);
+                /* Note that in read-only group, the chown of ROI would fail, see
+                 * https://trello.com/c/7o4q2Tkt/745-fix-graphs-for-mixed-ownership-read-only.
+                 * The workaround used here is to chown both the image and the ROI.*/
+                doChange(client, factory, Requests.chown().target(roi, sentImage).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
+                doChange(client, factory, Requests.chown().target(rDef).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
+                /* Retrieve the image corresponding to the ROI and Rnd settings.*/
+                long imageId = ((RLong) iQuery.projection(
+                        "SELECT rdef.pixels.image.id FROM RenderingDef rdef WHERE rdef.id = :id",
+                        new ParametersI().addId(rDef.getId())).get(0).get(0)).getValue();
+                if (isExpectSuccessCreateAndChown) {
+                    /* First case: Workflow succeeded for creation and chown, all belongs to normalUser.*/
+                    assertOwnedBy(roi, normalUser);
+                    assertOwnedBy(rDef, normalUser);
+                    assertOwnedBy((new ImageI (imageId, false)), normalUser);
+                } else {
+                    /* Second case: Creation succeeded, but the chown failed.*/
+                    assertOwnedBy(roi, lightAdmin);
+                    assertOwnedBy(rDef, lightAdmin);
+                    assertOwnedBy((new ImageI(imageId, false)), normalUser);
+                }
+            } else {
+                /* Third case: Creation did not succeed, and chown was not attempted.*/
+                Assert.assertNull(roi);
+                Assert.assertNull(rDef);
+            }
         }
     }
 
@@ -1603,72 +1603,72 @@ public class LightAdminRolesTest extends RolesTests {
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        /* lightAdmin tries to create a fileAttachment in normalUser's group.*/
-        FileAnnotation fileAnnotation = mmFactory.createFileAnnotation();
-        OriginalFile originalFile;
-        try {
-            fileAnnotation = (FileAnnotation) iUpdate.saveAndReturnObject(fileAnnotation);
-            originalFile = (OriginalFile) fileAnnotation.getFile();
-            Assert.assertTrue(isExpectSuccessCreateFileAttachment);
-        } catch (SecurityViolation sv) {
-            Assert.assertFalse(isExpectSuccessCreateFileAttachment);
-            /* Finish the test in case fileAttachment could not be created.*/
-            return;
-        }
-        /* Check that the value of canChown on the fileAnnotation is matching the boolean
-         * isExpectSuccessCreateFileAttAndChown.*/
-        Assert.assertEquals(getCurrentPermissions(fileAnnotation).canChown(), isExpectSuccessCreateFileAttAndChown);
-        /* lightAdmin tries to link the fileAnnotation to the normalUser's image.
-         * This will not work in private group. See definition of the boolean
-         * isExpectSuccessLinkFileAttachment.*/
-        ImageAnnotationLink link = null;
-        try {
-            link = (ImageAnnotationLink) linkParentToChild(sentImage, fileAnnotation);
-            /* Check the value of canAnnotate on the image is true in successful linking case.*/
-            Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
-            Assert.assertTrue(isExpectSuccessLinkFileAttachemnt);
-        } catch (SecurityViolation sv) {
-            /* Check the value of canAnnotate on the image is false in case linking fails.*/
-            Assert.assertFalse(getCurrentPermissions(sentImage).canAnnotate());
-            Assert.assertFalse(isExpectSuccessLinkFileAttachemnt);
-            /* Finish the test in case no link could be created.*/
-            return;
-        }
-        /* lightAdmin tries to transfer the ownership of fileAnnotation to normalUser.
-         * The test was terminated (see above) in all cases
-         * in which the fileAnnotation was not created.*/
-        doChange(client, factory, Requests.chown().target(fileAnnotation).toUser(normalUser.userId).build(), isExpectSuccessCreateFileAttAndChown);
-        if (isExpectSuccessCreateFileAttAndChown) {
-            /* First case: fileAnnotation creation and chowning succeeded.*/
-            assertOwnedBy(fileAnnotation, normalUser);
-            assertOwnedBy(originalFile, normalUser);
-        } else {
-            /* Second case: creation of fileAnnotation succeeded, but the chown failed.*/
-            assertOwnedBy(fileAnnotation, lightAdmin);
-            assertOwnedBy(originalFile, lightAdmin);
-        }
-        /* Check the value of canChown on the link is matching the boolean
-         * isExpectSuccessCreateLinkAndChown.*/
-        Assert.assertEquals(getCurrentPermissions(link).canChown(), isExpectSuccessCreateLinkAndChown);
-        /* lightAdmin tries to transfer the ownership of link to normalUser.
-         * The test was terminated (see above) in all cases
-         * in which the link was not created.*/
-        doChange(client, factory, Requests.chown().target(link).toUser(normalUser.userId).build(), isExpectSuccessCreateLinkAndChown);
-        if (isExpectSuccessCreateLinkAndChown) {
-            /* First case: link was created and chowned, the whole workflow succeeded.*/
-            link = (ImageAnnotationLink) iQuery.findByQuery("FROM ImageAnnotationLink l JOIN FETCH"
-                    + " l.child JOIN FETCH l.parent WHERE l.child.id = :id",
-                    new ParametersI().addId(fileAnnotation.getId()));
-            assertOwnedBy(link, normalUser);
-            assertOwnedBy(fileAnnotation, normalUser);
-            assertOwnedBy(originalFile, normalUser);
-        } else {
-            /* Second case: link was created but could not be chowned.*/
-            link = (ImageAnnotationLink) iQuery.findByQuery("FROM ImageAnnotationLink l JOIN FETCH"
-                    + " l.child JOIN FETCH l.parent WHERE l.child.id = :id",
-                    new ParametersI().addId(fileAnnotation.getId()));
-            assertOwnedBy(link, lightAdmin);
-        }
+            /* lightAdmin tries to create a fileAttachment in normalUser's group.*/
+            FileAnnotation fileAnnotation = mmFactory.createFileAnnotation();
+            OriginalFile originalFile;
+            try {
+                fileAnnotation = (FileAnnotation) iUpdate.saveAndReturnObject(fileAnnotation);
+                originalFile = (OriginalFile) fileAnnotation.getFile();
+                Assert.assertTrue(isExpectSuccessCreateFileAttachment);
+            } catch (SecurityViolation sv) {
+                Assert.assertFalse(isExpectSuccessCreateFileAttachment);
+                /* Finish the test in case fileAttachment could not be created.*/
+                return;
+            }
+            /* Check that the value of canChown on the fileAnnotation is matching the boolean
+             * isExpectSuccessCreateFileAttAndChown.*/
+            Assert.assertEquals(getCurrentPermissions(fileAnnotation).canChown(), isExpectSuccessCreateFileAttAndChown);
+            /* lightAdmin tries to link the fileAnnotation to the normalUser's image.
+             * This will not work in private group. See definition of the boolean
+             * isExpectSuccessLinkFileAttachment.*/
+            ImageAnnotationLink link = null;
+            try {
+                link = (ImageAnnotationLink) linkParentToChild(sentImage, fileAnnotation);
+                /* Check the value of canAnnotate on the image is true in successful linking case.*/
+                Assert.assertTrue(getCurrentPermissions(sentImage).canAnnotate());
+                Assert.assertTrue(isExpectSuccessLinkFileAttachemnt);
+            } catch (SecurityViolation sv) {
+                /* Check the value of canAnnotate on the image is false in case linking fails.*/
+                Assert.assertFalse(getCurrentPermissions(sentImage).canAnnotate());
+                Assert.assertFalse(isExpectSuccessLinkFileAttachemnt);
+                /* Finish the test in case no link could be created.*/
+                return;
+            }
+            /* lightAdmin tries to transfer the ownership of fileAnnotation to normalUser.
+             * The test was terminated (see above) in all cases
+             * in which the fileAnnotation was not created.*/
+            doChange(client, factory, Requests.chown().target(fileAnnotation).toUser(normalUser.userId).build(), isExpectSuccessCreateFileAttAndChown);
+            if (isExpectSuccessCreateFileAttAndChown) {
+                /* First case: fileAnnotation creation and chowning succeeded.*/
+                assertOwnedBy(fileAnnotation, normalUser);
+                assertOwnedBy(originalFile, normalUser);
+            } else {
+                /* Second case: creation of fileAnnotation succeeded, but the chown failed.*/
+                assertOwnedBy(fileAnnotation, lightAdmin);
+                assertOwnedBy(originalFile, lightAdmin);
+            }
+            /* Check the value of canChown on the link is matching the boolean
+             * isExpectSuccessCreateLinkAndChown.*/
+            Assert.assertEquals(getCurrentPermissions(link).canChown(), isExpectSuccessCreateLinkAndChown);
+            /* lightAdmin tries to transfer the ownership of link to normalUser.
+             * The test was terminated (see above) in all cases
+             * in which the link was not created.*/
+            doChange(client, factory, Requests.chown().target(link).toUser(normalUser.userId).build(), isExpectSuccessCreateLinkAndChown);
+            if (isExpectSuccessCreateLinkAndChown) {
+                /* First case: link was created and chowned, the whole workflow succeeded.*/
+                link = (ImageAnnotationLink) iQuery.findByQuery("FROM ImageAnnotationLink l JOIN FETCH"
+                        + " l.child JOIN FETCH l.parent WHERE l.child.id = :id",
+                        new ParametersI().addId(fileAnnotation.getId()));
+                assertOwnedBy(link, normalUser);
+                assertOwnedBy(fileAnnotation, normalUser);
+                assertOwnedBy(originalFile, normalUser);
+            } else {
+                /* Second case: link was created but could not be chowned.*/
+                link = (ImageAnnotationLink) iQuery.findByQuery("FROM ImageAnnotationLink l JOIN FETCH"
+                        + " l.child JOIN FETCH l.parent WHERE l.child.id = :id",
+                        new ParametersI().addId(fileAnnotation.getId()));
+                assertOwnedBy(link, lightAdmin);
+            }
         }
     }
 
@@ -1691,28 +1691,28 @@ public class LightAdminRolesTest extends RolesTests {
         final String actualScript;
         final long testScriptId;
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        IScriptPrx iScript = factory.getScriptService();
-        /* lightAdmin fetches a script from the server.*/
-        OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
-        RawFileStorePrx rfs = null;
-        try {
-            rfs = factory.createRawFileStore();
-            rfs.setFileId(scriptFile.getId().getValue());
-            actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-        } finally {
-            if (rfs != null) rfs.close();
-        }
-        /* lightAdmin tries uploading the script as a new script in normalUser's group.*/
-        iScript = factory.getScriptService();
-        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        try {
-            testScriptId = iScript.uploadOfficialScript(testScriptName, actualScript);
-            Assert.assertTrue(isExpectSuccessUploadOfficialScript);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccessUploadOfficialScript);
-            /* Upload failed so finish the test.*/
-            return;
-        }
+            IScriptPrx iScript = factory.getScriptService();
+            /* lightAdmin fetches a script from the server.*/
+            OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
+            RawFileStorePrx rfs = null;
+            try {
+                rfs = factory.createRawFileStore();
+                rfs.setFileId(scriptFile.getId().getValue());
+                actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
+            } finally {
+                if (rfs != null) rfs.close();
+            }
+            /* lightAdmin tries uploading the script as a new script in normalUser's group.*/
+            iScript = factory.getScriptService();
+            final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+            try {
+                testScriptId = iScript.uploadOfficialScript(testScriptName, actualScript);
+                Assert.assertTrue(isExpectSuccessUploadOfficialScript);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccessUploadOfficialScript);
+                /* Upload failed so finish the test.*/
+                return;
+            }
         }
         /* Check that the new script exists in the "user" group.*/
         loginUser(normalUser);
@@ -1749,17 +1749,17 @@ public class LightAdminRolesTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         final String actualScript;
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        IScriptPrx iScript = factory.getScriptService();
-        /* lightAdmin fetches a script from the server.*/
-        OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
-        RawFileStorePrx rfs = null;
-        try {
-            rfs = factory.createRawFileStore();
-            rfs.setFileId(scriptFile.getId().getValue());
-            actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-        } finally {
-            if (rfs != null) rfs.close();
-        }
+            IScriptPrx iScript = factory.getScriptService();
+            /* lightAdmin fetches a script from the server.*/
+            OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
+            RawFileStorePrx rfs = null;
+            try {
+                rfs = factory.createRawFileStore();
+                rfs.setFileId(scriptFile.getId().getValue());
+                actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
+            } finally {
+                if (rfs != null) rfs.close();
+            }
         }
         /* Another light admin (anotherLightAdmin) with appropriate permissions
          * uploads the script as a new script.*/
@@ -1781,13 +1781,13 @@ public class LightAdminRolesTest extends RolesTests {
         /* lightAdmin tries deleting the script.*/
         loginUser(lightAdmin);
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-        iScript = factory.getScriptService();
-        try {
-            iScript.deleteScript(testScriptId);
-            Assert.assertTrue(isExpectSuccessDeleteOfficialScript);
-        } catch (ServerError se) {
-            Assert.assertFalse(isExpectSuccessDeleteOfficialScript);
-        }
+            iScript = factory.getScriptService();
+            try {
+                iScript.deleteScript(testScriptId);
+                Assert.assertTrue(isExpectSuccessDeleteOfficialScript);
+            } catch (ServerError se) {
+                Assert.assertFalse(isExpectSuccessDeleteOfficialScript);
+            }
         }
         /* normalUser checks if the script was deleted or left intact.*/
         loginUser(normalUser);
@@ -2126,21 +2126,21 @@ public class LightAdminRolesTest extends RolesTests {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-            for (final boolean permChown : booleanCases) {
-                for (final boolean permWriteOwned : booleanCases) {
-                    for (final boolean permWriteFile : booleanCases) {
-                        for (final String groupPerms : permsCases) {
-                            final Object[] testCase = new Object[index];
-                            testCase[PERM_CHOWN] = permChown;
-                            testCase[PERM_WRITEOWNED] = permWriteOwned;
-                            testCase[PERM_WRITEFILE] = permWriteFile;
-                            testCase[GROUP_PERMS] = groupPerms;
-                            //DEBUG if (permChown == true && permWriteOwned == true && permWriteFile == true && groupPerms.equals("rwr---"))
-                            testCases.add(testCase);
-                        }
+        for (final boolean permChown : booleanCases) {
+            for (final boolean permWriteOwned : booleanCases) {
+                for (final boolean permWriteFile : booleanCases) {
+                    for (final String groupPerms : permsCases) {
+                        final Object[] testCase = new Object[index];
+                        testCase[PERM_CHOWN] = permChown;
+                        testCase[PERM_WRITEOWNED] = permWriteOwned;
+                        testCase[PERM_WRITEFILE] = permWriteFile;
+                        testCase[GROUP_PERMS] = groupPerms;
+                        //DEBUG if (permChown == true && permWriteOwned == true && permWriteFile == true && groupPerms.equals("rwr---"))
+                        testCases.add(testCase);
                     }
                 }
             }
+        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2158,21 +2158,21 @@ public class LightAdminRolesTest extends RolesTests {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-            for (final boolean isSudoing : booleanCases) {
-                for (final boolean permWriteOwned : booleanCases) {
-                    for (final String groupPerms : permsCases) {
-                        final Object[] testCase = new Object[index];
-                        if (isSudoing && permWriteOwned)
-                            /* not an interesting case */
-                            continue;
-                        testCase[IS_SUDOING] = isSudoing;
-                        testCase[PERM_WRITEOWNED] = permWriteOwned;
-                        testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (isSudoing == true && permWriteOwned == true && groupPerms.equals("rwr---")))
-                        testCases.add(testCase);
-                    }
+        for (final boolean isSudoing : booleanCases) {
+            for (final boolean permWriteOwned : booleanCases) {
+                for (final String groupPerms : permsCases) {
+                    final Object[] testCase = new Object[index];
+                    if (isSudoing && permWriteOwned)
+                        /* not an interesting case */
+                        continue;
+                    testCase[IS_SUDOING] = isSudoing;
+                    testCase[PERM_WRITEOWNED] = permWriteOwned;
+                    testCase[GROUP_PERMS] = groupPerms;
+                    // DEBUG if (isSudoing == true && permWriteOwned == true && groupPerms.equals("rwr---")))
+                    testCases.add(testCase);
                 }
             }
+        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2190,21 +2190,21 @@ public class LightAdminRolesTest extends RolesTests {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-            for (final boolean isSudoing : booleanCases) {
-                for (final boolean permDeleteOwned : booleanCases) {
-                    for (final String groupPerms : permsCases) {
-                        final Object[] testCase = new Object[index];
-                        if (isSudoing && permDeleteOwned)
-                            /* not an interesting case */
-                            continue;
-                        testCase[IS_SUDOING] = isSudoing;
-                        testCase[PERM_DELETEOWNED] = permDeleteOwned;
-                        testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (isSudoing == true && permDeleteOwned == true && groupPerms.equals("rwr---"))
-                        testCases.add(testCase);
-                    }
+        for (final boolean isSudoing : booleanCases) {
+            for (final boolean permDeleteOwned : booleanCases) {
+                for (final String groupPerms : permsCases) {
+                    final Object[] testCase = new Object[index];
+                    if (isSudoing && permDeleteOwned)
+                        /* not an interesting case */
+                        continue;
+                    testCase[IS_SUDOING] = isSudoing;
+                    testCase[PERM_DELETEOWNED] = permDeleteOwned;
+                    testCase[GROUP_PERMS] = groupPerms;
+                    // DEBUG if (isSudoing == true && permDeleteOwned == true && groupPerms.equals("rwr---"))
+                    testCases.add(testCase);
                 }
             }
+        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2222,21 +2222,21 @@ public class LightAdminRolesTest extends RolesTests {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-            for (final boolean isAdmin : booleanCases) {
-                for (final boolean permDeleteOwned : booleanCases) {
-                    for (final String groupPerms : permsCases) {
-                        final Object[] testCase = new Object[index];
-                        if (!isAdmin && permDeleteOwned)
-                            /* not an interesting case */
-                            continue;
-                        testCase[IS_ADMIN] = isAdmin;
-                        testCase[PERM_DELETEOWNED] = permDeleteOwned;
-                        testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (isAdmin == true && permDeleteOwned == true && groupPerms.equals("rwr---"))
-                        testCases.add(testCase);
-                    }
+        for (final boolean isAdmin : booleanCases) {
+            for (final boolean permDeleteOwned : booleanCases) {
+                for (final String groupPerms : permsCases) {
+                    final Object[] testCase = new Object[index];
+                    if (!isAdmin && permDeleteOwned)
+                        /* not an interesting case */
+                        continue;
+                    testCase[IS_ADMIN] = isAdmin;
+                    testCase[PERM_DELETEOWNED] = permDeleteOwned;
+                    testCase[GROUP_PERMS] = groupPerms;
+                    // DEBUG if (isAdmin == true && permDeleteOwned == true && groupPerms.equals("rwr---"))
+                    testCases.add(testCase);
                 }
             }
+        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2254,21 +2254,21 @@ public class LightAdminRolesTest extends RolesTests {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-            for (final boolean isSudoing : booleanCases) {
-                for (final boolean permChgrp : booleanCases) {
-                    for (final String groupPerms : permsCases) {
-                        final Object[] testCase = new Object[index];
-                        /* No test cases are excluded here, because isSudoing
-                         * is in a sense acting to annule Chgrp permission
-                         * which is tested in the testChgrp and is an interesting case.*/
-                        testCase[IS_SUDOING] = isSudoing;
-                        testCase[PERM_CHGRP] = permChgrp;
-                        testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG  if (isSudoing == true && permChgrp == true && groupPerms.equals("rwr---"))
-                        testCases.add(testCase);
-                    }
+        for (final boolean isSudoing : booleanCases) {
+            for (final boolean permChgrp : booleanCases) {
+                for (final String groupPerms : permsCases) {
+                    final Object[] testCase = new Object[index];
+                    /* No test cases are excluded here, because isSudoing
+                     * is in a sense acting to annule Chgrp permission
+                     * which is tested in the testChgrp and is an interesting case.*/
+                    testCase[IS_SUDOING] = isSudoing;
+                    testCase[PERM_CHGRP] = permChgrp;
+                    testCase[GROUP_PERMS] = groupPerms;
+                    // DEBUG  if (isSudoing == true && permChgrp == true && groupPerms.equals("rwr---"))
+                    testCases.add(testCase);
                 }
             }
+        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2286,21 +2286,21 @@ public class LightAdminRolesTest extends RolesTests {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-            for (final boolean isSudoing : booleanCases) {
-                for (final boolean permChown : booleanCases) {
-                    for (final String groupPerms : permsCases) {
-                        final Object[] testCase = new Object[index];
-                        /* No test cases are excluded here, because isSudoing
-                         * is in a sense acting to annule Chown permission
-                         * which is tested in the testChown and is an interesting case.*/
-                        testCase[IS_SUDOING] = isSudoing;
-                        testCase[PERM_CHOWN] = permChown;
-                        testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG  if (isSudoing == true && permChown == true && groupPerms.equals("rwr---"))
-                        testCases.add(testCase);
-                    }
+        for (final boolean isSudoing : booleanCases) {
+            for (final boolean permChown : booleanCases) {
+                for (final String groupPerms : permsCases) {
+                    final Object[] testCase = new Object[index];
+                    /* No test cases are excluded here, because isSudoing
+                     * is in a sense acting to annule Chown permission
+                     * which is tested in the testChown and is an interesting case.*/
+                    testCase[IS_SUDOING] = isSudoing;
+                    testCase[PERM_CHOWN] = permChown;
+                    testCase[GROUP_PERMS] = groupPerms;
+                    // DEBUG  if (isSudoing == true && permChown == true && groupPerms.equals("rwr---"))
+                    testCases.add(testCase);
                 }
             }
+        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2321,34 +2321,34 @@ public class LightAdminRolesTest extends RolesTests {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-            for (final boolean permWriteOwned : booleanCases) {
-                for (final boolean permWriteFile : booleanCases) {
-                    for (final boolean permWriteManagedRepo : booleanCases) {
-                        for (final boolean permChown : booleanCases) {
-                            for (final String groupPerms : permsCases) {
-                                final Object[] testCase = new Object[index];
-                                if (!permWriteOwned && !permWriteFile)
-                                    /* not an interesting case */
-                                    continue;
-                                if (!permWriteOwned && !permWriteManagedRepo)
-                                    /* not an interesting case */
-                                    continue;
-                                if (!permWriteOwned && !permWriteFile && !permWriteManagedRepo)
-                                    /* not an interesting case */
-                                    continue;
-                                testCase[PERM_WRITEOWNED] = permWriteOwned;
-                                testCase[PERM_WRITEFILE] = permWriteFile;
-                                testCase[PERM_WRITEMANAGEDREPO] = permWriteManagedRepo;
-                                testCase[PERM_CHOWN] = permChown;
-                                testCase[GROUP_PERMS] = groupPerms;
-                                // DEBUG if (permWriteOwned == true && permWriteFile == true && permWriteManagedRepo == true
-                                // && permChown == true && groupPerms.equals("rwr---"))
-                                testCases.add(testCase);
-                            }
+        for (final boolean permWriteOwned : booleanCases) {
+            for (final boolean permWriteFile : booleanCases) {
+                for (final boolean permWriteManagedRepo : booleanCases) {
+                    for (final boolean permChown : booleanCases) {
+                        for (final String groupPerms : permsCases) {
+                            final Object[] testCase = new Object[index];
+                            if (!permWriteOwned && !permWriteFile)
+                                /* not an interesting case */
+                                continue;
+                            if (!permWriteOwned && !permWriteManagedRepo)
+                                /* not an interesting case */
+                                continue;
+                            if (!permWriteOwned && !permWriteFile && !permWriteManagedRepo)
+                                /* not an interesting case */
+                                continue;
+                            testCase[PERM_WRITEOWNED] = permWriteOwned;
+                            testCase[PERM_WRITEFILE] = permWriteFile;
+                            testCase[PERM_WRITEMANAGEDREPO] = permWriteManagedRepo;
+                            testCase[PERM_CHOWN] = permChown;
+                            testCase[GROUP_PERMS] = groupPerms;
+                            // DEBUG if (permWriteOwned == true && permWriteFile == true && permWriteManagedRepo == true
+                            // && permChown == true && groupPerms.equals("rwr---"))
+                            testCases.add(testCase);
                         }
                     }
                 }
             }
+        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2367,21 +2367,21 @@ public class LightAdminRolesTest extends RolesTests {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-            for (final boolean permWriteOwned : booleanCases) {
-                for (final boolean permChown : booleanCases) {
-                    for (final String groupPerms : permsCases) {
-                        final Object[] testCase = new Object[index];
-                        if (!permWriteOwned && !permChown)
-                            /* not an interesting case */
-                            continue;
-                        testCase[PERM_WRITEOWNED] = permWriteOwned;
-                        testCase[PERM_CHOWN] = permChown;
-                        testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (permWriteOwned == true && permChown == true && groupPerms.equals("rwr---"))
-                        testCases.add(testCase);
-                    }
+        for (final boolean permWriteOwned : booleanCases) {
+            for (final boolean permChown : booleanCases) {
+                for (final String groupPerms : permsCases) {
+                    final Object[] testCase = new Object[index];
+                    if (!permWriteOwned && !permChown)
+                        /* not an interesting case */
+                        continue;
+                    testCase[PERM_WRITEOWNED] = permWriteOwned;
+                    testCase[PERM_CHOWN] = permChown;
+                    testCase[GROUP_PERMS] = groupPerms;
+                    // DEBUG if (permWriteOwned == true && permChown == true && groupPerms.equals("rwr---"))
+                    testCases.add(testCase);
                 }
             }
+        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2400,21 +2400,21 @@ public class LightAdminRolesTest extends RolesTests {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-            for (final boolean permWriteOwned : booleanCases) {
-                for (final boolean isAdmin : booleanCases) {
-                    for (final String groupPerms : permsCases) {
-                        final Object[] testCase = new Object[index];
-                        if (!permWriteOwned && !isAdmin)
-                            /* not an interesting case */
-                            continue;
-                        testCase[PERM_WRITEOWNED] = permWriteOwned;
-                        testCase[IS_ADMIN] = isAdmin;
-                        testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (permWriteOwned == true && isAdmin == true && groupPerms.equals("rwr---"))
-                        testCases.add(testCase);
-                    }
+        for (final boolean permWriteOwned : booleanCases) {
+            for (final boolean isAdmin : booleanCases) {
+                for (final String groupPerms : permsCases) {
+                    final Object[] testCase = new Object[index];
+                    if (!permWriteOwned && !isAdmin)
+                        /* not an interesting case */
+                        continue;
+                    testCase[PERM_WRITEOWNED] = permWriteOwned;
+                    testCase[IS_ADMIN] = isAdmin;
+                    testCase[GROUP_PERMS] = groupPerms;
+                    // DEBUG if (permWriteOwned == true && isAdmin == true && groupPerms.equals("rwr---"))
+                    testCases.add(testCase);
                 }
             }
+        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2432,22 +2432,22 @@ public class LightAdminRolesTest extends RolesTests {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-            for (final boolean permChgrp : booleanCases) {
-                for (final boolean permChown : booleanCases) {
-                    for (final String groupPerms : permsCases) {
-                        final Object[] testCase = new Object[index];
-                        /* No test cases are excluded here, because Chgrp
-                         * and Chown are two separate steps which can work
-                         * independently on each other and both are tested
-                         * in the test.*/
-                        testCase[PERM_CHGRP] = permChgrp;
-                        testCase[PERM_CHOWN] = permChown;
-                        testCase[GROUP_PERMS] = groupPerms;
-                        // DEBUG if (permChgrp == true && permChown == true && groupPerms.equals("rwr---"))
-                        testCases.add(testCase);
-                    }
+        for (final boolean permChgrp : booleanCases) {
+            for (final boolean permChown : booleanCases) {
+                for (final String groupPerms : permsCases) {
+                    final Object[] testCase = new Object[index];
+                    /* No test cases are excluded here, because Chgrp
+                     * and Chown are two separate steps which can work
+                     * independently on each other and both are tested
+                     * in the test.*/
+                    testCase[PERM_CHGRP] = permChgrp;
+                    testCase[PERM_CHOWN] = permChown;
+                    testCase[GROUP_PERMS] = groupPerms;
+                    // DEBUG if (permChgrp == true && permChown == true && groupPerms.equals("rwr---"))
+                    testCases.add(testCase);
                 }
             }
+        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2466,15 +2466,15 @@ public class LightAdminRolesTest extends RolesTests {
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-            for (final boolean isPrivileged : booleanCases) {
-                for (final String groupPerms : permsCases) {
-                    final Object[] testCase = new Object[index];
-                    testCase[IS_PRIVILEGED] = isPrivileged;
-                    testCase[GROUP_PERMS] = groupPerms;
-                    // DEBUG if (isPrivileged == true && groupPerms.equals("rwr---"))
-                    testCases.add(testCase);
-                }
+        for (final boolean isPrivileged : booleanCases) {
+            for (final String groupPerms : permsCases) {
+                final Object[] testCase = new Object[index];
+                testCase[IS_PRIVILEGED] = isPrivileged;
+                testCase[GROUP_PERMS] = groupPerms;
+                // DEBUG if (isPrivileged == true && groupPerms.equals("rwr---"))
+                testCases.add(testCase);
             }
+        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
@@ -2491,15 +2491,15 @@ public class LightAdminRolesTest extends RolesTests {
         final String[] permsCases = new String[]{"DataViewer", "Importer", "Analyst", "Organizer"};
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-            for (final boolean permModifyUser : booleanCases) {
-                for (final String lightAdminType : permsCases) {
-                    final Object[] testCase = new Object[index];
-                    testCase[PERM_MODIFYUSER] = permModifyUser;
-                    testCase[LIGHT_ADMIN_TYPES] = lightAdminType;
-                    // DEBUG if (permModifyUser == true && createdAdminType.equals("DataViewer"))
-                    testCases.add(testCase);
-                }
+        for (final boolean permModifyUser : booleanCases) {
+            for (final String lightAdminType : permsCases) {
+                final Object[] testCase = new Object[index];
+                testCase[PERM_MODIFYUSER] = permModifyUser;
+                testCase[LIGHT_ADMIN_TYPES] = lightAdminType;
+                // DEBUG if (permModifyUser == true && createdAdminType.equals("DataViewer"))
+                testCases.add(testCase);
             }
+        }
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
