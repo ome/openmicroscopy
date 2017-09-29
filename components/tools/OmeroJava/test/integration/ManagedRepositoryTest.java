@@ -588,8 +588,8 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
         /* prepare as admin to import into another group */
         final long targetGroup = iAdmin.getEventContext().groupId;
         newUserInGroup(new ExperimenterGroupI(roles.systemGroupId, false), false);
-        client.getImplicitContext().put("omero.group", Long.toString(targetGroup));
 
+        try (final AutoCloseable igc = new ImplicitGroupContext(targetGroup)) {
         /* create and import a fake image */
         final File localPath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
         final File localFile = ensureFileExists(localPath, UUID.randomUUID().toString() + ".fake");
@@ -598,6 +598,7 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
         /* check that the import was into the intended group */
         final OriginalFile remoteFile = (OriginalFile) iQuery.findByString("OriginalFile", "name", localFile.getName());
         Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), targetGroup);
+        }
     }
 
     /**
