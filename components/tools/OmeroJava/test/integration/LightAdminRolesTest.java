@@ -146,8 +146,8 @@ public class LightAdminRolesTest extends RolesTests {
      * @throws Exception if the light administrator could not be created
      */
     private EventContext loginNewAdmin(boolean isAdmin, List <String> permissions) throws Exception {
-        final EventContext ctx = isAdmin ? newUserInGroup(iAdmin.lookupGroup(roles.systemGroupName), false) : newUserAndGroup("rwr-r-");
         final ServiceFactoryPrx rootSession = root.getSession();
+        final EventContext ctx = isAdmin ? newUserInGroup(rootSession.getAdminService().lookupGroup(roles.systemGroupName), false) : newUserAndGroup("rwr-r-");
         Experimenter user = new ExperimenterI(ctx.userId, false);
         user = (Experimenter) rootSession.getQueryService().get("Experimenter", ctx.userId);
         final List<AdminPrivilege> privileges = Utils.toEnum(AdminPrivilege.class, AdminPrivilegeI.class, permissions);

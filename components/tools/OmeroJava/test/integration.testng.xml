@@ -1,6 +1,6 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
 
-<suite name="OmeroJava.integration" time-out="120000">
+<suite name="OmeroJava.integration" time-out="120000" configfailurepolicy="continue">
   <test name="integration">
     <groups>
       <run>
