@@ -470,7 +470,6 @@ omero.version=${omero.version}
             <mapping conf="server" scope="compile"/>
             <mapping conf="default" scope="compile"/>
             <mapping conf="*" scope="compile"/>
-            <dependency group="ome" artifact="bio-formats" version="${omero.version}" optional="true"/>
         </ivy:makepom>
         <publishArtifact haltonmissing="${package-extra}"/>
     </target>
