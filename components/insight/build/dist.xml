@@ -326,7 +326,6 @@
               <filter token="EXE_NAME" value="app/${dist@{type}.win.exename}"/>
               <filter token="APP_NAME" value="${dist@{type}.name}"/>
               <filter token="ICON_FILE" value="${dist@{type}.win.icon}"/>
-              <filter token="VM_PARAMETERS" value="${app.vmparameters}"/>
             </filterset>
           </copy>
           <exe4j projectfile="${build.dir}/@{type}.exe4j"/>
@@ -348,7 +347,6 @@
               <filter token="EXE_NAME" value="app/${dist@{type}.win64.exename}"/>
               <filter token="APP_NAME" value="${dist@{type}.name}"/>
               <filter token="ICON_FILE" value="${dist@{type}.win.icon}"/>
-              <filter token="VM_PARAMETERS" value="${app.vmparameters}"/>
             </filterset>
           </copy>
           <exe4j projectfile="${build.dir}/@{type}_64.exe4j"/>

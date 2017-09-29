@@ -27,7 +27,7 @@
         fontSize="8" fontColor="0,0,0" fontWeight="500" />
     </text>
   </splashScreen>
-  <java mainClass="@MAIN_CLASS@" vmParameters="@VM_PARAMETERS@"
+  <java mainClass="@MAIN_CLASS@"
     arguments="containerImporter.xml" allowVMPassthroughParameters="true" preferredVM=""
     minVersion="1.7" maxVersion="" allowBetaVM="false" jdkOnly="false">
     <searchSequence>
@@ -42,6 +42,10 @@
     <nativeLibraryDirectories>
       <directory name="libs" />
     </nativeLibraryDirectories>
+    <vmOptions>
+      <options version="1" line="-Xms256M -Xmx1024M"/>
+      <options version="9" line="-Xms256M -Xmx1024M --add-modules java.activation" />
+    </vmOptions>
   </java>
   <includedFiles />
   <unextractableFiles />
