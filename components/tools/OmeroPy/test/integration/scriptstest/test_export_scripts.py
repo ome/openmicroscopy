@@ -23,6 +23,7 @@
    Integration test for export scripts.
 """
 
+import pytest
 import omero
 import omero.scripts
 from test.integration.scriptstest.script import ScriptTest
@@ -53,6 +54,7 @@ class TestExportScripts(ScriptTest):
         c = self.new_client(user=user)
         check_file_annotation(c, ann)
 
+    @pytest.mark.broken(reason="needs mencoder installed")
     def test_make_movie(self):
         script_id = super(TestExportScripts, self).get_script(make_movie)
         assert script_id > 0
