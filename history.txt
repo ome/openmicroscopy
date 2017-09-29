@@ -43,15 +43,16 @@ Sysadmin changes include:
 -  added specific installation instructions for Debian 9
 -  added configuration to limit queries that public users can do in OMERO.web
 -  created minimal NGINX configuration file that can be included in a fixed
-   file to allow custom nginx options to be defined only once (e.g. SSL
+   file to allow custom NGINX options to be defined only once (e.g. SSL
    options)
--  dropped support for CLI command ``admin ports``
+-  installed django-redis by default
 -  CLI improvements and fixes:
 
    * fixed admin plugin so "cleanse" can handle larger directories
    * added to chown plugin ability to target all of given users' data
    * adjusted handling of standard input 
    * added infrastructure to load external CLI plugins
+   * dropped support for command ``admin ports``
  
 Developer updates include:
 
