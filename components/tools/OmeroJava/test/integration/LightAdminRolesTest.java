@@ -229,7 +229,7 @@ public class LightAdminRolesTest extends RolesTests {
 
         /* lightAdmin tries to create Project and Dataset on behalf of the normalUser
          * in normalUser's group.*/
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Project proj = mmFactory.simpleProject();
         Dataset dat = mmFactory.simpleDataset();
         Project sentProj = null;
@@ -292,6 +292,7 @@ public class LightAdminRolesTest extends RolesTests {
         assertOwnedBy(image, normalUser);
         assertOwnedBy(imageDatasetLink, normalUser);
         assertOwnedBy(projectDatasetLink, normalUser);
+        }
     }
 
     /**
@@ -322,25 +323,32 @@ public class LightAdminRolesTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         sudo(new ExperimenterI(normalUser.userId, false));
         /* Create a Dataset and Project being sudoed as normalUser.*/
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
-        Project sentProj = (Project) iUpdate.saveAndReturnObject(mmFactory.simpleProject());
-        Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
+        final Project sentProj;
+        final Dataset sentDat;
+        final OriginalFile originalFile;
+        final Image image;
+        final ProjectDatasetLink projectDatasetLink;
+        final DatasetImageLink datasetImageLink;
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
+        sentProj = (Project) iUpdate.saveAndReturnObject(mmFactory.simpleProject());
+        sentDat = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
         /* Import an image for the normalUser into the normalUser's default group
          * and target it into the created Dataset.*/
         List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
-        OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
-        Image image = (Image) originalFileAndImage.get(1);
+        originalFile = (OriginalFile) originalFileAndImage.get(0);
+        image = (Image) originalFileAndImage.get(1);
         assertOwnedBy(image, normalUser);
         /* Link the Project and the Dataset.*/
-        ProjectDatasetLink projectDatasetLink = linkParentToChild(sentProj, sentDat);
-        IObject datasetImageLink = iQuery.findByQuery(
+        projectDatasetLink = linkParentToChild(sentProj, sentDat);
+        datasetImageLink = (DatasetImageLink) iQuery.findByQuery(
                 "FROM DatasetImageLink WHERE child.id = :id",
                 new ParametersI().addId(image.getId()));
+        }
         /* Take care of post-import workflows which do not use sudo.*/
         if (!isSudoing) {
             loginUser(lightAdmin);
-            client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
         }
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         /* Check that lightAdmin can delete the objects
          * created on behalf of normalUser only if lightAdmin has sufficient permissions.
          * Note that deletion of the Project
@@ -376,6 +384,7 @@ public class LightAdminRolesTest extends RolesTests {
             assertExists(sentProj);
             assertExists(datasetImageLink);
             assertExists(projectDatasetLink);
+        }
         }
     }
 
@@ -430,7 +439,7 @@ public class LightAdminRolesTest extends RolesTests {
         } else {
             loginUser(otherUser);
         }
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         /* Check that lightAdmin or otherUser can delete the objects
          * of normalUser only if lightAdmin has sufficient permissions or it is read-write group.
          * Note that deletion of the Project
@@ -450,6 +459,7 @@ public class LightAdminRolesTest extends RolesTests {
         doChange(client, factory, Requests.delete().target(sentDat).build(), deletePassing);
         Assert.assertEquals(getCurrentPermissions(sentProj).canDelete(), deletePassing);
         doChange(client, factory, Requests.delete().target(sentProj).build(), deletePassing);
+        }
 
         /* Check the existence/non-existence of the objects as appropriate.*/
         logRootIntoGroup(normalUser);
@@ -514,10 +524,11 @@ public class LightAdminRolesTest extends RolesTests {
          * on the object retrieved by the lightAdmin matches the deletePassing
          * boolean.*/
         loginUser(lightAdmin);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(sentDataset).canDelete(), deletePassingOwnedGroup);
         doChange(client, factory, Requests.delete().target(sentDataset).build(), deletePassingOwnedGroup);
-        client.getImplicitContext().put("omero.group", Long.toString(otherUser.groupId));
+        }
+        try (final AutoCloseable igc = new ImplicitGroupContext(otherUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(sentOtherDataset).canDelete(), deletePassingNotOwnedGroup);
         doChange(client, factory, Requests.delete().target(sentOtherDataset).build(), deletePassingNotOwnedGroup);
         /* Check the existence/non-existence of the objects as appropriate.*/
@@ -526,6 +537,7 @@ public class LightAdminRolesTest extends RolesTests {
             assertDoesNotExist(sentOtherDataset);
         } else {
             assertExists(sentOtherDataset);
+        }
         }
     }
 
@@ -564,7 +576,7 @@ public class LightAdminRolesTest extends RolesTests {
         Assert.assertEquals(getCurrentPermissions(sentProj).canEdit(), isExpectSuccess);
         /* Try to rename the Project.*/
         final String changedName = "ChangedNameOfLightAdmin";
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         long id = sentProj.getId().getValue();
         final Project retrievedUnrenamedProject = (Project) iQuery.get("Project", id);
         retrievedUnrenamedProject.setName(omero.rtypes.rstring(changedName));
@@ -575,6 +587,7 @@ public class LightAdminRolesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess, se.toString());
+        }
         }
         String savedChangedName = sentProj.getName().getValue().toString();
         logRootIntoGroup(normalUser.groupId);
@@ -648,7 +661,7 @@ public class LightAdminRolesTest extends RolesTests {
             loginUser(lightAdmin);
         }
         /* In order to find the image in whatever group, get to all groups context.*/
-        mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
+        try (final AutoCloseable igc = new ImplicitAllGroupsContext()) {
         /* lightAdmin tries to move the image into another group of the normalUser
          * which should succeed if sudoing and also in case
          * the light admin has Chgrp permissions
@@ -669,6 +682,7 @@ public class LightAdminRolesTest extends RolesTests {
         }
         /* In any case, the image should still belong to normalUser.*/
         assertOwnedBy(image, normalUser);
+        }
     }
 
     /**
@@ -733,7 +747,7 @@ public class LightAdminRolesTest extends RolesTests {
             loginUser(lightAdmin);
         }
         /* In order to find the image in whatever group, get all groups context.*/
-        mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
+        try (final AutoCloseable igc = new ImplicitAllGroupsContext()) {
 
         /* Try to move the image into anotherGroup the normalUser
          * is not a member of, which should fail in all cases
@@ -758,6 +772,7 @@ public class LightAdminRolesTest extends RolesTests {
         }
         /* In any case, the image should still belong to normalUser.*/
         assertOwnedBy(image, normalUser);
+        }
     }
 
     /**
@@ -817,7 +832,7 @@ public class LightAdminRolesTest extends RolesTests {
          * boolean in each case.*/
         Assert.assertEquals(getCurrentPermissions(image).canChown(), chownImagePassing);
         /* Get into correct group context and check all cases.*/
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         /* lightAdmin tries to chown the image.*/
         doChange(client, factory, Requests.chown().target(image).toUser(anotherUser.userId).build(), chownImagePassing);
         /* ChecK the results of the chown when lightAdmin is sudoed,
@@ -851,6 +866,7 @@ public class LightAdminRolesTest extends RolesTests {
         }
         /* In any case, the image must be in the right group.*/
         assertInGroup(image, normalUser.groupId);
+        }
     }
 
     /**
@@ -894,7 +910,7 @@ public class LightAdminRolesTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         /* lightAdmin creates Dataset in the normalUser's group
          * (lightAdmin is not member of that group).*/
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Dataset dat = mmFactory.simpleDataset();
         Dataset sentDat = null;
         /* Creation of Dataset success is governed by
@@ -961,6 +977,7 @@ public class LightAdminRolesTest extends RolesTests {
             assertOwnedBy(link, lightAdmin);
             assertInGroup(link, normalUser.groupId);
         }
+        }
     }
 
     /**
@@ -994,15 +1011,19 @@ public class LightAdminRolesTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         /* Create an image, Dataset and Project as normalUser in normalUser's group.*/
         loginUser(normalUser);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        final Project sentProj;
+        final Dataset sentDat;
+        final Image sentImage;
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Image image = mmFactory.createImage();
-        Image sentImage = (Image) iUpdate.saveAndReturnObject(image);
+        sentImage = (Image) iUpdate.saveAndReturnObject(image);
         Dataset dat = mmFactory.simpleDataset();
-        Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+        sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
         Project proj = mmFactory.simpleProject();
-        Project sentProj = (Project) iUpdate.saveAndReturnObject(proj);
+        sentProj = (Project) iUpdate.saveAndReturnObject(proj);
+        }
         loginUser(lightAdmin);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         /* lightAdmin checks that the canLink value on all the objects to be linked
          * matches the isExpectLinkingSuccess boolean.*/
         Assert.assertEquals(getCurrentPermissions(sentImage).canLink(), isExpectLinkingSuccess);
@@ -1056,6 +1077,7 @@ public class LightAdminRolesTest extends RolesTests {
             assertOwnedBy((new DatasetImageLinkI(linkDatasetImageId, false)), lightAdmin);
             assertOwnedBy((new ProjectDatasetLinkI(linkProjectDatasetId, false)), lightAdmin);
         }
+        }
     }
 
     /**
@@ -1107,7 +1129,7 @@ public class LightAdminRolesTest extends RolesTests {
         } else {
             loginUser(otherUser);
         }
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Image ownImage = mmFactory.createImage();
         Image sentOwnImage = (Image) iUpdate.saveAndReturnObject(ownImage);
         Dataset ownDat = mmFactory.simpleDataset();
@@ -1125,6 +1147,7 @@ public class LightAdminRolesTest extends RolesTests {
             Assert.assertTrue(isExpectLinkingSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectLinkingSuccess, se.toString());
+        }
         }
     }
 
@@ -1159,22 +1182,26 @@ public class LightAdminRolesTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         /* lightAdmin creates a Dataset in lightAdmin's group and imports
          * an image into it.*/
-        client.getImplicitContext().put("omero.group", Long.toString(lightAdmin.groupId));
+        final Dataset sentDat;
+        final OriginalFile originalFile;
+        final Image image;
+        try (final AutoCloseable igc = new ImplicitGroupContext(lightAdmin.groupId)) {
         Dataset dat = mmFactory.simpleDataset();
-        Dataset sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
+        sentDat = (Dataset) iUpdate.saveAndReturnObject(dat);
         /* Import an Image into the created Dataset.*/
         List<IObject> originalFileAndImage = importImageWithOriginalFile(sentDat);
-        OriginalFile originalFile = (OriginalFile) originalFileAndImage.get(0);
-        Image image = (Image) originalFileAndImage.get(1);
+        originalFile = (OriginalFile) originalFileAndImage.get(0);
+        image = (Image) originalFileAndImage.get(1);
         /* Check that originalFile and the image
          * corresponding to the originalFile are in the right group.*/
         assertOwnedBy(originalFile, lightAdmin);
         assertInGroup(originalFile, lightAdmin.groupId);
         assertOwnedBy(image, lightAdmin);
         assertInGroup(image, lightAdmin.groupId);
+        }
 
         /* In order to find the image in whatever group, get all groups context.*/
-        mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
+        try (final AutoCloseable igc = new ImplicitAllGroupsContext()) {
         /* Check that the value of canChgrp on the dataset is true.
          * Note that although the move into normalUser's group might fail,
          * lightAdmin could be moving the dataset into some group where they are member,
@@ -1253,6 +1280,7 @@ public class LightAdminRolesTest extends RolesTests {
             assertOwnedBy(datasetImageLink, lightAdmin);
             assertInGroup(datasetImageLink, lightAdmin.groupId);
         }
+        }
     }
 
     /**
@@ -1279,46 +1307,58 @@ public class LightAdminRolesTest extends RolesTests {
         lightAdmin = loginNewAdmin(true, permissions);
         /* normalUser creates two sets of Project/Dataset/Image hierarchy in their default group.*/
         loginUser(normalUser);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        final Image sentImage1, sentImage2;
+        final Dataset sentDat1, sentDat2;
+        final Project sentProj1, sentProj2;
+        final DatasetImageLink linkOfDatasetImage1, linkOfDatasetImage2;
+        final ProjectDatasetLink linkOfProjectDataset1, linkOfProjectDataset2;
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Image image1 = mmFactory.createImage();
         Image image2 = mmFactory.createImage();
-        Image sentImage1 = (Image) iUpdate.saveAndReturnObject(image1);
-        Image sentImage2 = (Image) iUpdate.saveAndReturnObject(image2);
+        sentImage1 = (Image) iUpdate.saveAndReturnObject(image1);
+        sentImage2 = (Image) iUpdate.saveAndReturnObject(image2);
         Dataset dat1 = mmFactory.simpleDataset();
         Dataset dat2 = mmFactory.simpleDataset();
-        Dataset sentDat1 = (Dataset) iUpdate.saveAndReturnObject(dat1);
-        Dataset sentDat2 = (Dataset) iUpdate.saveAndReturnObject(dat2);
+        sentDat1 = (Dataset) iUpdate.saveAndReturnObject(dat1);
+        sentDat2 = (Dataset) iUpdate.saveAndReturnObject(dat2);
         Project proj1 = mmFactory.simpleProject();
         Project proj2 = mmFactory.simpleProject();
-        Project sentProj1 = (Project) iUpdate.saveAndReturnObject(proj1);
-        Project sentProj2 = (Project) iUpdate.saveAndReturnObject(proj2);
-        DatasetImageLink linkOfDatasetImage1 = linkParentToChild(sentDat1, sentImage1);
-        DatasetImageLink linkOfDatasetImage2 = linkParentToChild(sentDat2, sentImage2);
-        ProjectDatasetLink linkOfProjectDataset1 = linkParentToChild(sentProj1, sentDat1);
-        ProjectDatasetLink linkOfProjectDataset2 = linkParentToChild(sentProj2, sentDat2);
+        sentProj1 = (Project) iUpdate.saveAndReturnObject(proj1);
+        sentProj2 = (Project) iUpdate.saveAndReturnObject(proj2);
+        linkOfDatasetImage1 = linkParentToChild(sentDat1, sentImage1);
+        linkOfDatasetImage2 = linkParentToChild(sentDat2, sentImage2);
+        linkOfProjectDataset1 = linkParentToChild(sentProj1, sentDat1);
+        linkOfProjectDataset2 = linkParentToChild(sentProj2, sentDat2);
+        }
 
         /* normalUser creates two sets of Project/Dataset?Image hierarchy in the other group (anotherGroup).*/
-        client.getImplicitContext().put("omero.group", Long.toString(anotherGroup.getId().getValue()));
+        final Image sentImage1AnootherGroup, sentImage2AnotherGroup;
+        final Dataset sentDat1AnotherGroup, sentDat2AnotherGroup;
+        final Project sentProj1AnootherGroup, sentProj2AnotherGroup;
+        final DatasetImageLink linkOfDatasetImage1AnotherGroup, linkOfDatasetImage2AnotherGroup;
+        final ProjectDatasetLink linkOfProjectDataset1AnotherGroup, linkOfProjectDataset2AnotherGroup;
+        try (final AutoCloseable igc = new ImplicitGroupContext(anotherGroup.getId())) {
         Image image1AnotherGroup = mmFactory.createImage();
         Image image2AnotherGroup = mmFactory.createImage();
-        Image sentImage1AnootherGroup = (Image) iUpdate.saveAndReturnObject(image1AnotherGroup);
-        Image sentImage2AnotherGroup = (Image) iUpdate.saveAndReturnObject(image2AnotherGroup);
+        sentImage1AnootherGroup = (Image) iUpdate.saveAndReturnObject(image1AnotherGroup);
+        sentImage2AnotherGroup = (Image) iUpdate.saveAndReturnObject(image2AnotherGroup);
         Dataset dat1AnotherGroup = mmFactory.simpleDataset();
         Dataset dat2AnotherGroup = mmFactory.simpleDataset();
-        Dataset sentDat1AnotherGroup = (Dataset) iUpdate.saveAndReturnObject(dat1AnotherGroup);
-        Dataset sentDat2AnotherGroup = (Dataset) iUpdate.saveAndReturnObject(dat2AnotherGroup);
+        sentDat1AnotherGroup = (Dataset) iUpdate.saveAndReturnObject(dat1AnotherGroup);
+        sentDat2AnotherGroup = (Dataset) iUpdate.saveAndReturnObject(dat2AnotherGroup);
         Project proj1AnotherGroup = mmFactory.simpleProject();
         Project proj2AnotherGroup = mmFactory.simpleProject();
-        Project sentProj1AnootherGroup = (Project) iUpdate.saveAndReturnObject(proj1AnotherGroup);
-        Project sentProj2AnotherGroup = (Project) iUpdate.saveAndReturnObject(proj2AnotherGroup);
-        DatasetImageLink linkOfDatasetImage1AnotherGroup = linkParentToChild(sentDat1AnotherGroup, sentImage1AnootherGroup);
-        DatasetImageLink linkOfDatasetImage2AnotherGroup = linkParentToChild(sentDat2AnotherGroup, sentImage2AnotherGroup);
-        ProjectDatasetLink linkOfProjectDataset1AnotherGroup = linkParentToChild(sentProj1AnootherGroup, sentDat1AnotherGroup);
-        ProjectDatasetLink linkOfProjectDataset2AnotherGroup = linkParentToChild(sentProj2AnotherGroup, sentDat2AnotherGroup);
+        sentProj1AnootherGroup = (Project) iUpdate.saveAndReturnObject(proj1AnotherGroup);
+        sentProj2AnotherGroup = (Project) iUpdate.saveAndReturnObject(proj2AnotherGroup);
+        linkOfDatasetImage1AnotherGroup = linkParentToChild(sentDat1AnotherGroup, sentImage1AnootherGroup);
+        linkOfDatasetImage2AnotherGroup = linkParentToChild(sentDat2AnotherGroup, sentImage2AnotherGroup);
+        linkOfProjectDataset1AnotherGroup = linkParentToChild(sentProj1AnootherGroup, sentDat1AnotherGroup);
+        linkOfProjectDataset2AnotherGroup = linkParentToChild(sentProj2AnotherGroup, sentDat2AnotherGroup);
+        }
         /* lightAdmin tries to transfers all normalUser's data to recipient.*/
         loginUser(lightAdmin);
         /* In order to be able to operate in both groups, get all groups context.*/
-        mergeIntoContext(client.getImplicitContext(), ALL_GROUPS_CONTEXT);
+        try (final AutoCloseable igc = new ImplicitAllGroupsContext()) {
         /* Check on one selected object only (sentProj1AnotherGroup) the value
          * of canChown. The value must match the chownPassing boolean.*/
         Assert.assertEquals(getCurrentPermissions(sentProj1AnootherGroup).canChown(), chownPassing);
@@ -1354,6 +1394,7 @@ public class LightAdminRolesTest extends RolesTests {
         assertOwnedBy(sentImage1AnootherGroup, recipient);
         assertOwnedBy(linkOfDatasetImage2AnotherGroup, recipient);
         assertOwnedBy(linkOfProjectDataset2AnotherGroup, recipient);
+        }
     }
 
     /**
@@ -1385,7 +1426,7 @@ public class LightAdminRolesTest extends RolesTests {
         assertOwnedBy(roi, normalUser);
         /* lightAdmin logs in and tries to delete the ROI.*/
         loginNewAdmin(true, permissions);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         doChange(client, factory, Requests.delete().target(roi).build(), isExpectSuccessDeleteROI);
         /* Check the ROI was deleted, whereas the image exists.*/
         if (isExpectSuccessDeleteROI) {
@@ -1394,6 +1435,7 @@ public class LightAdminRolesTest extends RolesTests {
             assertExists(roi);
         }
         assertExists(sentImage);
+        }
     }
 
     /**
@@ -1432,7 +1474,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* lightAdmin logs in.*/
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
 
         /* lightAdmin tries to set ROI on normalUser's image.*/
         Roi roi = new RoiI();
@@ -1518,6 +1560,7 @@ public class LightAdminRolesTest extends RolesTests {
             Assert.assertNull(roi);
             Assert.assertNull(rDef);
         }
+        }
     }
 
     /**
@@ -1559,7 +1602,7 @@ public class LightAdminRolesTest extends RolesTests {
         /* Login as lightAdmin.*/
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         /* lightAdmin tries to create a fileAttachment in normalUser's group.*/
         FileAnnotation fileAnnotation = mmFactory.createFileAnnotation();
         OriginalFile originalFile;
@@ -1626,6 +1669,7 @@ public class LightAdminRolesTest extends RolesTests {
                     new ParametersI().addId(fileAnnotation.getId()));
             assertOwnedBy(link, lightAdmin);
         }
+        }
     }
 
     /**
@@ -1644,11 +1688,12 @@ public class LightAdminRolesTest extends RolesTests {
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeWriteScriptRepo.value);
         loginNewAdmin(true, permissions);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        final String actualScript;
+        final long testScriptId;
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         IScriptPrx iScript = factory.getScriptService();
         /* lightAdmin fetches a script from the server.*/
         OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
-        String actualScript;
         RawFileStorePrx rfs = null;
         try {
             rfs = factory.createRawFileStore();
@@ -1660,7 +1705,6 @@ public class LightAdminRolesTest extends RolesTests {
         /* lightAdmin tries uploading the script as a new script in normalUser's group.*/
         iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        long testScriptId = -1;
         try {
             testScriptId = iScript.uploadOfficialScript(testScriptName, actualScript);
             Assert.assertTrue(isExpectSuccessUploadOfficialScript);
@@ -1669,14 +1713,15 @@ public class LightAdminRolesTest extends RolesTests {
             /* Upload failed so finish the test.*/
             return;
         }
+        }
         /* Check that the new script exists in the "user" group.*/
         loginUser(normalUser);
-        scriptFile = (OriginalFile) iQuery.get("OriginalFile", testScriptId);
+        final OriginalFile scriptFile = (OriginalFile) iQuery.get("OriginalFile", testScriptId);
         Assert.assertEquals(scriptFile.getDetails().getOwner().getId().getValue(), roles.rootId);
         Assert.assertEquals(scriptFile.getDetails().getGroup().getId().getValue(), roles.userGroupId);
         /* Check if the script is correctly uploaded.*/
         String currentScript;
-        rfs = null;
+        RawFileStorePrx rfs = null;
         try {
             rfs = factory.createRawFileStore();
             rfs.setFileId(testScriptId);
@@ -1702,11 +1747,11 @@ public class LightAdminRolesTest extends RolesTests {
         if (isPrivileged) permissions.add(AdminPrivilegeDeleteScriptRepo.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        final String actualScript;
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         IScriptPrx iScript = factory.getScriptService();
         /* lightAdmin fetches a script from the server.*/
         OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
-        String actualScript;
         RawFileStorePrx rfs = null;
         try {
             rfs = factory.createRawFileStore();
@@ -1715,10 +1760,11 @@ public class LightAdminRolesTest extends RolesTests {
         } finally {
             if (rfs != null) rfs.close();
         }
+        }
         /* Another light admin (anotherLightAdmin) with appropriate permissions
          * uploads the script as a new script.*/
         loginNewAdmin(true, AdminPrivilegeWriteScriptRepo.value);
-        iScript = factory.getScriptService();
+        IScriptPrx iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         final long testScriptId = iScript.uploadOfficialScript(testScriptName, actualScript);
         /* Delete any jobs associated with the script.*/
@@ -1734,13 +1780,14 @@ public class LightAdminRolesTest extends RolesTests {
         assertExists(testScript);
         /* lightAdmin tries deleting the script.*/
         loginUser(lightAdmin);
-        client.getImplicitContext().put("omero.group", Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         iScript = factory.getScriptService();
         try {
             iScript.deleteScript(testScriptId);
             Assert.assertTrue(isExpectSuccessDeleteOfficialScript);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccessDeleteOfficialScript);
+        }
         }
         /* normalUser checks if the script was deleted or left intact.*/
         loginUser(normalUser);
@@ -1749,7 +1796,7 @@ public class LightAdminRolesTest extends RolesTests {
         } else {
             assertExists(testScript);
         }
-        rfs = null;
+        RawFileStorePrx rfs = null;
         try {
             rfs = factory.createRawFileStore();
             rfs.setFileId(testScriptId);

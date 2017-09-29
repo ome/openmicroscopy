@@ -2368,4 +2368,25 @@ public class AbstractServerTest extends AbstractTest {
     public Object[][] provideFourBooleanArguments() {
         return provideEveryBooleanCombination(4);
     }
+
+    protected class ImplicitGroupContext implements AutoCloseable {
+        ImplicitGroupContext(long groupId) {
+            client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(groupId));
+        }
+
+        ImplicitGroupContext(RLong id) {
+            this(id.getValue());
+        }
+
+        @Override
+        public void close() {
+            client.getImplicitContext().remove(Login.OMERO_GROUP);
+        }
+    }
+
+    protected class ImplicitAllGroupsContext extends ImplicitGroupContext {
+        ImplicitAllGroupsContext() {
+            super(-1);
+        }
+    }
 }

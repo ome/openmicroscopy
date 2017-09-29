@@ -32,7 +32,6 @@ import java.util.UUID;
 
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.scripts.ScriptRepoHelper;
-import ome.system.Login;
 import omero.RLong;
 import omero.RString;
 import omero.RType;
@@ -227,13 +226,14 @@ public class LightAdminPrivilegesTest extends RolesTests {
         Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChgrp.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(otherGroupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(otherGroupId)) {
         Assert.assertEquals(getCurrentPermissions(folder).canChgrp(), isExpectSuccess);
         doChange(client, factory, Requests.chgrp().target(folder).toGroup(otherGroupId).build(), isExpectSuccess);
         if (isExpectSuccess) {
             folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
             Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
             Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), otherGroupId);
+        }
         }
     }
 
@@ -253,7 +253,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChgrp.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(folder).canChgrp(), isExpectSuccess);
         folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
         folder.getDetails().setGroup(otherGroup);
@@ -264,6 +264,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
     }
 
@@ -283,13 +284,14 @@ public class LightAdminPrivilegesTest extends RolesTests {
         Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
         final EventContext otherUser = newUserInGroup(normalUser);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChown.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(folder).canChown(), isExpectSuccess);
         doChange(client, factory, Requests.chown().target(folder).toUser(otherUser.userId).build(), isExpectSuccess);
         if (isExpectSuccess) {
             folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
             Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), otherUser.userId);
             Assert.assertEquals(folder.getDetails().getGroup().getId().getValue(), normalUser.groupId);
+        }
         }
     }
 
@@ -309,7 +311,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         Assert.assertEquals(folder.getDetails().getOwner().getId().getValue(), normalUser.userId);
         final EventContext otherUser = newUserInGroup(normalUser);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null, isRestricted ? AdminPrivilegeChown.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(folder).canChown(), isExpectSuccess);
         folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
         folder.getDetails().setOwner(new ExperimenterI(otherUser.userId, false));
@@ -320,6 +322,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
     }
 
@@ -360,7 +363,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* try to delete the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteFile.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
         repo = getRepository(Repository.OTHER);
         try {
@@ -370,6 +373,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             assertCmd(callback, isExpectSuccess);
         } catch (Ice.LocalException ue) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
         /* check the content of the script */
         loginUser(normalUser);
@@ -407,9 +411,10 @@ public class LightAdminPrivilegesTest extends RolesTests {
         final OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteFile.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(file).canDelete(), isExpectSuccess);
         doChange(client, factory, Requests.delete().target(file).build(), isExpectSuccess);
+        }
     }
 
     /**
@@ -449,7 +454,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* try deleting the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteFile.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
         iScript = factory.getScriptService();
         try {
@@ -457,6 +462,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
         /* check if the script was deleted or left intact */
         loginUser(normalUser);
@@ -509,7 +515,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* try to delete the file */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteManagedRepo.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(remoteFile).canDelete(), isExpectSuccess);
         final RepositoryPrx repo = getRepository(Repository.MANAGED);
         try {
@@ -520,6 +526,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             assertCmd(callback, isExpectSuccess);
         } catch (Ice.LocalException ue) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
         /* check the existence of the file */
         loginUser(normalUser);
@@ -561,9 +568,10 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* try to delete the file */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteManagedRepo.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(remoteFile).canDelete(), isExpectSuccess);
         doChange(client, factory, Requests.delete().target(remoteFile).build(), isExpectSuccess);
+        }
     }
 
     /**
@@ -581,9 +589,10 @@ public class LightAdminPrivilegesTest extends RolesTests {
         final Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteOwned.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(folder).canDelete(), isExpectSuccess);
         doChange(client, factory, Requests.delete().target(folder).build(), isExpectSuccess);
+        }
     }
 
     /**
@@ -624,7 +633,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* try to delete the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
         repo = getRepository(Repository.SCRIPT);
         try {
@@ -634,6 +643,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             assertCmd(callback, isExpectSuccess);
         } catch (Ice.LocalException ue) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
         /* check the content of the script */
         loginUser(normalUser);
@@ -693,9 +703,10 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* try to delete the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
         doChange(client, factory, Requests.delete().target(testScript).build(), isExpectSuccess);
+        }
         /* check the content of the script */
         loginUser(normalUser);
         rfs = factory.createRawFileStore();
@@ -756,7 +767,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* try deleting the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeDeleteScriptRepo.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(testScript).canDelete(), isExpectSuccess);
         iScript = factory.getScriptService();
         try {
@@ -764,6 +775,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
         /* check if the script was deleted or left intact */
         loginUser(normalUser);
@@ -1402,7 +1414,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         repo = getRepository(Repository.OTHER);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
@@ -1410,6 +1422,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
     }
 
@@ -1435,7 +1448,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         repo = getRepository(Repository.OTHER);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
@@ -1443,6 +1456,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (Ice.LocalException se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
     }
 
@@ -1465,7 +1479,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         repo = getRepository(Repository.OTHER);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
@@ -1473,6 +1487,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
     }
 
@@ -1499,10 +1514,10 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* try uploading the script as a new script in the normal user's group */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        final long testScriptId;
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        long testScriptId = -1;
         try {
             testScriptId = iScript.uploadScript(testScriptName, actualScript);
             Assert.assertTrue(isExpectSuccess);
@@ -1510,6 +1525,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertFalse(isExpectSuccess);
             /* upload failed so finish here */
             return;
+        }
         }
         /* check that the new script exists */
         loginUser(normalUser);
@@ -1538,7 +1554,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         OriginalFile file = mmFactory.createOriginalFile();
         file.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
         try {
@@ -1548,6 +1564,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
     }
 
@@ -1582,9 +1599,10 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* try to overwrite with a blank file */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        final byte[] fileContentBlank;
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(file).canEdit(), isExpectSuccess);
-        final byte[] fileContentBlank = new byte[fileContentOriginal.length];
+        fileContentBlank = new byte[fileContentOriginal.length];
         try {
             rfs = factory.createRawFileStore();
             rfs.setFileId(fileId);
@@ -1598,6 +1616,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             } catch (ServerError se) {
                 /* cannot try to close */
             }
+        }
         }
         /* check the resulting file content */
         loginUser(normalUser);
@@ -1646,10 +1665,11 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* try to edit the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        final byte[] fileContentBlank;
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
         repo = getRepository(Repository.OTHER);
-        final byte[] fileContentBlank = new byte[fileContentOriginal.length];
+        fileContentBlank = new byte[fileContentOriginal.length];
         try {
             rfs = repo.file(testScriptName, "rw");
             rfs.write(fileContentBlank, 0, fileContentBlank.length);
@@ -1662,6 +1682,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             } catch (Ice.CommunicatorDestroyedException cde) {
                 /* cannot try to close */
             }
+        }
         }
         /* check the content of the script */
         loginUser(normalUser);
@@ -1701,15 +1722,17 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* try replacing the content of the normal user's script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        final String newScript;
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
         iScript = factory.getScriptService();
-        final String newScript = originalScript + "\n# this script is a copy of another";
+        newScript = originalScript + "\n# this script is a copy of another";
         try {
             iScript.editScript(new OriginalFileI(testScriptId, false), newScript);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
         /* check the permissions on the script */
         loginUser(normalUser);
@@ -1740,7 +1763,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         OriginalFile file = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory.createOriginalFile());
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         file = (OriginalFile) iQuery.get("OriginalFile", file.getId().getValue());
         Assert.assertEquals(getCurrentPermissions(file).canEdit(), isExpectSuccess);
         final String newFilename = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
@@ -1751,6 +1774,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
     }
 
@@ -1769,7 +1793,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         final ImportLocation importLocation;
         try {
             importLocation = importFileset(Collections.singletonList(fakeImageFile.getPath()));
@@ -1785,6 +1809,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
                 "FROM OriginalFile o WHERE o.path = :path AND o.name = :name AND o.details.group.id = :group_id",
                 new ParametersI().add("path", imagePath).add("name", imageName).addLong("group_id", normalUser.groupId));
         Assert.assertNotNull(remoteFile);
+        }
     }
 
     /**
@@ -1817,10 +1842,10 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* try to change the image's hasher */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        final String hasherChanged;
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(new OriginalFileI(imageFileId, false)).canEdit(), isExpectSuccess);
         final ManagedRepositoryPrx repo = ManagedRepositoryPrxHelper.checkedCast(getRepository(Repository.MANAGED));
-        final String hasherChanged;
         if (ChecksumAlgorithmSHA1160.value.equals(hasherOriginal)) {
             hasherChanged = ChecksumAlgorithmMurmur3128.value;
         } else {
@@ -1833,6 +1858,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (Ice.LocalException | ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
         /* check the effect on the image's hash and hasher */
         loginUser(normalUser);
@@ -1875,10 +1901,11 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* try to edit the file */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteManagedRepo.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        final byte[] fileContentBlank;
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(remoteFile).canEdit(), isExpectSuccess);
         final RepositoryPrx repo = getRepository(Repository.MANAGED);
-        final byte[] fileContentBlank = new byte[(int) (fakeImageFile.length() + 16)];
+        fileContentBlank = new byte[(int) (fakeImageFile.length() + 16)];
         RawFileStorePrx rfs = null;
         try {
             rfs = repo.file(remoteFile.getPath().getValue() + remoteFile.getName().getValue(), "rw");
@@ -1894,6 +1921,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             } catch (Ice.CommunicatorDestroyedException cde) {
                 /* cannot try to close */
             }
+        }
         }
         /* check the resulting file size */
         loginUser(normalUser);
@@ -1915,7 +1943,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteOwned.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Folder folder = mmFactory.simpleFolder();
         folder.getDetails().setOwner(new ExperimenterI(normalUser.userId, false));
         try {
@@ -1925,6 +1953,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
     }
 
@@ -1943,7 +1972,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         Folder folder = (Folder) iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteOwned.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         folder = (Folder) iQuery.get("Folder", folder.getId().getValue());
         Assert.assertEquals(getCurrentPermissions(folder).canEdit(), isExpectSuccess);
         final String newFolderName = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
@@ -1954,6 +1983,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
     }
 
@@ -1976,7 +2006,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         repo = getRepository(Repository.SCRIPT);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
@@ -1984,6 +2014,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
     }
 
@@ -2009,7 +2040,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         repo = getRepository(Repository.SCRIPT);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
@@ -2018,6 +2049,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (Ice.LocalException se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
     }
 
@@ -2040,7 +2072,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         repo.makeDir(userDirectory, false);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         repo = getRepository(Repository.SCRIPT);
         final String filename = userDirectory + '/' + UUID.randomUUID();
         try {
@@ -2048,6 +2080,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
     }
 
@@ -2138,10 +2171,11 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* try to edit the script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        final byte[] fileContentBlank;
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
         repo = getRepository(Repository.SCRIPT);
-        final byte[] fileContentBlank = new byte[fileContentOriginal.length];
+        fileContentBlank = new byte[fileContentOriginal.length];
         try {
             rfs = repo.file(testScriptName, "rw");
             rfs.write(fileContentBlank, 0, fileContentBlank.length);
@@ -2154,6 +2188,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             } catch (Ice.CommunicatorDestroyedException cde) {
                 /* cannot try to close */
             }
+        }
         }
         /* check the content of the script */
         loginUser(normalUser);
@@ -2195,16 +2230,19 @@ public class LightAdminPrivilegesTest extends RolesTests {
         /* try replacing the content of the normal user's script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
-        OriginalFile testScript = new OriginalFileI(testScriptId, false);
+        OriginalFile testScript;
+        final String newScript;
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
+        testScript = new OriginalFileI(testScriptId, false);
         Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
         iScript = factory.getScriptService();
-        final String newScript = originalScript + "\n# this script is a copy of another";
+        newScript = originalScript + "\n# this script is a copy of another";
         try {
             iScript.editScript(testScript, newScript);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
         /* check the permissions on the script */
         loginUser(normalUser);
@@ -2238,7 +2276,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         OriginalFile file = repo.register(filename, null);
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
-        client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(normalUser.groupId));
+        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
         file = (OriginalFile) iQuery.get("OriginalFile", file.getId().getValue());
         Assert.assertEquals(getCurrentPermissions(file).canEdit(), isExpectSuccess);
         final String newFilename = "Test_" + getClass().getName() + '_' + UUID.randomUUID();
@@ -2249,6 +2287,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
+        }
         }
     }
 
