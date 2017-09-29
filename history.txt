@@ -16,17 +16,21 @@ additions to OMERO.cli; and many fixes and performance improvements:
 -  added support for exporting images in a plate as OME-TIFF
 -  improved creation of rendering settings for image without any stats
    e.g. 32bit images
--  improved performance for moving large plates
+-  improved performance for moving large Plates
 -  fixed import bug in OMERO.insight
 -  fixed projection of images if the range of timepoints specified is not
    the full range
 -  added support for transfering ownership of all the data of a given user
    using CLI
 -  renamed "Reverse Intensity" command to "Invert" in image viewers
--  fixed label position for wells
 -  OMERO.web UI fixes:
 
-   * improved display of plates and wells
+   * improved display of Plates and Wells
+   * fixed label position for Wells
+   * added the ability to display Image and Well metadata in the Tables
+     section for the same Plate
+   * added support for ImageColumn with Screen and Plate targets in the
+     populate_metadata script
    * improved copy/paste of rendering settings workflow
    * improved layout in left-hand panel
    * fixed filtering issue
