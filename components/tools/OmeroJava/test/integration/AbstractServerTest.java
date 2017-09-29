@@ -458,14 +458,15 @@ public class AbstractServerTest extends AbstractTest {
      * @param property property to examine the testedObjects for (can be GROUP or OWNER)
      * @throws ServerError if query fails
      */
-    protected void verifyObjectProperty(Collection<? extends IObject> testedObjects, long id, DetailsProperty property) throws ServerError {
+    protected void verifyObjectProperty(Collection<? extends IObject> testedObjects, long id, DetailsProperty property)
+            throws ServerError {
         if (testedObjects.isEmpty()) {
             throw new IllegalArgumentException("must assert about some objects");
         }
         for (final IObject testedObject : testedObjects) {
             final String testedObjectName = testedObject.getClass().getName() + '[' + testedObject.getId().getValue() + ']';
-            final String query = "SELECT details." + property + ".id FROM " + testedObject.getClass().getSuperclass().getSimpleName() +
-                    " WHERE id = :id";
+            final String query = "SELECT details." + property + ".id FROM " +
+                    testedObject.getClass().getSuperclass().getSimpleName() + " WHERE id = :id";
             final Parameters params = new ParametersI().addId(testedObject.getId());
             final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
             final long actualId = ((RLong) results.get(0).get(0)).getValue();

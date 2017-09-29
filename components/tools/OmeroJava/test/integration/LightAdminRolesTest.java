@@ -41,6 +41,7 @@ import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.api.SearchPrx;
 import omero.api.ServiceFactoryPrx;
+import omero.cmd.Chgrp2;
 import omero.cmd.Chown2;
 import omero.gateway.util.Requests;
 import omero.gateway.util.Requests.Delete2Builder;
@@ -147,7 +148,8 @@ public class LightAdminRolesTest extends RolesTests {
      */
     private EventContext loginNewAdmin(boolean isAdmin, List <String> permissions) throws Exception {
         final ServiceFactoryPrx rootSession = root.getSession();
-        final EventContext ctx = isAdmin ? newUserInGroup(rootSession.getAdminService().lookupGroup(roles.systemGroupName), false) : newUserAndGroup("rwr-r-");
+        final EventContext ctx = isAdmin ? newUserInGroup(rootSession.getAdminService().lookupGroup(roles.systemGroupName), false)
+                                         : newUserAndGroup("rwr-r-");
         Experimenter user = new ExperimenterI(ctx.userId, false);
         user = (Experimenter) rootSession.getQueryService().get("Experimenter", ctx.userId);
         final List<AdminPrivilege> privileges = Utils.toEnum(AdminPrivilege.class, AdminPrivilegeI.class, permissions);
@@ -668,7 +670,8 @@ public class LightAdminRolesTest extends RolesTests {
              * (i.e. isExpectSuccessInMemberGroup is true). Also check that
              * the canChgrp boolean matches the isExpectSuccessInMemberGroup boolean value */
             Assert.assertEquals(getCurrentPermissions(image).canChgrp(), isExpectSuccessInMemberGroup);
-            doChange(client, factory, Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build(), isExpectSuccessInMemberGroup);
+            final Chgrp2 chgrpReq = Requests.chgrp().target(image).toGroup(normalUsersOtherGroupId).build();
+            doChange(client, factory, chgrpReq, isExpectSuccessInMemberGroup);
             if (isExpectSuccessInMemberGroup) {
                 assertInGroup(image, normalUsersOtherGroupId);
                 assertInGroup(originalFile, normalUsersOtherGroupId);
@@ -1363,7 +1366,8 @@ public class LightAdminRolesTest extends RolesTests {
              * of canChown. The value must match the chownPassing boolean.*/
             Assert.assertEquals(getCurrentPermissions(sentProj1AnotherGroup).canChown(), chownPassing);
             /* Check that transfer proceeds only if chownPassing boolean is true.*/
-            doChange(client, factory, Requests.chown().targetUsers(normalUser.userId).toUser(recipient.userId).build(), chownPassing);
+            final Chown2 chownReq = Requests.chown().targetUsers(normalUser.userId).toUser(recipient.userId).build();
+            doChange(client, factory, chownReq, chownPassing);
             if (!chownPassing) {
                 /* Finish the test if no transfer of data could proceed.*/
                 return;
@@ -1538,8 +1542,10 @@ public class LightAdminRolesTest extends RolesTests {
                 /* Note that in read-only group, the chown of ROI would fail, see
                  * https://trello.com/c/7o4q2Tkt/745-fix-graphs-for-mixed-ownership-read-only.
                  * The workaround used here is to chown both the image and the ROI.*/
-                doChange(client, factory, Requests.chown().target(roi, sentImage).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
-                doChange(client, factory, Requests.chown().target(rDef).toUser(normalUser.userId).build(), isExpectSuccessCreateAndChown);
+                Chown2 chownReq = Requests.chown().target(roi, sentImage).toUser(normalUser.userId).build();
+                doChange(client, factory, chownReq, isExpectSuccessCreateAndChown);
+                chownReq = Requests.chown().target(rDef).toUser(normalUser.userId).build();
+                doChange(client, factory, chownReq, isExpectSuccessCreateAndChown);
                 /* Retrieve the image corresponding to the ROI and Rnd settings.*/
                 long imageId = ((RLong) iQuery.projection(
                         "SELECT rdef.pixels.image.id FROM RenderingDef rdef WHERE rdef.id = :id",
@@ -1637,7 +1643,8 @@ public class LightAdminRolesTest extends RolesTests {
             /* lightAdmin tries to transfer the ownership of fileAnnotation to normalUser.
              * The test was terminated (see above) in all cases
              * in which the fileAnnotation was not created.*/
-            doChange(client, factory, Requests.chown().target(fileAnnotation).toUser(normalUser.userId).build(), isExpectSuccessCreateFileAttAndChown);
+            Chown2 chownReq = Requests.chown().target(fileAnnotation).toUser(normalUser.userId).build();
+            doChange(client, factory, chownReq, isExpectSuccessCreateFileAttAndChown);
             if (isExpectSuccessCreateFileAttAndChown) {
                 /* First case: fileAnnotation creation and chowning succeeded.*/
                 assertOwnedBy(fileAnnotation, normalUser);
@@ -1653,7 +1660,8 @@ public class LightAdminRolesTest extends RolesTests {
             /* lightAdmin tries to transfer the ownership of link to normalUser.
              * The test was terminated (see above) in all cases
              * in which the link was not created.*/
-            doChange(client, factory, Requests.chown().target(link).toUser(normalUser.userId).build(), isExpectSuccessCreateLinkAndChown);
+            chownReq = Requests.chown().target(link).toUser(normalUser.userId).build();
+            doChange(client, factory, chownReq, isExpectSuccessCreateLinkAndChown);
             if (isExpectSuccessCreateLinkAndChown) {
                 /* First case: link was created and chowned, the whole workflow succeeded.*/
                 link = (ImageAnnotationLink) iQuery.findByQuery("FROM ImageAnnotationLink l JOIN FETCH"
