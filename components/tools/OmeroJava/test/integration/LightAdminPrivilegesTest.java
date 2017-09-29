@@ -1834,8 +1834,8 @@ public class LightAdminPrivilegesTest extends RolesTests {
                 "SELECT id, hasher.value, hash FROM OriginalFile " +
                 "WHERE name = :name AND path = :path AND details.group.id = :group_id",
                 new ParametersI().add("name", omero.rtypes.rstring(fakeImageFile.getName()))
-                .add("path", omero.rtypes.rstring(repoPath))
-                .add("group_id", omero.rtypes.rlong(normalUser.groupId))).get(0);
+                                 .add("path", omero.rtypes.rstring(repoPath))
+                                 .add("group_id", omero.rtypes.rlong(normalUser.groupId))).get(0);
         final long imageFileId = ((RLong) results.get(0)).getValue();
         final String hasherOriginal = ((RString) results.get(1)).getValue();
         final String hashOriginal = ((RString) results.get(2)).getValue();
