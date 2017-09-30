@@ -95,7 +95,6 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
 
     @BeforeMethod
     public void setupNewUser() throws Exception {
-        newUserAndGroup("rw----");
         setRepo();
     }
 
@@ -917,7 +916,9 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
      * @throws ServerError expected directory creation error
      */
     @Test(expectedExceptions = ValidationException.class)
-    public void testMakeArbitraryDirectoryNormalUser() throws ServerError {
+    public void testMakeArbitraryDirectoryNormalUser() throws Exception {
+        newUserAndGroup("rw----");
+        setRepo();
         repo.makeDir(UUID.randomUUID().toString(), false);
     }
 
