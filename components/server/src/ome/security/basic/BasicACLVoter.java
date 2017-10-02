@@ -185,11 +185,13 @@ public class BasicACLVoter implements ACLVoter {
                 || currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
             return true;
         }
-
         else if (sysType) {
             return false;
         }
-
+        final EventContext ec = currentUser.getCurrentEventContext();
+        if (ec.getCurrentUserId() == roles.getGuestId()) {
+            return false;
+        }
         return true;
     }
 
@@ -378,7 +380,13 @@ public class BasicACLVoter implements ACLVoter {
         for (int i = 0; i < scopes.length; i++) {
             Scope scope = scopes[i];
             if (scope == null) continue;
-
+            if (!sysType) {
+                if (c.getCurrentUserId() == roles.getGuestId()) {
+                    return 0;
+                }
+            } else if (sysType) {
+                // no privilege
+            } 
             if (leader) {
                 rv |= (1<<i);
             }
