@@ -2398,6 +2398,9 @@ public class AbstractServerTest extends AbstractTest {
 
         @Override
         public void close() {
+            if (!client.getImplicitContext().containsKey(Login.OMERO_GROUP)) {
+                throw new IllegalStateException("group context no longer set");
+            }
             client.getImplicitContext().remove(Login.OMERO_GROUP);
         }
     }
