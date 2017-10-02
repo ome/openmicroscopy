@@ -87,6 +87,8 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
         this.manager = manager;
     }
 
+    private boolean isCurrentUserGuest = false;
+
     //
     // CMD API
     //
@@ -99,6 +101,7 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
     public void init(Helper helper) {
         this.helper = helper;
         this.helper.setSteps(1);
+        isCurrentUserGuest = current.isCurrentUserGuest();
     }
 
     public Object step(int step) throws Cancel {
@@ -135,17 +138,19 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
             CurrentSessionsResponse rsp = new CurrentSessionsResponse();
             rsp.sessions = new ArrayList<Session>(size);
             rsp.contexts = new ArrayList<omero.sys.EventContext>(size);
-            rsp.data = new Map[size];
-            int count = 0;
+            final List<Map<String, RType>> dataMaps = new ArrayList<Map<String, RType>>(size);
             for (Map.Entry<String, Map<String, Object>> entry : contexts.entrySet()) {
                 String uuid = entry.getKey();
                 Map<String, Object> data = entry.getValue();
                 EventContext orig = new SimpleEventContext(
                         (EventContext) data.get("sessionContext"));
                 Session s = objects.get(uuid);
-                rsp.sessions.add(s);
                 if (s == null) {
                     // Non-admin
+                    if (isCurrentUserGuest) {
+                        continue;
+                    }
+                    rsp.sessions.add(s);
                     omero.sys.EventContext ec = new omero.sys.EventContext();
                     rsp.contexts.add(ec);
                     ec.userId = orig.getCurrentUserId();
@@ -153,12 +158,14 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
                     ec.groupId = orig.getCurrentGroupId();
                     ec.groupName = orig.getCurrentGroupName();
                     ec.isAdmin = orig.isCurrentUserAdmin();
-                    rsp.data[count++] = new HashMap<String, RType>();
+                    dataMaps.add(Collections.<String, RType>emptyMap());
                 } else {
+                    rsp.sessions.add(s);
                     rsp.contexts.add(IceMapper.convert(orig));
-                    rsp.data[count++] = parseData(rsp, data);
+                    dataMaps.add(parseData(rsp, data));
                 }
             }
+            rsp.data = dataMaps.toArray(new Map[dataMaps.size()]);
             helper.setResponseIfNull(rsp);
         }
     }
