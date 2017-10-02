@@ -1351,7 +1351,7 @@ public class AbstractServerTest extends AbstractTest {
         };
         ImportCandidates candidates = new ImportCandidates(reader, paths, o);
 
-        ImportLibrary library = new ImportLibrary(createImporter(), reader);
+        ImportLibrary library = new ImportLibrary(importer, reader);
         library.addObserver(o);
 
         ImportContainer ic = candidates.getContainers().get(0);
