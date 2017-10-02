@@ -2776,10 +2776,16 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     # one (= the one with the highest identifier)
     fileId = 0
     ann = None
-    for annotation in a['data']:
-        if annotation['file'] > fileId:
-            fileId = annotation['file']
+    annList = sorted(a['data'], key=lambda x: x['file'], reverse=True)
+    tableData = None
+    for annotation in annList:
+        tableData = _table_query(request, annotation['file'], conn, **kwargs)
+        if 'error' not in tableData:
             ann = annotation
+            fileId = annotation['file']
+            break
+    if ann is None:
+        return dict(error='Could not retrieve matching bulk annotation table')
     tableData = _table_query(request, fileId, conn, **kwargs)
     tableData['id'] = fileId
     tableData['annId'] = ann['id']
