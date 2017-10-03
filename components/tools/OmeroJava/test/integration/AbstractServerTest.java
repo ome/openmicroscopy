@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Map.Entry;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
@@ -139,8 +138,6 @@ import org.testng.annotations.DataProvider;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-
-import Ice.ImplicitContext;
 
 /**
  * Base test for integration tests.
@@ -322,18 +319,6 @@ public class AbstractServerTest extends AbstractTest {
             }
         }
         return importer;
-    }
-
-    /**
-     * Cast the map of strings (e.g. {@link #ALL_GROUPS_CONTEXT})
-     * into implicit context, which asks for {@code <String, String>}.
-     * @param implicitContext the implicit context to be changed
-     * @param newContext the map of strings (e.g. {@link #ALL_GROUPS_CONTEXT})
-     */
-    protected void mergeIntoContext(ImplicitContext implicitContext, Map<String, String> newContext) {
-        for (final Entry<String, String> entry : newContext.entrySet()) {
-            implicitContext.put(entry.getKey(), entry.getValue());
-        }
     }
 
     /**
