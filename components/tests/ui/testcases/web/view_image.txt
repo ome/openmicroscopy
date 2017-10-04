@@ -13,7 +13,7 @@ Suite Teardown      Close all browsers
 *** Keywords ***
 
 Check Image Viewer
-    [Arguments]                         ${title}
+    [Arguments]                         ${title}    ${datasetId}
     # Wait untill popup windows is fully initialiazed
     # Image Viewer title is the image name.
     Wait Until Keyword Succeeds  ${TIMEOUT}     ${INTERVAL}     Select Window   title=${title}
@@ -21,6 +21,7 @@ Check Image Viewer
     Wait Until Page Contains Element    xpath=//img[@id='weblitz-viewport-img']     ${WAIT}
     ${titles}=                          Get Window Titles
     List Should Contain Value           ${titles}               ${title}
+    Location Should Contain             dataset=${datasetId}
     # Should have 2 windows open
     ${windowIds}=                       Get Window Identifiers
     Length Should Be                    ${windowIds}            2
@@ -42,16 +43,16 @@ Test Open Viewer
     [Documentation]     Tests double-click to open image viewer
 
     Tree Should Be Visible
-    ${imageId}=                         Select And Expand Image
+    ${pId}    ${dId}    ${imageId}      Select And Expand Project Dataset Image
     ${nodeId}=                          Wait For Image Node         ${imageId}
     ${imageName}=                       Wait For General Panel And Return Name      Image
     # Open Image Viewer 3 different ways and check
-    Click Element                       xpath=//a[@title='Open full image viewer in new window']
-    Check Image Viewer                  ${imageName}
+    Click Element                       xpath=//a[@title='Open full image viewer in new tab']
+    Check Image Viewer                  ${imageName}                ${dId}
     Double Click Element                xpath=//li[@id='image_icon-${imageId}']//img
-    Check Image Viewer                  ${imageName}
+    Check Image Viewer                  ${imageName}                ${dId}
     Double Click Element                css=#${nodeId}>a
-    Check Image Viewer                  ${imageName}
+    Check Image Viewer                  ${imageName}                ${dId}
     # Open with... from right panel
     Click Element                       xpath=//button[contains(@class, 'btn_openwith')]
     Wait Until Element Is Visible       xpath=//a[@title='Open image with Image viewer']
@@ -59,7 +60,7 @@ Test Open Viewer
     Check Image Viewer                  ${imageName}
     # And jsTree
     Right Click Open With               ${nodeId}      Image viewer
-    Check Image Viewer                  ${imageName}
+    Check Image Viewer                  ${imageName}                ${dId}
 
 
 Test Prev Next Buttons

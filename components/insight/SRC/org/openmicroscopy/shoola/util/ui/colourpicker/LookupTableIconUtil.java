@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.PaintPot 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2016-2017 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -51,10 +51,10 @@ public class LookupTableIconUtil {
             "glasbey_inverted.lut", "glow.lut", "grays.lut",
             "green_fire_blue.lut", "hilo.lut", "ica.lut", "ica2.lut",
             "ica3.lut", "ice.lut", "magenta_hot.lut", "orange_hot.lut",
-            "phase.lut", "physics.lut", "rainbow_rgb.lut", "red-green.lut",
-            "red_hot.lut", "royal.lut", "sepia.lut", "smart.lut",
-            "spectrum.lut", "thal.lut", "thallium.lut", "thermal.lut",
-            "unionjack.lut", "yellow_hot.lut" };
+            "phase.lut", "physics.lut", "pup_br.lut", "pup_nr.lut",
+            "rainbow_rgb.lut", "red-green.lut", "red_hot.lut", "royal.lut",
+            "sepia.lut", "smart.lut", "spectrum.lut", "thal.lut",
+            "thallium.lut", "thermal.lut", "unionjack.lut", "yellow_hot.lut" };
 
     /**
      * Get the LUT icon for the given LUT filename, scaled to the specified

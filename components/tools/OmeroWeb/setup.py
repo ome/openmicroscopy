@@ -44,10 +44,10 @@ setup(name="OmeroWeb",
       long_description="""\
 OmeroWeb is the container of the web clients for OMERO."
 """,
-      author="Aleksandra Tarkowska",
+      author="The Open Microscopy Team",
       author_email="",
-      url="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb",
-      download_url="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroWeb",
+      url="https://github.com/openmicroscopy/openmicroscopy/",
+      download_url="https://github.com/openmicroscopy/openmicroscopy/",
       packages=[''],
       test_suite='test.suite',
       cmdclass={'test': PyTest},

@@ -514,6 +514,10 @@ OME.setupAjaxError = function(feedbackUrl){
         } else if (req.status == 500) {
             // Our 500 handler returns only the stack-trace if request.is_json()
             error = req.responseText;
+            // If the failed request was loading feedback, prevent recursive loading of feedback!
+            if (settings.url.startsWith(feedbackUrl)) {
+                return;
+            }
             OME.feedback_dialog(error, feedbackUrl);
         } else if (req.status == 400) {
             if (req.responseText.indexOf('Request Line is too large') > -1) {

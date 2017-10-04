@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 release upgrade from OMERO5.2__0 to OMERO5.3__0.
+--- OMERO5 release upgrade from OMERO5.2__0 to OMERO5.3__1.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3',     0,            'OMERO5.2',      0);
+             VALUES ('OMERO5.3',     1,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -2041,6 +2041,14 @@ INSERT INTO eventlog (id, action, permissions, entitytype, entityid, event)
     WITH new_event AS (SELECT _current_or_new_event() AS id)
     SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, 'ome.model.screen.Well', well.id,  new_event.id
     FROM well, new_event;
+
+-- ... then protect against 2017-SV5
+
+DROP INDEX originalfile_repo_path_index;
+
+CREATE UNIQUE INDEX originalfile_repo_path_index ON originalfile
+    (repo, regexp_split_to_array('/' || path || name || '/', '/+'))
+    WHERE repo IS NOT NULL;
 
 
 --

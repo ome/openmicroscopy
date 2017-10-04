@@ -254,7 +254,16 @@ $(function() {
         if (node) {
             if (node.type === 'image') {
                 //Open the image viewer for this image
-                window.open(WEBCLIENT.URLS.webindex + "img_detail/" + node.data.obj.id, '_blank');
+                var url = WEBCLIENT.URLS.webindex + "img_detail/" + node.data.obj.id + "/";
+                // Add dataset id so the viewer can know its context
+                var inst = $.jstree.reference('#dataTree');
+                var parent = datatree.get_node(node.parent);
+                if (parent && parent.data) {
+                    if (parent.type === 'dataset') {
+                        url += '?' + parent.type + '=' + parent.data.id
+                    }
+                }
+                window.open(url, '_blank');
             }
         }
     })
@@ -1092,8 +1101,13 @@ $(function() {
                     parentAllowsCreate = (node.type === "orphaned" || node.type === "experimenter");
 
 
-                // Although not everything created here will go under selected node,
-                // we still don't allow creation if linking not allowed
+                // We don't allow creating if new node will not be displayed in tree.
+                // If you canLink under selected Project, Dataset will be in tree
+                if(canLink && node.type === "project" && !tagTree) {
+                    config["create"]["_disabled"] = false;
+                    config["create"]["submenu"]["dataset"]["_disabled"] = false;
+                }
+                // Otherwise can only create if we're filtering for your data
                 if(canCreate && (canLink || parentAllowsCreate)) {
                     // Enable tag or P/D/I submenus created above
                     config["create"]["_disabled"] = false;

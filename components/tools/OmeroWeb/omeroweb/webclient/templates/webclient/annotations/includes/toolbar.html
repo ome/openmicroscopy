@@ -40,6 +40,18 @@
                 // We do this here and in batch_annotate panel
                 OME.initToolbarDropdowns();
 
+
+            {% if image %}
+                var parent = OME.getParentId();
+                if (parent) {
+                    if (parent.split('-')[0] === 'dataset') {
+                        var $btn = $("#open_full_viewer");
+                        $btn.prop('href', $btn.prop('href') + '?' + parent.replace('-', '='));
+                    }
+                }
+            {% endif %}
+
+
                 var selectedObjs = [{% for o in obj_labels %}{% if forloop.counter > 1 %},{% endif %}"{{ o.type|lower }}-{{ o.id}}"{% endfor %}];
 
 
@@ -328,17 +340,16 @@
     
 
 
-
     <div style="position: absolute; left: 0">
       {% if image %}
       <a class="btn silver btn_text" style="height: 18px"
-              target="_blank"
+              id="open_full_viewer" target="_blank"
               {% if share and not share.share.isOwned %}
                   href="{% url 'web_image_viewer' share.share.id image.id %}"
               {% else %}
                   href="{% url 'web_image_viewer' image.id %}"
               {% endif %}
-              title="Open full image viewer in new window">
+              title="Open full image viewer in new tab">
           <span>
               Full viewer
           </span>

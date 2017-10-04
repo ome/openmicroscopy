@@ -105,6 +105,7 @@ public class DiskUsage2I extends DiskUsage2 implements IRequest {
      * @param graphPathBean the graph path bean to use
      * @param targetClasses legal target object classes for the search
      * @param graphPolicy the graph policy to apply for the search
+     * @deprecated from OMERO 5.4 the systemTypes argument is no longer included
      */
     public DiskUsage2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
             Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy) {

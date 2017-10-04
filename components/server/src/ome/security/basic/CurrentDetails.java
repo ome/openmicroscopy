@@ -461,6 +461,13 @@ public class CurrentDetails implements PrincipalHolder {
         current().setEvent(event);
     }
 
+    /**
+     * @return if the current user is the system's <q>guest</q> user
+     */
+    public boolean isCurrentUserGuest() {
+        return current().getCurrentUserId() == roles.getGuestId();
+    }
+
     // ~ Cleanups
     // =========================================================================
 
@@ -559,5 +566,4 @@ public class CurrentDetails implements PrincipalHolder {
         }
 
     }
-
 }
