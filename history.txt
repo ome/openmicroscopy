@@ -62,7 +62,7 @@ Developer updates include:
 
 -  added method to JavaGateway to manipulate admin privileges
 -  fixed issue with JSONP decorator
--  removed Scipy dependency
+-  removed SciPy dependency
 -  adjusted OMERO.blitz API to allow some query results to be cached
 -  added support to the Rendering engine to update a series of settings in one 
    call
