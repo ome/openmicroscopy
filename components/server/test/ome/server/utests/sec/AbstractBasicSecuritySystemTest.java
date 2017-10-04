@@ -127,7 +127,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         sec.login(p);
 
         // context
-        user = new Experimenter(1L, true);
+        user = new Experimenter(2L, true);
         group = new ExperimenterGroup(2L, true); // first non-"user" group
         group.getDetails().setPermissions(perms);
         type = new EventType(1L, true);
@@ -159,7 +159,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         mockEc.expects(atLeastOnce()).method("getCurrentSessionId").will(
                 returnValue(1L));
         mockEc.expects(atLeastOnce()).method("getCurrentUserId").will(
-                returnValue(1L));
+                returnValue(2L));
         mockEc.expects(atLeastOnce()).method("getCurrentUserName").will(
                 returnValue("some-user"));
         mockEc.expects(atLeastOnce()).method("getCurrentSudoerId").will(
