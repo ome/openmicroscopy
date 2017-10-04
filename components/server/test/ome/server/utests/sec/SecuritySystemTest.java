@@ -517,7 +517,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         sec.loadEventContext(false);
 
         Details d = Details.create();
-        d.setOwner(new Experimenter(2L, false));
+        d.setOwner(new Experimenter(3L, false));
         d.setGroup(new ExperimenterGroup(2L, false)); // in same group
         d.setPermissions(new Permissions());
 
@@ -542,7 +542,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         Image i = new Image();
 
         // setting permissions
-        i.getDetails().setOwner(new Experimenter(1L, false));
+        i.getDetails().setOwner(new Experimenter(2L, false));
         i.getDetails().setPermissions(p);
         Details test = sec.newTransientDetails(i);
         assertEquals(p, test.getPermissions());
@@ -580,7 +580,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         oldDetails.setPermissions(new Permissions());
 
         // setting permissions
-        i.getDetails().setOwner(new Experimenter(1L, false));
+        i.getDetails().setOwner(new Experimenter(2L, false));
         i.getDetails().setGroup(new ExperimenterGroup(2L, false));
         i.getDetails().setCreationEvent(new Event(1L, false));
         i.getDetails().setPermissions(p);
