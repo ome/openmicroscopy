@@ -450,6 +450,9 @@ class SessionsControl(BaseControl):
         if not rv:
 
             if not pasw:
+                pasw = os.getenv("OMERO_PASSWORD")
+
+            if not pasw:
                 # Note: duplicating the `not pasw` check here
                 # for an overall nicer error message.
                 self._require_tty("cannot request password")
