@@ -1,11 +1,10 @@
 language: java
-
 jdk: oraclejdk8
 
 # This (sudo: false) is needed to "run on container-based infrastructure" on
 # which cache: is available
 # http://docs.travis-ci.com/user/workers/container-based-infrastructure/
-sudo: false
+sudo: required
 
 # http://docs.travis-ci.com/user/caching/#Arbitrary-directories
 cache:
@@ -19,11 +18,6 @@ matrix:
 addons:
   apt_packages:
     - git
-    - zeroc-ice34
-    - python-imaging
-    - python-numpy
-    - python-tables
-    - python-yaml
     - cmake
     - libgtest-dev
 
@@ -32,8 +26,17 @@ env:
     - BUILD="build-java"
 
 before_install:
+    # The installation of the python dependencies must be done in that level for now
+    # otherwise they are not available in the containers,
+    # see https://github.com/travis-ci/travis-ci/issues/8048
+    # Changing the value for sudo will also need to be reviewed at the same time
+    # This will need to be reviewed when the issue above is fixed
+    - export PATH=/usr/bin/:$PATH
+    - sudo apt-get install -y zeroc-ice35 python-imaging python-numpy python-tables python-yaml
+    # upgrade numexpr to fix table test failures
+    - sudo pip install -U numexpr
     - pip install --user pytest
-    - if [[ $BUILD == 'build-python' ]]; then pip install --user -r ./components/tools/OmeroWeb/requirements-py27-all.txt; fi
+    - if [[ $BUILD == 'build-python' ]]; then pip install --user -r ./components/tools/OmeroWeb/requirements-py27-all-ice35.txt; fi
     - export PATH=$PATH:$HOME/.local/bin
     - if [[ $BUILD == 'build-python' ]]; then travis_retry pip install --user flake8==2.4.0 pytest==2.7.3; fi
     - if [[ $BUILD == 'build-python' ]]; then ./components/tools/travis-build py-flake8; fi
