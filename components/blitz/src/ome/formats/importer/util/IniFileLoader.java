@@ -152,7 +152,7 @@ public class IniFileLoader {
      */
     public String getHomeUrl()
     {
-        return staticPref("General", "url", "https://www.openmicroscopy.org/site/products/omero/feature-list");
+        return staticPref("General", "url", "https://www.openmicroscopy.org/omero/new/");
     }
 
     /**

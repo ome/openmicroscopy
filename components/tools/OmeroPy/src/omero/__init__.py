@@ -32,7 +32,7 @@ try:
         help understanding this issue, please send this error message
         to the OME community:
 
-        https://www.openmicroscopy.org/site/community
+        https://www.openmicroscopy.org/support/
 
         Debugging Info:
         --------------
