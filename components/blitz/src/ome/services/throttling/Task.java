@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 
 import ome.system.OmeroContext;
 import omero.InternalException;
+import omero.ServerError;
 import omero.util.IceMapper;
 
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public abstract class Task {
             if (isVoid) {
                 response.invoke(cb);
             } else {
-                response.invoke(cb, rv);
+                response.invoke(cb, postProcess(rv));
             }
         } catch (Exception e) {
             InternalException ie = new InternalException();
@@ -69,6 +70,17 @@ public abstract class Task {
             log.error(ie.message, e);
             exception(ie, ctx);
         }
+    }
+
+    /**
+     * Can be overridden to transform the return value from the async method.
+     * This implementation leaves the return value unchanged.
+     * @param rv a return value
+     * @return the return value transformed
+     * @throws ServerError if the transformation failed
+     */
+    protected Object postProcess(Object rv) throws ServerError {
+        return rv;
     }
 
     protected void exception(Throwable ex, OmeroContext ctx) {
