@@ -1,116 +1,92 @@
 OMERO version history
 =====================
 
-5.4.0-m4 (September 2017)
--------------------------
-
-Developer preview release. Intended *only as a developer preview* for updating
-code before the full public release of 5.4.0. **Use at your own risk.**
-
-Changes include:
-
-- added method to JavaGateway to manipulate admin privileges
-- fixed graph policy rule to avoid stack overflow when moving large plates at once
-- fixed links to point to new website
-- fixed color conversion to RGBA
-- fixed export as TIFF from webgateway
-- improved creation of rendering settings for image without any stats
-  e.g. 32bit images
-- fixed issue with JSONP decorator
-- fixed upload of scripts for administrators with restricted privileges
-- fixed import bug in OMERO.insight
-- improved copy/paste of rendering settings workflow in OMERO.web
-- fixed projection of images if the range of timepoints specified is not
-  the full range
-- added configuration to limit queries that public users can do in OMERO.web
-- improved display of wells in OMERO.web
-- allowed administrators with restricted privileges to create Project/Dataset
-  for others in OMERO.web
-- added method to create administrators with restricted privileges specifying
-  a password
-- added support for the creation of administrators with restricted privileges in
-  OMERO.web
-- reverted workaround for IcePy communicator leak
-- created minimal nginx configuration file that can be included in a fixed file
-  to allow custom nginx options to be defined only once (e.g. SSL options)
-- closed services when 404 occurs
-- dropped support for CLI command ``admin ports``
-- added support to the Rendering engine to update a series of settings in one call
-- added infrastructure to load external CLI plugins
-- allowed the maven repository to be overridden
-- rolled back the display of tables in OMERO.web viewer
-- fixed filtering issue in OMERO.web
-- removed unused 3rd party libraries in OMERO.web
-- improved layout in left-hand panel in OMERO.web
-- renamed "Reverse Intensity" command to "Invert" in image viewers
-- changed the public url_filter default value to no value
-- fixed label position for wells
-- fixed bug in URL if no images in a share
-- fixed login redirect issue
-- prevented right-hand panel from loading twice
-- improved handling of images without stats to determine rendering settings
-- added options to export images in plate as OME-TIFF
-- added ability to transfer all the data of a given user using CLI
-- added support for PyTables version 3.4+
-- deprecated Path Object in OMERO model
-- updated URL to point to new website, docs and downloads
-- added method to OMERO.py to manipulate advanced rendering settings
-- installed django-redis when installing web requirements
-- added tests for cleanse
-- reviewed calculation of stats in RoiService
-
-
-This release also upgrades the version of Bio-Formats which OMERO uses to 5.7.1
-
-
-5.4.0-m3 (August 2017)
-----------------------
-
-Developer preview release. Intended *only as a developer preview* for updating
-code before the full public release of 5.4.0. **Use at your own risk.**
-
-Changes include:
-
-- improved display of plate in OMERO.web
-- various improvements in integration tests
-- fixed import related bugs in OMERO.insight
-- fixed synchronization of controls enabling copy/paste of
-  rendering settings in OMERO.web
-- fixed projection of images
-- removed Scipy dependency
-
-This release also upgrades the version of Bio-Formats which OMERO uses to 5.6.0-m1
-
-5.4.0-m2 (July 2017)
+5.4.0 (October 2017)
 --------------------
 
-Developer preview release. Intended *only as a developer preview* for updating
-code before the full public release of 5.4.0. **Use at your own risk.**
+A full, production-ready release of OMERO 5.4.0; featuring a new configurable
+user role "Restricted Administrators"; further improvements to OMERO.web;
+additions to OMERO.cli; and many fixes and performance improvements:
 
-Changes include:
+-  added :doc:`/sysadmins/restricted-admins` to allow sysadmins to delegate
+   management tasks to facility managers without granting them full system
+   admin privileges, or to allow trusted users such as image analysts to carry
+   out tasks on behalf of all other users
+-  fixed color conversion to RGBA
+-  added support for exporting images in a plate as OME-TIFF
+-  improved creation of rendering settings for images without any stats
+   e.g. 32bit images
+-  improved performance for moving large Plates
+-  fixed projection of images if the range of timepoints specified is not
+   the full range
+-  added support for transfering ownership of all the data of a given user
+   using CLI
+-  renamed "Reverse Intensity" command to "Invert" in image viewers
+-  added support for ImageColumn with Screen and Plate targets in the
+   populate_metadata script
+-  OMERO.web UI fixes:
 
-- fixed OMERO.server permissions bug with restricted administrators
-- adjusted OMERO.blitz API to allow some query results to be cached
-- improve OMERO.web experience and fixed bugs for restricted administrators
-- improve OMERO.cli:
-  - fixed admin plugin so "cleanse" can handle larger directories
-  - have chgrp plugin check administrator Chgrp restriction
-  - added to chown plugin ability to target all of given users' data
-  - adjusted handling of standard input
-- various improvements in integration tests
+   * improved display of Plates and Wells
+   * fixed label position for Wells
+   * added the ability to display Image and Well metadata in the Tables
+     section for the same Plate
+   * improved copy/paste of rendering settings workflow
+   * improved layout of left-hand panel including the position of the search
+     panel
+   * added support for administrators with restricted privileges to create
+     Project/Dataset for other users
+   * rolled back the display of tables in the viewer
+   * fixed forgotten password functionality
 
+Sysadmin changes include:
 
-5.4.0-m1 (July 2017)
+-  added support for the creation of administrators with restricted privileges
+   in OMERO.web admin panel
+-  added method to create administrators with restricted privileges specifying
+   a password
+-  added specific installation instructions for Debian 9
+-  added configuration to limit queries that public users can do in OMERO.web
+-  created minimal NGINX configuration file that can be included in a fixed
+   file to allow custom NGINX options to be defined only once (e.g. SSL
+   options)
+-  installed django-redis by default
+-  CLI improvements and fixes:
+
+   * fixed admin plugin so "cleanse" can handle larger directories
+   * added to chown plugin ability to target all of given users' data
+   * adjusted handling of standard input 
+   * added infrastructure to load external CLI plugins
+   * dropped support for command ``admin ports``
+ 
+Developer updates include:
+
+-  added method to JavaGateway to manipulate admin privileges
+-  fixed issue with JSONP decorator
+-  removed SciPy dependency
+-  adjusted OMERO.blitz API to allow some query results to be cached
+-  added support to the rendering engine to update a series of settings in one 
+   call
+-  added method to OMERO.py to manipulate advanced rendering settings
+-  allowed the Maven repository to be overridden
+-  removed unused 3rd party libraries in OMERO.web
+-  added support for PyTables version 3.4+
+-  deprecated Path Object in OMERO Model
+-  updated the documentation for server installation on Mac OS to no longer
+   use the homebrew formulae from https://github.com/ome/homebrew-alt (these
+   are not working and will not be fixed)
+
+Further changes to the Python BlitzGateway are described in
+:doc:`/developers/whatsnew`.
+
+This release also upgrades the version of Bio-Formats which OMERO uses to `5.7.1 <http://www.openmicroscopy.org/2017/09/20/bio-formats-5-7-1.html>`_.
+
+5.3.5 (October 2017)
 --------------------
 
-Developer preview release. Intended *only as a developer preview* for updating
-code before the full public release of 5.4.0. **Use at your own risk.**
+This is a security release - see the
+:secvuln:`security advisory <2017-SV4-guest-user>` for further details.
 
-Changes include:
-
-- added support for new security privileges to allow users to perform some
-  admin tasks without having admin privileges e.g. import for others
-- added specific installation instructions for Debian 9
+It is highly recommended that you upgrade your server.
 
 5.3.4 (September 2017)
 ----------------------
@@ -272,8 +248,9 @@ Developer updates include:
 -  disabled jquery cache
 
 Further details on breaking changes are available on
-:doc:`/developers/whatsnew`. Work on the Web API is ongoing and will include
-moving away from the use of JSONP and introducing Django CORS.
+`What's new for OMERO 5.3 for developers <http://docs.openmicroscopy.org/omero/5.3.0/developers/whatsnew.html>`_. Work
+on the Web API is ongoing and will include moving away from the use of JSONP
+and introducing Django CORS.
 
 5.2.8 (March 2017)
 ------------------
