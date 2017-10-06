@@ -385,15 +385,16 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                     throw new ome.conditions.ApiUsageException("No such file annotation: " + annotationId);
                 }
 
-                try {
-                    return factory.sharedResources(__current).openTable(
-                            new OriginalFileI(file.getId(), false));
-                } catch (ServerError e) {
-                    throw new RuntimeException(e);
-                }
+                return file.getId();
 
             }
-        }));
+        }) {
+            /* transforms the file annotation ID to a handle to an open table */
+            @Override
+            protected Object postProcess(Object rv) throws ServerError {
+                return factory.sharedResources(__current).openTable(new OriginalFileI((Long) rv, false));
+            }
+        });
     }
 
     class MaskClass
