@@ -95,7 +95,6 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
 
     @BeforeMethod
     public void setupNewUser() throws Exception {
-        newUserAndGroup("rw----");
         setRepo();
     }
 
@@ -588,16 +587,17 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
         /* prepare as admin to import into another group */
         final long targetGroup = iAdmin.getEventContext().groupId;
         newUserInGroup(new ExperimenterGroupI(roles.systemGroupId, false), false);
-        client.getImplicitContext().put("omero.group", Long.toString(targetGroup));
 
-        /* create and import a fake image */
-        final File localPath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
-        final File localFile = ensureFileExists(localPath, UUID.randomUUID().toString() + ".fake");
-        importFileset(Collections.singletonList(localFile.toString()));
+        try (final AutoCloseable igc = new ImplicitGroupContext(targetGroup)) {
+            /* create and import a fake image */
+            final File localPath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
+            final File localFile = ensureFileExists(localPath, UUID.randomUUID().toString() + ".fake");
+            importFileset(Collections.singletonList(localFile.toString()));
 
-        /* check that the import was into the intended group */
-        final OriginalFile remoteFile = (OriginalFile) iQuery.findByString("OriginalFile", "name", localFile.getName());
-        Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), targetGroup);
+            /* check that the import was into the intended group */
+            final OriginalFile remoteFile = (OriginalFile) iQuery.findByString("OriginalFile", "name", localFile.getName());
+            Assert.assertEquals(remoteFile.getDetails().getGroup().getId().getValue(), targetGroup);
+        }
     }
 
     /**
@@ -916,7 +916,9 @@ public class ManagedRepositoryTest extends AbstractServerImportTest {
      * @throws ServerError expected directory creation error
      */
     @Test(expectedExceptions = ValidationException.class)
-    public void testMakeArbitraryDirectoryNormalUser() throws ServerError {
+    public void testMakeArbitraryDirectoryNormalUser() throws Exception {
+        newUserAndGroup("rw----");
+        setRepo();
         repo.makeDir(UUID.randomUUID().toString(), false);
     }
 

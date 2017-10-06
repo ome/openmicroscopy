@@ -103,9 +103,6 @@ public class PermissionsTestAll extends AbstractServerTest {
             "rwrw--", "Read-Write-" + uuid + "-"
             );
 
-    /** The security roles for that server. **/
-    private Roles securityRoles;
-
     /** The password used for user. **/
     private final static String PASSWORD = "ome";
 
@@ -123,12 +120,8 @@ public class PermissionsTestAll extends AbstractServerTest {
      * @throws Exception Thrown if an error occurred.
      */
     void setupGroups() throws Exception {
-        omero.client client = newRootOmeroClient();
-        client.enableKeepAlive(60);
-        factory = client.getSession();
-        IAdminPrx svc = factory.getAdminService();
+        IAdminPrx svc = root.getSession().getAdminService();
 
-        securityRoles = svc.getSecurityRoles();
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
         List<ExperimenterGroup> groupCopies = new ArrayList<ExperimenterGroup>();
 
@@ -159,7 +152,6 @@ public class PermissionsTestAll extends AbstractServerTest {
         String admin = testUserNames[3];
         String owner = testUserNames[2];
 
-        Roles roles = factory.getAdminService().getSecurityRoles();
         ExperimenterGroup userGroup = new ExperimenterGroupI(roles.userGroupId,
                 false);
         ExperimenterGroup systemGroup = new ExperimenterGroupI(
@@ -189,7 +181,7 @@ public class PermissionsTestAll extends AbstractServerTest {
                 targetGroups.add(groupCopies.get(cntr));
                 cntr++;
             }
-            factory.getAdminService().createExperimenterWithPassword(
+            svc.createExperimenterWithPassword(
                     experimenter, omeroPassword, defaultGroup, targetGroups);
 
             // Make user : owner + uuid , owner of all the groups
@@ -202,8 +194,6 @@ public class PermissionsTestAll extends AbstractServerTest {
                 }
             }
         }
-
-        client.closeSession();
     }
 
     /**
@@ -245,7 +235,7 @@ public class PermissionsTestAll extends AbstractServerTest {
                 }
             }
 
-            client.closeSession();
+            client.__del__();
         }
     }
 
@@ -481,12 +471,9 @@ public class PermissionsTestAll extends AbstractServerTest {
      * Implemented as specified by {@link AdminService}.
      */
     private boolean isSecuritySystemGroup(long groupID) {
-        if (securityRoles == null) {
-            return false;
-        }
-        return (securityRoles.guestGroupId == groupID
-                || securityRoles.systemGroupId == groupID
-                || securityRoles.userGroupId == groupID);
+        return (roles.guestGroupId == groupID
+                || roles.systemGroupId == groupID
+                || roles.userGroupId == groupID);
     }
 
     /**

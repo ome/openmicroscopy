@@ -98,7 +98,7 @@ public class ImportLibraryTest extends AbstractServerTest {
         mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
         f.deleteOnExit();
         ImportConfig config = new ImportConfig();
-        ImportLibrary library = new ImportLibrary(importer, new OMEROWrapper(
+        ImportLibrary library = new ImportLibrary(createImporter(), new OMEROWrapper(
                 config));
         ImportContainer ic = getCandidates(f).getContainers().get(0);
         List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
@@ -152,7 +152,7 @@ public class ImportLibraryTest extends AbstractServerTest {
         mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
         f.deleteOnExit();
         ImportConfig config = new ImportConfig();
-        ImportLibrary library = new ImportLibrary(importer, new OMEROWrapper(
+        ImportLibrary library = new ImportLibrary(createImporter(), new OMEROWrapper(
                 config));
         ImportContainer ic = getCandidates(f).getContainers().get(0);
 
@@ -188,7 +188,7 @@ public class ImportLibraryTest extends AbstractServerTest {
         mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
         f.deleteOnExit();
         ImportConfig config = new ImportConfig();
-        ImportLibrary library = new ImportLibrary(importer, new OMEROWrapper(
+        ImportLibrary library = new ImportLibrary(createImporter(), new OMEROWrapper(
                 config));
         ImportContainer ic = getCandidates(f).getContainers().get(0);
         ic = new ImportContainer(f, null, null, null, ic.getUsedFiles(), null);

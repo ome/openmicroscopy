@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Map.Entry;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
@@ -140,8 +139,6 @@ import org.testng.annotations.DataProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import Ice.ImplicitContext;
-
 /**
  * Base test for integration tests.
  *
@@ -192,7 +189,7 @@ public class AbstractServerTest extends AbstractTest {
     protected Roles roles;
 
     /** Reference to the importer store. */
-    protected OMEROMetadataStoreClient importer;
+    private OMEROMetadataStoreClient importer;
 
     /** Helper class creating mock object. */
     protected ModelMockFactory mmFactory;
@@ -291,6 +288,7 @@ public class AbstractServerTest extends AbstractTest {
     @Override
     @AfterClass
     public void tearDown() throws Exception {
+        clean();
         for (omero.client c : clients) {
             if (c != null) {
                 c.__del__();
@@ -299,15 +297,28 @@ public class AbstractServerTest extends AbstractTest {
     }
 
     /**
-     * Cast the map of strings (e.g. {@link #ALL_GROUPS_CONTEXT})
-     * into implicit context, which asks for {@code <String, String>}.
-     * @param implicitContext the implicit context to be changed
-     * @param newContext the map of strings (e.g. {@link #ALL_GROUPS_CONTEXT})
+     * Creates the import if not already initialized and returns it.
      */
-    protected void mergeIntoContext(ImplicitContext implicitContext, Map<String, String> newContext) {
-        for (final Entry<String, String> entry : newContext.entrySet()) {
-            implicitContext.put(entry.getKey(), entry.getValue());
+    protected OMEROMetadataStoreClient createImporter() throws Exception
+    {
+
+        if (importer == null) {
+            try {
+                importer = new OMEROMetadataStoreClient();
+                importer.initialize(factory);
+            } catch (Exception e) {
+                if (importer != null) {
+                    try {
+                        importer.closeServices();
+                    } catch (Exception ex) {
+                        //the initial error will be thrown
+                    }
+                    importer = null;
+                }
+                throw e;
+            }
         }
+        return importer;
     }
 
     /**
@@ -432,14 +443,15 @@ public class AbstractServerTest extends AbstractTest {
      * @param property property to examine the testedObjects for (can be GROUP or OWNER)
      * @throws ServerError if query fails
      */
-    protected void verifyObjectProperty(Collection<? extends IObject> testedObjects, long id, DetailsProperty property) throws ServerError {
+    protected void verifyObjectProperty(Collection<? extends IObject> testedObjects, long id, DetailsProperty property)
+            throws ServerError {
         if (testedObjects.isEmpty()) {
             throw new IllegalArgumentException("must assert about some objects");
         }
         for (final IObject testedObject : testedObjects) {
             final String testedObjectName = testedObject.getClass().getName() + '[' + testedObject.getId().getValue() + ']';
-            final String query = "SELECT details." + property + ".id FROM " + testedObject.getClass().getSuperclass().getSimpleName() +
-                    " WHERE id = :id";
+            final String query = "SELECT details." + property + ".id FROM " +
+                    testedObject.getClass().getSuperclass().getSimpleName() + " WHERE id = :id";
             final Parameters params = new ParametersI().addId(testedObject.getId());
             final List<List<RType>> results = root.getSession().getQueryService().projection(query, params, ALL_GROUPS_CONTEXT);
             final long actualId = ((RLong) results.get(0).get(0)).getValue();
@@ -938,9 +950,7 @@ public class AbstractServerTest extends AbstractTest {
             iAdmin = factory.getAdminService();
             iPix = factory.getPixelsService();
             roles = iAdmin.getSecurityRoles();
-            mmFactory = new ModelMockFactory(factory.getTypesService());
-            importer = new OMEROMetadataStoreClient();
-            importer.initialize(factory);
+            mmFactory = new ModelMockFactory(root.getSession().getTypesService());
             ctx = iAdmin.getEventContext();
         } catch (SecurityViolation sv) {
             mmFactory = null;
@@ -948,7 +958,6 @@ public class AbstractServerTest extends AbstractTest {
             iQuery = null;
             iUpdate = null;
             iPix = null;
-            importer = null;
         }
 
         return ctx;
@@ -1306,6 +1315,9 @@ public class AbstractServerTest extends AbstractTest {
     protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
             File file, String format, boolean metadata, IObject target)
             throws Throwable {
+        if (importer == null) {
+            importer = createImporter();
+        }        
         String[] paths = new String[1];
         paths[0] = file.getAbsolutePath();
         ImportConfig config = new ImportConfig();
@@ -2341,5 +2353,56 @@ public class AbstractServerTest extends AbstractTest {
     @DataProvider(name = "test cases using four Boolean arguments")
     public Object[][] provideFourBooleanArguments() {
         return provideEveryBooleanCombination(4);
+    }
+
+    /**
+     * Override the Ice implicit call context with a group ID.
+     * Removes the override upon closing.
+     * @author m.t.b.carroll@ixod.org
+     * @since 5.4.0
+     */
+    protected class ImplicitGroupContext implements AutoCloseable {
+        /**
+         * Set the implicit group context to the given group.
+         * @param groupId a group ID
+         */
+        ImplicitGroupContext(long groupId) {
+            if (client.getImplicitContext().containsKey(Login.OMERO_GROUP)) {
+                throw new IllegalStateException("group context already set");
+            }
+            client.getImplicitContext().put(Login.OMERO_GROUP, Long.toString(groupId));
+        }
+
+        /**
+         * Set the implicit group context.
+         * @param groupId a group ID
+         */
+        ImplicitGroupContext(RLong groupId) {
+            this(groupId.getValue());
+        }
+
+        @Override
+        public void close() {
+            if (!client.getImplicitContext().containsKey(Login.OMERO_GROUP)) {
+                throw new IllegalStateException("group context no longer set");
+            }
+            client.getImplicitContext().remove(Login.OMERO_GROUP);
+        }
+    }
+
+    /**
+     * Override the Ice implicit call context with all-groups.
+     * Removes the override upon closing.
+     * @author m.t.b.carroll@ixod.org
+     * @since 5.4.0
+     */
+    protected class ImplicitAllGroupsContext extends ImplicitGroupContext {
+        /**
+         * Set the implicit group context to all-groups.
+         * @param groupId a group ID
+         */
+        ImplicitAllGroupsContext() {
+            super(-1);
+        }
     }
 }
