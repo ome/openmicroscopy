@@ -291,7 +291,9 @@ public class BasicACLVoter implements ACLVoter {
         if (tokenHolder.hasPrivilegedToken(iObject)) {
             return true;
         } else if (!sysType) {
-            if (iObject instanceof OriginalFile) {
+            if (ec.getCurrentUserId() == roles.getGuestId()) {
+                return false;
+            } else if (iObject instanceof OriginalFile) {
                 final OriginalFile file = (OriginalFile) iObject;
                 if (file.getRepo() != null && !file.getName().startsWith(fileRepoSecretKey)) {
                     /* Cannot yet set OriginalFile.repo except via secret key stored in database.
@@ -498,7 +500,9 @@ public class BasicACLVoter implements ACLVoter {
 
             boolean hasLightAdminPrivilege = false;
             if (!sysType) {
-                if (iObject instanceof OriginalFile) {
+                if (c.getCurrentUserId() == roles.getGuestId()) {
+                    return 0;
+                } else if (iObject instanceof OriginalFile) {
                     final String repo = ((OriginalFile) iObject).getRepo();
                     if (repo != null) {
                         if (managedRepoUuids.contains(repo)) {
