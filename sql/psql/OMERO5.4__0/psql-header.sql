@@ -57,6 +57,7 @@ SELECT assert_db_server_prerequisites(90300);
 DROP FUNCTION assert_db_server_prerequisites(INTEGER);
 DROP FUNCTION db_pretty_version(INTEGER);
 
+-- Compare IllegalArgumentException cases in object.vm.
 
 CREATE DOMAIN nonnegative_int AS INTEGER CHECK (VALUE >= 0);
 CREATE DOMAIN nonnegative_float AS DOUBLE PRECISION CHECK (VALUE >= 0);
