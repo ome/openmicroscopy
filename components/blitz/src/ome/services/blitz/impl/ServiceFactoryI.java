@@ -573,7 +573,7 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
                     @Transactional(readOnly=true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-                        EventContext ec = admin.getEventContextQuiet();
+                        final EventContext ec = admin.getEventContext();
                         long guestId = admin.getSecurityRoles().getGuestId();
                         return ec.getCurrentUserId().equals(guestId);
                     }
