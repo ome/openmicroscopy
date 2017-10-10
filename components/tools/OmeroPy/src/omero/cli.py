@@ -405,6 +405,8 @@ ENV_HELP = """Environment variables:
                     Default: $OMERO_USERDIR/sessions
   OMERO_TMPDIR      Set the base directory containing temporary files.
                     Default: $OMERO_USERDIR/tmp
+  OMERO_PASSWORD    Set the user's password for creating new sessions.
+                    Suppresses interactive prompt. Ignored if -w is used.
 """
 
 SUDO_HELP = """
