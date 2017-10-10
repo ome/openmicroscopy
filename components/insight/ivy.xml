@@ -62,7 +62,7 @@
     <dependency org="edu.ucar" name="grib" rev="${versions.grib}" transitive="false"/>
     <dependency org="edu.ucar" name="bufr" rev="${versions.bufr}" transitive="false"/>
     <!-- from Java 9 on javax.activation is not included any longer -->
-    <dependency org="javax.activation" name="activation" rev="1.1.1"/>
+    <dependency org="javax.activation" name="activation" rev="${versions.activation}"/>
     <!-- Bioformats -->
     <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}">
         <exclude org="com.jgoodies"/>
