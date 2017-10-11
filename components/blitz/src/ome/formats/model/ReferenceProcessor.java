@@ -114,8 +114,8 @@ public class ReferenceProcessor implements ModelProcessor {
               indexes.put(Index.IMAGE_INDEX, indexArray[0]);
               indexes.put(Index.CHANNEL_INDEX, indexArray[1]);
             } else {
-                log.warn("Ignoring target class " + target+", not handled yet.");
-                continue;
+              log.warn("Ignoring target class " + target + ", not handled yet.");
+              continue;
             }
             container = store.getIObjectContainer(targetClass, indexes);
           }
