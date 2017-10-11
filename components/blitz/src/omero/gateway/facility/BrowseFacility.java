@@ -130,7 +130,7 @@ public class BrowseFacility extends Facility {
     public Collection<DataObject> getHierarchy(SecurityContext ctx, Class rootType,
             List<Long> rootIDs, Parameters options)
             throws DSOutOfServiceException, DSAccessException {
-        if (rootType == null || CollectionUtils.isEmpty(rootIDs))
+        if (rootType == null)
             return Collections.emptySet();
         
         try {
