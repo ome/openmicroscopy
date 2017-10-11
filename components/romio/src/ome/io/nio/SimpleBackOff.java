@@ -48,13 +48,19 @@ public class SimpleBackOff implements BackOff {
 
     protected final TileSizes sizes;
 
+    protected final long maxPixels;
+    
+    protected final long defaultValue;
+    
     public SimpleBackOff() {
-        this(new ConfiguredTileSizes());
+        this(new ConfiguredTileSizes(), 1000, 1000000);
     }
 
-    public SimpleBackOff(TileSizes sizes) {
+    public SimpleBackOff(TileSizes sizes, long defaultValue, long maxPixels) {
         this.sizes = sizes;
         this.count = 10;
+        this.defaultValue = defaultValue;
+        this.maxPixels = maxPixels;
         try {
             ServiceFactory sf = new ServiceFactory();
             service = sf.getInstance(JAIIIOService.class);
@@ -85,10 +91,9 @@ public class SimpleBackOff implements BackOff {
 
     protected long calculate(Pixels pixels) {
         // only count tiles if pixels report reasonable size values
-        final long cutOff = 1000000;
-        return (pixels.getSizeC() > cutOff || pixels.getSizeT() > cutOff
-                || pixels.getSizeX() > cutOff || pixels.getSizeY() > cutOff || pixels
-                .getSizeZ() > cutOff) ? 1000
+        return (pixels.getSizeC() > maxPixels || pixels.getSizeT() > maxPixels
+                || pixels.getSizeX() > maxPixels || pixels.getSizeY() > maxPixels || pixels
+                .getSizeZ() > maxPixels) ? defaultValue
                 : (long) (scalingFactor * countTiles(pixels));
     }
 
