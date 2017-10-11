@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2016 University of Dundee. All rights reserved.
+ *   Copyright 2006-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -636,6 +636,27 @@ public class ImporterTest extends AbstractServerTest {
             Assert.fail("Cannot import the following formats:" + s);
         }
         Assert.assertEquals(0, failures.size());
+    }
+
+    @Test(timeOut = 5000)
+    public void testImportInsaneImage() throws Exception {
+        // Simulates QA 17685 (an image with unreasonably huge pixel sizes stuck the import process
+        // in a basically endless loop when trying to throw an exception)
+        File f = new File(
+                System.getProperty("java.io.tmpdir"),
+                "testImportInsaneImage&pixelType=uint8&sizeX=892411973&sizeY=1684497696&sizeZ=25971.fake");
+        f.deleteOnExit();
+        f.createNewFile();
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import image", e);
+        }
+        Pixels p = pixels.get(0);
+        Assert.assertEquals(p.getSizeX().getValue(), 892411973);
+        Assert.assertEquals(p.getSizeY().getValue(), 1684497696);
+        Assert.assertEquals(p.getSizeZ().getValue(), 25971);
     }
 
     /**
