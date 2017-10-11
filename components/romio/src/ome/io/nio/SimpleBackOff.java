@@ -84,7 +84,12 @@ public class SimpleBackOff implements BackOff {
     }
 
     protected long calculate(Pixels pixels) {
-        return (long) (scalingFactor * countTiles(pixels));
+        // only count tiles if pixels report reasonable size values
+        final long cutOff = 1000000;
+        return (pixels.getSizeC() > cutOff || pixels.getSizeT() > cutOff
+                || pixels.getSizeX() > cutOff || pixels.getSizeY() > cutOff || pixels
+                .getSizeZ() > cutOff) ? 1000
+                : (long) (scalingFactor * countTiles(pixels));
     }
 
     protected int countTiles(Pixels pixels) {
