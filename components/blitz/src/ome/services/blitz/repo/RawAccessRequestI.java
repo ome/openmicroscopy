@@ -56,6 +56,7 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
     private static final long serialVersionUID = -303948503984L;
 
     private static Logger log = LoggerFactory.getLogger(RawAccessRequestI.class);
+    private static Logger logCmd = LoggerFactory.getLogger(log.getName() + " log cmd");
 
     private static ImmutableMap<String, LogLevel> logLevels;
 
@@ -270,19 +271,19 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
             for (final String arg : args) {
                 switch (logLevel) {
                 case Trace:
-                    log.trace(arg);
+                    logCmd.trace(arg);
                     break;
                 case Debug:
-                    log.debug(arg);
+                    logCmd.debug(arg);
                     break;
                 case Info:
-                    log.info(arg);
+                    logCmd.info(arg);
                     break;
                 case Warn:
-                    log.warn(arg);
+                    logCmd.warn(arg);
                     break;
                 case Error:
-                    log.error(arg);
+                    logCmd.error(arg);
                     break;
                 }
             }
