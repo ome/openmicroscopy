@@ -56,6 +56,10 @@ public class SimpleBackOff implements BackOff {
         this(new ConfiguredTileSizes(), 1000, 1000000);
     }
 
+    public SimpleBackOff(TileSizes sizes) {
+        this(sizes, 1000, 1000000);
+    }
+
     public SimpleBackOff(TileSizes sizes, long defaultValue, long maxPixels) {
         this.sizes = sizes;
         this.count = 10;
