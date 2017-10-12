@@ -117,5 +117,17 @@ public interface Communicator
     public void submitFile(String token, File file, String reader,
             StringBuilder reply)
                     throws TransportException;
+    
+    /**
+     * Submits the file that failed to import and its possible related files.
+     * 
+     * @param json The string encapsulating information required to queue an
+     *             import
+     * @param reply The result of the post.
+     * @throws TransportException Thrown if an error occurred while trying
+     *                            to submit the error.
+     */
+    public void enqueueImport(String json, StringBuilder reply)
+            throws TransportException;
 
 }

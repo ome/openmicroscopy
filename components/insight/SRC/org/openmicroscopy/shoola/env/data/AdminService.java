@@ -178,6 +178,12 @@ public interface AdminService
             throws DSOutOfServiceException, DSAccessException;
 
     /**
+     * Returns the port used to connect to the server.
+     * @return See above.
+     */
+    public int getPort();
+    
+    /**
      * Returns the address of the server the user is currently connected to.
      * @return See above.
      */

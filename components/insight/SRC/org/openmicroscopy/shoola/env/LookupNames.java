@@ -409,7 +409,13 @@ public class LookupNames
 
     /** Lookup name of the orphaned images folder */
     public static final String ORPHANED_IMAGE_DESCRIPTION = "omero.client.ui.tree.orphans.description";
-    
+
     /** Lookup name for the tree type order */
     public static final String TREE_TYPE_ORDER = "omero.client.ui.tree.type_order";
+
+    /** Lookup name for the url to use to do an offline import */
+    public static final String OFFLINE_IMPORT_URL = "omero.client.import.offline.url";
+
+    /** Lookup name for the flag indicating if the offline import is on/off.*/
+    public static final String OFFLINE_IMPORT_ENABLED = "omero.client.import.offline.enabled";
 }

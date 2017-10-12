@@ -28,6 +28,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -130,6 +131,14 @@ public class StatusLabel
     /** Text to indicate that the import is cancelled. */
     private static final String CANCEL_TEXT = "Cancelled";
 
+    /** Text to indicate that an offline import has succeeded. */
+    private static final String OFFLINE_SUCCESS_TEXT =
+            "The file will be imported offline.";
+
+    /** Text to indicate that an offline import has failed. */
+    private static final String OFFLINE_FAIL_TEXT =
+            "Error: The file cannot be imported offline.";
+    
     /** Text to indicate that no files to import. */
     private static final String NO_FILES_TEXT = "No Files to Import.";
 
@@ -240,6 +249,7 @@ public class StatusLabel
 
     /** The file or folder this component is for.*/
     private FileObject sourceFile;
+
 
     /** 
      * Formats the size of the uploaded data.
@@ -746,6 +756,32 @@ public class StatusLabel
                     (ImportEvent.POST_UPLOAD_EVENT) event;
             ic = e.container;
             
+        }
+    }
+
+    private boolean hasNotifiedOfflineOutcome = false;
+
+    public void notifySuccessfulOfflineImport() {
+        cancellable = false;
+        generalLabel.setText(OFFLINE_SUCCESS_TEXT);
+        pixels = new HashSet<>();
+        if (!hasNotifiedOfflineOutcome) {
+            hasNotifiedOfflineOutcome = true;  // avoid infinite loops.
+            firePropertyChange(IMPORT_DONE_PROPERTY, null, this);
+        }
+    }
+
+    public void notifyOfflineImportFailure(Exception cause) {
+        cancellable = false;
+        if (cause instanceof ImportException) {
+            exception = (ImportException) cause;
+        } else {
+            exception = new ImportException(cause);
+        }
+        generalLabel.setText(OFFLINE_FAIL_TEXT);
+        if (!hasNotifiedOfflineOutcome) {
+            hasNotifiedOfflineOutcome = true;  // avoid infinite loops.
+            firePropertyChange(PROCESSING_ERROR_PROPERTY, null, this);
         }
     }
 

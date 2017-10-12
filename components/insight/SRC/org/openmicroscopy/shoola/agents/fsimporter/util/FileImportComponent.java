@@ -1046,6 +1046,30 @@ public class FileImportComponent
 		repaint();
 	}
 
+	public void propagateSuccessfulOfflineImportStatus() {
+		if (statusLabel != null) {
+			statusLabel.notifySuccessfulOfflineImport();
+		}
+		setStatus(null);
+		if (hasComponents()) {
+			for (FileImportComponent c : components.values()) {
+				c.propagateSuccessfulOfflineImportStatus();
+			}
+		}
+	}
+
+	public void propagateOfflineImportFailureStatus(Exception cause) {
+		if (statusLabel != null) {
+			statusLabel.notifyOfflineImportFailure(cause);
+		}
+		setStatus(cause);
+		if (hasComponents()) {
+			for (FileImportComponent c : components.values()) {
+				c.propagateOfflineImportFailureStatus(cause);
+			}
+		}
+	}
+
 	/**
 	 * Returns the files that failed to import.
 	 * 

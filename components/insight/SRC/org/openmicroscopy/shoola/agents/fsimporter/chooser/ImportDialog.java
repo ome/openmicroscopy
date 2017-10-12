@@ -1016,7 +1016,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		p.add(buildQuotaPane());
 		p.add(table);
 		tabbedPane.add("Files to import", p);
-		tabbedPane.add("Options", buildOptionsPane());
+		if (!ImporterAgent.isOfflineImport()) {
+			tabbedPane.add("Options", buildOptionsPane());
+		}
 
 		double[][] tablePanelDesign = {
 				{ TableLayout.PREFERRED, 10, 5, TableLayout.FILL },
