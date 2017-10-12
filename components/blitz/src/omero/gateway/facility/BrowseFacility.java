@@ -121,8 +121,9 @@ public class BrowseFacility extends Facility {
      * @param rootType
      *            The type of node to handle.
      * @param rootIDs
-     *            The ids of the root nodes. Can be <code>null</code>, in which
-     *            case all root nodes the user has access to are loaded.
+     *            The ids of the root nodes. Can be <code>null</code> or empty,
+     *            in which case all root nodes the user has access to are
+     *            loaded.
      * @param options
      *            The retrieval options.
      * @return See above.
