@@ -58,8 +58,7 @@ public class GatewayUsageTest extends AbstractServerTest
             ExperimenterData root = gw.connect(c);
             Assert.assertNotNull(root);
         } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail();
+            Assert.fail("Gateway credentials login failed.", e);
         }
     }
 
@@ -77,8 +76,7 @@ public class GatewayUsageTest extends AbstractServerTest
             ExperimenterData root = gw.connect(c);
             Assert.assertNotNull(root);
         } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail();
+            Assert.fail("Gateway args login failed.", e);
         }
     }
     
@@ -103,12 +101,10 @@ public class GatewayUsageTest extends AbstractServerTest
                 Assert.assertNotNull(root2);
                 Assert.assertEquals(gw2.getSessionId(root2), sessionId);
             } catch (Exception e) {
-                e.printStackTrace();
-                Assert.fail();
+                Assert.fail("Gateway sessionId login failed.", e);
             }
         } catch (Exception e1) {
-            e1.printStackTrace();
-            Assert.fail();
+            Assert.fail("Gateway credentials login failed.", e1);
         }
     }
     
@@ -128,8 +124,7 @@ public class GatewayUsageTest extends AbstractServerTest
             // do nothing; checks that auto close of non-connected Gateway
             // doesn't throw any exceptions.
         } catch (Exception e1) {
-            e1.printStackTrace();
-            Assert.fail();
+            Assert.fail("Gateway autoclose threw exception.", e1);
         }
 
         try (Gateway gw = new Gateway(new SimpleLogger())) {
@@ -146,8 +141,7 @@ public class GatewayUsageTest extends AbstractServerTest
             gw.connect(c);
             Assert.assertTrue(sessionActive);
         } catch (Exception e1) {
-            e1.printStackTrace();
-            Assert.fail();
+            Assert.fail("Gateway login failed.", e1);
         }
         Assert.assertFalse(sessionActive);
     }
