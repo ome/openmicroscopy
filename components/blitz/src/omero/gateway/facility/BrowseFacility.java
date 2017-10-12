@@ -113,19 +113,24 @@ public class BrowseFacility extends Facility {
     }
 
     /**
-     * Retrieves hierarchy trees rooted by a given node.
-     * i.e. the requested node as root and all of its descendants.
+     * Retrieves hierarchy trees rooted by a given node. i.e. the requested node
+     * as root and all of its descendants.
      *
-     * @param ctx The security context.
-     * @param rootType The type of node to handle.
-     * @param rootIDs The node's id.
-     * @param options The retrieval options.
+     * @param ctx
+     *            The security context.
+     * @param rootType
+     *            The type of node to handle.
+     * @param rootIDs
+     *            The ids of the root nodes. Can be <code>null</code>, in which
+     *            case all root nodes the user has access to are loaded.
+     * @param options
+     *            The retrieval options.
      * @return See above.
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
-     *             service. 
+     *             service.
      */
     public Collection<DataObject> getHierarchy(SecurityContext ctx, Class rootType,
             List<Long> rootIDs, Parameters options)
