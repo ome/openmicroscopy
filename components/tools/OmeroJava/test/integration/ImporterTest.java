@@ -639,9 +639,10 @@ public class ImporterTest extends AbstractServerTest {
     }
 
     @Test(timeOut = 5000)
-    public void testImportInsaneImage() throws Exception {
+    public void testImportFinishTooLargePixelsImage() throws Exception {
         // Simulates QA 17685 (an image with unreasonably huge pixel sizes stuck the import process
-        // in a basically endless loop when trying to throw an exception)
+        // in a basically endless loop when trying to throw an exception); purpose is to
+        // check that the import process finishes within a certain amount of time.
         File f = new File(
                 System.getProperty("java.io.tmpdir"),
                 "testImportInsaneImage&pixelType=uint8&sizeX=892411973&sizeY=1684497696&sizeZ=25971.fake");
