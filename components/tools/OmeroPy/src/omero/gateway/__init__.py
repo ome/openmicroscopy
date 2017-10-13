@@ -8489,6 +8489,9 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                             Must be item for each channel
         :param invertMaps:  List of boolean (or None). If True/False then
                             set/remove reverseIntensityMap on channel
+        :param noRE:        If True Channels will not have rendering engine
+                            enabled. In this case, calling channel.getColor()
+                            or getWindowStart() etc. will return None.
         """
         if reverseMaps is not None:
             warnings.warn(
