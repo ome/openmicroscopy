@@ -8531,10 +8531,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     @assert_re()
     def setActiveChannels(self, channels, windows=None, colors=None,
                           invertMaps=None, reverseMaps=None):
-        warnings.warn(
-                "setActiveChannels() is"
-                "deprecated in OMERO 5.4.0. Use set_active_channels",
-                DeprecationWarning)
+        warnings.warn("setActiveChannels() is deprecated in OMERO 5.4.0."
+                      "Use set_active_channels", DeprecationWarning)
         return self.set_active_channels(channels, windows, colors,
                                         invertMaps, reverseMaps, False)
 
