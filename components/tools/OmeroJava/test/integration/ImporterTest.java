@@ -638,7 +638,7 @@ public class ImporterTest extends AbstractServerTest {
         Assert.assertEquals(0, failures.size());
     }
 
-    @Test(timeOut = 5000)
+    @Test(timeOut = 15000)
     public void testImportFinishTooLargePixelsImage() throws Exception {
         // Simulates QA 17685 (an image with unreasonably huge pixel sizes stuck the import process
         // in a basically endless loop when trying to throw an exception); purpose is to
