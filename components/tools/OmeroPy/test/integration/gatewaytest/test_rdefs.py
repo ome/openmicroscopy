@@ -512,6 +512,10 @@ class TestRDefs (object):
         assert self.channels[0].getWindowStart() == 0
 
     def testUnregisterService(self, gatewaywrapper):
+        """
+        Tests if the service is unregistered after closing the
+        rendering engine
+        """
         image = gatewaywrapper.getTestImage()
         self.channels = image.getChannels()
         g = gatewaywrapper.gateway
@@ -521,6 +525,10 @@ class TestRDefs (object):
         assert count_close == (count - 1)
 
     def testRegisterService(self, gatewaywrapper):
+        """
+        Tests if the service is registered when opening the
+        rendering engine
+        """
         g = gatewaywrapper.gateway
         image = gatewaywrapper.getTestImage()
         count = g._assert_unregistered("testUnregisteredService")
@@ -528,8 +536,11 @@ class TestRDefs (object):
         count_after = g._assert_unregistered("testUnregisteredService")
         assert count_after == (count + 1)
         image._closeRE()
-        
+
     def testCloseRE(self, gatewaywrapper):
+        """
+        Tests if the rendering engine is closed
+        """
         image = gatewaywrapper.getTestImage()
         image._closeRE()
         assert image._re is None
