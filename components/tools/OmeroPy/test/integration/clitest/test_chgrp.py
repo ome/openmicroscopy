@@ -22,7 +22,7 @@
 import omero
 from omero.cli import NonZeroReturnCode
 from omero.plugins.chgrp import ChgrpControl
-from test.integration.clitest.cli import CLITest, RootCLITest
+from omero.testlib.cli import CLITest, RootCLITest
 import pytest
 
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
