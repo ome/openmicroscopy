@@ -529,3 +529,7 @@ class TestRDefs (object):
         assert count_after == (count + 1)
         image._closeRE()
         
+    def testCloseRE(self, gatewaywrapper):
+        image = gatewaywrapper.getTestImage()
+        image._closeRE()
+        assert image._re is None
