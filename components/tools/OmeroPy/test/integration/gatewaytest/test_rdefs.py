@@ -510,3 +510,22 @@ class TestRDefs (object):
         assert self.channels[0].getColor().getHtml() == 'F0F000'
         assert self.channels[1].getColor().getHtml() == '000F0F'
         assert self.channels[0].getWindowStart() == 0
+
+    def testUnregisterService(self, gatewaywrapper):
+        image = gatewaywrapper.getTestImage()
+        self.channels = image.getChannels()
+        g = gatewaywrapper.gateway
+        count = g._assert_unregistered("testUnregisteredService")
+        image._closeRE()
+        count_close = g._assert_unregistered("testUnregisteredService")
+        assert count_close == (count - 1)
+
+    def testRegisterService(self, gatewaywrapper):
+        g = gatewaywrapper.gateway
+        image = gatewaywrapper.getTestImage()
+        count = g._assert_unregistered("testUnregisteredService")
+        self.channels = image.getChannels()
+        count_after = g._assert_unregistered("testUnregisteredService")
+        assert count_after == (count + 1)
+        image._closeRE()
+        
