@@ -8462,8 +8462,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         return rv
 
     @assert_re()
-    def setActiveChannels(self, channels, windows=None, colors=None,
-                          invertMaps=None, reverseMaps=None, noRE=False):
+    def set_active_channels(self, channels, windows=None, colors=None,
+                            invertMaps=None, reverseMaps=None, noRE=False):
         """
         Sets the active channels on the rendering engine.
         Also sets rendering windows and channel colors
@@ -8524,6 +8524,16 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             if (c+1 in abs_channels):
                 idx += 1
         return True
+
+    @assert_re()
+    def setActiveChannels(self, channels, windows=None, colors=None,
+                          invertMaps=None, reverseMaps=None):
+        warnings.warn(
+                "setActiveChannels() is"
+                "deprecated in OMERO 5.4.0. Use set_active_channels",
+                DeprecationWarning)
+        return self.set_active_channels(channels, windows, colors,
+                                        invertMaps, reverseMaps, False)
 
     def getProjections(self):
         """
