@@ -452,3 +452,61 @@ class TestRDefs (object):
             "family": channels[1].getFamily().getValue(),
             "coefficient": channels[1].getCoefficient()
         }
+
+    def testGetChannelsNoRE(self, gatewaywrapper):
+        """
+        Tests that the color, window start are not available
+        if noRE is True
+        """
+        self.image = gatewaywrapper.getTestImage()
+        channels = self.image.getChannels(noRE=True)
+        for c in channels:
+            assert c.getColor() is None
+            assert c.getWindowStart() is None
+
+    def testSetActiveChannelsNoRE(self, gatewaywrapper):
+        """
+        Tests set_active_channels method without rendering engine
+        """
+        # Clean potentially customized default
+        self.image.clearDefaults()
+        self.image = gatewaywrapper.getTestImage()
+        c0wmin = self.image.getChannels()[0].getWindowMin()
+        # Change the color for the rendering defs
+        # For #126, also verify channels, and specifically setting min to 0
+        self.channels = self.image.getChannels()
+        assert self.c0color != 'F0F000'
+        assert self.c1color != '000F0F'
+        assert c0wmin != 0
+        self.image.set_active_channels(
+            [1, 2], [[0.0, 1631.0], [409.0, 5015.0]], [u'F0F000', u'000F0F'],
+            noRE=True)
+        self.channels = self.image.getChannels()
+        assert len(self.channels) == 2, 'bad channel count on image #%d' \
+            % self.TESTIMG_ID
+        assert self.channels[0].getColor().getHtml() == 'F0F000'
+        assert self.channels[1].getColor().getHtml() == '000F0F'
+        assert self.channels[0].getWindowStart() == 0
+
+    def testSetActiveChannelsWithRE(self, gatewaywrapper):
+        """
+        Tests set_active_channels method with rendering engine
+        """
+        # Clean potentially customized default
+        self.image.clearDefaults()
+        self.image = gatewaywrapper.getTestImage()
+        c0wmin = self.image.getChannels()[0].getWindowMin()
+        # Change the color for the rendering defs
+        # For #126, also verify channels, and specifically setting min to 0
+        self.channels = self.image.getChannels()
+        assert self.c0color != 'F0F000'
+        assert self.c1color != '000F0F'
+        assert c0wmin != 0
+        self.image.set_active_channels(
+            [1, 2], [[0.0, 1631.0], [409.0, 5015.0]], [u'F0F000', u'000F0F'])
+        self.channels = self.image.getChannels()
+        assert len(self.channels) == 2, 'bad channel count on image #%d' \
+            % self.TESTIMG_ID
+        assert self.channels[0].getColor().getHtml() == 'F0F000'
+        assert self.channels[1].getColor().getHtml() == '000F0F'
+        assert self.channels[0].getWindowStart() == 0
