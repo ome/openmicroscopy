@@ -25,6 +25,8 @@ import omero.api.IAdminPrx;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
+import omero.cmd.Delete2;
+import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.Arc;
 import omero.model.BooleanAnnotation;
@@ -638,7 +640,7 @@ public class ImporterTest extends AbstractServerTest {
         Assert.assertEquals(0, failures.size());
     }
 
-    @Test(timeOut = 15000)
+    @Test(timeOut = 20000)
     public void testImportFinishTooLargePixelsImage() throws Exception {
         // Simulates QA 17685 (an image with unreasonably huge pixel sizes stuck the import process
         // in a basically endless loop when trying to throw an exception); purpose is to
@@ -658,6 +660,9 @@ public class ImporterTest extends AbstractServerTest {
         Assert.assertEquals(p.getSizeX().getValue(), 892411973);
         Assert.assertEquals(p.getSizeY().getValue(), 1684497696);
         Assert.assertEquals(p.getSizeZ().getValue(), 25971);
+        
+        Delete2 dc = Requests.delete().target(p.getImage()).build();
+        callback(true, root, dc);
     }
 
     /**
