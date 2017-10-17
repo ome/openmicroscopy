@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright 2017 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Chris Allan <callan@glencoesoftware.com>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+
+<beans>
+
+  <bean name="internal-ome.api.LutProvider"
+        class="ome.logic.LutProviderImpl" parent="level2">
+    <property name="sqlAction" ref="simpleSqlAction"/>
+  </bean>
+
+  <bean id="managed-ome.api.LutProvider" parent="managedService">
+    <property name="proxyInterfaces"
+              value="omeis.providers.re.lut.LutProvider"/>
+    <property name="target" ref="internal-ome.api.LutProvider"/>
+  </bean>
+
+</beans>

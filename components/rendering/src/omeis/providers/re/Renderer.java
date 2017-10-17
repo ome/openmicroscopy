@@ -5,7 +5,6 @@
 package omeis.providers.re;
 
 import java.awt.Dimension;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +32,7 @@ import omeis.providers.re.codomain.ReverseIntensityContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.RegionDef;
+import omeis.providers.re.lut.LutProvider;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;
@@ -137,8 +137,8 @@ public class Renderer {
     /** Map of overlays we've currently been told to render. */
     private Map<byte[], Integer> overlays;
 
-    /** The collections of available lookup tables.*/
-    private List<File> luts;
+    /** Lookup table provider. */
+    private LutProvider lutProvider;
 
     /**
      * Returns a copy of a list of channel bindings with one element removed;
@@ -353,11 +353,11 @@ public class Renderer {
     public Renderer(QuantumFactory quantumFactory,
     		List<RenderingModel> renderingModels, Pixels pixelsObj,
             RenderingDef renderingDefObj, PixelBuffer bufferObj,
-            List<File> luts) {
+            LutProvider lutProvider) {
         metadata = pixelsObj;
         rndDef = renderingDefObj;
         buffer = bufferObj;
-        this.luts = Collections.unmodifiableList(luts);
+        this.lutProvider = lutProvider;
         if (metadata == null) {
             throw new NullPointerException("Expecting not null metadata");
         } else if (rndDef == null) {
@@ -403,14 +403,15 @@ public class Renderer {
     }
 
     /**
-     * Returns the list of lookup tables that can be used.
+     * Returns the current lookup table provider.
      *
      * @return See above.
      */
-    List<File> getAllLuts()
+    LutProvider getLutProvider()
     {
-        return luts;
+        return lutProvider;
     }
+
     /**
      * Specifies the model that dictates how transformed raw data has to be
      * mapped onto a color space. This class delegates the actual rendering to a

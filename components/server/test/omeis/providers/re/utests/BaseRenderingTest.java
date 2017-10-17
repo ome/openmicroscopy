@@ -78,7 +78,7 @@ public class BaseRenderingTest extends TestCase
 			pixelsMetadataService.getAllEnumerations(RenderingModel.class);
 		quantumFactory = createQuantumFactory();
 		renderer = new Renderer(quantumFactory, renderingModels,
-				                pixels, settings, pixelBuffer, new ArrayList<File>());
+				                pixels, settings, pixelBuffer, null);
 	}
 	
 	protected QuantumFactory createQuantumFactory()

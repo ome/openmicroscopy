@@ -166,7 +166,7 @@ public class TestStandardFloatRenderer extends BaseRenderingTest
             pixelsMetadataService.getAllEnumerations(RenderingModel.class);
         QuantumFactory quantumFactory = createQuantumFactory();
         Renderer renderer = new Renderer(quantumFactory, renderingModels,
-                                pixels, settings, pixelBuffer, new ArrayList<File>());
+                                pixels, settings, pixelBuffer, null);
         PlaneDef def = new PlaneDef(PlaneDef.XY, 0);
         StopWatch stopWatch = new LoggingStopWatch("testRenderLargeRange");
         renderer.renderAsPackedInt(def, pixelBuffer);
