@@ -180,7 +180,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
      *          Reference to the executor.
      * @param secSys
      *          Reference to the security system.
-     * @param helper
+     * @param lutProvider
      *          Reference to the lookup table provider.
      */
     public RenderingBean(PixelsService dataService, LocalCompress compress,
