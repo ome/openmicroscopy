@@ -377,8 +377,7 @@ public class ThumbnailBean extends AbstractLevel2Service
      * the renderer.
      */
     public void setLutProvider(LutProvider lutProvider) {
-        getBeanHelper().throwIfAlreadySet(
-                this.lutProvider, lutProvider);
+        getBeanHelper().throwIfAlreadySet(this.lutProvider, lutProvider);
         this.lutProvider = lutProvider;
     }
 
