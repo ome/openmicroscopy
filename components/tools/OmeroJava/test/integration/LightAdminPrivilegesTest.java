@@ -554,7 +554,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
         final ImportLocation importLocation = importFileset(Collections.singletonList(fakeImageFile.getPath()));
-        final RString imagePath = omero.rtypes.rstring(importLocation.sharedPath + FsFile.separatorChar);
+        final RString imagePath = omero.rtypes.rstring(FsFile.separatorChar + importLocation.sharedPath + FsFile.separatorChar);
         final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
         final OriginalFile remoteFile = (OriginalFile) iQuery.findByQuery(
                 "FROM OriginalFile o WHERE o.path = :path AND o.name = :name AND o.details.group.id = :group_id",

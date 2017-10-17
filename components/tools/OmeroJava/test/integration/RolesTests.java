@@ -116,7 +116,7 @@ public class RolesTests extends AbstractServerImportTest {
         final String omeroGroup = client.getImplicitContext().get(omero.constants.GROUP.value);
         final long currentGroupId = StringUtils.isBlank(omeroGroup) ? iAdmin.getEventContext().groupId : Long.parseLong(omeroGroup);
         final ImportLocation importLocation = importFileset(Collections.singletonList(fakeImageFile.getPath()), 1, dataset);
-        final RString imagePath = omero.rtypes.rstring(importLocation.sharedPath + FsFile.separatorChar);
+        final RString imagePath = omero.rtypes.rstring(FsFile.separatorChar + importLocation.sharedPath + FsFile.separatorChar);
         final RString imageName = omero.rtypes.rstring(fakeImageFile.getName());
         String hql = "FROM OriginalFile o WHERE o.path = :path AND o.name = :name";
         final ParametersI params = new ParametersI().add("path", imagePath).add("name", imageName);
