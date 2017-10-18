@@ -152,8 +152,8 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         mrepo1 = self.get_managed_repo(client1)
         mrepo2 = self.get_managed_repo(client2)
 
-        testdir1 = self.test_dir(client1)
-        testdir2 = self.test_dir(client2)
+        testdir1 = '/' + self.test_dir(client1)
+        testdir2 = '/' + self.test_dir(client2)
 
         return self.Fixture(client1, mrepo1, testdir1), \
             self.Fixture(client2, mrepo2, testdir2)
@@ -359,9 +359,11 @@ class TestDbSync(AbstractRepoTest):
         self.create_file(mrepo, filename)
 
         # foo.txt is created on the backend but doesn't show up.
-        assert ['%s/file.txt' % self.unique_dir] == mrepo.list(self.unique_dir)
+        assert ['/%s/file.txt' % self.unique_dir] == \
+            mrepo.list(self.unique_dir)
         self.assert_passes(self.raw("touch", [fooname], client=self.root))
-        assert ['%s/file.txt' % self.unique_dir] == mrepo.list(self.unique_dir)
+        assert ['/%s/file.txt' % self.unique_dir] == \
+            mrepo.list(self.unique_dir)
 
         # If we try to create such a file, we should receive an exception
         try:
