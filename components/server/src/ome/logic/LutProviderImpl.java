@@ -105,7 +105,6 @@ public class LutProviderImpl
                     String key = lut.getFileName().toString().toLowerCase();
                     lutReaders.put(key, LutReaderFactory.read(lut.toFile()));
                     log.debug("Successfully added LUT '{}'", key);
-                    continue;
                 } catch (Exception e) {
                     log.warn("Cannot read lookup table: '{}'", lut, e);
                 }
