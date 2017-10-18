@@ -347,7 +347,7 @@ public class Renderer {
      * @param pixelsObj Pixels object.
      * @param renderingDefObj Rendering definition object.
      * @param bufferObj PixelBuffer object.
-     * @param luts the available lookup tables.
+     * @param lutProvider provider of the available lookup tables.
      * @throws NullPointerException If <code>null</code> parameters are passed.
      */
     public Renderer(QuantumFactory quantumFactory,

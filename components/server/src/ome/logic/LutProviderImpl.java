@@ -72,7 +72,7 @@ public class LutProviderImpl
     /**
      * {@link SqlAction} setter for dependency injection.
      * 
-     * @param sql the SQL action instance
+     * @param sqlAction the SQL action instance
      * @see ome.services.util.BeanHelper#throwIfAlreadySet(Object, Object)
      */
     public final void setSqlAction(SqlAction sqlAction) {
@@ -89,7 +89,6 @@ public class LutProviderImpl
     /**
      * Finds the lookup table readers supported and updates them on this
      * instance.
-     * @return See above.
      */
     protected void initLutReaders() {
         List<String> paths = sqlAction.findLuts();
