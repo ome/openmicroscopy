@@ -32,13 +32,12 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.event.ContextRefreshedEvent;
 
-import ome.annotations.RolesAllowed;
-import ome.api.ServiceInterface;
+import ome.model.core.OriginalFile;
 import ome.model.display.ChannelBinding;
 import ome.services.scripts.ScriptRepoHelper;
-import ome.util.SqlAction;
+import ome.tools.spring.OnContextRefreshedEventListener;
 import omeis.providers.re.lut.LutProvider;
 import omeis.providers.re.lut.LutReader;
 import omeis.providers.re.lut.LutReaderFactory;
@@ -49,41 +48,31 @@ import omeis.providers.re.lut.LutReaderFactory;
  * @author Chris Allan <callan@glencoesoftware.com>
  * @since 5.4.1
  */
-@Transactional
 public class LutProviderImpl
-        extends AbstractLevel2Service implements LutProvider {
+        extends OnContextRefreshedEventListener implements LutProvider {
 
     /** The logger for this class. */
     private static Logger log =
             LoggerFactory.getLogger(LutProviderImpl.class);
 
-    /** Script repository root. */
-    private final String root;
+    private final ScriptRepoHelper scriptRepoHelper;
+
+    private final String fileRepoSecretKey;
 
     /** Available readers, keyed off name. Should be an unmodifiable map. */
     protected Map<String, LutReader> lutReaders;
 
-    private transient SqlAction sqlAction;
-
-    public LutProviderImpl() {
-        root = ScriptRepoHelper.getDefaultScriptDir();
-    }
-
-    /**
-     * {@link SqlAction} setter for dependency injection.
-     * 
-     * @param sqlAction the SQL action instance
-     * @see ome.services.util.BeanHelper#throwIfAlreadySet(Object, Object)
-     */
-    public final void setSqlAction(SqlAction sqlAction) {
-        getBeanHelper().throwIfAlreadySet(this.sqlAction, sqlAction);
-        this.sqlAction = sqlAction;
-        initLutReaders();
+    public LutProviderImpl(ScriptRepoHelper scriptRepoHelper, String uuid) {
+        this.scriptRepoHelper = scriptRepoHelper;
+        this.fileRepoSecretKey = uuid;
     }
 
     @Override
-    public Class<? extends ServiceInterface> getServiceInterface() {
-        return LutProvider.class;
+    public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
+        // As the script repository helper has not been fully initialized with
+        // the correct filters until the Spring Application Context has been
+        // refreshed we need to defer our reader population until then.
+        initLutReaders();
     }
 
     /**
@@ -91,10 +80,26 @@ public class LutProviderImpl
      * instance.
      */
     protected void initLutReaders() {
-        List<String> paths = sqlAction.findLuts();
+        List<OriginalFile> scripts =
+                scriptRepoHelper.loadAll(true, "text/x-lut");
+        log.debug("Found {} LUT scripts", scripts.size());
         Map<String, LutReader> lutReaders = new HashMap<String, LutReader>();
-        for (String path : paths) {
-            Path lut = Paths.get(root, path);
+        String root = scriptRepoHelper.getScriptDir();
+        for (OriginalFile script : scripts) {
+            String path = script.getPath();
+            String name = script.getName();
+            // On INSERT the file repository secret key is used in the "name"
+            // attribute of an OriginalFile to protect bad actors from
+            // manipulating other attributes.  If it is present we need to
+            // strip it off.  This *should* only occur in the situation
+            // where the database is fresh and the above call to
+            // `ScriptRepoHelper.loadAll()` actually creates the OriginalFile
+            // rows in the database for the various scripts.
+            //
+            // Reference:
+            //   https://github.com/openmicroscopy/openmicroscopy/pull/5273
+            name = name.replace(fileRepoSecretKey,  "");
+            Path lut = Paths.get(root, path, name);
             if (Files.exists(lut)) {
                 try {
                     String key = lut.getFileName().toString().toLowerCase();
@@ -116,7 +121,6 @@ public class LutProviderImpl
     /* (non-Javadoc)
      * @see omeis.providers.re.lut.LutProvider#getLutReaders(ome.model.display.ChannelBinding[])
      */
-    @RolesAllowed("user")
     public List<LutReader> getLutReaders(ChannelBinding[] channelBindings) {
         log.debug("Looking up LUT readers for {} channels from {} LUTs",
                 channelBindings.length, lutReaders.size());

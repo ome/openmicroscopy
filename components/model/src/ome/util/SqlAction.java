@@ -598,13 +598,6 @@ public interface SqlAction {
      */
     void insertCurrentAdminPrivileges(Iterable<AdminPrivilege> privileges);
 
-    /**
-     * Find lookup tables.
-     * @return List of full paths within the script repository for each
-     * {@link ome.model.core.OriginalFile} matching the lookup table MIME type.
-     */
-    List<String> findLuts();
-
     //
     // End PgArrayHelper
     //
@@ -881,21 +874,6 @@ public interface SqlAction {
                 return _jdbc().query(_lookup("find_files_in_repo"), new IdRowMapper(), arguments);
             } catch (EmptyResultDataAccessException e) {
                 return Collections.emptyList();
-            }
-        }
-
-        @Override
-        public List<String> findLuts() {
-            final RowMapper<String> rm = new RowMapper<String>() {
-                public String mapRow(ResultSet arg0, int arg1)
-                        throws SQLException {
-                    return arg0.getString(1) + arg0.getString(2);
-                }
-            };
-            try {
-                return _jdbc().query(_lookup("find_luts"), rm);
-            } catch (EmptyResultDataAccessException erdae) {
-                return null;
             }
         }
 

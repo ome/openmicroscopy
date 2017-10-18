@@ -17,8 +17,9 @@
 <beans>
 
   <bean name="internal-ome.api.LutProvider"
-        class="ome.logic.LutProviderImpl" parent="level2">
-    <property name="sqlAction" ref="simpleSqlAction"/>
+        class="ome.logic.LutProviderImpl">
+    <constructor-arg ref="scriptRepoHelper"/>
+    <constructor-arg ref="uuid"/>
   </bean>
 
   <bean id="managed-ome.api.LutProvider" parent="managedService">
