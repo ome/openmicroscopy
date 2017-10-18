@@ -215,7 +215,7 @@ def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
         target = new_parpath + new_logname
         source = orig_parpath + orig_logname
         tomove.append((source, target))
-        log.path = rstring(new_parpath)
+        log.path = rstring("/" + new_parpath)
         log.name = rstring(new_logname)
         tosave.append(log)
 
