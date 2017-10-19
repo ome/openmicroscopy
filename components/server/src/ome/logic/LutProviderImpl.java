@@ -21,23 +21,22 @@
  */
 package ome.logic;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.ContextRefreshedEvent;
 
-import ome.model.core.OriginalFile;
 import ome.model.display.ChannelBinding;
+import ome.services.scripts.RepoFile;
+import ome.services.scripts.ScriptFileType;
 import ome.services.scripts.ScriptRepoHelper;
-import ome.tools.spring.OnContextRefreshedEventListener;
 import omeis.providers.re.lut.LutProvider;
 import omeis.providers.re.lut.LutReader;
 import omeis.providers.re.lut.LutReaderFactory;
@@ -48,73 +47,37 @@ import omeis.providers.re.lut.LutReaderFactory;
  * @author Chris Allan <callan@glencoesoftware.com>
  * @since 5.4.1
  */
-public class LutProviderImpl
-        extends OnContextRefreshedEventListener implements LutProvider {
+public class LutProviderImpl implements LutProvider {
 
     /** The logger for this class. */
     private static Logger log =
             LoggerFactory.getLogger(LutProviderImpl.class);
 
-    private final ScriptRepoHelper scriptRepoHelper;
-
-    private final String fileRepoSecretKey;
-
-    /** Available readers, keyed off name. Should be an unmodifiable map. */
-    protected Map<String, LutReader> lutReaders;
-
-    public LutProviderImpl(ScriptRepoHelper scriptRepoHelper, String uuid) {
-        this.scriptRepoHelper = scriptRepoHelper;
-        this.fileRepoSecretKey = uuid;
-    }
-
-    @Override
-    public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
-        // As the script repository helper has not been fully initialized with
-        // the correct filters until the Spring Application Context has been
-        // refreshed we need to defer our reader population until then.
-        initLutReaders();
-    }
-
     /**
-     * Finds the lookup table readers supported and updates them on this
-     * instance.
+     * Available readers, keyed off name.  Should be an unmodifiable map.
      */
-    protected void initLutReaders() {
-        List<OriginalFile> scripts =
-                scriptRepoHelper.loadAll(true, "text/x-lut");
-        log.debug("Found {} LUT scripts", scripts.size());
-        Map<String, LutReader> lutReaders = new HashMap<String, LutReader>();
-        String root = scriptRepoHelper.getScriptDir();
-        for (OriginalFile script : scripts) {
-            String path = script.getPath();
-            String name = script.getName();
-            // On INSERT the file repository secret key is used in the "name"
-            // attribute of an OriginalFile to protect bad actors from
-            // manipulating other attributes.  If it is present we need to
-            // strip it off.  This *should* only occur in the situation
-            // where the database is fresh and the above call to
-            // `ScriptRepoHelper.loadAll()` actually creates the OriginalFile
-            // rows in the database for the various scripts.
-            //
-            // Reference:
-            //   https://github.com/openmicroscopy/openmicroscopy/pull/5273
-            name = name.replace(fileRepoSecretKey,  "");
-            Path lut = Paths.get(root, path, name);
-            if (Files.exists(lut)) {
-                try {
-                    String key = lut.getFileName().toString().toLowerCase();
-                    lutReaders.put(key, LutReaderFactory.read(lut.toFile()));
-                    log.debug("Successfully added LUT '{}'", key);
-                } catch (Exception e) {
-                    log.warn("Cannot read lookup table: '{}'", lut, e);
-                }
-            } else {
-                log.warn("Cannot find lookup table: '{}'", lut);
+    protected final Map<String, LutReader> lutReaders =
+            new HashMap<String, LutReader>();
+
+    @SuppressWarnings("unchecked")
+    public LutProviderImpl(
+            ScriptRepoHelper scriptRepoHelper, ScriptFileType lutType) {
+        File root = new File(scriptRepoHelper.getScriptDir());
+        Iterator<File> scripts = FileUtils.iterateFiles(
+                root, lutType.getFileFilter(), TrueFileFilter.TRUE);
+        while (scripts.hasNext()) {
+            RepoFile script = new RepoFile(root, scripts.next());
+            String basename = script.basename();
+            try {
+                lutReaders.put(
+                        basename, LutReaderFactory.read(script.file()));
+                log.debug("Successfully added LUT '{}'", basename);
+            } catch (Exception e) {
+                log.warn("Cannot read lookup table: '{}'",
+                        script.fullname(), e);
             }
         }
         log.info("Successfully added {} LUTs", lutReaders.size());
-        this.lutReaders =
-                Collections.<String, LutReader>unmodifiableMap(lutReaders);
     }
 
     /* (non-Javadoc)
@@ -123,18 +86,18 @@ public class LutProviderImpl
     public List<LutReader> getLutReaders(ChannelBinding[] channelBindings) {
         log.debug("Looking up LUT readers for {} channels from {} LUTs",
                 channelBindings.length, lutReaders.size());
-        List<LutReader> lutReaders = new ArrayList<LutReader>();
+        List<LutReader> toReturn = new ArrayList<LutReader>();
         for (ChannelBinding cb : channelBindings) {
             if (cb.getActive()) {
-                LutReader lut = this.lutReaders.get(cb.getLookupTable());
+                LutReader lut = lutReaders.get(cb.getLookupTable());
                 if (lut != null) {
-                    lutReaders.add(lut);
+                    toReturn.add(lut);
                 } else {
-                    lutReaders.add(null);
+                    toReturn.add(null);
                 }
             }
         }
-        return lutReaders;
+        return toReturn;
     }
 
 }

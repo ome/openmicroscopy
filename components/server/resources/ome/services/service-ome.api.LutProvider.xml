@@ -19,7 +19,7 @@
   <bean name="internal-ome.api.LutProvider"
         class="ome.logic.LutProviderImpl">
     <constructor-arg ref="scriptRepoHelper"/>
-    <constructor-arg ref="uuid"/>
+    <constructor-arg ref="LUTScripts"/>
   </bean>
 
   <bean id="managed-ome.api.LutProvider" parent="managedService">
