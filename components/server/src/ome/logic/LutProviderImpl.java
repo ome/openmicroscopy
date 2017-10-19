@@ -89,12 +89,7 @@ public class LutProviderImpl implements LutProvider {
         List<LutReader> toReturn = new ArrayList<LutReader>();
         for (ChannelBinding cb : channelBindings) {
             if (cb.getActive()) {
-                LutReader lut = lutReaders.get(cb.getLookupTable());
-                if (lut != null) {
-                    toReturn.add(lut);
-                } else {
-                    toReturn.add(null);
-                }
+                toReturn.add(lutReaders.get(cb.getLookupTable()));
             }
         }
         return toReturn;
