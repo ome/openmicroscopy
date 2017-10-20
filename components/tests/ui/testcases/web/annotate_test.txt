@@ -283,15 +283,16 @@ Test Search Results File Annotations
     ${sId_One}=                                 Create Screen       robot file annotations_1
 
     # Annotate single Screen
+    Click Element                               xpath=//h1[@data-name='attachments']
     Add File Annotation                         ${fileNameTwo}
 
     Input Text  id=id_search_query              ${fileNameTwo}
     Submit Form
     Location Should Be                          ${SEARCH URL}?search_query=${fileNameTwo}
 
-    Wait Until Page Contains Element            xpath=//img[contains(@alt, 'plate')]
-    Click Element                               xpath=//img[contains(@alt, 'plate')]
-    Wait Until Page Contains Element            //*[@id="general_tab"]//th[contains(text(), 'Plate ID:')]
+    Wait Until Page Contains Element            xpath=//img[contains(@alt, 'screen')]
+    Click Element                               xpath=//img[contains(@alt, 'screen')]
+    Wait Until Page Contains Element            //*[@id="general_tab"]//th[contains(text(), 'Screen ID:')]
 
     #Minimal checking to check if you can add Annotations on the search result page
     Click Element                               xpath=//h1[@data-name='attachments']
