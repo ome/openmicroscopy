@@ -370,6 +370,15 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
     # Actual api_paths_to_object() is retrieved by jsTree once loaded
     initially_open_owner = show.initially_open_owner
 
+    # If we failed to find 'show'...
+    if request.GET.get('show', None) is not None and first_sel is None:
+        # and we're logged in as PUBLIC user...
+        if settings.PUBLIC_USER == conn.getUser().getOmeName():
+            # this is likely a regular user who needs to log in as themselves.
+            # Login then redirect to current url
+            return HttpResponseRedirect(
+                "%s?url=%s" % (reverse("weblogin"), url))
+
     # need to be sure that tree will be correct omero.group
     if first_sel is not None:
         switch_active_group(request, first_sel.details.group.id.val)
