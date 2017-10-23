@@ -20,6 +20,7 @@
 package ome.model.internal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.testng.Assert;
@@ -151,6 +152,27 @@ public class BooleanArrayCacheTest {
         cache.getArrayFor(array);
         array[0] = true;
         array = new boolean[] {false, true, false, true};
+        cache.getArrayFor(array);
+    }
+
+    /**
+     * Test that an array can be cached even when it uses all the bits of a {@code long}.
+     */
+    @Test
+    public void testMaximumBooleans() {
+        final boolean[] initialArray = new boolean[64];
+        Arrays.fill(initialArray, true);
+        final boolean[] cachedArray = cache.getArrayFor(initialArray);
+        Assert.assertEquals(cachedArray.length, initialArray.length);
+    }
+
+    /**
+     * Test that an array cannot be cached when it uses more bits than a {@code long} affords.
+     */
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testTooManyBooleans() {
+        final boolean[] array = new boolean[65];
+        Arrays.fill(array, true);
         cache.getArrayFor(array);
     }
 }
