@@ -21,12 +21,15 @@
 
 
 import pytest
+import os
 
-from test.integration.clitest.cli import CLITest
+from test.integration.clitest.cli import RootCLITest
 import omero.plugins.admin
 from omero.cli import NonZeroReturnCode
 from path import path
 from omero.util.upgrade_check import UpgradeCheck
+
+OMERODIR = os.getenv('OMERODIR', None)
 
 
 def createUpgradeCheckClass(version):
@@ -41,7 +44,7 @@ def createUpgradeCheckClass(version):
     return MockUpgradeCheck
 
 
-class TestAdmin(CLITest):
+class TestAdmin(RootCLITest):
 
     def setup_method(self, method):
         super(TestAdmin, self).setup_method(method)
@@ -67,3 +70,20 @@ class TestAdmin(CLITest):
         with pytest.raises(NonZeroReturnCode) as exc:
             self.go()
         assert exc.value.rv == 1
+
+    def test_log(self):
+        import uuid
+        test = str(uuid.uuid4())
+        self.args += ["log"]
+        self.args += ["ScriptRepo"]
+        self.args += [test]
+        self.cli.invoke(self.args, strict=True)
+
+        log_file = OMERODIR + "/var/log/Blitz-0.log"
+        import fileinput
+        found = False
+        for line in fileinput.input(log_file):
+            if line.__contains__(test):
+                found = True
+                break
+        assert found
