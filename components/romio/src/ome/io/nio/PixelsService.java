@@ -439,7 +439,7 @@ public class PixelsService extends AbstractFileSystemService
                         log.warn("Error clearing empty or incomplete pixel " +
                                  "buffer.", e2);
                     }
-                    throw new Utils.FailedTileLoopException();
+                    throw new FailedTileLoopException();
                 }
             }
             }, source, (int) tileSize.getWidth(), (int) tileSize.getHeight());
