@@ -339,18 +339,13 @@ public class LightAdminPrivilegesTest extends RolesTests {
     public void testDeleteFilePrivilegeDeletionViaRepo(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        /* fetch a script from the server */
-        final List<OriginalFile> scripts = factory.getScriptService().getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE);
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scripts.get(0).getId().getValue());
-        final byte[] fileContentOriginal = rfs.read(0, (int) rfs.size());
-        rfs.close();
-        /* upload the script as a new script */
+        /* upload the test script as a new script */
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         RepositoryPrx repo = getRepository(Repository.OTHER);
         final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
         final long testScriptId = testScript.getId().getValue();
-        rfs = repo.file(testScriptName, "rw");
+        final byte[] fileContentOriginal = pythonScript.getBytes(StandardCharsets.UTF_8);
+        RawFileStorePrx rfs = repo.file(testScriptName, "rw");
         rfs.write(fileContentOriginal, 0, fileContentOriginal.length);
         rfs.close();
         /* check that script is readable */
@@ -430,16 +425,10 @@ public class LightAdminPrivilegesTest extends RolesTests {
     public void testDeleteFilePrivilegeDeletionViaScripts(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
+        /* upload the test script as a new script */
         IScriptPrx iScript = factory.getScriptService();
-        /* fetch a script from the server */
-        final OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scriptFile.getId().getValue());
-        final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-        rfs.close();
-        /* upload the script as a new script */
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        final long testScriptId = iScript.uploadScript(testScriptName, actualScript);
+        final long testScriptId = iScript.uploadScript(testScriptName, pythonScript);
         /* delete any jobs associated with the script */
         final Delete2Builder delete = Requests.delete().option(Requests.option().excludeType("OriginalFile").build());
         for (final IObject scriptJob : iQuery.findAllByQuery(
@@ -471,11 +460,11 @@ public class LightAdminPrivilegesTest extends RolesTests {
         } else {
             assertExists(testScript);
         }
-        rfs = factory.createRawFileStore();
+        final RawFileStorePrx rfs = factory.createRawFileStore();
         try {
             rfs.setFileId(testScriptId);
             final String currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-            Assert.assertEquals(currentScript, actualScript);
+            Assert.assertEquals(currentScript, pythonScript);
             Assert.assertFalse(isExpectSuccess);
         } catch (Ice.LocalException | ServerError se) {
             /* can catch only ServerError once RawFileStoreTest.testBadFileId is fixed */
@@ -609,18 +598,13 @@ public class LightAdminPrivilegesTest extends RolesTests {
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        /* fetch a script from the server */
-        final List<OriginalFile> scripts = factory.getScriptService().getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE);
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scripts.get(0).getId().getValue());
-        final byte[] fileContentOriginal = rfs.read(0, (int) rfs.size());
-        rfs.close();
-        /* upload the script as a new script */
+        /* upload the test script as a new script */
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         RepositoryPrx repo = getRepository(Repository.SCRIPT);
         final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
         final long testScriptId = testScript.getId().getValue();
-        rfs = repo.file(testScriptName, "rw");
+        final byte[] fileContentOriginal = pythonScript.getBytes(StandardCharsets.UTF_8);
+        RawFileStorePrx rfs = repo.file(testScriptName, "rw");
         rfs.write(fileContentOriginal, 0, fileContentOriginal.length);
         rfs.close();
         /* check that script is readable */
@@ -679,18 +663,13 @@ public class LightAdminPrivilegesTest extends RolesTests {
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        /* fetch a script from the server */
-        final List<OriginalFile> scripts = factory.getScriptService().getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE);
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scripts.get(0).getId().getValue());
-        final byte[] fileContentOriginal = rfs.read(0, (int) rfs.size());
-        rfs.close();
-        /* upload the script as a new script */
+        /* upload the test script as a new script */
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         RepositoryPrx repo = getRepository(Repository.SCRIPT);
         final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
         final long testScriptId = testScript.getId().getValue();
-        rfs = repo.file(testScriptName, "rw");
+        final byte[] fileContentOriginal = pythonScript.getBytes(StandardCharsets.UTF_8);
+        RawFileStorePrx rfs = repo.file(testScriptName, "rw");
         rfs.write(fileContentOriginal, 0, fileContentOriginal.length);
         rfs.close();
         /* check that script is readable */
@@ -741,18 +720,11 @@ public class LightAdminPrivilegesTest extends RolesTests {
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        IScriptPrx iScript = factory.getScriptService();
-        /* fetch a script from the server */
-        final OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scriptFile.getId().getValue());
-        final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-        rfs.close();
-        /* upload the script as a new script */
         loginNewAdmin(true, null);
-        iScript = factory.getScriptService();
+        /* upload the test script as a new script */
+        IScriptPrx iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        final long testScriptId = iScript.uploadOfficialScript(testScriptName, actualScript);
+        final long testScriptId = iScript.uploadOfficialScript(testScriptName, pythonScript);
         /* delete any jobs associated with the script */
         final Delete2Builder delete = Requests.delete().option(Requests.option().excludeType("OriginalFile").build());
         for (final IObject scriptJob : iQuery.findAllByQuery(
@@ -784,11 +756,11 @@ public class LightAdminPrivilegesTest extends RolesTests {
         } else {
             assertExists(testScript);
         }
-        rfs = factory.createRawFileStore();
+        final RawFileStorePrx rfs = factory.createRawFileStore();
         try {
             rfs.setFileId(testScriptId);
             final String currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-            Assert.assertEquals(currentScript, actualScript);
+            Assert.assertEquals(currentScript, pythonScript);
             Assert.assertFalse(isExpectSuccess);
         } catch (Ice.LocalException | ServerError se) {
             /* can catch only ServerError once RawFileStoreTest.testBadFileId is fixed */
@@ -1504,22 +1476,15 @@ public class LightAdminPrivilegesTest extends RolesTests {
     public void testWriteFilePrivilegeCreationViaScripts(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        IScriptPrx iScript = factory.getScriptService();
-        /* fetch a script from the server */
-        OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scriptFile.getId().getValue());
-        final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-        rfs.close();
-        /* try uploading the script as a new script in the normal user's group */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteFile.value : null);
+        /* try uploading the test script as a new script in the normal user's group */
         final long testScriptId;
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-            iScript = factory.getScriptService();
+            final IScriptPrx iScript = factory.getScriptService();
             final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
             try {
-                testScriptId = iScript.uploadScript(testScriptName, actualScript);
+                testScriptId = iScript.uploadScript(testScriptName, pythonScript);
                 Assert.assertTrue(isExpectSuccess);
             } catch (ServerError se) {
                 Assert.assertFalse(isExpectSuccess);
@@ -1529,14 +1494,14 @@ public class LightAdminPrivilegesTest extends RolesTests {
         }
         /* check that the new script exists */
         loginUser(normalUser);
-        scriptFile = (OriginalFile) iQuery.get("OriginalFile", testScriptId);
+        final OriginalFile scriptFile = (OriginalFile) iQuery.get("OriginalFile", testScriptId);
         Assert.assertEquals(scriptFile.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         /* check if the script is correctly uploaded */
-        rfs = factory.createRawFileStore();
+        final RawFileStorePrx rfs = factory.createRawFileStore();
         rfs.setFileId(testScriptId);
         final String currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
         rfs.close();
-        Assert.assertEquals(currentScript, actualScript);
+        Assert.assertEquals(currentScript, pythonScript);
     }
 
     /**
@@ -1641,18 +1606,13 @@ public class LightAdminPrivilegesTest extends RolesTests {
     public void testWriteFilePrivilegeEditingViaRepoFile(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        /* fetch a script from the server */
-        final List<OriginalFile> scripts = factory.getScriptService().getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE);
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scripts.get(0).getId().getValue());
-        final byte[] fileContentOriginal = rfs.read(0, (int) rfs.size());
-        rfs.close();
-        /* upload the script as a new script */
+        /* upload the test script as a new script */
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         RepositoryPrx repo = getRepository(Repository.OTHER);
         final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
         final long testScriptId = testScript.getId().getValue();
-        rfs = repo.file(testScriptName, "rw");
+        final byte[] fileContentOriginal = pythonScript.getBytes(StandardCharsets.UTF_8);
+        RawFileStorePrx rfs = repo.file(testScriptName, "rw");
         rfs.write(fileContentOriginal, 0, fileContentOriginal.length);
         rfs.close();
         /* check that script is readable */
@@ -1708,16 +1668,10 @@ public class LightAdminPrivilegesTest extends RolesTests {
     public void testWriteFilePrivilegeEditingViaScripts(boolean isAdmin, boolean isRestricted, boolean isSudo) throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
+        /* upload the test script as a new script */
         IScriptPrx iScript = factory.getScriptService();
-        final List<OriginalFile> scripts = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE);
-        /* fetch a script from the server */
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scripts.get(0).getId().getValue());
-        final String originalScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-        rfs.close();
-        /* upload the script as a new script */
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        final long testScriptId = iScript.uploadScript(testScriptName, originalScript);
+        final long testScriptId = iScript.uploadScript(testScriptName, pythonScript);
         OriginalFile testScript = new OriginalFileI(testScriptId, false);
         /* try replacing the content of the normal user's script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
@@ -1726,7 +1680,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
             Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
             iScript = factory.getScriptService();
-            newScript = originalScript + "\n# this script is a copy of another";
+            newScript = pythonScript + "\n# this script is a copy of another";
             try {
                 iScript.editScript(new OriginalFileI(testScriptId, false), newScript);
                 Assert.assertTrue(isExpectSuccess);
@@ -1740,11 +1694,11 @@ public class LightAdminPrivilegesTest extends RolesTests {
         Assert.assertEquals(testScript.getDetails().getOwner().getId().getValue(), normalUser.userId);
         Assert.assertEquals(testScript.getDetails().getGroup().getId().getValue(), normalUser.groupId);
         /* check the content of the script */
-        rfs = factory.createRawFileStore();
+        final RawFileStorePrx rfs = factory.createRawFileStore();
         rfs.setFileId(testScriptId);
         final String currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
         rfs.close();
-        Assert.assertEquals(currentScript, isExpectSuccess ? newScript : originalScript);
+        Assert.assertEquals(currentScript, isExpectSuccess ? newScript : pythonScript);
     }
 
     /**
@@ -2098,21 +2052,14 @@ public class LightAdminPrivilegesTest extends RolesTests {
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        IScriptPrx iScript = factory.getScriptService();
-        /* fetch a script from the server */
-        OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scriptFile.getId().getValue());
-        final String actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-        rfs.close();
-        /* try uploading the script as a new script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
-        iScript = factory.getScriptService();
+        /* try uploading the test script as a new script */
+        final IScriptPrx iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         long testScriptId = -1;
         try {
-            testScriptId = iScript.uploadOfficialScript(testScriptName, actualScript);
+            testScriptId = iScript.uploadOfficialScript(testScriptName, pythonScript);
             Assert.assertTrue(isExpectSuccess);
         } catch (ServerError se) {
             Assert.assertFalse(isExpectSuccess);
@@ -2121,15 +2068,15 @@ public class LightAdminPrivilegesTest extends RolesTests {
         }
         /* check that the new script exists in the "user" group */
         loginUser(normalUser);
-        scriptFile = (OriginalFile) iQuery.get("OriginalFile", testScriptId);
+        final OriginalFile scriptFile = (OriginalFile) iQuery.get("OriginalFile", testScriptId);
         Assert.assertEquals(scriptFile.getDetails().getOwner().getId().getValue(), roles.rootId);
         Assert.assertEquals(scriptFile.getDetails().getGroup().getId().getValue(), roles.userGroupId);
         /* check if the script is correctly uploaded */
-        rfs = factory.createRawFileStore();
+        final RawFileStorePrx rfs = factory.createRawFileStore();
         rfs.setFileId(testScriptId);
         final String currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
         rfs.close();
-        Assert.assertEquals(currentScript, actualScript);
+        Assert.assertEquals(currentScript, pythonScript);
     }
 
     /**
@@ -2147,18 +2094,13 @@ public class LightAdminPrivilegesTest extends RolesTests {
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        /* fetch a script from the server */
-        final List<OriginalFile> scripts = factory.getScriptService().getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE);
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scripts.get(0).getId().getValue());
-        final byte[] fileContentOriginal = rfs.read(0, (int) rfs.size());
-        rfs.close();
-        /* upload the script as a new script */
+        /* upload the test script as a new script */
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         RepositoryPrx repo = getRepository(Repository.SCRIPT);
         final OriginalFile testScript = repo.register(testScriptName, omero.rtypes.rstring(ScriptServiceTest.PYTHON_MIMETYPE));
         final long testScriptId = testScript.getId().getValue();
-        rfs = repo.file(testScriptName, "rw");
+        final byte[] fileContentOriginal = pythonScript.getBytes(StandardCharsets.UTF_8);
+        RawFileStorePrx rfs = repo.file(testScriptName, "rw");
         rfs.write(fileContentOriginal, 0, fileContentOriginal.length);
         rfs.close();
         /* check that script is readable */
@@ -2215,18 +2157,11 @@ public class LightAdminPrivilegesTest extends RolesTests {
             throws Exception {
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
-        IScriptPrx iScript = factory.getScriptService();
-        final List<OriginalFile> scripts = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE);
-        /* fetch a script from the server */
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scripts.get(0).getId().getValue());
-        final String originalScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-        rfs.close();
-        /* upload the script as a new script */
         loginNewAdmin(true, null);
-        iScript = factory.getScriptService();
+        /* upload the test script as a new script */
+        IScriptPrx iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        final long testScriptId = iScript.uploadOfficialScript(testScriptName, originalScript);
+        final long testScriptId = iScript.uploadOfficialScript(testScriptName, pythonScript);
         /* try replacing the content of the normal user's script */
         loginNewActor(isAdmin, isSudo ? loginNewAdmin(true, null).userName : null,
                 isRestricted ? AdminPrivilegeWriteScriptRepo.value : null);
@@ -2236,7 +2171,7 @@ public class LightAdminPrivilegesTest extends RolesTests {
             testScript = new OriginalFileI(testScriptId, false);
             Assert.assertEquals(getCurrentPermissions(testScript).canEdit(), isExpectSuccess);
             iScript = factory.getScriptService();
-            newScript = originalScript + "\n# this script is a copy of another";
+            newScript = pythonScript + "\n# this script is a copy of another";
             try {
                 iScript.editScript(testScript, newScript);
                 Assert.assertTrue(isExpectSuccess);
@@ -2250,11 +2185,11 @@ public class LightAdminPrivilegesTest extends RolesTests {
         Assert.assertEquals(testScript.getDetails().getOwner().getId().getValue(), roles.rootId);
         Assert.assertEquals(testScript.getDetails().getGroup().getId().getValue(), roles.userGroupId);
         /* check the content of the script */
-        rfs = factory.createRawFileStore();
+        final RawFileStorePrx rfs = factory.createRawFileStore();
         rfs.setFileId(testScriptId);
         final String currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
         rfs.close();
-        Assert.assertEquals(currentScript, isExpectSuccess ? newScript : originalScript);
+        Assert.assertEquals(currentScript, isExpectSuccess ? newScript : pythonScript);
     }
 
     /**
