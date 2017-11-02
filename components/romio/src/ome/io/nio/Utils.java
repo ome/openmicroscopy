@@ -103,9 +103,10 @@ public class Utils
 
     /**
      * The processing of a tile failed so abort the loop.
+     * <strong>Warning:</strong> Will become a checked exception after OMERO 5.4.x.
      */
     @SuppressWarnings("serial")
-    public static class FailedTileLoopException extends Exception {
+    public static class FailedTileLoopException extends RuntimeException {
 
         private Integer tileCount = null;
 
