@@ -7,7 +7,8 @@ Maintained at https://github.com/pypa/setuptools/tree/bootstrap.
 
 Run this script to install or upgrade setuptools.
 
-This method is DEPRECATED. Check https://github.com/pypa/setuptools/issues/581 for more details.
+This method is DEPRECATED.
+Check https://github.com/pypa/setuptools/issues/581 for more details.
 """
 
 import os
@@ -33,13 +34,19 @@ try:
 except ImportError:
     USER_SITE = None
 
-# 33.1.1 is the last version that supports setuptools self upgrade/installation.
+# 33.1.1 is the last version that supports setuptools
+# self upgrade/installation.
 DEFAULT_VERSION = "33.1.1"
 DEFAULT_URL = "https://pypi.io/packages/source/s/setuptools/"
 DEFAULT_SAVE_DIR = os.curdir
-DEFAULT_DEPRECATION_MESSAGE = "ez_setup.py is deprecated and when using it setuptools will be pinned to {0} since it's the last version that supports setuptools self upgrade/installation, check https://github.com/pypa/setuptools/issues/581 for more info; use pip to install setuptools"
+DEFAULT_DEPRECATION_MESSAGE = (
+    "ez_setup.py is deprecated and when using it setuptools will be pinned "
+    "to {0} since it's the last version that supports setuptools self "
+    "upgrade/installation, check https://github.com/pypa/setuptools/issues/581"
+    " for more info; use pip to install setuptools")
 
-MEANINGFUL_INVALID_ZIP_ERR_MSG = 'Maybe {0} is corrupted, delete it and try again.'
+MEANINGFUL_INVALID_ZIP_ERR_MSG = \
+    'Maybe {0} is corrupted, delete it and try again.'
 
 log.warn(DEFAULT_DEPRECATION_MESSAGE.format(DEFAULT_VERSION))
 
@@ -135,7 +142,8 @@ def _do_download(version, download_base, to_dir, download_delay):
     tp = 'setuptools-{version}-{py_desig}.egg'
     egg = os.path.join(to_dir, tp.format(**locals()))
     if not os.path.exists(egg):
-        archive = download_setuptools(version, download_base,
+        archive = download_setuptools(
+            version, download_base,
             to_dir, download_delay)
         _build_egg(egg, archive, to_dir)
     sys.path.insert(0, egg)
@@ -245,7 +253,8 @@ def download_file_powershell(url, target):
     ps_cmd = (
         "[System.Net.WebRequest]::DefaultWebProxy.Credentials = "
         "[System.Net.CredentialCache]::DefaultCredentials; "
-        '(new-object System.Net.WebClient).DownloadFile("%(url)s", "%(target)s")'
+        '(new-object System.Net.WebClient).'
+        'DownloadFile("%(url)s", "%(target)s")'
         % locals()
     )
     cmd = [
@@ -314,7 +323,13 @@ def download_file_insecure(url, target):
     # Write all the data in one block to avoid creating a partial file.
     with open(target, "wb") as dst:
         dst.write(data)
-download_file_insecure.viable = lambda: True
+
+
+def _method():
+    return True
+
+download_file_insecure.viable = _method
+del _method
 
 
 def get_best_downloader():
