@@ -392,7 +392,7 @@
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Creates the Mac OS X distribution bundle under ${dist.dir} using the
-   * Java Application Bundler infrastructure for Java 1.7+.
+   * Java Application Bundler infrastructure for Java 1.8+.
    * This is a zip file whose name is set to
    * ${dist.bundle.name}-${dist.bundle.version}-mac.zip
    * and whose contents are:
@@ -535,7 +535,7 @@
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Creates the Mac OS X distribution bundle under ${dist.dir} using the
-   * Java Application Bundler infrastructure for Java 1.7+.
+   * Java Application Bundler infrastructure for Java 1.8+.
    * This is a zip file whose name is set to
    * ${dist.bundle.name}-${dist.bundle.version}-mac.zip
    * and whose contents are:
@@ -599,7 +599,7 @@ Distribution targets:
 ---------------------
   dist: Creates the distribution bundle under ${dist.dir}.
   dist-osx: Creates the Mac OS X distribution bundle under ${dist.dir}.
-  dist-osx-appbundler: Creates the Mac OS X distribution bundle under ${dist.dir} using the Java Application Bundler infrastructure for Java 1.7+.
+  dist-osx-appbundler: Creates the Mac OS X distribution bundle under ${dist.dir} using the Java Application Bundler infrastructure for Java 1.8+.
   dist-win: Creates the Windows distribution bundle under ${dist.dir}.
   dist.clean: Remove ${dist.dir}.
     </echo>

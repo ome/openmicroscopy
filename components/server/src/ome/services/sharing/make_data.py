@@ -99,7 +99,7 @@ def compile(dir=dat):
         pat2 = "~/.m2/repository/zeroc/*/%s/*.jar" % (version)
         pat2 = os.path.expanduser(pat2)
         cp = ":".join(glob.glob(pat1) + glob.glob(pat2))
-        javac_cmd = "javac -source 1.7 -target 1.7 -cp "
+        javac_cmd = "javac -source 1.8 -target 1.8 -cp "
         javac_cmd += ("%s %s/*.java""" % (cp, dat))
         print javac_cmd
         call(javac_cmd, cwd=src)
