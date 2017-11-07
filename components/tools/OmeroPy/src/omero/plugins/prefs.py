@@ -150,7 +150,11 @@ class PrefsControl(WriteableConfigControl):
             "KEY", nargs="*", help="Names of keys in the current profile")
         get.add_argument(
             "--hide-password", action="store_true",
-            help="Hide values of password keys in the current profile")
+            help="[Deprecated; this is the default now] Hide values of "
+                 "password keys in the current profile")
+        get.add_argument(
+            "--show-password", action="store_true",
+            help="Show values of password keys in the current profile")
 
         set = parser.add(
             sub, self.set,
@@ -284,7 +288,7 @@ class PrefsControl(WriteableConfigControl):
             for k in config.IGNORE:
                 k in keys and keys.remove(k)
 
-        hide_password = 'hide_password' in args and args.hide_password
+        show_password = 'show_password' in args and args.show_password
         is_password = (lambda x: x.lower().endswith('pass') or
                        x.lower().endswith('password'))
         for k in keys:
@@ -293,7 +297,7 @@ class PrefsControl(WriteableConfigControl):
             if args.KEY and len(args.KEY) == 1:
                 self.ctx.out(config[k])
             else:
-                if (hide_password and is_password(k)):
+                if is_password(k) and not show_password:
                     self.ctx.out("%s=%s" % (k, '*' * 8 if config[k] else ''))
                 else:
                     self.ctx.out("%s=%s" % (k, config[k]))
