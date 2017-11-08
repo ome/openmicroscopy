@@ -129,6 +129,7 @@
                 <include name="test.bmp"/>
                 <include name="test.jpg"/>
                 <include name="test.txt"/>
+                <include name="minimal-script.py"/>
             </patternset>
         </unjar>
     </target>
