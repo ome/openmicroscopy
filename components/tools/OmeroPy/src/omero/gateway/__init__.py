@@ -7189,6 +7189,38 @@ class _PixelsWrapper (BlitzObjectWrapper):
         tileList = list(self.getTiles([(theZ, theC, theT, tile)]))
         return tileList[0]
 
+    def getHistogram(self, theZ=0, theC=0, theT=0, binCount=256,
+                     globalRange=False):
+        """
+        Get a histogram of the specified plane
+        :param binCount:     The number of bins to use for the histogram
+        """
+
+        try:
+            rawPixelsStore = self._prepareRawPixelsStore()
+            plane = omero.romio.PlaneDef()
+            plane.z = theZ
+            plane.t = theT
+            data = rawPixelsStore.getHistogram([theC], binCount, globalRange,
+                                               plane)
+            if len(data) == 1:
+                return data[theC]
+            return None
+
+        except Exception, e:
+            logger.error(
+                "Failed to getHistogram() from rawPixelsStore",
+                exc_info=True)
+            exc = e
+        try:
+            rawPixelsStore.close()
+        except Exception, e:
+            logger.error("Failed to close rawPixelsStore", exc_info=True)
+            if exc is None:
+                exc = e
+        if exc is not None:
+            raise exc
+
 PixelsWrapper = _PixelsWrapper
 
 
