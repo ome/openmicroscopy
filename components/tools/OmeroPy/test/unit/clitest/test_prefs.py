@@ -121,7 +121,7 @@ class TestPrefs(object):
             'omero.Z.mypassword=\n'
             'omero.Z.pass=\n'
             'omero.Z.password='))
-        self.invoke("get --show-password")
+        self.invoke("get --show-secrets")
         self.assertStdoutStderr(capsys, out=(
             'omero.X.mypassword=long_password\n'
             'omero.X.pass=shortpass\n'
