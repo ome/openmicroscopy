@@ -451,7 +451,7 @@ button::-moz-focus-inner {
 */
     
     
-.tag_annotation_wrapper .tag {
+.tag_annotation_wrapper .tag, .imagefilter .tag {
 	 display:inline-block;
 	 float:left;
 	 margin:1px 1px;
@@ -535,7 +535,11 @@ button::-moz-focus-inner {
 }
 
 
-
+#currentFilterTags {
+	float: left;
+	top: -1px;
+	position: relative;
+}
 
 
 
@@ -1014,18 +1018,24 @@ button::-moz-focus-inner {
 	
     .filtersearch{
         position:absolute;
-        top:5px;
-        left:5px;
-        width:180px;
+        margin:5px;
+        width:90%;
         height:22px;
     }
 
         .filtersearch input {
-            border:solid 1px rgba(0,0,0,.6);
+  
+	/* same as .filtersearch label for top search field */
+	.inline_label {
+	    position:abs          border:solid 1px rgba(0,0,0,.6);
             border-top:solid 1px rgba(0,0,0,.6);
             position:absolute;
 			width:150px;
         }
+
+		.filtersearch select {
+			margin-top: 1px;
+		}
 
         .filtersearch label {
             position:absolute;
@@ -1072,6 +1082,12 @@ button::-moz-focus-inner {
 		color: blue;
 	}
 
+	#filtername {
+		position: relative;
+		width: 180px;
+		height:30px;
+		top: -1px;
+	}
 
 
 
