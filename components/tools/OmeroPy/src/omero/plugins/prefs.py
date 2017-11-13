@@ -152,10 +152,10 @@ class PrefsControl(WriteableConfigControl):
 
         secrets = get.add_mutually_exclusive_group()
         secrets.add_argument("--show-secrets", action="store_true",
-                             help="Show values of sensitive keys (passwords, tokens, "
-                                  "etc.) in the current profile")
-        secrets.add_argument("--hide-password", action="store_false", dest="show_secrets",
-                             help=SUPPRESS)
+                             help="Show values of sensitive keys (passwords, "
+                                  "tokens, etc.) in the current profile")
+        secrets.add_argument("--hide-password", action="store_false",
+                             dest="show_secrets", help=SUPPRESS)
 
         set = parser.add(
             sub, self.set,
