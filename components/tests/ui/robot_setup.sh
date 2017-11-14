@@ -146,7 +146,7 @@ do
   bin/omero import $TINY_IMAGE_NAME --debug ERROR
 done
 
-# Uplodad files and create FileAnnotations
+# Upload files and create FileAnnotations
 ofile=$(bin/omero upload $FILE_ANNOTATION)
 bin/omero obj new FileAnnotation file=$ofile
 ofile2=$(bin/omero upload $FILE_ANNOTATION2)
