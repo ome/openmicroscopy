@@ -21,13 +21,17 @@ package integration;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.ResourceUtils;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.Files;
 
 import ome.services.blitz.repo.path.FsFile;
 import omero.RString;
@@ -59,6 +63,8 @@ public class RolesTests extends AbstractServerImportTest {
 
     protected File fakeImageFile = null;
 
+    protected String pythonScript = null;
+
     /**
      * Create a fake image file for use in import tests.
      * @throws IOException unexpected
@@ -68,6 +74,25 @@ public class RolesTests extends AbstractServerImportTest {
         final File temporaryDirectory = TEMPORARY_FILE_MANAGER.createPath("images", null, true);
         fakeImageFile = new File(temporaryDirectory, "image.fake");
         fakeImageFile.createNewFile();
+    }
+
+    /**
+     * Note the contents of an uploadable Python script.
+     * @throws IOException unexpected
+     */
+    @BeforeClass
+    public void notePythonScriptContent() throws IOException {
+        final File scriptFile = ResourceUtils.getFile("classpath:minimal-script.py");
+        pythonScript = Files.toString(scriptFile, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Clear the instance fields that were set before running this class' tests.
+     */
+    @AfterClass
+    public void teardown() {
+        fakeImageFile = null;
+        pythonScript = null;
     }
 
     /* These permissions do not permit anything.*/
