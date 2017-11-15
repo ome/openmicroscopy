@@ -1,7 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
- *
+ *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,6 +17,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package integration;
 
 import java.nio.charset.StandardCharsets;
@@ -26,7 +26,9 @@ import java.util.List;
 import java.util.UUID;
 
 import ome.services.scripts.ScriptRepoHelper;
+
 import omero.SecurityViolation;
+import omero.ValidationException;
 import omero.api.IScriptPrx;
 import omero.api.RawFileStorePrx;
 import omero.gateway.util.Requests;
@@ -159,15 +161,21 @@ public class ScriptServiceTest extends AbstractServerTest {
     @Test
     public void testGetParams() throws Exception {
         IScriptPrx svc = factory.getScriptService();
-        List<OriginalFile> scripts = svc.getScripts();
-        Iterator<OriginalFile> i = scripts.iterator();
-        OriginalFile f;
-        JobParams params;
-        while (i.hasNext()) {
-            f = i.next();
-            params = svc.getParams(f.getId().getValue());
-            Assert.assertNotNull(params);
+        final List<OriginalFile> scripts = svc.getScriptsByMimetype(PYTHON_MIMETYPE);
+        for (final OriginalFile f : scripts) {
+            final long id = f.getId().getValue();
+            final JobParams params;
+            try {
+                params = svc.getParams(id);
+            } catch (ValidationException ve) {
+                /* try another, some scripts may be bad */
+                continue;
+            }
+            Assert.assertNotNull(params, "no parameters for script #" + id);
+            /* test passed */
+            return;
         }
+        Assert.fail("no script parameters could be fetched");
     }
 
     /**
@@ -181,14 +189,10 @@ public class ScriptServiceTest extends AbstractServerTest {
     public void testUploadOfficialScript() throws Exception {
         newUserAndGroup("rwr---");
         IScriptPrx svc = factory.getScriptService();
-        List<OriginalFile> scripts = svc.getScripts();
-        final OriginalFile f = getRealScript(scripts);
         int n = svc.getScripts().size();
-        //read the script. This is tested elsewhere
-        String str = readScript(f);
-        String folder = f.getName().getValue();
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         try {
-            svc.uploadOfficialScript(folder, str);
+            svc.uploadOfficialScript(testScriptName, getPythonScript());
             Assert.fail("Only administrators can upload official script.");
         } catch (Exception e) {
         }
@@ -207,11 +211,8 @@ public class ScriptServiceTest extends AbstractServerTest {
         logRootIntoGroup();
         IScriptPrx svc = factory.getScriptService();
         List<OriginalFile> scripts = svc.getScripts();
-        final OriginalFile f = getRealScript(scripts);
-        //read the script. This is tested elsewhere
-        String str = readScript(f);
-        String folder = f.getName().getValue();
-        long id = svc.uploadOfficialScript(folder, str);
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+        final long id = svc.uploadOfficialScript(testScriptName, getPythonScript());
         Assert.assertTrue(id > 0);
         Assert.assertEquals(svc.getScripts().size(), scripts.size()+1);
         deleteScript(id);
@@ -229,11 +230,8 @@ public class ScriptServiceTest extends AbstractServerTest {
         logRootIntoGroup();
         IScriptPrx svc = factory.getScriptService();
         List<OriginalFile> scripts = svc.getScripts();
-        final OriginalFile f = getRealScript(scripts);
-        //read the script. This is tested elsewhere
-        String str = readScript(f);
-        String folder = f.getName().getValue();
-        long id = svc.uploadOfficialScript(folder, str);
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+        final long id = svc.uploadOfficialScript(testScriptName, getPythonScript());
         deleteScript(id);
         Assert.assertEquals(svc.getScripts().size(), scripts.size());
         //Check that the entry has been removed from DB
@@ -250,12 +248,8 @@ public class ScriptServiceTest extends AbstractServerTest {
     public void testUploadScript() throws Exception {
         newUserAndGroup("rwr---");
         IScriptPrx svc = factory.getScriptService();
-        List<OriginalFile> scripts = svc.getScripts();
-        final OriginalFile f = getRealScript(scripts);
-        //read the script. This is tested elsewhere
-        String str = readScript(f);
-        String folder = f.getName().getValue();
-        long id = svc.uploadScript(folder, str);
+        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+        final long id = svc.uploadScript(testScriptName, getPythonScript());
         Assert.assertTrue(id > 0);
     }
 
@@ -289,22 +283,16 @@ public class ScriptServiceTest extends AbstractServerTest {
     @Test(groups = "broken")
     public void testGetScriptsFiltersUnreadable() throws Exception {
         final EventContext scriptOwner = newUserAndGroup("rwr---");
-        /* get a list of the Python scripts */
-        final List<OriginalFile> scripts = factory.getScriptService().getScriptsByMimetype(PYTHON_MIMETYPE);
-        /* fetch a script from the server */
-        RawFileStorePrx rfs = factory.createRawFileStore();
-        rfs.setFileId(scripts.get(0).getId().getValue());
-        final byte[] scriptContent = rfs.read(0, (int) rfs.size());
-        rfs.close();
         /* find the script repository */
         final RepositoryMap repositories = factory.sharedResources().repositories();
         int index;
         for (index = 0; !ScriptRepoHelper.SCRIPT_REPO.equals(repositories.descriptions.get(index).getHash().getValue()); index++);
         final RepositoryPrx repo = repositories.proxies.get(index);
-        /* write the new script directly via the repository */
+        /* write a script directly via the repository */
         final String scriptName = "Test_" + getClass().getName() + "_" + UUID.randomUUID() + ".py";
         final OriginalFile scriptFile = repo.register(scriptName, omero.rtypes.rstring(PYTHON_MIMETYPE));
-        rfs = repo.file(scriptName, "rw");
+        final byte[] scriptContent = getPythonScript().getBytes(StandardCharsets.UTF_8);
+        final RawFileStorePrx rfs = repo.file(scriptName, "rw");
         rfs.write(scriptContent, 0, scriptContent.length);
         rfs.close();
         /* switch to a fresh user */
@@ -332,7 +320,6 @@ public class ScriptServiceTest extends AbstractServerTest {
         svc.deleteScript(id);
     }
 
-
     /**
      * Reads the specified script as a string.
      *
@@ -351,19 +338,5 @@ public class ScriptServiceTest extends AbstractServerTest {
             store.close();
         }
         return new String(values, StandardCharsets.UTF_8);
-    }
-
-    /**
-     * Among the given scripts find one that is unlikely to be a strange one generated by other integration tests.
-     * @param scripts some scripts
-     * @return one of the scripts
-     */
-    static final OriginalFile getRealScript(Iterable<OriginalFile> scripts) {
-        final Iterator<OriginalFile> scriptIterator = scripts.iterator();
-        OriginalFile script;
-        do {
-            script = scriptIterator.next();
-        } while ("/".equals(script.getPath().getValue()));
-        return script;
     }
 }
