@@ -5,6 +5,8 @@
 package integration;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -131,6 +133,7 @@ import omero.sys.Roles;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.ResourceUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -138,6 +141,7 @@ import org.testng.annotations.DataProvider;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 
 /**
  * Base test for integration tests.
@@ -210,6 +214,9 @@ public class AbstractServerTest extends AbstractTest {
      * @see #newUserInGroup(ExperimenterGroup)
      */
     private final Set<omero.client> clients = new HashSet<omero.client>();
+
+    /* a simple valid Python script */
+    private String pythonScript = null;
 
     protected AbstractServerTest() {
         final ome.system.Roles defaultRoles = new ome.system.Roles();
@@ -1121,6 +1128,19 @@ public class AbstractServerTest extends AbstractTest {
             }
         }
         throw new RuntimeException("no managed repository");
+    }
+
+    /**
+     * Provides a simple Python script with valid syntax.
+     * @return the content of an uploadable Python script
+     * @throws IOException if the simple script cannot be read
+     */
+    protected String getPythonScript() throws IOException {
+        if (pythonScript == null) {
+            final File scriptFile = ResourceUtils.getFile("classpath:minimal-script.py");
+            pythonScript = Files.toString(scriptFile, StandardCharsets.UTF_8);
+        }
+        return pythonScript;
     }
 
     /**
