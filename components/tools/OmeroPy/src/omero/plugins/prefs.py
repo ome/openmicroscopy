@@ -151,11 +151,11 @@ class PrefsControl(WriteableConfigControl):
             "KEY", nargs="*", help="Names of keys in the current profile")
 
         secrets = get.add_mutually_exclusive_group()
-        secrets.add_argument("--show-secrets", action="store_true",
+        secrets.add_argument("--show-password", action="store_true",
                              help="Show values of sensitive keys (passwords, "
                                   "tokens, etc.) in the current profile")
         secrets.add_argument("--hide-password", action="store_false",
-                             dest="show_secrets", help=SUPPRESS)
+                             dest="show_password", help=SUPPRESS)
 
         set = parser.add(
             sub, self.set,
@@ -297,7 +297,7 @@ class PrefsControl(WriteableConfigControl):
             if args.KEY and len(args.KEY) == 1:
                 self.ctx.out(config[k])
             else:
-                if is_password(k) and not args.show_secrets:
+                if is_password(k) and not args.show_password:
                     self.ctx.out("%s=%s" % (k, '*' * 8 if config[k] else ''))
                 else:
                     self.ctx.out("%s=%s" % (k, config[k]))
