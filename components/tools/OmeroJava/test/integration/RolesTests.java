@@ -25,11 +25,13 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
 import com.google.common.collect.ImmutableList;
 
 import ome.services.blitz.repo.path.FsFile;
+
 import omero.RString;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -68,6 +70,14 @@ public class RolesTests extends AbstractServerImportTest {
         final File temporaryDirectory = TEMPORARY_FILE_MANAGER.createPath("images", null, true);
         fakeImageFile = new File(temporaryDirectory, "image.fake");
         fakeImageFile.createNewFile();
+    }
+
+    /**
+     * Clear the instance fields that were set before running this class' tests.
+     */
+    @AfterClass
+    public void teardown() {
+        fakeImageFile = null;
     }
 
     /* These permissions do not permit anything.*/

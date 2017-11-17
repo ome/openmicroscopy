@@ -2262,7 +2262,7 @@ class ExperimenterWrapper(OmeroWebObjectWrapper,
             self.annotation_counter = kwargs['ldapUser']
 
     def isEditable(self):
-        return self.omeName.lower() not in ('guest')
+        return self.omeName.lower() != 'guest'
 
     def isLdapUser(self):
         """

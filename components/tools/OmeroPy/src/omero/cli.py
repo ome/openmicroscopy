@@ -1848,10 +1848,10 @@ class GraphControl(CmdControl):
         self._add_wait(parser, default=-1)
         parser.add_argument(
             "--include",
-            help="Modifies the given option by including a list of objects")
+            help="Modifies the given option by including a list of classes")
         parser.add_argument(
             "--exclude",
-            help="Modifies the given option by excluding a list of objects")
+            help="Modifies the given option by excluding a list of classes")
         parser.add_argument(
             "--ordered", action="store_true",
             help=("Pass multiple objects to commands strictly in the order "
