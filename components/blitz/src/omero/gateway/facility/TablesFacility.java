@@ -521,5 +521,62 @@ public class TablesFacility extends Facility {
         }
         return result;
     }
-    
+
+    /**
+     * Saves the (modified) {@link TableData} back to the server. 
+     * Note:
+     * - Addition/Removal of columns/rows is not supported, only modification of
+     *   the values.
+     * - The size of Double/Float/Long arrays can't be changed!
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param data
+     *            The {@link TableData} to save
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public void updateTable(SecurityContext ctx, TableData data)
+            throws DSOutOfServiceException, DSAccessException {
+        TablePrx table = null;
+        try {
+            if (data.getOriginalFileId() == -1)
+                throw new IllegalArgumentException(
+                        "This TableData object is not associated with a table yet, use addTable method instead.");
+
+            OriginalFile file = new OriginalFileI(data.getOriginalFileId(),
+                    false);
+            SharedResourcesPrx sr = gateway.getSharedResources(ctx);
+            if (!sr.areTablesEnabled()) {
+                throw new DSAccessException(
+                        "Tables feature is not enabled on this server!");
+            }
+
+            table = sr.openTable(file);
+
+            long[] colIndex = new long[data.getColumns().length];
+            for (int i = 0; i < data.getColumns().length; i++)
+                colIndex[i] = data.getColumns()[i].getIndex();
+
+            Data toUpdate = table.read(colIndex, data.getOffset(),
+                    data.getOffset() + data.getData()[0].length);
+
+            TablesFacilityHelper.updateData(toUpdate, data);
+
+            table.update(toUpdate);
+        } catch (Exception e) {
+            handleException(this, e, "Could not udpate table");
+        } finally {
+            if (table != null)
+                try {
+                    table.close();
+                } catch (ServerError e) {
+                    logError(this, "Could not close table", e);
+                }
+        }
+    }
+
 }
