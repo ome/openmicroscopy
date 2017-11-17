@@ -46,11 +46,14 @@ temp-testng-customsuite.xml
 .settings
 .springBeans
 /components/tools/OmeroWeb/omeroweb/media/webtest
+/components/tools/OmeroWeb/omeroweb/static/
+/components/var
 # Scons output files
 .sconsign.dblite
 *.dylib
 *.egg
 *.os
+*.iml
 omero_version.py
 eclipse.log
 velocity.log*
