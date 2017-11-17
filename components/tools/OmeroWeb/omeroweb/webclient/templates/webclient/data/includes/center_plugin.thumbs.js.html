@@ -454,21 +454,7 @@ $(document).ready(function() {
                         prev[t.id].images.push(imgId);
                         return prev;
                     }, {});
-                    var tagList = [];
-                    for (t in usedTags) {
-                        if (usedTags.hasOwnProperty(t)) {
-                            tagList.push({id: t, text: usedTags[t].textValue});
-                        }
-                    }
-                    // sort list of tags
-                    tagList.sort(function(a, b){
-                        return a.text < b.text ? -1 : 1;
-                    });
-                    var html = tagList.map(function(t){
-                        return "<option value='" + t.id + "'>" + t.text + "</option>";
-                    }).join("");
-                    html = "<option value='0'>Choose Tag</option>" + html;
-                    $("#filter_by_tag").html(html);
+                    renderFilterTags();
                 });
             }
 
@@ -592,6 +578,26 @@ $(document).ready(function() {
 
         // Filtering by Tag
         function renderFilterTags() {
+            // Render Tag filter chooser, without current filter tags
+            var tagList = [];
+
+            for (t in usedTags) {
+                if (usedTags.hasOwnProperty(t)) {
+                    tagList.push({id: t, text: usedTags[t].textValue});
+                }
+            }
+            // sort list of tags
+            tagList.sort(function(a, b){
+                return a.text < b.text ? -1 : 1;
+            });
+            var html = tagList.map(function(t){
+                // don't show tags we're filtering by
+                if (filter_tag_ids.indexOf(t.id) > -1) return "";
+                return "<option value='" + t.id + "'>" + t.text + "</option>";
+            }).join("");
+            html = "<option value='0'>Choose Tag</option>" + html;
+            $("#filter_by_tag").html(html);
+
             // hide filtered images 
             $("#dataIcons li.row").each(function() {
                 var $this = $(this),
