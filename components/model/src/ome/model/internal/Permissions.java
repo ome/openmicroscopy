@@ -23,11 +23,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Transient;
+
+import org.apache.commons.lang.ArrayUtils;
 
 import ome.conditions.ApiUsageException;
 
@@ -133,6 +136,8 @@ public class Permissions implements Serializable {
         }
     }
 
+    private static final BooleanArrayCache CACHE = new BooleanArrayCache();
+
     // ~ Constructors
     // =========================================================================
     /**
@@ -156,7 +161,8 @@ public class Permissions implements Serializable {
                     "Make sure that you have not passed omero.group=-1 for a save without context");
         }
         this.revokeAll(p);
-        copyRestrictions(p.restrictions, p.extendedRestrictions);
+        this.restrictions = p.restrictions;
+        copyRestrictions(p.extendedRestrictions);
     }
 
     // ~ Fields
@@ -326,9 +332,15 @@ public class Permissions implements Serializable {
         }
     }
 
+    @Transient
+    public boolean[] getRestrictions() {
+        return restrictions;
+    }
+
     /**
      * Produce a copy of restrictions for use elsewhere.
      */
+    @Deprecated
     public boolean[] copyRestrictions() {
         if (restrictions == null) {
             return null;
@@ -352,19 +364,25 @@ public class Permissions implements Serializable {
     }
 
     /**
-     * Safely copy the source array. If it is null or contains no "true" values,
-     * then the restrictions field will remain null.
+     * Safely copy the source array.
      */
-    public void copyRestrictions(final boolean[] source, String[] extendedRestrictions) {
-
-        if (extendedRestrictions == null || extendedRestrictions.length == 0) {
+    public void copyRestrictions(String[] extendedRestrictions) {
+        if (ArrayUtils.isEmpty(extendedRestrictions)) {
             this.extendedRestrictions = null;
         } else {
             final int sz = extendedRestrictions.length;
             this.extendedRestrictions = new String[sz];
             System.arraycopy(extendedRestrictions, 0, this.extendedRestrictions, 0, sz);
         }
+    }
 
+    /**
+     * Safely copy the source array. If it is null or contains no "true" values,
+     * then the restrictions field will remain null.
+     */
+    @Deprecated
+    public void copyRestrictions(final boolean[] source, String[] extendedRestrictions) {
+        copyRestrictions(extendedRestrictions);
         if (noTrues(source)) {
             this.restrictions = null;
         } else {
@@ -392,15 +410,14 @@ public class Permissions implements Serializable {
             return;
         }
 
-        if (restrictions == null) {
-            this.restrictions = new boolean[6]; // All false
-        }
+        this.restrictions = new boolean[6]; // All false
         this.restrictions[LINKRESTRICTION] |= (0 == (allow & (1 << LINKRESTRICTION)));
         this.restrictions[EDITRESTRICTION] |= (0 == (allow & (1 << EDITRESTRICTION)));
         this.restrictions[DELETERESTRICTION] |= (0 == (allow & (1 << DELETERESTRICTION)));
         this.restrictions[ANNOTATERESTRICTION] |= (0 == (allow & (1 << ANNOTATERESTRICTION)));
         this.restrictions[CHGRPRESTRICTION] |= (0 == (allow & (1 << CHGRPRESTRICTION)));
         this.restrictions[CHOWNRESTRICTION] |= (0 == (allow & (1 << CHOWNRESTRICTION)));
+        restrictions = CACHE.getArrayFor(restrictions);
     }
 
     private static boolean noTrues(boolean[] source) {
@@ -513,6 +530,7 @@ public class Permissions implements Serializable {
         return this;
     }
 
+    @Deprecated
     public static void setDisallow(boolean[] restrictions,
             int restriction, boolean disallow) {
 
@@ -533,33 +551,66 @@ public class Permissions implements Serializable {
         }
     }
 
+    public void setDisallow(final int restriction, boolean disallow) {
+        if (disallow) {
+            /* must set the bit */
+            if (restrictions == null || restrictions.length <= restriction) {
+                /* the bit is clear implicitly */
+                restrictions = Arrays.copyOf(restrictions, restriction + 1);
+                restrictions[restriction] = true;
+                restrictions = CACHE.getArrayFor(restrictions);
+            } else if (!restrictions[restriction]) {
+                /* the bit is clear explicitly */
+                restrictions = CACHE.transform(new BooleanArrayCache.Transformer() {
+                    @Override
+                    public boolean[] transform(boolean[] restrictions) {
+                        restrictions[restriction] = true;
+                        return restrictions;
+                    }
+                }, restrictions);
+            }
+        } else {
+            /* must clear the bit */
+            if (restrictions != null && restrictions.length > restriction && restrictions[restriction]) {
+                /* the bit is set */
+                restrictions = CACHE.transform(new BooleanArrayCache.Transformer() {
+                    @Override
+                    public boolean[] transform(boolean[] restrictions) {
+                        restrictions[restriction] = false;
+                        return restrictions;
+                    }
+                }, restrictions);
+            }
+        }
+    }
+
     public Permissions setDisallowAnnotate(boolean disallowAnnotate) {
-        setDisallow(restrictions, ANNOTATERESTRICTION, disallowAnnotate);
+        setDisallow(ANNOTATERESTRICTION, disallowAnnotate);
         return this;
     }
 
     public Permissions setDisallowChgrp(boolean disallowChgrp) {
-        setDisallow(restrictions, CHGRPRESTRICTION, disallowChgrp);
+        setDisallow(CHGRPRESTRICTION, disallowChgrp);
         return this;
     }
 
     public Permissions setDisallowChown(boolean disallowChown) {
-        setDisallow(restrictions, CHOWNRESTRICTION, disallowChown);
+        setDisallow(CHOWNRESTRICTION, disallowChown);
         return this;
     }
 
     public Permissions setDisallowDelete(boolean disallowDelete) {
-        setDisallow(restrictions, DELETERESTRICTION, disallowDelete);
+        setDisallow(DELETERESTRICTION, disallowDelete);
         return this;
     }
 
     public Permissions setDisallowEdit(boolean disallowEdit) {
-        setDisallow(restrictions, EDITRESTRICTION, disallowEdit);
+        setDisallow(EDITRESTRICTION, disallowEdit);
         return this;
     }
 
     public Permissions setDisallowLink(boolean disallowLink) {
-        setDisallow(restrictions, LINKRESTRICTION, disallowLink);
+        setDisallow(LINKRESTRICTION, disallowLink);
         return this;
     }
 
