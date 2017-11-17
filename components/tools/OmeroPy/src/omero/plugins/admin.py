@@ -27,7 +27,6 @@ from path import path
 import omero
 import omero.config
 
-from omero.callbacks import CmdCallbackI
 from omero.grid import RawAccessRequest
 
 from omero.cli import admin_only
