@@ -1551,6 +1551,7 @@ class _BlitzGateway (object):
         self._user = None
         self._userid = None
         self._proxies = NoProxies()
+        self._tracked_services = dict()
         if self.c is None:
             self._resetOmeroClient()
         else:
@@ -1567,6 +1568,51 @@ class _BlitzGateway (object):
 
         # The properties we are setting through the interface
         self.setIdentity(username, passwd, not clone)
+
+    def _register_service(self, service_string, stack):
+        """
+        Register the results of traceback.extract_stack() at the time
+        that a service was created.
+        """
+        service_string = str(service_string)
+        self._tracked_services[service_string] = stack
+        logger.info("Registered %s" % service_string)
+
+    def _unregister_service(self, service_string):
+        """
+        Called on close of a service.
+        """
+        service_string = str(service_string)
+        if service_string in self._tracked_services:
+            del self._tracked_services[service_string]
+            logger.info("Unregistered %s" % service_string)
+        else:
+            logger.warn("Cannot find registered service %s" % service_string)
+
+    def _assert_unregistered(self, prefix="Service left open!"):
+        """
+        Log an ERROR for every stateful service that is open
+        and was registered by this BlitzGateway instance.
+
+        Return the number of unclosed services found.
+        """
+
+        try:
+            stateful_services = self.c.getStatefulServices()
+        except Exception, e:
+            logger.warn("No services could be found.", e)
+            stateful_services = []
+
+        count = 0
+        for s in stateful_services:
+            service_string = str(s)
+            stack_list = self._tracked_services.get(service_string, [])
+            if stack_list:
+                count += 1
+                stack_msg = "".join(traceback.format_list(stack_list))
+                logger.error("%s - %s\n%s" % (
+                    prefix, service_string, stack_msg))
+        return count
 
     def createServiceOptsDict(self):
         serviceOpts = ServiceOptsDict(self.c.getImplicitContext().getContext())
@@ -1875,8 +1921,9 @@ class _BlitzGateway (object):
         self._proxies = NoProxies()
         logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
 
-#    def __del__ (self):
-#        logger.debug("##GARBAGE COLLECTOR KICK IN")
+    def __del__(self):
+        logger.debug("##GARBAGE COLLECTOR KICK IN")
+        self._assert_unregistered()
 
     def _createProxies(self):
         """
@@ -4726,6 +4773,7 @@ class ProxyObjectWrapper (object):
 
         if self._obj and isinstance(
                 self._obj, omero.api.StatefulServiceInterfacePrx):
+            self._conn._unregister_service(str(self._obj))
             self._obj.close(*args, **kwargs)
         self._obj = None
 
@@ -4746,7 +4794,10 @@ class ProxyObjectWrapper (object):
             if self._func_str is None:
                 return self._cast_to(self._sf.getByName(self._service_name))
             else:
-                return getattr(self._sf, self._func_str)()
+                obj = getattr(self._sf, self._func_str)()
+                if isinstance(obj, omero.api.StatefulServiceInterfacePrx):
+                    conn._register_service(str(obj), traceback.extract_stack())
+                return obj
         self._create_func = cf
         if self._obj is not None:
             try:
@@ -7841,7 +7892,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 self._re = self._prepareRE(rdid=rdid)
             except omero.ValidationException:
                 logger.debug('on _prepareRE()', exc_info=True)
-                self._re = None
+                self._closeRE()
         return self._re is not None
 
     def resetRDefs(self):
@@ -8410,8 +8461,9 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             rv[i] = float(level)/sizeXList[0]
         return rv
 
-    def setActiveChannels(self, channels, windows=None, colors=None,
-                          invertMaps=None, reverseMaps=None):
+    @assert_re()
+    def set_active_channels(self, channels, windows=None, colors=None,
+                            invertMaps=None, reverseMaps=None, noRE=False):
         """
         Sets the active channels on the rendering engine.
         Also sets rendering windows and channel colors
@@ -8437,6 +8489,9 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                             Must be item for each channel
         :param invertMaps:  List of boolean (or None). If True/False then
                             set/remove reverseIntensityMap on channel
+        :param noRE:        If True Channels will not have rendering engine
+                            enabled. In this case, calling channel.getColor()
+                            or getWindowStart() etc. will return None.
         """
         if reverseMaps is not None:
             warnings.warn(
@@ -8447,7 +8502,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 invertMaps = reverseMaps
         abs_channels = [abs(c) for c in channels]
         idx = 0     # index of windows/colors args above
-        for c in range(len(self.getChannels())):
+        for c in range(len(self.getChannels(noRE=noRE))):
             self._re.setActive(c, (c+1) in channels, self._conn.SERVICE_OPTS)
             if (c+1) in channels:
                 if (invertMaps is not None and
@@ -8472,6 +8527,14 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             if (c+1 in abs_channels):
                 idx += 1
         return True
+
+    @assert_re()
+    def setActiveChannels(self, channels, windows=None, colors=None,
+                          invertMaps=None, reverseMaps=None):
+        warnings.warn("setActiveChannels() is deprecated in OMERO 5.4.0."
+                      "Use set_active_channels", DeprecationWarning)
+        return self.set_active_channels(channels, windows, colors,
+                                        invertMaps, reverseMaps, False)
 
     def getProjections(self):
         """
@@ -8897,43 +8960,47 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         # Prepare the rendering engine parameters on the ImageWrapper.
         re = self._prepareRE()
-        z = re.getDefaultZ()
-        t = re.getDefaultT()
-        x = 0
-        y = 0
-        size_x = self.getSizeX()
-        size_y = self.getSizeY()
-        tile_width, tile_height = re.getTileSize()
-        tiles_wide = math.ceil(float(size_x) / tile_width)
-        tiles_high = math.ceil(float(size_y) / tile_height)
-        # Since the JPEG 2000 algorithm is iterative and rounds pixel counts
-        # at each resolution level we're doing the resulting tile size
-        # calculations in a loop. Also, since the image is physically tiled
-        # the resulting size is a multiple of the tile size and not the
-        # iterative quotient of a 2**(resolutionLevels - 1).
-        for i in range(1, re.getResolutionLevels()):
-            tile_width = round(tile_width / 2.0)
-            tile_height = round(tile_height / 2.0)
-        width = int(tiles_wide * tile_width)
-        height = int(tiles_high * tile_height)
-        jpeg_data = self.renderJpegRegion(z, t, x, y, width, height, level=0)
-        if size is None:
-            return jpeg_data
-        # We've been asked to scale the image by its longest side so we'll
-        # perform that operation until the server has the capability of
-        # doing so.
-        ratio = float(size) / max(width, height)
-        if width > height:
-            size = (int(size), int(height * ratio))
-        else:
-            size = (int(width * ratio), int(size))
-        jpeg_data = Image.open(StringIO(jpeg_data))
-        jpeg_data.thumbnail(size, Image.ANTIALIAS)
-        ImageDraw.Draw(jpeg_data)
-        f = StringIO()
-        jpeg_data.save(f, "JPEG")
-        f.seek(0)
-        return f.read()
+        try:
+            z = re.getDefaultZ()
+            t = re.getDefaultT()
+            x = 0
+            y = 0
+            size_x = self.getSizeX()
+            size_y = self.getSizeY()
+            tile_width, tile_height = re.getTileSize()
+            tiles_wide = math.ceil(float(size_x) / tile_width)
+            tiles_high = math.ceil(float(size_y) / tile_height)
+            # Since the JPEG 2000 algorithm is iterative and rounds pixel
+            # counts at each resolution level we're doing the resulting tile
+            # size calculations in a loop. Also, since the image is physically
+            # tiled the resulting size is a multiple of the tile size and not
+            # the iterative quotient of a 2**(resolutionLevels - 1).
+            for i in range(1, re.getResolutionLevels()):
+                tile_width = round(tile_width / 2.0)
+                tile_height = round(tile_height / 2.0)
+            width = int(tiles_wide * tile_width)
+            height = int(tiles_high * tile_height)
+            jpeg_data = self.renderJpegRegion(
+                z, t, x, y, width, height, level=0)
+            if size is None:
+                return jpeg_data
+            # We've been asked to scale the image by its longest side so we'll
+            # perform that operation until the server has the capability of
+            # doing so.
+            ratio = float(size) / max(width, height)
+            if width > height:
+                size = (int(size), int(height * ratio))
+            else:
+                size = (int(width * ratio), int(size))
+            jpeg_data = Image.open(StringIO(jpeg_data))
+            jpeg_data.thumbnail(size, Image.ANTIALIAS)
+            ImageDraw.Draw(jpeg_data)
+            f = StringIO()
+            jpeg_data.save(f, "JPEG")
+            f.seek(0)
+            return f.read()
+        finally:
+            re.close()
 
     @assert_re()
     def renderJpegRegion(self, z, t, x, y, width, height, level=None,
@@ -8970,7 +9037,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 except omero.SecurityViolation:  # pragma: no cover
                     self._obj.clearPixels()
                     self._obj.pixelsLoaded = False
-                    self._re = None
+                    self._closeRE()
                     return self.renderJpeg(z, t, None)
             rv = self._re.renderCompressed(self._pd, self._conn.SERVICE_OPTS)
             return rv
@@ -8979,12 +9046,22 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             logger.debug(traceback.format_exc())
             return None
         except Ice.MemoryLimitException:  # pragma: no cover
-            # Make sure renderCompressed isn't called again on this re, as it
-            # hangs
+            # Make sure renderCompressed isn't called again on this re,
+            # as it hangs
             self._obj.clearPixels()
             self._obj.pixelsLoaded = False
-            self._re = None
+            self._closeRE()
             raise
+
+    def _closeRE(self):
+        try:
+            if self._re is not None:
+                self._re.close()
+        except Exception, e:
+            logger.warn("Failed to close " + self._re)
+            logger.debug(e)
+        finally:
+            self._re = None  # This should be the ONLY location to null _re!
 
     @assert_re()
     def renderJpeg(self, z=None, t=None, compression=0.9):
@@ -9013,7 +9090,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 except omero.SecurityViolation:  # pragma: no cover
                     self._obj.clearPixels()
                     self._obj.pixelsLoaded = False
-                    self._re = None
+                    self._closeRE()
                     return self.renderJpeg(z, t, None)
             projection = self.PROJECTIONS.get(self._pr, -1)
             if not isinstance(
@@ -9039,7 +9116,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             # hangs
             self._obj.clearPixels()
             self._obj.pixelsLoaded = False
-            self._re = None
+            self._closeRE()
             raise
 
     def exportOmeTiff(self, bufsize=0):
