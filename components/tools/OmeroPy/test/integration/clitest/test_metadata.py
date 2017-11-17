@@ -27,7 +27,7 @@ from omero.constants.namespaces import NSBULKANNOTATIONS, NSMEASUREMENT
 from omero.gateway import BlitzGateway
 from omero.plugins.metadata import Metadata, MetadataControl
 from omero.rtypes import rdouble, unwrap
-from test.integration.clitest.cli import CLITest
+from omero.testlib.cli import CLITest
 
 
 class MetadataTestBase(CLITest):
