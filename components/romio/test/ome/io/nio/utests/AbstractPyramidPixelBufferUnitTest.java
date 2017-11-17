@@ -17,6 +17,7 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.TileLoopIteration;
 import ome.io.nio.Utils;
+import ome.io.nio.Utils.FailedTileLoopException;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -85,7 +86,7 @@ public abstract class AbstractPyramidPixelBufferUnitTest {
         FileUtils.deleteDirectory(new File(root));
     }
 
-    protected short writeTiles(final List<String> hashDigests) {
+    protected short writeTiles(final List<String> hashDigests) throws FailedTileLoopException {
         return writeTiles(hashDigests, new Runnable(){
             public void run() {
                 // Do nothing.
@@ -95,12 +96,8 @@ public abstract class AbstractPyramidPixelBufferUnitTest {
     /**
      * Calls {@link Runnable#run()} after each successful call to
      * {@link PixelBuffer#setTile(byte[], Integer, Integer, Integer, Integer, Integer, Integer, Integer)}.
-     *
-     * @param hashDigests
-     * @param run
-     * @return
      */
-    protected short writeTiles(final List<String> hashDigests, final Runnable run) {
+    protected short writeTiles(final List<String> hashDigests, final Runnable run) throws FailedTileLoopException {
         short tileCount = (short) Utils.forEachTile(new TileLoopIteration() {
             public void run(int z, int c, int t, int x, int y, int tileWidth,
                             int tileHeight, int tileCount) {
