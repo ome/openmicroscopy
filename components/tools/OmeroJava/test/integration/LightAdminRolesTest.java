@@ -1696,25 +1696,13 @@ public class LightAdminRolesTest extends RolesTests {
         List<String> permissions = new ArrayList<String>();
         if (isPrivileged) permissions.add(AdminPrivilegeWriteScriptRepo.value);
         loginNewAdmin(true, permissions);
-        final String actualScript;
         final long testScriptId;
         try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-            IScriptPrx iScript = factory.getScriptService();
-            /* lightAdmin fetches a script from the server.*/
-            OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
-            RawFileStorePrx rfs = null;
-            try {
-                rfs = factory.createRawFileStore();
-                rfs.setFileId(scriptFile.getId().getValue());
-                actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-            } finally {
-                if (rfs != null) rfs.close();
-            }
-            /* lightAdmin tries uploading the script as a new script in normalUser's group.*/
-            iScript = factory.getScriptService();
+            /* lightAdmin tries uploading the test script as a new script in normalUser's group.*/
+            final IScriptPrx iScript = factory.getScriptService();
             final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
             try {
-                testScriptId = iScript.uploadOfficialScript(testScriptName, actualScript);
+                testScriptId = iScript.uploadOfficialScript(testScriptName, getPythonScript());
                 Assert.assertTrue(isExpectSuccessUploadOfficialScript);
             } catch (ServerError se) {
                 Assert.assertFalse(isExpectSuccessUploadOfficialScript);
@@ -1737,7 +1725,7 @@ public class LightAdminRolesTest extends RolesTests {
         } finally {
             if (rfs != null) rfs.close();
         }
-        Assert.assertEquals(currentScript, actualScript);
+        Assert.assertEquals(currentScript, getPythonScript());
     }
 
     /**
@@ -1755,26 +1743,12 @@ public class LightAdminRolesTest extends RolesTests {
         if (isPrivileged) permissions.add(AdminPrivilegeDeleteScriptRepo.value);
         final EventContext lightAdmin;
         lightAdmin = loginNewAdmin(true, permissions);
-        final String actualScript;
-        try (final AutoCloseable igc = new ImplicitGroupContext(normalUser.groupId)) {
-            IScriptPrx iScript = factory.getScriptService();
-            /* lightAdmin fetches a script from the server.*/
-            OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
-            RawFileStorePrx rfs = null;
-            try {
-                rfs = factory.createRawFileStore();
-                rfs.setFileId(scriptFile.getId().getValue());
-                actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-            } finally {
-                if (rfs != null) rfs.close();
-            }
-        }
         /* Another light admin (anotherLightAdmin) with appropriate permissions
          * uploads the script as a new script.*/
         loginNewAdmin(true, AdminPrivilegeWriteScriptRepo.value);
         IScriptPrx iScript = factory.getScriptService();
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
-        final long testScriptId = iScript.uploadOfficialScript(testScriptName, actualScript);
+        final long testScriptId = iScript.uploadOfficialScript(testScriptName, getPythonScript());
         /* Delete any jobs associated with the script.*/
         final Delete2Builder delete = Requests.delete().option(Requests.option().excludeType("OriginalFile").build());
         for (final IObject scriptJob : iQuery.findAllByQuery(
@@ -1809,7 +1783,7 @@ public class LightAdminRolesTest extends RolesTests {
             rfs = factory.createRawFileStore();
             rfs.setFileId(testScriptId);
             final String currentScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-            Assert.assertEquals(currentScript, actualScript);
+            Assert.assertEquals(currentScript, getPythonScript());
             Assert.assertFalse(isExpectSuccessDeleteOfficialScript);
         } catch (Ice.LocalException | ServerError se) {
             /* Have to catch both types of exceptions because
@@ -2647,25 +2621,18 @@ public class LightAdminRolesTest extends RolesTests {
      */
     @Test(expectedExceptions = omero.SecurityViolation.class)
     public void testModifyScriptUsingUploadFromClientbyRestrictedSystemUser() throws Exception {
-        logNewAdminWithoutPrivileges();
-        IScriptPrx iScript = factory.getScriptService();
-        /* lightAdmin fetches a script from the server.*/
-        OriginalFile scriptFile = iScript.getScriptsByMimetype(ScriptServiceTest.PYTHON_MIMETYPE).get(0);
-        String actualScript;
-        RawFileStorePrx rfs = null;
-        try {
-            rfs = factory.createRawFileStore();
-            rfs.setFileId(scriptFile.getId().getValue());
-            actualScript = new String(rfs.read(0, (int) rfs.size()), StandardCharsets.UTF_8);
-        } finally {
-            if (rfs != null) rfs.close();
-        }
+        /* root uploads an official script to the server.*/
+        IScriptPrx iScript = root.getSession().getScriptService();
+        String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+        final long scriptId = iScript.uploadOfficialScript(testScriptName, getPythonScript());
         /* lightAdmin tries uploading the script as a new script in normalUser's group.*/
+        logNewAdminWithoutPrivileges();
         iScript = factory.getScriptService();
-        final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
+        testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         File file = new File(testScriptName);
         file.deleteOnExit();
-        FileUtils.writeStringToFile(file, actualScript);
+        FileUtils.writeStringToFile(file, getPythonScript());
+        final OriginalFile scriptFile = (OriginalFile) iQuery.get("OriginalFile", scriptId);
         client.upload(file, scriptFile);
     }
 
