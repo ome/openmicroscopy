@@ -7,7 +7,7 @@ Resource          ../../resources/web/tree.txt
 
 Library           Collections
 
-Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
 Suite Teardown      Close all browsers
 
 
