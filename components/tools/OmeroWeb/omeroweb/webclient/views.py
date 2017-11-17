@@ -324,7 +324,7 @@ def logout(request, conn=None, **kwargs):
                 logger.error('Exception during logout.', exc_info=True)
         finally:
             request.session.flush()
-        return HttpResponseRedirect(reverse("webindex"))
+        return HttpResponseRedirect(reverse("weblogin"))
     else:
         context = {
             'url': reverse('weblogout'),
