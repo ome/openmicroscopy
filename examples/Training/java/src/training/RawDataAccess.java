@@ -23,6 +23,7 @@ package training;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import omero.api.RawPixelsStorePrx;
 import omero.gateway.Gateway;
@@ -215,6 +216,60 @@ public class RawDataAccess
         }
     }
 
+ // Retrieve histogram
+ // ==================
+
+    /**
+     * Retrieve the histogram
+     */
+    private void retrieveHistogram() throws Exception {
+        PixelsData pixels = image.getDefaultPixels();
+        long pixelsId = pixels.getId();
+        RawPixelsStorePrx store = null;
+        try {
+            store = gateway.getPixelsStore(ctx);
+            store.setPixelsId(pixelsId, false);
+            int[] channels = new int[] { 0 };
+            int binCount = 256;
+            Map<Integer, int[]> histdata = store.getHistogram(channels,
+                    binCount, false, null);
+            int[] histogram = histdata.get(0);
+            printHistogram(histogram);
+        } catch (Exception e) {
+            throw new Exception("Cannot get the histogram data", e);
+        } finally {
+            if (store != null)
+                store.close();
+        }
+    }
+     
+    /**
+     * Print a histogram to stdout
+     * 
+     * @param data
+     *            The histogram data
+     */
+    private void printHistogram(int[] data) {
+        int max = 0;
+        for (int d : data)
+            max = Math.max(max, d);
+
+        int step = max / 100;
+
+        for (int i = 0; i < data.length; i++) {
+            String s = String.format("%1$ 4d |", i);
+            int x = data[i];
+            StringBuilder bar = new StringBuilder();
+            do {
+                bar.append("]");
+                x -= step;
+            } while (x > 0);
+            while (bar.length() <= 100)
+                bar.append(" ");
+            System.out.println(s + bar + " " + data[i]);
+        }
+    }
+     
     /**
      * end-code
      */
@@ -235,6 +290,7 @@ public class RawDataAccess
             retrieveTile();
             retrieveStack();
             retrieveHypercube();
+            retrieveHistogram();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
