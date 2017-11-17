@@ -1552,6 +1552,9 @@
     #dataIcons .ratingFilter_hidden {
         display: none;
     }
+    #dataIcons .tagFilter_hidden {
+        display: none;
+    }
 
     #dataIcons .ui-selecting {
         background-color:hsl(0,0%,90%);
