@@ -279,7 +279,7 @@ Test Search Results File Annotations
     ${sId_One}=                                 Create Screen       robot file annotations_1
 
     # Annotate single Screen
-    Click Element                               xpath=//h1[@data-name='attachments']
+    # NB: Attachments panel will be open from previous test
     Add File Annotation                         ${fileNameTwo}
 
     Input Text  id=id_search_query              ${fileNameTwo}
