@@ -1286,6 +1286,16 @@ implements java.io.Serializable, IObject
 
     public void set${prop.nameCapped}(${prop.fieldType} ${prop.name}) {
         $errorIfUnloaded
+## See table column type alterations in psql-footer.vm.
+#if(($type.shortname == "Laser" && ($prop.name == "wavelength")) || ($type.shortname == "LightSettings" && ($prop.name == "wavelength")) || ($type.shortname == "LogicalChannel" && ($prop.name == "emissionWave" || $prop.name == "excitationWave")) || ($type.shortname == "Pixels" && ($prop.name == "physicalSizeX" || $prop.name == "physicalSizeY" || $prop.name == "physicalSizeZ")) || ($type.shortname == "TransmittanceRange" && ($prop.name == "cutIn" || $prop.name == "cutOut")))
+        if (${prop.name} != null && ${prop.name}.getValue() <= 0) {
+            throw new IllegalArgumentException("values of ${type.shortname}.${prop.name} must be strictly positive");
+        }
+#elseif(($type.shortname == "TransmittanceRange" && ($prop.name == "cutInTolerance" || $prop.name == "cutOutTolerance")))
+        if (${prop.name} != null && ${prop.name}.getValue() < 0) {
+            throw new IllegalArgumentException("values of ${type.shortname}.${prop.name} must not be negative");
+        }
+#end
         this.${prop.name} = ${prop.name};
     }
 
@@ -1353,6 +1363,20 @@ implements java.io.Serializable, IObject
 
     public void set${prop.nameCapped}(${prop.fieldType} ${prop.name}) {
         $errorIfUnloaded
+## See domain definitions in psql-header.vm.
+#if($prop.dbType == "positive_int" || $prop.dbType == "positive_float")
+        if (${prop.name} != null && ${prop.name} <= 0) {
+            throw new IllegalArgumentException("values of ${type.shortname}.${prop.name} must be strictly positive");
+        }
+#elseif($prop.dbType == "nonnegative_int" || $prop.dbType == "nonnegative_float")
+        if (${prop.name} != null && ${prop.name} < 0) {
+            throw new IllegalArgumentException("values of ${type.shortname}.${prop.name} must not be negative");
+        }
+#elseif($prop.dbType == "percent_fraction")
+        if (${prop.name} != null && (${prop.name} < 0 || ${prop.name} > 1)) {
+            throw new IllegalArgumentException("values of ${type.shortname}.${prop.name} may range from zero to one only");
+        }
+#end
         this.${prop.name} = (${prop.type}) ${prop.name};
     }
 #end######################################################################TYPE
