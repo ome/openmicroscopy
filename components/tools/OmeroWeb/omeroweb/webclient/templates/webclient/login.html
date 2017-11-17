@@ -70,8 +70,6 @@
 <div id="login">
     {% block login %}
     <form class="standard_form inlined" action="{% url 'weblogin' %}{% if url %}?{{url}}{% endif %}" method="post">{% csrf_token %}
-        
-			
             {% if error %}
 				<span class="error">{% trans "Error:" %} {{ error }}</span>
 			{% endif %}
@@ -91,9 +89,7 @@
 	                 {% endfor %}
 				{% endif %}
 		   </div>
-		   
-		   
-            
+
 			<div>
 				{% trans form.username.label_tag %}
 				<!--{% if form.username.field.required %}*{% endif %} -->
@@ -120,14 +116,23 @@
 
         	<input type="submit" value="Login" />
 
-            <div><p><a href="{% url 'waforgottenpassword' %}">Forgot your password?</a></p></div>
+            <div>
+                <p><a href="{% url 'waforgottenpassword' %}">Forgot your password?</a></p>
+            </div>
+
+            {% if public_enabled %}
+                <hr class="login-divider"/>
+                <div class="login-link">
+                    <a class="login-link-text" href="{{ public_login_redirect }}">Login as public user</a>
+                </div>
+            {% endif %}
+
     </form>
+
     {% endblock %}
 </div>
 
 <div id="login-footer">
-	
-	
 	<p>
 		OMERO.web {{ version }}.<br/>
 		&copy; 2007-{{ build_year }} University of Dundee &amp; Open Microscopy Environment<br/>

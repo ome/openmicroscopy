@@ -242,13 +242,20 @@ class WebclientLoginView(LoginView):
             'version': omero_version,
             'build_year': build_year,
             'error': error,
-            'form': form}
+            'form': form
+        }
         url = request.GET.get("url")
         if url is not None and len(url) != 0:
             context['url'] = urlencode({'url': url})
 
         if hasattr(settings, 'LOGIN_LOGO'):
             context['LOGIN_LOGO'] = settings.LOGIN_LOGO
+
+        if settings.PUBLIC_ENABLED:
+            redirect = reverse('webindex')
+            if settings.PUBLIC_URL_FILTER.search(redirect):
+                context['public_enabled'] = True
+                context['public_login_redirect'] = redirect
 
         t = template_loader.get_template(self.template)
         c = Context(request, context)
