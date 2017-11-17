@@ -389,11 +389,12 @@ $(document).ready(function() {
         });
     }
 
-    // {'id': {'text': 'name', 'images': [1,2,3]} } for all tags used for filtering
-    var usedTags = {};
-
     var setupFiltering = function() {
         // All the image filtering functionality setup here...
+        // {'id': {'text': 'name', 'images': [1,2,3]} } for all tags used for filtering
+        var usedTags = {};
+        var filter_tag_ids = [];
+
         // Chooser for revealing various filter components
         $("#choosefilter").change(function() {
             var $this = $(this),
@@ -415,6 +416,9 @@ $(document).ready(function() {
                 $("#filterrating img").attr('src', "{% static 'webclient/image/rating' %}0.png");
                 // clear any filtering by rating/unrated
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
+                // reset Tag filtering
+                filter_tag_ids = [];
+                renderFilterTags();
             }
 
             // Unrated and By rating are mutually exclusive
@@ -450,7 +454,6 @@ $(document).ready(function() {
                         prev[t.id].images.push(imgId);
                         return prev;
                     }, {});
-                    console.log(usedTags);
                     var tagList = [];
                     for (t in usedTags) {
                         if (usedTags.hasOwnProperty(t)) {
@@ -587,8 +590,6 @@ $(document).ready(function() {
             });
         });
 
-
-        var filter_tag_ids = [];
         // Filtering by Tag
         function renderFilterTags() {
             // hide filtered images 
