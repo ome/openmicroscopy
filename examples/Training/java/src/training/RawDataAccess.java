@@ -223,23 +223,14 @@ public class RawDataAccess
      * Retrieve the histogram
      */
     private void retrieveHistogram() throws Exception {
-        PixelsData pixels = image.getDefaultPixels();
-        long pixelsId = pixels.getId();
-        RawPixelsStorePrx store = null;
-        try {
-            store = gateway.getPixelsStore(ctx);
-            store.setPixelsId(pixelsId, false);
+        try (RawDataFacility rdf = gateway.getFacility(RawDataFacility.class)) {
+            PixelsData pixels = image.getDefaultPixels();
             int[] channels = new int[] { 0 };
             int binCount = 256;
-            Map<Integer, int[]> histdata = store.getHistogram(channels,
-                    binCount, false, null);
+            Map<Integer, int[]> histdata = rdf.getHistogram(ctx, pixels,
+                    channels, binCount, false, null);
             int[] histogram = histdata.get(0);
             printHistogram(histogram);
-        } catch (Exception e) {
-            throw new Exception("Cannot get the histogram data", e);
-        } finally {
-            if (store != null)
-                store.close();
         }
     }
      
