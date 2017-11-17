@@ -25,7 +25,7 @@ Page Should Be Open
 
 Welcome Page Should Be Open
     [Arguments]             ${welcome url}=${WELCOME URL}   ${title}=Webclient
-    Page Should Be Open     ${WELCOME URL}       ${title}
+    Wait Until Keyword Succeeds             ${TIMEOUT}   ${INTERVAL}   Page Should Be Open     ${WELCOME URL}       ${title} 
 
 Login Page Should Be Open
     [Arguments]             ${login url}=${LOGIN URL}   ${title}=OMERO.web - Login
