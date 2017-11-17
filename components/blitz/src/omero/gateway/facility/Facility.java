@@ -285,9 +285,9 @@ public abstract class Facility {
 
         ConnectionStatus b = getConnectionStatus(t);
         if (b != ConnectionStatus.OK)
-            return;
+            throw new DSOutOfServiceException("Connection lost.", t);
         if (!gateway.isConnected())
-            return;
+            throw new DSOutOfServiceException("Gateway is disconnected.", t);
         Throwable cause = t.getCause();
         if (cause instanceof SecurityViolation) {
             String s = "For security reasons, cannot access data. \n";

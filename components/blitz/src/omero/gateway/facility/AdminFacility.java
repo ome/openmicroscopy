@@ -26,6 +26,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+
 import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IAdminPrx;
@@ -38,13 +41,13 @@ import omero.model.AdminPrivilegeI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
-import omero.model.IObject;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.sys.Roles;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 import omero.gateway.util.PojoMapper;
+import omero.gateway.util.Pojos;
 import omero.gateway.util.Utils;
 
 /**
@@ -258,7 +261,9 @@ public class AdminFacility extends Facility {
      */
     public GroupData lookupGroup(SecurityContext ctx, String name)
             throws DSOutOfServiceException, DSAccessException {
-
+        if(StringUtils.isBlank(name))
+            return null;
+        
         try {
             IAdminPrx svc = gateway.getAdminService(ctx);
             ExperimenterGroup g =  svc.lookupGroup(name);
@@ -288,7 +293,9 @@ public class AdminFacility extends Facility {
      */
     public ExperimenterData lookupExperimenter(SecurityContext ctx, String name)
             throws DSOutOfServiceException, DSAccessException {
-
+        if(StringUtils.isBlank(name))
+            return null;
+                    
         try {
             IAdminPrx svc = gateway.getAdminService(ctx);
             Experimenter exp = svc.lookupExperimenter(name);
@@ -336,6 +343,8 @@ public class AdminFacility extends Facility {
     public Collection<String> getAdminPrivileges(SecurityContext ctx,
             ExperimenterData user) throws DSOutOfServiceException,
             DSAccessException {
+        if (!Pojos.hasID(user))
+            return null;
         try {
             IAdminPrx adm = gateway.getAdminService(ctx);
             return Utils
@@ -365,6 +374,9 @@ public class AdminFacility extends Facility {
     public void setAdminPrivileges(SecurityContext ctx, ExperimenterData user,
             Collection<String> privileges) throws DSOutOfServiceException,
             DSAccessException {
+        if (!Pojos.hasID(user))
+            return;
+        
         try {
             IAdminPrx adm = gateway.getAdminService(ctx);
             adm.setAdminPrivileges(user.asExperimenter(), Utils.toEnum(
@@ -392,6 +404,9 @@ public class AdminFacility extends Facility {
     public void addAdminPrivileges(SecurityContext ctx, ExperimenterData user,
             Collection<String> privileges) throws DSOutOfServiceException,
             DSAccessException {
+        if(!Pojos.hasID(user) || CollectionUtils.isEmpty(privileges))
+            return;
+        
         try {
             Collection<String> privs = getAdminPrivileges(ctx, user);
             for (String priv : privileges)
@@ -421,6 +436,8 @@ public class AdminFacility extends Facility {
     public void removeAdminPrivileges(SecurityContext ctx,
             ExperimenterData user, Collection<String> privileges)
             throws DSOutOfServiceException, DSAccessException {
+        if(!Pojos.hasID(user) || CollectionUtils.isEmpty(privileges))
+            return;
         try {
             Collection<String> privs = getAdminPrivileges(ctx, user);
             privs.removeAll(privileges);
@@ -489,6 +506,8 @@ public class AdminFacility extends Facility {
      */
     public boolean isFullAdmin(SecurityContext ctx, ExperimenterData user)
             throws DSOutOfServiceException, DSAccessException {
+        if (!Pojos.hasID(user))
+            return false;
         try {
             return getAdminPrivileges(ctx, user).size() == getAvailableAdminPrivileges(
                     ctx).size();
