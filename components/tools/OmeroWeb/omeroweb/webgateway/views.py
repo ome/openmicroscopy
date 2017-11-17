@@ -904,11 +904,16 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             levels = img._re.getResolutionLevels()-1
 
             zxyt = tile.split(",")
-
-            # w = int(zxyt[3])
-            # h = int(zxyt[4])
+            # if tile size is given respect it (within lower/upper limits)
+            if len(zxyt) > 4:
+                tile_size = [int(zxyt[3]), int(zxyt[4])]
+                for i, tile_length in enumerate(tile_size):
+                    if tile_length <= 0:
+                        tile_size[i] = 256
+                    if tile_length > 1024:
+                        tile_size[i] = 1024
+                w, h = tile_size
             level = levels-int(zxyt[0])
-
             x = int(zxyt[1])*w
             y = int(zxyt[2])*h
         except:

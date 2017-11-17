@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -85,7 +86,6 @@ import omero.gateway.model.GroupData;
 import omero.gateway.util.PojoMapper;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
-import Ice.ConnectionRefusedException;
 import Ice.DNSException;
 import Ice.SocketException;
 
@@ -101,7 +101,7 @@ import com.google.common.collect.Multimaps;
  * @since 5.1
  */
 
-public class Gateway {
+public class Gateway implements AutoCloseable {
 
     /** Property to indicate that a {@link Connector} has been created */
     public static final String PROP_CONNECTOR_CREATED = "PROP_CONNECTOR_CREATED";
@@ -141,7 +141,7 @@ public class Gateway {
 
     /** Property to indicate that a stateless service has been created */
     public static final String PROP_STATELESS_SERVICE_CREATED = "PROP_STATELESS_SERVICE_CREATED";
-
+    
     /** Reference to a {@link Logger} */
     private Logger log;
 
@@ -179,7 +179,7 @@ public class Gateway {
     
     /** Flag to indicate that executor threads should be shutdown on disconnect */
     private boolean executorShutdownOnDisconnect = false;
-    
+
     /**
      * Creates a new Gateway instance
      * @param log A {@link Logger}
@@ -400,15 +400,15 @@ public class Gateway {
      * @param user
      *            The user to get the session ID for
      * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
-    public String getSessionId(ExperimenterData user) {
-        try {
-            Connector c = getConnector(new SecurityContext(user.getGroupId()),
-                    false, false);
-            if (c != null) {
-                return c.getClient().getSessionId();
-            }
-        } catch (DSOutOfServiceException e) {
+    public String getSessionId(ExperimenterData user)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(new SecurityContext(user.getGroupId()),
+                false, false);
+        if (c != null) {
+            return c.getClient().getSessionId();
         }
         return null;
     }
@@ -1030,38 +1030,35 @@ public class Gateway {
         }
         secureClient.setAgent(c.getApplicationName());
         ServiceFactoryPrx entryEncrypted = null;
-        boolean session = false;
-        ServiceFactoryPrx guestSession = null;
-        try {
-            // Check if it is a session first
-            guestSession = secureClient.createSession("guest", "guest");
-            guestSession.getSessionService().getSession(username);
-            session = true;
-        } catch (Throwable e) {
-            // thrown if it is not a session, session has expired, or
-            // the guest login doesn't exist on the server
-        }
-        finally {
-            if (guestSession != null) 
-                secureClient.closeSession();
-        }
-        try {
-            if (session) {
+        
+        boolean connected = false;
+        if (isSessionID(username)) {
+            try {
                 entryEncrypted = secureClient.joinSession(username);
-            } else {
+                connected = true;
+            } catch (Exception e) {
+                // Although username looks like a session ID it apparently isn't
+                // one.
+                log.warn(this, new LogMessage("Could not join session "
+                        + username + " , trying username/password login next.",
+                        e));
+            }
+        }
+        if (!connected) {
+            try {
                 if (args != null) {
                     entryEncrypted = secureClient.createSession();
                 } else {
                     entryEncrypted = secureClient.createSession(c.getUser()
                             .getUsername(), c.getUser().getPassword());
                 }
+            } catch (Exception e1) {
+                // close the session again before passing on the exception
+                secureClient.closeSession();
+                throw e1;
             }
-        } 
-        catch (Exception e1) {
-            // close the session again before passing on the exception
-            secureClient.closeSession();
-            throw e1;
         }
+
         this.pcs.firePropertyChange(PROP_SESSION_CREATED, null,
                 secureClient.getSessionId());
         serverVersion = entryEncrypted.getConfigService().getVersion();
@@ -1099,6 +1096,23 @@ public class Gateway {
         return secureClient;
     }
 
+    /**
+     * Checks if a String could be an ICE session ID.
+     * 
+     * @param s
+     *            The String to check
+     * @return <code>true</code> if it could be a session ID, <code>false</code>
+     *         otherwise.
+     */
+    private boolean isSessionID(String s) {
+        try {
+            UUID.fromString(s);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+    
     /**
      * Logs in a certain user
      * 
@@ -1220,7 +1234,9 @@ public class Gateway {
             c = i.next();
             if (c.needsKeepAlive()) {
                 if (!c.keepSessionAlive()) {
-                    throw new DSOutOfServiceException("Network not available");
+                    // Session has died, e. g. due to server restart.
+                    // Remove connectors, so new ones will be created as requested.
+                    groupConnectorMap.removeAll(c.getGroupID());
                 }
             }
         }
@@ -1503,9 +1519,10 @@ public class Gateway {
                             ConnectionStatus.NETWORK);
                 }
                 if (!c.keepSessionAlive()) {
-                    throw new DSOutOfServiceException(
-                            "Network down. Session not alive",
-                            ConnectionStatus.LOST_CONNECTION);
+                    // Session has died, e. g. due to server restart.
+                    // Remove connectors, so a new ones will be created.
+                    groupConnectorMap.removeAll(c.getGroupID());
+                    c = null;
                 }
             }
         }
@@ -1639,5 +1656,11 @@ public class Gateway {
             }
         }
         return c;
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (connected)
+            disconnect();
     }
 }

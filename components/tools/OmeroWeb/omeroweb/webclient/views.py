@@ -242,13 +242,20 @@ class WebclientLoginView(LoginView):
             'version': omero_version,
             'build_year': build_year,
             'error': error,
-            'form': form}
+            'form': form
+        }
         url = request.GET.get("url")
         if url is not None and len(url) != 0:
             context['url'] = urlencode({'url': url})
 
         if hasattr(settings, 'LOGIN_LOGO'):
             context['LOGIN_LOGO'] = settings.LOGIN_LOGO
+
+        if settings.PUBLIC_ENABLED:
+            redirect = reverse('webindex')
+            if settings.PUBLIC_URL_FILTER.search(redirect):
+                context['public_enabled'] = True
+                context['public_login_redirect'] = redirect
 
         t = template_loader.get_template(self.template)
         c = Context(request, context)
@@ -324,7 +331,7 @@ def logout(request, conn=None, **kwargs):
                 logger.error('Exception during logout.', exc_info=True)
         finally:
             request.session.flush()
-        return HttpResponseRedirect(reverse("webindex"))
+        return HttpResponseRedirect(reverse("weblogin"))
     else:
         context = {
             'url': reverse('weblogout'),
@@ -369,6 +376,15 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
     # We get the owner of the top level object, E.g. Project
     # Actual api_paths_to_object() is retrieved by jsTree once loaded
     initially_open_owner = show.initially_open_owner
+
+    # If we failed to find 'show'...
+    if request.GET.get('show', None) is not None and first_sel is None:
+        # and we're logged in as PUBLIC user...
+        if settings.PUBLIC_USER == conn.getUser().getOmeName():
+            # this is likely a regular user who needs to log in as themselves.
+            # Login then redirect to current url
+            return HttpResponseRedirect(
+                "%s?url=%s" % (reverse("weblogin"), url))
 
     # need to be sure that tree will be correct omero.group
     if first_sel is not None:

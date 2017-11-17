@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import ome.util.search.LuceneQueryBuilder;
 import omero.ApiUsageException;
 import omero.InternalException;
@@ -92,10 +94,9 @@ public class SearchFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
 
         SearchResultCollection result = new SearchResultCollection();
-
-        if (context.getTypes().isEmpty()) {
+        
+        if (context == null || CollectionUtils.isEmpty(context.getTypes()))
             return result;
-        }
 
         SearchPrx service = gateway.getSearchService(ctx);
 

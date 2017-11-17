@@ -389,6 +389,9 @@ $(document).ready(function() {
         });
     }
 
+    // {'id': {'text': 'name', 'images': [1,2,3]} } for all tags used for filtering
+    var usedTags = {};
+
     var setupFiltering = function() {
         // All the image filtering functionality setup here...
         // Chooser for revealing various filter components
@@ -425,13 +428,54 @@ $(document).ready(function() {
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
             }
 
+            if (filterby === "tag") {
+                // Load tags for images
+                var iids = [];
+                $("#dataIcons li.row").each(function(){
+                    iids.push($(this).attr("data-id"));
+                });
+                // Check to ensure images are available for filtering
+                // if (iids.length === 0) {
+                //     // No images to filter
+                //     return;
+                // }
+                var query = "image=" + iids.join("&image=");
+                $.getJSON("{% url 'api_annotations' %}?type=tag&" + query, function(data){
+                    // map imageId to rating... rdata = {'iid': hide?}
+                    usedTags = data.annotations.reduce(function(prev, t){
+                        var imgId = t.link.parent.id;
+                        if (!prev[t.id]) {
+                            prev[t.id] = {'textValue': t.textValue, 'images': []};
+                        }
+                        prev[t.id].images.push(imgId);
+                        return prev;
+                    }, {});
+                    console.log(usedTags);
+                    var tagList = [];
+                    for (t in usedTags) {
+                        if (usedTags.hasOwnProperty(t)) {
+                            tagList.push({id: t, text: usedTags[t].textValue});
+                        }
+                    }
+                    // sort list of tags
+                    tagList.sort(function(a, b){
+                        return a.text < b.text ? -1 : 1;
+                    });
+                    var html = tagList.map(function(t){
+                        return "<option value='" + t.id + "'>" + t.text + "</option>";
+                    }).join("");
+                    html = "<option value='0'>Choose Tag</option>" + html;
+                    $("#filter_by_tag").html(html);
+                });
+            }
+
             // Show filter
             if (filterby != "addfilter") {
                 $("#filter" + filterby).appendTo("#filtersContainer").show();
             }
         });
-        // Rating has a 'X' for clearing filter
-        $(".removefilter").click(function(){
+        // Filters have a 'X' for clearing filter
+        $("#filtersearch").on('click', '.removefilter', function(){
             var $fltr = $(this).parent();
             if ($fltr.attr('id') === 'filterrating') {
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
@@ -439,6 +483,10 @@ $(document).ready(function() {
             } else if ($fltr.attr('id') === 'filterunrated') {
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
                 $fltr.hide();
+            } else if ($fltr.attr('data-tagId')) {
+                var tagId = $fltr.attr('data-tagId');
+                filter_tag_ids = filter_tag_ids.filter(function(i){return i !== tagId});
+                renderFilterTags();
             }
         });
 
@@ -537,6 +585,48 @@ $(document).ready(function() {
                 // finally, we de-select hidden
                 deselectFiltered();
             });
+        });
+
+
+        var filter_tag_ids = [];
+        // Filtering by Tag
+        function renderFilterTags() {
+            // hide filtered images 
+            $("#dataIcons li.row").each(function() {
+                var $this = $(this),
+                    iid = parseInt($this.attr("data-id"), 10);
+                // Visible if image has ALL filter tags
+                var visible = filter_tag_ids.reduce(function(prev, tid){
+                    return prev && (usedTags[tid].images.indexOf(iid) > -1);
+                }, true);
+                if (visible) {
+                    $this.removeClass('tagFilter_hidden');
+                } else {
+                    $this.addClass('tagFilter_hidden');
+                }
+            });
+            // show tags
+            var html = filter_tag_ids.map(function(tagId){
+                var tagText = usedTags[tagId].textValue;
+                return "<div class='tag' data-tagId='" + tagId + "'><a class='tag_inner' href='#'>" + tagText + "</a><span class='removeTag removefilter' title='Remove Tag'>-</span></div>";
+            }).join("");
+            $("#currentFilterTags").html(html);
+        };
+
+        $("#filter_by_tag").change(function(event){
+            var $this = $(event.target);
+            var tagId = $this.val();
+            if (filter_tag_ids.indexOf(tagId) === -1) {
+                filter_tag_ids.push(tagId);
+            }
+
+            renderFilterTags();
+
+            // reset choose
+            $this.val('0');
+
+            // finally, we de-select hidden
+            deselectFiltered();
         });
     }
 

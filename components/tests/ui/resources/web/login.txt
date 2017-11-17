@@ -25,7 +25,7 @@ Page Should Be Open
 
 Welcome Page Should Be Open
     [Arguments]             ${welcome url}=${WELCOME URL}   ${title}=Webclient
-    Page Should Be Open     ${WELCOME URL}       ${title}
+    Wait Until Keyword Succeeds             ${TIMEOUT}   ${INTERVAL}   Page Should Be Open     ${WELCOME URL}       ${title} 
 
 Login Page Should Be Open
     [Arguments]             ${login url}=${LOGIN URL}   ${title}=OMERO.web - Login
@@ -60,7 +60,7 @@ Log Out
     Click Element                       xpath=//div[@id='show_user_dropdown']/span
     Click Link                          link=Logout
     Wait Until Page Contains Element    id=login    ${WAIT}
-    Page Should Be Open                 ${WEBCLIENT LOGIN URL}                          OMERO.web - Login
+    Page Should Be Open                 ${LOGIN URL}                          OMERO.web - Login
 
 Logout and Teardown
     Log Out

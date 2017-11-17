@@ -22,11 +22,11 @@
 from omero.cli import NonZeroReturnCode
 from omero.rtypes import rstring
 from omero.plugins.user import UserControl
-from test.integration.clitest.cli import CLITest, RootCLITest
-from test.integration.clitest.cli import get_user_ids, get_group_ids
-from test.integration.clitest.cli import UserIdNameFixtures
-from test.integration.clitest.cli import GroupFixtures
-from test.integration.clitest.cli import UserFixtures
+from omero.testlib.cli import CLITest, RootCLITest
+from omero.testlib.cli import get_user_ids, get_group_ids
+from omero.testlib.cli import UserIdNameFixtures
+from omero.testlib.cli import GroupFixtures
+from omero.testlib.cli import UserFixtures
 from Glacier2 import PermissionDeniedException
 import getpass
 import pytest

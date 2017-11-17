@@ -23,7 +23,7 @@
 
 import omero
 from omero.plugins.chown import ChownControl
-from test.integration.clitest.cli import CLITest, RootCLITest
+from omero.testlib.cli import CLITest, RootCLITest
 from test.integration.clitest.test_tag import AbstractTagTest
 import pytest
 

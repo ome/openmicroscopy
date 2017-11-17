@@ -21,7 +21,7 @@
 plugin = __import__('omero.plugins.import', globals(), locals(),
                     ['ImportControl'], -1)
 ImportControl = plugin.ImportControl
-from test.integration.clitest.cli import CLITest
+from omero.testlib.cli import CLITest
 import pytest
 import stat
 import re

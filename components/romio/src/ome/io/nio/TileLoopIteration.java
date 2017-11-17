@@ -1,11 +1,13 @@
 /*
  * ome.io.nio.TileLoopIteration
  *
- *   Copyright 2011 University of Dundee. All rights reserved.
+ *   Copyright 2011-2017 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.io.nio;
+
+import ome.io.nio.Utils.FailedTileLoopException;
 
 /**
  * A single iteration of a tile for each loop.
@@ -29,7 +31,8 @@ public interface TileLoopIteration
      * @param tileHeight Height of the tile requested. The tile request
      * itself may be smaller if <code>y + tileHeight > sizeY</code>.
      * @param tileCount Counter of the tile since the beginning of the loop.
+     * @throws FailedTileLoopException if the loop should be aborted with no more tiles processed
      */
     void run(int z, int c, int t, int x, int y, int tileWidth,
-             int tileHeight, int tileCount);
+             int tileHeight, int tileCount) throws FailedTileLoopException;
 }

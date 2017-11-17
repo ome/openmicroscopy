@@ -1552,6 +1552,9 @@
     #dataIcons .ratingFilter_hidden {
         display: none;
     }
+    #dataIcons .tagFilter_hidden {
+        display: none;
+    }
 
     #dataIcons .ui-selecting {
         background-color:hsl(0,0%,90%);
@@ -2386,6 +2389,13 @@ div.paging input.button_pagination {
     left: 0px;
     right: 0px;
     overflow: auto;
+}
+.zoomLabel {
+	font-size: 12px;
+    margin-top: 6px;
+    margin-left: 9px;
+    display: block;
+    opacity: 0.8;
 }
 .wellImages {
     border-top: solid 1px #bbb;
