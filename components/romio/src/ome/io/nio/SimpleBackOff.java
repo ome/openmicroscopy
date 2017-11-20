@@ -14,6 +14,7 @@ import loci.common.services.ServiceFactory;
 import loci.formats.codec.JPEG2000CodecOptions;
 import loci.formats.services.JAIIIOService;
 import ome.conditions.MissingPyramidException;
+import ome.io.nio.Utils.FailedTileLoopException;
 import ome.model.core.Pixels;
 
 import org.slf4j.Logger;
@@ -89,15 +90,19 @@ public class SimpleBackOff implements BackOff {
 
     protected int countTiles(Pixels pixels) {
         final int[] count = new int[] { 0 };
-        ome.io.nio.Utils.forEachTile(new TileLoopIteration() {
+        try {
+            ome.io.nio.Utils.forEachTile(new TileLoopIteration() {
 
-            public void run(int z, int c, int t, int x, int y, int tileWidth,
-                    int tileHeight, int tileCount) {
-                count[0]++;
-            }
-        }, pixels.getSizeX(), pixels.getSizeY(), pixels.getSizeZ(),
-           pixels.getSizeC(), pixels.getSizeT(),
-           sizes.getTileWidth(), sizes.getTileHeight());
+                public void run(int z, int c, int t, int x, int y, int tileWidth,
+                        int tileHeight, int tileCount) {
+                    count[0]++;
+                }
+            }, pixels.getSizeX(), pixels.getSizeY(), pixels.getSizeZ(),
+               pixels.getSizeC(), pixels.getSizeT(),
+               sizes.getTileWidth(), sizes.getTileHeight());
+        } catch (FailedTileLoopException ftle) {
+            // impossible, never thrown by run method
+        }
         return count[0];
     }
 
