@@ -12,7 +12,8 @@ Improvements include:
    scrollbars and make clear thumbnails can be zoomed (including Plate and
    Well thumbnails)
 -  fixes for installation walkthrough documentation - installation of script
-   dependencies and gunicorn
+   dependencies and gunicorn, and clarification of which user account to use
+   for ``pip install`` actions
 -  fixed checking of "guest" user
 -  update to fetch third-party artifacts over https to allow OMERO to build
    even without a local Maven cache already populated
