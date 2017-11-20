@@ -415,11 +415,21 @@ public class AbstractServerTest extends AbstractTest {
     /**
      * Assert that the given object is in the given group.
      * @param object a model object
-     * @param group an ExperimenterGroup
+     * @param expectedGroup an experimenter group
      * @throws ServerError unexpected
      */
-    protected void assertInGroup(IObject object, ExperimenterGroup group) throws ServerError {
-        assertInGroup(Collections.singleton(object), group.getId().getValue());
+    protected void assertInGroup(IObject object, ExperimenterGroup expectedGroup) throws ServerError {
+        assertInGroup(Collections.singleton(object), expectedGroup);
+    }
+
+    /**
+     * Assert that the given objects are in the given group.
+     * @param objects some model objects
+     * @param expectedGroup an experimenter group
+     * @throws ServerError unexpected
+     */
+    protected void assertInGroup(Collection<? extends IObject> objects, ExperimenterGroup expectedGroup) throws ServerError {
+        assertInGroup(objects, expectedGroup.getId().getValue());
     }
 
     /**
