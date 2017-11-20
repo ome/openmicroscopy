@@ -1,6 +1,38 @@
 OMERO version history
 =====================
 
+5.4.1 (November 2017)
+---------------------
+
+This is a bug-fix release.
+
+Improvements include:
+
+-  labelled zoom slider bars in the UI to differentiate from horizontal
+   scrollbars and make clear thumbnails can be zoomed (including Plate and
+   Well thumbnails)
+-  fixes for installation walkthrough documentation - installation of script
+   dependencies and gunicorn
+-  fixed checking of "guest" user
+-  update to fetch third-party artifacts over https to allow OMERO to build
+   even without a local Maven cache already populated
+-  added ``javax.activation`` dependency to allow OMERO.insight to work with
+   Java 9
+-  import of files reporting extreme pixel sizes now fail rather than hanging
+-  pyramid-making now aborts when a tile fails
+-  various test fixes
+-  CLI fixes:
+
+   * improved help output for graphs commands to make it clearer that
+     ``--include`` and ``--exclude`` expect class names not object IDs
+   * allowed setting the ``OMERO_PASSWORD`` environment variable instead of
+     using the ``-w`` command-line option
+   * fixed the CLI metadata tablestest plugin to not use an empty list of
+     Columns
+
+This release also upgrades the version of Bio-Formats which OMERO uses to
+5.7.2.
+
 5.4.0 (October 2017)
 --------------------
 
