@@ -28,6 +28,7 @@ Improvements include:
      ``--include`` and ``--exclude`` expect class names not object IDs
    * allowed setting the ``OMERO_PASSWORD`` environment variable instead of
      using the ``-w`` command-line option
+   * made passwords hidden by default when running ``omero config get``
    * fixed the CLI metadata tablestest plugin to not use an empty list of
      Columns
 
