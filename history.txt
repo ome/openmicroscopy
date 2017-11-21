@@ -1,3 +1,7 @@
+.. Content for this page should be opened as a PR against
+.. https://github.com/openmicroscopy/openmicroscopy/blob/develop/history.txt
+.. initially and transfered to this page via the autogen job
+
 OMERO version history
 =====================
 
