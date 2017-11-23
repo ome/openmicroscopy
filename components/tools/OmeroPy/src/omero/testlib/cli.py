@@ -21,7 +21,6 @@
 
 
 import pytest
-import warnings
 
 import omero
 from omero.cli import CLI
@@ -33,9 +32,6 @@ from omero_ext.mox import Mox
 
 
 class AbstractCLITest(ITest):
-    warnings.warn("Deprecated in 5.4.1."
-                  "Use omero.testlib.cli",
-                  DeprecationWarning)
 
     @classmethod
     def setup_class(cls):
@@ -52,9 +48,6 @@ class AbstractCLITest(ITest):
 
 
 class CLITest(AbstractCLITest):
-    warnings.warn("Deprecated in 5.4.1."
-                  "Use omero.testlib.cli",
-                  DeprecationWarning)
 
     def setup_method(self, method):
         self.args = self.login_args()
@@ -91,9 +84,6 @@ class CLITest(AbstractCLITest):
 
 
 class RootCLITest(AbstractCLITest):
-    warnings.warn("Deprecated in 5.4.1."
-                  "Use omero.testlib.cli",
-                  DeprecationWarning)
 
     def setup_method(self, method):
         self.args = self.root_login_args()
@@ -104,9 +94,6 @@ class ArgumentFixture(object):
     """
     Used to test the user/group argument
     """
-    warnings.warn("Deprecated in 5.4.1."
-                  "Use omero.testlib.cli",
-                  DeprecationWarning)
 
     def __init__(self, prefix, attr):
         self.prefix = prefix

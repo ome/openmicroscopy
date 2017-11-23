@@ -22,7 +22,7 @@
 
 import pytest
 
-from test.integration.clitest.cli import CLITest
+from omero.testlib.cli import CLITest
 import omero.plugins.admin
 from omero.cli import NonZeroReturnCode
 from path import path

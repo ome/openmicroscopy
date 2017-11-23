@@ -21,7 +21,7 @@
 
 import omero
 from omero.plugins.duplicate import DuplicateControl
-from test.integration.clitest.cli import CLITest
+from omero.testlib.cli import CLITest
 import pytest
 
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
