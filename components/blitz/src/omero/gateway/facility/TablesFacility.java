@@ -20,6 +20,7 @@ package omero.gateway.facility;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,6 +35,7 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
+import omero.gateway.util.Pojos;
 import omero.grid.Column;
 import omero.grid.Data;
 import omero.grid.SharedResourcesPrx;
@@ -88,6 +90,9 @@ public class TablesFacility extends Facility {
     public TableData addTable(SecurityContext ctx, DataObject target,
             String name, TableData data) throws DSOutOfServiceException,
             DSAccessException {
+        if (!Pojos.hasID(target))
+            return null;
+        
         TablePrx table = null;
         try {
             if (name == null)
@@ -263,6 +268,9 @@ public class TablesFacility extends Facility {
     public long[] query(SecurityContext ctx, long fileId, String condition,
             long start, long stop, long step) throws DSOutOfServiceException,
             DSAccessException {
+        if (fileId < 0)
+            return new long[0];
+        
         TablePrx table = null;
         try {
             OriginalFile file = new OriginalFileI(fileId, false);
@@ -344,6 +352,9 @@ public class TablesFacility extends Facility {
      */
     public TableData getTable(SecurityContext ctx, long fileId, long... rows)
             throws DSOutOfServiceException, DSAccessException {
+        if (fileId < 0)
+            return null;
+        
         TablePrx table = null;
         try {
             OriginalFile file = new OriginalFileI(fileId, false);
@@ -412,6 +423,9 @@ public class TablesFacility extends Facility {
     public TableData getTable(SecurityContext ctx, long fileId, long rowFrom,
             long rowTo, long... columns) throws DSOutOfServiceException,
             DSAccessException {
+        if (fileId < 0)
+            return null;
+        
         TablePrx table = null;
         try {
             OriginalFile file = new OriginalFileI(fileId, false);
@@ -499,6 +513,9 @@ public class TablesFacility extends Facility {
     public Collection<FileAnnotationData> getAvailableTables(
             SecurityContext ctx, DataObject parent)
             throws DSOutOfServiceException, DSAccessException {
+        if (!Pojos.hasID(parent))
+            return Collections.emptyList();
+        
         Collection<FileAnnotationData> result = new ArrayList<FileAnnotationData>();
         try {
             MetadataFacility mf = gateway.getFacility(MetadataFacility.class);
