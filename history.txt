@@ -12,7 +12,7 @@ This is a bug-fix release.
 
 Improvements include:
 
--  labelled zoom slider bars in the UI to differentiate from horizontal
+-  labeled zoom slider bars in the UI to differentiate from horizontal
    scrollbars and make clear thumbnails can be zoomed (including Plate and
    Well thumbnails)
 -  fixes for installation walkthrough documentation - installation of script
@@ -36,7 +36,7 @@ Improvements include:
    * fixed the CLI metadata tablestest plugin to not use an empty list of
      Columns
 
-This release also upgrades the version of Bio-Formats which OMERO uses to
+This release also upgrades the version of Bio-Formats that OMERO uses to
 5.7.2.
 
 5.4.0 (October 2017)
