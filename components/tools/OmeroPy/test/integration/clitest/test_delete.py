@@ -21,7 +21,7 @@
 
 import omero
 from omero.plugins.delete import DeleteControl
-from test.integration.clitest.cli import CLITest
+from omero.testlib.cli import CLITest
 from test.integration.clitest.test_tag import AbstractTagTest
 import pytest
 

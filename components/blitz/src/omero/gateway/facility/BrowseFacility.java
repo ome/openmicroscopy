@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
@@ -58,6 +59,7 @@ import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.WellData;
 import omero.gateway.util.PojoMapper;
+import omero.gateway.util.Pojos;
 
 /**
  * A {@link Facility} for browsing the data hierarchy and retrieving
@@ -99,6 +101,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<DataObject> getHierarchy(SecurityContext ctx, Class rootType,
             long userId) throws DSOutOfServiceException, DSAccessException {
+        if (rootType == null)
+            return Collections.emptySet();
+        
         ParametersI param = new ParametersI();
         if (userId >= 0) {
             param.exp(omero.rtypes.rlong(userId));
@@ -108,23 +113,32 @@ public class BrowseFacility extends Facility {
     }
 
     /**
-     * Retrieves hierarchy trees rooted by a given node.
-     * i.e. the requested node as root and all of its descendants.
+     * Retrieves hierarchy trees rooted by a given node. i.e. the requested node
+     * as root and all of its descendants.
      *
-     * @param ctx The security context.
-     * @param rootType The type of node to handle.
-     * @param rootIDs The node's id.
-     * @param options The retrieval options.
+     * @param ctx
+     *            The security context.
+     * @param rootType
+     *            The type of node to handle.
+     * @param rootIDs
+     *            The ids of the root nodes. Can be <code>null</code> or empty,
+     *            in which case all root nodes the user has access to are
+     *            loaded.
+     * @param options
+     *            The retrieval options.
      * @return See above.
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
-     *             service. 
+     *             service.
      */
     public Collection<DataObject> getHierarchy(SecurityContext ctx, Class rootType,
             List<Long> rootIDs, Parameters options)
             throws DSOutOfServiceException, DSAccessException {
+        if (rootType == null)
+            return Collections.emptySet();
+        
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
             return PojoMapper.convertToDataObjects(service.loadContainerHierarchy(
@@ -181,6 +195,9 @@ public class BrowseFacility extends Facility {
     public <T extends DataObject> T findObject(SecurityContext ctx,
             Class<T> klass, long id, boolean allGroups)
             throws DSOutOfServiceException, DSAccessException {
+        if (klass == null || id < 0)
+            return null;
+        
         String klassName = PojoMapper.getModelType(klass).getSimpleName();
         IObject obj = findIObject(ctx, klassName, id, allGroups);
         if (obj == null)
@@ -252,6 +269,9 @@ public class BrowseFacility extends Facility {
     public IObject findIObject(SecurityContext ctx, String klassName, long id,
             boolean allGroups) throws DSOutOfServiceException,
             DSAccessException {
+        if (StringUtils.isBlank(klassName) || id < 0)
+            return null;
+        
         try {
             Map<String, String> m = new HashMap<String, String>();
             if (allGroups) {
@@ -293,6 +313,9 @@ public class BrowseFacility extends Facility {
     public DataObject findObject(SecurityContext ctx, String pojoName, long id,
             boolean allGroups) throws DSOutOfServiceException,
             DSAccessException {
+        if (StringUtils.isBlank(pojoName) || id < 0)
+            return null;
+        
         try {
             Map<String, String> m = new HashMap<String, String>();
             if (allGroups) {
@@ -335,6 +358,7 @@ public class BrowseFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         if (o == null || o.getId() == null)
             return null;
+        
         try {
             IQueryPrx service = gateway.getQueryService(ctx);
             return service.find(o.getClass().getName(), o.getId().getValue());
@@ -364,6 +388,9 @@ public class BrowseFacility extends Facility {
             ExperimenterData user) throws DSOutOfServiceException,
             DSAccessException {
         Set<GroupData> pojos = new HashSet<GroupData>();
+        if (!Pojos.hasID(user))
+            return pojos;
+        
         try {
             IQueryPrx service = gateway.getQueryService(ctx);
             // Need method server side.
@@ -488,7 +515,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx,
             long ownerId, Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null || ids.isEmpty())
+        if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
         
         try {
@@ -574,8 +601,6 @@ public class BrowseFacility extends Facility {
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
-            
-            
             ParametersI param = null;
             if (ownerId >= 0) {
                 param = new ParametersI();
@@ -617,7 +642,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx,
             long ownerId, Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null || ids.isEmpty())
+        if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
         
         try {
@@ -742,7 +767,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null || ids.isEmpty())
+        if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
         
         try {
@@ -868,7 +893,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null || ids.isEmpty())
+        if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
         
         try {
@@ -1045,6 +1070,9 @@ public class BrowseFacility extends Facility {
      *             service.
      */
     public ImageData getImage(SecurityContext ctx, long id) throws DSOutOfServiceException, DSAccessException {
+        if (id < 0)
+            return null;
+        
         return getImages(ctx, Collections.singleton(id)).iterator().next();
     }
     
@@ -1065,6 +1093,9 @@ public class BrowseFacility extends Facility {
      *             service.
      */
     public ImageData getImage(SecurityContext ctx, long id, ParametersI params) throws DSOutOfServiceException, DSAccessException {
+        if (id < 0)
+            return null;
+        
         return getImages(ctx, Collections.singleton(id), params).iterator()
                 .next();
     }
@@ -1085,6 +1116,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ImageData> getImages(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
+        if (CollectionUtils.isEmpty(ids))
+            return Collections.emptyList();
+        
         return getImages(ctx, ids, null);
     }
     
@@ -1106,7 +1140,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ImageData> getImages(SecurityContext ctx,
             Collection<Long> ids, ParametersI params) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null || ids.isEmpty())
+        if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
         
         try {
@@ -1184,7 +1218,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ImageData> getImages(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null || ids.isEmpty())
+        if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
         
         try {
@@ -1232,7 +1266,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ImageData> getImagesForDatasets(SecurityContext ctx,
             Collection<Long> datasetIds) throws DSOutOfServiceException, DSAccessException {
-        if (datasetIds == null || datasetIds.isEmpty())
+        if (CollectionUtils.isEmpty(datasetIds))
             return Collections.emptyList();
         
         try {
@@ -1270,7 +1304,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ImageData> getImagesForProjects(SecurityContext ctx,
             Collection<Long> projectIds) throws DSOutOfServiceException, DSAccessException {
-        if (projectIds == null || projectIds.isEmpty())
+        if (CollectionUtils.isEmpty(projectIds))
             return Collections.emptyList();
         
         try {
@@ -1307,6 +1341,9 @@ public class BrowseFacility extends Facility {
     public Collection<FolderData> loadFolders(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException,
             DSAccessException {
+        if (CollectionUtils.isEmpty(ids))
+            return Collections.emptyList();
+        
         try {
             IQueryPrx qs = gateway.getQueryService(ctx);
             ParametersI param = new ParametersI();
@@ -1333,7 +1370,7 @@ public class BrowseFacility extends Facility {
             handleException(this, e, "Cannot load folders.");
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
     
     /**
@@ -1369,7 +1406,7 @@ public class BrowseFacility extends Facility {
             handleException(this, e, "Cannot load folders.");
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     /**
@@ -1392,6 +1429,9 @@ public class BrowseFacility extends Facility {
     public Collection<FolderData> getFolders(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException,
             DSAccessException {
+        if (CollectionUtils.isEmpty(ids))
+            return Collections.emptyList();
+        
         try {
             IQueryPrx qs = gateway.getQueryService(ctx);
             ParametersI param = new ParametersI();
@@ -1413,7 +1453,7 @@ public class BrowseFacility extends Facility {
             handleException(this, e, "Cannot load folders.");
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     /**
@@ -1456,7 +1496,7 @@ public class BrowseFacility extends Facility {
             handleException(this, e, "Cannot load folders.");
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
     
     /**
@@ -1484,6 +1524,6 @@ public class BrowseFacility extends Facility {
         } catch (Throwable t) {
             handleException(this, t, "Could not load lookup tables.");
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 }

@@ -41,7 +41,9 @@
   </bean>
 
   <bean id="backOff" class="${omero.pixeldata.backoff}">
-    <constructor-arg ref="tileSizes"/>
+    <constructor-arg index="0" ref="tileSizes"/>
+    <constructor-arg index="1" value="${omero.pixeldata.backoff.default}"/>
+    <constructor-arg index="2" value="${omero.pixeldata.backoff.maxpixels}"/>
   </bean>
 
   <bean id="configuredTileSizes" class="ome.io.nio.ConfiguredTileSizes">

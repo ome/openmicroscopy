@@ -20,6 +20,7 @@
 package omero.gateway.facility;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -64,6 +65,8 @@ public class TransferFacility extends Facility {
      */
     public List<File> downloadImage(SecurityContext context, String targetPath,
             long imageId) throws DSAccessException, DSOutOfServiceException {
+        if (imageId < 0)
+            return Collections.emptyList();
         return helper.downloadImage(context, targetPath, imageId);
     }
 

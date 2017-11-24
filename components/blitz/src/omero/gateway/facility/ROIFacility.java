@@ -115,6 +115,9 @@ public class ROIFacility extends Facility {
      */
     public int getROICount(SecurityContext ctx, long imageId)
             throws DSOutOfServiceException, DSAccessException {
+        if (imageId < 0)
+            return -1;
+        
         try {
             ParametersI p = new ParametersI();
             p.addId(imageId);
@@ -157,6 +160,9 @@ public class ROIFacility extends Facility {
      */
     public ROIResult loadROI(SecurityContext ctx, long roiId)
             throws DSOutOfServiceException, DSAccessException {
+        if (roiId < 0)
+            return null;
+        
         try {
             IRoiPrx svc = gateway.getROIService(ctx);
             RoiOptions options = new RoiOptions();
@@ -191,6 +197,9 @@ public class ROIFacility extends Facility {
     public List<ROIResult> loadROIsByPlane(SecurityContext ctx, long imageID, int z, int t)
             throws DSOutOfServiceException, DSAccessException {
         List<ROIResult> results = new ArrayList<ROIResult>();
+        if (imageID < 0)
+            return results;
+        
         try {
             IRoiPrx svc = gateway.getROIService(ctx);
             RoiOptions options = new RoiOptions();
@@ -265,7 +274,9 @@ public class ROIFacility extends Facility {
             List<Long> measurements, long userID)
             throws DSOutOfServiceException, DSAccessException {
         List<ROIResult> results = new ArrayList<ROIResult>();
-
+        if (imageID < 0)
+            return results;
+        
         try {
             IRoiPrx svc = gateway.getROIService(ctx);
             RoiOptions options = new RoiOptions();
@@ -372,9 +383,10 @@ public class ROIFacility extends Facility {
     public Map<FolderData, Collection<ROIData>> addRoisToFolders(SecurityContext ctx, long imageID,
             Collection<ROIData> roiList, Collection<FolderData> folders, boolean removeFromOtherFolders)
             throws DSOutOfServiceException, DSAccessException {
-
+        if (CollectionUtils.isEmpty(roiList) || CollectionUtils.isEmpty(folders))
+            return Collections.emptyMap();
+        
         try {
-            
             // 1. Save unsaved folders
             List<FolderData> savedFolders = new ArrayList<FolderData>();
             List<IObject> foldersToSave = new ArrayList<IObject>();
@@ -518,7 +530,9 @@ public class ROIFacility extends Facility {
     public void removeRoisFromFolders(SecurityContext ctx, long imageID,
             Collection<ROIData> roiList, Collection<FolderData> folders)
             throws DSOutOfServiceException, DSAccessException {
-
+        if (CollectionUtils.isEmpty(roiList) || CollectionUtils.isEmpty(folders))
+            return;
+        
         try {
             Collection<Long> roiIds = Pojos.extractIds(roiList);
             Collection<Roi> serverRoiList = loadServerRois(ctx, roiIds);
@@ -577,7 +591,9 @@ public class ROIFacility extends Facility {
     public Collection<ROIData> saveROIs(SecurityContext ctx, long imageID,
             long userID, Collection<ROIData> roiList) throws DSOutOfServiceException,
             DSAccessException {
-
+        if (CollectionUtils.isEmpty(roiList))
+            return Collections.emptyList();
+        
         try {
             IUpdatePrx updateService = gateway.getUpdateService(ctx);
             IRoiPrx svc = gateway.getROIService(ctx);
@@ -880,6 +896,9 @@ public class ROIFacility extends Facility {
      */
     public Collection<FolderData> getROIFolders(SecurityContext ctx,
             long imageId) throws DSOutOfServiceException, DSAccessException {
+        if (imageId < 0)
+            return Collections.emptyList();
+        
         try {
             IQueryPrx qs = gateway.getQueryService(ctx);
             StringBuilder sb = new StringBuilder();
@@ -941,6 +960,9 @@ public class ROIFacility extends Facility {
     public Collection<ROIResult> loadROIsForFolder(SecurityContext ctx,
             long imageId, long folderId) throws DSOutOfServiceException,
             DSAccessException {
+        if (imageId < 0 && folderId < 0)
+            return Collections.emptyList();
+        
         try {
             // TODO: This should actually happen on the server; replace
             //      with server-side method when available
@@ -1006,6 +1028,9 @@ public class ROIFacility extends Facility {
     private Collection<Roi> loadServerRois(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException,
             DSAccessException {
+        if (CollectionUtils.isEmpty(ids))
+            return Collections.emptyList();
+        
         try {
             IQueryPrx service = gateway.getQueryService(ctx);
             ParametersI p = new ParametersI();

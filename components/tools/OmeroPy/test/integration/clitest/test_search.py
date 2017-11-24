@@ -26,7 +26,7 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 
-from test.integration.clitest.cli import CLITest
+from omero.testlib.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.model import DatasetI
 from omero.plugins.search import SearchControl

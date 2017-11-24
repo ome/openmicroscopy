@@ -77,6 +77,7 @@ public class CallContext implements MethodInterceptor {
         try {
             return arg0.proceed();
         } finally {
+            cd.setContext(null);
             MDC.clear();
         }
     }

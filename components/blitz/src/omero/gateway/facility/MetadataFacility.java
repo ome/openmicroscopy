@@ -21,12 +21,15 @@
 package omero.gateway.facility;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.Arrays;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import omero.api.IMetadataPrx;
 import omero.gateway.Gateway;
@@ -43,6 +46,7 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageAcquisitionData;
 import omero.gateway.model.ImageData;
 import omero.gateway.util.PojoMapper;
+import omero.gateway.util.Pojos;
 
 
 /**
@@ -83,6 +87,9 @@ public class MetadataFacility extends Facility {
      */
     public ImageAcquisitionData getImageAcquisitionData(SecurityContext ctx,
             long imageId) throws DSOutOfServiceException, DSAccessException {
+        if(imageId < 0)
+            return null;
+        
         ParametersI params = new ParametersI();
         params.acquisitionData();
         ImageData img = browse.getImage(ctx, imageId, params);
@@ -106,7 +113,9 @@ public class MetadataFacility extends Facility {
     public List<ChannelData> getChannelData(SecurityContext ctx, long imageId)
             throws DSOutOfServiceException, DSAccessException {
         List<ChannelData> result = new ArrayList<ChannelData>();
-
+        if(imageId < 0)
+            return result;
+        
         try {
             ImageData img = browse.getImage(ctx, imageId);
 
@@ -165,6 +174,9 @@ public class MetadataFacility extends Facility {
             List<Class<? extends AnnotationData>> annotationTypes,
             List<Long> userIds) throws DSOutOfServiceException,
             DSAccessException {
+        if (!Pojos.hasID(object))
+            return Collections.emptyList();
+        
         Map<DataObject, List<AnnotationData>> result = getAnnotations(ctx,
                 Arrays.asList(new DataObject[] { object }), annotationTypes,
                 userIds);
@@ -198,7 +210,9 @@ public class MetadataFacility extends Facility {
             List<Long> userIds) throws DSOutOfServiceException,
             DSAccessException {
         Map<DataObject, List<AnnotationData>> result = new HashMap<DataObject, List<AnnotationData>>();
-
+        if (CollectionUtils.isEmpty(objects))
+            return result;
+        
         String type = null;
         List<Long> ids = new ArrayList<Long>();
         for (DataObject obj : objects) {

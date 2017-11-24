@@ -177,6 +177,7 @@
             <fileset dir="@{fromdir}">
                 <include name="**/*.properties"/>
                 <include name="**/*.vm"/>
+                <include name="**/minimal-script.py"/>
                 <include name="**/*.dv"/>
                 <include name="**/*.bmp"/>
                 <include name="**/*.jpg"/>

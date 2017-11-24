@@ -176,7 +176,7 @@ public class ServantHolder {
 
         double percent = (100.0 * size / servantsPerSession);
         if (percent > 0 && (percent % 10) == 0) {
-            log.warn(String.format("%s of servants used for session %s",
+            log.warn(String.format("%s%% of servants used for session %s",
                 (int) percent, session));
         }
         put(id.name, servant);
