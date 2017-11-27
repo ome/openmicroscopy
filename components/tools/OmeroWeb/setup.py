@@ -10,8 +10,8 @@ import glob
 import sys
 import os
 
-sys.path.append("..")
-from test_setup import PyTest
+sys.path.insert(0, "../OmeroPy/src")
+from omero_setup import PyTest
 
 for tools in glob.glob("../../../lib/repository/setuptools*.egg"):
     if tools.find(".".join(map(str, sys.version_info[0:2]))) > 0:
