@@ -10,7 +10,7 @@ import glob
 import sys
 import os
 
-sys.path.insert(0, "../OmeroPy/src")
+sys.path.append("../OmeroPy/src")
 from omero_setup import PyTest
 
 for tools in glob.glob("../../../lib/repository/setuptools*.egg"):
