@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
  * Unit tests for the the {@link BooleanArrayCache}.
  * Setup and teardown provide each test method with a fresh cache.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.4.1
+ * @since 5.4.2
  */
 public class BooleanArrayCacheTest {
 

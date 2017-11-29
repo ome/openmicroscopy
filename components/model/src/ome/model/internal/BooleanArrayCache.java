@@ -30,7 +30,7 @@ import org.apache.commons.lang.ArrayUtils;
  * Thread-safe memory-sensitive cache of Boolean arrays. They are expected to be <em>immutable</em>.
  * Shorter arrays are considered identical to longer arrays with the higher indices set to {@code false}.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.4.1
+ * @since 5.4.2
  */
 class BooleanArrayCache {
 
@@ -90,7 +90,7 @@ class BooleanArrayCache {
     /**
      * Provides a method for transforming a Boolean array.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.4.1
+     * @since 5.4.2
      */
     interface Transformer {
         boolean[] transform(boolean[] array);
