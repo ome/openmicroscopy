@@ -24,7 +24,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import ome.util.Counter;
+
 import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Memory-sensitive cache of Boolean arrays. They are expected to be <em>immutable</em>.
@@ -35,8 +39,16 @@ import org.apache.commons.lang.ArrayUtils;
  */
 class BooleanArrayCache {
 
+    private static Logger logger = LoggerFactory.getLogger(BooleanArrayCache.class);
+
     /* can be resurrected by getArrayFor */
     private SoftReference<? extends Map<Long, boolean[]>> cacheRef = new SoftReference<>(new HashMap<Long, boolean[]>());
+
+    private final Counter hits = new Counter();  // may grow very large
+    private long misses = 0;
+    private long resets = 0;
+
+    private final DelayTracker logWhen = new DelayTracker(50 * 60);  // fifty minutes
 
     /**
      * Calculate a {@code long} that corresponds to the bit pattern of the array.
@@ -66,6 +78,9 @@ class BooleanArrayCache {
      * @return a corresponding cached array, may be the same as given
      */
     boolean[] getArrayFor(boolean[] array) {
+        if (logWhen.isNow()) {
+            logger.debug("cache stats: hits={}, misses={}, resets={}", hits.asBigInteger(), misses, resets);
+        }
         if (array == null) {
             array = ArrayUtils.EMPTY_BOOLEAN_ARRAY;
         }
@@ -73,17 +88,23 @@ class BooleanArrayCache {
         Map<Long, boolean[]> cache = cacheRef.get();
         if (cache == null) {
             /* if the old cache grew too large then the garbage collector must have needed the space */
+            logger.debug("resetting cache");
             cache = new HashMap<Long, boolean[]>();
             cacheRef = new SoftReference<>(cache);
+            hits.reset();
+            misses = 0;
+            resets++;
         }
         boolean[] cached = cache.get(number);
         if (cached == null) {
             cache.put(number, array);
+            misses++;
             return array;
         } else {
             if (numberForArray(cached) != number) {
                 throw new IllegalStateException("cache violation");
             }
+            hits.increment();
             return cached;
         }
     }
@@ -112,5 +133,44 @@ class BooleanArrayCache {
             array = Arrays.copyOf(array, array.length);
         }
         return getArrayFor(transformer.transform(array));
+    }
+
+    /**
+     * Helper class for delaying sufficiently between subsequent repeated actions.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.4.2
+     */
+    private static class DelayTracker {
+        /* given Java 8 could consider LocalDateTime */
+        private final long intervalMs;
+        private long delayUntil;
+
+        /**
+         * Enforce delay intervals of at least the given duration.
+         * @param delaySeconds how many seconds to delay at minimum
+         */
+        DelayTracker(int delaySeconds) {
+            intervalMs = delaySeconds * 1000L;
+            setNextDelay();
+        }
+
+        /**
+         * Set the delay to be the current time plus the configured interval.
+         */
+        private void setNextDelay() {
+            delayUntil = System.currentTimeMillis() + intervalMs;
+        }
+
+        /**
+         * Check if it is at least the configured delay since this method last returned {@code true}.
+         * @return if it is now time to perform the act, because the delay is past
+         */
+        boolean isNow() {
+            final boolean isNow = delayUntil <= System.currentTimeMillis();
+            if (isNow) {
+                setNextDelay();
+            }
+            return isNow;
+        }
     }
 }
