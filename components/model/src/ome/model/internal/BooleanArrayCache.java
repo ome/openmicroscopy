@@ -21,21 +21,22 @@ package ome.model.internal;
 
 import java.lang.ref.SoftReference;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.ArrayUtils;
 
 /**
- * Thread-safe memory-sensitive cache of Boolean arrays. They are expected to be <em>immutable</em>.
+ * Memory-sensitive cache of Boolean arrays. They are expected to be <em>immutable</em>.
  * Shorter arrays are considered identical to longer arrays with the higher indices set to {@code false}.
+ * This class is <em>not</em> thread-safe.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.4.2
  */
 class BooleanArrayCache {
 
     /* can be resurrected by getArrayFor */
-    private SoftReference<? extends Map<Long, boolean[]>> cacheRef = new SoftReference<>(new ConcurrentHashMap<Long, boolean[]>());
+    private SoftReference<? extends Map<Long, boolean[]>> cacheRef = new SoftReference<>(new HashMap<Long, boolean[]>());
 
     /**
      * Calculate a {@code long} that corresponds to the bit pattern of the array.
@@ -72,7 +73,7 @@ class BooleanArrayCache {
         Map<Long, boolean[]> cache = cacheRef.get();
         if (cache == null) {
             /* if the old cache grew too large then the garbage collector must have needed the space */
-            cache = new ConcurrentHashMap<Long, boolean[]>();
+            cache = new HashMap<Long, boolean[]>();
             cacheRef = new SoftReference<>(cache);
         }
         boolean[] cached = cache.get(number);

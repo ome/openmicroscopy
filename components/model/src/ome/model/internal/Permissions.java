@@ -136,7 +136,12 @@ public class Permissions implements Serializable {
         }
     }
 
-    private static final BooleanArrayCache CACHE = new BooleanArrayCache();
+    private static final ThreadLocal<BooleanArrayCache> CACHE = new ThreadLocal<BooleanArrayCache>() {
+        @Override
+        protected BooleanArrayCache initialValue() {
+            return new BooleanArrayCache();
+        }
+    };
 
     // ~ Constructors
     // =========================================================================
@@ -417,7 +422,7 @@ public class Permissions implements Serializable {
         this.restrictions[ANNOTATERESTRICTION] |= (0 == (allow & (1 << ANNOTATERESTRICTION)));
         this.restrictions[CHGRPRESTRICTION] |= (0 == (allow & (1 << CHGRPRESTRICTION)));
         this.restrictions[CHOWNRESTRICTION] |= (0 == (allow & (1 << CHOWNRESTRICTION)));
-        restrictions = CACHE.getArrayFor(restrictions);
+        restrictions = CACHE.get().getArrayFor(restrictions);
     }
 
     private static boolean noTrues(boolean[] source) {
@@ -558,10 +563,10 @@ public class Permissions implements Serializable {
                 /* the bit is clear implicitly */
                 restrictions = Arrays.copyOf(restrictions, restriction + 1);
                 restrictions[restriction] = true;
-                restrictions = CACHE.getArrayFor(restrictions);
+                restrictions = CACHE.get().getArrayFor(restrictions);
             } else if (!restrictions[restriction]) {
                 /* the bit is clear explicitly */
-                restrictions = CACHE.transform(new BooleanArrayCache.Transformer() {
+                restrictions = CACHE.get().transform(new BooleanArrayCache.Transformer() {
                     @Override
                     public boolean[] transform(boolean[] restrictions) {
                         restrictions[restriction] = true;
@@ -573,7 +578,7 @@ public class Permissions implements Serializable {
             /* must clear the bit */
             if (restrictions != null && restrictions.length > restriction && restrictions[restriction]) {
                 /* the bit is set */
-                restrictions = CACHE.transform(new BooleanArrayCache.Transformer() {
+                restrictions = CACHE.get().transform(new BooleanArrayCache.Transformer() {
                     @Override
                     public boolean[] transform(boolean[] restrictions) {
                         restrictions[restriction] = false;
