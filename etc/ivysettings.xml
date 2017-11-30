@@ -17,136 +17,99 @@
   <properties file="${ivy.settings.dir}/local.properties"/>
   <properties file="${ivy.settings.dir}/../target/omero.version"/>
   <property name="local-maven2-dir" value="${user.home}/.m2/repository/"
-      override="false"/> <!-- deprecated - use maven.repo.local instead -->
+            override="false"/> <!-- deprecated - use maven.repo.local instead -->
   <property name="maven.repo.local" value="${local-maven2-dir}"
-      override="false"/>
+            override="false"/>
+  <property name="local-maven2-dir" value="${user.home}/.m2/repository/"/>
+  <property name="maven.repo.local" value="${user.home}/.m2/repository/"
+            override="false"/>
+  <property name="artifact-pattern" value="[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier])" override="false"/>
+  <property name="module-pattern" value="[organisation]/[module]/[revision]/[module]-[revision](-[classifier])" override="false"/>
+  <property name="m2-module-pattern" value="${maven.repo.local}/${module-pattern}.[ext]" override="false"/>
+  <property name="m2-pom-pattern" value="${maven.repo.local}/[orgPath]/[module]/[revision]/[module]-[revision].pom" override="false"/>
 
   <settings defaultResolver="${omero.resolver}"/>
 
   <credentials host="artifacts.openmicroscopy.org" realm="Artifactory Realm"
-        username="${artifactory.username}" passwd="${artifactory.password}"/>
+               username="${artifactory.username}" passwd="${artifactory.password}"/>
 
   <caches default="local" defaultCacheDir="${ivy.settings.dir}/../lib/cache">
-      <!-- local is intended for all products built from this repository,
-           while maven is for any stable, unchanging jar that is being
-           downloaded -->
-      <cache name="local" basedir="${ivy.settings.dir}/../lib/cache"/>
-      <cache name="maven" basedir="${maven.repo.local}"
-        artifactPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"
-        ivyPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].xml"
-        lockStrategy="artifact-lock"
-        defaultTTL="0ms"/>
+    <!-- local is intended for all products built from this repository,
+         while maven is for any stable, unchanging jar that is being
+         downloaded -->
+    <cache name="local" basedir="${ivy.settings.dir}/../lib/cache"/>
+    <cache name="maven" basedir="${maven.repo.local}"
+           artifactPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"
+           ivyPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].xml"
+           lockStrategy="artifact-lock"
+           defaultTTL="0ms"/>
   </caches>
 
   <resolvers>
-    <!-- Build-internal repositories -->
-    <filesystem name="main" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
-        <artifact pattern="${ivy.settings.dir}/../target/repository/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]" />
-        <ivy pattern="${ivy.settings.dir}/../target/repository/[organisation]/[module]/[revision]/[module]-[revision](-[classifier]).xml"/>
-    </filesystem>
-    <filesystem name="repo" cache="local">
-        <artifact pattern="${ivy.settings.dir}/../lib/repository/[artifact]-[revision].[type]" />
-        <ivy pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].ivy"/>
-    </filesystem>
-    <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
-        <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
-        <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].xml"/>
-    </filesystem>
-
-      <!-- Lookup via maven cache -->
-      <filesystem name="user-maven" m2compatible="true" force="false"
-          checkmodified="true" changingMatcher="regexp"
-          changingPattern=".*SNAPSHOT.*"
-          cache="local" descriptor="required">
-        <artifact pattern="${maven.repo.local}/[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"/>
-        <ivy pattern="${maven.repo.local}/[orgPath]/[module]/[revision]/[artifact]-[revision].xml"/>
-        <!-- Ivy pattern for artifacts installed locally via Maven -->
-        <ivy pattern="${maven.repo.local}/[orgPath]/[module]/[revision]/[module]-[revision].pom"/>
-      </filesystem>
-
-      <!-- Remote downloads; cached to '~/.m2/repository' -->
-      <ibiblio name="maven" m2compatible="true" cache="maven"
-          usepoms="true" useMavenMetadata="false"/>
-      <ibiblio name="ome-simple-artifactory"
-          usepoms="true" useMavenMetadata="true"
-          m2compatible="true"
-           root="https://artifacts.openmicroscopy.org/artifactory/simple/${simple.repository}/"/>
-      <ibiblio name="ome-artifactory" cache="maven"
-          usepoms="true" useMavenMetadata="true"
-          m2compatible="true"
-          root="https://artifacts.openmicroscopy.org/artifactory/maven/"/>
-
-      <ibiblio name="unidata.releases" cache="maven"
-          usepoms="true" useMavenMetadata="true"
-          m2compatible="true"
-          root="https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/"/>
-
-      <ibiblio name="zeroc" cache="maven"
-          usepoms="true" useMavenMetadata="true"
-          m2compatible="true"
-          root="https://repo.zeroc.com/nexus/content/repositories/releases/"/>
-
-    <!-- Main resolver which has as its first resolver the location
-    where all our jars will be published -->
-    <chain name="omero-resolver" returnFirst="true">
-        <resolver ref="main"/>
-        <resolver ref="repo"/>
-        <resolver ref="user-maven"/>
-        <resolver ref="maven"/>
-        <resolver ref="ome-artifactory"/>
-        <resolver ref="zeroc"/>
-    </chain>
-
-    <!-- Resolver for OME dependencies-->
-    <chain name="ome-resolver" returnFirst="true">
-        <resolver ref="user-maven"/>
-        <resolver ref="ome-artifactory"/>
-    </chain>
-
-    <!-- Resolver for Unidata dependencies-->
-    <chain name="unidata-resolver" returnFirst="true">
-        <resolver ref="user-maven"/>
-        <resolver ref="unidata.releases"/>
-    </chain>
-
-    <!-- Spring resolver which has as its first resolver the location
-    where all our jars will be published -->
-    <chain name="maven-resolver" returnFirst="true">
-        <resolver ref="user-maven"/>
-        <resolver ref="maven"/>
-    </chain>
-
-   <!-- Resolver for all the test jars which should not be shipped -->
-    <chain name="test-resolver" returnFirst="true">
-      <resolver ref="test"/>
-      <resolver ref="omero-resolver"/>
-    </chain>
+    <ibiblio name="ome-simple-artifactory"
+             usepoms="true" useMavenMetadata="true"
+             m2compatible="true"
+             root="https://artifacts.openmicroscopy.org/artifactory/simple/${simple.repository}/"/>
 
     <!-- Hudson resolver. Used by hudson to build a central repository -->
     <filesystem name="hudson-repository" cache="local">
-        <ivy pattern="${user.home}/.hudson/repository/[organisation]/[module]/ivys/ivy-[revision].xml"/>
-        <artifact pattern="${user.home}/.hudson/repository/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>
+      <ivy pattern="${user.home}/.hudson/repository/[organisation]/[module]/ivys/ivy-[revision].xml"/>
+      <artifact pattern="${user.home}/.hudson/repository/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>
     </filesystem>
 
     <url name="artifactory-publish">
-        <artifact pattern="${artifactory.baseurl}/${artifactory.repository}/[organization]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
-        <ivy pattern="${artifactory.baseurl}/${artifactory.repository}/[organization]/[module]/[revision]/ivy-[revision](-[classifier]).xml" />
+      <artifact pattern="${artifactory.baseurl}/${artifactory.repository}/[organization]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
+      <ivy pattern="${artifactory.baseurl}/${artifactory.repository}/[organization]/[module]/[revision]/ivy-[revision](-[classifier]).xml" />
     </url>
+
+    <filesystem name="test" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
+      <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
+      <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].xml"/>
+    </filesystem>
+
+    <!-- Main resolver which has as its first resolver the location
+         where all our jars will be published -->
+    <chain name="default" returnFirst="true">
+      <!-- Build-internal repositories -->
+      <filesystem name="main" checkmodified="true" changingMatcher="regexp" changingPattern=".*SNAPSHOT.*" cache="local">
+        <artifact pattern="${ivy.settings.dir}/../target/repository/${artifact-pattern}.[ext]" />
+        <ivy pattern="${ivy.settings.dir}/../target/repository/${module-pattern}.xml"/>
+      </filesystem>
+      <filesystem name="repo" cache="local">
+        <artifact pattern="${ivy.settings.dir}/../lib/repository/[artifact]-[revision].[type]" />
+        <ivy pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].ivy"/>
+      </filesystem>
+      <resolver ref="test"/>
+
+      <!-- Local maven repository -->
+      <filesystem name="user-m2" m2compatible="true" force="false"
+                  checkmodified="true" changingMatcher="regexp"
+                  changingPattern=".*SNAPSHOT.*"
+                  cache="local"
+                  descriptor="required">
+        <artifact pattern="${m2-module-pattern}"/>
+        <ivy pattern="${m2-module-pattern}"/>
+        <!-- Ivy pattern for artifacts installed locally via Maven -->
+        <!--<ivy pattern="${m2-pom-pattern}"/> -->
+      </filesystem>
+
+      <!-- Remote downloads; cached to '~/.m2/repository' -->
+      <ibiblio name="central" cache="maven" m2compatible="true"
+               usepoms="true" useMavenMetadata="false"/>
+      <ibiblio name="zeroc" cache="maven"
+               usepoms="true" useMavenMetadata="true"
+               m2compatible="true"
+               root="https://repo.zeroc.com/nexus/content/repositories/releases/"/>
+      <ibiblio name="unidata.releases" cache="maven"
+               usepoms="true" useMavenMetadata="true"
+               m2compatible="true"
+               root="https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/"/>
+      <ibiblio name="ome-artifactory" cache="maven"
+               usepoms="true" useMavenMetadata="true"
+               m2compatible="true"
+               root="https://artifacts.openmicroscopy.org/artifactory/maven/"/>
+    </chain>
   </resolvers>
-
-
-  <modules>
-    <module organisation="edu.ucar" name="grib" resolver="ome-resolver"/>
-    <module organisation="edu.ucar" name="bufr" resolver="ome-resolver"/>
-    <module organisation="edu.ucar" resolver="unidata-resolver"/>
-    <module organisation="omero" name="omejava" resolver="omero-resolver" />
-    <module organisation="omero" name="*-test" resolver="test-resolver" matcher="glob"/>
-    <module organisation="org.springframework" resolver="maven-resolver"/>
-    <module organisation="com.panayotis" name="appbundler" resolver="maven-resolver"/>
-    <module organisation="zeroc" resolver="ome-resolver"/>
-    <module organisation="ome" name="jxrlib-all" resolver="ome-resolver"/>
-    <module organisation="ome" resolver="${ome.resolver}"/>
-  </modules>
 
   <triggers/>
 

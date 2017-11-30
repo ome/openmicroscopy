@@ -281,7 +281,7 @@ omero.version=${omero.version}
             <fileset dir="${testclasses.dir}" includes="**/*.class,**/*.xml,**/*.txt,**/*.properties,**/*.py,**/*.dv,**/*.bmp,**/*.jpg,**/*.png"/>
         </jar>
         <delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
-        <ivy:publish artifactspattern="${target.dir}/[module].[ext]" resolver="test-resolver" settingsRef="ivy.${ant.project.name}"
+        <ivy:publish artifactspattern="${target.dir}/[module].[ext]" resolver="test" settingsRef="ivy.${ant.project.name}"
            pubrevision="${omero.version}" pubdate="${now}" status="integration" overwrite="true"/>
     </target>
 

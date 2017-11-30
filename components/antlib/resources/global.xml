@@ -286,7 +286,7 @@
         <property file="${root.dir}/etc/hibernate.properties" />
         <property name="test.with.fail" value="true"/>
         <property name="classpath.file" value="classpath.xml"/>
-        <property name="omero.resolver" value="omero-resolver"/>
+        <property name="omero.resolver" value="default"/>
 
         <!-- For these definitions to work properly, directories.xml must be imported-->
         <property name="deps.lib.dir" value="${target.dir}/libs"/>
