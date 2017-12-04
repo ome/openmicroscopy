@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2017 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -173,6 +173,9 @@ public class GraphPathReport {
      */
     private static void report() throws IOException {
         /* the information is gathered, now write the report */
+        out.write(".. Content for this page is generated using\n");
+        out.write(".. https://github.com/openmicroscopy/openmicroscopy/blob/develop/");
+        out.write("components/server/src/ome/services/graphs/GraphPathReport.java\n\n");
         out.write("Glossary of all OMERO Model Objects\n");
         out.write("===================================\n\n");
         out.write("Overview\n");

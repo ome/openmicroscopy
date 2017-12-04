@@ -26,6 +26,7 @@ from omero.util import edit_path, get_omero_userdir
 from omero.util.decorators import wraps
 from omero.util.upgrade_check import UpgradeCheck
 from omero_ext import portalocker
+from omero_ext.argparse import SUPPRESS
 
 import omero.java
 
@@ -148,9 +149,13 @@ class PrefsControl(WriteableConfigControl):
         get.set_defaults(func=self.get)
         get.add_argument(
             "KEY", nargs="*", help="Names of keys in the current profile")
-        get.add_argument(
-            "--hide-password", action="store_true",
-            help="Hide values of password keys in the current profile")
+
+        secrets = get.add_mutually_exclusive_group()
+        secrets.add_argument("--show-password", action="store_true",
+                             help="Show values of sensitive keys (passwords, "
+                                  "tokens, etc.) in the current profile")
+        secrets.add_argument("--hide-password", action="store_false",
+                             dest="show_password", help=SUPPRESS)
 
         set = parser.add(
             sub, self.set,
@@ -284,7 +289,6 @@ class PrefsControl(WriteableConfigControl):
             for k in config.IGNORE:
                 k in keys and keys.remove(k)
 
-        hide_password = 'hide_password' in args and args.hide_password
         is_password = (lambda x: x.lower().endswith('pass') or
                        x.lower().endswith('password'))
         for k in keys:
@@ -293,7 +297,7 @@ class PrefsControl(WriteableConfigControl):
             if args.KEY and len(args.KEY) == 1:
                 self.ctx.out(config[k])
             else:
-                if (hide_password and is_password(k)):
+                if is_password(k) and not args.show_password:
                     self.ctx.out("%s=%s" % (k, '*' * 8 if config[k] else ''))
                 else:
                     self.ctx.out("%s=%s" % (k, config[k]))

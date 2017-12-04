@@ -2387,6 +2387,13 @@ div.paging input.button_pagination {
     right: 0px;
     overflow: auto;
 }
+.zoomLabel {
+    font-size: 12px;
+    margin-top: 6px;
+    margin-left: 9px;
+    display: block;
+    opacity: 0.8;
+}
 .wellImages {
     border-top: solid 1px #bbb;
 }

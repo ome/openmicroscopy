@@ -1034,6 +1034,9 @@ create trigger _fs_log_delete
 after delete on originalfile
     for each row execute procedure _fs_log_delete();
 
+-- Compare IllegalArgumentException cases in object.vm
+-- and unit testing in PropertyConstraintTest methods.
+
 ALTER TABLE laser
     ALTER COLUMN wavelength TYPE positive_float;
 

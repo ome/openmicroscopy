@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.CallbackException;
 import org.hibernate.EmptyInterceptor;
@@ -360,7 +361,9 @@ public class OmeroInterceptor implements Interceptor {
             debug("updating current light administrator privileges");
             final Set<AdminPrivilege> privileges = currentUser.current().getCurrentAdminPrivileges();
             sqlAction.deleteCurrentAdminPrivileges();
-            sqlAction.insertCurrentAdminPrivileges(privileges);
+            if (CollectionUtils.isNotEmpty(privileges)) {
+                sqlAction.insertCurrentAdminPrivileges(privileges);
+            }
         }
     }
 

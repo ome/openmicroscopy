@@ -12,7 +12,9 @@ import java.util.concurrent.TimeUnit;
 
 import ome.conditions.LockTimeout;
 import ome.io.bioformats.BfPyramidPixelBuffer;
+import ome.io.nio.Utils.FailedTileLoopException;
 
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -61,7 +63,11 @@ public class PyramidWriteLockUnitTest extends AbstractPyramidPixelBufferUnitTest
 
         Thread t = new Thread() {
             public void run() {
-                writeTiles(new ArrayList<String>(), run);
+                try {
+                    writeTiles(new ArrayList<String>(), run);
+                } catch (FailedTileLoopException ftle) {
+                    Assert.fail("unexpected exception", ftle);
+                }
             };
         };
         t.start();
