@@ -24,6 +24,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Don't retry since we expect errors
 omero.tables.RETRIES = 1
+omero.tables.SECONDS_SLEEP = 1
 
 
 class communicator_provider(object):
