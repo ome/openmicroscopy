@@ -2181,7 +2181,11 @@ def get_image_rdef_json(request, conn=None, **kwargs):
                 color = ch.get('lut') or ch['color']
                 chs.append("%s|%s:%s$%s" % (act, ch['window']['start'],
                                             ch['window']['end'], color))
-                maps.append({'inverted': {'enabled': ch['inverted']}})
+                maps.append({
+                    'inverted': {'enabled': ch['inverted']},
+                    'quantization': {
+                        'coefficient': ch['coefficient'],
+                        'family': ch['family']}})
             rdef = {'c': (",".join(chs)),
                     'm': rv['rdefs']['model'],
                     'pixel_range': "%s:%s" % (rv['pixel_range'][0],

@@ -8875,6 +8875,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     # 'reverseIntensity' is deprecated. Use 'inverted'
                     'inverted': reverse,
                     'reverseIntensity': reverse,
+                    'family': unwrap(w.getFamily().getValue()),
+                    'coefficient': unwrap(w.getCoefficient()),
                     'rgb': {'red': w.getRed().val,
                             'green': w.getGreen().val,
                             'blue': w.getBlue().val}
