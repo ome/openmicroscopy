@@ -103,7 +103,7 @@ module omero {
       omero::RBool  leaves;
       omero::RBool  orphan;
       omero::RBool  acquisitionData;
-      ["deprecated:experimental: may be wholly removed in next major version"]
+      ["deprecate:experimental: may be wholly removed in next major version"]
       omero::RBool  cacheable;
     };
 

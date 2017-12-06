@@ -502,13 +502,13 @@ module omero {
                  */
                 idempotent void deleteGroup(omero::model::ExperimenterGroup group) throws ServerError;
 
-                ["deprecated:changeOwner() is deprecated. use omero::cmd::Chown2() instead."]
+                ["deprecate:changeOwner() is deprecated. use omero::cmd::Chown2() instead."]
                 idempotent void changeOwner(omero::model::IObject obj, string omeName) throws ServerError;
 
-                ["deprecated:changeGroup() is deprecated. use omero::cmd::Chgrp2() instead."]
+                ["deprecate:changeGroup() is deprecated. use omero::cmd::Chgrp2() instead."]
                 idempotent void changeGroup(omero::model::IObject obj, string omeName) throws ServerError;
 
-                ["deprecated:changePermissions() is deprecated. use omero::cmd::Chmod2() instead."]
+                ["deprecate:changePermissions() is deprecated. use omero::cmd::Chmod2() instead."]
                 idempotent void changePermissions(omero::model::IObject obj, omero::model::Permissions perms) throws ServerError;
 
                 /**
@@ -586,7 +586,7 @@ module omero {
                  */
                 void changeExpiredCredentials(string name, string oldCred, string newCred) throws ServerError;
 
-                ["deprecated:reportForgottenPassword() is deprecated. use omero::cmd::ResetPasswordRequest() instead."]
+                ["deprecate:reportForgottenPassword() is deprecated. use omero::cmd::ResetPasswordRequest() instead."]
                 void reportForgottenPassword(string name, string email) throws ServerError;
 
                 // Security Context

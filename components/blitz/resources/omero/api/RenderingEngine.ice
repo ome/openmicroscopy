@@ -203,7 +203,7 @@ module omero {
                  * binary masks.
                  * @param overlays Binary mask to color map.
                  */
-                ["deprecated: use omero::romio::PlaneDefWithMasks instead"] idempotent void setOverlays(omero::RLong tablesId, omero::RLong imageId, LongIntMap rowColorMap) throws ServerError;
+                ["deprecate: use omero::romio::PlaneDefWithMasks instead"] idempotent void setOverlays(omero::RLong tablesId, omero::RLong imageId, LongIntMap rowColorMap) throws ServerError;
 
                 /** Creates an instance of the rendering engine. */
                 idempotent void load() throws ServerError;
@@ -421,7 +421,7 @@ module omero {
                  * @see #updateCodomainMap
                  * @see #removeCodomainMap
                  */
-                 ["deprecated:addCodomainMap() is deprecated. use addCodomainMapToChannel instead."]
+                 ["deprecate:addCodomainMap() is deprecated. use addCodomainMapToChannel instead."]
                 void addCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
 
                 /**
@@ -433,7 +433,7 @@ module omero {
                  * @see #addCodomainMap
                  * @see #removeCodomainMap
                  */
-                 ["deprecated:removeCodomainMap() is deprecated."]
+                 ["deprecate:removeCodomainMap() is deprecated."]
                 void updateCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
 
                 /**
@@ -444,7 +444,7 @@ module omero {
                  * @see #addCodomainMap
                  * @see #updateCodomainMap
                  */
-                 ["deprecated:removeCodomainMap() is deprecated. use removeCodomainMapFromChannel instead."]
+                 ["deprecate:removeCodomainMap() is deprecated. use removeCodomainMapFromChannel instead."]
                 void removeCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
 
                 /**
