@@ -27,6 +27,8 @@ from path import path
 import omero
 import omero.config
 
+from omero.grid import RawAccessRequest
+
 from omero.cli import admin_only
 from omero.cli import CLI
 from omero.cli import DirectoryType
@@ -44,6 +46,7 @@ from omero_ext import portalocker
 from omero_ext.which import whichall
 from omero_ext.argparse import FileType
 from omero_version import ice_compatibility
+
 
 try:
     import pywintypes
@@ -376,6 +379,20 @@ location.
 
         Action(
             "checkupgrade", "Check whether a server upgrade is available")
+
+        log = Action("log", "Add a custom log message to "
+                            "the server log").parser
+        log.add_argument(
+            "--level",
+            help="The log level: trace, debug, info, warn or error "
+                 "(default: info)", default="info")
+        log.add_argument(
+            "repo",
+            help="The repo uuid (e.g. ScriptRepo)")
+        log.add_argument(
+            "message",
+            help="The log message to add")
+        log.add_login_arguments()
 
         self.actions["ice"].add_argument(
             "argument", nargs="*",
@@ -1698,6 +1715,14 @@ present, the user will enter a console""")
         from omero.util.cleanse import cleanse
         cleanse(data_dir=args.data_dir, client=self.ctx.conn(args),
                 dry_run=args.dry_run)
+
+    @admin_only(AdminPrivilegeReadSession)
+    def log(self, args):
+        self.check_access()
+        client = self.ctx.conn(args)
+        req = RawAccessRequest(command='log', path=args.level,
+                               repoUuid=args.repo, args=[args.message])
+        client.submit(req).loop(100, 100)
 
     def sessionlist(self, args):
         client = self.ctx.conn(args)
