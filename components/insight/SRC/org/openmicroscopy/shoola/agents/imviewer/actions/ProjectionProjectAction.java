@@ -63,9 +63,10 @@ public class ProjectionProjectAction
     	if (model.getState() == ImViewer.READY && !model.isBigImage()) {
     		if (model.getSelectedIndex() != ImViewer.PROJECTION_INDEX)
     			setEnabled(false);
-    		else setEnabled(model.canAnnotate());
+    		else setEnabled(model.canEdit());
     	} else setEnabled(false);
     }
+
     /**
      * Reacts to state changes.
      * @see ViewerAction#onStateChange(ChangeEvent)
