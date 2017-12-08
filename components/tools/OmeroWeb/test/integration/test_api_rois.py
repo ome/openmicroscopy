@@ -30,6 +30,7 @@ from omero.model import EllipseI, \
     ImageI, \
     LengthI, \
     LineI, \
+    MaskI, \
     PointI, \
     PolygonI, \
     RectangleI, \
@@ -116,7 +117,18 @@ class TestContainers(IWebTest):
         points = "10,20, 50,150, 200,200, 250,75"
         polygon.points = rstring(points)
 
-        return [rect, ellipse, line, point, polygon]
+        mask = MaskI()
+        mask.setTheC(rint(0))
+        mask.setTheZ(rint(0))
+        mask.setTheT(rint(0))
+        mask.setX(rdouble(100))
+        mask.setY(rdouble(100))
+        mask.setWidth(rdouble(500))
+        mask.setHeight(rdouble(500))
+        mask.setTextValue(rstring("test-Mask"))
+        mask.setBytes(None)
+
+        return [rect, ellipse, line, point, polygon, mask]
 
     @pytest.fixture()
     def image_rois(self, user1, shapes):
