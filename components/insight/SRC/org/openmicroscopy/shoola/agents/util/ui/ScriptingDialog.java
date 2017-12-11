@@ -41,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -52,6 +53,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -62,7 +64,6 @@ import info.clearthought.layout.TableLayout;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
-
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.model.ParamData;
@@ -490,13 +491,18 @@ public class ScriptingDialog
                 }
             } else if (String.class.equals(type)) {
                 if (comp == null) {
-                    comp = new JTextField();
-                    if (defValue != null) {
-                        length = defValue.toString().length();
-                        String s = defValue.toString().trim();
-                        ((JTextField) comp).setColumns(length);
-                        ((JTextField) comp).setText(s);
-                        columnsSet = s.length() > 0;
+                    String nl = name.toLowerCase();
+                    if ("password".equals(nl)) {
+                        comp = new JPasswordField();
+                    } else {
+                        comp = new JTextField();
+                        if (defValue != null) {
+                            length = defValue.toString().length();
+                            String s = defValue.toString().trim();
+                            ((JTextField) comp).setColumns(length);
+                            ((JTextField) comp).setText(s);
+                            columnsSet = s.length() > 0;
+                        }
                     }
                 }
             } else if (Boolean.class.equals(type)) {
