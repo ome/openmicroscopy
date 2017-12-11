@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -480,6 +481,50 @@ class OMEROGateway
 	}
 
 	/**
+     * Returns the specified script.
+     *
+     * @param ctx The security context.
+     * @param scriptID The identifier of the script to run.
+     * @param parameters The parameters to pass to the script.
+     * @param encrypted Pass <code>true</code> to create a secure connection
+     * @return See above.
+     * @throws ProcessException If an error occurred while running the script.
+     */
+    private ScriptCallback runScript(SecurityContext ctx, long scriptID,
+            Map<String, RType> parameters, boolean encrypted)
+        throws ProcessException
+    {
+        ScriptCallback cb = null;
+        try {
+            ProcessCallbackI pcb;
+            if (encrypted) {
+                Gateway g = new Gateway(dsFactory.getLogger());
+                UserCredentials uc = dsFactory.getCredentials();
+                LoginCredentials cred = new LoginCredentials();
+                cred.getUser().setUsername(uc.getUserName());
+                cred.getUser().setPassword(uc.getPassword());
+                cred.getServer().setHostname( uc.getHostName());
+                cred.getServer().setPort(uc.getPort());
+                cred.setApplicationName(LookupNames.MASTER_INSIGHT);
+                cred.setCheckNetwork(true);
+                cred.setEncryption(uc.isEncrypted());
+                uc.setEncrypted(true);
+                g.connect(cred);
+                pcb = g.runScript(ctx, scriptID, parameters);
+                cb = new ScriptCallback(scriptID, pcb, g, ctx);
+            } else {
+                pcb = gw.runScript(ctx, scriptID, parameters);
+                cb = new ScriptCallback(scriptID, pcb);
+            }
+        } catch (Exception e) {
+            handleConnectionException(e);
+            throw new ProcessException("Cannot run script with ID:"+scriptID,
+                    e);
+        }
+        return cb;
+    }
+
+	/**
 	 * Returns the specified script.
 	 *
 	 * @param ctx The security context.
@@ -492,19 +537,9 @@ class OMEROGateway
 			Map<String, RType> parameters)
 		throws ProcessException
 	{
-		ScriptCallback cb = null;
-		try {
-		    
-		    ProcessCallbackI pcb = gw.runScript(ctx, scriptID, parameters);
-	         cb = new ScriptCallback(scriptID, pcb);
-		} catch (Exception e) {
-			handleConnectionException(e);
-			throw new ProcessException("Cannot run script with ID:"+scriptID,
-					e);
-		}
-		return cb;
+		return runScript(ctx, scriptID, parameters, false);
 	}
-	
+
 	/**
 	 * Closes the specified service.
 	 *
@@ -6284,7 +6319,7 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, "Cannot run the script.");
 		}
-		return runScript(ctx, id, script.getValueToPass());
+		return runScript(ctx, id, script.getValueToPass(), script.isEncrypted());
 	}
 
 	/**
