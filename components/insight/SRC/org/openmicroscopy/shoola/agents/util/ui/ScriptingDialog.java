@@ -323,16 +323,21 @@ public class ScriptingDialog
                 componentsAll.entrySet().iterator();
         Map<String, ParamData> inputs = script.getInputs();
         ParamData param;
+        boolean encrypted = false;
         while (i.hasNext()) {
             entry = i.next();
             c = entry.getValue();
             param = inputs.get(entry.getKey());
             param.setValueToPass(c.getValue());
+            if (!encrypted && c.isEncrypted()) {
+                encrypted = true;
+            }
         }
         if (CollectionUtils.isNotEmpty(refObjects)) {
             DataObject node = refObjects.get(0);
             script.setGroupID(node.getGroupId());
         }
+        script.setEncrypted(encrypted);
         firePropertyChange(RUN_SELECTED_SCRIPT_PROPERTY, null, script);
         close();
     }

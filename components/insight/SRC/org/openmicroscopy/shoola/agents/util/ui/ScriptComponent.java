@@ -37,6 +37,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -45,7 +46,6 @@ import info.clearthought.layout.TableLayout;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
-
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
@@ -315,6 +315,24 @@ class ScriptComponent
      * @return See above.
      */
     boolean isRequired() { return required; }
+
+    /**
+     * Returns <code>True</code> if the transfer needs to be encrypted.
+     *
+     * @return See above.
+     */
+    boolean isEncrypted(){
+        if (component instanceof JPasswordField) return true;
+        if (hasChildren()) {
+            Iterator<ScriptComponent> i = children.iterator();
+            while (i.hasNext()) {
+                if (i.next().component instanceof JPasswordField) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     /** Builds and lays out the UI. */
     void buildUI()
