@@ -81,7 +81,8 @@
                 {% if i.number %}
                     <input tabIndex="1" type="text" name="{{ i.key }}" class="{{ i.number }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
                 {% else %}
-                    <input tabIndex="1" type="text" name="{{ i.key }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
+                    <input tabIndex="1" name="{{ i.key }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %}
+                        {% ifequal i.name|lower 'password' %} type="password" {% else %} type="text" {% endifequal %} />
                 {% endif %}
             {% endif %}
         {% endif %}
