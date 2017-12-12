@@ -12,7 +12,7 @@
 #include <omero/ModelF.ice>
 #include <omero/ServicesF.ice>
 #include <omero/Collections.ice>
-["deprecated:IShare is deprecated."]
+["deprecate:IShare is deprecated."]
 module omero {
 
     module api {

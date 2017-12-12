@@ -205,7 +205,7 @@ module omero {
                 /**
                  * Ignore in the operation all objects of these types.
                  **/
-                ["deprecated:experimental: may be wholly removed in next major version"]
+                ["deprecate:experimental: may be wholly removed in next major version"]
                 omero::api::StringSet typesToIgnore;
         };
 

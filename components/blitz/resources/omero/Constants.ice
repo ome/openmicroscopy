@@ -211,7 +211,7 @@ module omero {
      **/
     module analysis {
         /** namespaces related to the FLIM analysis. **/
-        ["deprecated: It will be removed in 5.4"]
+        ["deprecate: It will be removed in 5.4"]
         module flim {
             const string NSFLIM = "openmicroscopy.org/omero/analysis/flim";
 

@@ -145,7 +145,7 @@ module omero {
                  * @param value Enumeration string value.
                  * @return Enumeration object.
                  **/
-                 ["deprecated:Use ITypes#getEnumeration(string, string) instead."]
+                 ["deprecate:Use ITypes#getEnumeration(string, string) instead."]
                 idempotent omero::model::IObject getEnumeration(string enumClass, string value) throws ServerError;
 
                 /**
@@ -156,7 +156,7 @@ module omero {
                  * @return List of all enumeration objects for the
                  *         <i>enumClass</i>.
                  **/
-                 ["deprecated:Use ITypes#allEnumerations(string) instead."]
+                 ["deprecate:Use ITypes#allEnumerations(string) instead."]
                 idempotent IObjectList getAllEnumerations(string enumClass) throws ServerError;
 
                 /**

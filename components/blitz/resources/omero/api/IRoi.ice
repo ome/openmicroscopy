@@ -16,7 +16,7 @@
 // -----------------------------
 // Histograms
 // Volumes, Velocities, Diffusions
-["deprecated:IROI is deprecated."]
+["deprecate:IROI is deprecated."]
 module omero {
 
     module api {
@@ -127,7 +127,7 @@ module omero {
                  * All Shapes are loaded, as is the Pixels and Image object.
                  * TODO: Annotations?
                  **/
-                ["deprecated:IROI is deprecated."]
+                ["deprecate:IROI is deprecated."]
                 idempotent
                 RoiResult findByRoi(long roiId, RoiOptions opts) throws omero::ServerError;
 
@@ -136,7 +136,7 @@ module omero {
                  *
                  * Loads Rois as findByRoi.
                  **/
-                ["deprecated:IROI is deprecated."]
+                ["deprecate:IROI is deprecated."]
                 idempotent
                 RoiResult findByImage(long imageId, RoiOptions opts) throws omero::ServerError;
 
@@ -145,35 +145,35 @@ module omero {
                  *
                  * Loads Rois as findByRoi.
                  **/
-                ["deprecated:IROI is deprecated."]
+                ["deprecate:IROI is deprecated."]
                 idempotent
                 RoiResult findByPlane(long imageId, int z, int t, RoiOptions opts) throws omero::ServerError;
 
                 /**
                  * Calculate the points contained within a given shape
                  **/
-                ["deprecated:IROI is deprecated."]
+                ["deprecate:IROI is deprecated."]
                 idempotent
                 ShapePoints getPoints(long shapeId) throws omero::ServerError;
 
                 /**
                  * Calculate stats for all the shapes within the given Roi.
                  **/
-                ["deprecated:IROI is deprecated."]
+                ["deprecate:IROI is deprecated."]
                 idempotent
                 RoiStats getRoiStats(long roiId) throws omero::ServerError;
 
                 /**
                  * Calculate the stats for the points within the given Shape.
                  **/
-                ["deprecated:IROI is deprecated."]
+                ["deprecate:IROI is deprecated."]
                 idempotent
                 ShapeStats getShapeStats(long shapeId) throws omero::ServerError;
 
                 /**
                  * Calculate the stats for the points within the given Shapes.
                  **/
-                ["deprecated:IROI is deprecated."]
+                ["deprecate:IROI is deprecated."]
                 idempotent
                 ShapeStatsList getShapeStatsList(LongList shapeIdList) throws omero::ServerError;
 
@@ -187,7 +187,7 @@ module omero {
                  * - if channel list is given, only the channels in that list are iterated over
                  * - does not request data from reader on each iteration 
                  **/
-                ["deprecated:IROI is deprecated."]
+                ["deprecate:IROI is deprecated."]
                 idempotent
                 ShapeStatsList getShapeStatsRestricted(
                     LongList shapeIdList, int zForUnattached, int tForUnattached, IntegerArray channels) throws omero::ServerError;
@@ -207,7 +207,7 @@ module omero {
                  * @param opts, userId and groupId are respected based on the
                  *        ownership of the annotation.
                  **/
-                ["deprecated:IROI is deprecated."]
+                ["deprecate:IROI is deprecated."]
                 idempotent
                 AnnotationList getRoiMeasurements(long imageId, RoiOptions opts) throws omero::ServerError;
 
@@ -217,7 +217,7 @@ module omero {
                  *
                  * @param annotationId if -1, logic is identical to findByImage(imageId, opts)
                  **/
-                ["deprecated:IROI is deprecated."]
+                ["deprecate:IROI is deprecated."]
                 idempotent
                 RoiResult getMeasuredRois(long imageId, long annotationId, RoiOptions opts) throws omero::ServerError;
 
@@ -227,7 +227,7 @@ module omero {
                  * Logic is identical to getMeasuredRois, but Roi data will not be duplicated. (i.e.
                  * the objects are referentially identical)
                  **/
-                ["deprecated:IROI is deprecated."]
+                ["deprecate:IROI is deprecated."]
                 idempotent
                 LongRoiResultMap getMeasuredRoisMap(long imageId, LongList annotationIds, RoiOptions opts) throws omero::ServerError;
 
@@ -236,11 +236,11 @@ module omero {
                  * {@link omero.model.FileAnnotation} id returned
                  * by {@link #getImageMeasurements}.
                  **/
-                ["deprecated:IROI is deprecated."]
+                ["deprecate:IROI is deprecated."]
                 idempotent
                 omero::grid::Table* getTable(long annotationId) throws omero::ServerError;
 
-                ["deprecated:IROI is deprecated."]
+                ["deprecate:IROI is deprecated."]
                 void uploadMask(long roiId, int z, int t, Ice::ByteSeq bytes) throws omero::ServerError;
 
             };

@@ -137,7 +137,7 @@ module omero {
                  */
                 idempotent omero::model::ExperimenterGroup findGroup(string groupname) throws ServerError;
 
-                ["deprecated:setDN() is deprecated. Set the LDAP flag on model objects instead."]
+                ["deprecate:setDN() is deprecated. Set the LDAP flag on model objects instead."]
                 idempotent void setDN(omero::RLong experimenterID, string dn) throws ServerError;
 
                 /**
