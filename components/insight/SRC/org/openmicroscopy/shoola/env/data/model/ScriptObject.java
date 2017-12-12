@@ -197,6 +197,9 @@ public class ScriptObject
     /** The id of the group the object to the script on belong to.*/
     private long groupID;
 
+    /** Creates a secured connection if <code>true</code>.*/
+    private boolean encrypted;
+
     /**
      * Converts the specified values to the corresponding class.
      * 
@@ -669,7 +672,24 @@ public class ScriptObject
     {
         return getDataTypes().contains(data.getClass());
     }
-    
+
+    /**
+     * Sets to <code>True</code> if the transfer needs to be encrypted.
+     *
+     * @param encrypted The value to set.
+     */
+    public void setEncrypted(boolean encrypted)
+    {
+        this.encrypted = encrypted;
+    }
+
+    /**
+     * Returns <code>True</code> if the transfer needs to be encrypted.
+     *
+     * @return See above.
+     */
+    public boolean isEncrypted() { return encrypted; }
+
     /**
      * Overridden to return the name of the script.
      * @see java.lang.Object#toString()

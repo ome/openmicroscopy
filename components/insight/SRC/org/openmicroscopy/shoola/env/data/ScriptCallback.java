@@ -31,14 +31,19 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.ParamData;
+
 import Ice.Current;
 import omero.RString;
 import omero.RType;
 import omero.ServerError;
 import omero.client;
+import omero.gateway.Gateway;
+import omero.gateway.SecurityContext;
 import omero.grid.ProcessCallbackI;
 import omero.grid.ScriptProcessPrx;
 
@@ -74,12 +79,46 @@ public class ScriptCallback
 	/** The results of the script. */
 	private Map<String, Object> results;
 	
+
+	/** Reference to the gateway. Only needed for encrypted connection.*/
+	private Gateway gw;
+	
+	/** Reference to the context. Only needed for encrypted connection.*/
+	private SecurityContext ctx;
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param scriptID The identifier of the script to run.
+     * @param pcb  The process to handle.
+     * @param gw Reference to the gateway. Only needed for encrypted connection.
+     * @param ctx Reference to the context. Only needed for encrypted connection.
+     * @throws ServerError Thrown if an error occurred while initializing the
+     *                     call-back.
+     */
+	public ScriptCallback(long scriptID, ProcessCallbackI pcb, final Gateway gw,
+	        final SecurityContext ctx)
+	        throws ServerError
+	{
+	    super(pcb);
+	    this.scriptID = scriptID;
+	    results = null;
+	    this.gw = gw;
+	    this.ctx = ctx;
+	}
+
+	/**
+     * Creates a new instance.
+     * 
+     * @param scriptID The identifier of the script to run.
+     * @param pcb  The process to handle.
+     * @throws ServerError Thrown if an error occurred while initializing the
+     *                     call-back.
+     */
 	public ScriptCallback(long scriptID, ProcessCallbackI pcb)
         throws ServerError
     {
-	    super(pcb);
-        this.scriptID = scriptID;
-        results = null;
+	    this(scriptID, pcb, null, null);
     }
 	
 	/**
@@ -145,6 +184,8 @@ public class ScriptCallback
 		} catch (Exception e) {
 			throw new ProcessException("Cannot cancel the following " +
 					"script:"+getName());
+		} finally {
+		    if (gw != null) gw.closeConnector(ctx);
 		}
 	}
 	
@@ -181,6 +222,7 @@ public class ScriptCallback
 			try {
 				close();
 			} catch (Exception e) {}
+			if (gw != null) gw.closeConnector(ctx);
 		}
 	}
 	
@@ -192,6 +234,7 @@ public class ScriptCallback
 	{
 		super.processCancelled(value, current);
 		if (adapter != null) adapter.handleResult(null);
+		if (gw != null) gw.closeConnector(ctx);
 	}
 
 	/**
@@ -202,6 +245,7 @@ public class ScriptCallback
 	{
 		super.processKilled(value, current);
 		if (adapter != null) adapter.handleResult(null);
+		if (gw != null) gw.closeConnector(ctx);
 	}
 	
 }
