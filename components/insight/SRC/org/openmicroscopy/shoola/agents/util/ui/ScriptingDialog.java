@@ -502,8 +502,8 @@ public class ScriptingDialog
                     } else {
                         comp = new JTextField();
                         if (defValue != null) {
-                            length = defValue.toString().length();
                             String s = defValue.toString().trim();
+                            length = s.length();
                             ((JTextField) comp).setColumns(length);
                             ((JTextField) comp).setText(s);
                             columnsSet = s.length() > 0;
