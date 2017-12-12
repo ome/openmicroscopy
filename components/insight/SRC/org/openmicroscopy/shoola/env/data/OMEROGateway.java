@@ -480,7 +480,7 @@ class OMEROGateway
 		return -1;
 	}
 
-	/**
+    /**
      * Returns the specified script.
      *
      * @param ctx The security context.
@@ -503,7 +503,7 @@ class OMEROGateway
                 LoginCredentials cred = new LoginCredentials();
                 cred.getUser().setUsername(uc.getUserName());
                 cred.getUser().setPassword(uc.getPassword());
-                cred.getServer().setHostname( uc.getHostName());
+                cred.getServer().setHostname(uc.getHostName());
                 cred.getServer().setPort(uc.getPort());
                 cred.setApplicationName(LookupNames.MASTER_INSIGHT);
                 cred.setCheckNetwork(true);
