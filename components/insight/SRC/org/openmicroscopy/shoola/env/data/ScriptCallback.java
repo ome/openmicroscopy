@@ -90,7 +90,7 @@ public class ScriptCallback
      * Creates a new instance.
      * 
      * @param scriptID The identifier of the script to run.
-     * @param process  The process to handle.
+     * @param pcb  The process to handle.
      * @param gw Reference to the gateway. Only needed for encrypted connection.
      * @param ctx Reference to the context. Only needed for encrypted connection.
      * @throws ServerError Thrown if an error occurred while initializing the
@@ -111,7 +111,7 @@ public class ScriptCallback
      * Creates a new instance.
      * 
      * @param scriptID The identifier of the script to run.
-     * @param process  The process to handle.
+     * @param pcb  The process to handle.
      * @throws ServerError Thrown if an error occurred while initializing the
      *                     call-back.
      */
