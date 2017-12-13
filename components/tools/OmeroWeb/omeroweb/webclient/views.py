@@ -3302,7 +3302,10 @@ def activities(request, conn=None, **kwargs):
                         update_callback(request, cbString, status="finished")
                         new_results.append(cbString)
                     except Exception, x:
-                        logger.error(traceback.format_exc())
+                        update_callback(request, cbString, status="finished",
+                                        Message="Failed to get results")
+                        logger.info(
+                            "Failed on proc.getResults() for OMERO.script")
                         continue
                     # value could be rstring, rlong, robject
                     rMap = {}
