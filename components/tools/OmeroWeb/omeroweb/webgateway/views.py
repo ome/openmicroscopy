@@ -904,12 +904,15 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             levels = img._re.getResolutionLevels()-1
 
             zxyt = tile.split(",")
-            # if tile size is given respect it (within lower/upper limits)
+            # if tile size is given respect it
             if len(zxyt) > 4:
                 tile_size = [int(zxyt[3]), int(zxyt[4])]
+                tile_defaults = [w, h]
                 for i, tile_length in enumerate(tile_size):
+                    # use default tile size if <= 0
                     if tile_length <= 0:
-                        tile_size[i] = 256
+                        tile_size[i] = tile_defaults[i]
+                    # allow no bigger than 1024
                     if tile_length > 1024:
                         tile_size[i] = 1024
                 w, h = tile_size
