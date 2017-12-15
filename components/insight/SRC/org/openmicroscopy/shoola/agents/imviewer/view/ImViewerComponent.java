@@ -3222,6 +3222,16 @@ class ImViewerComponent
 	}
 
 	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#canEdit()
+     */
+    public boolean canEdit()
+    {
+        if (isUserOwner()) return true;
+        return model.getImage().canEdit();
+    }
+
+	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#isUserOwner()
 	 */
