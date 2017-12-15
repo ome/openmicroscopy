@@ -49,6 +49,7 @@ import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.NamedValue;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.ProjectAnnotationLink;
@@ -65,6 +66,7 @@ import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.ImageData;
+import omero.gateway.model.MapAnnotationData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.TagAnnotationData;
 
@@ -183,6 +185,33 @@ public class WriteData
         link.setChild(tagData.asAnnotation());
         link.setParent(new ProjectI(projectId, false));
         r = dm.saveAndReturnObject(ctx, link);
+    }
+
+// Create Map annotation
+// =====================
+
+    /** 
+     * Creates a map annotation and links to the specified project.
+     * @param projectId The omero project identifier
+     * @throws Exception
+     */
+    private void createMapAnnotationandLinkToProject(long projectId)
+            throws Exception
+    {
+        List<NamedValue> result = new ArrayList<NamedValue>();
+        result.add(new NamedValue("mitomycin-A", "20mM"));
+        result.add(new NamedValue("PBS", "10mM"));
+        result.add(new NamedValue("incubation", "5min"));
+        result.add(new NamedValue("temperature", "37"));
+        result.add(new NamedValue("Organism", "Homo sapiens"));
+        MapAnnotationData data = new MapAnnotationData();
+        data.setContent(result);
+        data.setDescription("Training Example");
+        //Use the following namespace if you want the annotation to be editable
+        //in the webclient and insight
+        data.setNameSpace(MapAnnotationData.NS_CLIENT_CREATED);
+        DataManagerFacility fac = gateway.getFacility(DataManagerFacility.class);
+        fac.attachAnnotation(ctx, data, new ProjectData(new ProjectI(projectId, false)));
     }
 
 // Create file annotation
@@ -359,6 +388,7 @@ public class WriteData
             loadAnnotationsLinkedToImage();
             createNewDataset(projectId);
             createNewTag(projectId);
+            createMapAnnotationandLinkToProject(projectId);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
