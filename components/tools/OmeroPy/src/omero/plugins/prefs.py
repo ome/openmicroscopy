@@ -348,9 +348,11 @@ class PrefsControl(WriteableConfigControl):
             from omeroweb import settings
             setting = settings.CUSTOM_SETTINGS_MAPPINGS.get(key)
             default = setting[2](setting[1]) if setting else []
-        except:
-            self.ctx.die(514, "Cannot retrieve default value for property %s" %
-                         key)
+        except Exception, e:
+            self.ctx.dbg(traceback.format_exc())
+            self.ctx.die(514,
+                         "Cannot retrieve default value for property %s: %s" %
+                         (key, e))
         if not isinstance(default, list):
             self.ctx.die(515, "Property %s is not a list" % key)
         return default
