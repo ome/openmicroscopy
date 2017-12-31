@@ -1475,11 +1475,19 @@ def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
         field = long(field or 0)
     except ValueError:
         field = 0
+    prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     thumbsize = getIntOrDefault(request, 'size', None)
     logger.debug(thumbsize)
     server_id = kwargs['server_id']
 
-    plateGrid = PlateGrid(conn, pid, field, kwargs.get('urlprefix', ''))
+    def get_thumb_url(iid):
+        if thumbsize is not None:
+            return reverse(prefix, args=(iid, thumbsize))
+        return reverse(prefix, args=(iid,))
+
+    plateGrid = PlateGrid(conn, pid, field,
+                          kwargs.get('urlprefix', get_thumb_url))
+
     plate = plateGrid.plate
     if plate is None:
         return Http404
