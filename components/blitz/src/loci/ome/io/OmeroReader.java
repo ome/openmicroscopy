@@ -831,8 +831,8 @@ public class OmeroReader extends FormatReader {
 
         if (str == null) return points;
 
-        List<Integer> x = new ArrayList<Integer>();
-        List<Integer> y = new ArrayList<Integer>();
+        List<Float> x = new ArrayList<Float>();
+        List<Float> y = new ArrayList<Float>();
         StringTokenizer tt = new StringTokenizer(str, " ");
         int numTokens = tt.countTokens();
         StringTokenizer t;
@@ -841,8 +841,8 @@ public class OmeroReader extends FormatReader {
             t = new StringTokenizer(tt.nextToken(), ",");
             total = t.countTokens()/2;
             for (int j = 0; j < total; j++) {
-                x.add(new Integer(t.nextToken()));
-                y.add(new Integer(t.nextToken()));
+                x.add(new Float(t.nextToken()));
+                y.add(new Float(t.nextToken()));
             }
         }
 
