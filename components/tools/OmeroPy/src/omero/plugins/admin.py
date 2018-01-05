@@ -22,6 +22,7 @@ import datetime
 import Ice
 
 from glob import glob
+from math import ceil
 from path import path
 
 import omero
@@ -216,6 +217,7 @@ Examples:
         email.add_argument(
             "--inactive", action="store_true",
             help="Do not filter inactive users.")
+        self._add_wait(email)
         self.add_user_and_group_arguments(email,
                                           action="append",
                                           exclusive=False)
@@ -1389,9 +1391,13 @@ present, the user will enter a console""")
             everyone=args.everyone,
             inactive=args.inactive)
 
+        ms = 500
+        wait = args.wait if args.wait > 0 else 25
+        loops = ceil(wait * 1000.0 / ms)
+
         try:
             cb = client.submit(
-                req, loops=50, ms=500,
+                req, loops=loops, ms=ms,
                 failonerror=True, failontimeout=True)
         except omero.CmdError, ce:
             err = ce.err
