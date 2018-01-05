@@ -1391,7 +1391,7 @@ present, the user will enter a console""")
 
         try:
             cb = client.submit(
-                req, loops=10, ms=500,
+                req, loops=50, ms=500,
                 failonerror=True, failontimeout=True)
         except omero.CmdError, ce:
             err = ce.err
