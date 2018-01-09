@@ -348,6 +348,7 @@ public class ImportConfig {
          setLevel("ome.services.blitz", level);
          setLevel("ome.system", level);
          setLevel("loci", level);
+         setLevel("org.scijava.nativelib", level);
      }
 
      private void setLevel(String loggerName, Level level) {
