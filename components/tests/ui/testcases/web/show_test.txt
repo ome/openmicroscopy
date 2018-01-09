@@ -6,7 +6,6 @@ Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
 Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
-Suite Teardown      Close all browsers
 
 *** Variables ***
 
@@ -103,7 +102,6 @@ Test Show Well Images
     Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '5 objects')]
     Xpath Should Match X Times              //div[@id='wellImages']//li/a                 ${FIELD_COUNT}
 
-
 Test Show PDI
     [Documentation]     Tests that ?show functionality works on Images in Project/Dataset
     # show image.name
@@ -121,8 +119,4 @@ Test Show PDI
     Wait Until Page Contains Element    id=batch_ann_title
     Xpath Should Match X Times          //li[contains(@class, 'row')][contains(@class,'ui-selected')]        2
 
-
-
-
-
-
+[Teardown]    Close Browser

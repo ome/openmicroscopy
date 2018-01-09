@@ -6,7 +6,6 @@ Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
 Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
-Suite Teardown      Close all browsers
 
 *** Test Cases ***
 

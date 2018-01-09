@@ -8,7 +8,6 @@ Resource          ../../resources/web/login.txt
 Library           DateTime
 
 Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
-Suite Teardown      Close all browsers
 
 *** Variables ***
 
@@ -432,4 +431,3 @@ Test All Keywords
 Test Close All Browsers
     # ${se2lib}=    Get Library Instance    Selenium2Library
     Close Browser     
-

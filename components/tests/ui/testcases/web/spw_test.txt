@@ -6,8 +6,6 @@ Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
 Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
-Suite Teardown      Close all browsers
-
 
 *** Variables ***
 # robot_setup script has created data with these parameters
@@ -31,7 +29,6 @@ Test Auto Load Single Run
     Select First Plate With Name            ${TINY_PLATE_NAME}
     # Plate should auto-load, allowing click on Well
     Click Well By Name                      A1
-
 
 Test Spw Grid Layout
     [Documentation]     Test loading of Well Images in bottom panel
@@ -82,7 +79,6 @@ Test Spw Grid Layout
     Should Be Equal                         ${well1x}                   ${well3x}
     Should Be Equal                         ${well1x}                   ${well5x}
 
-
 Test Spw Spatial Birds Eye
     [Documentation]     Tests layout and clicking of 'spacial bird's eye' panel
 
@@ -130,7 +126,6 @@ Test Spw Spatial Birds Eye
     Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '5 objects')]
     Xpath Should Match X Times              //div[@id='well_birds_eye']//img[contains(@class,'ui-selected')]        5
 
-
 Test Bulk Annotations
     [Documentation]     Test display of bulk annotations added in setup
 
@@ -147,4 +142,4 @@ Test Bulk Annotations
     Bulk Annotation Should Contain Row      Well Type       Treatment
     Bulk Annotation Should Contain Row      Concentration   10
 
-
+[Teardown]    Close Browser

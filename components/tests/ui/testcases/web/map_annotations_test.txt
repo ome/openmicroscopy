@@ -6,7 +6,6 @@ Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
 Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
-Suite Teardown      Close all browsers
 
 *** Test Cases ***
 
@@ -60,3 +59,5 @@ Test Map Annotation
     Xpath Should Match X Times          //table[contains(@class, 'editableKeyValueTable')]/tbody/tr    1
     Page Should Not Contain Element     xpath=//div[contains(@class, 'mapAnnContainer')]//td[contains(text(), 'Add Key')]
     Page Should Not Contain Element     xpath=//div[contains(@class, 'mapAnnContainer')]//td[contains(text(), 'Add Value')]
+
+[Teardown]    Close Browser

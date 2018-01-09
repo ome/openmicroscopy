@@ -6,7 +6,6 @@ Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
 Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
-Suite Teardown      Close all browsers
 
 *** Variables ***
 ${commentText}          Robot test adding this comment
@@ -164,7 +163,6 @@ Test Comments
     Select Dataset By Id                        ${dsId_Two}
     Delete Container
 
-
 Test File Annotations
 
     Select Experimenter
@@ -211,7 +209,6 @@ Test File Annotations
     Delete Container
     Select Screen By Id                         ${sId_One}
     Delete Container
-
 
 Test Rating
 
@@ -276,7 +273,6 @@ Test Rating
     Wait Until Element Is Visible               id=rating_annotations
     Check For Rating                            0
 
-
 Test Search Results File Annotations
 
     Select Experimenter
@@ -306,3 +302,5 @@ Test Search Results File Annotations
     Select Experimenter
     Select Screen By Id                         ${sId_One}
     Delete Container
+
+[Teardown]    Close Browser

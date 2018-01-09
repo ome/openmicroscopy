@@ -6,7 +6,6 @@ Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
 Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
-Suite Teardown      Close all browsers
 
 *** Test Cases ***
 
@@ -43,7 +42,6 @@ Test Script Run
     Click Element                               id=launch_activities
     Wait Until Page Contains                    Batch Image Export
 
-
 Test Channel Rename
     [Documentation]     Select User, Project, Dataset, Image and checks
     ...                 whether the toolbar/right-click menu options for
@@ -58,7 +56,6 @@ Test Channel Rename
     Submit Form                                 channel_names_edit
     Wait Until Keyword Succeeds                 ${TIMEOUT}  ${INTERVAL}   Element Should Not Be Visible     channel0
     Wait Until Page Contains Element            xpath=//div[@id='channel_names_display']/span[contains(text(), "ch${chName}")]      ${WAIT}
-
 
 Test Share
     [Documentation]     Tests creating and editing share
@@ -97,7 +94,6 @@ Test Share
     Submit Form                                 add_share_comment_form
     Wait Until Element Is Visible               xpath=//div[contains(@class, "commentText")][contains(text(), "New Discussion Comment")]    ${WAIT}
 
-
 Test Annotate
     [Documentation]     Test Annotation of a Project that we create
 
@@ -131,7 +127,6 @@ Test Annotate
     Click Element                               xpath=//select[@id='id_files']/option    # just pick first file
     Submit Form                                 choose_attachments_form
     Wait Until Page Contains Element            xpath=//li[@class='file_ann_wrapper']   # check for any file annotation
-
 
 Test Batch Annotate
     [Documentation]     Test Batch Annotation of 2 Projects that we create
@@ -172,8 +167,6 @@ Test Batch Annotate
     Submit Form                                 choose_attachments_form
     Wait Until Page Contains Element            xpath=//li[@class='file_ann_wrapper']   # check for any file annotation
 
-
-
 Test Search
     [Documentation]     Test basic search submission from header field or search page
     [Documentation]     Searching E.g. for the Projects we just created above
@@ -191,3 +184,5 @@ Test Search
     Wait Until Page Contains Element        dataTable       ${WAIT}
     ${rows}=    Get Matching XPath Count    xpath=//table[@id="DataTable"]/tr
     Wait Until Page Contains Element        xpath=//table[@id="dataTable"][@data-result-count!='${rows}']       ${WAIT}
+
+[Teardown]    Close Browser

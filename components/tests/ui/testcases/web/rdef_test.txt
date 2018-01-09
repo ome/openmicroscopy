@@ -6,7 +6,6 @@ Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
 Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
-Suite Teardown      Close all browsers
 
 *** Variables ***
 
@@ -130,7 +129,6 @@ Right Click Rendering Settings
 
 *** Test Cases ***
 
-
 Test Rdef Copy Paste Save
     [Documentation]     Tests Copy and Paste rdef, then Save and 'Save All'
 
@@ -226,7 +224,6 @@ Test Rdef Copy Paste Save
     Select Image By Id                      ${imageId}
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  0000FF
-
 
 Test Owners Rdef
     [Documentation]     Log in as non-owner and apply Imported and Owner's settings.
@@ -360,7 +357,6 @@ Test Owners Rdef
     Click Link                              Edit
     Textfield Value Should Be               wblitz-ch0-cw-end    200.2
 
-
 Test Rdef Save
     [Documentation]     Tests saving rendering settings, including inactive channels
 
@@ -414,7 +410,6 @@ Test Rdef Save
     Channel Should Be Active            0
     Channel Should Not Be Active        1
     Channel Should Not Be Active        2
-
 
 Test LUTs Inverted
     [Documentation]     Tests LUTs and Inverted, Copying and Pasting.
@@ -488,7 +483,6 @@ Test LUTs Inverted
     Wait For Image Src                      5_ramps
     Check Inverted                          0                           ${True}
 
-
 Test Launch Full Viewer
     [Documentation]     Tests viewer launched from Preview panel with current settings
     Go To                                   ${WELCOME URL}
@@ -513,3 +507,5 @@ Test Launch Full Viewer
     # Check various channel settings and inverted map are applied
     Wait For Image Src                      c=1|0:255$FFFF00,2|0:255$16_colors.lut,-3|0:255$0000FF
     Wait For Image Src                      maps=[{%22inverted%22:{%22enabled%22:true}
+
+[Teardown]    Close Browser

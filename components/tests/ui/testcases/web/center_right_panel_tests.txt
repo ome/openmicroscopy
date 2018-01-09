@@ -6,7 +6,6 @@ Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
 Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
-Suite Teardown      Close all browsers
 
 *** Variables ***
 # robot_setup script has created data with these parameters
@@ -170,3 +169,5 @@ Test Download Menu
     Download Option Available       Export as JPEG
     Download Option Available       Export as PNG
     Download Option Available       Export as TIFF
+
+[Teardown]    Close Browser

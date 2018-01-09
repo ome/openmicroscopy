@@ -6,7 +6,6 @@ Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
 Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
-Suite Teardown      Close all browsers
 
 *** Keywords ***
 
@@ -162,3 +161,5 @@ Test Tag Removal
     Check For Tag                               removeTest${pid}Three
     Check No Tag                                removeTest${pid}One
     Check No Tag                                removeTest${pid}Two
+
+[Teardown]    Close Browser

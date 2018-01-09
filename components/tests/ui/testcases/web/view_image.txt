@@ -8,8 +8,6 @@ Resource          ../../resources/web/tree.txt
 Library           Collections
 
 Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
-Suite Teardown      Close all browsers
-
 
 *** Variables ***
 # robot_setup script has created data with these parameters
@@ -116,3 +114,5 @@ Test Bulk Annotations
     Page Should Contain                 Well Type
     Page Should Contain                 Control
     Page Should Contain                 Concentration
+
+[Teardown]    Close Browser

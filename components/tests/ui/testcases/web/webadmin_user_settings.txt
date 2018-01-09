@@ -10,8 +10,6 @@ Resource            ../../resources/web/tree.txt
 Resource            ../../resources/config.txt
 
 Suite Setup         Open Browser And Log In As User
-Suite Teardown      Logout and Teardown
-
 
 *** Test Cases ***
 
@@ -48,7 +46,6 @@ User Settings
     Click Dialog Button     OK
     Wait Until Page Contains  Password reset OK
 
-
 Owner Group Edit
     [Documentation]     Test group owner edit of their group.
 
@@ -71,3 +68,4 @@ Owner Group Edit
     Select Radio Button             permissions     2
     Submit Form                     css=form.settings_form
 
+[Teardown]    Close Browser
