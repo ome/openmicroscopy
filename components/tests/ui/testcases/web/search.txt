@@ -428,6 +428,4 @@ Test All Keywords
     For-Loop-In-Range-Search-Keywords-Error-Or-Alert-Expected
     For-Loop-In-Range-Search-Keywords-No-Error-Or-Alert-Expected
 
-Test Close All Browsers
-    # ${se2lib}=    Get Library Instance    Selenium2Library
-    Close Browser     
+[Teardown]    Close Browser    

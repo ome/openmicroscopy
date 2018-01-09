@@ -169,7 +169,7 @@ Test Batch Annotate
 
 Test Search
     [Documentation]     Test basic search submission from header field or search page
-    [Documentation]     Searching E.g. for the Projects we just created above
+    ...                 Searching e.g. for the Projects we just created above
 
     Go To                                   ${WELCOME URL}
     Input Text                              id_search_query     test

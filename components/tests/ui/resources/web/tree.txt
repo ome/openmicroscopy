@@ -165,7 +165,7 @@ Get NodeId By Icon
 Select Node By Icon
     [Arguments]                     ${icon}
     ${firstNodeId}=                 Get NodeId By Icon       ${icon}
-    ${objId}=                       Get Element Attribute    xpath=//li[@id='${firstNodeId}']@data-id
+    ${objId}=                       Get Element Attribute    xpath=//li[@id='${firstNodeId}']    attribute=data-id
     Click Node                      ${firstNodeId}
     [Return]                        ${objId}
 
@@ -501,7 +501,7 @@ Plate Should Be Selected By Name
 
 # Get the Object Id of the currently seleted Node
 Get Selected Id From Tree
-    ${objectId}=        Get Element Attribute    xpath=//a[contains(@class, 'jstree-clicked')]/parent::li@data-id
+    ${objectId}=        Get Element Attribute    xpath=//a[contains(@class, 'jstree-clicked')]/parent::li    attribute=data-id
     [Return]            ${objectId}
 
 
