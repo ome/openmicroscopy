@@ -31,12 +31,12 @@ Toggle Channel Active
 
 Channel Should Be Active
     [Arguments]                             ${index}
-    ${style}=                               Get Element Attribute       xpath=//button[@id="rd-wblitz-ch${index}"]@class
+    ${style}=                               Get Element Attribute       xpath=//button[@id="rd-wblitz-ch${index}"]    attribute=class
     Should Contain                          ${style}                    pressed
 
 Channel Should Not Be Active
     [Arguments]                             ${index}
-    ${style}=                               Get Element Attribute       xpath=//button[@id="rd-wblitz-ch${index}"]@class
+    ${style}=                               Get Element Attribute       xpath=//button[@id="rd-wblitz-ch${index}"]    attribute=class
     Should Not Contain                      ${style}                    pressed
 
 Pick Color
@@ -64,7 +64,7 @@ Pick Lut
 
 Check Image Src
     [Arguments]                             ${findInImgSrc}
-    ${imageSrc}=                            Get Element Attribute       xpath=//img[contains(@class, 'weblitz-viewport-img')]@src
+    ${imageSrc}=                            Get Element Attribute       xpath=//img[contains(@class, 'weblitz-viewport-img')]    attribute=src
     Should Contain                          ${imageSrc}                 ${findInImgSrc}
 
 Wait For Image Src
@@ -96,7 +96,7 @@ Wait For Preview Load
     Run Keyword If  '${status}'=='PASS'     Wait Until Page Contains Element        xpath=//button[@id='preview_open_viewer'][@rel!='${oldIdentifier}']       ${WAIT}
     Wait Until Element Is Visible           xpath=//button[@id="wblitz-ch0-color"]      ${WAIT}
     Wait Until Element Is Visible           xpath=//button[@class="rdef clicked"]       ${WAIT}
-    ${status}    ${oldId}                   Run Keyword And Ignore Error    Get Element Attribute      xpath=//button[@id="preview_open_viewer"]@rel
+    ${status}    ${oldId}                   Run Keyword And Ignore Error    Get Element Attribute      xpath=//button[@id="preview_open_viewer"]              attribute=rel
     [Return]                                ${status}          ${oldId}
 
 Wait For Toolbar Button Enabled
@@ -186,7 +186,7 @@ Test Rdef Copy Paste Save
     Element Should Be Enabled               id=rdef-setdef-btn
 
     # Save (with Yellow channel) & wait for thumbnail to update
-    ${thumbSrc}=                            Get Element Attribute      xpath=//button[@class="rdef clicked"]/img@src
+    ${thumbSrc}=                            Get Element Attribute      xpath=//button[@class="rdef clicked"]/img    attribute=src
     Click Element                           id=rdef-setdef-btn
     Wait For BlockUI
     Wait Until Page Contains Element        xpath=//button[@class="rdef clicked"]/img[@src!='${thumbSrc}']
@@ -300,7 +300,7 @@ Test Owners Rdef
 
     # Test 'Paste and Save' with right-click on different Image in tree
     # (check thumb refresh by change of src)
-    ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId_2}"]/div[@class="image"]/a/img@src
+    ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId_2}"]/div[@class="image"]/a/img    attribute=src
     Right Click Image Rendering Settings    ${imageId_2}            Paste and Save
     Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId_2}"]/div[@class="image"]/a/img[@src!='${thumbSrc}']
     # Check applied by refresh right panel
@@ -310,7 +310,7 @@ Test Owners Rdef
     Textfield Value Should Be               wblitz-ch0-cw-end           200.2
 
     # Test Set Owner's in same way on first Image
-    ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/a/img@src
+    ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/a/img    attribute=src
     Right Click Image Rendering Settings    ${imageId}            Set Owner's and Save
     Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/a/img[@src!='${thumbSrc}']
     # Check applied by refresh right panel
@@ -320,7 +320,7 @@ Test Owners Rdef
     Textfield Value Should Be               wblitz-ch0-cw-end           100.5
 
     # Test "Set Imported" on first Image
-    ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/a/img@src
+    ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/a/img    attribute=src
     Right Click Image Rendering Settings    ${imageId}            Set Imported and Save
     Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/a/img[@src!='${thumbSrc}']
     # Check applied by refresh right panel
@@ -389,7 +389,7 @@ Test Rdef Save
     Edit Channel End                    2   50
 
     # Save rendering settings
-    ${thumbSrc}=                        Get Element Attribute      xpath=//button[@class="rdef clicked"]/img@src
+    ${thumbSrc}=                        Get Element Attribute      xpath=//button[@class="rdef clicked"]/img    attribute=src
     Click Element                       id=rdef-setdef-btn
     # Wait for response
     Wait For BlockUI

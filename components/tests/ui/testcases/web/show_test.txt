@@ -59,7 +59,7 @@ Test Show Plate
     Should Be Equal                     ${wellUrl}                      ${WELCOME URL}?show=well-${wellId}
 
     # Get Next Well IDs to Test multi-selection of Wells
-    ${well-id-A2}=                      Get Element Attribute           xpath=//td[contains(@class, 'well')][descendant::img[@name='A2']]@id
+    ${well-id-A2}=                      Get Element Attribute           xpath=//td[contains(@class, 'well')][descendant::img[@name='A2']]    attribute=id
     ${w}    ${wellA2Id}=                Split String                    ${well-id-A2}    -
     Go To                               ${WELCOME URL}?show=well-${wellId}|well-${wellA2Id}
     Wait Until Page Contains Element    id=batch_ann_title
@@ -97,7 +97,7 @@ Test Show Well Images
 
     # Use 'Link' button to get link
     Click Element                           id=show_link_btn
-    ${imagesUrl}=                           Get Element Attribute                   id=link_info_popup_string@value
+    ${imagesUrl}=                           Get Element Attribute                   id=link_info_popup_string    attribute=value
     Go To                                   ${imagesUrl}
     Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '5 objects')]
     Xpath Should Match X Times              //div[@id='wellImages']//li/a                 ${FIELD_COUNT}

@@ -159,7 +159,7 @@ Select Experimenter
 Get NodeId By Icon
     [Arguments]                     ${icon}
     Wait Until Element Is Visible                            xpath=//i[contains(@style, '${icon}')]/parent::a/parent::li
-    ${nodeId}=                      Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/parent::a/parent::li@id
+    ${nodeId}=                      Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/parent::a/parent::li      attribute=id
     [Return]                        ${nodeId}
 
 Select Node By Icon
@@ -172,8 +172,8 @@ Select Node By Icon
 Select Node With Children By Icon
     [Arguments]                     ${icon}
     Wait Until Element Is Visible                            xpath=//i[contains(@style, '${icon}')]/following-sibling::span[contains(@class, 'children_count')]/parent::a/parent::li
-    ${firstNodeId}=                 Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/following-sibling::span[contains(@class, 'children_count')]/parent::a/parent::li@id
-    ${objId}=                       Get Element Attribute    xpath=//li[@id='${firstNodeId}']@data-id
+    ${firstNodeId}=                 Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/following-sibling::span[contains(@class, 'children_count')]/parent::a/parent::li     attribute=id
+    ${objId}=                       Get Element Attribute    xpath=//li[@id='${firstNodeId}']                                                                                            attribute=data-id
     Click Node                      ${firstNodeId}
     [Return]                        ${objId}
 
@@ -321,7 +321,7 @@ Wait Until Center Panel Loads
 Get NodeId By Icon And Text
     [Arguments]                     ${icon}    ${text}
     Wait Until Element Is Visible                            xpath=//i[contains(@style, '${icon}')]/parent::a[contains(text(), '${text}')]/parent::li
-    ${nodeId}=                      Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/parent::a[contains(text(), '${text}')]/parent::li@id
+    ${nodeId}=                      Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/parent::a[contains(text(), '${text}')]/parent::li    attribute=id
     [Return]                        ${nodeId}
 
 Wait For Project Node Text
@@ -350,7 +350,7 @@ Wait For Plate Node Text
 Get NodeId By Icon And Id
     [Arguments]                     ${icon}    ${objId}
     Wait Until Element Is Visible                            xpath=//i[contains(@style, '${icon}')]/parent::a/parent::li[@data-id='${objId}']
-    ${nodeId}=                      Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/parent::a/parent::li[@data-id='${objId}']@id
+    ${nodeId}=                      Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/parent::a/parent::li[@data-id='${objId}']    attribute=id
     [Return]                        ${nodeId}
 
 Wait For Project Node
@@ -486,7 +486,7 @@ User Should Not Be Selected
 Node Should Be Selected By Icon
     [Arguments]                         ${icon}
     Wait Until Page Contains Element    xpath=//i[contains(@style, '${icon}')]/parent::a[contains(@class, 'jstree-clicked')]/parent::li
-    ${nodeId}=                          Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/parent::a[contains(@class, 'jstree-clicked')]/parent::li@id
+    ${nodeId}=                          Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/parent::a[contains(@class, 'jstree-clicked')]/parent::li    attribute=id
     [Return]                            ${nodeId}
 
 Dataset Should Be Selected
@@ -563,11 +563,11 @@ Thumbnail Should Not Be Selected
 
 Get Id From Selected Item In Tree
     # Wait Until Element Is Visible xpath=//li::a[contains(@class, 'jstree-clicked')]
-    ${dataId}=                      Get Element Attribute    xpath=//li[contains(@class,'jstree-leaf')][descendant::a[contains(@class, 'jstree-clicked')]]@data-id
+    ${dataId}=                      Get Element Attribute    xpath=//li[contains(@class,'jstree-leaf')][descendant::a[contains(@class, 'jstree-clicked')]]     attribute=data-id
     [return]                        ${dataId}
 
 Get Id From Selected Thumbnail
-    ${dataId}=                      Get Element Attribute    xpath=//li[contains(@class,'ui-selected')]@data-id
+    ${dataId}=                      Get Element Attribute    xpath=//li[contains(@class,'ui-selected')]     attribute=data-id
     [return]                        ${dataId}
 
 Get Id From Right Panel

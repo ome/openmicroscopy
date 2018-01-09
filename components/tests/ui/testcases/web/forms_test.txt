@@ -33,7 +33,7 @@ Test Script Run
     # If extra /omero/ script level, click() it. Will fail silently if not needed
     Execute Javascript                          $("#scriptList>ul>li>a:contains('omero')").click()
     Click Link                                  export_scripts
-    ${script_url}=                              Get Element Attribute       xpath=//a[contains(text(),'Batch Image Export...')]@href
+    ${script_url}=                              Get Element Attribute       xpath=//a[contains(text(),'Batch Image Export...')]    attribute=href
     Go To                                       ${script_url}?Image=${imageId}
     Wait Until Page Contains Element            id=script_form
     Submit Form                                 id=script_form
