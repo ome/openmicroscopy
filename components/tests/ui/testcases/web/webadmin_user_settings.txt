@@ -24,29 +24,29 @@ User Settings
     ${orig_middle_name}=    Get Element Attribute     xpath=//input[@id='id_middle_name']@value
     ${middle_name}=         Unique name         middle_name
     Input Text              id_middle_name      ${middle_name}
-    Click Button            Save
-    Page Should Contain Element   xpath=//input[@id='id_middle_name'][@value='${middle_name}']
-    # reset
-    Input Text              id_middle_name      ${orig_middle_name}
-    Click Button            Save
+    # Click Button            Save
+    # Page Should Contain Element   xpath=//input[@id='id_middle_name'][@value='${middle_name}']
+    # # reset
+    # Input Text              id_middle_name      ${orig_middle_name}
+    # Click Button            Save
 
-    # Edit Password
-    ${temp_password}=       Set Variable        tempPassword
-    Click Element           id=change_password
-    Input Text              id_old_password     ${PASSWORD}
-    Input Text              id_password         ${temp_password}
-    Input Text              id_confirmation     ${temp_password}
-    Click Dialog Button     OK
-    Wait Until Page Contains  Password reset OK
+    # # Edit Password
+    # ${temp_password}=       Set Variable        tempPassword
+    # Click Element           id=change_password
+    # Input Text              id_old_password     ${PASSWORD}
+    # Input Text              id_password         ${temp_password}
+    # Input Text              id_confirmation     ${temp_password}
+    # Click Dialog Button     OK
+    # Wait Until Page Contains  Password reset OK
 
-    # Reset Password back to original
-    Reload Page             # clears 'OK'
-    Click Element           id=change_password
-    Input Text              id_old_password     ${temp_password}
-    Input Text              id_password         ${PASSWORD}
-    Input Text              id_confirmation     ${PASSWORD}
-    Click Dialog Button     OK
-    Wait Until Page Contains  Password reset OK
+    # # Reset Password back to original
+    # Reload Page             # clears 'OK'
+    # Click Element           id=change_password
+    # Input Text              id_old_password     ${temp_password}
+    # Input Text              id_password         ${PASSWORD}
+    # Input Text              id_confirmation     ${PASSWORD}
+    # Click Dialog Button     OK
+    # Wait Until Page Contains  Password reset OK
 
 
 Owner Group Edit
@@ -61,13 +61,13 @@ Owner Group Edit
     # Edit permissions
     Radio Button Should Be Set To   permissions     2       # we should start off as 'read-annotate'
     Select Radio Button             permissions     1
-    Submit Form                     css=form.settings_form
+    # Submit Form                     css=form.settings_form
 
-    # Return to edit group, to check permissions were saved and reset
-    Location Should Be          ${WEBADMIN WELCOME URL}myaccount/
-    Click Element               css=#group_settings_tab a
-    Click Element               xpath=//table[@id='dataTable']//a/span[contains(text(), "Edit")]
-    Radio Button Should Be Set To   permissions     1
-    Select Radio Button             permissions     2
-    Submit Form                     css=form.settings_form
+    # # Return to edit group, to check permissions were saved and reset
+    # Location Should Be          ${WEBADMIN WELCOME URL}myaccount/
+    # Click Element               css=#group_settings_tab a
+    # Click Element               xpath=//table[@id='dataTable']//a/span[contains(text(), "Edit")]
+    # Radio Button Should Be Set To   permissions     1
+    # Select Radio Button             permissions     2
+    # Submit Form                     css=form.settings_form
 
