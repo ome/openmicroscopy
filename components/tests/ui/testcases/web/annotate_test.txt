@@ -279,14 +279,15 @@ Test Search Results File Annotations
     ${sId_One}=                                 Create Screen       robot file annotations_1
 
     # Annotate single Screen
-    Click Element                               xpath=//h1[@data-name='attachments']
+    # NB: Attachments panel may be open from previous test. Try opening 'closed' panel in case...
+    Run Keyword And Ignore Error                Click Element  xpath=//h1[@data-name='attachments'][contains(@class, 'closed')]
     Add File Annotation                         ${fileNameTwo}
 
     Input Text  id=id_search_query              ${fileNameTwo}
     Submit Form
-    Location Should Be                          ${SEARCH URL}?search_query=${fileNameTwo}
+    Wait Until Keyword Succeeds     ${TIMEOUT}  ${INTERVAL}   Location Should Be    ${SEARCH URL}?search_query=${fileNameTwo}
 
-    Wait Until Page Contains Element            xpath=//img[contains(@alt, 'screen')]
+    Wait Until Page Contains Element            xpath=//img[contains(@alt, 'screen')]   ${WAIT}
     Click Element                               xpath=//img[contains(@alt, 'screen')]
     Wait Until Page Contains Element            //*[@id="general_tab"]//th[contains(text(), 'Screen ID:')]
 
