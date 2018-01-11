@@ -210,7 +210,7 @@ Test File Annotations
     Select Screen By Id                         ${sId_One}
     Delete Container
 
-Test Rating
+Test Rate Images
 
     Select Experimenter
     Select And Expand Node                      Project 1
@@ -233,14 +233,29 @@ Test Rating
     # Add Rating of 2 **
     Click Next Thumbnail
     ${imageId3}=                                Get Id From Selected Thumbnail
-    ${nodeId3}=                                  Wait For Image Node         ${imageId3}
+    ${nodeId3}=                                 Wait For Image Node         ${imageId3}
     Click Rating                                2
     Check For Rating                            2
 
-    # Select 3 images - average rating of 3
-    Shift Click Node                            ${nodeId}
-    Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]
-    Xpath Should Match X Times                  //ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     3
+Test Filter Rating
+
+    Select Experimenter
+    Select And Expand Node                      Project 1
+    Select And Expand Node                      Dataset 1
+    ${imageId}=                                 Select First Image
+    ${nodeId}=                                  Wait For Image Node         ${imageId}
+
+    Click Element                               xpath=//h1[@data-name='ratings']
+    Wait Until Element Is Visible               id=rating_annotations
+
+    # Add Rating of 2 **
+    Click Next Thumbnail
+    ${imageId2}=                                Get Id From Selected Thumbnail
+
+    # Add Rating of 2 **
+    Click Next Thumbnail
+    ${imageId3}=                                Get Id From Selected Thumbnail
+    ${nodeId3}=                                 Wait For Image Node         ${imageId3}
 
     # Filter by Rating 2 **
     Select From List By Label                   id=choosefilter         By Rating
@@ -265,9 +280,10 @@ Test Rating
     # Finally, select the original images and remove rating from ALL
     Click Node                                  ${nodeId}
     Shift Click Node                            ${nodeId3}
-    Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]
-    Mouse Over                                  xpath=//div[@id='rating_annotations']//li[contains(@class, 'myRating')]
-    Click Element                               xpath=//div[@id='rating_annotations']//a[contains(@class, 'removeRating')]
+    Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]    timeout=${TIMEOUT}
+    Xpath Should Match X Times                  //ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     3
+    Wait Until Keyword Succeeds     ${TIMEOUT}  ${INTERVAL}   Mouse Over                                  xpath=//div[@id='rating_annotations']//li[contains(@class, 'myRating')]
+    Wait Until Keyword Succeeds     ${TIMEOUT}  ${INTERVAL}   Click Element                               xpath=//div[@id='rating_annotations']//a[contains(@class, 'removeRating')]
     # Check rating was removed from first image
     Click Node                                  ${nodeId}
     Wait Until Element Is Visible               id=rating_annotations
