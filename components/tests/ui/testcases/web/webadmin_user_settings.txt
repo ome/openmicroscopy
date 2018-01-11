@@ -61,9 +61,9 @@ Owner Group Edit
     Submit Form                     css=form.settings_form
 
     # Return to edit group, to check permissions were saved and reset
-    Location Should Be          ${WEBADMIN WELCOME URL}myaccount/
-    Click Element               css=#group_settings_tab a
-    Click Element               xpath=//table[@id='dataTable']//a/span[contains(text(), "Edit")]
+    Wait Until Keyword Succeeds     ${TIMEOUT}     ${INTERVAL}  Location Should Be  ${WEBADMIN WELCOME URL}myaccount/
+    Click Element                   css=#group_settings_tab a
+    Click Element                   xpath=//table[@id='dataTable']//a/span[contains(text(), "Edit")]
     Radio Button Should Be Set To   permissions     1
     Select Radio Button             permissions     2
     Submit Form                     css=form.settings_form
