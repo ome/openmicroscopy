@@ -245,12 +245,10 @@ Test Filter Rating
     ${imageId}=                                 Select First Image
     ${nodeId}=                                  Wait For Image Node         ${imageId}
 
-    Click Element                               xpath=//h1[@data-name='ratings']
-    Wait Until Element Is Visible               id=rating_annotations
-
     # Add Rating of 2 **
     Click Next Thumbnail
     ${imageId2}=                                Get Id From Selected Thumbnail
+    ${nodeId2}=                                 Wait For Image Node         ${imageId2}
 
     # Add Rating of 2 **
     Click Next Thumbnail
@@ -279,14 +277,15 @@ Test Filter Rating
 
     # Finally, select the original images and remove rating from ALL
     Click Node                                  ${nodeId}
-    Shift Click Node                            ${nodeId3}
+    Meta Click Node                             ${nodeId2}
+    Meta Click Node                             ${nodeId3}
     Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]    timeout=${TIMEOUT}
     Xpath Should Match X Times                  //ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     3
     Wait Until Keyword Succeeds     ${TIMEOUT}  ${INTERVAL}   Mouse Over                                  xpath=//div[@id='rating_annotations']//li[contains(@class, 'myRating')]
     Wait Until Keyword Succeeds     ${TIMEOUT}  ${INTERVAL}   Click Element                               xpath=//div[@id='rating_annotations']//a[contains(@class, 'removeRating')]
     # Check rating was removed from first image
     Click Node                                  ${nodeId}
-    Wait Until Element Is Visible               id=rating_annotations
+    Wait Until Element Is Visible               id=rating_annotations    timeout=${TIMEOUT}
     Check For Rating                            0
 
 Test Search Results File Annotations
