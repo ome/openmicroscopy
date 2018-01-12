@@ -420,6 +420,23 @@ present, the user will enter a console""")
                 " should  be activated. Common values are: \"debug\", "
                 "\"trace\" ")
 
+        sessionAction = Action("session",
+                               "Create or close user sessions").parser
+        sessionAction.add_login_arguments()
+        group = sessionAction.add_mutually_exclusive_group()
+        group.add_argument(
+            "--open", nargs="?", dest="username",
+            help="Create a session for the given user (username)")
+        group.add_argument(
+            "--close", nargs="?", dest="sessionId",
+            help="Close the session with the given sessionId")
+        sessionAction.add_argument("--groupname", nargs="?",
+                                   help="Optional group name "
+                                        "(default: user's default group)")
+        sessionAction.add_argument("--timeout", nargs="?", default="0",
+                                   help="Optional timeout in seconds "
+                                        "(default: maximum possible)")
+
         # DISABLED = """ see: http://www.zeroc.com/forums/bug-reports/\
         # 4237-sporadic-freeze-errors-concurrent-icegridnode-access.html
         #   restart [filename] [targets]      : Calls stop followed by start \
@@ -1346,6 +1363,37 @@ present, the user will enter a console""")
                 sb = " ".join([str(x) for x in v])
                 self._item("JVM settings", " %s" % (k[0].upper() + k[1:]))
                 self.ctx.out("%s" % sb)
+
+    def session(self, args):
+        client = self.ctx.conn(args)
+
+        if args.username:
+            p = omero.sys.Principal()
+            p.name = args.username
+            if args.groupname:
+                p.group = args.groupname
+            p.eventType = "User"
+            svc = client.sf.getSessionService()
+            sessId = svc.createSessionWithTimeout(p, (int(args.timeout)
+                                                      * 1000))
+            if args.groupname:
+                self.ctx.out("Session created for user %s in group %s" %
+                             (args.username, args.groupname))
+            else:
+                self.ctx.out("Session created for user %s" % args.username)
+            self.ctx.out("Session ID: %s" % sessId.getUuid().val)
+
+        if args.sessionId:
+            svc = client.sf.getSessionService()
+            session = None
+            try:
+                session = svc.getSession(args.sessionId)
+            except Exception:
+                self.ctx.err("No session with the given ID found.")
+
+            if session:
+                svc.closeSession(session)
+                self.ctx.out("Session %s closed." % args.sessionId)
 
     def email(self, args):
         client = self.ctx.conn(args)
