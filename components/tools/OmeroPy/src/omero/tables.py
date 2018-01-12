@@ -416,8 +416,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         """
         wait = int(self.communicator.getProperties().getPropertyWithDefault(
             "omero.repo.wait", "1"))
-        start = time.time()
-        while not method() and wait < (time.time() - start):
+        if not method():
             self.logger.debug("waiting %s seconds" % seconds_sleep)
             self.stop_event.wait(seconds_sleep)
 
