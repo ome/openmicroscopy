@@ -247,6 +247,20 @@ class SessionsControl(BaseControl):
         for x in (file, key, logout, keepalive, list, clear, group):
             self._configure_dir(x)
 
+        open = parser.add(sub, self.open, "Create a session for "
+                                          "the given user")
+        open.add_argument("username", nargs="?", help="The username")
+        open.add_argument("groupname", nargs="?",
+                          help="The groupname (optional; default: the user's "
+                               "default group)")
+        open.add_argument("--timeout", nargs="?", type=int, default=0,
+                          help="Timeout in seconds (optional; default: "
+                               "maximum possible)")
+
+        close = parser.add(sub, self.close, "Close the session with "
+                                            "the given session ID")
+        close.add_argument("sessionId", nargs="?", help="The session ID")
+
     def _configure_login(self, login):
         login.add_login_arguments()
         login.add_argument(
@@ -263,6 +277,36 @@ class SessionsControl(BaseControl):
 
     def help(self, args):
         self.ctx.out(LONGHELP % {"prog": args.prog})
+
+    def open(self, args):
+        client = self.ctx.conn(args)
+        p = omero.sys.Principal()
+        p.name = args.username
+        if args.groupname:
+            p.group = args.groupname
+        p.eventType = "User"
+        svc = client.sf.getSessionService()
+        sessId = svc.createSessionWithTimeout(p, (int(args.timeout)
+                                                  * 1000))
+        if args.groupname:
+            self.ctx.out("Session created for user %s in group %s" %
+                         (args.username, args.groupname))
+        else:
+            self.ctx.out("Session created for user %s" % args.username)
+        self.ctx.out("Session ID: %s" % sessId.getUuid().val)
+
+    def close(self, args):
+        client = self.ctx.conn(args)
+        svc = client.sf.getSessionService()
+        session = None
+        try:
+            session = svc.getSession(args.sessionId)
+        except Exception:
+            self.ctx.err("No session with the given ID found.")
+
+        if session:
+            svc.closeSession(session)
+            self.ctx.out("Session %s closed." % args.sessionId)
 
     def login(self, args):
         ("Login to a given server, and store session key locally.\n\n"
@@ -631,7 +675,7 @@ class SessionsControl(BaseControl):
         try:
             obj = svc.getSession(uuid)
         except:
-            self.ctx.dbg(traceback.format_exc())
+            self.ctx.dbg(traceback.forhmat_exc())
             self.ctx.die(557, "cannot get session: %s" % uuid)
 
         if args.seconds is None:
