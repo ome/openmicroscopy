@@ -106,8 +106,8 @@ Test Bulk Annotations
     Click Element                       xpath=//div[@id='wellImages']//li/a/img[1]
     ${imgName}=                         Wait For General Panel And Return Name          Image
 
-    Double Click Well By Name           A1
-    Wait Until Keyword Succeeds         ${TIMEOUT}     ${INTERVAL}     Select Window   title=${imgName}
+    # Double Click Well By Name           A1
+    # Wait Until Keyword Succeeds         ${TIMEOUT}     ${INTERVAL}     Select Window   title=${imgName}
 
     Click Link                          Image Information
     Wait Until Element Is Visible       id=bulk-annotations
