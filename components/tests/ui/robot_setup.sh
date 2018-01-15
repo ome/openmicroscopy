@@ -77,6 +77,8 @@ do
     for (( k=1; k<=$nImages; k++ ))
     do
       bin/omero import -d $dataset $IMAGE_NAME --debug ERROR
+      imageid=$(sed -n -e 's/^Image://p' show_import.log)
+      bin/omero obj update Image:$imageid name=test_view$k
     done
   done
 done
