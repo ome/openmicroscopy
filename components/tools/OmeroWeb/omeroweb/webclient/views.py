@@ -3103,17 +3103,22 @@ def activities(request, conn=None, **kwargs):
     new_results = []
     _purgeCallback(request)
 
-    # If we have a jobId, just process that (Only chgrp supported)
+    # If we have a jobId (not added to request.session) just process it...
+    # ONLY used for chgrp dry-run in Chgrp dialog.
     jobId = request.GET.get('jobId', None)
     if jobId is not None:
         jobId = str(jobId)
-        prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(jobId))
-        rsp = prx.getResponse()
-        if rsp is not None:
-            rv = chgrpMarshal(conn, rsp)
-            rv['finished'] = True
-        else:
-            rv = {'finished': False}
+        try:
+            prx = omero.cmd.HandlePrx.checkedCast(
+                conn.c.ic.stringToProxy(jobId))
+            rsp = prx.getResponse()
+            if rsp is not None:
+                rv = chgrpMarshal(conn, rsp)
+                rv['finished'] = True
+            else:
+                rv = {'finished': False}
+        except IceException:
+            rv = {'finished': True}
         return rv
 
     # test each callback for failure, errors, completion, results etc
