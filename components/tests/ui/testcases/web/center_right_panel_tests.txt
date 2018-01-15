@@ -134,18 +134,6 @@ Test Download Menu
     Download Option Available       Export as PNG
     Download Option Available       Export as TIFF
 
-    # Big Image
-    Go To                           ${WELCOME URL}
-    Select And Expand Node          Big Images
-    Select First Image
-    Show Download Menu
-    Download Option Available       Download...
-    Download Option Available       Download Original Metadata
-    Download Option Not Available   Export as OME-TIFF...
-    Download Option Available       Export as JPEG
-    Download Option Available       Export as PNG
-    Download Option Available       Export as TIFF
-
     # SPW Well
     Select First Plate With Name    ${PLATE_NAME}
     Select First Run
@@ -166,6 +154,20 @@ Test Download Menu
     Download Option Not Available   Download...
     Download Option Not Available   Download Original Metadata
     Download Option Available       Export as OME-TIFF...
+    Download Option Available       Export as JPEG
+    Download Option Available       Export as PNG
+    Download Option Available       Export as TIFF
+
+Test Download Big images
+
+    Go To                           ${WELCOME URL}
+    Select Experimenter
+    Select And Expand Node          Big Images
+    Select First Image
+    Show Download Menu
+    Download Option Available       Download...
+    Download Option Available       Download Original Metadata
+    Download Option Not Available   Export as OME-TIFF...
     Download Option Available       Export as JPEG
     Download Option Available       Export as PNG
     Download Option Available       Export as TIFF
