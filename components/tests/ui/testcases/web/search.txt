@@ -101,7 +101,7 @@ For-Loop-In-Range-Search-Keywords-Error-Or-Alert-Expected
     
     : FOR    ${INDEX}    IN    @{SearchKeyWords}
     \   ${ITERATION}=     Evaluate    ${ITERATION}+${1}
-    \   Input Text      name=query          ${INDEX}
+    \   Input Text      name=search_query          ${INDEX}
     \   Click Button    id=search_button
     
     \   ${status}   Run Keyword And Return Status  Click Element   ${AlertWindow}
@@ -119,7 +119,7 @@ For-Loop-In-Range-Search-Keywords-No-Error-Or-Alert-Expected
     
     : FOR    ${INDEX}    IN    @{SearchKeyWords1}
     \   ${ITERATION}=     Evaluate    ${ITERATION}+${1}
-    \   Input Text      name=query          ${INDEX}
+    \   Input Text      name=search_query          ${INDEX}
     \   Click Button    id=search_button
     
     \   ${status}   Run Keyword And Return Status  Click Element   ${AlertWindow}
