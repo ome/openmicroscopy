@@ -16,7 +16,7 @@ Launch Tag Dialog
 
 Check For Tag
     [Arguments]                             ${tagText}
-    Wait Until Page Contains Element        xpath=//div[@class='tag']/a[contains(text(), '${tagText}')]  10
+    Wait Until Page Contains Element        xpath=//div[@class='tag']/a[contains(text(), '${tagText}')]  ${WAIT}
 
 Check No Tag
     [Arguments]                             ${tagText}
@@ -41,11 +41,10 @@ Test Tag Dialog
     Input Text                                  id_tag     robotTagTest${pid}TagOne
     Click Element                               id_add_new_tag
     Click Dialog Button                         Save
-    Check For Tag                               robotTagTest${pid}TagOne
     # Refresh (select other Project and re-select)
     ${nodeId}=                                  Select Project By Id     ${projectId}
     Wait Until Right Panel Loads                Project                  ${projectId}
-    Select Project By Id                        ${pId}
+
     # Check and add another Tag, remove first one
     Check For Tag                               robotTagTest${pid}TagOne
     Launch Tag Dialog
@@ -58,6 +57,9 @@ Test Tag Dialog
     Page Should Not Contain Element             xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
     # Save - check Tag added and Tag removed
     Click Dialog Button                         Save
+    # Refresh (select other Project and re-select)
+    ${nodeId}=                                  Select Project By Id     ${projectId}
+    Wait Until Right Panel Loads                Project                  ${projectId}
     Check For Tag                               robotTagTest${pid}TagTwo
     Check No Tag                                robotTagTest${pid}TagOne
 
@@ -126,6 +128,10 @@ Test Tag Removal
     Input Text                                  id_tag     removeTest${pid}One
     Click Element                               id_add_new_tag
     Click Dialog Button                         Save
+    # Refresh (select other Project and re-select)
+    ${nodeId}=                                  Select Project By Id     ${projectId}
+    Wait Until Right Panel Loads                Project                  ${projectId}
+
     Check For Tag                               removeTest${pid}One
     # Click (-) button on Tag to remove
     Click Element                               xpath=//div[@class='tag'][descendant::a[contains(text(), 'removeTest${pid}One')]]/span[@title='Remove Tag']
