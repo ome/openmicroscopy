@@ -423,9 +423,12 @@ Test Key Word Search
     Should Be True                      ${rows2}>=${rows1}
     Should Be True                      ${rows2}>=${rows1}
 
-Test All Keywords
+Test All Keywords Error
 
     For-Loop-In-Range-Search-Keywords-Error-Or-Alert-Expected
+
+Test All Keywords No Error
+
     For-Loop-In-Range-Search-Keywords-No-Error-Or-Alert-Expected
 
 [Teardown]    Close Browser    
