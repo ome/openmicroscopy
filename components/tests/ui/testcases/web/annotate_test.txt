@@ -268,11 +268,6 @@ Test Filter Rating
     Wait Until Element Is Not Visible           id=image_icon-${imageId3}
     Count Thumbs Without Class                  ratingFilter_hidden     1
 
-    # Clear filtering
-    Click Element                               xpath=//div[@id='filterrating']/span[contains(@class, 'removefilter')]
-    Wait Until Element Is Visible               id=image_icon-${imageId2}
-    Count Thumbs With Class                     ratingFilter_hidden     0
-
     # Finally, select the original images and remove rating from ALL
     Click Node                                  ${nodeId}
     Meta Click Node                             ${nodeId2}
