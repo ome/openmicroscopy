@@ -107,19 +107,6 @@ Test Annotate
     Submit Form                                 add_comment_form
     Wait Until Page Contains                    test add comment
 
-    # Tags
-    Click Element                               xpath=//h1[@data-name='tags']
-    Click Element                               launch_tags_form
-    # Wait for tag panel being loded
-    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
-    Wait Until Keyword Succeeds                 ${TIMEOUT}  ${INTERVAL}   Page Should Not Contain Element     xpath=//div[@class='progress-label']
-    Page Should Contain Element                 id_tag
-
-    Input Text                                  id_tag     testSeleniumTag${pid}
-    Click Element                               id_add_new_tag
-    Click Dialog Button                         Save
-    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]    ${WAIT}
-
     # Files
     Click Element                               xpath=//h1[@data-name='attachments']
     Click Element                               choose_file_anns
@@ -144,19 +131,6 @@ Test Batch Annotate
     Input Text                                  comment     test add comment
     Submit Form                                 add_comment_form
     Wait Until Page Contains                    test add comment
-
-    # Tags
-    Click Element                               xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Tags')]
-    Wait Until Element Is Visible               id=launch_tags_form
-    Click Element                               launch_tags_form
-    Wait Until Page Contains Element            id_tag
-    # Wait for tag panel being loded
-    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
-    Wait Until Keyword Succeeds                 ${TIMEOUT}  ${INTERVAL}   Page Should Not Contain Element     xpath=//div[@class='progress-label']
-    Input Text                                  id_tag     testSeleniumTag${pid}
-    Click Element                               id_add_new_tag
-    Click Dialog Button                         Save
-    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]    ${WAIT}
 
     # Files
     Click Element                               xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Attachments')]
