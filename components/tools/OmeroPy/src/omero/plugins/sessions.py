@@ -42,7 +42,7 @@ from omero.rtypes import rlong
 from omero.rtypes import unwrap
 from omero.util import get_user
 from omero.util.sessions import SessionsStore
-from omero.cli import BaseControl, CLI
+from omero.cli import UserGroupControl, CLI
 from omero_ext.argparse import SUPPRESS
 
 HELP = """Control and create user sessions
@@ -155,7 +155,7 @@ can be considered "online".
 """
 
 
-class SessionsControl(BaseControl):
+class SessionsControl(UserGroupControl):
 
     FACTORY = SessionsStore
 
@@ -248,11 +248,8 @@ class SessionsControl(BaseControl):
             self._configure_dir(x)
 
         open = parser.add(sub, self.open, "Create a session for "
-                                          "the given user")
-        open.add_argument("username", nargs="?", help="The username")
-        open.add_argument("groupname", nargs="?",
-                          help="The groupname (optional; default: the user's "
-                               "default group)")
+                                          "the given user and group")
+        self.add_user_and_group_arguments(open)
         open.add_argument("--timeout", nargs="?", type=int, default=0,
                           help="Timeout in seconds (optional; default: "
                                "maximum possible)")
@@ -280,19 +277,56 @@ class SessionsControl(BaseControl):
 
     def open(self, args):
         client = self.ctx.conn(args)
+        admin = client.sf.getAdminService()
+
+        user1 = None
+        user2 = None
+        group1 = None
+        group2 = None
+
+        if args.user_id:
+            uid, user1 = self.find_user(admin, args.user_id)
+        if args.user_name:
+            uid, user2 = self.find_user(admin, args.user_name)
+        if user1 is not None and user2 is not None and user1 != user2:
+            self.ctx.die(515, "User ID and user name does not match. "
+                         "Use either ID or name or matching ID and name.")
+
+        if args.group_id:
+            gid, group1 = self.find_group(admin, args.group_id)
+        if args.group_name:
+            gid, group2 = self.find_group(admin, args.group_name)
+        if group1 is not None and group2 is not None and group1 != group2:
+            self.ctx.die(505, "Group ID and group name does not match. "
+                         "Use either ID or name or matching ID and name.")
+
+        username = None
+        if user1:
+            username = user1.omeName.val
+        elif user2:
+            username = user2.omeName.val
+        if username is None:
+            self.ctx.die(511, "No user specified.")
+
+        groupname = None
+        if group1:
+            groupname = group1.name.val
+        elif group2:
+            groupname = group2.name.val
+
         p = omero.sys.Principal()
-        p.name = args.username
-        if args.groupname:
-            p.group = args.groupname
+        p.name = username
+        if groupname:
+            p.group = groupname
         p.eventType = "User"
         svc = client.sf.getSessionService()
         sessId = svc.createSessionWithTimeout(p, (int(args.timeout)
                                                   * 1000))
-        if args.groupname:
+        if groupname:
             self.ctx.out("Session created for user %s in group %s" %
-                         (args.username, args.groupname))
+                         (username, groupname))
         else:
-            self.ctx.out("Session created for user %s" % args.username)
+            self.ctx.out("Session created for user %s" % username)
         self.ctx.out("Session ID: %s" % sessId.getUuid().val)
 
     def close(self, args):
@@ -675,7 +709,7 @@ class SessionsControl(BaseControl):
         try:
             obj = svc.getSession(uuid)
         except:
-            self.ctx.dbg(traceback.forhmat_exc())
+            self.ctx.dbg(traceback.format_exc())
             self.ctx.die(557, "cannot get session: %s" % uuid)
 
         if args.seconds is None:
