@@ -18,7 +18,7 @@ ${PLATE_NAME}               spwTests
 
 Check Image Viewer
     [Arguments]                         ${title}    ${datasetId}
-    # Wait untill popup windows is fully initialiazed
+    # Wait until popup windows is fully initialized
     # Image Viewer title is the image name.
     Wait Until Keyword Succeeds  ${TIMEOUT}     ${INTERVAL}     Select Window   title=${title}
     # Loading of image within viewport indicates all is OK
