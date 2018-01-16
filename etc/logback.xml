@@ -88,6 +88,7 @@
   <!-- Often useful to change to DEBUG -->
   <logger name="omero.cmd" level="INFO"/>
   <logger name="omero.cmd.graphs" level="INFO"/>
+  <logger name="ome.model.internal.BooleanArrayCache" level="DEBUG"/>
   <logger name="ome.services.graphs" level="INFO"/>
   <logger name="ome.services.delete" level="INFO"/>
   <!-- Adapters are also too so is a bit verbose -->
