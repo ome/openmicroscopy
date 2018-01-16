@@ -76,7 +76,7 @@ import omero.gateway.util.PojoMapper;
 
 /**
  * A {@link Facility} for ROI.
- * 
+ *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
@@ -86,10 +86,10 @@ public class ROIFacility extends Facility {
 
     /** Reference to the DataManagerFacility */
     private DataManagerFacility dm;
-    
+
     /** Reference to the BrowseFacility */
     private BrowseFacility browse;
-    
+
     /**
      * Creates a new instance
      * @param gateway Reference to the {@link Gateway}
@@ -100,11 +100,11 @@ public class ROIFacility extends Facility {
         this.dm = gateway.getFacility(DataManagerFacility.class);
         this.browse = gateway.getFacility(BrowseFacility.class);
     }
-    
+
     /**
      * Get the number of ROIs for an image (<code>-1</code>
      * in case of error)
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param imageId
@@ -117,7 +117,7 @@ public class ROIFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         if (imageId < 0)
             return -1;
-        
+
         try {
             ParametersI p = new ParametersI();
             p.addId(imageId);
@@ -145,7 +145,7 @@ public class ROIFacility extends Facility {
     }
 
     /**
-     * Loads the ROI 
+     * Loads the ROI
      *
      * @param ctx
      *            The security context.
@@ -162,7 +162,7 @@ public class ROIFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         if (roiId < 0)
             return null;
-        
+
         try {
             IRoiPrx svc = gateway.getROIService(ctx);
             RoiOptions options = new RoiOptions();
@@ -175,7 +175,7 @@ public class ROIFacility extends Facility {
         }
         return null;
     }
-    
+
     /**
      * Loads the ROI related to the specified image.
      *
@@ -199,7 +199,7 @@ public class ROIFacility extends Facility {
         List<ROIResult> results = new ArrayList<ROIResult>();
         if (imageID < 0)
             return results;
-        
+
         try {
             IRoiPrx svc = gateway.getROIService(ctx);
             RoiOptions options = new RoiOptions();
@@ -212,7 +212,7 @@ public class ROIFacility extends Facility {
         return results;
     }
 
-    
+
     /**
      * Loads the ROI related to the specified image.
      *
@@ -276,7 +276,7 @@ public class ROIFacility extends Facility {
         List<ROIResult> results = new ArrayList<ROIResult>();
         if (imageID < 0)
             return results;
-        
+
         try {
             IRoiPrx svc = gateway.getROIService(ctx);
             RoiOptions options = new RoiOptions();
@@ -305,19 +305,19 @@ public class ROIFacility extends Facility {
                     results.add(result);
                 }
             }
-            
+
             // load the ROI folders
             Collection<FolderData> folders = browse.getFolders(ctx);
             for(ROIResult rr : results)
                 rr.setFolders(folders);
-            
+
         } catch (Exception e) {
             handleException(this, e, "Cannot load the ROI for image: "
                     + imageID);
         }
         return results;
     }
-    
+
     /**
      * Save the ROI for the image to the server.
      *
@@ -343,7 +343,7 @@ public class ROIFacility extends Facility {
 
     /**
      * Adds ROIs to Folders
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param imageID
@@ -361,10 +361,10 @@ public class ROIFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         return addRoisToFolders(ctx, imageID, roiList, folders, false);
     }
-    
+
     /**
      * Adds ROIs to Folders
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param imageID
@@ -385,7 +385,7 @@ public class ROIFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         if (CollectionUtils.isEmpty(roiList) || CollectionUtils.isEmpty(folders))
             return Collections.emptyMap();
-        
+
         try {
             // 1. Save unsaved folders
             List<FolderData> savedFolders = new ArrayList<FolderData>();
@@ -417,7 +417,7 @@ public class ROIFacility extends Facility {
                 if (!d.isClientSide())
                     ids.add(d.getId());
             }
-            
+
             // Reload the folders
             Collection<FolderData> foldersReloaded = savedFolders.isEmpty() ? savedFolders
                     : gateway.getFacility(BrowseFacility.class).getFolders(ctx,
@@ -440,7 +440,7 @@ public class ROIFacility extends Facility {
                 for (IObject t : tmp)
                     rois.add((Roi) t);
             }
-            
+
             // 3. Link Rois to Folders
             List<IObject> toSave = new ArrayList<IObject>();
             for (Roi roi : rois) {
@@ -480,7 +480,7 @@ public class ROIFacility extends Facility {
                     getById(result, fd).add(rd);
                 }
             }
-            
+
             return result;
 
         } catch (Exception e) {
@@ -488,12 +488,12 @@ public class ROIFacility extends Facility {
             return Collections.EMPTY_MAP;
         }
     }
-    
+
     /**
      * Helper method for accessing the ROIData collection of a
      * FolderData->Collection<ROIData> map by using the FolderData id.
      * If it doesn't exist yet, it will be created and added to the map.
-     * 
+     *
      * @param map
      *            The Map
      * @param f
@@ -515,7 +515,7 @@ public class ROIFacility extends Facility {
 
     /**
      * Remove the ROIs from the folders
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param imageID
@@ -532,7 +532,7 @@ public class ROIFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         if (CollectionUtils.isEmpty(roiList) || CollectionUtils.isEmpty(folders))
             return;
-        
+
         try {
             Collection<Long> roiIds = Pojos.extractIds(roiList);
             Collection<Roi> serverRoiList = loadServerRois(ctx, roiIds);
@@ -568,7 +568,7 @@ public class ROIFacility extends Facility {
             handleException(this, e, "Cannot remove ROIs to Folder ");
         }
     }
-    
+
     /**
      * Save the ROI for the image to the server.
      *
@@ -593,11 +593,11 @@ public class ROIFacility extends Facility {
             DSAccessException {
         if (CollectionUtils.isEmpty(roiList))
             return Collections.emptyList();
-        
+
         try {
             IUpdatePrx updateService = gateway.getUpdateService(ctx);
             IRoiPrx svc = gateway.getROIService(ctx);
-            
+
             List<IObject> toSave = new ArrayList<IObject>();
 
             if (imageID < 0) {
@@ -607,7 +607,7 @@ public class ROIFacility extends Facility {
                                 "Modification of existing ROIs not attached to an image "
                                         + "is not implemented yet.");
                 }
-                
+
                 for (ROIData r : roiList)
                     toSave.add(r.asIObject());
             }
@@ -615,20 +615,20 @@ public class ROIFacility extends Facility {
                 RoiOptions options = new RoiOptions();
                 if (userID >= 0)
                     options.userId = omero.rtypes.rlong(userID);
-    
+
                 RoiResult serverReturn;
                 serverReturn = svc.findByImage(imageID, new RoiOptions());
                 Map<Long, Roi> roiMap = new HashMap<Long, Roi>();
                 List<Roi> serverRoiList = serverReturn.rois;
-                
+
                 /* Create a map of all the client roi with id as key */
                 Map<Long, ROIData> clientROIMap = new HashMap<Long, ROIData>();
                 for (ROIData roi : roiList) {
                     if (roi != null)
                         clientROIMap.put(roi.getId(), roi);
                 }
-    
-    
+
+
                 /* Create a map of the <id, serverROI>, but remove any roi from
                  * the server that should be deleted, before creating map.
                  * To delete an roi we first must delete all the roiShapes in
@@ -640,7 +640,7 @@ public class ROIFacility extends Facility {
                             roiMap.put(r.getId().getValue(), r);
                     }
                 }
-    
+
                 /* For each roi in the client, see what should be done:
                  * 1. Create a new roi if it does not exist.
                  * 2. build a map of the roiShapes in the clientROI with
@@ -662,7 +662,7 @@ public class ROIFacility extends Facility {
                 Shape s;
                 ROICoordinate coord;
                 int shapeIndex;
-    
+
                 List<Long> deleted = new ArrayList<Long>();
                 Image unloaded = new ImageI(imageID, false);
                 Roi rr;
@@ -679,13 +679,13 @@ public class ROIFacility extends Facility {
                         toSave.add(rr);
                         continue;
                     }
-    
+
                     /*
                      * Step 2. create the client roiShape map.
                      */
                     serverRoi = roiMap.get(roi.getId());
                     shapeIterator  = roi.getIterator();
-    
+
                     clientCoordMap = new HashMap<ROICoordinate, ShapeData>();
                     while (shapeIterator.hasNext()) {
                         shapeList = shapeIterator.next();
@@ -693,7 +693,7 @@ public class ROIFacility extends Facility {
                         if (shape != null)
                             clientCoordMap.put(shape.getROICoordinate(), shape);
                     }
-    
+
                     /*
                      * Step 3. create the server roiShape map.
                      */
@@ -742,7 +742,7 @@ public class ROIFacility extends Facility {
                             }
                         }
                     }
-    
+
                     /*
                      * Step 6. Check to see if the roi in the client has been updated
                      * if so replace the server roiShape with the client one.
@@ -780,7 +780,7 @@ public class ROIFacility extends Facility {
                                         }
                                     }
                                 }
-    
+
                                 if (shapeIndex == -1) {
                                     serverShape = null;
                                     shapeIndex = -1;
@@ -853,7 +853,7 @@ public class ROIFacility extends Facility {
                             }
                         }
                     }
-    
+
                     /*
                      * Step 7. update properties of ROI, if they are changed.
                      *
@@ -866,7 +866,7 @@ public class ROIFacility extends Facility {
                     }
                 }
             }
-            
+
             List<IObject> updated = updateService.saveAndReturnArray(toSave);
             Collection<ROIData> result = new ArrayList<ROIData>();
             for (IObject r : updated)
@@ -879,10 +879,10 @@ public class ROIFacility extends Facility {
         }
         return new ArrayList<ROIData>();
     }
-    
+
     /**
      * Get all ROI folders for a certain image
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param imageId
@@ -898,7 +898,7 @@ public class ROIFacility extends Facility {
             long imageId) throws DSOutOfServiceException, DSAccessException {
         if (imageId < 0)
             return Collections.emptyList();
-        
+
         try {
             IQueryPrx qs = gateway.getQueryService(ctx);
             StringBuilder sb = new StringBuilder();
@@ -943,7 +943,7 @@ public class ROIFacility extends Facility {
 
     /**
      * Get all ROIs which are part of a certain folder
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param imageId
@@ -962,11 +962,11 @@ public class ROIFacility extends Facility {
             DSAccessException {
         if (imageId < 0 && folderId < 0)
             return Collections.emptyList();
-        
+
         try {
             // TODO: This should actually happen on the server; replace
             //      with server-side method when available
-            
+
             // get all ROIResults
             List<ROIResult> roiresults = loadROIs(ctx, imageId);
 
@@ -1012,11 +1012,11 @@ public class ROIFacility extends Facility {
 
         return Collections.EMPTY_LIST;
     }
-    
+
     /**
      * Loads the Rois for the given ids (Note: Only the folderLinks are
      * initialized)
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ids
@@ -1030,7 +1030,7 @@ public class ROIFacility extends Facility {
             DSAccessException {
         if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
-        
+
         try {
             IQueryPrx service = gateway.getQueryService(ctx);
             ParametersI p = new ParametersI();

@@ -64,7 +64,7 @@ import omero.gateway.util.Pojos;
 /**
  * A {@link Facility} for browsing the data hierarchy and retrieving
  * {@link ProjectData}, {@link DatasetData}, etc.
- * 
+ *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
@@ -74,10 +74,10 @@ public class BrowseFacility extends Facility {
 
     /** MIME type for lookup tables */
     private static final String LUT_MIMETYPE = "text/x-lut";
-    
+
     /**
      * Creates a new instance
-     * 
+     *
      * @param gateway
      *            Reference to the {@link Gateway}
      */
@@ -103,7 +103,7 @@ public class BrowseFacility extends Facility {
             long userId) throws DSOutOfServiceException, DSAccessException {
         if (rootType == null)
             return Collections.emptySet();
-        
+
         ParametersI param = new ParametersI();
         if (userId >= 0) {
             param.exp(omero.rtypes.rlong(userId));
@@ -138,7 +138,7 @@ public class BrowseFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         if (rootType == null)
             return Collections.emptySet();
-        
+
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
             return PojoMapper.convertToDataObjects(service.loadContainerHierarchy(
@@ -197,7 +197,7 @@ public class BrowseFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         if (klass == null || id < 0)
             return null;
-        
+
         String klassName = PojoMapper.getModelType(klass).getSimpleName();
         IObject obj = findIObject(ctx, klassName, id, allGroups);
         if (obj == null)
@@ -248,7 +248,7 @@ public class BrowseFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         return findObject(ctx, pojoName, id, false);
     }
-    
+
     /**
      * Retrieves an updated version of the specified object.
      *
@@ -271,7 +271,7 @@ public class BrowseFacility extends Facility {
             DSAccessException {
         if (StringUtils.isBlank(klassName) || id < 0)
             return null;
-        
+
         try {
             Map<String, String> m = new HashMap<String, String>();
             if (allGroups) {
@@ -289,7 +289,7 @@ public class BrowseFacility extends Facility {
         }
         return null;
     }
-    
+
     /**
      * Retrieves an updated version of the specified object.
      *
@@ -315,7 +315,7 @@ public class BrowseFacility extends Facility {
             DSAccessException {
         if (StringUtils.isBlank(pojoName) || id < 0)
             return null;
-        
+
         try {
             Map<String, String> m = new HashMap<String, String>();
             if (allGroups) {
@@ -358,7 +358,7 @@ public class BrowseFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         if (o == null || o.getId() == null)
             return null;
-        
+
         try {
             IQueryPrx service = gateway.getQueryService(ctx);
             return service.find(o.getClass().getName(), o.getId().getValue());
@@ -390,7 +390,7 @@ public class BrowseFacility extends Facility {
         Set<GroupData> pojos = new HashSet<GroupData>();
         if (!Pojos.hasID(user))
             return pojos;
-        
+
         try {
             IQueryPrx service = gateway.getQueryService(ctx);
             // Need method server side.
@@ -425,7 +425,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Get all projects
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link ProjectData}s
@@ -441,7 +441,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Get the projects for the given project ids
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ids
@@ -460,7 +460,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Get the projects of a certain user
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ownerId The id of the user (if <code><0</code> see
@@ -479,7 +479,7 @@ public class BrowseFacility extends Facility {
                 param = new ParametersI();
                 param.exp(omero.rtypes.rlong(ownerId));
             }
-            
+
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> projects = service.loadContainerHierarchy(PojoMapper
                     .getModelType(ProjectData.class).getName(), null, param);
@@ -499,7 +499,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Get the projects for the given project ids which belong to a certain user
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ownerId The id of the user (if <code><0</code> see
@@ -511,13 +511,13 @@ public class BrowseFacility extends Facility {
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
-     *             service. 
+     *             service.
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx,
             long ownerId, Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
-        
+
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
 
@@ -551,7 +551,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Loads all datasets
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link DatasetData}s
@@ -567,7 +567,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Loads the datasets with the given ids
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ids
@@ -586,7 +586,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Loads the datasets for a particular user
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ownerId
@@ -606,7 +606,7 @@ public class BrowseFacility extends Facility {
                 param = new ParametersI();
                 param.exp(omero.rtypes.rlong(ownerId));
             }
-            
+
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
                     .getModelType(DatasetData.class).getName(), null, param);
@@ -626,7 +626,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Loads the datasets with the given ids which belong to a particular user
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ownerId The id of the user (if <code><0</code> see
@@ -644,7 +644,7 @@ public class BrowseFacility extends Facility {
             long ownerId, Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
-        
+
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
 
@@ -677,7 +677,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Loads all screens
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link ScreenData}s
@@ -693,7 +693,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Loads the screens with the given ids
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ids
@@ -712,7 +712,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Loads the screens for a particular user
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ownerId The id of the user (if <code><0</code> see
@@ -722,7 +722,7 @@ public class BrowseFacility extends Facility {
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
-     *             service. 
+     *             service.
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
@@ -731,7 +731,7 @@ public class BrowseFacility extends Facility {
                 param = new ParametersI();
                 param.exp(omero.rtypes.rlong(ownerId));
             }
-            
+
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> screens = service.loadContainerHierarchy(PojoMapper
                     .getModelType(ScreenData.class).getName(), null, param);
@@ -751,7 +751,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Loads the screens with the given ids which belong to a particular user
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ownerId The id of the user (if <code><0</code> see
@@ -769,7 +769,7 @@ public class BrowseFacility extends Facility {
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
-        
+
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
 
@@ -782,7 +782,7 @@ public class BrowseFacility extends Facility {
                 param = new ParametersI();
                 param.exp(omero.rtypes.rlong(ownerId));
             }
-            
+
             List<IObject> screens = service.loadContainerHierarchy(PojoMapper
                     .getModelType(ScreenData.class).getName(), idsList, param);
 
@@ -803,7 +803,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Loads all plates
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link PlateData}s
@@ -819,7 +819,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Loads the plates with the given ids
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ids
@@ -829,7 +829,7 @@ public class BrowseFacility extends Facility {
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
-     *             service. 
+     *             service.
      */
     public Collection<PlateData> getPlates(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
@@ -838,7 +838,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Loads the plates for a particular user
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ownerId The id of the user (if <code><0</code> see
@@ -848,7 +848,7 @@ public class BrowseFacility extends Facility {
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
-     *             service. 
+     *             service.
      */
     public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
@@ -857,7 +857,7 @@ public class BrowseFacility extends Facility {
                 param = new ParametersI();
                 param.exp(omero.rtypes.rlong(ownerId));
             }
-            
+
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> plates = service.loadContainerHierarchy(PojoMapper
                     .getModelType(PlateData.class).getName(), null, param);
@@ -877,7 +877,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Loads the plates with the given ids which belong to a particular user
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ownerId The id of the user (if <code><0</code> see
@@ -889,13 +889,13 @@ public class BrowseFacility extends Facility {
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
-     *             service. 
+     *             service.
      */
     public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
-        
+
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
 
@@ -908,7 +908,7 @@ public class BrowseFacility extends Facility {
                 param = new ParametersI();
                 param.exp(omero.rtypes.rlong(ownerId));
             }
-            
+
             List<IObject> plates = service.loadContainerHierarchy(PojoMapper
                     .getModelType(PlateData.class).getName(), idsList, param);
 
@@ -927,7 +927,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Loads the wells
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param wellIds
@@ -973,9 +973,9 @@ public class BrowseFacility extends Facility {
         }
         return result;
     }
-    
+
     /**
-     * Loads the wells for a given plate 
+     * Loads the wells for a given plate
      * @param ctx The {@link SecurityContext}
      * @param plateId The ID of the plate
      * @return A collection of {@link WellData}s
@@ -987,10 +987,10 @@ public class BrowseFacility extends Facility {
      */
     public Collection<WellData> getWells(SecurityContext ctx, long plateId) throws DSOutOfServiceException, DSAccessException {
         Collection<WellData> result = new ArrayList<WellData>();
-        
+
         if (plateId < 0)
             return result;
-        
+
         try {
             IQueryPrx proxy = gateway.getQueryService(ctx);
             StringBuilder sb = new StringBuilder();
@@ -1017,12 +1017,12 @@ public class BrowseFacility extends Facility {
         }
         return result;
     }
-    
+
     /** Load Images */
 
     /**
      * Loads all images of the logged in user
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link ImageData}s
@@ -1036,9 +1036,9 @@ public class BrowseFacility extends Facility {
         try {
             ParametersI param = new ParametersI();
             param.grp(omero.rtypes.rlong(ctx.getGroupID()));
-            if (ctx.getExperimenter() >= 0) 
+            if (ctx.getExperimenter() >= 0)
                 param.exp(omero.rtypes.rlong(ctx.getExperimenter()));
-            
+
             IContainerPrx service = gateway.getPojosService(ctx);
             List<Image> images = service.getUserImages(param);
 
@@ -1057,7 +1057,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Loads a image
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param id
@@ -1072,13 +1072,13 @@ public class BrowseFacility extends Facility {
     public ImageData getImage(SecurityContext ctx, long id) throws DSOutOfServiceException, DSAccessException {
         if (id < 0)
             return null;
-        
+
         return getImages(ctx, Collections.singleton(id)).iterator().next();
     }
-    
+
     /**
      * Loads a image
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param id
@@ -1095,14 +1095,14 @@ public class BrowseFacility extends Facility {
     public ImageData getImage(SecurityContext ctx, long id, ParametersI params) throws DSOutOfServiceException, DSAccessException {
         if (id < 0)
             return null;
-        
+
         return getImages(ctx, Collections.singleton(id), params).iterator()
                 .next();
     }
 
     /**
      * Loads the images with the given ids
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ids
@@ -1118,13 +1118,13 @@ public class BrowseFacility extends Facility {
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
-        
+
         return getImages(ctx, ids, null);
     }
-    
+
     /**
      * Loads the images with the given ids
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ids
@@ -1142,7 +1142,7 @@ public class BrowseFacility extends Facility {
             Collection<Long> ids, ParametersI params) throws DSOutOfServiceException, DSAccessException {
         if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
-        
+
         try {
             List<Long> idsList = new ArrayList<Long>(ids.size());
             for (long id : ids)
@@ -1165,10 +1165,10 @@ public class BrowseFacility extends Facility {
 
         return Collections.emptyList();
     }
-    
+
     /**
      * Get orphaned images for a certain user
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param userID
@@ -1203,7 +1203,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Loads the images for a particular user
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ownerId
@@ -1220,14 +1220,14 @@ public class BrowseFacility extends Facility {
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
-        
+
         try {
             ParametersI param = null;
             if (ownerId >= 0) {
                 param = new ParametersI();
                 param.exp(omero.rtypes.rlong(ownerId));
             }
-            
+
             List<Long> idsList = new ArrayList<Long>(ids.size());
             for (long id : ids)
                 idsList.add(id);
@@ -1252,7 +1252,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Load all images belonging to particular datasets
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param datasetIds
@@ -1268,7 +1268,7 @@ public class BrowseFacility extends Facility {
             Collection<Long> datasetIds) throws DSOutOfServiceException, DSAccessException {
         if (CollectionUtils.isEmpty(datasetIds))
             return Collections.emptyList();
-        
+
         try {
             Collection<ImageData> result = new ArrayList<ImageData>();
 
@@ -1290,7 +1290,7 @@ public class BrowseFacility extends Facility {
 
     /**
      * Load all images belonging to particular projects
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param projectIds
@@ -1306,7 +1306,7 @@ public class BrowseFacility extends Facility {
             Collection<Long> projectIds) throws DSOutOfServiceException, DSAccessException {
         if (CollectionUtils.isEmpty(projectIds))
             return Collections.emptyList();
-        
+
         try {
             Collection<ProjectData> projects = getProjects(ctx, projectIds);
             Collection<Long> dsIds = new ArrayList<Long>();
@@ -1321,12 +1321,12 @@ public class BrowseFacility extends Facility {
 
         return Collections.emptyList();
     }
-    
+
     /**
      * Loads the folders for the given Ids. {@link FolderData} objects will be
      * fully initialized. (See {@link #getFolders(SecurityContext, Collection)} for
      * a faster but not fully initialized method)
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ids
@@ -1343,7 +1343,7 @@ public class BrowseFacility extends Facility {
             DSAccessException {
         if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
-        
+
         try {
             IQueryPrx qs = gateway.getQueryService(ctx);
             ParametersI param = new ParametersI();
@@ -1372,13 +1372,13 @@ public class BrowseFacility extends Facility {
 
         return Collections.emptyList();
     }
-    
+
     /**
      * Get all folders the logged in user has access to. Note:
      * {@link FolderData} objects won't be fully initialized (i. e. sub folder,
      * roi, etc. collections will be unloaded!). If you need fully initialized objects
      * see {@link #loadFolders(SecurityContext, Collection)}.
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above
@@ -1394,14 +1394,14 @@ public class BrowseFacility extends Facility {
             IQueryPrx qs = gateway.getQueryService(ctx);
             List<IObject> list = qs.findAllByQuery(
                     "select folder from Folder as folder ", null);
-            
+
             Collection<FolderData> result = new ArrayList<FolderData>(
                     list.size());
             for (IObject obj : list)
                 result.add(new FolderData((Folder) obj));
 
             return result;
-            
+
         } catch (Throwable e) {
             handleException(this, e, "Cannot load folders.");
         }
@@ -1414,7 +1414,7 @@ public class BrowseFacility extends Facility {
      * {@link FolderData} objects won't be fully initialized (i. e. sub folder,
      * roi, etc. collections will be unloaded!). If you need fully initialized objects
      * see {@link #loadFolders(SecurityContext, Collection)}.
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param ids
@@ -1431,7 +1431,7 @@ public class BrowseFacility extends Facility {
             DSAccessException {
         if (CollectionUtils.isEmpty(ids))
             return Collections.emptyList();
-        
+
         try {
             IQueryPrx qs = gateway.getQueryService(ctx);
             ParametersI param = new ParametersI();
@@ -1441,14 +1441,14 @@ public class BrowseFacility extends Facility {
                             "select folder from Folder as folder "
                                     + "where folder.id in (:ids)",
                             param);
-            
+
             Collection<FolderData> result = new ArrayList<FolderData>(
                     list.size());
             for (IObject obj : list)
                 result.add(new FolderData((Folder) obj));
 
             return result;
-            
+
         } catch (Throwable e) {
             handleException(this, e, "Cannot load folders.");
         }
@@ -1461,7 +1461,7 @@ public class BrowseFacility extends Facility {
      * {@link FolderData} objects won't be fully initialized (i. e. sub folder,
      * roi, etc. collections will be unloaded!). If you need fully initialized objects
      * see {@link #loadFolders(SecurityContext, Collection)}.
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param userId
@@ -1491,17 +1491,17 @@ public class BrowseFacility extends Facility {
                 result.add(new FolderData((Folder) obj));
 
             return result;
-            
+
         } catch (Throwable e) {
             handleException(this, e, "Cannot load folders.");
         }
 
         return Collections.emptyList();
     }
-    
+
     /**
      * Get the available lookup tables
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @return See above

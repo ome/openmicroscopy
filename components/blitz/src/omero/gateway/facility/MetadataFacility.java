@@ -73,7 +73,7 @@ public class MetadataFacility extends Facility {
 
     /**
      * Loads the {@link ImageAcquisitionData} for a specific image
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param imageId
@@ -83,13 +83,13 @@ public class MetadataFacility extends Facility {
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
-     *             service. 
+     *             service.
      */
     public ImageAcquisitionData getImageAcquisitionData(SecurityContext ctx,
             long imageId) throws DSOutOfServiceException, DSAccessException {
         if(imageId < 0)
             return null;
-        
+
         ParametersI params = new ParametersI();
         params.acquisitionData();
         ImageData img = browse.getImage(ctx, imageId, params);
@@ -98,7 +98,7 @@ public class MetadataFacility extends Facility {
 
     /**
      * Get the {@link ChannelData} for a specific image
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param imageId
@@ -108,14 +108,14 @@ public class MetadataFacility extends Facility {
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
-     *             service. 
+     *             service.
      */
     public List<ChannelData> getChannelData(SecurityContext ctx, long imageId)
             throws DSOutOfServiceException, DSAccessException {
         List<ChannelData> result = new ArrayList<ChannelData>();
         if(imageId < 0)
             return result;
-        
+
         try {
             ImageData img = browse.getImage(ctx, imageId);
 
@@ -132,7 +132,7 @@ public class MetadataFacility extends Facility {
 
         return result;
     }
-    
+
     /**
      * Get all annotations for the given {@link DataObject}
      * @param ctx The {@link SecurityContext}
@@ -152,7 +152,7 @@ public class MetadataFacility extends Facility {
 
     /**
      * Get the annotations for the given {@link DataObject}
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param object
@@ -176,7 +176,7 @@ public class MetadataFacility extends Facility {
             DSAccessException {
         if (!Pojos.hasID(object))
             return Collections.emptyList();
-        
+
         Map<DataObject, List<AnnotationData>> result = getAnnotations(ctx,
                 Arrays.asList(new DataObject[] { object }), annotationTypes,
                 userIds);
@@ -185,7 +185,7 @@ public class MetadataFacility extends Facility {
 
     /**
      * Get the annotations for the given {@link DataObject}s
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param objects
@@ -212,7 +212,7 @@ public class MetadataFacility extends Facility {
         Map<DataObject, List<AnnotationData>> result = new HashMap<DataObject, List<AnnotationData>>();
         if (CollectionUtils.isEmpty(objects))
             return result;
-        
+
         String type = null;
         List<Long> ids = new ArrayList<Long>();
         for (DataObject obj : objects) {
