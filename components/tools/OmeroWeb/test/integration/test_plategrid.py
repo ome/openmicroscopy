@@ -298,10 +298,10 @@ class TestPlateGrid(object):
                 if len(well_samples) > field:
                     img = well_samples[field].getImage()
                     assert well_metadata['name'] == img.name.val
-                    # by default thumbprefix is not set,
-                    # thumbnail url is not restored
-                    # this is string, see PlateGrid
-                    assert well_metadata['thumb_url'] == str(img.id.val)
+                    # expect default thumbnail (no size specified)
+                    assert well_metadata['thumb_url'] ==\
+                        reverse('webgateway.views.render_thumbnail',
+                                args=[img.id.val])
 
     def test_well_images(self, django_client, plate_wells, conn):
         """
