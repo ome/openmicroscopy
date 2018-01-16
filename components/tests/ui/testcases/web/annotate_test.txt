@@ -275,7 +275,7 @@ Test Filter Rating
     Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]    timeout=${TIMEOUT}
     Page Should Contain Element                 locator=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     limit=3
     Wait Until Keyword Succeeds     ${TIMEOUT}  ${INTERVAL}   Mouse Over                                  xpath=//div[@id='rating_annotations']//li[contains(@class, 'myRating')]
-    Wait Until Keyword Succeeds     ${TIMEOUT}  ${INTERVAL}   Click Element                               xpath=//div[@id='rating_annotations']//a[contains(@class, 'removeRating')]
+    Wait Until Keyword Succeeds     ${TIMEOUT}  ${INTERVAL}   Mouse Down On Link                               xpath=//div[@id='rating_annotations']//a[contains(@class, 'removeRating')]
     # Check rating was removed from first image
     Click Node                                  ${nodeId}
     Wait Until Element Is Visible               id=rating_annotations    timeout=${TIMEOUT}
