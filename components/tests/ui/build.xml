@@ -50,6 +50,19 @@
         </sequential>
     </macrodef>
 
+    <!-- run pabot with various arguments. Used to run web tests.-->
+    <macrodef name="run_pabot">
+        <attribute name="failonerror" default="true"/>
+        <attribute name="output"/>
+        <element name="args" implicit="true"/>
+        <sequential>
+            <exec executable="pabot" failonerror="@{failonerror}" dir="${output}">
+                <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>
+                 <args/>
+            </exec>
+        </sequential>
+    </macrodef>
+
     <!-- point the build file used to generate the ui libraries -->
     <macrodef name="librarybuild">
         <attribute name="target"/>
@@ -213,7 +226,13 @@
         <antcall target="web-chrome" inheritRefs="true" inheritAll="true"/>
     </target>
 
-   <!-- test with firefox -->
+    <!--  run all the web tests with pabot-->
+    <target name="ui-test-web-pabot">
+        <antcall target="web-firefox-pabot" inheritRefs="true" inheritAll="true"/>
+        <antcall target="web-chrome-pabot" inheritRefs="true" inheritAll="true"/>
+    </target>
+
+    <!-- test with firefox -->
     <target name="web-firefox" depends="check-config-file">
         <var name="output" value="${reports.web}/firefox"/>
         <mkdir dir="${output}"/>
@@ -264,9 +283,64 @@
                 <move file="${google.log}" todir="${reports.web}/chrome"/>
             </then>
         </if>
-        
     </target>
 
+    <!-- test with firefox and pabot -->
+    <target name="web-firefox-pabot" depends="check-config-file">
+        <var name="output" value="${reports.web}/firefox"/>
+        <mkdir dir="${output}"/>
+        <var name="target" value="web/"/>
+        <if><isset property="TEST"/>
+            <then>
+                <var name="target" value="web/${TEST}"/>
+            </then>
+        </if>
+        
+        <run_pabot failonerror="${test.with.fail}" output="${output}">
+            <arg value="--processes"/>
+            <arg value="3"/>
+            <arg value="--outputdir"/>
+            <arg value="${output}"/>
+            <arg value="-v"/>
+            <arg value="browser:firefox"/>
+            <arg value="-v"/>
+            <arg value="DELAY:0.2"/>
+            <arg value="--loglevel"/>
+            <arg value="debug"/>
+            <arg value="${basedir}/testcases/${target}"/>
+        </run_pabot>
+    </target>
+
+    <!-- test with chrome and pabot. This requires the chrome driver to be installed-->
+    <target name="web-chrome-pabot" depends="check-config-file">
+        <var name="output" value="${reports.web}/chrome"/>
+        <mkdir dir="${output}"/>
+        <var name="target" value="web/"/>
+        <if><isset property="TEST"/>
+            <then>
+                <var name="target" value="web/${TEST}"/>
+            </then>
+        </if>
+        <run_pabot failonerror="${test.with.fail}" output="${output}">
+            <arg value="--processes"/>
+            <arg value="3"/>
+            <arg value="--outputdir"/>
+            <arg value="${output}"/>
+            <arg value="-v"/>
+            <arg value="browser:chrome"/>
+            <arg value="-v"/>
+            <arg value="DELAY:0.2"/>
+            <arg value="--loglevel"/>
+            <arg value="debug"/>
+            <arg value="${basedir}/testcases/${target}"/>
+        </run_pabot>
+        <if>
+            <available file="${google.log}"/>
+            <then>
+                <move file="${google.log}" todir="${reports.web}/chrome"/>
+            </then>
+        </if>
+    </target>
     <target name="tests-dist">
         <librarybuild target="dist"/>
     </target>
