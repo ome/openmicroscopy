@@ -83,7 +83,8 @@ class TestUtilScripts(ScriptTest):
         assert combine_img is not None
         assert combine_img.getValue().id.val > 0
 
-    def test_images_from_rois(self):
+    @pytest.mark.parametrize("imageStack", [True, False])
+    def test_images_from_rois(self, imageStack):
         script_id = super(TestUtilScripts, self).get_script(images_from_rois)
         assert script_id > 0
         # root session is root.sf
@@ -92,7 +93,8 @@ class TestUtilScripts(ScriptTest):
 
         size_x = 100
         size_y = 100
-        image = self.create_test_image(size_x, size_y, 5, 1, 1)    # x,y,z,c,t
+        size_z = 5
+        image = self.create_test_image(size_x, size_y, size_z, 1, 1)    # x,y,z,c,t
         image_id = image.id.val
         image_ids = []
         image_ids.append(omero.rtypes.rlong(image_id))
@@ -110,12 +112,21 @@ class TestUtilScripts(ScriptTest):
         args = {
             "Data_Type": omero.rtypes.rstring("Image"),
             "IDs": omero.rtypes.rlist(image_ids),
-            "Make_Image_Stack": omero.rtypes.rbool(True)
+            "Make_Image_Stack": omero.rtypes.rbool(imageStack)
         }
         img_from_rois = run_script(client, script_id, args, "Result")
         # check the result
         assert img_from_rois is not None
-        assert img_from_rois.getValue().id.val > 0
+        new_img = img_from_rois.getValue()
+        new_size_z = new_img.getPrimaryPixels().getSizeZ().getValue()
+        # From a single ROI (without theZ) on Z-stack image...
+        # Should get a single Z image from single ROI if Make_Image_Stack
+        print 'new_size_z', new_size_z
+        if imageStack:
+            assert new_size_z == 1
+        else:
+            # Otherwise we use all planes of input image
+            assert new_size_z == size_z
 
     def test_dataset_to_plate(self):
         script_id = super(TestUtilScripts, self).get_script(dataset_to_plate)
