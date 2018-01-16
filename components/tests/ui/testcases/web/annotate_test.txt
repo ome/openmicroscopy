@@ -43,7 +43,7 @@ Remove Comment
 
 Add File Annotation
     [Arguments]                                 ${fileAnnotationName}
-    Wait Until Element Is Visible               id=choose_file_anns
+    Wait Until Element Is Visible               id=choose_file_anns    ${TIMEOUT}
     Click Element                               id=choose_file_anns
     Wait Until Page Contains Element            id=id_files
     # Click Element                          xpath=//select[@id='id_files']/option[contains(text(), ${fileName})]
