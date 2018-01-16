@@ -960,8 +960,10 @@ public class ROIFacility extends Facility {
     public Collection<ROIResult> loadROIsForFolder(SecurityContext ctx,
             long imageId, long folderId) throws DSOutOfServiceException,
             DSAccessException {
-        if (imageId < 0 && folderId < 0)
+
+        if (imageId < 0 || folderId < 0) {
             return Collections.emptyList();
+        }
 
         try {
             // TODO: This should actually happen on the server; replace

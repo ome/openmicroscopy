@@ -113,7 +113,7 @@ public class BrowseFacility extends Facility {
     }
 
     /**
-     * Retrieves hierarchy trees rooted by a given node. i.e. the requested node
+     * Retrieves hierarchy trees rooted by a given node i.e. the requested node
      * as root and all of its descendants.
      *
      * @param ctx

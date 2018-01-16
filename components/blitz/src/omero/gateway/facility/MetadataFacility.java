@@ -87,8 +87,10 @@ public class MetadataFacility extends Facility {
      */
     public ImageAcquisitionData getImageAcquisitionData(SecurityContext ctx,
             long imageId) throws DSOutOfServiceException, DSAccessException {
-        if(imageId < 0)
+
+        if (imageId < 0) {
             return null;
+        }
 
         ParametersI params = new ParametersI();
         params.acquisitionData();
@@ -112,9 +114,11 @@ public class MetadataFacility extends Facility {
      */
     public List<ChannelData> getChannelData(SecurityContext ctx, long imageId)
             throws DSOutOfServiceException, DSAccessException {
+
         List<ChannelData> result = new ArrayList<ChannelData>();
-        if(imageId < 0)
+        if (imageId < 0) {
             return result;
+        }
 
         try {
             ImageData img = browse.getImage(ctx, imageId);

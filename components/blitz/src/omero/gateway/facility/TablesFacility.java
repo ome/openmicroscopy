@@ -560,7 +560,7 @@ public class TablesFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         TablePrx table = null;
         try {
-            if (data.getOriginalFileId() == -1)
+            if (data.getOriginalFileId() < 0)
                 throw new IllegalArgumentException(
                         "This TableData object is not associated with a table yet, use addTable method instead.");
 

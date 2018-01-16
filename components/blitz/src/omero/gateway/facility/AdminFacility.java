@@ -404,8 +404,10 @@ public class AdminFacility extends Facility {
     public void addAdminPrivileges(SecurityContext ctx, ExperimenterData user,
             Collection<String> privileges) throws DSOutOfServiceException,
             DSAccessException {
-        if(!Pojos.hasID(user) || CollectionUtils.isEmpty(privileges))
+
+        if (!Pojos.hasID(user) || CollectionUtils.isEmpty(privileges)) {
             return;
+        }
 
         try {
             Collection<String> privs = getAdminPrivileges(ctx, user);
@@ -436,8 +438,11 @@ public class AdminFacility extends Facility {
     public void removeAdminPrivileges(SecurityContext ctx,
             ExperimenterData user, Collection<String> privileges)
             throws DSOutOfServiceException, DSAccessException {
-        if(!Pojos.hasID(user) || CollectionUtils.isEmpty(privileges))
+
+        if (!Pojos.hasID(user) || CollectionUtils.isEmpty(privileges)) {
             return;
+        }
+
         try {
             Collection<String> privs = getAdminPrivileges(ctx, user);
             privs.removeAll(privileges);
