@@ -112,6 +112,14 @@ Test Tag Dialog
     Check For Tag                               robotTagTest${pid}TagTwo
     Check No Tag                                robotTagTest${pid}TagOne
 
+    # Delete the projects
+    Select Project By Id                        ${projectId}
+    Meta Click Node                             ${nodeId}
+    Click Element                               id=deleteButton
+    Wait Until Element Is Visible               id=delete-dialog-form
+    Select Checkbox                             id=delete_anns
+    Click Dialog Button                         Yes
+
 
 Test Tag Removal
     [Documentation]     Tests the removal of tags by clicking on the Tag (-) button
@@ -162,5 +170,13 @@ Test Tag Removal
     Check For Tag                               removeTest${pid}Three
     Check No Tag                                removeTest${pid}One
     Check No Tag                                removeTest${pid}Two
+
+    # Delete the projects
+    Select Project By Id                        ${pId}
+    Meta Click Node                             ${projectNodeId}
+    Click Element                               id=deleteButton
+    Wait Until Element Is Visible               id=delete-dialog-form
+    Select Checkbox                             id=delete_anns
+    Click Dialog Button                         Yes
 
 [Teardown]    Close Browser
