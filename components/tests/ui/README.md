@@ -11,10 +11,11 @@ Requirements:
  * Jython 2.5 (Insight tests)
     + higher versions may not be supported, we use 2.5.4rc1
  * one or both of these web browsers (Web tests)
-    + Firefox version 21. It may not work with some more recent versions.
+    + Firefox. It may not work with some more recent versions.
     + Chrome
  * robotframework-selenium2library (Web tests)
  * chromedriver (Web tests using Chrome)
+ * geckodriver
 
 Read about Robot Framework at
 http://robotframework.org
@@ -45,7 +46,13 @@ If you have pip installed, you can install the library with the following
 pip install robotframework-selenium2library
 ```
 
-By default, the tests are run using the default browser i.e. Firefox
+By default, the tests are run using the default browser i.e. Firefox.
+If you are running the tests on Mac OS X, you can install with the following
+
+```
+brew install geckodriver
+```
+
 If you want to run the tests on Chrome, you need to install the chromedriver.
 See https://sites.google.com/a/chromium.org/chromedriver/downloads
 
