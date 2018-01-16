@@ -81,7 +81,7 @@ Test Delete Images in Dataset
     ${nodeId}=                              Wait For Dataset Node Text              Delete
     Click Node                              ${nodeId}
     Wait Until Page Contains Element        id=dataIcons
-    ${thumbCount}=                          Get Matching Xpath Count     ${thumbnailsXpath}
+    ${thumbCount}=                          Get Element Count     ${thumbnailsXpath}
     # Click first image in Tree
     Select First Image
     Click Element                           id=deleteButton

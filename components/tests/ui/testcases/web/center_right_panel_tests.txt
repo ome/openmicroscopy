@@ -47,11 +47,11 @@ Wait Until Right Panel Loads For MultiSelection
     Element Should Not Be Visible     xpath=//*[@id="general_tab"]
 
 Get Number Of Selected Objects From Tree
-    ${numOfObjects}=                Get Matching Xpath Count        xpath=//li[contains(@role, 'treeitem')]//a[contains(@class, 'jstree-clicked')]
+    ${numOfObjects}=                Get Element Count        xpath=//li[contains(@role, 'treeitem')]//a[contains(@class, 'jstree-clicked')]
     [return]                        ${numOfObjects}
 
 Get Number Of Selected Objects From Center Panel
-    ${numOfObjects}=                Get Matching Xpath Count        xpath=//div[@id="icon_table"]//li[contains(@class, 'ui-selected')]
+    ${numOfObjects}=                Get Element Count        xpath=//div[@id="icon_table"]//li[contains(@class, 'ui-selected')]
     [return]                        ${numOfObjects}
 
 Assert No Download Button

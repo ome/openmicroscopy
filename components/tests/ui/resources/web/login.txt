@@ -51,7 +51,7 @@ Input Password
 
 Select Server
     [Arguments]         ${server}
-    Select From List    id_server    ${server}
+    Select From List By Value   id_server    ${server}
 
 Submit Credentials
     Click Button    Login
