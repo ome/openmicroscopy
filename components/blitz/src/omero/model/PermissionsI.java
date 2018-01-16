@@ -124,7 +124,7 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
 
     public PermissionsI(ome.model.internal.Permissions sourceP) {
         setPerm1((Long) ome.util.Utils.internalForm(sourceP));
-        this.restrictions = sourceP.copyRestrictions();
+        this.restrictions = sourceP.getRestrictions();
         String[] extRestr = sourceP.copyExtendedRestrictions();
         this.extendedRestrictions = extRestr == null ? null :
                 Arrays.<String>asList(extRestr);
