@@ -557,6 +557,7 @@ Bash examples:
                     line = line.strip()
                     if line and not line.startswith("#"):
                         actions.append(self.parse(state, line=line))
+                fileinput.close()
             else:
                 self.ctx.die(100, "No command provided")
         else:
