@@ -316,7 +316,7 @@
         
         <run_pabot failonerror="${test.with.fail}" output="${output}">
             <arg value="--processes"/>
-            <arg value="3"/>
+            <arg value="5"/>
             <arg value="--outputdir"/>
             <arg value="${output}"/>
             <arg value="-v"/>
@@ -341,7 +341,7 @@
         </if>
         <run_pabot failonerror="${test.with.fail}" output="${output}">
             <arg value="--processes"/>
-            <arg value="3"/>
+            <arg value="5"/>
             <arg value="--outputdir"/>
             <arg value="${output}"/>
             <arg value="-v"/>
