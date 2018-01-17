@@ -53,7 +53,7 @@ import omero.gateway.util.Utils;
 /**
  * {@link Facility} for handling admin issues, e.g. creating users, groups,
  * etc.
- * 
+ *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
@@ -66,7 +66,7 @@ public class AdminFacility extends Facility {
 
     /** All available admin privileges */
     private Collection<String> adminPrivileges;
-    
+
     /**
      * Creates a new instance.
      * @param gateway Reference to the gateway.
@@ -152,7 +152,7 @@ public class AdminFacility extends Facility {
         return createExperimenter(ctx, exp, username, password, groups,
                 isAdmin, isGroupOwner, null);
     }
-    
+
     /**
      * Creates an experimenter and returns it.
      *
@@ -263,7 +263,7 @@ public class AdminFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         if(StringUtils.isBlank(name))
             return null;
-        
+
         try {
             IAdminPrx svc = gateway.getAdminService(ctx);
             ExperimenterGroup g =  svc.lookupGroup(name);
@@ -295,7 +295,7 @@ public class AdminFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         if(StringUtils.isBlank(name))
             return null;
-                    
+
         try {
             IAdminPrx svc = gateway.getAdminService(ctx);
             Experimenter exp = svc.lookupExperimenter(name);
@@ -328,7 +328,7 @@ public class AdminFacility extends Facility {
     /**
      * Get the admin privileges of a certain user
      * (see omero.model.enums)
-     * 
+     *
      * @param ctx
      *            The security context.
      * @param user
@@ -358,7 +358,7 @@ public class AdminFacility extends Facility {
     /**
      * Set the admin privileges of a certain user
      * (see omero.model.enums)
-     * 
+     *
      * @param ctx
      *            The security context.
      * @param user
@@ -376,7 +376,7 @@ public class AdminFacility extends Facility {
             DSAccessException {
         if (!Pojos.hasID(user))
             return;
-        
+
         try {
             IAdminPrx adm = gateway.getAdminService(ctx);
             adm.setAdminPrivileges(user.asExperimenter(), Utils.toEnum(
@@ -388,7 +388,7 @@ public class AdminFacility extends Facility {
 
     /**
      * Grant an user additional admin privileges.
-     * 
+     *
      * @param ctx
      *            The security context.
      * @param user
@@ -404,9 +404,11 @@ public class AdminFacility extends Facility {
     public void addAdminPrivileges(SecurityContext ctx, ExperimenterData user,
             Collection<String> privileges) throws DSOutOfServiceException,
             DSAccessException {
-        if(!Pojos.hasID(user) || CollectionUtils.isEmpty(privileges))
+
+        if (!Pojos.hasID(user) || CollectionUtils.isEmpty(privileges)) {
             return;
-        
+        }
+
         try {
             Collection<String> privs = getAdminPrivileges(ctx, user);
             for (String priv : privileges)
@@ -420,7 +422,7 @@ public class AdminFacility extends Facility {
 
     /**
      * Revoke admin privileges for a user
-     * 
+     *
      * @param ctx
      *            The security context.
      * @param user
@@ -436,8 +438,11 @@ public class AdminFacility extends Facility {
     public void removeAdminPrivileges(SecurityContext ctx,
             ExperimenterData user, Collection<String> privileges)
             throws DSOutOfServiceException, DSAccessException {
-        if(!Pojos.hasID(user) || CollectionUtils.isEmpty(privileges))
+
+        if (!Pojos.hasID(user) || CollectionUtils.isEmpty(privileges)) {
             return;
+        }
+
         try {
             Collection<String> privs = getAdminPrivileges(ctx, user);
             privs.removeAll(privileges);
@@ -449,7 +454,7 @@ public class AdminFacility extends Facility {
 
     /**
      * Get all available admin privileges
-     * 
+     *
      * @param ctx
      *            The security context.
      * @return See above.
@@ -475,7 +480,7 @@ public class AdminFacility extends Facility {
 
     /**
      * Checks if the currently logged in user has full admin privileges
-     * 
+     *
      * @param ctx
      *            The security context.
      * @return See above.
@@ -492,7 +497,7 @@ public class AdminFacility extends Facility {
 
     /**
      * Checks if a user has full admin privileges
-     * 
+     *
      * @param ctx
      *            The security context.
      * @param user
