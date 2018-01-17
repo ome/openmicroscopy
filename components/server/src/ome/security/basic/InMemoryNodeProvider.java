@@ -21,6 +21,7 @@ package ome.security.basic;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -29,7 +30,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.parameters.Filter;
