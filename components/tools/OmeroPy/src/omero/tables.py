@@ -28,7 +28,6 @@ tables = __import__("tables")  # Pytables
 
 VERSION = '2'
 RETRIES = 20
-SECONDS_SLEEP = 5
 
 
 def slen(rv):
@@ -390,11 +389,20 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
                          str(self._storage_factory.__module__),
                          self._storage_factory.__class__.__name__)
 
-        e = None
+        self.repo_cfg = None
+        self.repo_mgr = None
+        self.repo_obj = None
         self.repo_svc = None
+        self.repo_uuid = None
+
         if retries is None:
             retries = RETRIES
 
+        wait = float(self.communicator.getProperties().getPropertyWithDefault(
+            "omero.repo.wait", "1"))
+        per_loop = wait / retries
+
+        e = None
         for x in range(retries):
             try:
                 self._get_dir()
@@ -405,21 +413,13 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
             if self.repo_svc:
                 break
+            else:
+                msg = "waiting %ss (%s of %s)" % (per_loop, x+1, retries)
+                self.logger.debug(msg)
+                self.stop_event.wait(per_loop)
 
         if e:
             raise e
-
-    def _do_with_wait(self, method, seconds_sleep=SECONDS_SLEEP):
-        """
-        Run a method in a loop until true, waiting for the configured
-        time during each iteration
-        """
-        wait = int(self.communicator.getProperties().getPropertyWithDefault(
-            "omero.repo.wait", "1"))
-        start = time.time()
-        while not method() and wait < (time.time() - start):
-            self.logger.debug("waiting %s seconds" % seconds_sleep)
-            self.stop_event.wait(seconds_sleep)
 
     def _get_dir(self):
         """
@@ -436,17 +436,8 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
                 ).getConfigService().getConfigValue("omero.data.dir")
 
         self.repo_cfg = path(self.repo_dir) / ".omero" / "repository"
-
-        def _check_repo_cfg():
-            if not self.repo_cfg.exists():
-                self.logger.info("%s doesn't exist" % self.repo_cfg)
-                return False
-            return True
-        self._do_with_wait(_check_repo_cfg)
-
         if not self.repo_cfg.exists():
             msg = "No repository found: %s" % self.repo_cfg
-            self.logger.error(msg)
             raise omero.ResourceError(None, None, msg)
 
     def _get_uuid(self):
@@ -467,13 +458,9 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         """
 
         uuidfile = self.instance / "repo_uuid"
-
-        def _check_repo_uuid():
-            if not uuidfile.exists():
-                self.logger.info("%s doesn't exist" % uuidfile)
-                return False
-            return True
-        self._do_with_wait(_check_repo_uuid)
+        if not uuidfile.exists():
+            msg = "%s doesn't exist" % uuidfile
+            raise IOError(msg)
 
         # Get and parse the uuid from the RandomAccessFile format from
         # FileMaker
