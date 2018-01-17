@@ -18,10 +18,8 @@ Improvements include:
    OMERO.server
 -  added references to the new OMERO pyramid format documentation (within the
    OME Data Model and File Formats documentation)
--  updated swingx library version used by OMERO.insight to stop insight-ij
+-  updated SwingX library version used by OMERO.insight to stop insight-ij
    plugin crashing in Fiji
--  fixed issue with polygon and polyline ROIs created in OMERO.iviewer and 
-   then viewed in Fiji using the insight-ij plugin
 -  faster loading of thumbnails for large Plates
 -  trying to import into a container without the necessary permissions now
    fails before file upload starts and more transparently
