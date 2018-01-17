@@ -560,8 +560,8 @@ Bash examples:
                         line = line.strip()
                         if line and not line.startswith("#"):
                             actions.append(self.parse(state, line=line))
-                except Exception:
-                    self.ctx.die(999, "Cannot read file")
+                except IOError:
+                    self.ctx.die(337, "Cannot read file")
                 finally:
                     if fi is not None:
                         fi.close()
