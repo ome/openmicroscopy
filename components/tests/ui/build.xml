@@ -141,6 +141,24 @@
         </if>
     </target>
 
+    <target name="merge-results">
+        <delete file="${reports}/${reports.output}" failonerror="false"/>
+        <if>
+            <available file="${reports}" type="dir"/>
+            <then>
+                <apply executable="rebot" dir="${reports}" parallel="true">
+                    <arg value="--merge"/>
+                    <arg value="--output"/>
+                    <arg value="${reports.output}"/>
+                    <srcfile/>
+                    <fileset id="reports.files" dir="${reports}/">
+                       <include name="**/${reports.output}"/>
+                    </fileset>
+                </apply>
+            </then>
+        </if>
+    </target>
+
 	<target name="check-config-file">
 	    <property file="${basedir}/resources/config.txt" />
 	    <available file="${basedir}/resources/config.txt" property="hasconfig" />
