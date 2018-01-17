@@ -72,6 +72,11 @@
         </sequential>
     </macrodef>
 
+    <!-- The number of processes if run using pabot. -->
+    <property name="pabot.processes" value="3"/>
+
+    <!-- The name of the rerun file. -->
+    <property name="reports.rerun" value="rerun.xml"/>
 
     <!-- The name of the output file. -->
     <property name="reports.output" value="output.xml"/>
@@ -141,18 +146,61 @@
         </if>
     </target>
 
+    <!-- merge the results to publish them -->
     <target name="merge-results">
         <delete file="${reports}/${reports.output}" failonerror="false"/>
         <if>
             <available file="${reports}" type="dir"/>
             <then>
                 <apply executable="rebot" dir="${reports}" parallel="true">
-                    <arg value="--merge"/>
                     <arg value="--output"/>
                     <arg value="${reports.output}"/>
                     <srcfile/>
+                    <arg value="--merge"/>
                     <fileset id="reports.files" dir="${reports}/">
                        <include name="**/${reports.output}"/>
+                    </fileset>
+                </apply>
+            </then>
+        </if>
+    </target>
+
+    <!-- merge the results of the rerun to publish them -->
+    <target name="merge-rerun-firefox">
+        <delete file="${reports}/${reports.output}" failonerror="false"/>
+        <var name="output" value="${reports.web}/firefox"/>
+        <if>
+            <available file="${reports}" type="dir"/>
+            <then>
+                <apply executable="rebot" dir="${reports}" parallel="true">
+                    <arg value="--output"/>
+                    <arg value="${reports.output}"/>
+                    <arg value="--merge"/>
+                    <srcfile/>
+                    <fileset id="reports.files" dir="${output}/">
+                       <include name="${reports.output}"/>
+                       <include name="${reports.rerun}"/>
+                    </fileset>
+                </apply>
+            </then>
+        </if>
+    </target>
+
+    <!-- merge the results of the rerun to publish them -->
+    <target name="merge-rerun-chrome">
+        <delete file="${reports}/${reports.output}" failonerror="false"/>
+        <var name="output" value="${reports.web}/chrome"/>
+        <if>
+            <available file="${reports}" type="dir"/>
+            <then>
+                <apply executable="rebot" dir="${reports}" parallel="true">
+                    <arg value="--output"/>
+                    <arg value="${reports.output}"/>
+                    <arg value="--merge"/>
+                    <srcfile/>
+                    <fileset id="reports.files" dir="${output}/">
+                       <include name="${reports.output}"/>
+                       <include name="${reports.rerun}"/>
                     </fileset>
                 </apply>
             </then>
@@ -260,7 +308,6 @@
                 <var name="target" value="web/${TEST}"/>
             </then>
         </if>
-        
         <run_pybot failonerror="${test.with.fail}" output="${output}">
             <arg value="-d"/>
             <arg value="${output}"/>
@@ -274,7 +321,7 @@
         </run_pybot>
     </target>
 
-    <!-- test with chrome This requires the chrome driver to be installed-->
+    <!-- test with chrome This requires the chrome driver to be installed -->
     <target name="web-chrome" depends="check-config-file">
         <var name="output" value="${reports.web}/chrome"/>
         <mkdir dir="${output}"/>
@@ -303,6 +350,60 @@
         </if>
     </target>
 
+    <!-- Rerun in chrome the tests that failed in firefox. This requires the chrome driver to be installed -->
+    <target name="web-firefox-rerun-chrome" depends="check-config-file">
+        <var name="output" value="${reports.web}/firefox"/>
+        <var name="target" value="web/"/>
+        <if><isset property="TEST"/>
+            <then>
+                <var name="target" value="web/${TEST}"/>
+            </then>
+        </if>
+        <run_pybot failonerror="${test.with.fail}" output="${output}">
+            <arg value="--rerunfailed"/>
+            <arg value="${output}/${reports.output}"/>
+            <arg value="--output"/>
+            <arg value="${output}/${reports.rerun}"/>
+            <arg value="-v"/>
+            <arg value="browser:chrome"/>
+            <arg value="-v"/>
+            <arg value="DELAY:0.2"/>
+            <arg value="--loglevel"/>
+            <arg value="debug"/>
+            <arg value="${basedir}/testcases/${target}"/>
+        </run_pybot>
+        <if>
+            <available file="${google.log}"/>
+            <then>
+                <move file="${google.log}" todir="${reports.web}/chrome"/>
+            </then>
+        </if>
+    </target>
+
+    <!-- Rerun in firefox the tests that failed in chrome. -->
+    <target name="web-chrome-rerun-firefox" depends="check-config-file">
+        <var name="output" value="${reports.web}/chrome"/>
+        <var name="target" value="web/"/>
+        <if><isset property="TEST"/>
+            <then>
+                <var name="target" value="web/${TEST}"/>
+            </then>
+        </if>
+        <run_pybot failonerror="${test.with.fail}" output="${output}">
+            <arg value="--rerunfailed"/>
+            <arg value="${output}/${reports.output}"/>
+            <arg value="--output"/>
+            <arg value="${output}/${reports.rerun}"/>
+            <arg value="-v"/>
+            <arg value="browser:firefox"/>
+            <arg value="-v"/>
+            <arg value="DELAY:0.2"/>
+            <arg value="--loglevel"/>
+            <arg value="debug"/>
+            <arg value="${basedir}/testcases/${target}"/>
+        </run_pybot>
+    </target>
+
     <!-- test with firefox and pabot -->
     <target name="web-firefox-pabot" depends="check-config-file">
         <var name="output" value="${reports.web}/firefox"/>
@@ -313,10 +414,9 @@
                 <var name="target" value="web/${TEST}"/>
             </then>
         </if>
-        
         <run_pabot failonerror="${test.with.fail}" output="${output}">
             <arg value="--processes"/>
-            <arg value="5"/>
+            <arg value="${pabot.processes}"/>
             <arg value="--outputdir"/>
             <arg value="${output}"/>
             <arg value="-v"/>
@@ -329,7 +429,7 @@
         </run_pabot>
     </target>
 
-    <!-- test with chrome and pabot. This requires the chrome driver to be installed-->
+    <!-- test with chrome and pabot. This requires the chrome driver to be installed -->
     <target name="web-chrome-pabot" depends="check-config-file">
         <var name="output" value="${reports.web}/chrome"/>
         <mkdir dir="${output}"/>
@@ -341,7 +441,7 @@
         </if>
         <run_pabot failonerror="${test.with.fail}" output="${output}">
             <arg value="--processes"/>
-            <arg value="5"/>
+            <arg value="${pabot.processes}"/>
             <arg value="--outputdir"/>
             <arg value="${output}"/>
             <arg value="-v"/>
@@ -359,6 +459,8 @@
             </then>
         </if>
     </target>
+
+
     <target name="tests-dist">
         <librarybuild target="dist"/>
     </target>
