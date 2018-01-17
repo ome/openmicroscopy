@@ -553,11 +553,18 @@ Bash examples:
         if not args.command:
             if args.file:
                 path = args.file
-                for line in fileinput.input([path]):
-                    line = line.strip()
-                    if line and not line.startswith("#"):
-                        actions.append(self.parse(state, line=line))
-                fileinput.close()
+                fi = None
+                try:
+                    fi = fileinput.FileInput([path])
+                    for line in fi:
+                        line = line.strip()
+                        if line and not line.startswith("#"):
+                            actions.append(self.parse(state, line=line))
+                except Exception:
+                    self.ctx.die(999, "Cannot read file")
+                finally:
+                    if fi is not None:
+                        fi.close()
             else:
                 self.ctx.die(100, "No command provided")
         else:
