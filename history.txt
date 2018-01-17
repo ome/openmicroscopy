@@ -38,9 +38,9 @@ Sysadmin changes include:
 
 Developer updates include:
 
--  various testing improvements including refactoring and build system changes
-   designed to permit integration tests in downstream projects (see
-   `this PR on GitHub <https://github.com/openmicroscopy/openmicroscopy/pull/5616>`_
+-  various testing improvements including refactoring and build system
+   changes, designed to permit integration tests in downstream projects and
+   testing of external CLI plugins (see `this PR on GitHub <https://github.com/openmicroscopy/openmicroscopy/pull/5616>`_
    for further details)
 -  added methods for updating OMERO.tables
 -  Java Gateway fixes for sessions and rendering
