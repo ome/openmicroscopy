@@ -354,14 +354,20 @@
     <target name="web-firefox-rerun-chrome" depends="check-config-file">
         <var name="output" value="${reports.web}/firefox"/>
         <var name="target" value="web/"/>
+        <var name="run" value="--rerunfailed"/>
         <if><isset property="TEST"/>
             <then>
                 <var name="target" value="web/${TEST}"/>
             </then>
         </if>
+        <if><isset property="SUITE"/>
+            <then>
+                <var name="run" value="--rerunfailedsuites"/>
+            </then>
+        </if>
         <run_pybot failonerror="${test.with.fail}" output="${output}">
             <arg value="--nostatusrc"/>
-            <arg value="--rerunfailedsuites"/>
+            <arg value="${run}"/>
             <arg value="${output}/${reports.output}"/>
             <arg value="--output"/>
             <arg value="${output}/${reports.rerun}"/>
@@ -385,13 +391,19 @@
     <target name="web-chrome-rerun-firefox" depends="check-config-file">
         <var name="output" value="${reports.web}/chrome"/>
         <var name="target" value="web/"/>
+        <var name="run" value="--rerunfailed"/>
         <if><isset property="TEST"/>
             <then>
                 <var name="target" value="web/${TEST}"/>
             </then>
         </if>
+        <if><isset property="SUITE"/>
+            <then>
+                <var name="run" value="--rerunfailedsuites"/>
+            </then>
+        </if>
         <run_pybot failonerror="${test.with.fail}" output="${output}">
-            <arg value="--rerunfailed"/>
+            <arg value="${run}"/>
             <arg value="${output}/${reports.output}"/>
             <arg value="--output"/>
             <arg value="${output}/${reports.rerun}"/>
@@ -409,16 +421,22 @@
     <target name="web-firefox-rerun-chrome-pabot" depends="check-config-file">
         <var name="output" value="${reports.web}/firefox"/>
         <var name="target" value="web/"/>
+        <var name="run" value="--rerunfailed"/>
         <if><isset property="TEST"/>
             <then>
                 <var name="target" value="web/${TEST}"/>
+            </then>
+        </if>
+        <if><isset property="SUITE"/>
+            <then>
+                <var name="run" value="--rerunfailedsuites"/>
             </then>
         </if>
         <run_pabot failonerror="${test.with.fail}" output="${output}">
             <arg value="--processes"/>
             <arg value="${pabot.processes}"/>
             <arg value="--nostatusrc"/>
-            <arg value="--rerunfailedsuites"/>
+            <arg value="${run}"/>
             <arg value="${output}/${reports.output}"/>
             <arg value="--output"/>
             <arg value="${output}/${reports.rerun}"/>
@@ -442,15 +460,21 @@
     <target name="web-chrome-rerun-firefox-pabot" depends="check-config-file">
         <var name="output" value="${reports.web}/chrome"/>
         <var name="target" value="web/"/>
+        <var name="run" value="--rerunfailed"/>
         <if><isset property="TEST"/>
             <then>
                 <var name="target" value="web/${TEST}"/>
             </then>
         </if>
+        <if><isset property="SUITE"/>
+            <then>
+                <var name="run" value="--rerunfailedsuites"/>
+            </then>
+        </if>
         <run_pabot failonerror="${test.with.fail}" output="${output}">
             <arg value="--processes"/>
             <arg value="${pabot.processes}"/>
-            <arg value="--rerunfailed"/>
+            <arg value="${run}"/>
             <arg value="${output}/${reports.output}"/>
             <arg value="--output"/>
             <arg value="${output}/${reports.rerun}"/>
