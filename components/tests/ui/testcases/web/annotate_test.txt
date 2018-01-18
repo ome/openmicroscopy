@@ -1,6 +1,7 @@
 *** Settings ***
 Documentation     Tests submission of forms.
 
+Resource          ../../resources/web/annotation.txt
 Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
@@ -19,59 +20,15 @@ ${SEARCH URL}           ${WELCOME URL}search/
 
 *** Keywords ***
 
-Check For Comment
-    [Arguments]                                 ${text}
-    Wait Until Page Contains Element            xpath=//div[@class='commentText'][contains(text(), '${text}')]
-
 Check Comment Gone
     [Arguments]                                 ${text}
     Page Should Not Contain Element             xpath=//div[@class='commentText'][contains(text(), '${text}')]
-
-Add Comment
-    [Arguments]                                 ${text}
-    Wait Until Element Is Visible               id=id_comment
-    Input Text                                  comment            ${text}
-    Submit Form                                 add_comment_form
-    Check For Comment                           ${text}
 
 Remove Comment
     [Arguments]                                 ${text}
     Click Element                               xpath=//div[contains(@class, 'ann_comment_text')][descendant::div[contains(text(), '${text}')]]/img[@class='removeComment']
     Click Dialog Button                         OK
     Wait Until Keyword Succeeds                 ${TIMEOUT}   ${INTERVAL}    Check Comment Gone  ${text}
-
-
-Add File Annotation
-    [Arguments]                                 ${fileAnnotationName}
-    Wait Until Element Is Visible               id=choose_file_anns    ${TIMEOUT}
-    Click Element                               id=choose_file_anns
-    Wait Until Page Contains Element            id=id_files
-    # Click Element                          xpath=//select[@id='id_files']/option[contains(text(), ${fileName})]
-    Select From List By Label                   id=id_files     ${fileAnnotationName}
-    Click Dialog Button                         Accept
-    Check For File Annotation                   ${fileAnnotationName}
-
-Check For File Annotation
-    [Arguments]                                 ${fileAnnotationName}
-    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
-    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//a[@class='deleteFile action']
-    Wait Until Element Is Visible               xpath=//ul[@id="fileanns_container"]//a[contains(text(), '${fileAnnotationName}')]
-    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//span
-    # Mouse Over                                  //ul[@id="fileanns_container"]//a[contains(@class, 'tooltip')]
-    # Wait Until Element Is Visible               //ul[@id="fileanns_container"]//a[contains(@class, 'tooltip')][contains(@aria-describedby, 'ui-tooltip')]
-
-Remove File Annotation
-    [Arguments]                                 ${fileAnnotationName}
-
-    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
-    Click Element                               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::*[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
-
-    Click Dialog Button                         OK
-    Wait Until Keyword Succeeds                 ${TIMEOUT}   ${INTERVAL}    Check File Annotation Gone  ${fileAnnotationName}
-
-Check File Annotation Gone
-    [Arguments]                                 ${fileAnnotationName}
-    Page Should Not Contain Element             xpath=//ul[@id="fileanns_container"]//a[contains(text(), '${fileAnnotationName}')]
 
 Click Rating
     [Arguments]                                 ${rating}
@@ -281,35 +238,5 @@ Test Filter Rating
     Wait Until Element Is Visible               id=rating_annotations    timeout=${TIMEOUT}
     Check For Rating                            0
 
-Test Search Results File Annotations
-
-    Select Experimenter
-    ${sId_One}=                                 Create Screen       robot file annotations_1
-
-    # Annotate single Screen
-    # NB: Attachments panel may be open from previous test. Try opening 'closed' panel in case...
-    Run Keyword And Ignore Error                Click Element  xpath=//h1[@data-name='attachments'][contains(@class, 'closed')]
-    Add File Annotation                         ${fileNameTwo}
-
-    Input Text  id=id_search_query              ${fileNameTwo}
-    Submit Form
-    Wait Until Keyword Succeeds     ${TIMEOUT}  ${INTERVAL}   Location Should Be    ${SEARCH URL}?search_query=${fileNameTwo}
-
-    Wait Until Page Contains Element            xpath=//img[contains(@alt, 'screen')]   ${WAIT}
-    Click Element                               xpath=//img[contains(@alt, 'screen')]
-    Wait Until Page Contains Element            //*[@id="general_tab"]//th[contains(text(), 'Screen ID:')]
-
-    #Minimal checking to check if you can add Annotations on the search result page
-    Click Element                               xpath=//h1[@data-name='attachments']
-    Check For File Annotation                   ${fileNameTwo}
-    Remove File Annotation                      ${fileNameTwo}
-    Add File Annotation                         ${fileNameTwo}
-    Click Element                               xpath=//h1[@data-name='comments']
-    Add Comment                                 ${commentText}
-
-    Go To                                       ${WELCOME URL}
-    Select Experimenter
-    Select Screen By Id                         ${sId_One}
-    Delete Container
-
 [Teardown]    Close Browser
+

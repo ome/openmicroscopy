@@ -1,0 +1,49 @@
+*** Settings ***
+Documentation       A resource file containing the application specific keywords
+...                 that handle annotations
+Library             Selenium2Library
+
+*** Keywords ***
+
+Add Comment
+    [Arguments]                                 ${text}
+    Wait Until Element Is Visible               id=id_comment
+    Input Text                                  comment            ${text}
+    Submit Form                                 add_comment_form
+    Check For Comment                           ${text}
+
+Check For Comment
+    [Arguments]                                 ${text}
+    Wait Until Page Contains Element            xpath=//div[@class='commentText'][contains(text(), '${text}')]
+
+Add File Annotation
+    [Arguments]                                 ${fileAnnotationName}
+    Wait Until Element Is Visible               id=choose_file_anns    ${TIMEOUT}
+    Click Element                               id=choose_file_anns
+    Wait Until Page Contains Element            id=id_files
+    # Click Element                          xpath=//select[@id='id_files']/option[contains(text(), ${fileName})]
+    Select From List By Label                   id=id_files     ${fileAnnotationName}
+    Click Dialog Button                         Accept
+    Check For File Annotation                   ${fileAnnotationName}
+
+Check For File Annotation
+    [Arguments]                                 ${fileAnnotationName}
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//a[@class='deleteFile action']
+    Wait Until Element Is Visible               xpath=//ul[@id="fileanns_container"]//a[contains(text(), '${fileAnnotationName}')]
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//span
+    # Mouse Over                                  //ul[@id="fileanns_container"]//a[contains(@class, 'tooltip')]
+    # Wait Until Element Is Visible               //ul[@id="fileanns_container"]//a[contains(@class, 'tooltip')][contains(@aria-describedby, 'ui-tooltip')]
+
+Remove File Annotation
+    [Arguments]                                 ${fileAnnotationName}
+
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
+    Click Element                               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::*[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
+
+    Click Dialog Button                         OK
+    Wait Until Keyword Succeeds                 ${TIMEOUT}   ${INTERVAL}    Check File Annotation Gone  ${fileAnnotationName}
+
+Check File Annotation Gone
+    [Arguments]                                 ${fileAnnotationName}
+    Page Should Not Contain Element             xpath=//ul[@id="fileanns_container"]//a[contains(text(), '${fileAnnotationName}')]
