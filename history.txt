@@ -45,7 +45,7 @@ Developer updates include:
 -  improved 'Editing OMERO.web' documentation
 -  improved Slice documentation for API deprecations
 -  substantial effort to make third-party repositories easily testable;
-   see `omero-test-infra <https://github.com/openmicroscopy/omero-test-infra>`
+   see `omero-test-infra <https://github.com/openmicroscopy/omero-test-infra>_`
    for more information
 
 This release also upgrades the version of Bio-Formats that OMERO uses to
