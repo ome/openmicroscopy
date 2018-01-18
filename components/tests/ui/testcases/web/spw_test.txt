@@ -62,13 +62,6 @@ Test Spw Grid Layout
     Page Should Contain Element             xpath=//div[@id='wellImages']//li[1][contains(@class,'ui-selected')]
     ${imgName}=                             Wait For General Panel And Return Name          Image
 
-    # Double-click wellsample image to open viewer
-    #  Double Click Element                    xpath=//div[@id='wellImages']//li/a/img[1]
-    # Wait Until Keyword Succeeds             ${TIMEOUT}      ${INTERVAL}     Select Window   title=${imgName}
-    # Close Window
-    # Select parent window
-    # Select Window
-
     # Wrap rows of images by fixed column count
     Input Text                              id=imagesPerRow             2
     Press Key                               id=imagesPerRow             \\13    # ASCII code for enter key
