@@ -12,28 +12,28 @@ This is a bug-fix release.
 
 Improvements include:
 
--  made projecting images belonging to another user only possible for users
-   with the required permissions to save the new images
 -  added documentation on a complete workflow for publishing data from
    OMERO.server
 -  added references to the new OMERO pyramid format documentation (within the
    OME Data Model and File Formats documentation)
+-  faster loading of thumbnails for large Plates after a recent regression
+-  made projecting images belonging to another user only possible for users
+   with the required permissions to save the new images
 -  updated SwingX library version used by OMERO.insight to stop insight-ij
    plugin crashing in Fiji
--  faster loading of thumbnails for large Plates
--  trying to import into a container without the necessary permissions now
-   fails before file upload starts and more transparently
 -  CLI updates:
 
-   * ``import --target`` and ``import --debug`` fixes
-   * ``admin mail`` timeout improvements
-   * added ``admin log`` command
+   * ``import --target`` into a container without the necessary permissions now
+     fails before file upload starts and more transparently
+   * ``admin mail`` timeout is now configurable via ``--wait``
+   * added ``admin log`` command for inserting statements to the server log
 
 Sysadmin changes include:
 
 -  added warning about the need to regenerate your NGINX config for every
    upgrade
 -  fixed documentation bug affecting OMERO-version-specific guidance
+-  fixed OMERO.tables startup race condition
 -  server performance improvements
 
 Developer updates include:
