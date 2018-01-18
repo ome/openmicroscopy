@@ -165,8 +165,8 @@
         </if>
     </target>
 
-    <!-- merge the results of the rerun to publish them -->
-    <target name="merge-rerun-firefox">
+    <!-- merge the results of tests run with firefox and rerun with chrome to publish them -->
+    <target name="merge-results-rerun-firefox">
         <delete file="${reports}/${reports.output}" failonerror="false"/>
         <var name="output" value="${reports.web}/firefox"/>
         <if>
@@ -186,8 +186,8 @@
         </if>
     </target>
 
-    <!-- merge the results of the rerun to publish them -->
-    <target name="merge-rerun-chrome">
+    <!-- merge the results of tests run with chrome and rerun with firefox to publish them -->
+    <target name="merge-results-rerun-chrome">
         <delete file="${reports}/${reports.output}" failonerror="false"/>
         <var name="output" value="${reports.web}/chrome"/>
         <if>
