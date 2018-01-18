@@ -360,7 +360,8 @@
             </then>
         </if>
         <run_pybot failonerror="${test.with.fail}" output="${output}">
-            <arg value="--rerunfailed"/>
+            <arg value="--nostatusrc"/>
+            <arg value="--rerunfailedsuites"/>
             <arg value="${output}/${reports.output}"/>
             <arg value="--output"/>
             <arg value="${output}/${reports.rerun}"/>
@@ -416,7 +417,8 @@
         <run_pabot failonerror="${test.with.fail}" output="${output}">
             <arg value="--processes"/>
             <arg value="${pabot.processes}"/>
-            <arg value="--rerunfailed"/>
+            <arg value="--nostatusrc"/>
+            <arg value="--rerunfailedsuites"/>
             <arg value="${output}/${reports.output}"/>
             <arg value="--output"/>
             <arg value="${output}/${reports.rerun}"/>
