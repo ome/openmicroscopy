@@ -20,6 +20,7 @@ package omero.gateway.facility;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,6 +35,7 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
+import omero.gateway.util.Pojos;
 import omero.grid.Column;
 import omero.grid.Data;
 import omero.grid.SharedResourcesPrx;
@@ -45,7 +47,7 @@ import omero.model.OriginalFileI;
 
 /**
  * {@link Facility} to interact with OMERO.tables
- * 
+ *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
@@ -59,7 +61,7 @@ public class TablesFacility extends Facility {
 
     /**
      * Creates a new instance
-     * 
+     *
      * @param gateway
      *            Reference to the {@link Gateway}
      */
@@ -69,7 +71,7 @@ public class TablesFacility extends Facility {
 
     /**
      * Adds a new table with the provided data
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param target
@@ -88,6 +90,9 @@ public class TablesFacility extends Facility {
     public TableData addTable(SecurityContext ctx, DataObject target,
             String name, TableData data) throws DSOutOfServiceException,
             DSAccessException {
+        if (!Pojos.hasID(target))
+            return null;
+
         TablePrx table = null;
         try {
             if (name == null)
@@ -95,7 +100,7 @@ public class TablesFacility extends Facility {
 
             TablesFacilityHelper helper = new TablesFacilityHelper(this);
             helper.parseTableData(data);
-            
+
             SharedResourcesPrx sr = gateway.getSharedResources(ctx);
             if (!sr.areTablesEnabled()) {
                 throw new DSAccessException(
@@ -140,7 +145,7 @@ public class TablesFacility extends Facility {
 
     /**
      * Get basic information about a table.
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param fileId
@@ -158,11 +163,11 @@ public class TablesFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         return getTable(ctx, fileId, 0, 0);
     }
-    
+
     /**
      * Load the data from a table (Note: limited to
      * {@link TablesFacility#DEFAULT_MAX_ROWS_TO_FETCH} number of rows)
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param fileId
@@ -181,7 +186,7 @@ public class TablesFacility extends Facility {
 
     /**
      * Load data from a table
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param fileId
@@ -214,10 +219,10 @@ public class TablesFacility extends Facility {
         }
         return getTable(ctx, fileId, rowFrom, rowTo, lcolumns);
     }
-    
+
     /**
      * Perform a query on the table
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param fileId
@@ -238,7 +243,7 @@ public class TablesFacility extends Facility {
 
     /**
      * Perform a query on the table
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param fileId
@@ -263,6 +268,9 @@ public class TablesFacility extends Facility {
     public long[] query(SecurityContext ctx, long fileId, String condition,
             long start, long stop, long step) throws DSOutOfServiceException,
             DSAccessException {
+        if (fileId < 0)
+            return new long[0];
+
         TablePrx table = null;
         try {
             OriginalFile file = new OriginalFileI(fileId, false);
@@ -301,10 +309,10 @@ public class TablesFacility extends Facility {
         }
         return new long[0];
     }
-    
+
     /**
      * Load data from a table
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param fileId
@@ -325,10 +333,10 @@ public class TablesFacility extends Facility {
             rowsArray[i] = rows.get(i);
         return getTable(ctx, fileId, rowsArray);
     }
-    
+
     /**
      * Load data from a table
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param fileId
@@ -344,6 +352,9 @@ public class TablesFacility extends Facility {
      */
     public TableData getTable(SecurityContext ctx, long fileId, long... rows)
             throws DSOutOfServiceException, DSAccessException {
+        if (fileId < 0)
+            return null;
+
         TablePrx table = null;
         try {
             OriginalFile file = new OriginalFileI(fileId, false);
@@ -353,26 +364,26 @@ public class TablesFacility extends Facility {
                         "Tables feature is not enabled on this server!");
             }
             table = sr.openTable(file);
-            
+
             Data data = table.readCoordinates(rows);
-            
+
             Column[] cols = table.getHeaders();
-            
+
             TableDataColumn[] header = new TableDataColumn[cols.length];
             for (int i = 0; i < cols.length; i++) {
                 header[i] = new TableDataColumn(cols[i].name,
                         cols[i].description, i,
                         Object.class);
             }
-            
+
             TablesFacilityHelper helper = new TablesFacilityHelper(this);
             helper.parseData(data, header);
-            
+
             TableData result = new TableData(header, helper.getDataArray());
             result.setOriginalFileId(fileId);
             result.setNumberOfRows(helper.getNRows());
             return result;
-            
+
         } catch (Exception e) {
             handleException(this, e, "Could not load table data");
         } finally {
@@ -385,10 +396,10 @@ public class TablesFacility extends Facility {
         }
         return null;
     }
-            
+
     /**
      * Load data from a table
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param fileId
@@ -412,6 +423,9 @@ public class TablesFacility extends Facility {
     public TableData getTable(SecurityContext ctx, long fileId, long rowFrom,
             long rowTo, long... columns) throws DSOutOfServiceException,
             DSAccessException {
+        if (fileId < 0)
+            return null;
+
         TablePrx table = null;
         try {
             OriginalFile file = new OriginalFileI(fileId, false);
@@ -439,10 +453,10 @@ public class TablesFacility extends Facility {
                         cols[columnIndex].description, columnIndex,
                         Object.class);
             }
-            
-            if (table.getNumberOfRows() == 0) 
+
+            if (table.getNumberOfRows() == 0)
                 return new TableData(header, new Object[columns.length][0]);
-            
+
             if (rowFrom < 0)
                 rowFrom = 0;
 
@@ -458,12 +472,12 @@ public class TablesFacility extends Facility {
                         + (Integer.MAX_VALUE - 1) + " rows at once.");
 
             TableData result = null;
-            
+
             Data data = table.read(columns, rowFrom, rowTo + 1);
-            
+
             TablesFacilityHelper helper = new TablesFacilityHelper(this);
             helper.parseData(data, header);
-            
+
             result = new TableData(header, helper.getDataArray());
             result.setOffset(rowFrom);
             result.setOriginalFileId(fileId);
@@ -484,7 +498,7 @@ public class TablesFacility extends Facility {
 
     /**
      * Get all available tables for a the specified object
-     * 
+     *
      * @param ctx
      *            The {@link SecurityContext}
      * @param parent
@@ -499,6 +513,9 @@ public class TablesFacility extends Facility {
     public Collection<FileAnnotationData> getAvailableTables(
             SecurityContext ctx, DataObject parent)
             throws DSOutOfServiceException, DSAccessException {
+        if (!Pojos.hasID(parent))
+            return Collections.emptyList();
+
         Collection<FileAnnotationData> result = new ArrayList<FileAnnotationData>();
         try {
             MetadataFacility mf = gateway.getFacility(MetadataFacility.class);
@@ -521,5 +538,62 @@ public class TablesFacility extends Facility {
         }
         return result;
     }
-    
+
+    /**
+     * Saves the (modified) {@link TableData} back to the server.
+     * Note:
+     * - Addition/Removal of columns/rows is not supported, only modification of
+     *   the values.
+     * - The size of Double/Float/Long arrays can't be changed!
+     *
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param data
+     *            The {@link TableData} to save
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public void updateTable(SecurityContext ctx, TableData data)
+            throws DSOutOfServiceException, DSAccessException {
+        TablePrx table = null;
+        try {
+            if (data.getOriginalFileId() < 0)
+                throw new IllegalArgumentException(
+                        "This TableData object is not associated with a table yet, use addTable method instead.");
+
+            OriginalFile file = new OriginalFileI(data.getOriginalFileId(),
+                    false);
+            SharedResourcesPrx sr = gateway.getSharedResources(ctx);
+            if (!sr.areTablesEnabled()) {
+                throw new DSAccessException(
+                        "Tables feature is not enabled on this server!");
+            }
+
+            table = sr.openTable(file);
+
+            long[] colIndex = new long[data.getColumns().length];
+            for (int i = 0; i < data.getColumns().length; i++)
+                colIndex[i] = data.getColumns()[i].getIndex();
+
+            Data toUpdate = table.read(colIndex, data.getOffset(),
+                    data.getOffset() + data.getData()[0].length);
+
+            TablesFacilityHelper.updateData(toUpdate, data);
+
+            table.update(toUpdate);
+        } catch (Exception e) {
+            handleException(this, e, "Could not udpate table");
+        } finally {
+            if (table != null)
+                try {
+                    table.close();
+                } catch (ServerError e) {
+                    logError(this, "Could not close table", e);
+                }
+        }
+    }
+
 }

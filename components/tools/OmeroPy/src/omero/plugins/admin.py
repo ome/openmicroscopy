@@ -22,10 +22,13 @@ import datetime
 import Ice
 
 from glob import glob
+from math import ceil
 from path import path
 
 import omero
 import omero.config
+
+from omero.grid import RawAccessRequest
 
 from omero.cli import admin_only
 from omero.cli import CLI
@@ -44,6 +47,7 @@ from omero_ext import portalocker
 from omero_ext.which import whichall
 from omero_ext.argparse import FileType
 from omero_version import ice_compatibility
+
 
 try:
     import pywintypes
@@ -213,6 +217,7 @@ Examples:
         email.add_argument(
             "--inactive", action="store_true",
             help="Do not filter inactive users.")
+        self._add_wait(email)
         self.add_user_and_group_arguments(email,
                                           action="append",
                                           exclusive=False)
@@ -376,6 +381,20 @@ location.
 
         Action(
             "checkupgrade", "Check whether a server upgrade is available")
+
+        log = Action("log", "Add a custom log message to "
+                            "the server log").parser
+        log.add_argument(
+            "--level",
+            help="The log level: trace, debug, info, warn or error "
+                 "(default: info)", default="info")
+        log.add_argument(
+            "repo",
+            help="The repo uuid (e.g. ScriptRepo)")
+        log.add_argument(
+            "message",
+            help="The log message to add")
+        log.add_login_arguments()
 
         self.actions["ice"].add_argument(
             "argument", nargs="*",
@@ -1372,9 +1391,13 @@ present, the user will enter a console""")
             everyone=args.everyone,
             inactive=args.inactive)
 
+        ms = 500
+        wait = args.wait if args.wait > 0 else 25
+        loops = ceil(wait * 1000.0 / ms)
+
         try:
             cb = client.submit(
-                req, loops=10, ms=500,
+                req, loops=loops, ms=ms,
                 failonerror=True, failontimeout=True)
         except omero.CmdError, ce:
             err = ce.err
@@ -1698,6 +1721,14 @@ present, the user will enter a console""")
         from omero.util.cleanse import cleanse
         cleanse(data_dir=args.data_dir, client=self.ctx.conn(args),
                 dry_run=args.dry_run)
+
+    @admin_only(AdminPrivilegeReadSession)
+    def log(self, args):
+        self.check_access()
+        client = self.ctx.conn(args)
+        req = RawAccessRequest(command='log', path=args.level,
+                               repoUuid=args.repo, args=[args.message])
+        client.submit(req).loop(100, 100)
 
     def sessionlist(self, args):
         client = self.ctx.conn(args)

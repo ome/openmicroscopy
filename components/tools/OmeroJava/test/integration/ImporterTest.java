@@ -1,7 +1,8 @@
 /*
- *   Copyright 2006-2017 University of Dundee. All rights reserved.
+ *   Copyright 2006-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
 import java.io.File;
@@ -1623,4 +1624,22 @@ public class ImporterTest extends AbstractServerTest {
         }
     }
 
+    /**
+     * Test that import into another's container in a read-annotate group fails.
+     * @throws Throwable expecting importFile to throw IllegalArgumentException
+     */
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testImportImageIntoOthersDataset() throws Throwable {
+        /* create test image file */
+        final File testImage = File.createTempFile(ImporterTest.class.getName() + "-image", "." + OME_FORMAT);
+        new XMLWriter().writeFile(testImage, new XMLMockObjects().createImage(), true);
+        testImage.deleteOnExit();
+        /* one user has a dataset in a read-annotate group */
+        newUserAndGroup("rwra--");
+        Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset()).proxy();
+        /* another user in that group attempts to import into that dataset */
+        newUserInGroup();
+        dataset = (Dataset) iQuery.get(Dataset.class.getSimpleName(), dataset.getId().getValue());
+        importFile(testImage, OME_FORMAT, dataset);
+    }
 }

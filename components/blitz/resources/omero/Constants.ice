@@ -164,6 +164,11 @@ module omero {
     };
 
     /**
+     * Log levels used by {@link RawAccessRequest}'s {@code log} command for {@code path}.
+     **/
+    enum LogLevel { Trace, Debug, Info, Warn, Error };
+
+    /**
      * Namespaces for the {@link omero.api.IMetadata} interface.
      **/
     module metadata {

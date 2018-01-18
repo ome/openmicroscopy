@@ -20,6 +20,7 @@
  */
 package omero.gateway.facility;
 
+import java.util.Collections;
 import java.util.Map;
 
 import omero.gateway.Gateway;
@@ -121,6 +122,9 @@ public class RawDataFacility extends Facility implements AutoCloseable {
             PixelsData pixels, int[] channels, int binCount,
             boolean globalRange, PlaneDef plane)
             throws DSOutOfServiceException, DSAccessException {
+        if (pixels == null)
+            return Collections.emptyMap();
+        
         try {
             if (plane == null)
                 plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0,
@@ -156,6 +160,9 @@ public class RawDataFacility extends Facility implements AutoCloseable {
      */
     public Plane2D getPlane(SecurityContext ctx, PixelsData pixels, int z,
             int t, int c) throws DSOutOfServiceException, DSAccessException {
+        if (pixels == null)
+            return null;
+        
         try {
             return getDataSink(ctx, pixels, gateway).getPlane(z, t, c);
         } catch (Exception e) {
@@ -194,6 +201,9 @@ public class RawDataFacility extends Facility implements AutoCloseable {
     public Plane2D getTile(SecurityContext ctx, PixelsData pixels, int z,
             int t, int c, int x, int y, int w, int h)
             throws DataSourceException {
+        if (pixels == null)
+            return null;
+        
         try {
             return getDataSink(ctx, pixels, gateway).getTile(z, t, c, x, y, w,
                     h);

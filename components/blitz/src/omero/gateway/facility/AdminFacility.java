@@ -26,6 +26,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+
 import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IAdminPrx;
@@ -38,19 +41,19 @@ import omero.model.AdminPrivilegeI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
-import omero.model.IObject;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.sys.Roles;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 import omero.gateway.util.PojoMapper;
+import omero.gateway.util.Pojos;
 import omero.gateway.util.Utils;
 
 /**
  * {@link Facility} for handling admin issues, e.g. creating users, groups,
  * etc.
- * 
+ *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
@@ -63,7 +66,7 @@ public class AdminFacility extends Facility {
 
     /** All available admin privileges */
     private Collection<String> adminPrivileges;
-    
+
     /**
      * Creates a new instance.
      * @param gateway Reference to the gateway.
@@ -149,7 +152,7 @@ public class AdminFacility extends Facility {
         return createExperimenter(ctx, exp, username, password, groups,
                 isAdmin, isGroupOwner, null);
     }
-    
+
     /**
      * Creates an experimenter and returns it.
      *
@@ -258,6 +261,8 @@ public class AdminFacility extends Facility {
      */
     public GroupData lookupGroup(SecurityContext ctx, String name)
             throws DSOutOfServiceException, DSAccessException {
+        if(StringUtils.isBlank(name))
+            return null;
 
         try {
             IAdminPrx svc = gateway.getAdminService(ctx);
@@ -288,6 +293,8 @@ public class AdminFacility extends Facility {
      */
     public ExperimenterData lookupExperimenter(SecurityContext ctx, String name)
             throws DSOutOfServiceException, DSAccessException {
+        if(StringUtils.isBlank(name))
+            return null;
 
         try {
             IAdminPrx svc = gateway.getAdminService(ctx);
@@ -321,7 +328,7 @@ public class AdminFacility extends Facility {
     /**
      * Get the admin privileges of a certain user
      * (see omero.model.enums)
-     * 
+     *
      * @param ctx
      *            The security context.
      * @param user
@@ -336,6 +343,8 @@ public class AdminFacility extends Facility {
     public Collection<String> getAdminPrivileges(SecurityContext ctx,
             ExperimenterData user) throws DSOutOfServiceException,
             DSAccessException {
+        if (!Pojos.hasID(user))
+            return null;
         try {
             IAdminPrx adm = gateway.getAdminService(ctx);
             return Utils
@@ -349,7 +358,7 @@ public class AdminFacility extends Facility {
     /**
      * Set the admin privileges of a certain user
      * (see omero.model.enums)
-     * 
+     *
      * @param ctx
      *            The security context.
      * @param user
@@ -365,6 +374,9 @@ public class AdminFacility extends Facility {
     public void setAdminPrivileges(SecurityContext ctx, ExperimenterData user,
             Collection<String> privileges) throws DSOutOfServiceException,
             DSAccessException {
+        if (!Pojos.hasID(user))
+            return;
+
         try {
             IAdminPrx adm = gateway.getAdminService(ctx);
             adm.setAdminPrivileges(user.asExperimenter(), Utils.toEnum(
@@ -376,7 +388,7 @@ public class AdminFacility extends Facility {
 
     /**
      * Grant an user additional admin privileges.
-     * 
+     *
      * @param ctx
      *            The security context.
      * @param user
@@ -392,6 +404,11 @@ public class AdminFacility extends Facility {
     public void addAdminPrivileges(SecurityContext ctx, ExperimenterData user,
             Collection<String> privileges) throws DSOutOfServiceException,
             DSAccessException {
+
+        if (!Pojos.hasID(user) || CollectionUtils.isEmpty(privileges)) {
+            return;
+        }
+
         try {
             Collection<String> privs = getAdminPrivileges(ctx, user);
             for (String priv : privileges)
@@ -405,7 +422,7 @@ public class AdminFacility extends Facility {
 
     /**
      * Revoke admin privileges for a user
-     * 
+     *
      * @param ctx
      *            The security context.
      * @param user
@@ -421,6 +438,11 @@ public class AdminFacility extends Facility {
     public void removeAdminPrivileges(SecurityContext ctx,
             ExperimenterData user, Collection<String> privileges)
             throws DSOutOfServiceException, DSAccessException {
+
+        if (!Pojos.hasID(user) || CollectionUtils.isEmpty(privileges)) {
+            return;
+        }
+
         try {
             Collection<String> privs = getAdminPrivileges(ctx, user);
             privs.removeAll(privileges);
@@ -432,7 +454,7 @@ public class AdminFacility extends Facility {
 
     /**
      * Get all available admin privileges
-     * 
+     *
      * @param ctx
      *            The security context.
      * @return See above.
@@ -458,7 +480,7 @@ public class AdminFacility extends Facility {
 
     /**
      * Checks if the currently logged in user has full admin privileges
-     * 
+     *
      * @param ctx
      *            The security context.
      * @return See above.
@@ -475,7 +497,7 @@ public class AdminFacility extends Facility {
 
     /**
      * Checks if a user has full admin privileges
-     * 
+     *
      * @param ctx
      *            The security context.
      * @param user
@@ -489,6 +511,8 @@ public class AdminFacility extends Facility {
      */
     public boolean isFullAdmin(SecurityContext ctx, ExperimenterData user)
             throws DSOutOfServiceException, DSAccessException {
+        if (!Pojos.hasID(user))
+            return false;
         try {
             return getAdminPrivileges(ctx, user).size() == getAvailableAdminPrivileges(
                     ctx).size();
