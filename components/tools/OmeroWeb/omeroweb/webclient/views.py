@@ -3103,17 +3103,22 @@ def activities(request, conn=None, **kwargs):
     new_results = []
     _purgeCallback(request)
 
-    # If we have a jobId, just process that (Only chgrp supported)
+    # If we have a jobId (not added to request.session) just process it...
+    # ONLY used for chgrp dry-run in Chgrp dialog.
     jobId = request.GET.get('jobId', None)
     if jobId is not None:
         jobId = str(jobId)
-        prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(jobId))
-        rsp = prx.getResponse()
-        if rsp is not None:
-            rv = chgrpMarshal(conn, rsp)
-            rv['finished'] = True
-        else:
-            rv = {'finished': False}
+        try:
+            prx = omero.cmd.HandlePrx.checkedCast(
+                conn.c.ic.stringToProxy(jobId))
+            rsp = prx.getResponse()
+            if rsp is not None:
+                rv = chgrpMarshal(conn, rsp)
+                rv['finished'] = True
+            else:
+                rv = {'finished': False}
+        except IceException:
+            rv = {'finished': True}
         return rv
 
     # test each callback for failure, errors, completion, results etc
@@ -3284,8 +3289,14 @@ def activities(request, conn=None, **kwargs):
                 continue  # ignore
             if status not in ("failed", "finished"):
                 logger.info("Check callback on script: %s" % cbString)
-                proc = omero.grid.ScriptProcessPrx.checkedCast(
-                    conn.c.ic.stringToProxy(cbString))
+                try:
+                    proc = omero.grid.ScriptProcessPrx.checkedCast(
+                        conn.c.ic.stringToProxy(cbString))
+                except IceException as e:
+                    update_callback(request, cbString, status="failed",
+                                    Message="No process found for job",
+                                    error=1)
+                    continue
                 cb = omero.scripts.ProcessCallbackI(conn.c, proc)
                 # check if we get something back from the handle...
                 if cb.block(0):  # ms.
@@ -3296,7 +3307,10 @@ def activities(request, conn=None, **kwargs):
                         update_callback(request, cbString, status="finished")
                         new_results.append(cbString)
                     except Exception, x:
-                        logger.error(traceback.format_exc())
+                        update_callback(request, cbString, status="finished",
+                                        Message="Failed to get results")
+                        logger.info(
+                            "Failed on proc.getResults() for OMERO.script")
                         continue
                     # value could be rstring, rlong, robject
                     rMap = {}
