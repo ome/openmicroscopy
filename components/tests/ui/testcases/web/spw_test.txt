@@ -48,11 +48,11 @@ Test Spw Grid Layout
 
     # Images from a single Well shown in bottom panel
     Wait Until Page Contains Element        xpath=//div[@id='wellImages']//li/a
-    Xpath Should Match X Times              //div[@id='wellImages']//li/a                 ${FIELD_COUNT}
+    Page Should Contain Element             //div[@id='wellImages']//li/a                 limit=${FIELD_COUNT}
 
     # Shift-Click to select 3 Wells - All images shown in bottom panel
     Shift Click Element                     "img[name='A3']"
-    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Xpath Should Match X Times    //div[@id='wellImages']//li/a     ${FIELD_COUNT3}
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Page Should Contain Element    //div[@id='wellImages']//li/a     limit=${FIELD_COUNT3}
     # Right Panel - batch annotate 3 Wells
     Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '3 objects')]
 
@@ -89,7 +89,7 @@ Test Spw Spatial Birds Eye
 
     # Birds eye panel shows all images/fields
     Wait Until Page Contains Element        xpath=//div[@id='well_birds_eye']//img
-    Xpath Should Match X Times              //div[@id='well_birds_eye']//img                 ${FIELD_COUNT}
+    Page Should Contain Element             //div[@id='well_birds_eye']//img                 limit=${FIELD_COUNT}
 
     # Spatial layout: x and y
     ${well1x}=                              Get Horizontal Position  xpath=//div[@id='well_birds_eye']//img[1]
@@ -119,12 +119,12 @@ Test Spw Spatial Birds Eye
     # Meta Click to select additional images
     Meta Click Element                      "#well_birds_eye img:eq(2)"
     Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '2 objects')]
-    Xpath Should Match X Times              //div[@id='wellImages']//li[contains(@class,'ui-selected')]             2
+    Page Should Contain Element              //div[@id='wellImages']//li[contains(@class,'ui-selected')]             limit=2
 
     # Shift-Click range in wellImages panel - updates selection in 'birds eye'
     Shift Click Element                     "#wellImages img:eq(4)"
     Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '5 objects')]
-    Xpath Should Match X Times              //div[@id='well_birds_eye']//img[contains(@class,'ui-selected')]        5
+    Page Should Contain Element              //div[@id='well_birds_eye']//img[contains(@class,'ui-selected')]        limit=5
 
 Test Bulk Annotations
     [Documentation]     Test display of bulk annotations added in setup

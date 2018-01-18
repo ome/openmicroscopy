@@ -65,7 +65,7 @@ Test Show Plate
     Wait Until Page Contains Element    id=batch_ann_title
     Check Well Selected                 A1                              ${wellId}
     Check Well Selected                 A2                              ${wellA2Id}
-    Xpath Should Match X Times          //td[contains(@class, 'well')][contains(@class,'ui-selected')]        2
+    Page Should Contain Element         //td[contains(@class, 'well')][contains(@class,'ui-selected')]        limit=2
 
     # Load Run by run.id
     Go To                               ${WELCOME URL}?show=run.id-${runId}
@@ -88,7 +88,7 @@ Test Show Well Images
 
     # Images from a single Well shown in bottom panel
     Wait Until Page Contains Element        xpath=//div[@id='wellImages']//li/a
-    Xpath Should Match X Times              //div[@id='wellImages']//li/a                 ${FIELD_COUNT}
+    Page Should Contain Element             //div[@id='wellImages']//li/a                 limit=${FIELD_COUNT}
 
     # Select Range: Shift-click 5th image
     Click Element                           xpath=//div[@id='wellImages']//li/a/img[1]
@@ -100,7 +100,7 @@ Test Show Well Images
     ${imagesUrl}=                           Get Element Attribute                   id=link_info_popup_string    attribute=value
     Go To                                   ${imagesUrl}
     Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '5 objects')]
-    Xpath Should Match X Times              //div[@id='wellImages']//li/a                 ${FIELD_COUNT}
+    Page Should Contain Element             //div[@id='wellImages']//li/a                 limit=${FIELD_COUNT}
 
 Test Show PDI
     [Documentation]     Tests that ?show functionality works on Images in Project/Dataset
@@ -117,6 +117,6 @@ Test Show PDI
     # show Multiple images by ID
     Go To                               ${WELCOME URL}?show=image-${imageId1}|image-${imageId2}
     Wait Until Page Contains Element    id=batch_ann_title
-    Xpath Should Match X Times          //li[contains(@class, 'row')][contains(@class,'ui-selected')]        2
+    Page Should Contain Element         //li[contains(@class, 'row')][contains(@class,'ui-selected')]        limit=2
 
 [Teardown]    Close Browser
