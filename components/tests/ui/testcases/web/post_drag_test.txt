@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation     Tests ajax 'POST' updates.
+Documentation     Tests Drag and Drop actions.
 
 Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
@@ -126,7 +126,7 @@ Test Drag and Drop Image on Experimenter
     Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                     refreshButton
 
     ${projectId}    ${datasetid}    ${imageId}  Select And Expand Project Dataset Image
-    ${imageNode}=                               Wait For Image Node
+    ${imageNode}=                               Wait For Image Node    ${imageId}
     #Drag Image on Experimenter
     Drag And Drop                               xpath=//li[@id='${imageNode}']/a  xpath=//li[@id='${treeRootId}']/a
     ${nodeId}=                                  Select Orphaned Images Section
@@ -149,29 +149,29 @@ Test Drag and Drop Project on Invalid Targets
     ${projectNode}                              Wait For Project Node          ${pid}
 
     ${projectId}    ${datasetid}    ${imageId}  Select And Expand Project Dataset Image
-    ${projectNode1}                             Wait For Project Node                  ${projectId}
+    ${projectNode1}                             Wait For Project Node           ${projectId}
 
     #Drag Project on Project
     Drag And Drop                               xpath=//li[@id='${projectNode}']/a                              xpath=//li[@id='${projectNode1}']/a
     Page Should Not Contain Element             xpath=//li[@id='${projectNode1}']//li[@id='${projectNode}']
 
     #Drag Project on Dataset
-    ${datasetNode1}=                            Wait For Dataset Node    ${datasetid}                                 testCreateContainerRobot
+    ${datasetNode1}=                            Wait For Dataset Node    ${datasetid}
     Drag And Drop                               xpath=//li[@id='${projectNode}']/a                              xpath=//li[@id='${datasetNode1}']/a
     Page Should Not Contain Element             xpath=//li[@id='${datasetNode1}']//li[@id='${projectNode}'] 
 
     #Drag Project on Image
-    ${imageNode1}=                              Wait For Image Node                  ${imageId}
+    ${imageNode1}=                              Wait For Image Node      ${imageId}
     Drag And Drop                               xpath=//li[@id='${projectNode}']/a                              xpath=//li[@id='${imageNode1}']/a
     Page Should Not Contain Element             xpath=//li[@id='${imageNode1}']//li[@id='${projectNode}']  
 
     #Drag Project on Screen
-    ${screenNode1}                              Wait For Screen Node                 ${screenId}
+    ${screenNode1}                              Wait For Screen Node      ${screenId}
     Drag And Drop                               xpath=//li[@id='${projectNode}']/a                              xpath=//li[@id='${screenNode1}']/a
     Page Should Not Contain Element             xpath=//li[@id='${screenNode1}']//li[@id='${projectNode}']
 
     #Drag Project on Plate
-    ${plateNode1}                               Wait For Plate Node                   ${plateId}
+    ${plateNode1}                               Wait For Plate Node       ${plateId}
     Drag And Drop                               xpath=//li[@id='${projectNode}']/a                              xpath=//li[@id='${plateNode1}']/a
     Page Should Not Contain Element             xpath=//li[@id='${plateNode1}']//li[@id='${projectNode}']
 
@@ -205,25 +205,24 @@ Test Drag and Drop Dataset on Invalid Targets
     Page Should Not Contain Element             xpath=//li[@id='${datasetNode1}']//li[@id='${datasetNode}']
 
     #Drag Dataset on Image
-    ${imageNode1}=                              Wait For Image Node            ${imageId}
+    ${imageNode1}=                              Wait For Image Node         ${imageId}
     Drag And Drop                               xpath=//li[@id='${datasetNode}']/a   xpath=//li[@id='${imageNode1}']/a
     Page Should Not Contain Element             xpath=//li[@id='${imageNode1}']//li[@id='${datasetNode}'] 
 
     #Drag Dataset on Screen
-    ${screenNode1}                              Wait For Screen Node                  ${screenId}
+    ${screenNode1}                              Wait For Screen Node         ${screenId}
     Drag And Drop                               xpath=//li[@id='${datasetNode}']/a    xpath=//li[@id='${screenNode1}']/a
     Page Should Not Contain Element             xpath=//li[@id='${screenNode1}']//li[@id='${datasetNode}']
 
     #Drag Dataset on Plate
-    ${plateNode1}                               Wait For Plate Node                   ${plateId}
-    Drag And Drop                               xpath=//li[@id='${projectNode}']/a                              xpath=//li[@id='${plateNode1}']/a
-    Page Should Not Contain Element             xpath=//li[@id='${plateNode1}']//li[@id='${projectNode}']
+    ${plateNode1}                               Wait For Plate Node          ${plateId}
+    Drag And Drop                               xpath=//li[@id='${datasetNode}']/a    xpath=//li[@id='${plateNode1}']/a
+    Page Should Not Contain Element             xpath=//li[@id='${plateNode1}']//li[@id='${datasetNode}']
 
     Select Dataset By Id                        ${did}
     Delete Container
     Select Screen By id                         ${screenId}
     Delete Container
-
 
 Test Drag and Drop Screen on Invalid Targets
 
@@ -267,7 +266,7 @@ Test Drag and Drop Screen on Invalid Targets
     Page Should Not Contain Element             xpath=//li[@id='${datasetNode}']//li[@id='${screenNode}']
 
     #Drag Screen on Image
-    ${imageNode1}=                               Wait For Image Node            ${imageId1}
+    ${imageNode1}=                               Wait For Image Node            ${imageId}
     Drag And Drop                                xpath=//li[@id='${screenNode}']/a  xpath=//li[@id='${imageNode1}']/a
     Page Should Not Contain Element              xpath=//li[@id='${imageNode1}']//li[@id='${screenNode}']
 
@@ -298,7 +297,7 @@ Test Drag and Drop Plate on Invalid Targets
     Page Should Not Contain Element             xpath=//li[@id='${datasetNode}']//li[@id='${plateNode}']
 
     #Drag Plate on Image
-    ${imageNode1}=                              Wait For Image Node            ${imageId1}
+    ${imageNode1}=                              Wait For Image Node         ${imageId}
     Drag And Drop                               xpath=//li[@id='${plateNode}']/a  xpath=//li[@id='${imageNode1}']/a
     Page Should Not Contain Element             xpath=//li[@id='${imageNode1}']//li[@id='${plateNode}']
 
@@ -320,7 +319,7 @@ Test Drag and Drop Image on Invalid Targets
 
     #Drag Image on Project
     Drag And Drop                               xpath=//li[@id='${imageNode}']/a  xpath=//li[@id='${projectNode}']/a
-    Page Should Not Contain Element             xpath=//li[@id='${projectNode}']//li[@id='${imaimageNodegeNode1}']                      
+    Page Should Not Contain Element             xpath=//li[@id='${projectNode}']//li[@id='${imageNode}']                      
     #Drag Image on Screen
     ${screenNode}                               Wait For Screen Node           ${screenId}
     Drag And Drop                               xpath=//li[@id='${imageNode}']/a  xpath=//li[@id='${screenNode}']/a
