@@ -60,6 +60,78 @@ Count Thumbs Without Class
 
 *** Test Cases ***
 
+Test Rate Images
+
+    Select Experimenter
+    Select And Expand Node                      Project 1
+    Select And Expand Node                      Dataset 1
+    ${imageId}=                                 Select First Image
+    ${nodeId}=                                  Wait For Image Node         ${imageId}
+
+    Click Element                               xpath=//h1[@data-name='ratings']
+    Wait Until Element Is Visible               id=rating_annotations
+    # Add Rating of 5 *****
+    Click Rating                                5
+    Check For Rating                            5
+
+    # Add Rating of 2 **
+    Click Next Thumbnail
+    ${imageId2}=                                Get Id From Selected Thumbnail
+    Click Rating                                2
+    Check For Rating                            2
+
+    # Add Rating of 2 **
+    Click Next Thumbnail
+    ${imageId3}=                                Get Id From Selected Thumbnail
+    ${nodeId3}=                                 Wait For Image Node         ${imageId3}
+    Click Rating                                2
+    Check For Rating                            2
+
+Test Filter Rating
+
+    Select Experimenter
+    Select And Expand Node                      Project 1
+    Select And Expand Node                      Dataset 1
+    ${imageId}=                                 Select First Image
+    ${nodeId}=                                  Wait For Image Node         ${imageId}
+
+    # Select second image **
+    Click Next Thumbnail
+    ${imageId2}=                                Get Id From Selected Thumbnail
+    ${nodeId2}=                                 Wait For Image Node         ${imageId2}
+
+    # Add Rating of 2 **
+    Click Next Thumbnail
+    ${imageId3}=                                Get Id From Selected Thumbnail
+    ${nodeId3}=                                 Wait For Image Node         ${imageId3}
+
+    # Filter by Rating 2 **
+    Select From List By Label                   id=choosefilter         By Rating
+    Filter Rating                               2
+    # Only 2 thumbnails should remain Visible and Selected
+    Wait Until Element Is Not Visible           id=image_icon-${imageId}
+    Count Thumbs Without Class                  ratingFilter_hidden     2
+
+    # Filter by 5 *****
+    Filter Rating                               5
+    Wait Until Element Is Not Visible           id=image_icon-${imageId2}
+    Wait Until Element Is Not Visible           id=image_icon-${imageId3}
+    Count Thumbs Without Class                  ratingFilter_hidden     1
+
+    # Finally, select the original images and remove rating from ALL
+    Click Node                                  ${nodeId}
+    Meta Click Node                             ${nodeId2}
+    Meta Click Node                             ${nodeId3}
+    Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]    timeout=${TIMEOUT}
+    Page Should Contain Element                 locator=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     limit=3
+    Mouse Over                                  xpath=//div[@id='rating_annotations']//li[contains(@class, 'myRating')]
+    Sleep  10
+    Click Element                               xpath=//div[@id='rating_annotations']//a[contains(@class, 'removeRating')]
+    # Check rating was removed from first image
+    Click Node                                  ${nodeId}
+    Wait Until Element Is Visible               id=rating_annotations    timeout=${TIMEOUT}
+    Check For Rating                            0
+
 Test Comments
 
     Select Experimenter
@@ -166,76 +238,5 @@ Test File Annotations
     Delete Container
     Select Screen By Id                         ${sId_One}
     Delete Container
-
-Test Rate Images
-
-    Select Experimenter
-    Select And Expand Node                      Project 1
-    Select And Expand Node                      Dataset 1
-    ${imageId}=                                 Select First Image
-    ${nodeId}=                                  Wait For Image Node         ${imageId}
-
-    Click Element                               xpath=//h1[@data-name='ratings']
-    Wait Until Element Is Visible               id=rating_annotations
-    # Add Rating of 5 *****
-    Click Rating                                5
-    Check For Rating                            5
-
-    # Add Rating of 2 **
-    Click Next Thumbnail
-    ${imageId2}=                                Get Id From Selected Thumbnail
-    Click Rating                                2
-    Check For Rating                            2
-
-    # Add Rating of 2 **
-    Click Next Thumbnail
-    ${imageId3}=                                Get Id From Selected Thumbnail
-    ${nodeId3}=                                 Wait For Image Node         ${imageId3}
-    Click Rating                                2
-    Check For Rating                            2
-
-Test Filter Rating
-
-    Select Experimenter
-    Select And Expand Node                      Project 1
-    Select And Expand Node                      Dataset 1
-    ${imageId}=                                 Select First Image
-    ${nodeId}=                                  Wait For Image Node         ${imageId}
-
-    # Select second image **
-    Click Next Thumbnail
-    ${imageId2}=                                Get Id From Selected Thumbnail
-    ${nodeId2}=                                 Wait For Image Node         ${imageId2}
-
-    # Add Rating of 2 **
-    Click Next Thumbnail
-    ${imageId3}=                                Get Id From Selected Thumbnail
-    ${nodeId3}=                                 Wait For Image Node         ${imageId3}
-
-    # Filter by Rating 2 **
-    Select From List By Label                   id=choosefilter         By Rating
-    Filter Rating                               2
-    # Only 2 thumbnails should remain Visible and Selected
-    Wait Until Element Is Not Visible           id=image_icon-${imageId}
-    Count Thumbs Without Class                  ratingFilter_hidden     2
-
-    # Filter by 5 *****
-    Filter Rating                               5
-    Wait Until Element Is Not Visible           id=image_icon-${imageId2}
-    Wait Until Element Is Not Visible           id=image_icon-${imageId3}
-    Count Thumbs Without Class                  ratingFilter_hidden     1
-
-    # Finally, select the original images and remove rating from ALL
-    Click Node                                  ${nodeId}
-    Meta Click Node                             ${nodeId2}
-    Meta Click Node                             ${nodeId3}
-    Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]    timeout=${TIMEOUT}
-    Page Should Contain Element                 locator=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     limit=3
-    Mouse Over                                  xpath=//div[@id='rating_annotations']//li[contains(@class, 'myRating')]
-    Click Element                               xpath=//div[@id='rating_annotations']//a[contains(@class, 'removeRating')]
-    # Check rating was removed from first image
-    Click Node                                  ${nodeId}
-    Wait Until Element Is Visible               id=rating_annotations    timeout=${TIMEOUT}
-    Check For Rating                            0
 
 [Teardown]    Close Browser
