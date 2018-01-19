@@ -118,6 +118,14 @@ Test Filter Rating
     Wait Until Element Is Not Visible           id=image_icon-${imageId3}
     Count Thumbs Without Class                  ratingFilter_hidden     1
 
+    # Check average
+    Click Node                                  ${nodeId}
+    Meta Click Node                             ${nodeId2}
+    Meta Click Node                             ${nodeId3}
+
+    Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]    timeout=${TIMEOUT}
+    Page Should Contain Element                 locator=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     limit=3
+
 Test Delete Rating
 
     Select Experimenter
@@ -140,9 +148,6 @@ Test Delete Rating
     Click Node                                  ${nodeId}
     Meta Click Node                             ${nodeId2}
     Meta Click Node                             ${nodeId3}
-
-    Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]    timeout=${TIMEOUT}
-    Page Should Contain Element                 locator=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     limit=3
 
     Mouse Over                                  xpath=//div[@id='rating_annotations']//li[contains(@class, 'myRating')]
     Click Element                               xpath=//div[@id='rating_annotations']//a[contains(@class, 'removeRating')]
