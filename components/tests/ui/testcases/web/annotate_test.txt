@@ -124,6 +124,7 @@ Test Filter Rating
     Meta Click Node                             ${nodeId3}
     Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]    timeout=${TIMEOUT}
     Page Should Contain Element                 locator=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     limit=3
+    
     Mouse Over                                  xpath=//div[@id='rating_annotations']//li[contains(@class, 'myRating')]
     Sleep  10
     Click Element                               xpath=//div[@id='rating_annotations']//a[contains(@class, 'removeRating')]
