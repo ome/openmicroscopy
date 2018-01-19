@@ -58,7 +58,7 @@ Test Copy Paste Image
     Wait Until Page Contains Element        xpath=//li[@data-id='${d1id}']//li[@data-id='${imageId}']
     Wait Until Page Contains Element        xpath=//li[@data-id='${d2id}']//li[@data-id='${imageId}']
 
-    Select Image By Id                      ${imageId}
+    Select Dataset By Id                    ${d1id}
     Delete Container
 
 Test Copy Paste Plate
