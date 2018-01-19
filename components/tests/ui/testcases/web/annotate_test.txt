@@ -89,19 +89,18 @@ Test Rate Images
 
 Test Filter Rating
 
-    Set Selenium Speed                          .3
     Select Experimenter
     Select And Expand Node                      Project 1
     Select And Expand Node                      Dataset 1
     ${imageId}=                                 Select First Image
     ${nodeId}=                                  Wait For Image Node         ${imageId}
 
-    # Select second image **
+    # Select second image
     Click Next Thumbnail
     ${imageId2}=                                Get Id From Selected Thumbnail
     ${nodeId2}=                                 Wait For Image Node         ${imageId2}
 
-    # Add Rating of 2 **
+    # Select third image
     Click Next Thumbnail
     ${imageId3}=                                Get Id From Selected Thumbnail
     ${nodeId3}=                                 Wait For Image Node         ${imageId3}
@@ -119,15 +118,33 @@ Test Filter Rating
     Wait Until Element Is Not Visible           id=image_icon-${imageId3}
     Count Thumbs Without Class                  ratingFilter_hidden     1
 
-    # Finally, select the original images and remove rating from ALL
+Test Delete Rating
+
+    Select Experimenter
+    Select And Expand Node                      Project 1
+    Select And Expand Node                      Dataset 1
+    ${imageId}=                                 Select First Image
+    ${nodeId}=                                  Wait For Image Node         ${imageId}
+
+    # Select second image
+    Click Next Thumbnail
+    ${imageId2}=                                Get Id From Selected Thumbnail
+    ${nodeId2}=                                 Wait For Image Node         ${imageId2}
+
+    # Select third image
+    Click Next Thumbnail
+    ${imageId3}=                                Get Id From Selected Thumbnail
+    ${nodeId3}=                                 Wait For Image Node         ${imageId3}
+
+    # Remove rating from ALL
     Click Node                                  ${nodeId}
     Meta Click Node                             ${nodeId2}
     Meta Click Node                             ${nodeId3}
+
     Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]    timeout=${TIMEOUT}
     Page Should Contain Element                 locator=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     limit=3
 
     Mouse Over                                  xpath=//div[@id='rating_annotations']//li[contains(@class, 'myRating')]
-    Sleep  10
     Click Element                               xpath=//div[@id='rating_annotations']//a[contains(@class, 'removeRating')]
     # Check rating was removed from first image
     Click Node                                  ${nodeId}
