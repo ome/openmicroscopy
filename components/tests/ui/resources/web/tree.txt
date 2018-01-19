@@ -266,6 +266,10 @@ Select First Plate
     Wait Until Right Panel Loads    Plate                    ${plateId}
     [Return]                        ${plateId}
 
+Select First Plate No Load
+    ${plateId}=                     Select Node By Icon      ${plateIcon}
+    [Return]                        ${plateId}
+
 Select First Run
     ${runId}=                       Select Node By Icon      ${runIcon}
     Wait Until Right Panel Loads    Run                      ${runId}
