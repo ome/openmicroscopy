@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation     Tests ajax 'POST' updates.
+Documentation     Tests menu options.
 
 Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
