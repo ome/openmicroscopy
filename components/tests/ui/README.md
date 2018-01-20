@@ -36,14 +36,23 @@ you will have to run robotframework with Python and with Jython.
 In that case it is easier to install robotframework using the
 `setup.py` scripts provided.
 
-After installing the robotframework,  you need to install the
-robotframework-selenium2library, we are not planning to use Selenium1.
+After installing the robotframework, you need to install the
+robotframework-selenium2library.
 See http://github.com/rtomac/robotframework-selenium2library
 
 If you have pip installed, you can install the library with the following
 
 ```
 pip install robotframework-selenium2library
+```
+
+If you want to run the test in parallel, you need to install robotframework-pabot.
+See https://github.com/mkorpela/pabot/
+
+If you have pip installed, you can install the library with the following
+
+```
+pip install robotframework-pabot
 ```
 
 By default, the tests are run using the default browser i.e. Firefox.
