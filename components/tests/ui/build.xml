@@ -165,31 +165,17 @@
         </if>
     </target>
 
-    <!-- merge the results of tests run with firefox and rerun with chrome to publish them -->
-    <target name="merge-results-rerun-firefox">
+
+    <!-- merge the results of test reruns to publish them -->
+    <target name="merge-results-rerun">
         <delete file="${reports}/${reports.output}" failonerror="false"/>
-        <var name="output" value="${reports.web}/firefox"/>
-        <if>
-            <available file="${reports}" type="dir"/>
+        <var name="browser" value="firefox/"/>
+        <if><isset property="BROWSER"/>
             <then>
-                <apply executable="rebot" dir="${reports}" parallel="true">
-                    <arg value="--output"/>
-                    <arg value="${reports.output}"/>
-                    <arg value="--merge"/>
-                    <srcfile/>
-                    <fileset id="reports.files" dir="${output}/">
-                       <include name="${reports.output}"/>
-                       <include name="${reports.rerun}"/>
-                    </fileset>
-                </apply>
+                <var name="browser" value="${BROWSER}"/>
             </then>
         </if>
-    </target>
-
-    <!-- merge the results of tests run with chrome and rerun with firefox to publish them -->
-    <target name="merge-results-rerun-chrome">
-        <delete file="${reports}/${reports.output}" failonerror="false"/>
-        <var name="output" value="${reports.web}/chrome"/>
+        <var name="output" value="${reports.web}/${browser}"/>
         <if>
             <available file="${reports}" type="dir"/>
             <then>
@@ -299,6 +285,7 @@
     </target>
 
     <!-- test with firefox -->
+    <!-- deprecated use web-browser instead -->
     <target name="web-firefox" depends="check-config-file">
         <var name="output" value="${reports.web}/firefox"/>
         <mkdir dir="${output}"/>
@@ -322,6 +309,7 @@
     </target>
 
     <!-- test with chrome This requires the chrome driver to be installed -->
+    <!-- deprecated use web-browser -DBROWSER=chrome instead -->
     <target name="web-chrome" depends="check-config-file">
         <var name="output" value="${reports.web}/chrome"/>
         <mkdir dir="${output}"/>
@@ -350,11 +338,60 @@
         </if>
     </target>
 
-    <!-- Rerun in chrome the tests that failed in firefox. This requires the chrome driver to be installed -->
-    <target name="web-firefox-rerun-chrome" depends="check-config-file">
-        <var name="output" value="${reports.web}/firefox"/>
+    <!-- test with a given browser. If chrome is used, the chrome driver has be installed -->
+    <target name="web-browser" depends="check-config-file">
+        <var name="browser" value="firefox"/>
+        <if><isset property="BROWSER"/>
+            <then>
+                <var name="browser" value="${BROWSER}"/>
+            </then>
+        </if>
+        <var name="output" value="${reports.web}/${browser}"/>
+        <mkdir dir="${output}"/>
+        <var name="target" value="web/"/>
+        <if><isset property="TEST"/>
+            <then>
+                <var name="target" value="web/${TEST}"/>
+            </then>
+        </if>
+        <run_pybot failonerror="${test.with.fail}" output="${output}">
+            <arg value="-d"/>
+            <arg value="${output}"/>
+            <arg value="-v"/>
+            <arg value="browser:${browser}"/>
+            <arg value="-v"/>
+            <arg value="DELAY:0.2"/>
+            <arg value="--loglevel"/>
+            <arg value="debug"/>
+            <arg value="${basedir}/testcases/${target}"/>
+        </run_pybot>
+        <if>
+            <available file="${google.log}"/>
+            <then>
+                <move file="${google.log}" todir="${reports.web}/${browser}"/>
+            </then>
+        </if>
+    </target>
+
+    <!-- Rerun the tests that failed. It is possible to retest in another broswer
+    either the test failures or the full tests suite. If chrome is used, the chrome driver has be installed -->
+    <!-- To return in chrome failure from firefox web-browser-return -->
+    <target name="web-browser-rerun" depends="check-config-file">
+        <var name="browser" value="firefox/"/>
+        <if><isset property="BROWSER"/>
+            <then>
+                <var name="browser" value="${BROWSER}"/>
+            </then>
+        </if>
+        <var name="output" value="${reports.web}/${browser}"/>
         <var name="target" value="web/"/>
         <var name="run" value="--rerunfailed"/>
+        <var name="targetbrowser" value="chrome"/>
+        <if><isset property="TARGETBROWSER"/>
+            <then>
+                <var name="targetbrowser" value="${TARGETBROWSER}"/>
+            </then>
+        </if>
         <if><isset property="TEST"/>
             <then>
                 <var name="target" value="web/${TEST}"/>
@@ -372,7 +409,7 @@
             <arg value="--output"/>
             <arg value="${output}/${reports.rerun}"/>
             <arg value="-v"/>
-            <arg value="browser:chrome"/>
+            <arg value="browser:${targetbrowser}"/>
             <arg value="-v"/>
             <arg value="DELAY:0.2"/>
             <arg value="--loglevel"/>
@@ -382,49 +419,27 @@
         <if>
             <available file="${google.log}"/>
             <then>
-                <move file="${google.log}" todir="${reports.web}/chrome"/>
+                <move file="${google.log}" todir="${reports.web}/${browser}"/>
             </then>
         </if>
     </target>
 
-    <!-- Rerun in firefox the tests that failed in chrome. -->
-    <target name="web-chrome-rerun-firefox" depends="check-config-file">
-        <var name="output" value="${reports.web}/chrome"/>
-        <var name="target" value="web/"/>
-        <var name="run" value="--rerunfailed"/>
-        <if><isset property="TEST"/>
+    <!-- Rerun the tests that failed using pabot. It is possible to retest in another broswer
+    either the test failures or the full suite. If chrome is used, the chrome driver has be installed -->
+    <target name="web-browser-rerun-pabot" depends="check-config-file">
+        <var name="browser" value="firefox/"/>
+        <if><isset property="BROWSER"/>
             <then>
-                <var name="target" value="web/${TEST}"/>
+                <var name="browser" value="${BROWSER}"/>
             </then>
         </if>
-        <if><isset property="SUITE"/>
-            <then>
-                <var name="run" value="--rerunfailedsuites"/>
-            </then>
-        </if>
-        <run_pybot failonerror="${test.with.fail}" output="${output}">
-            <arg value="${run}"/>
-            <arg value="${output}/${reports.output}"/>
-            <arg value="--output"/>
-            <arg value="${output}/${reports.rerun}"/>
-            <arg value="-v"/>
-            <arg value="browser:firefox"/>
-            <arg value="-v"/>
-            <arg value="DELAY:0.2"/>
-            <arg value="--loglevel"/>
-            <arg value="debug"/>
-            <arg value="${basedir}/testcases/${target}"/>
-        </run_pybot>
-    </target>
-
-    <!-- Rerun in chrome the tests that failed in firefox. This requires the chrome driver to be installed -->
-    <target name="web-firefox-rerun-chrome-pabot" depends="check-config-file">
-        <var name="output" value="${reports.web}/firefox"/>
+        <var name="output" value="${reports.web}/${browser}"/>
         <var name="target" value="web/"/>
         <var name="run" value="--rerunfailed"/>
-        <if><isset property="TEST"/>
+        <var name="targetbrowser" value="chrome"/>
+        <if><isset property="TARGETBROWSER"/>
             <then>
-                <var name="target" value="web/${TEST}"/>
+                <var name="targetbrowser" value="${TARGETBROWSER}"/>
             </then>
         </if>
         <if><isset property="SUITE"/>
@@ -441,7 +456,7 @@
             <arg value="--output"/>
             <arg value="${output}/${reports.rerun}"/>
             <arg value="-v"/>
-            <arg value="browser:chrome"/>
+            <arg value="browser:${targetbrowser}"/>
             <arg value="-v"/>
             <arg value="DELAY:0.2"/>
             <arg value="--loglevel"/>
@@ -451,45 +466,20 @@
         <if>
             <available file="${google.log}"/>
             <then>
-                <move file="${google.log}" todir="${reports.web}/chrome"/>
+                <move file="${google.log}" todir="${reports.web}/${browser}"/>
             </then>
         </if>
     </target>
 
-    <!-- Rerun in firefox the tests that failed in chrome. -->
-    <target name="web-chrome-rerun-firefox-pabot" depends="check-config-file">
-        <var name="output" value="${reports.web}/chrome"/>
-        <var name="target" value="web/"/>
-        <var name="run" value="--rerunfailed"/>
-        <if><isset property="TEST"/>
+    <!-- test with a given brower. If chrome is used, the chrome driver has be installed -->
+    <target name="web-browser-pabot" depends="check-config-file">
+        <var name="browser" value="firefox"/>
+        <if><isset property="BROWSER"/>
             <then>
-                <var name="target" value="web/${TEST}"/>
+                <var name="browser" value="${BROWSER}"/>
             </then>
         </if>
-        <if><isset property="SUITE"/>
-            <then>
-                <var name="run" value="--rerunfailedsuites"/>
-            </then>
-        </if>
-        <run_pabot failonerror="${test.with.fail}" output="${output}">
-            <arg value="--processes"/>
-            <arg value="${pabot.processes}"/>
-            <arg value="${run}"/>
-            <arg value="${output}/${reports.output}"/>
-            <arg value="--output"/>
-            <arg value="${output}/${reports.rerun}"/>
-            <arg value="-v"/>
-            <arg value="browser:firefox"/>
-            <arg value="-v"/>
-            <arg value="DELAY:0.2"/>
-            <arg value="--loglevel"/>
-            <arg value="debug"/>
-            <arg value="${basedir}/testcases/${target}"/>
-        </run_pabot>
-    </target>
-    <!-- test with firefox and pabot -->
-    <target name="web-firefox-pabot" depends="check-config-file">
-        <var name="output" value="${reports.web}/firefox"/>
+        <var name="output" value="${reports.web}/${browser}"/>
         <mkdir dir="${output}"/>
         <var name="target" value="web/"/>
         <if><isset property="TEST"/>
@@ -503,32 +493,7 @@
             <arg value="--outputdir"/>
             <arg value="${output}"/>
             <arg value="-v"/>
-            <arg value="browser:firefox"/>
-            <arg value="-v"/>
-            <arg value="DELAY:0.2"/>
-            <arg value="--loglevel"/>
-            <arg value="debug"/>
-            <arg value="${basedir}/testcases/${target}"/>
-        </run_pabot>
-    </target>
-
-    <!-- test with chrome and pabot. This requires the chrome driver to be installed -->
-    <target name="web-chrome-pabot" depends="check-config-file">
-        <var name="output" value="${reports.web}/chrome"/>
-        <mkdir dir="${output}"/>
-        <var name="target" value="web/"/>
-        <if><isset property="TEST"/>
-            <then>
-                <var name="target" value="web/${TEST}"/>
-            </then>
-        </if>
-        <run_pabot failonerror="${test.with.fail}" output="${output}">
-            <arg value="--processes"/>
-            <arg value="${pabot.processes}"/>
-            <arg value="--outputdir"/>
-            <arg value="${output}"/>
-            <arg value="-v"/>
-            <arg value="browser:chrome"/>
+            <arg value="browser:${browser}"/>
             <arg value="-v"/>
             <arg value="DELAY:0.2"/>
             <arg value="--loglevel"/>
@@ -538,11 +503,10 @@
         <if>
             <available file="${google.log}"/>
             <then>
-                <move file="${google.log}" todir="${reports.web}/chrome"/>
+                <move file="${google.log}" todir="${reports.web}/${browser}"/>
             </then>
         </if>
     </target>
-
 
     <target name="tests-dist">
         <librarybuild target="dist"/>
