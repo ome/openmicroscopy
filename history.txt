@@ -45,7 +45,7 @@ Developer updates include:
 -  fixed retrieval of Plate thumbnail URLs
 -  improved 'Editing OMERO.web' documentation
 -  improved Slice documentation for API deprecations
--  added instructions to :doc:`/developers/cli/extensions` on how to
+-  added instructions to :doc:`/developers/cli/extending` on how to
    create CLI plugins that are ``pip`` installable
 -  substantial effort to make third-party repositories easily testable;
    see `omero-test-infra <https://github.com/openmicroscopy/omero-test-infra>_`
