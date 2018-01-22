@@ -1814,6 +1814,15 @@ ul.criteria li {
 	font-size: 1.1em;
 }
 
+ul.criteria_right li {
+	width: 40%;
+	float:right;
+	clear:right;
+}
+ul.criteria_right input{
+	margin-left: 20px;
+}
+
 .criteria input[type=checkbox] {
 	display: inline-block;
 	margin-right: 5px;

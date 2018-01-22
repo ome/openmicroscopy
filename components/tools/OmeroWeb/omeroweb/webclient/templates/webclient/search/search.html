@@ -196,6 +196,18 @@
                     $("#searchHints").toggle();
                     return false;
                 });
+
+                $("#show_annotations").click(function(){
+                    $("#search_ann_type").toggleClass("hide");
+
+                    if ($(this).is(':checked')) {
+                        // if visible, check the 'all annotations' radio button
+                        $("input[value='annotation']").prop('checked',true);
+                    } else {
+                        // otherwise, uncheck ALL annotation radio buttons
+                        $("#search_ann_type input[type='radio']").prop('checked',false);
+                    }
+                });
         });
     </script>
 
@@ -280,13 +292,20 @@
             <ul class="criteria">
                 <li><input type="checkbox" name="field" value="name" />{% trans "Name" %}</li>
                 <li><input type="checkbox" name="field" value="description" />{% trans "Description" %}</li>
+                <!-- The Annotations checkbox has no name (not submitted in form). Just shows radio buttons below -->
                 <li style="white-space:nowrap;">
-                    <input type="checkbox" name="field" value="annotation" />{% trans "Annotations" %}<span class="searching_info" data-content="Includes file attachments, tags, comments etc">
+                    <input id="show_annotations" type="checkbox" />{% trans "Annotations" %}
+                    <span class="searching_info" data-content="Includes file attachments, tags, comments etc">
                        <img src="{% static "webgateway/img/help16.png" %}" />
                     </span>
                 </li>
             </ul>
 
+            <ul id="search_ann_type" class="criteria criteria_right hide">
+                <li><input type="radio" name="field" value="annotation">All Annotations</li>
+                <li><input type="radio" name="field" value="file">Files</li>
+                <li><input type="radio" name="field" value="tag">Tags</li>
+            </ul>
             <hr>
 
             <label>Scope:</label>

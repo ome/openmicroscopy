@@ -55,9 +55,11 @@ class BaseSearch(BaseController):
 
         # If fields contains 'annotation', we really want to search files too
         fields = set(fields)
-        if "annotation" in fields:
+        if "annotation" in fields or "file" in fields:
             fields = fields.union(("file.name", "file.path", "file.format",
                                    "file.contents"))
+            # Supported fields at https://docs.openmicroscopy.org/latest/omero/developers/Modules/Search.html
+            fields.discard("file")      # Not supported
         fields = list(fields)
 
         if 'plates' in onlyTypes:
