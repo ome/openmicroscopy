@@ -22,8 +22,7 @@ Test Search Results File Annotations
     ${sId_One}=                                 Create Screen       robot file annotations_1
 
     # Annotate single Screen
-    # NB: Attachments panel may be open from previous test. Try opening 'closed' panel in case...
-    Run Keyword And Ignore Error                Click Element  xpath=//h1[@data-name='attachments'][contains(@class, 'closed')]
+    Click Element                               xpath=//h1[@data-name='attachments']
     Add File Annotation                         ${fileName}
 
     Input Text  id=id_search_query              ${fileName}
