@@ -214,8 +214,8 @@ for each browser.
 To run all the web tests on only Firefox or Chrome respectively, use
 
 ```
-./build.py -f components/tests/ui/build.xml web-firefox
-./build.py -f components/tests/ui/build.xml web-chrome
+./build.py -f components/tests/ui/build.xml web-browser
+./build.py -f components/tests/ui/build.xml web-browser -DBROWSER=chrome
 ```
 
 The output of the tests can be found repectively under
@@ -225,10 +225,10 @@ components/tests/ui/target/reports/web/firefox/
 components/tests/ui/target/reports/web/chrome/
 ```
 
-To run a single test under `testcases/web`, for example
+To run a single test under `testcases/web` in firefox, for example
 
 ```
-./build.py -f components/tests/ui/build.xml web-firefox -DTEST=tree_test.txt
+./build.py -f components/tests/ui/build.xml web-browser -DTEST=tree_test.txt
 ```
 
 with the ouput being available under
@@ -237,6 +237,49 @@ with the ouput being available under
 components/tests/ui/target/reports/web/firefox/
 ```
 
+It is possible to rerun tests that failed either in a different browser or the same browser.
+By default, the tests will be first run in Firefox and rerun in chrome.
+
+To run all the web tests on Firefox then Chrome, use
+
+```
+./build.py -f components/tests/ui/build.xml web-browser-rerun
+```
+
+To run all the web tests on Chrome then Firefox, use
+
+```
+./build.py -f components/tests/ui/build.xml web-browser-rerun -DBROWSER=chrome -DTARGETBROWSER=firefox
+```
+
+It is often useful to merge the outputs of the run instead of aggregating the results.
+To merge the outputs use
+
+``
+./build.py -f components/tests/ui/build.xml merge-results
+
+``
+
+To merge the outputs after running a `rerun` task first on Firefox  use
+
+``
+./build.py -f components/tests/ui/build.xml merge-results-run
+
+``
+
+otherwise
+
+``
+./build.py -f components/tests/ui/build.xml merge-results-run -DBROWSER=chrome
+
+``
+
+To run all the web tests in parallel using robotframework-pabot on Firefox or Chrome, use
+
+```
+./build.py -f components/tests/ui/build.xml web-browser-pabot
+./build.py -f components/tests/ui/build.xml web-browser-pabot -DBROWSER=chrome
+```
 
 OMERO CLI
 ---------
