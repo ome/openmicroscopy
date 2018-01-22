@@ -228,7 +228,7 @@ components/tests/ui/target/reports/web/chrome/
 To run a single test under `testcases/web` in firefox, for example
 
 ```
-./build.py -f components/tests/ui/build.xml web-browser -DTEST=tree_test.txt
+./build.py -f components/tests/ui/build.xml web-browser -DTEST=annotate_test.txt
 ```
 
 with the ouput being available under
@@ -238,7 +238,7 @@ components/tests/ui/target/reports/web/firefox/
 ```
 
 It is possible to rerun tests that failed either in a different browser or the same browser.
-By default, the tests will be first run in Firefox and rerun in chrome.
+By default, the tests will be first run in Firefox and rerun in Chrome.
 
 To run all the web tests on Firefox then Chrome, use
 
@@ -260,7 +260,7 @@ To merge the outputs use
 
 ``
 
-To merge the outputs after running a `rerun` task first on Firefox  use
+To merge the outputs after running a `rerun` task first on Firefox use
 
 ``
 ./build.py -f components/tests/ui/build.xml merge-results-run
