@@ -42,8 +42,9 @@ from omero.rtypes import rlong
 from omero.rtypes import unwrap
 from omero.util import get_user
 from omero.util.sessions import SessionsStore
-from omero.cli import UserGroupControl, CLI
+from omero.cli import UserGroupControl, CLI, admin_only
 from omero_ext.argparse import SUPPRESS
+from omero.model.enums import AdminPrivilegeSudo
 
 HELP = """Control and create user sessions
 
@@ -275,6 +276,7 @@ class SessionsControl(UserGroupControl):
     def help(self, args):
         self.ctx.out(LONGHELP % {"prog": args.prog})
 
+    @admin_only(AdminPrivilegeSudo)
     def open(self, args):
         client = self.ctx.conn(args)
         admin = client.sf.getAdminService()
