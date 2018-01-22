@@ -46,7 +46,9 @@ Filter Rating
 
 Check For Rating
     [Arguments]                                 ${rating}
-    Wait Until Element Is Visible               xpath=//img[@title='Click to add rating'][contains(@src, 'rating${rating}')]
+    ${src}=                                     Get Element Attribute   xpath=//img[@title='Click to add rating']   attribute=src
+    Should Contain                              ${src}                  rating${rating}
+
 
 Count Thumbs With Class
     # Check that the number of thumbnails with this class is the expected number
@@ -133,7 +135,8 @@ Test Delete Rating
     Select And Expand Node                      Dataset 1
     ${imageId}=                                 Select First Image
     ${nodeId}=                                  Wait For Image Node         ${imageId}
-    Click Element                               xpath=//h1[@data-name='ratings']
+    # Try to open Ratings pane if closed
+    Run Keyword And Ignore Error                Click Element  xpath=//h1[@data-name='ratings'][contains(@class, 'closed')]
 
     # Select second image
     Click Next Thumbnail
