@@ -17,7 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.blitz.fire;
+package ome.security.basic;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -30,6 +30,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import edu.emory.mathcs.backport.java.util.Collections;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
+import ome.security.NodeProvider;
+import ome.services.blitz.fire.Ring;
 import ome.services.util.Executor;
 import ome.system.Principal;
 
@@ -41,7 +43,7 @@ import ome.system.Principal;
  * @see Ring
  * @since 5.3.0
  */
-public class InMemoryNodeProvider implements NodeProviderI {
+public class InMemoryNodeProvider implements NodeProvider {
 
     /**
      * UUID for this cluster node. Used to uniquely identify the session manager

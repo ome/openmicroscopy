@@ -17,42 +17,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.security.basic;
-
-import java.util.concurrent.atomic.AtomicLong;
+package ome.security;
 
 import ome.model.meta.Event;
-import ome.security.EventProvider;
-import ome.system.ServiceFactory;
 
 /**
  * Provider for {@link Event} objects which is responsible for persisting and
- * populating such entities in-memory.
+ * populating such entities.
  * 
  * @author Chris Allan <callan@glencoesoftware.com>
  * @see SecuritySystem
  * @since 5.3.0
  */
-public class BasicInMemoryEventProvider
-    implements EventProvider {
-
-    private final AtomicLong currentEventId = new AtomicLong(-1L);
-
-    /**
-     * Main public constructor for this {@link EventProvider} implementation.
-     * @param sf the service factory
-     */
-    public BasicInMemoryEventProvider(ServiceFactory sf) {
-    }
+public interface EventProvider {
 
     /**
      * Persists a given {@link Event}.
      * @param event the event to persist
      * @return updated event
      */
-    public Event updateEvent(Event event) {
-        event.setId(currentEventId.getAndDecrement());
-        return event;
-    }
+    Event updateEvent(Event event);
 
 }
