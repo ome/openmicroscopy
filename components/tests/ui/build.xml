@@ -3,7 +3,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# Copyright 2013 University of Dundee. All rights reserved.
+# Copyright 2013-2018 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -165,7 +165,6 @@
         </if>
     </target>
 
-
     <!-- merge the results of test reruns to publish them -->
     <target name="merge-results-rerun">
         <delete file="${reports}/${reports.output}" failonerror="false"/>
@@ -274,71 +273,37 @@
 
     <!--  run all the web tests -->
     <target name="ui-test-web">
-        <antcall target="web-firefox" inheritRefs="true" inheritAll="true"/>
-        <antcall target="web-chrome" inheritRefs="true" inheritAll="true"/>
+        <antcall target="web-browser" inheritRefs="true" inheritAll="true"/>
+        <antcall target="web-browser" inheritRefs="true" inheritAll="true">
+            <param name="BROWSER" value="chrome"/>
+        </antcall>
     </target>
 
     <!--  run all the web tests with pabot-->
     <target name="ui-test-web-pabot">
-        <antcall target="web-firefox-pabot" inheritRefs="true" inheritAll="true"/>
-        <antcall target="web-chrome-pabot" inheritRefs="true" inheritAll="true"/>
+        <antcall target="web-browser-pabot" inheritRefs="true" inheritAll="true"/>
+        <antcall target="web-browser-pabot" inheritRefs="true" inheritAll="true">
+            <param name="BROWSER" value="chrome"/>
+        </antcall>
     </target>
 
     <!-- test with firefox -->
     <!-- deprecated use web-browser instead -->
     <target name="web-firefox" depends="check-config-file">
-        <var name="output" value="${reports.web}/firefox"/>
-        <mkdir dir="${output}"/>
-        <var name="target" value="web/"/>
-        <if><isset property="TEST"/>
-            <then>
-                <var name="target" value="web/${TEST}"/>
-            </then>
-        </if>
-        <run_pybot failonerror="${test.with.fail}" output="${output}">
-            <arg value="-d"/>
-            <arg value="${output}"/>
-            <arg value="-v"/>
-            <arg value="browser:firefox"/>
-            <arg value="-v"/>
-            <arg value="DELAY:0.2"/>
-            <arg value="--loglevel"/>
-            <arg value="debug"/>
-            <arg value="${basedir}/testcases/${target}"/>
-        </run_pybot>
+        <echo message="deprecated use web-browser instead"/>
+        <antcall target="web-browser" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <!-- test with chrome This requires the chrome driver to be installed -->
     <!-- deprecated use web-browser -DBROWSER=chrome instead -->
     <target name="web-chrome" depends="check-config-file">
-        <var name="output" value="${reports.web}/chrome"/>
-        <mkdir dir="${output}"/>
-        <var name="target" value="web/"/>
-        <if><isset property="TEST"/>
-            <then>
-                <var name="target" value="web/${TEST}"/>
-            </then>
-        </if>
-        <run_pybot failonerror="${test.with.fail}" output="${output}">
-            <arg value="-d"/>
-            <arg value="${output}"/>
-            <arg value="-v"/>
-            <arg value="browser:chrome"/>
-            <arg value="-v"/>
-            <arg value="DELAY:0.2"/>
-            <arg value="--loglevel"/>
-            <arg value="debug"/>
-            <arg value="${basedir}/testcases/${target}"/>
-        </run_pybot>
-        <if>
-            <available file="${google.log}"/>
-            <then>
-                <move file="${google.log}" todir="${reports.web}/chrome"/>
-            </then>
-        </if>
+        <echo message="deprecated use web-browser -DBROWSER=chrome instead"/>
+        <antcall target="web-browser" inheritRefs="true" inheritAll="true">
+            <param name="BROWSER" value="chrome"/>
+        </antcall>
     </target>
 
-    <!-- test with a given browser. If chrome is used, the chrome driver has be installed -->
+    <!-- test with a given browser. If chrome is used, the chrome driver has to be installed -->
     <target name="web-browser" depends="check-config-file">
         <var name="browser" value="firefox"/>
         <if><isset property="BROWSER"/>
@@ -373,9 +338,8 @@
         </if>
     </target>
 
-    <!-- Rerun the tests that failed. It is possible to retest in another broswer
-    either the test failures or the full tests suite. If chrome is used, the chrome driver has be installed -->
-    <!-- To return in chrome failure from firefox web-browser-return -->
+    <!-- Rerun the tests that failed. It is possible to retest in the same or another browser
+    either the test failures or the full tests suite. the chrome driver has to be installed -->
     <target name="web-browser-rerun" depends="check-config-file">
         <var name="browser" value="firefox/"/>
         <if><isset property="BROWSER"/>
@@ -424,8 +388,8 @@
         </if>
     </target>
 
-    <!-- Rerun the tests that failed using pabot. It is possible to retest in another broswer
-    either the test failures or the full suite. If chrome is used, the chrome driver has be installed -->
+    <!-- Rerun the tests that failed in parallel. It is possible to retest in the same or another browser
+    either the test failures or the full tests suite. the chrome driver has to be installed -->
     <target name="web-browser-rerun-pabot" depends="check-config-file">
         <var name="browser" value="firefox/"/>
         <if><isset property="BROWSER"/>
@@ -471,7 +435,7 @@
         </if>
     </target>
 
-    <!-- test with a given brower. If chrome is used, the chrome driver has be installed -->
+    <!-- test with a given brower. If chrome is used, the chrome driver has to be installed -->
     <target name="web-browser-pabot" depends="check-config-file">
         <var name="browser" value="firefox"/>
         <if><isset property="BROWSER"/>
@@ -522,7 +486,7 @@
     <librarybuild target="clean"/>
     </target>
 
-       <!-- compile the unit tests under library/java/test -->
+    <!-- compile the unit tests under library/java/test -->
     <target name="test-compile" description=""/>
 
     <!-- no-operation -->
