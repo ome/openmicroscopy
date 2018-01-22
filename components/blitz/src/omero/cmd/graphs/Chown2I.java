@@ -299,7 +299,9 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             switch (step) {
             case 0:
                 if (CollectionUtils.isNotEmpty(targetUsers)) {
-                    targetAllUsersObjects();
+                    // targetAllUsersObjects();
+                    final Exception e = new IllegalArgumentException("targetUsers is temporarily disabled");
+                    throw helper.cancel(new ERR(), e, "feature-disabled");
                 }
                 return null;
             case 1:
