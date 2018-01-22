@@ -5,20 +5,15 @@ These scripts, and the implementations of the keywords they use,
 specify automated operation of OMERO clients. This allows acceptance
 testing of user interface behavior and detection of regressions.
 
-Requirements:
- * Robot Framework
- * Python 2.5 or above, Python 3.x is not supported.
- * Jython 2.5 (Insight tests)
+**Requirements**:
+ * [Robot Framework](http://robotframework.org)
+ * Python 2.x and [pip](https://pip.pypa.io/en/stable/) (Python 3.x is not supported)
+ * [Jython](http://www.jython.org/) 2.5.x (Insight tests)
     + higher versions may not be supported, we use 2.5.4rc1
  * one or both of these web browsers (Web tests)
-    + Firefox. It may not work with some more recent versions.
-    + Chrome
+    + Firefox - [requires geckodriver](#web-browser-drivers)
+    + Chrome - [requires chromedriver](#web-browser-drivers)
  * robotframework-selenium2library (Web tests)
- * chromedriver (Web tests using Chrome)
- * geckodriver
-
-Read about Robot Framework at
-http://robotframework.org
 
 Before installing please visit
 https://github.com/robotframework/robotframework/blob/master/INSTALL.rst
@@ -36,24 +31,30 @@ you will have to run robotframework with Python and with Jython.
 In that case it is easier to install robotframework using the
 `setup.py` scripts provided.
 
-After installing the robotframework, you need to install the
-robotframework-selenium2library.
-See http://github.com/rtomac/robotframework-selenium2library
+Testing frameworks
+------------------
 
-If you have pip installed, you can install the library with the following
+#### [selenium](http://github.com/rtomac/robotframework-selenium2library)
+
+Selenium runs tests _one at a time (recommended way to run tests for now)_.
+You can install the library with the following:
 
 ```
 pip install robotframework-selenium2library
 ```
 
-If you want to run the test in parallel, you need to install robotframework-pabot.
-See https://github.com/mkorpela/pabot/
+#### [pabot](https://github.com/mkorpela/pabot/)
 
-If you have pip installed, you can install the library with the following
+Pabot is a relativily new library for running robot tests and allows them to run in _parallel_.
+This can significantly reduce testing times, however not all tests pass and there could be
+unexpected results. To install robotframework-pabot:
 
-```
+``` 
 pip install robotframework-pabot
 ```
+
+Web browser drivers
+-------------------
 
 By default, the tests are run using the default browser i.e. Firefox.
 If you are running the tests on Mac OS X, you can install with the following
@@ -255,24 +256,21 @@ To run all the web tests on Chrome then Firefox, use
 It is often useful to merge the outputs of the run instead of aggregating the results.
 To merge the outputs use
 
-``
+```
 ./build.py -f components/tests/ui/build.xml merge-results
-
-``
+```
 
 To merge the outputs after running a `rerun` task first on Firefox use
 
-``
+```
 ./build.py -f components/tests/ui/build.xml merge-results-run
-
-``
+```
 
 otherwise
 
-``
+```
 ./build.py -f components/tests/ui/build.xml merge-results-run -DBROWSER=chrome
-
-``
+```
 
 To run all the web tests in parallel using robotframework-pabot on Firefox or Chrome, use
 
