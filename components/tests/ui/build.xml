@@ -301,7 +301,7 @@
         <antcall target="web-browser" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <!-- test with chrome This requires the chrome driver to be installed -->
+    <!-- test with chrome. The chrome driver has to be installed -->
     <!-- deprecated use web-browser -DBROWSER=chrome instead -->
     <target name="web-chrome" depends="check-config-file">
         <echo message="deprecated use web-browser -DBROWSER=chrome instead"/>
