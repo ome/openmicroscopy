@@ -27,18 +27,22 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import edu.emory.mathcs.backport.java.util.Collections;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
+import ome.parameters.Filter;
+import ome.parameters.Parameters;
 import ome.security.NodeProvider;
-import ome.services.blitz.fire.Ring;
 import ome.services.util.Executor;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
 
 /**
  * Provider for {@link Node} objects which is responsible for persisting and
  * populating such entities.
- * 
+ *
  * @author Chris Allan <callan@glencoesoftware.com>
  * @see Ring
  * @since 5.3.0
@@ -73,6 +77,25 @@ public class InMemoryNodeProvider implements NodeProvider {
 
     // Database interactions
     // =========================================================================
+
+    /* (non-Javadoc)
+     * @see ome.security.NodeProvider#getManagerIdByUuid(java.lang.String, ome.util.SqlAction)
+     */
+    public long getManagerIdByUuid(String managerUuid, ome.util.SqlAction sql) {
+        return getManagerByUuid(managerUuid, null).getId();
+    };
+
+    /* (non-Javadoc)
+     * @see ome.security.NodeProvider#getManagerByUuid(java.lang.String, ome.system.ServiceFactory)
+     */
+    public Node getManagerByUuid(final String managerUuid, ServiceFactory sf) {
+        for (Node node : currentNodes) {
+            if (managerUuid.equals(node.getUuid())) {
+                return node;
+            }
+        }
+        return null;
+    };
 
     /* (non-Javadoc)
      * @see ome.services.blitz.fire.NodeProviderI#getManagerList(boolean)
