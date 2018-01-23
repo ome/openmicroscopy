@@ -20,12 +20,11 @@
 package ome.security.basic;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import ome.model.meta.Node;
@@ -54,8 +53,7 @@ public class InMemoryNodeProvider implements NodeProvider {
 
     private final Principal principal;
 
-    private final List<Node> currentNodes =
-            Collections.synchronizedList(new ArrayList<Node>());
+    private final Map<String, Node> currentNodes = new ConcurrentHashMap<>();
 
     private final AtomicLong currentNodeId = new AtomicLong(-1L);
 
@@ -85,12 +83,7 @@ public class InMemoryNodeProvider implements NodeProvider {
      * @see ome.security.NodeProvider#getManagerByUuid(java.lang.String, ome.system.ServiceFactory)
      */
     public Node getManagerByUuid(final String managerUuid, ServiceFactory sf) {
-        for (Node node : currentNodes) {
-            if (managerUuid.equals(node.getUuid())) {
-                return node;
-            }
-        }
-        return null;
+        return currentNodes.get(managerUuid);
     };
 
     /* (non-Javadoc)
@@ -98,7 +91,7 @@ public class InMemoryNodeProvider implements NodeProvider {
      */
     public Set<String> getManagerList(final boolean onlyActive) {
         Set<String> nodeIds = new HashSet<String>();
-        for (Node node : currentNodes) {
+        for (final Node node : currentNodes.values()) {
             if (onlyActive && node.getDown() != null) {
                 continue; // Remove none active managers
             }
@@ -117,11 +110,9 @@ public class InMemoryNodeProvider implements NodeProvider {
         // update session set closed = now()
         //     where closed is null and node in
         //         (select id from Node where uuid = ?)
+        final Node node = currentNodes.get(uuid);
         int modificationCount = 0;
-        for (Node node : currentNodes) {
-            if (!uuid.equals(node.getUuid())) {
-                continue;
-            }
+        if (node != null) {
             Iterator<Session> i = node.iterateSessions();
             while (i.hasNext()) {
                 Session session = i.next();
@@ -142,10 +133,9 @@ public class InMemoryNodeProvider implements NodeProvider {
         // Implement of the following SQL query in memory:
         //
         // update Node set down = now() where uuid = ?
-        for (Node node : currentNodes) {
-            if (uuid.equals(node.getUuid())) {
-                node.setDown(new Timestamp(System.currentTimeMillis()));
-            }
+        final Node node = currentNodes.get(uuid);
+        if (node != null) {
+            node.setDown(new Timestamp(System.currentTimeMillis()));
         }
     }
 
@@ -158,7 +148,7 @@ public class InMemoryNodeProvider implements NodeProvider {
         node.setConn(proxyString);
         node.setUuid(managerUuid);
         node.setUp(new Timestamp(System.currentTimeMillis()));
-        currentNodes.add(node);
+        currentNodes.put(managerUuid, node);
         return node;
     }
 
