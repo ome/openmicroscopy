@@ -5,8 +5,7 @@ Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
-Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
-Suite Teardown      Close all browsers
+Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
 
 *** Variables ***
 
@@ -60,13 +59,13 @@ Test Show Plate
     Should Be Equal                     ${wellUrl}                      ${WELCOME URL}?show=well-${wellId}
 
     # Get Next Well IDs to Test multi-selection of Wells
-    ${well-id-A2}=                      Get Element Attribute           xpath=//td[contains(@class, 'well')][descendant::img[@name='A2']]@id
+    ${well-id-A2}=                      Get Element Attribute           xpath=//td[contains(@class, 'well')][descendant::img[@name='A2']]    attribute=id
     ${w}    ${wellA2Id}=                Split String                    ${well-id-A2}    -
     Go To                               ${WELCOME URL}?show=well-${wellId}|well-${wellA2Id}
     Wait Until Page Contains Element    id=batch_ann_title
     Check Well Selected                 A1                              ${wellId}
     Check Well Selected                 A2                              ${wellA2Id}
-    Xpath Should Match X Times          //td[contains(@class, 'well')][contains(@class,'ui-selected')]        2
+    Page Should Contain Element         //td[contains(@class, 'well')][contains(@class,'ui-selected')]        limit=2
 
     # Load Run by run.id
     Go To                               ${WELCOME URL}?show=run.id-${runId}
@@ -89,7 +88,7 @@ Test Show Well Images
 
     # Images from a single Well shown in bottom panel
     Wait Until Page Contains Element        xpath=//div[@id='wellImages']//li/a
-    Xpath Should Match X Times              //div[@id='wellImages']//li/a                 ${FIELD_COUNT}
+    Page Should Contain Element             //div[@id='wellImages']//li/a                 limit=${FIELD_COUNT}
 
     # Select Range: Shift-click 5th image
     Click Element                           xpath=//div[@id='wellImages']//li/a/img[1]
@@ -98,11 +97,10 @@ Test Show Well Images
 
     # Use 'Link' button to get link
     Click Element                           id=show_link_btn
-    ${imagesUrl}=                           Get Element Attribute                   id=link_info_popup_string@value
+    ${imagesUrl}=                           Get Element Attribute                   id=link_info_popup_string    attribute=value
     Go To                                   ${imagesUrl}
     Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '5 objects')]
-    Xpath Should Match X Times              //div[@id='wellImages']//li/a                 ${FIELD_COUNT}
-
+    Page Should Contain Element             //div[@id='wellImages']//li/a                 limit=${FIELD_COUNT}
 
 Test Show PDI
     [Documentation]     Tests that ?show functionality works on Images in Project/Dataset
@@ -119,10 +117,6 @@ Test Show PDI
     # show Multiple images by ID
     Go To                               ${WELCOME URL}?show=image-${imageId1}|image-${imageId2}
     Wait Until Page Contains Element    id=batch_ann_title
-    Xpath Should Match X Times          //li[contains(@class, 'row')][contains(@class,'ui-selected')]        2
+    Page Should Contain Element         //li[contains(@class, 'row')][contains(@class,'ui-selected')]        limit=2
 
-
-
-
-
-
+[Teardown]    Close Browser

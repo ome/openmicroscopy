@@ -5,9 +5,7 @@ Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
-Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
-Suite Teardown      Close all browsers
-
+Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
 
 *** Variables ***
 
@@ -26,7 +24,7 @@ Check Fileset Delete Warning
     # For some reason, fails to find full text: 'Multi-image filesets cannot be partially deleted'
     Wait Until Page Contains                partially deleted
     # Should be 3 thumbnails shown for this fileset
-    Xpath Should Match X Times              //div[@class='split_fileset']//img[@class='fileset_image']        3
+    Page Should Contain Element             //div[@class='split_fileset']//img[@class='fileset_image']        limit=3
     # Yes button shouldn't be visible
     ${xpath}=                               Get Dialog Button Xpath     Yes
     Element Should Not Be Visible           xpath=${xpath}
@@ -52,7 +50,6 @@ Test Delete Project
     User Should Be Selected
     Project Should Not Exist in Tree        ${pid}
 
-
 Test Delete Project Dataset
     [Documentation]     Create and Delete a Project containing a Dataset
 
@@ -73,7 +70,6 @@ Test Delete Project Dataset
     # Dataset should be Deleted too
     Dataset Should Not Exist In Tree        ${did}
 
-
 Test Delete Images in Dataset
     [Documentation]     Deletes images pre-imported into a dataset named "Delete"
 
@@ -83,7 +79,7 @@ Test Delete Images in Dataset
     ${nodeId}=                              Wait For Dataset Node Text              Delete
     Click Node                              ${nodeId}
     Wait Until Page Contains Element        id=dataIcons
-    ${thumbCount}=                          Get Matching Xpath Count     ${thumbnailsXpath}
+    ${thumbCount}=                          Get Element Count     ${thumbnailsXpath}
     # Click first image in Tree
     Select First Image
     Click Element                           id=deleteButton
@@ -91,11 +87,10 @@ Test Delete Images in Dataset
     Click Dialog Button                     Yes
     # Should see almost instant removal of 1 thumbnail...
     ${delThumbCount}=                       Evaluate   ${thumbCount} - 1
-    Wait Until Keyword Succeeds             1   0.1   Xpath Should Match X Times   ${thumbnailsXpath}   ${delThumbCount}
+    Wait Until Keyword Succeeds             1   0.1   Page Should Contain Element   ${thumbnailsXpath}   limit=${delThumbCount}
     # ...Need to check that centre panel doesn't reload and show image during delete: #12866
     Sleep                                   5
-    Xpath Should Match X Times              ${thumbnailsXpath}   ${delThumbCount}
-
+    Page Should Contain Element               ${thumbnailsXpath}   limit=${delThumbCount}
 
 Test Delete MIF Images
     [Documentation]     Checks warnings when trying to delete Multi-Image-Fileset images
@@ -106,7 +101,7 @@ Test Delete MIF Images
     Select First Dataset With Name          MIF Images
     ${nodeId}=                              Select First Image With Name            test&series=3.fake [test]
     Wait Until Element Is Visible           xpath=//ul[@id='dataIcons']//li[contains(@class, 'fs-selected')]
-    Xpath Should Match X Times              //ul[@id='dataIcons']//li[contains(@class, 'fs-selected')]       3
+    Page Should Contain Element              //ul[@id='dataIcons']//li[contains(@class, 'fs-selected')]       limit=3
     # Check warning is generated via toolbar button...
     Click Element                           id=deleteButton
     Check Fileset Delete Warning
@@ -117,7 +112,6 @@ Test Delete MIF Images
     Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Delete')]
     Check Fileset Delete Warning
     Click Dialog Button                     Cancel
-
 
 Test Delete Images in Share
     [Documentation]     Deletes pre-imported images after putting them in Share
@@ -156,4 +150,6 @@ Test Delete Images in Share
     Select First Share
     # Should be image with id='image-123', with 'Object Deleted' in Tree and icons
     Wait Until Page Contains Element            xpath=//div[@id='dataTree']//li[@data-id='${imageId}']/a[contains(text(), 'Object deleted')]
-    Xpath Should Match X Times                  ${thumbnailsXpath}   0
+    Page Should Contain Element                  ${thumbnailsXpath}   limit=0
+
+[Teardown]    Close Browser
