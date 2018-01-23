@@ -14,9 +14,9 @@ Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
 ${XpathImage}           xpath=//table[@id='dataTable']//img[@alt='image']
 ${XpathImageThumb}      xpath=//table[@id='dataTable']//img[@class='search_thumb']
 ${XpathDataset}         xpath=//table[@id='dataTable']//img[@alt='dataset']
-${XpathDatasetThumb}    xpath=//table[@id='dataTable']//img[contains(@src,'folder_image16.png')] 
+${XpathDatasetThumb}    xpath=//table[@id='dataTable']//img[contains(@src,'folder_image16.png')]
 ${XpathProject}         xpath=//table[@id='dataTable']//img[@alt='project']
-${XpathProjectThumb}    xpath=//table[@id='dataTable']//img[contains(@src,'folder16.png')] 
+${XpathProjectThumb}    xpath=//table[@id='dataTable']//img[contains(@src,'folder16.png')]
 ${XpathPlate}           xpath=//table[@id='dataTable']//img[@alt='plate']
 ${XpathPlateThumb}      xpath=//table[@id='dataTable']//img[contains(@src,'folder_plate16.png')]
 ${XpathScreen}          xpath=//table[@id='dataTable']//img[@alt='screen']
@@ -55,10 +55,10 @@ ${SEARCH URL}           ${WELCOME URL}search/
 *** Keywords ***
 
 Unselect All Checkboxes
-    
+
     Unselect Checkbox  name
     Unselect Checkbox  description
-    Unselect Checkbox  annotation
+    Unselect Checkbox  show_annotations
     Unselect Checkbox  images
     Unselect Checkbox  datasets
     Unselect Checkbox  projects
@@ -67,10 +67,10 @@ Unselect All Checkboxes
     Unselect Checkbox  wells
 
 Select All Checkboxes
-    
+
     Select Checkbox  name
     Select Checkbox  description
-    Select Checkbox  annotation
+    Select Checkbox  show_annotations
     Select Checkbox  images
     Select Checkbox  datasets
     Select Checkbox  projects
