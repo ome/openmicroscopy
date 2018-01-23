@@ -31,7 +31,7 @@ import ome.util.SqlAction;
  * populating such entities.
  * 
  * @author Chris Allan <callan@glencoesoftware.com>
- * @see Ring
+ * @see ome.services.blitz.fire.Ring
  * @since 5.3.0
  */
 public interface NodeProvider {

@@ -28,12 +28,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import ome.model.meta.Node;
 import ome.model.meta.Session;
-import ome.parameters.Filter;
-import ome.parameters.Parameters;
 import ome.security.NodeProvider;
 import ome.services.util.Executor;
 import ome.system.Principal;
@@ -44,7 +40,7 @@ import ome.system.ServiceFactory;
  * populating such entities.
  *
  * @author Chris Allan <callan@glencoesoftware.com>
- * @see Ring
+ * @see ome.services.blitz.fire.Ring
  * @since 5.3.0
  */
 public class InMemoryNodeProvider implements NodeProvider {

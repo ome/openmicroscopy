@@ -30,7 +30,7 @@ import ome.system.ServiceFactory;
  * populating such entities in-memory.
  * 
  * @author Chris Allan <callan@glencoesoftware.com>
- * @see SecuritySystem
+ * @see ome.security.SecuritySystem
  * @since 5.3.0
  */
 public class InMemoryEventProvider
