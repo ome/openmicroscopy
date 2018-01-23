@@ -333,7 +333,7 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
                         Set<String> nodeIds = new HashSet<String>();
                         for (Node node : nodes) {
                             if (onlyActive && node.getDown() != null) {
-                                continue; // Remove none active managers
+                                continue; // Remove inactive managers
                             }
                             nodeIds.add(node.getUuid());
                         }

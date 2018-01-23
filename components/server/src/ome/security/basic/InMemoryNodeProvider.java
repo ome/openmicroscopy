@@ -93,7 +93,7 @@ public class InMemoryNodeProvider implements NodeProvider {
         Set<String> nodeIds = new HashSet<String>();
         for (final Node node : currentNodes.values()) {
             if (onlyActive && node.getDown() != null) {
-                continue; // Remove none active managers
+                continue; // Remove inactive managers
             }
             nodeIds.add(node.getUuid());
         }
