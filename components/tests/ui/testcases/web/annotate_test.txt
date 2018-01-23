@@ -50,16 +50,6 @@ Check For Rating
     Should Contain                              ${src}                  rating${rating}
 
 
-Count Thumbs With Class
-    # Check that the number of thumbnails with this class is the expected number
-    [Arguments]                                 ${className}    ${expectedCount}
-    Page Should Contain Element                 locator=//ul[@id='dataIcons']/li[contains(@class, 'row')][contains(@class, '${className}')]       limit=${expectedCount}
-
-Count Thumbs Without Class
-    # Check that the number of thumbnails *without* this class is the expected number
-    [Arguments]                                 ${className}    ${expectedCount}
-    Page Should Contain Element                 locator=//ul[@id='dataIcons']/li[contains(@class, 'row')][not(contains(@class, '${className}'))]       limit=${expectedCount}
-
 *** Test Cases ***
 
 Test Rate Images
