@@ -30,20 +30,6 @@ Remove Comment
     Click Dialog Button                         OK
     Wait Until Keyword Succeeds                 ${TIMEOUT}   ${INTERVAL}    Check Comment Gone  ${text}
 
-Click Rating
-    [Arguments]                                 ${rating}
-    # Calculate offset from centre of img (84px wide)
-    ${xoffset}=                                 Evaluate    ${rating}*17 - 52
-    Wait Until Element Is Visible               xpath=//img[@title='Click to add rating']
-    Click Element At Coordinates                xpath=//img[@title='Click to add rating']   ${xoffset}  5
-
-Filter Rating
-    [Arguments]                                 ${rating}
-    # Calculate offset from centre of img (84px wide)
-    ${xoffset}=                                 Evaluate    ${rating}*17 - 52
-    Wait Until Element Is Visible               xpath=//img[@title='Filter by rating (exact match)']
-    Click Element At Coordinates                xpath=//img[@title='Filter by rating (exact match)']   ${xoffset}  5
-
 Check For Rating
     [Arguments]                                 ${rating}
     ${src}=                                     Get Element Attribute   xpath=//img[@title='Click to add rating']   attribute=src
@@ -144,9 +130,7 @@ Test Delete Rating
     Meta Click Node                             ${nodeId3}
 
     Wait Until Page Contains Element            xpath=//span[@id='ratingsAverage'][contains(text(), '3')]    timeout=${TIMEOUT}
-    Mouse Over                                  xpath=//div[@id='rating_annotations']//li[contains(@class, 'myRating')]
-    Set Focus To Element                        xpath=//div[@id='rating_annotations']//li[contains(@class, 'myRating')]
-    Click Element                               xpath=//div[@id='rating_annotations']//a[contains(@class, 'removeRating')]
+    Remove Rating
     # Check rating was removed from first image
     Click Node                                  ${nodeId}
     Wait Until Element Is Visible               id=rating_annotations    timeout=${TIMEOUT}
