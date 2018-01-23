@@ -111,18 +111,6 @@ class TestPrefs(object):
             self.cli.invoke(self.args + ["set", k, v], strict=True)
         self.invoke("get")
         self.assertStdoutStderr(capsys, out=(
-            'omero.X.mypassword=long_password\n'
-            'omero.X.pass=shortpass\n'
-            'omero.X.password=medium_password\n'
-            'omero.X.regular=value\n'
-            'omero.Y.MyPassword=long_password\n'
-            'omero.Y.Pass=shortpass\n'
-            'omero.Y.Password=medium_password\n'
-            'omero.Z.mypassword=\n'
-            'omero.Z.pass=\n'
-            'omero.Z.password='))
-        self.invoke("get --hide-password")
-        self.assertStdoutStderr(capsys, out=(
             'omero.X.mypassword=********\n'
             'omero.X.pass=********\n'
             'omero.X.password=********\n'
@@ -130,6 +118,18 @@ class TestPrefs(object):
             'omero.Y.MyPassword=********\n'
             'omero.Y.Pass=********\n'
             'omero.Y.Password=********\n'
+            'omero.Z.mypassword=\n'
+            'omero.Z.pass=\n'
+            'omero.Z.password='))
+        self.invoke("get --show-password")
+        self.assertStdoutStderr(capsys, out=(
+            'omero.X.mypassword=long_password\n'
+            'omero.X.pass=shortpass\n'
+            'omero.X.password=medium_password\n'
+            'omero.X.regular=value\n'
+            'omero.Y.MyPassword=long_password\n'
+            'omero.Y.Pass=shortpass\n'
+            'omero.Y.Password=medium_password\n'
             'omero.Z.mypassword=\n'
             'omero.Z.pass=\n'
             'omero.Z.password='))

@@ -5,8 +5,7 @@ Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
-Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
-Suite Teardown      Close all browsers
+Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
 
 *** Test Cases ***
 
@@ -23,7 +22,7 @@ Test Map Annotation
     Xpath Should Have Class       xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Delete rows']  button-disabled
 
     # Map annotation should have a single row with 'Add Key', 'Add Value'
-    Xpath Should Match X Times      //table[contains(@class, 'editableKeyValueTable')]/tbody/tr    1
+    Page Should Contain Element     //table[contains(@class, 'editableKeyValueTable')]/tbody/tr    limit=1
     Page Should Contain Element     xpath=//div[contains(@class, 'mapAnnContainer')]//td[contains(text(), 'Add Key')]
     Page Should Contain Element     xpath=//div[contains(@class, 'mapAnnContainer')]//td[contains(text(), 'Add Value')]
 
@@ -48,7 +47,7 @@ Test Map Annotation
     Input Text                          xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr/td[2]/input    ${value}
     Press Key                           xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr/td[2]/input    \\13
     # After value has been entered, we should have a second row
-    Xpath Should Match X Times      //table[contains(@class, 'editableKeyValueTable')]/tbody/tr    2
+    Page Should Contain Element      //table[contains(@class, 'editableKeyValueTable')]/tbody/tr    limit=2
 
     # Refresh to check saved data
     Go To                               ${WELCOME URL}?show=project-${projectId}
@@ -57,6 +56,8 @@ Test Map Annotation
     Wait Until Element Is Visible       xpath=//table[contains(@class, 'editableKeyValueTable')]//td[contains(text(), '${key}')]
     Wait Until Element Is Visible       xpath=//table[contains(@class, 'editableKeyValueTable')]//td[contains(text(), '${value}')]
     # Table shouldn't now have 'Add Key' or 'Add Value' placeholders
-    Xpath Should Match X Times          //table[contains(@class, 'editableKeyValueTable')]/tbody/tr    1
+    Page Should Contain Element          //table[contains(@class, 'editableKeyValueTable')]/tbody/tr    limit=1
     Page Should Not Contain Element     xpath=//div[contains(@class, 'mapAnnContainer')]//td[contains(text(), 'Add Key')]
     Page Should Not Contain Element     xpath=//div[contains(@class, 'mapAnnContainer')]//td[contains(text(), 'Add Value')]
+
+[Teardown]    Close Browser

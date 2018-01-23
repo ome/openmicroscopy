@@ -471,3 +471,28 @@ class TestTreeAnnotations(ITest):
         assert annotations[3] == anns[3]
         assert annotations[4] == anns[4]
         assert experimenters == exps
+
+    def test_filter_by_namespace(self, userA, project_userA, rating_userA,
+                                 comments_userA):
+        """Test filtering of Annotations by Namespace."""
+        conn = get_connection(userA)
+        comment1, comment2 = comments_userA
+        rating = rating_userA
+
+        project = project_userA
+        rating_link = annotate_project(rating, project, userA)
+        annotate_project(comment1, project, userA)
+        annotate_project(comment2, project, userA)
+
+        # Filter by rating namespace should only return a single link
+        rating_ns = omero.constants.metadata.NSINSIGHTRATING
+        marshaled = marshal_annotations(conn=conn,
+                                        project_ids=[project.id.val],
+                                        ns=rating_ns)
+        expected = expected_annotations(userA, [rating_link])
+        assert marshaled[0] == expected[0]
+
+        # Confirm we get all 3 links when we don't filter
+        marshaled = marshal_annotations(conn=conn,
+                                        project_ids=[project.id.val])
+        assert len(marshaled[0]) == 3

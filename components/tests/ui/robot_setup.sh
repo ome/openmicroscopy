@@ -25,6 +25,7 @@ PLATE_NAME=${PLATE_NAME:-test&plates=1&plateAcqs=2&plateRows=2&plateCols=3&field
 TINY_PLATE_NAME=${TINY_PLATE_NAME:-test&plates=1&plateAcqs=1&plateRows=1&plateCols=1&fields=1&screens=0.fake}
 BULK_ANNOTATION_CSV=${BULK_ANNOTATION_CSV:-bulk_annotation.csv}
 FILE_ANNOTATION=${FILE_ANNOTATION:-robot_file_annotation.txt}
+FILE_ANNOTATION2=${FILE_ANNOTATION2:-robot_file_annotation2.txt}
 
 # Create robot user and group
 bin/omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
@@ -52,8 +53,9 @@ echo "Well,Well Type,Concentration" > "$BULK_ANNOTATION_CSV"
 echo "A1,Control,0" >> "$BULK_ANNOTATION_CSV"
 echo "A2,Treatment,10" >> "$BULK_ANNOTATION_CSV"
 
-# Create file for upload as File Annotation
+# Create files for upload as File Annotation
 echo "Robot test file annotations" > "$FILE_ANNOTATION"
+echo "Another test file annotation" > "$FILE_ANNOTATION2"
 
 # Create robot setup
 bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD
@@ -74,7 +76,9 @@ do
     echo "Importing images into dataset"
     for (( k=1; k<=$nImages; k++ ))
     do
-      bin/omero import -d $dataset $IMAGE_NAME --debug ERROR
+      bin/omero import -d $dataset $IMAGE_NAME --debug ERROR > show_import.log 2>&1
+      imageid=$(sed -n -e 's/^Image://p' show_import.log)
+      bin/omero obj update Image:$imageid name=test_view$k
     done
   done
 done
@@ -110,7 +114,8 @@ plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 bin/omero obj update Plate:$plateid name=spwTests
 # Use populate_metadata to upload and attach bulk annotation csv
 # We use testtables to only try populate if tables are working
-OMERO_DEV_PLUGINS=1 bin/omero metadata testtables && bin/omero metadata populate Plate:$plateid --file $BULK_ANNOTATION_CSV
+export OMERO_DEV_PLUGINS=1      # required to enable 'metadata' CLI
+bin/omero metadata testtables && bin/omero metadata populate Plate:$plateid --file $BULK_ANNOTATION_CSV
 
 # Run script to populate WellSamples with posX and posY values
 PYTHONPATH=./lib/python python $WELLSCRIPT $HOSTNAME $PORT $key $plateid
@@ -143,9 +148,11 @@ do
   bin/omero import $TINY_IMAGE_NAME --debug ERROR
 done
 
-# Uplodad file and create FileAnnotation
+# Upload files and create FileAnnotations
 ofile=$(bin/omero upload $FILE_ANNOTATION)
 bin/omero obj new FileAnnotation file=$ofile
+ofile2=$(bin/omero upload $FILE_ANNOTATION2)
+bin/omero obj new FileAnnotation file=$ofile2
 
 # Logout
 bin/omero logout

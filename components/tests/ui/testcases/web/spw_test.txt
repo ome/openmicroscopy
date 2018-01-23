@@ -5,9 +5,7 @@ Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
-Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
-Suite Teardown      Close all browsers
-
+Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
 
 *** Variables ***
 # robot_setup script has created data with these parameters
@@ -32,7 +30,6 @@ Test Auto Load Single Run
     # Plate should auto-load, allowing click on Well
     Click Well By Name                      A1
 
-
 Test Spw Grid Layout
     [Documentation]     Test loading of Well Images in bottom panel
 
@@ -51,11 +48,11 @@ Test Spw Grid Layout
 
     # Images from a single Well shown in bottom panel
     Wait Until Page Contains Element        xpath=//div[@id='wellImages']//li/a
-    Xpath Should Match X Times              //div[@id='wellImages']//li/a                 ${FIELD_COUNT}
+    Page Should Contain Element             //div[@id='wellImages']//li/a                 limit=${FIELD_COUNT}
 
     # Shift-Click to select 3 Wells - All images shown in bottom panel
     Shift Click Element                     "img[name='A3']"
-    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Xpath Should Match X Times    //div[@id='wellImages']//li/a     ${FIELD_COUNT3}
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Page Should Contain Element    //div[@id='wellImages']//li/a     limit=${FIELD_COUNT3}
     # Right Panel - batch annotate 3 Wells
     Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '3 objects')]
 
@@ -64,13 +61,6 @@ Test Spw Grid Layout
     Click Element                           xpath=//div[@id='wellImages']//li/a/img[1]
     Page Should Contain Element             xpath=//div[@id='wellImages']//li[1][contains(@class,'ui-selected')]
     ${imgName}=                             Wait For General Panel And Return Name          Image
-
-    # Double-click wellsample image to open viewer
-    Double Click Element                    xpath=//div[@id='wellImages']//li/a/img[1]
-    Wait Until Keyword Succeeds             ${TIMEOUT}      ${INTERVAL}     Select Window   title=${imgName}
-    Close Window
-    # Select parent window
-    Select Window
 
     # Wrap rows of images by fixed column count
     Input Text                              id=imagesPerRow             2
@@ -82,7 +72,6 @@ Test Spw Grid Layout
     Should Be Equal                         ${well1x}                   ${well3x}
     Should Be Equal                         ${well1x}                   ${well5x}
 
-
 Test Spw Spatial Birds Eye
     [Documentation]     Tests layout and clicking of 'spacial bird's eye' panel
 
@@ -93,7 +82,7 @@ Test Spw Spatial Birds Eye
 
     # Birds eye panel shows all images/fields
     Wait Until Page Contains Element        xpath=//div[@id='well_birds_eye']//img
-    Xpath Should Match X Times              //div[@id='well_birds_eye']//img                 ${FIELD_COUNT}
+    Page Should Contain Element             //div[@id='well_birds_eye']//img                 limit=${FIELD_COUNT}
 
     # Spatial layout: x and y
     ${well1x}=                              Get Horizontal Position  xpath=//div[@id='well_birds_eye']//img[1]
@@ -123,13 +112,12 @@ Test Spw Spatial Birds Eye
     # Meta Click to select additional images
     Meta Click Element                      "#well_birds_eye img:eq(2)"
     Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '2 objects')]
-    Xpath Should Match X Times              //div[@id='wellImages']//li[contains(@class,'ui-selected')]             2
+    Page Should Contain Element              //div[@id='wellImages']//li[contains(@class,'ui-selected')]             limit=2
 
     # Shift-Click range in wellImages panel - updates selection in 'birds eye'
     Shift Click Element                     "#wellImages img:eq(4)"
     Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '5 objects')]
-    Xpath Should Match X Times              //div[@id='well_birds_eye']//img[contains(@class,'ui-selected')]        5
-
+    Page Should Contain Element              //div[@id='well_birds_eye']//img[contains(@class,'ui-selected')]        limit=5
 
 Test Bulk Annotations
     [Documentation]     Test display of bulk annotations added in setup
@@ -147,4 +135,4 @@ Test Bulk Annotations
     Bulk Annotation Should Contain Row      Well Type       Treatment
     Bulk Annotation Should Contain Row      Concentration   10
 
-
+[Teardown]    Close Browser

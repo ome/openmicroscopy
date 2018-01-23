@@ -23,6 +23,7 @@ from omero.gateway import BlitzGateway
 from omero.util import populate_metadata, populate_roi, pydict_text_io
 from omero.util.metadata_utils import NSBULKANNOTATIONSCONFIG
 from omero.util.metadata_utils import NSBULKANNOTATIONSRAW
+from omero.grid import LongColumn
 
 
 HELP = """Metadata utilities
@@ -409,7 +410,7 @@ class MetadataControl(BaseControl):
         # If we have a table...
         initialized = False
         try:
-            table.initialize([])
+            table.initialize([LongColumn('ID', '', [])])
             initialized = True
         except:
             pass
