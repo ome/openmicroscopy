@@ -9,9 +9,7 @@ Resource            ../../resources/web/webadmin.txt
 Resource            ../../resources/web/tree.txt
 Resource            ../../resources/config.txt
 
-Suite Setup         Run Keywords    Open Browser And Log In As User     Maximize Browser Window
-Suite Teardown      Logout and Teardown
-
+Suite Setup         Open Browser And Log In As User
 
 *** Test Cases ***
 
@@ -21,7 +19,7 @@ User Settings
     Click Element           id=show_user_dropdown
     Click Link              User settings
     Location Should Be      ${WEBADMIN WELCOME URL}myaccount/edit/
-    ${orig_middle_name}=    Get Element Attribute     xpath=//input[@id='id_middle_name']@value
+    ${orig_middle_name}=    Get Element Attribute     xpath=//input[@id='id_middle_name']    attribute=value
     ${middle_name}=         Unique name         middle_name
     Input Text              id_middle_name      ${middle_name}
     Click Button            Save
@@ -48,7 +46,6 @@ User Settings
     Click Dialog Button     OK
     Wait Until Page Contains  Password reset OK
 
-
 Owner Group Edit
     [Documentation]     Test group owner edit of their group.
 
@@ -64,10 +61,11 @@ Owner Group Edit
     Submit Form                     css=form.settings_form
 
     # Return to edit group, to check permissions were saved and reset
-    Location Should Be          ${WEBADMIN WELCOME URL}myaccount/
-    Click Element               css=#group_settings_tab a
-    Click Element               xpath=//table[@id='dataTable']//a/span[contains(text(), "Edit")]
+    Wait Until Keyword Succeeds     ${TIMEOUT}     ${INTERVAL}  Location Should Be  ${WEBADMIN WELCOME URL}myaccount/
+    Click Element                   css=#group_settings_tab a
+    Click Element                   xpath=//table[@id='dataTable']//a/span[contains(text(), "Edit")]
     Radio Button Should Be Set To   permissions     1
     Select Radio Button             permissions     2
     Submit Form                     css=form.settings_form
 
+[Teardown]    Close Browser
