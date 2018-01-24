@@ -167,20 +167,20 @@ Test Default Search Selections
     Checkbox Should Be Selected  wells
     Checkbox Should Not Be Selected  name
     Checkbox Should Not Be Selected  description
-    Checkbox Should Not Be Selected  annotation
+    Checkbox Should Not Be Selected  show_annotations
     Click Button  id=search_button
-    
+
 Test Additional Search With Selections
     [Documentation]     Checkbox selections for name description and annotation and search again
 
-    Select Checkbox  name    
-    Select Checkbox  description    
-    Select Checkbox  annotation
+    Select Checkbox  name
+    Select Checkbox  description
+    Select Checkbox  show_annotations
     Click Button  id=search_button
-    
+
 Test Check Search Date Field
     [Documentation]     Check that no date range has been chosen by default.
-    
+
     Page Should Contain Textfield  id=startdateinput
     Textfield Value Should be  id=startdateinput  ${EMPTY}
     Page Should Contain Textfield  id=enddateinput
