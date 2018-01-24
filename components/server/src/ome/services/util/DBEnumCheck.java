@@ -34,8 +34,8 @@ public class DBEnumCheck extends BaseDBCheck {
 
     private final EnsureEnum ensureEnum;
 
-    public DBEnumCheck(Executor executor, PreferenceContext preferences, EnsureEnum ensureEnum) {
-        super(executor, preferences);
+    public DBEnumCheck(Executor executor, PreferenceContext preferences, EnsureEnum ensureEnum, ReadOnlyStatus readOnly) {
+        super(executor, preferences, readOnly);
         this.ensureEnum = ensureEnum;
     }
 

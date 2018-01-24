@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2016-2018 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -55,8 +55,8 @@ public class DBMappedEnumCheck extends BaseDBCheck {
 
     private EnsureEnum ensureEnum;
 
-    protected DBMappedEnumCheck(Executor executor, PreferenceContext preferences, EnsureEnum ensureEnum) {
-        super(executor, preferences);
+    protected DBMappedEnumCheck(Executor executor, PreferenceContext preferences, EnsureEnum ensureEnum, ReadOnlyStatus readOnly) {
+        super(executor, preferences, readOnly);
         this.ensureEnum = ensureEnum;
     }
 

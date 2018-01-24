@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2016-2018 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -37,6 +37,7 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -51,26 +52,30 @@ public class EnsureEnum {
     private final Executor executor;
     private final Principal principal;
     private final Map<String, String> callContext;
+    private final boolean isReadOnlyDb;
 
     /**
      * Construct a new enumeration ensurer. Expected to be instantiated via Spring.
      * @param executor the internal task executor
      * @param uuid a UUID suitable for constructing a privileged principal
      * @param roles information about the system roles
+     * @param readOnly the read-only status
      */
-    public EnsureEnum(Executor executor, String uuid, Roles roles) {
+    public EnsureEnum(Executor executor, String uuid, Roles roles, ReadOnlyStatus readOnly) {
         this.executor = executor;
         this.principal = new Principal(uuid, roles.getSystemGroupName(), "Internal");
         this.callContext = ImmutableMap.of(Login.OMERO_GROUP, Long.toString(roles.getUserGroupId()));
+        isReadOnlyDb = readOnly.isReadOnlyDb();
     }
 
     /**
      * Ensure that the given enumeration exists.
+     * @param session the Hibernate session for accessing the current enumerations
      * @param enumClass the model class of the enumeration
      * @param enumValue the name of the enumeration (case-sensitive)
      * @return the ID of the enumeration, or {@code null} if it did not exist and could not be created
      */
-    private <E extends IEnum & IGlobal> Long ensure(Session session, Class<E> enumClass, String enumValue) {
+    private static <E extends IEnum & IGlobal> Long ensure(Session session, Class<E> enumClass, String enumValue) {
         IEnum instance = (IEnum) session.createCriteria(enumClass).add(Restrictions.eq("value", enumValue)).uniqueResult();
         if (instance != null) {
             return instance.getId();
@@ -82,8 +87,13 @@ public class EnsureEnum {
             LOGGER.error("failed to create enumeration value " + prettyEnum, e);
             return null;
         }
-        LOGGER.info("adding to database new enumeration value " + prettyEnum);
-        return (Long) session.save(instance);
+        if (TransactionSynchronizationManager.isCurrentTransactionReadOnly()) {
+            LOGGER.warn("no enumeration value {} but database is read-only", prettyEnum);
+            return null;
+        } else {
+            LOGGER.info("adding to database new enumeration value " + prettyEnum);
+            return (Long) session.save(instance);
+        }
     }
 
     /**
@@ -97,7 +107,19 @@ public class EnsureEnum {
         if (enumValues.isEmpty()) {
             return Collections.emptyList();
         }
-        return (List<Long>) executor.execute(callContext, principal, new Executor.Work<List<Long>>() {
+        return isReadOnlyDb ? (List<Long>) executor.execute(callContext, principal, new FetchEnums<E>() {
+            @Override
+            public String description() {
+                return "check enum values";
+            }
+
+            @Override
+            @Transactional(readOnly = true)
+            public List<Long> doWork(Session session, ServiceFactory sf) {
+                return innerWork(session, enumClass, enumValues);
+            }
+        })
+        : (List<Long>) executor.execute(callContext, principal, new FetchEnums<E>() {
             @Override
             public String description() {
                 return "ensure enum values";
@@ -106,12 +128,31 @@ public class EnsureEnum {
             @Override
             @Transactional(readOnly = false)
             public List<Long> doWork(Session session, ServiceFactory sf) {
-                final List<Long> enumIds = new ArrayList<Long>(enumValues.size());
-                for (final String enumValue : enumValues) {
-                    enumIds.add(ensure(session, enumClass, enumValue));
-                }
-                return enumIds;
+                return innerWork(session, enumClass, enumValues);
             }
         });
+    }
+
+    /**
+     * Base class for workers that ensure that enumeration values exist.
+     * Perhaps could be refactored away in Java 8.
+     * @author m.t.b.carroll@dundee.ac.uk
+     */
+    private static abstract class FetchEnums<E extends IEnum & IGlobal> implements Executor.Work<List<Long>> {
+
+        /**
+         * Ensure that the given enumerations exist.
+         * @param session the Hibernate session for accessing the current enumerations
+         * @param enumClass the model class of the enumeration
+         * @param enumValues the names of the enumerations (case-sensitive)
+         * @return the IDs of the enumerations, with {@code null} for any that did not exist and could not be created
+         */
+        protected List<Long> innerWork(Session session, Class<E> enumClass, Collection<String> enumValues) {
+            final List<Long> enumIds = new ArrayList<Long>(enumValues.size());
+            for (final String enumValue : enumValues) {
+                enumIds.add(ensure(session, enumClass, enumValue));
+            }
+            return enumIds;
+        }
     }
 }
