@@ -35,70 +35,70 @@ Check Selected Count
 
 *** Test Cases ***
 
-# Test Filter By Tags
-#     ${tag1}=                                    Evaluate    "FilterTag1_%s" % random.randint(0, 1000)     modules=random
-#     ${tag2}=                                    Evaluate    "FilterTag2_%s" % random.randint(0, 1000)     modules=random
-#     ${tag3}=                                    Evaluate    "FilterTag3_%s" % random.randint(0, 1000)     modules=random
+Test Filter By Tags
+    ${tag1}=                                    Evaluate    "FilterTag1_%s" % random.randint(0, 1000)     modules=random
+    ${tag2}=                                    Evaluate    "FilterTag2_%s" % random.randint(0, 1000)     modules=random
+    ${tag3}=                                    Evaluate    "FilterTag3_%s" % random.randint(0, 1000)     modules=random
 
-#     Select Experimenter
-#     Select And Expand Node                      Project 1
-#     Select And Expand Node                      Dataset 1
+    Select Experimenter
+    Select And Expand Node                      Project 1
+    Select And Expand Node                      Dataset 1
 
-#     # Select first image - Add Tag1
-#     ${imageId1}=                                Select First Image
-#     ${nodeId1}=                                 Wait For Image Node         ${imageId1}
-#     Click Element                               xpath=//h1[@data-name='tags']
-#     Add New Tag                                 ${tag1}
+    # Select first image - Add Tag1
+    ${imageId1}=                                Select First Image
+    ${nodeId1}=                                 Wait For Image Node         ${imageId1}
+    Click Element                               xpath=//h1[@data-name='tags']
+    Add New Tag                                 ${tag1}
 
-#     # Select second image - Add Tag2
-#     Click Next Thumbnail
-#     ${imageId2}=                                Get Id From Selected Thumbnail
-#     ${nodeId2}=                                 Wait For Image Node         ${imageId2}
-#     Add New Tag                                 ${tag2}
+    # Select second image - Add Tag2
+    Click Next Thumbnail
+    ${imageId2}=                                Get Id From Selected Thumbnail
+    ${nodeId2}=                                 Wait For Image Node         ${imageId2}
+    Add New Tag                                 ${tag2}
 
-#     # Select 2nd and 3rd images - Add Tag3
-#     Click Next Thumbnail
-#     ${imageId3}=                                Get Id From Selected Thumbnail
-#     ${nodeId3}=                                 Wait For Image Node         ${imageId3}
-#     Meta Click Node                             ${nodeId2}
-#     Add New Tag                                 ${tag3}
+    # Select 2nd and 3rd images - Add Tag3
+    Click Next Thumbnail
+    ${imageId3}=                                Get Id From Selected Thumbnail
+    ${nodeId3}=                                 Wait For Image Node         ${imageId3}
+    Meta Click Node                             ${nodeId2}
+    Add New Tag                                 ${tag3}
 
-#     # Filter by Tag3 -> 2 images
-#     Select From List By Label                   id=choosefilter         Tag
-#     Filter Tag                                  ${tag3}
-#     # Only 2 thumbnails should remain Visible and Selected
-#     Wait Until Element Is Not Visible           id=image_icon-${imageId1}
-#     Count Thumbs Without Class                  tagFilter_hidden        2
-#     Check Selected Count                        2
+    # Filter by Tag3 -> 2 images
+    Select From List By Label                   id=choosefilter         Tag
+    Filter Tag                                  ${tag3}
+    # Only 2 thumbnails should remain Visible and Selected
+    Wait Until Element Is Not Visible           id=image_icon-${imageId1}
+    Count Thumbs Without Class                  tagFilter_hidden        2
+    Check Selected Count                        2
 
-#     # Add Filter by Tag2 -> 1 image
-#     Filter Tag                                  ${tag2}
-#     Count Thumbs Without Class                  tagFilter_hidden        1
-#     Check Selected Count                        1
+    # Add Filter by Tag2 -> 1 image
+    Filter Tag                                  ${tag2}
+    Count Thumbs Without Class                  tagFilter_hidden        1
+    Check Selected Count                        1
 
-#     # Remove filter Tag3 (Tag2 remains)
-#     Remove Tag Filter                           ${tag3}
-#     Count Thumbs Without Class                  tagFilter_hidden        1
+    # Remove filter Tag3 (Tag2 remains)
+    Remove Tag Filter                           ${tag3}
+    Count Thumbs Without Class                  tagFilter_hidden        1
 
-#     # Remove filter Tag2
-#     Remove Tag Filter                           ${tag2}
-#     Count Thumbs With Class                     tagFilter_hidden        0
-#     Wait Until Element Is Visible               id=image_icon-${imageId1}
-#     Check Selected Count                        1
+    # Remove filter Tag2
+    Remove Tag Filter                           ${tag2}
+    Count Thumbs With Class                     tagFilter_hidden        0
+    Wait Until Element Is Visible               id=image_icon-${imageId1}
+    Check Selected Count                        1
 
-#     # Filter by Tag1 -> 1 images, none selected
-#     Filter Tag                                  ${tag1}
-#     Count Thumbs Without Class                  tagFilter_hidden        1
-#     Check Selected Count                        0
-#     Remove Tag Filter                           ${tag1}
+    # Filter by Tag1 -> 1 images, none selected
+    Filter Tag                                  ${tag1}
+    Count Thumbs Without Class                  tagFilter_hidden        1
+    Check Selected Count                        0
+    Remove Tag Filter                           ${tag1}
 
-#     # Clean up - Select 3 Images and remove Tags
-#     Click Node                                  ${nodeId1}
-#     Meta Click Node                             ${nodeId2}
-#     Meta Click Node                             ${nodeId3}
-#     Remove Tag                                  ${tag1}
-#     Remove Tag                                  ${tag2}
-#     Remove Tag                                  ${tag3}
+    # Clean up - Select 3 Images and remove Tags
+    Click Node                                  ${nodeId1}
+    Meta Click Node                             ${nodeId2}
+    Meta Click Node                             ${nodeId3}
+    Remove Tag                                  ${tag1}
+    Remove Tag                                  ${tag2}
+    Remove Tag                                  ${tag3}
 
 
 
