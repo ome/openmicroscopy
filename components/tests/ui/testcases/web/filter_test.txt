@@ -116,13 +116,11 @@ Test Filter By Name Tags Rating
     ${nodeId1}=                                 Wait For Image Node         ${imageId1}
     Edit Object Name                            image   ${imageId1}         ${imgName1}
 
-    # Select second image - Rename and add Rating
+    # Select second image - Rename
     Click Next Thumbnail
     ${imageId2}=                                Get Id From Selected Thumbnail
     ${nodeId2}=                                 Wait For Image Node         ${imageId2}
     Edit Object Name                            image   ${imageId2}         ${imgName2}
-    Click Element                               xpath=//h1[@data-name='ratings']
-    Click Rating                                5
 
     # Select 2nd and 3rd images - Add Tag
     Click Next Thumbnail
@@ -132,53 +130,36 @@ Test Filter By Name Tags Rating
     Meta Click Node                             ${nodeId2}
     Add New Tag                                 ${tagText}
 
-    # Filter by partial Name -> 2 images
+    # Filter by Tag
+    Select From List By Label                   id=choosefilter         Tag
+    Filter Tag                                  ${tagText}
+    # Only images 2 and 3 visible
+    Wait Until Element Is Not Visible           id=image_icon-${imageId1}
+    Element Should Be Visible                   id=image_icon-${imageId2}
+    Element Should Be Visible                   id=image_icon-${imageId3}
+
+    # Filter by partial Name -> 1 images
     Select From List By Label                   id=choosefilter         Name
     Filter Name                                 ${imgNameStart}
     Wait Until Element Is Not Visible           id=image_icon-${imageId3}
-    Element Should Be Visible                   id=image_icon-${imageId1}
+    Element Should Be Visible                   id=image_icon-${imageId2}
     Check Selected Count                        1
 
-    # Filter by Full Names
+    # Filter by Partial Name only
+    Remove Tag Filter                           ${tagText}
+    Element Should Be Visible                   id=image_icon-${imageId1}
+    Element Should Be Visible                   id=image_icon-${imageId2}
+    Element Should Not Be Visible               id=image_icon-${imageId3}
+
+    # Filter by Full Name
     Filter Name                                 ${imgName2}
     Wait Until Element Is Not Visible           id=image_icon-${imageId1}
-    Check Selected Count                        1
-    Filter Name                                 ${imgName1}
-    Wait Until Element Is Not Visible           id=image_icon-${imageId2}
-    Element Should Be Visible                   id=image_icon-${imageId1}
-    Check Selected Count                        0
-
-    # Filter by partial name & Tag
-    Filter Name                                 ${imgNameStart}
-    Select From List By Label                   id=choosefilter         Tag
-    # Image 1 and 2 are visible
-    Wait Until Element Is Not Visible           id=image_icon-${imageId3}
     Element Should Be Visible                   id=image_icon-${imageId2}
-    Element Should Be Visible                   id=image_icon-${imageId1}
-    Filter Tag                                  ${tagText}
-    # Only Image-2 should be visible
-    Wait Until Element Is Not Visible           id=image_icon-${imageId1}
-    Element Should Be Visible                   id=image_icon-${imageId2}
-    Element Should Not Be Visible               id=image_icon-${imageId3}
 
-    # Add Rating filter - no change in images
-    Select From List By Label                   id=choosefilter         By Rating
-    Filter Rating                               5
-    Element Should Not Be Visible               id=image_icon-${imageId1}
-    Element Should Be Visible                   id=image_icon-${imageId2}
-    Element Should Not Be Visible               id=image_icon-${imageId3}
-
-    # Remove Tag filter - Just text & rating, but still no change
-    Remove Tag Filter                           ${tagText}
-    Element Should Not Be Visible               id=image_icon-${imageId1}
-    Element Should Be Visible                   id=image_icon-${imageId2}
-    Element Should Not Be Visible               id=image_icon-${imageId3}
-
-    # Clean up - Select 3 Images and remove Tags & Rating
+    # Clean up - Select 3 Images and remove Tags
     Click Node                                  ${nodeId1}
     Meta Click Node                             ${nodeId2}
     Meta Click Node                             ${nodeId3}
     Remove Tag                                  ${tagText}
-    Remove Rating
 
 [Teardown]    Close Browser
