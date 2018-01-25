@@ -235,7 +235,7 @@ class TestSearch(ITest):
     def simple_uuid(self):
         uuid = self.uuid()
         uuid = uuid.replace("-", "")
-        uuid = "t" + self.uuid().replace("-", "")[0:8]
+        uuid = "t" + self.uuid().replace("-", "")[0:12]
         return uuid
 
     def testFilename(self):
