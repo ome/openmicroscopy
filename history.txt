@@ -5,6 +5,13 @@
 OMERO version history
 =====================
 
+5.4.3 (January 2018)
+--------------------
+
+This is a bug fix release for a resource leak in omero.gateway.BlitzGateway
+introduced with 5.4.2 that caused long-running processes to hang. No other
+changes are included.
+
 5.4.2 (January 2018)
 --------------------
 
