@@ -70,6 +70,9 @@ Test Rate Images
     ${imageId}=                                 Select First Image
     ${nodeId}=                                  Wait For Image Node         ${imageId}
 
+    # Close the details tab
+    Click Element                               xpath=//h1[@data-name='details']
+
     Click Element                               xpath=//h1[@data-name='ratings']
     Wait Until Element Is Visible               id=rating_annotations
     # Add Rating of 5 *****
