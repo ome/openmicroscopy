@@ -27,7 +27,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import ome.api.local.LocalAdmin;
 import ome.conditions.InternalException;
+import ome.conditions.SecurityViolation;
 import ome.system.EventContext;
+import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import omero.ServerError;
@@ -69,6 +71,10 @@ public class Helper {
 
     private boolean stepsSet = false;
 
+    private transient boolean isGuest = true;
+
+    private transient boolean preventGuest = true;
+
     public Helper(Request request, Status status, SqlAction sql,
             Session session, ServiceFactory sf) {
         synchronized (status) {
@@ -81,6 +87,11 @@ public class Helper {
         this.sql = sql;
         this.session = session;
         this.sf = sf;
+        if (sf != null) {
+            long userId = getEventContext().getCurrentUserId();
+            Roles roles = sf.getAdminService().getSecurityRoles();
+            isGuest = (userId == roles.getGuestId());
+        }
         this.log = LoggerFactory.getLogger(
             this.request.toString().replaceAll("@", ".@"));
     }
@@ -102,7 +113,19 @@ public class Helper {
         }
     }
 
+    /**
+     * Must be called before setSteps if access by the guest user is to be
+     * allowed.
+     */
+    public void allowGuests() {
+        preventGuest = false;
+    }
+
     public void setSteps(int steps) {
+        if (preventGuest && isGuest) {
+            cancel(new ERR(), new SecurityViolation("Disallowed for guests"),
+                    "guest-restriction");
+        }
         if (stepsSet) {
             cancel(new ERR(), new InternalException("Steps set!"), "steps-set");
         }

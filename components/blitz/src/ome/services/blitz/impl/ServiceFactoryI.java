@@ -275,12 +275,12 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
 
     public IAdminPrx getAdminService(Ice.Current current) throws ServerError {
         return IAdminPrxHelper.uncheckedCast(getByName(ADMINSERVICE.value,
-                current));
+                current, true));
     }
 
     public IConfigPrx getConfigService(Ice.Current current) throws ServerError {
         return IConfigPrxHelper.uncheckedCast(getByName(CONFIGSERVICE.value,
-                current));
+                current, true));
     }
 
     public ILdapPrx getLdapService(Ice.Current current) throws ServerError {
@@ -322,7 +322,7 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
 
     public ISessionPrx getSessionService(Current current) throws ServerError {
         return ISessionPrxHelper.uncheckedCast(getByName(SESSIONSERVICE.value,
-                current));
+                current, true));
     }
 
     public ISharePrx getShareService(Current current) throws ServerError {
@@ -427,6 +427,16 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
 
     public ServiceInterfacePrx getByName(String blankname, Current dontUse)
             throws ServerError {
+        return getByName(blankname, dontUse, false);
+
+    }
+
+    public ServiceInterfacePrx getByName(String blankname, Current dontUse,
+            boolean allowGuest) throws ServerError {
+
+        if (!allowGuest) {
+            disallowGuest(blankname);
+        }
 
         // First try to get the blankname as is in case a value from
         // activeServices is being passed back in.
@@ -463,6 +473,15 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
 
     public StatefulServiceInterfacePrx createByName(String name, Current current)
             throws ServerError {
+        return createByName(name, current, false);
+    }
+
+    public StatefulServiceInterfacePrx createByName(String name, Current current,
+            boolean allowGuest) throws ServerError {
+
+        if (!allowGuest) {
+            disallowGuest(name);
+        }
 
         Ice.Identity id = holder.getIdentity(UUID.randomUUID().toString() + name);
         if (null != adapter.find(id)) {
@@ -546,6 +565,27 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
                         return ((LocalAdmin) sf.getAdminService()).getEventContextQuiet();
                     }
                 });
+    }
+
+    private boolean isGuest() {
+        return (Boolean) executor.execute(this.principal,
+                new Executor.SimpleWork(this, "isGuest") {
+                    @Transactional(readOnly=true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+                        EventContext ec = admin.getEventContextQuiet();
+                        long guestId = admin.getSecurityRoles().getGuestId();
+                        return ec.getCurrentUserId().equals(guestId);
+                    }
+                });
+    }
+
+    private void disallowGuest(String service)
+        throws SecurityViolation {
+        if (isGuest()) {
+            throw new SecurityViolation(null, null,
+                "Access denied to guest user: " + service);
+        }
     }
 
     public long keepAllAlive(ServiceInterfacePrx[] proxies, Current __current)

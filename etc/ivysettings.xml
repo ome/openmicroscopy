@@ -126,8 +126,8 @@
     </filesystem>
 
     <url name="artifactory-publish">
-        <artifact pattern="http://artifacts.openmicroscopy.org/artifactory/${artifactory.repository}/[organization]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
-        <ivy pattern="http://artifacts.openmicroscopy.org/artifactory/${artifactory.repository}/[organization]/[module]/[revision]/ivy-[revision](-[classifier]).xml" />
+        <artifact pattern="${artifactory.baseurl}/${artifactory.repository}/[organization]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
+        <ivy pattern="${artifactory.baseurl}/${artifactory.repository}/[organization]/[module]/[revision]/ivy-[revision](-[classifier]).xml" />
     </url>
   </resolvers>
 
