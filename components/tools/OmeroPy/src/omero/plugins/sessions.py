@@ -336,6 +336,10 @@ class SessionsControl(UserGroupControl):
         self.ctx.err(msg)
         self.ctx.out(sessId)
 
+        store = self.store(args)
+        host, name, uuid, port = store.get_current()
+        store.add(host, name, sessId, {}, sudo=username)
+
     def close(self, args):
         client = self.ctx.conn(args)
         svc = client.sf.getSessionService()
