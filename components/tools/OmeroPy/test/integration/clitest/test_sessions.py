@@ -23,6 +23,7 @@ from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.model import Experimenter
 import pytest
+import re
 
 permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
 
@@ -305,3 +306,22 @@ class TestSessions(CLITest):
         # Attempt who
         self.args = ["sessions", "who"]
         self.cli.invoke(self.args, strict=True)
+
+    # open session
+    # =======================================================================
+    def testOpen(self, capsys):
+        asUser = self.new_user()
+
+        self.set_login_args('root')
+        passwd = self.root.getProperty("omero.rootpass")
+        self.args += ["-w", passwd]
+        self.cli.invoke(self.args, strict=True)
+
+        self.args = ["sessions", "open"]
+        self.args += ["--user-name", asUser.omeName.val]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+
+        pat = re.compile("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-"
+                         "[a-f0-9]{4}-[a-f0-9]{12}")
+        assert pat.match(o)
