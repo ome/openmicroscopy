@@ -322,14 +322,19 @@ class SessionsControl(UserGroupControl):
             p.group = groupname
         p.eventType = "User"
         svc = client.sf.getSessionService()
-        sessId = svc.createSessionWithTimeout(p, (int(args.timeout)
-                                                  * 1000))
+        sess = svc.createSessionWithTimeout(p, (int(args.timeout)
+                                                * 1000))
+        sessId = sess.getUuid().val
+        tti = sess.getTimeToIdle().val / 1000
+        ttl = sess.getTimeToLive().val / 1000
+
+        msg = "Session created for user %s" % username
         if groupname:
-            self.ctx.out("Session created for user %s in group %s" %
-                         (username, groupname))
-        else:
-            self.ctx.out("Session created for user %s" % username)
-        self.ctx.out("Session ID: %s" % sessId.getUuid().val)
+            msg += " in group %s" % groupname
+        msg += " (timeToIdle: %d sec, timeToLive: %d sec)" % (tti, ttl)
+
+        self.ctx.err(msg)
+        self.ctx.out(sessId)
 
     def close(self, args):
         client = self.ctx.conn(args)
