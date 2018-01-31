@@ -40,7 +40,7 @@ import ome.system.ServiceFactory;
  * @since 5.3.0
  */
 public class InMemorySessionManagerImpl
-    extends SessionManagerImpl {
+    extends BaseSessionManagerImpl {
 
     private final static Logger log =
             LoggerFactory.getLogger(InMemorySessionManagerImpl.class);
@@ -52,7 +52,7 @@ public class InMemorySessionManagerImpl
 
     @Override
     protected Session executeUpdate(ServiceFactory sf, Session session,
-            long userId) {
+            long userId, Long sudoerId) {
         Node node = nodeProvider.getManagerByUuid(internal_uuid, sf);
         if (node == null) {
             node = new Node(0L, false); // Using default node.
@@ -75,8 +75,6 @@ public class InMemorySessionManagerImpl
     @Override
     protected Session executeInternalSession() {
         Node node = nodeProvider.getManagerByUuid(internal_uuid, null);
-
-        long id = executeNextSessionId();
         Session session = new Session(executeNextSessionId(), true);
         define(session, internal_uuid, "Session Manager internal",
                 System.currentTimeMillis(), Long.MAX_VALUE, 0L,

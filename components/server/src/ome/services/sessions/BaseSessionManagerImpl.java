@@ -39,11 +39,10 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
-import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.security.NodeProvider;
 import ome.security.basic.LightAdminPrivileges;
 import ome.security.basic.PrincipalHolder;
 import ome.services.messages.CreateSessionMessage;
@@ -60,7 +59,6 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
-import ome.util.SqlAction;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -72,7 +70,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -94,7 +91,7 @@ import com.google.common.collect.MapMaker;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class SessionManagerImpl implements SessionManager, SessionCache.StaleCacheListener,
+public abstract class BaseSessionManagerImpl implements SessionManager, SessionCache.StaleCacheListener,
         ApplicationContextAware, ApplicationListener<ApplicationEvent> {
 
     public final static String GROUP_SUDO_NS = "openmicroscopy.org/security/group-sudo";
@@ -106,7 +103,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      * value may be overwritten by an injector with a value which is used
      * throughout this server instance.
      */
-    private String internal_uuid = UUID.randomUUID().toString();
+    protected String internal_uuid = UUID.randomUUID().toString();
 
     // Injected
     protected OmeroContext context;
@@ -121,6 +118,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
     protected PrincipalHolder principalHolder;
     protected CounterFactory factory;
     protected boolean readOnly = false;
+    protected NodeProvider nodeProvider;
 
     // Local state
 
@@ -1096,26 +1094,8 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         return executeCheckPassword(new Principal(name), credentials);
     }
 
-    private Session executeUpdate(ServiceFactory sf, Session session,
-            long userId, Long sudoerId) {
-        Node node = sf.getQueryService().findByQuery(
-                "select n from Node n where uuid = :uuid",
-                new Parameters().addString("uuid", internal_uuid).setFilter(
-                        new Filter().page(0, 1)));
-        if (node == null) {
-            node = new Node(0L, false); // Using default node.
-        }
-        session.setNode(node);
-        session.setOwner(new Experimenter(userId, false));
-        if (sudoerId == null) {
-            session.setSudoer(null);
-        } else {
-            session.setSudoer(new Experimenter(sudoerId, false));
-        }
-        Session rv = sf.getUpdateService().saveAndReturnObject(session);
-        rv.putAt("#2733", session.retrieve("#2733"));
-        return rv;
-    }
+    protected abstract Session executeUpdate(ServiceFactory sf, Session session,
+            long userId, Long sudoerId);
 
     private boolean executeCheckPassword(final Principal _principal,
             final String credentials) {
@@ -1170,96 +1150,14 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      * {@link #onApplicationEvent(ApplicationEvent)} when a
      * {@link DestroySessionMessage} is received.
      */
-    private Session executeCloseSession(final String uuid) {
-        return (Session) executor
-                .executeSql(new Executor.SimpleSqlWork(this,
-                        "executeCloseSession") {
-                    @Transactional(readOnly = false)
-                    public Object doWork(SqlAction sql) {
-                        try {
-                            int count = sql.closeSessions(uuid);
-                            if (count == 0) {
-                                log.warn("No session updated on closeSession:"
-                                        + uuid);
-                            } else {
-                                log.debug("Session.closed set to now() for "
-                                        + uuid);
-                            }
-                        } catch (Exception e) {
-                            log.error("FAILED TO CLOSE SESSION IN DATABASE: "
-                                    + uuid, e);
-                        }
-                        return null;
-                    }
-                });
-    }
+    protected abstract Session executeCloseSession(final String uuid);
 
-    private Session executeInternalSession() {
-        final Long sessionId = executeNextSessionId();
-        return (Session) executor
-                .executeSql(new Executor.SimpleSqlWork(this,
-                        "executeInternalSession") {
-                    @Transactional(readOnly = false)
-                    public Object doWork(SqlAction sql) {
-
-                        // Create a basic session
-                        final Session s = new Session();
-                        define(s, internal_uuid, "Session Manager internal",
-                                System.currentTimeMillis(), Long.MAX_VALUE, 0L,
-                                "Sessions", "Internal", null);
-
-                        // Set the owner and node specially for an internal sess
-                        long nodeId = 0L;
-                        try {
-                            nodeId = sql.nodeId(internal_uuid);
-                        } catch (EmptyResultDataAccessException erdae) {
-                            // Using default node
-                        }
-
-                        // SQL defined in data.vm for creating original session
-                        // (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
-                        // select nextval('seq_session'),-35,
-                        // 0,0,now(),now(),'rw----','PREVIOUSITEMS','1111',0,0;
-                        Map<String, Object> params = new HashMap<String, Object>();
-                        params.put("sid", sessionId);
-                        params.put("ttl", s.getTimeToLive());
-                        params.put("tti", s.getTimeToIdle());
-                        params.put("start", s.getStarted());
-                        params.put("type", s.getDefaultEventType());
-                        params.put("uuid", s.getUuid());
-                        params.put("node", nodeId);
-                        params.put("owner", roles.getRootId());
-                        params.put("agent", s.getUserAgent());
-                        params.put("ip", s.getUserIP());
-                        int count = sql.insertSession(params);
-                        if (count == 0) {
-                            throw new InternalException(
-                                    "Failed to insert new session: "
-                                            + s.getUuid());
-                        }
-                        Long id = sql.sessionId(s.getUuid());
-                        s.setId(id);
-                        return s;
-                    }
-                });
-    }
+    protected abstract Session executeInternalSession();
 
     /**
      * Added as an attempt to cure ticket:1176
-     *
-     * @return
      */
-    private Long executeNextSessionId() {
-        return (Long) executor
-                .executeSql(new Executor.SimpleSqlWork(this,
-                        "executeNextSessionId") {
-                    @Transactional(readOnly = false)
-                    public Object doWork(SqlAction sql) {
-                        return sql.nextSessionId();
-                    }
-                });
-    }
-
+    protected abstract Long executeNextSessionId();
 
     public ome.model.IObject setSecurityContext(Principal principal, ome.model.IObject obj) {
         final Long id = obj == null ? null : obj.getId();
@@ -1437,6 +1335,14 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         }
         return (Long) rv.get(0)[0];
     }
+
+    /**
+     * Retrieves a session by ID.
+     * @param id session ID to lookup
+     * @param sf active service factory
+     * @return See above.
+     */
+    protected abstract Session findSessionById(Long id, ServiceFactory sf);
 
     /**
      * Returns a List of state for creating a new {@link SessionContext}. If an
