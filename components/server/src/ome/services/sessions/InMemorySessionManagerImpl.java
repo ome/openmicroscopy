@@ -62,6 +62,11 @@ public class InMemorySessionManagerImpl
         }
         session.setNode(node);
         session.setOwner(new Experimenter(userId, false));
+        if (sudoerId == null) {
+            session.setSudoer(null);
+        } else {
+            session.setSudoer(new Experimenter(sudoerId, false));
+        }
         sessions.put(session.getUuid(), session);
         log.debug("Registered Session:{} ({})", session.getId(), session.getUuid());
         return session;
