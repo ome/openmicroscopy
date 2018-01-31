@@ -54,6 +54,7 @@ import ome.services.sessions.stats.CounterFactory;
 import ome.services.sessions.stats.SessionStats;
 import ome.services.util.Executor;
 import ome.services.util.Executor.Priority;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -188,8 +189,8 @@ public abstract class BaseSessionManagerImpl implements SessionManager, SessionC
         this.factory = factory;
     }
 
-    public void setReadOnly(boolean readOnly) {
-        this.readOnly = readOnly;
+    public void setReadOnly(ReadOnlyStatus readOnly) {
+        this.readOnly = readOnly.isReadOnlyDb();
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -15,6 +15,7 @@ import ome.conditions.SessionTimeoutException;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.services.messages.ContextMessage;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
 import ome.tools.hibernate.SessionFactory;
 import ome.util.SqlAction;
@@ -73,18 +74,17 @@ public class EventHandler implements MethodInterceptor, ApplicationListener<Cont
     public EventHandler(SqlAction sql,
             BasicSecuritySystem securitySystem, SessionFactory factory,
             TransactionAttributeSource txSource) {
-        this(sql, securitySystem, factory, txSource, false);
+        this(sql, securitySystem, factory, txSource, null);
     }
 
     public EventHandler(SqlAction sql,
             BasicSecuritySystem securitySystem, SessionFactory factory,
-            TransactionAttributeSource txSource,
-            boolean readOnly) {
+            TransactionAttributeSource txSource, ReadOnlyStatus readOnly) {
         this.secSys = securitySystem;
         this.txSource = txSource;
         this.factory = factory;
         this.sql = sql;
-        this.readOnly = readOnly;
+        this.readOnly = readOnly == null ? false : readOnly.isReadOnlyDb();
     }
 
     /**
