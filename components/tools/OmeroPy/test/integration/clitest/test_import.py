@@ -132,11 +132,9 @@ class TestImport(CLITest):
     def do_import(self, capfd, strip_logs=True):
         try:
 
-            # Check that there's no previous out/err
+            # Discard previous out/err
             # left over from previous test.
-            o, e = capfd.readouterr()
-            if o or e:
-                raise Exception(o, e)
+            capfd.readouterr()
 
             self.cli.invoke(self.args, strict=True)
             o, e = capfd.readouterr()
