@@ -4505,7 +4505,7 @@ class _BlitzGateway (object):
 
     def searchObjects(self, obj_types, text, created=None, fields=(),
                       batchSize=1000, page=0, searchGroup=None, ownedBy=None,
-                      useAcquisitionDate=False):
+                      useAcquisitionDate=False, rawQuery=True):
         """
         Search objects of type "Project", "Dataset", "Image", "Screen", "Plate"
         Returns a list of results
@@ -4575,10 +4575,14 @@ class _BlitzGateway (object):
             for t in types:
                 def actualSearch():
                     search.onlyType(t().OMERO_CLASS, ctx)
-                    search.byLuceneQueryBuilder(
-                        ",".join(fields),
-                        d_from, d_to, d_type,
-                        text, ctx)
+                    if rawQuery:
+                        # TODO: need to handle dates: d_from, d_to, d_type
+                        search.byFullText(text, ctx)
+                    else:
+                        search.byLuceneQueryBuilder(
+                            ",".join(fields),
+                            d_from, d_to, d_type,
+                            text, ctx)
 
                 timeit(actualSearch)()
                 # get results
