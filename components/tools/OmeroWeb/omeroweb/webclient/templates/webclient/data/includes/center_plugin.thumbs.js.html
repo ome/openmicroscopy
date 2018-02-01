@@ -460,11 +460,11 @@ $(document).ready(function() {
 
             // Show filter
             if (filterby != "addfilter") {
-                $("#filter" + filterby).appendTo("#filtersContainer").show();
+                $("#filter" + filterby).show();
             }
         });
         // Filters have a 'X' for clearing filter
-        $("#filtersearch").on('click', '.removefilter', function(){
+        $(".filtersearch").on('click', '.removefilter', function(){
             var $fltr = $(this).parent();
             if ($fltr.attr('id') === 'filterrating') {
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');

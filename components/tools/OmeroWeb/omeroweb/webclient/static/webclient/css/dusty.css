@@ -1017,8 +1017,7 @@ button::-moz-focus-inner {
 	/* Filter Search */
 	
     .filtersearch{
-        position:absolute;
-        margin:5px;
+        margin:4px;
         width:90%;
         height:22px;
     }
@@ -1031,8 +1030,9 @@ button::-moz-focus-inner {
         }
 
 		.filtersearch select {
-			margin-top: 1px;
+			margin-top: 2px;
 			float: left;
+			width: 100px;
 		}
 
         .filtersearch label {
