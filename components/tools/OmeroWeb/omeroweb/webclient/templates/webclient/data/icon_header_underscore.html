@@ -4,7 +4,16 @@
         <button id="icon_layout" title="View as Thumbnails" class="<% if (layout === 'icon') print('checked') %>" /><button id="table_layout" title="View as List" class="<% if (layout === 'table') print('checked') %>" />
     </div>
     <div class="search filtersearch" id="filtersearch">
-        <div style="float:left; font-size: 16px; margin: 2px">Filter:</div>
+        <select id="choosefilter">
+            <option value="addfilter">Add filter</option>
+            <option value="rating">By Rating</option>
+            <option value="unrated">Unrated</option>
+            <option value="name">Name</option>
+            <option value="tag">Tag</option>
+            <option disabled>──────────</option>
+            <option value="removeAll">Remove all filters</option>
+        </select>
+
         <div id="filtersContainer" style="float:left">
             <div id="filterrating" class="imagefilter">
                 <img title="Filter by rating (exact match)" src="<%= staticUrl %>image/rating0.png">
@@ -31,16 +40,6 @@
             </div>
             <span class="loading" style="display: none;"></span>
         </div>
-
-        <select id="choosefilter">
-            <option value="addfilter">Add filter</option>
-            <option value="rating">By Rating</option>
-            <option value="unrated">Unrated</option>
-            <option value="name">Name</option>
-            <option value="tag">Tag</option>
-            <option disabled>──────────</option>
-            <option value="removeAll">Remove all filters</option>
-        </select>
     </div>
 </div>
 <div style="position:absolute; bottom:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">

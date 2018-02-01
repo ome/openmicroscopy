@@ -1028,11 +1028,11 @@ button::-moz-focus-inner {
             border:solid 1px rgba(0,0,0,.6);
             border-top:solid 1px rgba(0,0,0,.6);
             position:absolute;
-			width:150px;
         }
 
 		.filtersearch select {
 			margin-top: 1px;
+			float: left;
 		}
 
         .filtersearch label {
@@ -1064,7 +1064,6 @@ button::-moz-focus-inner {
 	.imagefilter {
 		float:left;
 		display:none;
-		margin-right:5px
 	}
 
 	.imagefilter .removefilter {
@@ -1085,7 +1084,18 @@ button::-moz-focus-inner {
 		width: 180px;
 		height:30px;
 		top: -1px;
+		margin: 0 2px 0 7px;
 	}
+
+	#filtername input {
+		width: 90%;
+	}
+
+	#filterrating {
+		margin: 2px 2px 2px 7px;
+	}
+
+
 
 
 
