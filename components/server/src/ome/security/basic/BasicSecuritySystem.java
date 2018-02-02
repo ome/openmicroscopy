@@ -414,7 +414,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         long eventGroupId;
         Permissions callPerms;
 
-        // Code copied in SessionManagerImpl
+        // Code copied in SessionManagerInDb
         if (groupId >= 0) { // negative groupId means all member groups
             eventGroupId = groupId;
             callGroup = admin.groupProxy(groupId);

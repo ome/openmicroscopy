@@ -38,16 +38,16 @@ import ome.model.meta.Session;
 import ome.system.ServiceFactory;
 
 /**
- * In-memory implementation of {@link SessionManagerImpl}.
+ * In-memory implementation of {@link SessionManagerInDb}.
  *
  * @author Chris Allan <callan@glencoesoftware.com>
  * @since 5.3.0
  */
-public class InMemorySessionManagerImpl
-    extends BaseSessionManagerImpl {
+public class SessionManagerInMemory
+    extends BaseSessionManager {
 
     private final static Logger log =
-            LoggerFactory.getLogger(InMemorySessionManagerImpl.class);
+            LoggerFactory.getLogger(SessionManagerInMemory.class);
 
     private final AtomicLong currentSessionId = new AtomicLong(-1L);
 

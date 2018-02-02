@@ -32,7 +32,7 @@ import ome.security.basic.CurrentDetails;
 import ome.server.utests.DummyExecutor;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionContextImpl;
-import ome.services.sessions.SessionManagerImpl;
+import ome.services.sessions.SessionManagerInDb;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.CounterFactory;
 import ome.services.sessions.stats.SessionStats;
@@ -73,7 +73,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         }
     }
 
-    private final class TestManager extends SessionManagerImpl {
+    private final class TestManager extends SessionManagerInDb {
         Session doDefine() {
             Session s = new Session();
             define(s, "uuid", "message", System.currentTimeMillis(),

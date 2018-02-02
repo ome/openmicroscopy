@@ -19,30 +19,31 @@
 
 package ome.security.basic;
 
-import java.util.concurrent.atomic.AtomicLong;
-
+import ome.api.IUpdate;
 import ome.model.meta.Event;
 import ome.security.EventProvider;
 import ome.system.ServiceFactory;
 
 /**
  * Provider for {@link Event} objects which is responsible for persisting and
- * populating such entities in-memory.
+ * populating such entities using Hibernate in accordance with the currently
+ * available {@link IUpdate} implementation.
  * 
  * @author Chris Allan <callan@glencoesoftware.com>
- * @see ome.security.SecuritySystem
+ * @see SecuritySystem
  * @since 5.3.0
  */
-public class InMemoryEventProvider
+public class EventProviderInDb
     implements EventProvider {
 
-    private final AtomicLong currentEventId = new AtomicLong(-1L);
+    private ServiceFactory sf;
 
     /**
      * Main public constructor for this {@link EventProvider} implementation.
      * @param sf the service factory
      */
-    public InMemoryEventProvider(ServiceFactory sf) {
+    public EventProviderInDb(ServiceFactory sf) {
+        this.sf = sf;
     }
 
     /**
@@ -51,8 +52,8 @@ public class InMemoryEventProvider
      * @return updated event
      */
     public Event updateEvent(Event event) {
-        event.setId(currentEventId.getAndDecrement());
-        return event;
+        IUpdate update = sf.getUpdateService();
+        return update.saveAndReturnObject(event);
     }
 
 }

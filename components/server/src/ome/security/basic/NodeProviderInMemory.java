@@ -41,7 +41,7 @@ import ome.system.ServiceFactory;
  * @see ome.services.blitz.fire.Ring
  * @since 5.3.0
  */
-public class InMemoryNodeProvider implements NodeProvider {
+public class NodeProviderInMemory implements NodeProvider {
 
     /**
      * UUID for this cluster node. Used to uniquely identify the session manager
@@ -56,7 +56,7 @@ public class InMemoryNodeProvider implements NodeProvider {
 
     private final AtomicLong currentNodeId = new AtomicLong(-1L);
 
-    public InMemoryNodeProvider(String uuid) {
+    public NodeProviderInMemory(String uuid) {
         this.uuid = uuid;
         this.principal = new Principal(uuid, "system", "Internal");
     }

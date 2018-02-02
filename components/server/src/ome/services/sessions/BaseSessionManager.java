@@ -92,12 +92,12 @@ import com.google.common.collect.MapMaker;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public abstract class BaseSessionManagerImpl implements SessionManager, SessionCache.StaleCacheListener,
+public abstract class BaseSessionManager implements SessionManager, SessionCache.StaleCacheListener,
         ApplicationContextAware, ApplicationListener<ApplicationEvent> {
 
     public final static String GROUP_SUDO_NS = "openmicroscopy.org/security/group-sudo";
 
-    private final static Logger log = LoggerFactory.getLogger(SessionManagerImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(BaseSessionManager.class);
 
     /**
      * The id of this session manager, used to identify its own actions. This

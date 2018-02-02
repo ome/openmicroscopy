@@ -14,15 +14,12 @@ import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
-import ome.services.sessions.state.SessionCache;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,10 +39,9 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class SessionManagerImpl extends BaseSessionManagerImpl implements SessionManager, SessionCache.StaleCacheListener,
-        ApplicationContextAware, ApplicationListener<ApplicationEvent> {
+public class SessionManagerInDb extends BaseSessionManager {
 
-    private final static Logger log = LoggerFactory.getLogger(SessionManagerImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(SessionManagerInDb.class);
 
     // Executor methods
     // =========================================================================

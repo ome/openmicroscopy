@@ -22,7 +22,6 @@ import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionCallback;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
-import ome.services.sessions.SessionManagerImpl;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.system.OmeroContext;
 
@@ -161,7 +160,7 @@ public class SessionCache implements ApplicationContextAware {
 
         /**
          * Time of the last update request. Most likely occurs via
-         * SessionManagerImpl.onApplicationEvent(). Initialized to <em>before</em>
+         * ome.services.session.BaseSessionManager#onApplicationEvent. Initialized to <em>before</em>
          * {@link #lastUpdateRun} to prevent initial blocking.
          */
         final long lastUpdateRequest;
@@ -642,7 +641,7 @@ public class SessionCache implements ApplicationContextAware {
 
     /**
      * Provides the reloading logic of the {@link SessionCache} for the
-     * {@link SessionManagerImpl} to use.
+     * {@link ome.services.sessions.BaseSessionManager} to use.
      *
      * @see <a href="https://trac.openmicroscopy.org/ome/ticket/4011">ticket:4011</a>
      * @see <a href="https://trac.openmicroscopy.org/ome/ticket/5849">ticket:5849</a>
