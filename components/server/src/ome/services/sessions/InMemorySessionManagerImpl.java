@@ -20,9 +20,9 @@
 package ome.services.sessions;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -121,7 +121,7 @@ public class InMemorySessionManagerImpl
 
     @Override
     protected Session findSessionById(Long id, ServiceFactory sf) {
-        List<Long> tries = new ArrayList<Long>();
+        final SortedSet<Long> tries = new TreeSet<Long>();
         /* in Java 8 maybe could use Stream instead of Iterables */
         for (final Session session : Iterables.concat(openSessions.values(), closedSessions.values())) {
             if (session.getId().equals(id)) {
