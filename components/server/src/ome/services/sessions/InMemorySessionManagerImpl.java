@@ -19,6 +19,7 @@
 
 package ome.services.sessions;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Iterables;
 
 import ome.model.meta.Experimenter;
 import ome.model.meta.Node;
@@ -47,8 +51,8 @@ public class InMemorySessionManagerImpl
 
     private final AtomicLong currentSessionId = new AtomicLong(-1L);
 
-    private final Map<String, Session> sessions =
-            new ConcurrentHashMap<String, Session>();
+    private final Map<String, Session> openSessions = new ConcurrentHashMap<>();
+    private final Map<String, Session> closedSessions = CacheBuilder.newBuilder().maximumSize(512).<String, Session>build().asMap();
 
     @Override
     protected Session executeUpdate(ServiceFactory sf, Session session,
@@ -67,7 +71,14 @@ public class InMemorySessionManagerImpl
         } else {
             session.setSudoer(new Experimenter(sudoerId, false));
         }
-        sessions.put(session.getUuid(), session);
+        /* put before remove so that the session is never missing altogether */
+        if (session.getClosed() == null) {
+            openSessions.put(session.getUuid(), session);
+            closedSessions.remove(session.getUuid());
+        } else {
+            closedSessions.put(session.getUuid(), session);
+            openSessions.remove(session.getUuid());
+        }
         log.debug("Registered Session:{} ({})", session.getId(), session.getUuid());
         return session;
     }
@@ -92,13 +103,27 @@ public class InMemorySessionManagerImpl
 
     @Override
     protected Session executeCloseSession(String uuid) {
+        Session session = openSessions.get(uuid);
+        if (session == null) {
+            if (closedSessions.containsKey(uuid)) {
+                log.debug("attempt to close session {} but is already closed", uuid);
+            } else {
+                log.warn("attempt to close session {} but is no longer cached", uuid);
+            }
+        } else {
+            session.setClosed(new Timestamp(System.currentTimeMillis()));
+            closedSessions.put(session.getUuid(), session);
+            openSessions.remove(session.getUuid());
+            log.debug("closed session {}", uuid);
+        }
         return null;  // No-op
     }
 
     @Override
     protected Session findSessionById(Long id, ServiceFactory sf) {
         List<Long> tries = new ArrayList<Long>();
-        for (Session session : sessions.values()) {
+        /* in Java 8 maybe could use Stream instead of Iterables */
+        for (final Session session : Iterables.concat(openSessions.values(), closedSessions.values())) {
             if (session.getId().equals(id)) {
                 return session;
             } else {
