@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 import ome.model.meta.Node;
+import ome.security.NodeProvider;
+import ome.security.basic.InMemoryNodeProvider;
 import ome.services.blitz.redirect.NullRedirector;
 import ome.services.blitz.redirect.Redirector;
 import ome.services.blitz.util.BlitzConfiguration;
@@ -65,6 +67,8 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
 
     private final ScriptRepoHelper scriptRepoHelper;
 
+    private final NodeProvider nodeProvider;
+
     private/* final */Ice.Communicator communicator;
 
     private/* final */Registry registry;
@@ -80,15 +84,17 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
     private/* final */String directProxy;
 
     public Ring(String uuid, Executor executor) {
-        this(uuid, executor, new NullRedirector(), null);
+        this(uuid, executor, new NullRedirector(), null, new InMemoryNodeProvider(uuid, executor));
     }
 
-    public Ring(String uuid, Executor executor, Redirector redirector, ScriptRepoHelper scriptRepoHelper) {
+    public Ring(String uuid, Executor executor, Redirector redirector, ScriptRepoHelper scriptRepoHelper,
+            NodeProvider nodeProvider) {
         this.uuid = uuid;
         this.executor = executor;
         this.redirector = redirector;
         this.scriptRepoHelper = scriptRepoHelper;
         this.principal = new Principal(uuid, "system", "Internal");
+        this.nodeProvider = nodeProvider;
     }
 
     /**

@@ -193,6 +193,10 @@ public abstract class BaseSessionManagerImpl implements SessionManager, SessionC
         this.readOnly = readOnly.isReadOnlyDb();
     }
 
+    public void setNodeProvider(NodeProvider nodeProvider) {
+        this.nodeProvider = nodeProvider;
+    }
+
     /**
      * Initialization method called by the Spring run-time to acquire an initial
      * {@link Session}.
