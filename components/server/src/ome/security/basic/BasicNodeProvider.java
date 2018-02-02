@@ -41,7 +41,7 @@ import ome.system.ServiceFactory;
  * populating such entities.
  * 
  * @author Chris Allan <callan@glencoesoftware.com>
- * @see Ring
+ * @see ome.services.blitz.fire.Ring
  * @since 5.3.0
  */
 public class BasicNodeProvider implements NodeProvider {
