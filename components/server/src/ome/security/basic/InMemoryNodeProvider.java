@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.security.NodeProvider;
-import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
@@ -57,7 +56,7 @@ public class InMemoryNodeProvider implements NodeProvider {
 
     private final AtomicLong currentNodeId = new AtomicLong(-1L);
 
-    public InMemoryNodeProvider(String uuid, Executor executor) {
+    public InMemoryNodeProvider(String uuid) {
         this.uuid = uuid;
         this.principal = new Principal(uuid, "system", "Internal");
     }
