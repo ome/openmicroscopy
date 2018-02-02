@@ -454,7 +454,7 @@ button::-moz-focus-inner {
 .tag_annotation_wrapper .tag, .imagefilter .tag {
 	 display:inline-block;
 	 float:left;
-	 margin:1px 1px;
+	 margin:1px 3px;
 	 position:relative;
 	 
  }   
@@ -1033,6 +1033,7 @@ button::-moz-focus-inner {
 			margin-top: 2px;
 			float: left;
 			width: 100px;
+			margin-right: 4px;
 		}
 
         .filtersearch label {
@@ -1066,11 +1067,11 @@ button::-moz-focus-inner {
 		display:none;
 	}
 
-	.imagefilter .removefilter {
+	#filterrating .removefilter {
 		visibility: hidden;
 	}
 
-	.imagefilter:hover .removefilter {
+	#filterrating:hover .removefilter {
 		display: inline-block;
 		visibility: visible;
 	}

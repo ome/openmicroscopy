@@ -466,15 +466,22 @@ $(document).ready(function() {
         // Filters have a 'X' for clearing filter
         $(".filtersearch").on('click', '.removefilter', function(){
             var $fltr = $(this).parent();
-            if ($fltr.attr('id') === 'filterrating') {
+            var fid = $fltr.attr('id');
+            if (fid === 'filterrating') {
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
                 $("#filterrating img").attr('src', "{% static 'webclient/image/rating' %}0.png");
-            } else if ($fltr.attr('id') === 'filterunrated') {
+            } else if (fid === 'filterunrated') {
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
                 $fltr.hide();
             } else if ($fltr.attr('data-tagId')) {
+                // Remove a single Tag
                 var tagId = $fltr.attr('data-tagId');
                 filter_tag_ids = filter_tag_ids.filter(function(i){return i !== tagId});
+                renderFilterTags();
+            } else if (fid == 'filtertag') {
+                // Remove ALL tags and hide tag filter
+                $fltr.hide();
+                filter_tag_ids = [];
                 renderFilterTags();
             }
         });
