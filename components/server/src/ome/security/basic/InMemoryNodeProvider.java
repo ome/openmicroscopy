@@ -102,7 +102,7 @@ public class InMemoryNodeProvider implements NodeProvider {
 
     /**
      * Assumes that the given manager is no longer available and will clean up
-     * all in memory sessions.
+     * all in-memory sessions.
      */
     public int closeSessionsForManager(final String managerUuid) {
         // Implementation of the following SQL query in memory:

@@ -38,7 +38,7 @@ import ome.model.meta.Session;
 import ome.system.ServiceFactory;
 
 /**
- * In memory implementation of {@link SessionManagerImpl}.
+ * In-memory implementation of {@link SessionManagerImpl}.
  *
  * @author Chris Allan <callan@glencoesoftware.com>
  * @since 5.3.0
