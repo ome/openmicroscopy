@@ -149,9 +149,9 @@ Test Search
     Input Text                              id_search_query     test
     Submit Form                             id=search
 
+    Wait Until Page Contains Element        dataTable       ${WAIT}
     # We don't care about results, just check we get *some* results in dataTable
     Location Should Be                      ${WELCOME URL}search/?search_query=test
-    Wait Until Page Contains Element        dataTable       ${WAIT}
     # Repeat search
     Submit Form                             searching_form
     Wait Until Page Contains                Loading data...

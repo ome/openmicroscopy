@@ -68,7 +68,9 @@ Test Drag and Drop Orphaned Dataset
     ${projectNode}                              Wait For Project Node    ${pid}
     Click Node                                  ${projectNode}
     Wait Until Element is Visible               xpath=//li[@id='${projectNode}']//li[@data-id='${datasetId}']
-    
+    Select Dataset By Id                        ${datasetId}
+    Delete Container
+
 Test Drag and Drop Plate
     
     Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
@@ -89,6 +91,8 @@ Test Drag and Drop Plate
     ${screenNode}                               Wait For Screen Node    ${screenId}
     Click Node                                  ${screenNode}
     Wait Until Element is Visible               xpath=//li[@id='${screenNode}']//li[@data-id='${plateId}']
+    Select Screen By Id                         ${screenId}
+    Delete Container
 
 Test Drag and Drop Dataset On Experimenter
     [Documentation]                             This test will currently fail on 5.1 Series
@@ -131,6 +135,8 @@ Test Drag and Drop Image on Experimenter
     Drag And Drop                               xpath=//li[@id='${imageNode}']/a  xpath=//li[@id='${treeRootId}']/a
     ${nodeId}=                                  Select Orphaned Images Section
     Page Should Not Contain Element             xpath=//li[@id='${nodeId}']//li[@id='${imageNode}']
+    Select Project By Id                        ${pid}
+    Delete Container
 
 Test Drag and Drop Project on Invalid Targets
 
