@@ -13,7 +13,7 @@ import java.util.Set;
 
 import ome.model.meta.Node;
 import ome.security.NodeProvider;
-import ome.security.basic.InMemoryNodeProvider;
+import ome.security.basic.NodeProviderInMemory;
 import ome.services.blitz.redirect.NullRedirector;
 import ome.services.blitz.redirect.Redirector;
 import ome.services.blitz.util.BlitzConfiguration;
@@ -84,7 +84,7 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
     private/* final */String directProxy;
 
     public Ring(String uuid, Executor executor) {
-        this(uuid, executor, new NullRedirector(), null, new InMemoryNodeProvider(uuid, executor));
+        this(uuid, executor, new NullRedirector(), null, new NodeProviderInMemory(uuid));
     }
 
     public Ring(String uuid, Executor executor, Redirector redirector, ScriptRepoHelper scriptRepoHelper,

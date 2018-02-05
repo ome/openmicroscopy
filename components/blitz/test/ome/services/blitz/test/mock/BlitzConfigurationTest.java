@@ -15,9 +15,6 @@ import org.jmock.MockObjectTestCase;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-/**
- *
- */
 public class BlitzConfigurationTest extends MockObjectTestCase {
 
     Ring ring;
@@ -29,7 +26,7 @@ public class BlitzConfigurationTest extends MockObjectTestCase {
     
     @BeforeClass(groups = "integration")
     public void setup() throws Exception {
-        ring = new Ring("uuid", null, null, null);
+        ring = new Ring("uuid", null);
     }
     
     @Test(groups = "integration")
