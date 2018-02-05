@@ -1724,7 +1724,6 @@ present, the user will enter a console""")
 
     @admin_only(AdminPrivilegeReadSession)
     def log(self, args):
-        self.check_access()
         client = self.ctx.conn(args)
         req = RawAccessRequest(command='log', path=args.level,
                                repoUuid=args.repo, args=[args.message])
