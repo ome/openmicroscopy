@@ -153,6 +153,12 @@
     <property name="defaultTimeToLive" value="${omero.sessions.maximum}"/>
     <property name="counterFactory"  ref="sessionCounterFactory"/>
     <property name="readOnly"        ref="readOnlyStatus"/>
+    <property name="nodeProvider"    ref="nodeProvider"/>
+  </bean>
+
+  <bean id="nodeProvider" class="ome.security.basic.NodeProviderInDb">
+    <constructor-arg ref="uuid"/>
+    <constructor-arg ref="executor"/>
   </bean>
 
   <bean id="methodSecurity" class="ome.security.basic.BasicMethodSecurity">

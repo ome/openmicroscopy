@@ -38,6 +38,7 @@
     <constructor-arg ref="executor"/>
     <constructor-arg ref="redirector"/>
     <constructor-arg ref="scriptRepoHelper"/>
+    <constructor-arg ref="nodeProvider"/>
   </bean>
 
   <!-- Redirector configuration -->
