@@ -326,6 +326,7 @@ Wait Until Center Panel Loads
 
 Edit Object Name
     [Arguments]                             ${dtype}        ${id}       ${name}
+    Wait Until Page Contains Element        css=#${dtype}name-${id} button.btn_edit
     Click Element                           css=#${dtype}name-${id} button.btn_edit
     Wait Until Page Contains Element        form-${dtype}name-${id}
     # id 'id_name' is not unique!
