@@ -1175,3 +1175,17 @@ class TestImport(CLITest):
 
         with pytest.raises(NonZeroReturnCode):
             self.do_import(capfd)
+
+    @pytest.mark.parametrize("arg",
+                             ['', '--encrypted=false', '--encrypted=true'])
+    def testEncryption(self, tmpdir, capfd, arg):
+        """Test encryption import"""
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += [str(fakefile)]
+        self.args += [arg]
+
+        out, err = self.do_import(capfd)
+        assert self.get_object(out, 'Image')

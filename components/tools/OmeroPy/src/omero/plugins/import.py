@@ -420,6 +420,11 @@ class ImportControl(BaseControl):
             "--output", choices=OUTPUT_CHOICES,
             help="Set an alternative output style",
             metavar="TYPE")
+        add_java_argument(
+            "--encrypted",
+            choices=("true", "false"),
+            help="Whether the import should use SSL or not",
+            metavar="TYPE")
 
         # Arguments previously *following" `--`
         advjava_group = parser.add_argument_group(
