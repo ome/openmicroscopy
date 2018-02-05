@@ -93,9 +93,10 @@ Test Filter By Tags
     Remove Tag Filter                           ${tag1}
 
     # Clean up - Select 3 Images and remove Tags
-    Click Node                                  ${nodeId1}
+    Click Node                                  ${nodeId3}
     Meta Click Node                             ${nodeId2}
-    Meta Click Node                             ${nodeId3}
+    Meta Click Node                             ${nodeId1}
+    # Tag1 is only on Node1. We select Node1 last, so tag1 doesn't hide/show (stale)
     Remove Tag                                  ${tag1}
     Remove Tag                                  ${tag2}
     Remove Tag                                  ${tag3}
@@ -157,9 +158,10 @@ Test Filter By Name Tags Rating
     Element Should Be Visible                   id=image_icon-${imageId2}
 
     # Clean up - Select 3 Images and remove Tags
-    Click Node                                  ${nodeId1}
+    Click Node                                  ${nodeId3}
     Meta Click Node                             ${nodeId2}
-    Meta Click Node                             ${nodeId3}
+    Meta Click Node                             ${nodeId1}
+    # Tag is only on Node1. We select Node1 last, so tag doesn't hide/show (stale)
     Remove Tag                                  ${tagText}
 
 [Teardown]    Close Browser
