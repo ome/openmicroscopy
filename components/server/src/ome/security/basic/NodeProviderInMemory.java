@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.security.NodeProvider;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
@@ -41,7 +42,7 @@ import ome.system.ServiceFactory;
  * @see ome.services.blitz.fire.Ring
  * @since 5.3.0
  */
-public class NodeProviderInMemory implements NodeProvider {
+public class NodeProviderInMemory implements NodeProvider, ReadOnlyStatus.IsAware {
 
     /**
      * UUID for this cluster node. Used to uniquely identify the session manager
@@ -75,7 +76,8 @@ public class NodeProviderInMemory implements NodeProvider {
      * @see ome.security.NodeProvider#getManagerIdByUuid(java.lang.String, ome.util.SqlAction)
      */
     public long getManagerIdByUuid(String managerUuid, ome.util.SqlAction sql) {
-        return getManagerByUuid(managerUuid, null).getId();
+        final Node manager = getManagerByUuid(managerUuid, null);
+        return manager == null ? 0 : manager.getId();
     };
 
     /* (non-Javadoc)
@@ -151,4 +153,8 @@ public class NodeProviderInMemory implements NodeProvider {
         return node;
     }
 
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return false;
+    }
 }

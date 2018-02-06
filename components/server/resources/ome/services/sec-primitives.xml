@@ -156,9 +156,19 @@
     <property name="nodeProvider"    ref="nodeProvider"/>
   </bean>
 
-  <bean id="nodeProvider" class="ome.security.basic.NodeProviderInDb">
-    <constructor-arg ref="uuid"/>
-    <constructor-arg ref="executor"/>
+  <bean id="nodeProvider" class="ome.security.basic.NodeProviderWrapper">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg>
+      <list>
+        <bean class="ome.security.basic.NodeProviderInDb">
+          <constructor-arg ref="uuid"/>
+          <constructor-arg ref="executor"/>
+        </bean>
+        <bean class="ome.security.basic.NodeProviderInMemory">
+          <constructor-arg ref="uuid"/>
+        </bean>
+      </list>
+    </constructor-arg>
   </bean>
 
   <bean id="methodSecurity" class="ome.security.basic.BasicMethodSecurity">

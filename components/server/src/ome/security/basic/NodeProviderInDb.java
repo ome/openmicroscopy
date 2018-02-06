@@ -33,6 +33,7 @@ import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.security.NodeProvider;
 import ome.services.util.Executor;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
@@ -44,7 +45,7 @@ import ome.system.ServiceFactory;
  * @see ome.services.blitz.fire.Ring
  * @since 5.3.0
  */
-public class NodeProviderInDb implements NodeProvider {
+public class NodeProviderInDb implements NodeProvider, ReadOnlyStatus.IsAware {
 
     /**
      * UUID for this cluster node. Used to uniquely identify the session manager
@@ -77,13 +78,11 @@ public class NodeProviderInDb implements NodeProvider {
      * @see ome.security.NodeProvider#getManagerIdByUuid(java.lang.String, ome.util.SqlAction)
      */
     public long getManagerIdByUuid(String managerUuid, ome.util.SqlAction sql) {
-        long nodeId = 0L;
         try {
-            nodeId = sql.nodeId(managerUuid);
+            return sql.nodeId(managerUuid);
         } catch (EmptyResultDataAccessException erdae) {
-            // Using default node
+            return 0;
         }
-        return nodeId;
     };
 
     /* (non-Javadoc)
@@ -127,7 +126,6 @@ public class NodeProviderInDb implements NodeProvider {
      * to closed.
      */
     public int closeSessionsForManager(final String managerUuid) {
-
         // First look up the sessions in on transaction
         return (Integer) executor.execute(principal, new Executor.SimpleWork(
                 this, "executeUpdate - set closed = now()") {
@@ -168,4 +166,8 @@ public class NodeProviderInDb implements NodeProvider {
         });
     }
 
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return readOnly.isReadOnlyDb();
+    }
 }

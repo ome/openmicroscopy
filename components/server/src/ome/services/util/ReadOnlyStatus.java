@@ -69,4 +69,17 @@ public class ReadOnlyStatus {
     public boolean isReadOnlyRepo() {
         return isReadOnlyRepo;
     }
+
+    /**
+     * Implemented by classes that can report if a given read-only status would cause them to be in read-only mode.
+     * @author m.t.b.carroll@dundee.ac.uk
+     */
+    public interface IsAware {
+
+        /**
+         * @param readOnly a read-only status, typically the current one
+         * @return if that status puts this class into read-only mode
+         */
+        boolean isReadOnly(ReadOnlyStatus readOnly);
+    }
 }
