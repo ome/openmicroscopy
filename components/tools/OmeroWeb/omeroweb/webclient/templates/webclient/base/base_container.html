@@ -181,7 +181,7 @@
         WEBCLIENT.URLS.api_tags_and_tagged = "{% url 'api_tags_and_tagged' %}";
         WEBCLIENT.URLS.fileset_check = "{% url 'fileset_check' 'delete' %}";
         WEBCLIENT.URLS.deletemany = "{% url 'manage_action_containers' 'deletemany' %}";
-        WEBCLIENT.URLS.copy_image_rdef_json = "{% url 'webgateway.views.copy_image_rdef_json' %}";
+        WEBCLIENT.URLS.copy_image_rdef_json = "{% url 'copy_image_rdef_json' %}";
         WEBCLIENT.URLS.reset_owners_rdef_json = "{% url 'reset_owners_rdef_json' %}";
         WEBCLIENT.URLS.reset_rdef_json = "{% url 'reset_rdef_json' %}";
         // jsTree code in ome.tree.js and center panel code in center_plugin.thumbs.js.html uses initially_select
@@ -209,7 +209,7 @@
         {% endif %}
 
         WEBCLIENT.HAS_RDEF = false;
-        $.getJSON("{% url 'webgateway.views.get_image_rdef_json' %}", function(data){
+        $.getJSON("{% url 'get_image_rdef_json' %}", function(data){
             WEBCLIENT.HAS_RDEF = !!(data && data.rdef);
         });
 
@@ -217,7 +217,7 @@
         // Loaded scripts can call OME.setOpenWithEnabledHandler and/or
         // OME.setOpenWithActionHandler to override default behaviour
         WEBCLIENT.OPEN_WITH = [];
-        $.getJSON("{% url 'webgateway.views.open_with_options' %}", function(data){
+        $.getJSON("{% url 'open_with_options' %}", function(data){
             if (data && data.open_with_options) {
                 WEBCLIENT.OPEN_WITH = data.open_with_options;
                 // Try to load scripts if specified:
