@@ -61,6 +61,7 @@ Test Filter By Tags
     ${imageId3}=                                Get Id From Selected Thumbnail
     ${nodeId3}=                                 Wait For Image Node         ${imageId3}
     Meta Click Node                             ${nodeId2}
+    Wait Until Page Contains Element            xpath=//h1[@id='batch_ann_title']/span[contains(text(), '2 objects')]
     Add New Tag                                 ${tag3}
 
     # Filter by Tag3 -> 2 images
@@ -129,6 +130,7 @@ Test Filter By Name Tags Rating
     ${nodeId3}=                                 Wait For Image Node         ${imageId3}
     Click Element                               xpath=//h1[@data-name='tags']
     Meta Click Node                             ${nodeId2}
+    Wait Until Page Contains Element            xpath=//h1[@id='batch_ann_title']/span[contains(text(), '2 objects')]
     Add New Tag                                 ${tagText}
 
     # Filter by Tag
