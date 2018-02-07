@@ -32,6 +32,7 @@ Remove Comment
 
 Check For Rating
     [Arguments]                                 ${rating}
+    Wait Until Element Is Visible               xpath=//img[@title='Click to add rating']
     ${src}=                                     Get Element Attribute   xpath=//img[@title='Click to add rating']   attribute=src
     Should Contain                              ${src}                  rating${rating}
 
@@ -50,12 +51,17 @@ Test Rate Images
     Wait Until Element Is Visible               id=rating_annotations
     # Add Rating of 5 *****
     Click Rating                                5
+    Meta Click Node                             ${nodeId}
+    Click Node                                  ${nodeId}
     Check For Rating                            5
 
     # Add Rating of 2 **
     Click Next Thumbnail
     ${imageId2}=                                Get Id From Selected Thumbnail
+    ${nodeId2}=                                 Wait For Image Node         ${imageId2}
     Click Rating                                2
+    Meta Click Node                             ${nodeId2}
+    Click Node                                  ${nodeId2}
     Check For Rating                            2
 
     # Add Rating of 2 **
@@ -63,25 +69,17 @@ Test Rate Images
     ${imageId3}=                                Get Id From Selected Thumbnail
     ${nodeId3}=                                 Wait For Image Node         ${imageId3}
     Click Rating                                2
+    Meta Click Node                             ${nodeId3}
+    Click Node                                  ${nodeId3}
     Check For Rating                            2
 
-Test Filter Rating
-
-    Select Experimenter
-    Select And Expand Node                      Project 1
-    Select And Expand Node                      Dataset 1
-    ${imageId}=                                 Select First Image
-    ${nodeId}=                                  Wait For Image Node         ${imageId}
-
-    # Select second image
-    Click Next Thumbnail
-    ${imageId2}=                                Get Id From Selected Thumbnail
-    ${nodeId2}=                                 Wait For Image Node         ${imageId2}
-
-    # Select third image
-    Click Next Thumbnail
-    ${imageId3}=                                Get Id From Selected Thumbnail
-    ${nodeId3}=                                 Wait For Image Node         ${imageId3}
+    # Check average
+    Click Node                                  ${nodeId}
+    Meta Click Node                             ${nodeId2}
+    Meta Click Node                             ${nodeId3}
+    Wait Until Page Contains Element            xpath=//h1[@id='batch_ann_title']/span[contains(text(), '3 objects')]
+    Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]    timeout=${TIMEOUT}
+    Page Should Contain Element                 locator=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     limit=3
 
     # Filter by Rating 2 **
     Select From List By Label                   id=choosefilter         By Rating
@@ -96,13 +94,6 @@ Test Filter Rating
     Wait Until Element Is Not Visible           id=image_icon-${imageId3}
     Count Thumbs Without Class                  ratingFilter_hidden     1
 
-    # Check average
-    Click Node                                  ${nodeId}
-    Meta Click Node                             ${nodeId2}
-    Meta Click Node                             ${nodeId3}
-
-    Wait Until Element Is Visible               xpath=//span[@id='ratingsAverage'][contains(text(), '3')]    timeout=${TIMEOUT}
-    Page Should Contain Element                 locator=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]     limit=3
 
 Test Delete Rating
 
@@ -129,6 +120,7 @@ Test Delete Rating
     Meta Click Node                             ${nodeId2}
     Meta Click Node                             ${nodeId3}
 
+    Wait Until Page Contains Element            xpath=//h1[@id='batch_ann_title']/span[contains(text(), '3 objects')]
     Wait Until Page Contains Element            xpath=//span[@id='ratingsAverage'][contains(text(), '3')]    timeout=${TIMEOUT}
     Remove Rating
     # Check rating was removed from first image
