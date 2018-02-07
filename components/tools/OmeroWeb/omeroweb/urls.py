@@ -25,7 +25,7 @@
 
 from django.conf import settings
 from django.apps import AppConfig
-from django.conf.urls import url, patterns, include
+from django.conf.urls import url, include
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.shortcuts import redirect
 
@@ -46,26 +46,20 @@ def redirect_urlpatterns():
     Helper function to return a URL pattern for index page http://host/.
     """
     if settings.INDEX_TEMPLATE is None:
-        return patterns(
-            '',
-            url(r'^$', never_cache(
-                RedirectView.as_view(url=reverse_lazy('webindex'),
-                                     permanent=True)),
-                name="index")
-            )
+        return [url(r'^$', never_cache(
+                   RedirectView.as_view(url=reverse_lazy('webindex'),
+                                        permanent=True)),
+                   name="index")]
     else:
-        return patterns(
-            '',
-            url(r'^$', never_cache(
+        return [url(r'^$', never_cache(
                 RedirectView.as_view(url=reverse_lazy('webindex_custom'),
                                      permanent=True)),
-                name="index"),
-            )
+                name="index")]
 
 
 # url patterns
 
-urlpatterns = patterns('',)
+urlpatterns = []
 
 for app in settings.ADDITIONAL_APPS:
     if isinstance(app, AppConfig):
@@ -86,28 +80,26 @@ for app in settings.ADDITIONAL_APPS:
         pass
     else:
         regex = '^(?i)%s/' % label
-        urlpatterns += patterns('', (regex, include(urlmodule)),)
+        urlpatterns.append(url(regex, include(urlmodule)))
 
-urlpatterns += patterns(
-    '',
-    (r'^favicon\.ico$',
+urlpatterns.extend([
+    url(r'^favicon\.ico$',
      lambda request: redirect('%swebgateway/img/ome.ico'
                               % settings.STATIC_URL)),
-    (r'^(?i)webgateway/', include('omeroweb.webgateway.urls')),
-    (r'^(?i)webadmin/', include('omeroweb.webadmin.urls')),
-    (r'^(?i)webclient/', include('omeroweb.webclient.urls')),
+    url(r'^(?i)webgateway/', include('omeroweb.webgateway.urls')),
+    url(r'^(?i)webadmin/', include('omeroweb.webadmin.urls')),
+    url(r'^(?i)webclient/', include('omeroweb.webclient.urls')),
 
-    (r'^(?i)url/', include('omeroweb.webredirect.urls')),
-    (r'^(?i)feedback/', include('omeroweb.feedback.urls')),
+    url(r'^(?i)url/', include('omeroweb.webredirect.urls')),
+    url(r'^(?i)feedback/', include('omeroweb.feedback.urls')),
 
-    (r'^(?i)api/', include('omeroweb.api.urls')),
+    url(r'^(?i)api/', include('omeroweb.api.urls')),
 
-    url(r'^index/$', 'omeroweb.webclient.views.custom_index',
-        name="webindex_custom"),
-)
+    url(r'^index/$', custom_index, name="webindex_custom"),
+])
 
-urlpatterns += redirect_urlpatterns()
+urlpatterns.extend(redirect_urlpatterns())
 
 
 if settings.DEBUG:
-    urlpatterns += staticfiles_urlpatterns()
+    urlpatterns.extend(staticfiles_urlpatterns())

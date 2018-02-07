@@ -23,14 +23,13 @@
 # Version: 1.0
 #
 
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 
 from omeroweb.webadmin import views
 from omeroweb.webclient.views import WebclientLoginView
 
 # url patterns
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^$', views.index, name="waindex"),
     url(r'^login/$', WebclientLoginView.as_view(),
         name="walogin"),
@@ -63,4 +62,4 @@ urlpatterns = patterns(
         views.manage_avatar, name="wamanageavatar"),
     url(r'^myphoto/$', views.myphoto, name="wamyphoto"),
     url(r'^email/$', views.email, name="waemail"),
-)
+]
