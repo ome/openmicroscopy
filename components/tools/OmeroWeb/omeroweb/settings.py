@@ -583,26 +583,26 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # Pipeline is an asset packaging library for Django, providing both CSS
     # and JavaScript concatenation and compression, built-in JavaScript
     # template support, and optional data-URI image and font embedding.
-    "omero.web.pipeline_js_compressor":
-        ["PIPELINE_JS_COMPRESSOR",
-         None,
-         identity,
-         ("Compressor class to be applied to JavaScript files. If empty or "
-          "None, JavaScript files won't be compressed.")],
-    "omero.web.pipeline_css_compressor":
-        ["PIPELINE_CSS_COMPRESSOR",
-         None,
-         identity,
-         ("Compressor class to be applied to CSS files. If empty or None,"
-          " CSS files won't be compressed.")],
-    "omero.web.pipeline_staticfile_storage":
-        ["STATICFILES_STORAGE",
-         "pipeline.storage.PipelineStorage",
-         str,
-         ("The file storage engine to use when collecting static files with"
-          " the collectstatic management command. See `the documentation "
-          "<http://django-pipeline.readthedocs.org/en/latest/storages.html>`_"
-          " for more details.")],
+    # "omero.web.pipeline_js_compressor":
+    #     ["PIPELINE_JS_COMPRESSOR",
+    #      None,
+    #      identity,
+    #      ("Compressor class to be applied to JavaScript files. If empty or "
+    #       "None, JavaScript files won't be compressed.")],
+    # "omero.web.pipeline_css_compressor":
+    #     ["PIPELINE_CSS_COMPRESSOR",
+    #      None,
+    #      identity,
+    #      ("Compressor class to be applied to CSS files. If empty or None,"
+    #       " CSS files won't be compressed.")],
+    # "omero.web.pipeline_staticfile_storage":
+    #     ["STATICFILES_STORAGE",
+    #      "pipeline.storage.PipelineStorage",
+    #      str,
+    #      ("The file storage engine to use when collecting static files with"
+    #       " the collectstatic management command. See `the documentation "
+    #       "<http://django-pipeline.readthedocs.org/en/latest/storages.html>`_"
+    #       " for more details.")],
 
     # Customisation
     "omero.web.login_logo":
@@ -1117,7 +1117,7 @@ INSTALLED_APPS += (
     'omeroweb.webgateway',
     'omeroweb.webredirect',
     'omeroweb.api',
-    'pipeline',
+    # 'pipeline',
 )
 
 logger.debug('INSTALLED_APPS=%s' % [INSTALLED_APPS])
