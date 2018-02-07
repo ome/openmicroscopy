@@ -2232,9 +2232,7 @@ def full_viewer(request, iid, conn=None, **kwargs):
 
         template = kwargs.get('template',
                               "webgateway/viewport/omero_image.html")
-        t = template_loader.get_template(template)
-        c = Context(request, d)
-        rsp = t.render(c)
+        return render(request, tempalte, context)
     except omero.SecurityViolation:
         logger.warn("SecurityViolation in Image:%s", iid)
         logger.warn(traceback.format_exc())
@@ -2586,10 +2584,8 @@ def su(request, user, conn=None, **kwargs):
         context = {
             'url': reverse('webgateway_su', args=[user]),
             'submit': "Do you want to su to %s" % user}
-        t = template_loader.get_template(
-            'webgateway/base/includes/post_form.html')
-        c = Context(request, context)
-        return HttpResponse(t.render(c))
+        return render(request, 'webgateway/base/includes/post_form.html',
+                      context)
 
 
 def _annotations(request, objtype, objid, conn=None, **kwargs):

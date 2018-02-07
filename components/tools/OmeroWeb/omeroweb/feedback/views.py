@@ -34,12 +34,11 @@ import traceback
 import logging
 
 from django.conf import settings
-from django.template import loader as template_loader
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.http import HttpResponseServerError, HttpResponseNotFound
-from django.template import RequestContext
 from django.views.defaults import page_not_found
 from django.core.urlresolvers import reverse
+from django.shortcuts import render
 
 from django.views.debug import get_exception_reporter_filter
 from django.utils.encoding import force_text
@@ -95,9 +94,7 @@ def send_feedback(request):
             return HttpResponseRedirect(reverse("fthanks"))
 
     context = {'form': form, 'error': error}
-    t = template_loader.get_template('500.html')
-    c = RequestContext(request, context)
-    return HttpResponse(t.render(c))
+    return render(request, '500.html', context)
 
 
 def send_comment(request):
@@ -122,9 +119,7 @@ def send_comment(request):
                 return HttpResponseRedirect(reverse("fthanks"))
 
     context = {'form': form, 'error': error}
-    t = template_loader.get_template('comment.html')
-    c = RequestContext(request, context)
-    return HttpResponse(t.render(c))
+    return render(request, 'comment.html', context)
 
 
 ##############################################################################
@@ -175,9 +170,7 @@ def handler500(request):
 
     form = ErrorForm(initial={'error': error500})
     context = {'form': form}
-    t = template_loader.get_template('500.html')
-    c = RequestContext(request, context)
-    return HttpResponseServerError(t.render(c))
+    return render(request, '500.html', context)
 
 
 def handler404(request):
@@ -210,6 +203,4 @@ def handlerInternalError(request, error):
         return HttpResponseNotFound(error)
 
     context = {"error": error}
-    t = template_loader.get_template("error.html")
-    c = RequestContext(request, context)
-    return HttpResponseNotFound(t.render(c))
+    return render(request, "error.html", context)

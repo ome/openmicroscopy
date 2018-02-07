@@ -50,12 +50,12 @@ from django.template import loader as template_loader
 from django.http import Http404, HttpResponse, HttpResponseRedirect, \
     JsonResponse
 from django.http import HttpResponseServerError, HttpResponseBadRequest
-from django.template import RequestContext as Context
 from django.utils.http import urlencode
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
+from django.shortcuts import render
 
 from webclient_utils import _formatReport, _purgeCallback
 from forms import GlobalSearchForm, ContainerForm
@@ -243,17 +243,14 @@ class WebclientLoginView(LoginView):
             'build_year': build_year,
             'error': error,
             'form': form}
-        url = request.GET.get("url")
-        if url is not None and len(url) != 0:
-            context['url'] = urlencode({'url': url})
+        url = request.GET.get("url" ,"")
+        # if url is not None and len(url) != 0:
+        context['url'] = urlencode({'url': url})
 
         if hasattr(settings, 'LOGIN_LOGO'):
             context['LOGIN_LOGO'] = settings.LOGIN_LOGO
 
-        t = template_loader.get_template(self.template)
-        c = Context(request, context)
-        rsp = t.render(c)
-        return HttpResponse(rsp)
+        return render(request, self.template, context)
 
 
 @login_required(ignore_login_fail=True)
@@ -329,10 +326,7 @@ def logout(request, conn=None, **kwargs):
         context = {
             'url': reverse('weblogout'),
             'submit': "Do you want to log out?"}
-        t = template_loader.get_template(
-            'webgateway/base/includes/post_form.html')
-        c = Context(request, context)
-        return HttpResponse(t.render(c))
+        return render(request, 'webgateway/base/includes/post_form.html', context)
 
 
 ###########################################################################
