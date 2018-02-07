@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,11 +29,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
@@ -537,8 +537,9 @@ class OmeroImageServiceImpl
                     .getFacility(BrowseFacility.class).getLookupTables(ctx);
             return OmeroImageServiceImpl.LOOKUP_TABLES;
         } catch (Exception e) {
+            context.getLogger().warn(this, e.getMessage());
         }
-        return null;
+        return Collections.emptyList();
     }
 	
 	/** 
@@ -748,7 +749,9 @@ class OmeroImageServiceImpl
 					exp.getId());
 			proxy = PixelsServicesFactory.resetRenderingControl(context,
 					pixelsID, proxies, def);
-			proxy.setAvailableLookupTables(getLookupTables(ctx));
+			if (proxy != null)
+			    // the RenderingControlProxy can be closed already
+			    proxy.setAvailableLookupTables(getLookupTables(ctx));
 			return proxy;
 		} catch (Exception e) {
 			throw new RenderingServiceException("Cannot restart the " +
