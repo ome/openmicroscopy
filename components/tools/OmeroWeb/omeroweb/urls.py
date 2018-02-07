@@ -34,6 +34,8 @@ from django.utils.functional import lazy
 from django.views.generic import RedirectView
 from django.views.decorators.cache import never_cache
 
+from omeroweb.webclient.views import custom_index
+
 # error handler
 handler404 = "omeroweb.feedback.views.handler404"
 handler500 = "omeroweb.feedback.views.handler500"
