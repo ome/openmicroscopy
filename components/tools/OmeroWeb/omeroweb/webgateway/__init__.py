@@ -20,7 +20,3 @@
 #
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2012.
 #
-
-from django.template.base import add_to_builtins
-
-add_to_builtins('omeroweb.webgateway.templatetags.defaulttags')

@@ -1067,6 +1067,9 @@ TEMPLATES = [
                 'omeroweb.custom_context_processor.url_suffix',
                 'omeroweb.custom_context_processor.base_include_template',
             ],
+            'builtins': [
+                'omeroweb.webgateway.templatetags.defaulttags',
+            ],
         },
     },
 ]
