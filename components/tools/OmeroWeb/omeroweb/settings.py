@@ -130,7 +130,7 @@ LOGGING = {
         },
         'null': {
             'level': 'DEBUG',
-            'class': 'django.utils.log.NullHandler',
+            'class': 'logging.StreamHandler',
         },
         'console': {
             'level': 'DEBUG',
