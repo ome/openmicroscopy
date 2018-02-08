@@ -156,6 +156,19 @@
     <property name="nodeProvider"    ref="nodeProvider"/>
   </bean>
 
+  <bean id="eventProvider" class="ome.security.basic.EventProviderWrapper">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg>
+      <list>
+        <bean class="ome.security.basic.EventProviderInDb">
+          <constructor-arg ref="internalServiceFactory"/>
+        </bean>
+        <bean class="ome.security.basic.EventProviderInMemory">
+        </bean>
+      </list>
+    </constructor-arg>
+  </bean>
+
   <bean id="nodeProvider" class="ome.security.basic.NodeProviderWrapper">
     <constructor-arg ref="readOnlyStatus"/>
     <constructor-arg>
