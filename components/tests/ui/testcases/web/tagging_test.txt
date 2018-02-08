@@ -4,15 +4,11 @@ Documentation     Tests submission of forms.
 Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
+Resource          ../../resources/web/annotation.txt
 
 Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
 
 *** Keywords ***
-
-Launch Tag Dialog
-    Click Element                           launch_tags_form
-    Wait Until Page Contains Element        id_tag
-    Wait Until Page Contains Element        xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
 
 Check For Tag
     [Arguments]                             ${tagText}
@@ -37,10 +33,7 @@ Test Tag Dialog
 
     # Tag Project robot test tagging_2
     Click Element                               xpath=//h1[@data-name='tags']
-    Launch Tag Dialog
-    Input Text                                  id_tag     robotTagTest${pid}TagOne
-    Click Element                               id_add_new_tag
-    Click Dialog Button                         Save
+    Add New Tag                                 robotTagTest${pid}TagOne
 
     # Check and add another Tag, remove first one
     Check For Tag                               robotTagTest${pid}TagOne
@@ -137,8 +130,7 @@ Test Tag Removal
 
     Check For Tag                               removeTest${pid}One
     # Click (-) button on Tag to remove
-    Click Element                               xpath=//div[@class='tag'][descendant::a[contains(text(), 'removeTest${pid}One')]]/span[@title='Remove Tag']
-    Click Dialog Button                         OK
+    Remove Tag                                  removeTest${pid}One
     Check No Tag                                removeTest${pid}One
 
     # Batch Tag 2 Projects
@@ -155,8 +147,7 @@ Test Tag Removal
     Click Dialog Button                         Save
     Check For Tag                               removeTest${pid}Two
     # Click (-) button on Tag to remove
-    Click Element                               xpath=//div[@class='tag'][descendant::a[contains(text(), 'removeTest${pid}Two')]]/span[@title='Remove Tag']
-    Click Dialog Button                         OK
+    Remove Tag                                  removeTest${pid}Two
     Check No Tag                                removeTest${pid}Two
 
     # Select each Project in turn, check tags One and Two are gone (but Three remains)

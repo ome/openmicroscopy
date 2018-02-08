@@ -324,6 +324,15 @@ Wait Until Center Panel Loads
     Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      xpath=//*[@id="icon_layout"][contains(@title,"View as Thumbnails")][contains(@class,"checked")]
     Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      //*[@id="table_layout"][contains(@title,"View as List")]
 
+Edit Object Name
+    [Arguments]                             ${dtype}        ${id}       ${name}
+    Wait Until Page Contains Element        css=#${dtype}name-${id} button.btn_edit
+    Click Element                           css=#${dtype}name-${id} button.btn_edit
+    Wait Until Page Contains Element        form-${dtype}name-${id}
+    # id 'id_name' is not unique!
+    Input Text                              xpath=//form[@id='form-${dtype}name-${id}']//input[@id='id_name']  ${name}
+    Submit Form                             form-${dtype}name-${id}
+    Wait Until Page Contains Element        xpath=//span[@id='${dtype}name-${id}-name'][contains(text(), '${name}')]
 
 # Methods for querying nodes by TEXT
 
