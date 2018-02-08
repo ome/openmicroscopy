@@ -111,7 +111,7 @@ public class NodeProviderInMemory implements NodeProvider, ReadOnlyStatus.IsAwar
         // update session set closed = now()
         //     where closed is null and node in
         //         (select id from Node where uuid = ?)
-        final Node node = currentNodes.get(uuid);
+        final Node node = currentNodes.get(managerUuid);
         int modificationCount = 0;
         if (node != null) {
             Iterator<Session> i = node.iterateSessions();
@@ -134,7 +134,7 @@ public class NodeProviderInMemory implements NodeProvider, ReadOnlyStatus.IsAwar
         // Implement of the following SQL query in memory:
         //
         // update Node set down = now() where uuid = ?
-        final Node node = currentNodes.get(uuid);
+        final Node node = currentNodes.get(managerUuid);
         if (node != null) {
             node.setDown(new Timestamp(System.currentTimeMillis()));
         }
