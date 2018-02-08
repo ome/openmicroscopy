@@ -37,6 +37,7 @@ import ome.model.meta.Share;
 import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.AdminAction;
+import ome.security.EventProvider;
 import ome.security.SecureAction;
 import ome.security.SecurityFilter;
 import ome.security.SecurityFilterHolder;
@@ -102,6 +103,8 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     protected final SessionManager sessionManager;
 
+    protected final EventProvider eventProvider;
+
     protected final ServiceFactory sf;
 
     protected final List<SecurityFilter> filters;
@@ -136,7 +139,7 @@ public class BasicSecuritySystem implements SecuritySystem,
                 cd, new OneGroupSecurityFilter(roles),
                 new AllGroupsSecurityFilter(null, roles),
                 new SharingSecurityFilter(roles, null));
-        BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm,
+        BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm, new EventProviderInMemory(),
                 roles, sf, new TokenHolder(), Collections.<SecurityFilter>singletonList(holder), new DefaultPolicyService(),
                 new BasicACLVoter(cd, st, th, holder));
         return sec;
@@ -148,6 +151,7 @@ public class BasicSecuritySystem implements SecuritySystem,
      * @param sysTypes the system types
      * @param cd the current details
      * @param sessionManager the session manager
+     * @param eventProvider an event provider
      * @param roles the OMERO roles
      * @param sf the session factory
      * @param tokenHolder the token holder
@@ -157,10 +161,12 @@ public class BasicSecuritySystem implements SecuritySystem,
      */
     public BasicSecuritySystem(OmeroInterceptor interceptor,
             SystemTypes sysTypes, CurrentDetails cd,
-            SessionManager sessionManager, Roles roles, ServiceFactory sf,
+            SessionManager sessionManager, EventProvider eventProvider,
+            Roles roles, ServiceFactory sf,
             TokenHolder tokenHolder, List<SecurityFilter> filters,
             PolicyService policyService, ACLVoter aclVoter) {
         this.sessionManager = sessionManager;
+        this.eventProvider = eventProvider;
         this.policyService = policyService;
         this.tokenHolder = tokenHolder;
         this.interceptor = interceptor;
