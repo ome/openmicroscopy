@@ -1,7 +1,8 @@
 /*
- *   Copyright 2006-2017 University of Dundee. All rights reserved.
+ *   Copyright 2006-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.utests.sec;
 
 import java.util.Arrays;
@@ -26,6 +27,7 @@ import ome.security.SystemTypes;
 import ome.security.basic.BasicACLVoter;
 import ome.security.basic.BasicSecuritySystem;
 import ome.security.basic.CurrentDetails;
+import ome.security.basic.EventProviderInDb;
 import ome.security.basic.LightAdminPrivileges;
 import ome.security.basic.OmeroInterceptor;
 import ome.security.basic.OneGroupSecurityFilter;
@@ -112,7 +114,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 cd, th, new NullSessionStats(),
                 mockAdminPrivileges, null, new HashSet<String>(), new HashSet<String>());
         SecurityFilter filter = new OneGroupSecurityFilter();
-        sec = new BasicSecuritySystem(oi, st, cd, mgr, roles, sf,
+        sec = new BasicSecuritySystem(oi, st, cd, mgr, new EventProviderInDb(sf), roles, sf,
                 th, Collections.singletonList(filter), new DefaultPolicyService(), aclVoter);
         aclVoter = new BasicACLVoter(cd, st, th, filter);
     }
@@ -246,8 +248,8 @@ public abstract class AbstractBasicSecuritySystemTest extends
         sf.mockAdmin.expects(once()).method("groupProxy").will(
                 returnValue(group));
         if (!readOnly) {
-            sf.mockQuery.expects(once()).method("find").will(returnValue(event.getSession()));
-            sf.mockQuery.expects(once()).method("findByQuery").will(returnValue(event.getSession()));
+            mockMgr.expects(atLeastOnce()).method("find").will(
+                    returnValue(event.getSession()));
             sf.mockAdmin.expects(once()).method("userProxy").will(
                     returnValue(user));
             sf.mockUpdate.expects(once()).method("saveAndReturnObject").will(
