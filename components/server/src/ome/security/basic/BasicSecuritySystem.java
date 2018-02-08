@@ -14,7 +14,6 @@ import java.util.Set;
 
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
-import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
@@ -346,7 +345,6 @@ public class BasicSecuritySystem implements SecuritySystem,
     public void loadEventContext(boolean isReadOnly, boolean isClose) {
 
         final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-        final LocalUpdate update = (LocalUpdate) sf.getUpdateService();
 
         // Call to session manager throws an exception on failure
         final Principal p = clearAndCheckPrincipal();
@@ -484,7 +482,7 @@ public class BasicSecuritySystem implements SecuritySystem,
             if (event.getExperimenterGroup().getId() < 0) {
                 event.setExperimenterGroup(eventGroup);
             }
-            cd.updateEvent(update.saveAndReturnObject(event)); // TODO use merge
+            cd.updateEvent(eventProvider.updateEvent(event)); // TODO use merge
         }
     }
 
