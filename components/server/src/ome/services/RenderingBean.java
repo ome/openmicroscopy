@@ -610,7 +610,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 }
             }
             if (projectedSizeC == 0) {
-                return new int[0];
+                projectedSizeC = 1;
             }
             Pixels projectedPixels = new Pixels();
             projectedPixels.setSizeX(pixelsObj.getSizeX());
@@ -653,9 +653,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
             }
             int[] buf = renderProjectedAsPackedInt(algorithm, timepoint,
                     stepping, start, end);
-            if (buf.length == 0) {
-                return new byte[0];
-            }
             int sizeX = pixelsObj.getSizeX();
             int sizeY = pixelsObj.getSizeY();
             BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX,
