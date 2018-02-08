@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2013-2016 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013-2018 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -102,6 +102,7 @@ public class Setup {
         new ROIs(args, imageId);
         new ROIFolders(args, imageId);
         new WriteData(args, imageId, projectId);
+        new Sudo(args);
     }
 
     /**
