@@ -22,6 +22,7 @@ package ome.security.basic;
 import ome.api.IUpdate;
 import ome.model.meta.Event;
 import ome.security.EventProvider;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.ServiceFactory;
 
 /**
@@ -34,7 +35,7 @@ import ome.system.ServiceFactory;
  * @since 5.3.0
  */
 public class EventProviderInDb
-    implements EventProvider {
+    implements EventProvider, ReadOnlyStatus.IsAware {
 
     private ServiceFactory sf;
 
@@ -56,4 +57,8 @@ public class EventProviderInDb
         return update.saveAndReturnObject(event);
     }
 
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return readOnly.isReadOnlyDb();
+    }
 }

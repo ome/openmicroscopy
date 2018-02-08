@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import ome.model.meta.Event;
 import ome.security.EventProvider;
-import ome.system.ServiceFactory;
+import ome.services.util.ReadOnlyStatus;
 
 /**
  * Provider for {@link Event} objects which is responsible for persisting and
@@ -34,16 +34,9 @@ import ome.system.ServiceFactory;
  * @since 5.3.0
  */
 public class EventProviderInMemory
-    implements EventProvider {
+    implements EventProvider, ReadOnlyStatus.IsAware {
 
     private final AtomicLong currentEventId = new AtomicLong(-1L);
-
-    /**
-     * Main public constructor for this {@link EventProvider} implementation.
-     * @param sf the service factory
-     */
-    public EventProviderInMemory(ServiceFactory sf) {
-    }
 
     /**
      * Persists a given {@link Event}.
@@ -55,4 +48,8 @@ public class EventProviderInMemory
         return event;
     }
 
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return false;
+    }
 }
