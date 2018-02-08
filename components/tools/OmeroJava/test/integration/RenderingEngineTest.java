@@ -4193,7 +4193,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         byte[] projection = re.renderProjectedCompressed(
                 ProjectionType.MAXIMUMINTENSITY, 0, 1, 0, sizeZ-1);
         Assert.assertNotNull(projection);
-        Assert.assertEquals(projection.length, 0);
+        Assert.assertTrue(projection.length > 0);
         f.delete();
         re.close();
     }
@@ -4239,7 +4239,16 @@ public class RenderingEngineTest extends AbstractServerTest {
         int[] projection = re.renderProjectedAsPackedInt(
                 ProjectionType.MAXIMUMINTENSITY, 0, 1, 0, sizeZ-1);
         Assert.assertNotNull(projection);
-        Assert.assertEquals(projection.length, 0);
+        Assert.assertTrue(projection.length > 0);
+        int first = projection[0];
+        int total = 1;
+        for (int i = 1; i < projection.length; i++) {
+            if (projection[i] != first) {
+                break;
+            }
+            total++;
+        }
+        Assert.assertEquals(total, projection.length);
         f.delete();
         re.close();
     }
