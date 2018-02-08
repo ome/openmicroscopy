@@ -32,8 +32,6 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
-import ome.model.meta.Share;
-import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.AdminAction;
 import ome.security.EventProvider;
@@ -448,16 +446,13 @@ public class BasicSecuritySystem implements SecuritySystem,
 
         }
 
-        final Long sessionId = ec.getCurrentSessionId();
         final ome.model.meta.Session sess;
         if (isReadOnly) {
+            final Long sessionId = ec.getCurrentSessionId();
             sess = new ome.model.meta.Session(sessionId, false);
         } else {
-            final LocalQuery iQuery = (LocalQuery) sf.getQueryService();
-            final String sessionClass = iQuery.find(Share.class, sessionId) == null ? "Session" : "Share";
-            final String hql = "FROM " + sessionClass + " s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
-            final Parameters params = new Parameters().addId(sessionId).cache();
-            sess = iQuery.findByQuery(hql, params);
+            final String sessionUuid = ec.getCurrentSessionUuid();
+            sess = sessionManager.find(sessionUuid);
         }
 
         tokenHolder.setToken(callGroup.getGraphHolder());
