@@ -68,6 +68,8 @@ public class Setup {
         long datasetId = 1;
         long projectId = 1;
         long plateId = 1;
+        String lightAdmin = "";
+        String sudoUser = "";
 
         if (args == null || args.length == 0) {
             String ice_config = System.getenv().get("ICE_CONFIG");
@@ -83,6 +85,8 @@ public class Setup {
                     datasetId = Long.parseLong(p.getProperty("omero.datasetid", "1"));
                     projectId = Long.parseLong(p.getProperty("omero.projectid", "1"));
                     plateId = Long.parseLong(p.getProperty("omero.plateid", "1"));
+                    lightAdmin = p.getProperty("omero.ladmin", "");
+                    sudoUser = p.getProperty("omero.user", "");
                 }
             }
 
@@ -102,7 +106,7 @@ public class Setup {
         new ROIs(args, imageId);
         new ROIFolders(args, imageId);
         new WriteData(args, imageId, projectId);
-        new Sudo(args);
+        new Sudo(args, lightAdmin, sudoUser);
     }
 
     /**

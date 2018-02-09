@@ -67,7 +67,9 @@ public class Sudo
     
     private SecurityContext ctx;
 
-    private String sudoUserName = UUID.randomUUID().toString().substring(0, 8);
+    private String sudoUsername;
+    
+    private String lightAdminUsername;
     
     /**
      * start-code
@@ -77,7 +79,7 @@ public class Sudo
      AdminFacility admin = gateway.getFacility(AdminFacility.class);
 
      // Look up the experimenter to sudo for
-     ExperimenterData sudoUser = admin.lookupExperimenter(ctx, sudoUserName);
+     ExperimenterData sudoUser = admin.lookupExperimenter(ctx, sudoUsername);
 
      // Create a SecurityContext for this user within the user's default group
      // and set the 'sudo' flag (i.e. all operations using this context will
@@ -102,10 +104,10 @@ public class Sudo
      // Add a tag to the first dataset on behalf of the sudouser (i.e. the sudouser will be
      // the owner of tag).
      DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
-     TagAnnotationData sudoUserTag = new TagAnnotationData(sudoUserName+"'s tag");
+     TagAnnotationData sudoUserTag = new TagAnnotationData(sudoUsername+"'s tag");
      dm.attachAnnotation(sudoCtx, sudoUserTag, first);
      System.out.println("Added '"+sudoUserTag.getContentAsString()+"' "
-             + "to dataset "+first.getName()+" on behalf of "+sudoUserName);
+             + "to dataset "+first.getName()+" on behalf of "+sudoUsername);
 
      // Add a tag to the same dataset as logged in user (i. e. the logged in user will be
      // the owner of the tag). Note: This only works in a read-annotate group where the
@@ -127,45 +129,26 @@ public class Sudo
      * Connects and invokes the various methods.
      * @param args The login credentials.
      */
-    
-    /**
-     * Create a test user we can sudo for
-     * 
-     * @throws Exception
-     */
-    private void prepareSudoUser() throws Exception {
-        AdminFacility admin = gateway.getFacility(AdminFacility.class);
-        GroupData g = new GroupData();
-        g.setName(UUID.randomUUID().toString().substring(0, 8));
-        g = admin.createGroup(ctx, g, null, GroupData.PERMISSIONS_GROUP_READ);
-        ExperimenterData exp = new ExperimenterData();
-        exp.setFirstName("Test");
-        exp.setLastName("Blup");
-        ExperimenterData sudoUser = admin.createExperimenter(ctx, exp,
-                sudoUserName, "test", Collections.singletonList(g), false,
-                false);
 
-        SecurityContext sudoCtx = new SecurityContext(g.getId());
-        sudoCtx.setExperimenter(sudoUser);
-        sudoCtx.sudo();
-
-        DatasetData ds = new DatasetData();
-        ds.setName("Test_Dataset");
-        DataManagerFacility df = gateway.getFacility(DataManagerFacility.class);
-        df.createDataset(sudoCtx, ds, null);
-    }
-    
-    Sudo(String[] args)
+    Sudo(String[] args, String lightAdminUsername, String sudoUsername)
     {   
+        this.lightAdminUsername = lightAdminUsername;
+        this.sudoUsername = sudoUsername;
+        
+        // Login as light admin user
+        for(int i=0; i<args.length; i++) {
+            if(args[i].startsWith("--omero.user")) 
+                args[i] = "--omero.user="+lightAdminUsername;
+        }
+        
         LoginCredentials cred = new LoginCredentials(args);
 
         gateway = new Gateway(new SimpleLogger());
 
         try {
             user = gateway.connect(cred);
+            System.out.println("Logged in as "+user.getUserName());
             ctx = new SecurityContext(user.getGroupId());
-            
-            prepareSudoUser();
             
             sudoLoadTagDatasets();
             
@@ -191,7 +174,10 @@ public class Sudo
             args = new String[] { "--omero.host=" + hostName,
                 "--omero.user=" + userName, "--omero.pass=" + password };
         
-        new Sudo(args);
+        String sudoUsername = "";
+        String lightAdminUsername = "";
+        
+        new Sudo(args, lightAdminUsername, lightAdminUsername);
         System.exit(0);
     }
 
