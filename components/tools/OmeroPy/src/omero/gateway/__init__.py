@@ -4515,6 +4515,8 @@ class _BlitzGateway (object):
         :param created:     :class:`omero.rtime` list or tuple (start, stop)
         :param useAcquisitionDate: if True, then use Image.acquisitionDate
                                    rather than import date for queries.
+        :param rawQuery     If True, the text is passed directly to byFullText()
+                            without processing. fields is ignored.
         :return:            List of Object wrappers. E.g. :class:`ImageWrapper`
         """
         if not text:
