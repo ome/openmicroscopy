@@ -197,7 +197,6 @@
                     return false;
                 });
 
-<<<<<<< HEAD
                 $("#show_annotations").click(function(){
                     $("#search_ann_type").toggleClass("hide");
 
@@ -207,13 +206,14 @@
                     } else {
                         // otherwise, uncheck ALL annotation radio buttons
                         $("#search_ann_type input[type='radio']").prop('checked',false);
-=======
+                    }
+                });
+
                 $("#searching_tabs").tabs({
                     activate: function( event, ui ) {
                         // Checkk hidden checkbox if we're on the 'advanced search' tab
                         // This will be included in search submitted data
                         $('input[name="advanced"]').prop('checked', ui.newPanel.attr('id') === 'advanced_search');
->>>>>>> 86cbbdd34b... UI changes to add an Advanced search tab for Lucene
                     }
                 });
         });
