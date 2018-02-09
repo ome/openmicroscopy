@@ -300,8 +300,9 @@
                 </div>
 
                 <div id="advanced_search">
-                    <input type="checkbox" name="advanced" style="visibility: hidden" />
                     <label for="advanced_search">Advanced:</label>
+                    <!-- Checkbox is checked when user switches to Advanced tab -->
+                    <input type="checkbox" name="advanced" style="visibility: hidden" />
                     <input class="advanced_search" name="advanced_search" value="{{ init.query }}" size="35"/>
                     <p>Enter raw search term, for example:</p>
                     <code>name:Control AND tag:"GFP H2B"</code>

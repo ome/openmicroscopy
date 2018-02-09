@@ -1420,6 +1420,10 @@ def load_searching(request, form=None, conn=None, **kwargs):
         if query_search is None:
             return HttpResponse("No search '?query' included")
         query_search = query_search.replace("+", " ")
+        advanced = toBoolean(r.get('advanced'))
+        # If this is an advanced search use 'advanced_search' for query
+        if advanced:
+            query_search = r.get('advanced_search')
         template = "webclient/search/search_details.html"
 
         onlyTypes = r.getlist("datatype")
@@ -1446,7 +1450,7 @@ def load_searching(request, form=None, conn=None, **kwargs):
         # search is carried out and results are stored in
         # manager.containers.images etc.
         manager.search(query_search, onlyTypes, fields, searchGroup, ownedBy,
-                       useAcquisitionDate, date)
+                       useAcquisitionDate, date, rawQuery=advanced)
 
         # if the query is only numbers (separated by commas or spaces)
         # we search for objects by ID
