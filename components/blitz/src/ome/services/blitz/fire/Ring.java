@@ -111,6 +111,10 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
         return this.principal;
     }
 
+    public Set<String> getManagerList(final boolean onlyActive) {
+        return nodeProvider.getManagerList(onlyActive);
+    }
+
     /**
      * Returns the proxy information for the local {@link SessionManager}.
      * 
