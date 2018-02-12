@@ -609,6 +609,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
                     projectedSizeC += 1;
                 }
             }
+            if (projectedSizeC == 0) {
+                projectedSizeC = 1;
+            }
             Pixels projectedPixels = new Pixels();
             projectedPixels.setSizeX(pixelsObj.getSizeX());
             projectedPixels.setSizeY(pixelsObj.getSizeY());
