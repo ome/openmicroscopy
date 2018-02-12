@@ -4418,10 +4418,11 @@ class _BlitzGateway (object):
         :param obj_types:   E.g. ["Dataset", "Image"]
         :param text:        The text to search for
         :param created:     :class:`omero.rtime` list or tuple (start, stop)
+        :param fields:      Lucene fields e.g. ['name', 'file.contents', 'tag']
         :param useAcquisitionDate: if True, then use Image.acquisitionDate
                                    rather than import date for queries.
         :param rawQuery     If True, text is passed directly to byFullText()
-                            without processing. fields is ignored.
+                            without processing. fields and created are ignored.
         :return:            List of Object wrappers. E.g. :class:`ImageWrapper`
         """
         if not text:
@@ -4483,7 +4484,6 @@ class _BlitzGateway (object):
                 def actualSearch():
                     search.onlyType(t().OMERO_CLASS, ctx)
                     if rawQuery:
-                        # TODO: need to handle dates: d_from, d_to, d_type
                         search.byFullText(text, ctx)
                     else:
                         search.byLuceneQueryBuilder(
