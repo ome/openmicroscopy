@@ -4055,10 +4055,12 @@ def chgrp(request, conn=None, **kwargs):
     Handles submission of chgrp form: all data in POST.
     Adds the callback handle to the request.session['callback']['jobId']
     """
+    if not request.method == 'POST':
+        return JsonResponse({'Error': "Need to POST to chgrp"})
     # Get the target group_id
     group_id = getIntOrDefault(request, 'group_id', None)
     if group_id is None:
-        raise AttributeError("chgrp: No group_id specified")
+        return JsonResponse({'Error': "chgrp: No group_id specified"})
     group_id = long(group_id)
 
     def getObjectOwnerId(r):
