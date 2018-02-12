@@ -909,6 +909,9 @@ def api_links(request, conn=None, **kwargs):
     We delegate depending on request method to
     create or delete links between objects.
     """
+    if request.method not in ['POST', 'DELETE']:
+        return JsonResponse(
+            {'Error': 'Need to POST or DELETE JSON data to update links'})
     # Handle link creation/deletion
     json_data = json.loads(request.body)
 
