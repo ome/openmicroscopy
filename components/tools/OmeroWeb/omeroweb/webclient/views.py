@@ -911,7 +911,8 @@ def api_links(request, conn=None, **kwargs):
     """
     if request.method not in ['POST', 'DELETE']:
         return JsonResponse(
-            {'Error': 'Need to POST or DELETE JSON data to update links'})
+            {'Error': 'Need to POST or DELETE JSON data to update links'},
+            status=405)
     # Handle link creation/deletion
     json_data = json.loads(request.body)
 
@@ -2569,7 +2570,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         # Used within the jsTree to add a new Project, Dataset, Tag,
         # Tagset etc under a specified parent OR top-level
         if not request.method == 'POST':
-            return JsonResponse({"Error": "Must use POST to create container"})
+            return JsonResponse({"Error": "Must use POST to create container"},
+                                status=405)
 
         form = ContainerForm(data=request.POST.copy())
         if form.is_valid():
@@ -4059,7 +4061,8 @@ def chgrp(request, conn=None, **kwargs):
     Adds the callback handle to the request.session['callback']['jobId']
     """
     if not request.method == 'POST':
-        return JsonResponse({'Error': "Need to POST to chgrp"})
+        return JsonResponse({'Error': "Need to POST to chgrp"},
+                            status=405)
     # Get the target group_id
     group_id = getIntOrDefault(request, 'group_id', None)
     if group_id is None:
