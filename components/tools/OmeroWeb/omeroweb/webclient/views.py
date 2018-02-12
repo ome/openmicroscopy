@@ -1396,7 +1396,10 @@ def load_searching(request, form=None, conn=None, **kwargs):
     # form = 'form' if we are searching. Get query from request...
     r = request.GET
     if form is not None:
-        query_search = r.get('query').replace("+", " ")
+        query_search = r.get('query', None)
+        if query_search is None:
+            return HttpResponse("No search '?query' included")
+        query_search = query_search.replace("+", " ")
         template = "webclient/search/search_details.html"
 
         onlyTypes = r.getlist("datatype")
