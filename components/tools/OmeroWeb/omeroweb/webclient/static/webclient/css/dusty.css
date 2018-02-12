@@ -1017,6 +1017,7 @@ button::-moz-focus-inner {
 	/* Filter Search */
 	
     .filtersearch{
+        position: relative;
         margin:4px;
         width:90%;
         height:22px;
