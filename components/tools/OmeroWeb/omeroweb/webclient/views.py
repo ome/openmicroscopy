@@ -2563,8 +2563,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         # Used within the jsTree to add a new Project, Dataset, Tag,
         # Tagset etc under a specified parent OR top-level
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers",
-                                        args=["edit", o_type, o_id]))
+            return JsonResponse({"Error": "Must use POST to create container"})
 
         form = ContainerForm(data=request.POST.copy())
         if form.is_valid():
@@ -2642,7 +2641,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         context = {'manager': manager, 'form': form}
 
     elif action == 'edit':
-        # form for editing an Object. E.g. Project etc. TODO: not used now?
+        # form for editing Shares only
         if o_type == "share" and o_id > 0:
             template = "webclient/public/share_form.html"
             manager.getMembers(o_id)
@@ -2659,12 +2658,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 initial['expiration'] = \
                     manager.share.getExpireDate().strftime("%Y-%m-%d")
             form = ShareForm(initial=initial)  # 'guests':share.guestsInShare,
-            context = {'manager': manager, 'form': form}
-        elif hasattr(manager, o_type) and o_id > 0:
-            obj = getattr(manager, o_type)
-            template = "webclient/data/container_form.html"
-            form = ContainerForm(
-                initial={'name': obj.name, 'description': obj.description})
             context = {'manager': manager, 'form': form}
     elif action == 'save':
         # Handles submission of the 'edit' form above. TODO: not used now?
