@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.login.LoginService
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -216,6 +216,9 @@ public interface LoginService
 	/** Indicates that a failure occurred preventing the client to start.*/
 	public static final int		SYSTEM_FAILURE_INDEX = 105;
 	
+    /** Indicates that the client and server versions are not compatible. */
+    public static final int VERSION_MISMATCH = 106;
+    
     /**
      * Flag to denote the Idle state.
      * While in this state, the Login Service is waiting for a login request.
