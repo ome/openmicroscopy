@@ -205,6 +205,7 @@ public class GatewayUsageTest extends AbstractServerTest
             g = af.createGroup(rootCtx, g, root,
                     GroupData.PERMISSIONS_GROUP_READ);
             groupId = g.getId();
+            Assert.assertTrue(groupId > 0, "Create group failed");
         } catch (Exception e1) {
             Assert.fail("Create group failed.", e1);
         }
@@ -222,7 +223,11 @@ public class GatewayUsageTest extends AbstractServerTest
             DataManagerFacility df = gw.getFacility(DataManagerFacility.class);
             DatasetData ds = new DatasetData();
             ds.setName(UUID.randomUUID().toString().substring(0, 8));
-            df.createDataset(groupCtx, ds, null);
+            ds = df.createDataset(groupCtx, ds, null);
+            Assert.assertTrue(ds.getId() >= 0,
+                    "Dataset in new group was not created");
+            Assert.assertEquals(ds.getGroupId(), groupId,
+                    "Dataset does not belong to new group");
         } catch (Exception e1) {
             Assert.fail("Create dataset in new group failed.", e1);
         }

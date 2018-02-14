@@ -174,10 +174,10 @@ public class RawDataFacilityTest extends GatewayTest {
     }
     
     /**
-     * This is basically Byte.toUnsignedInt(byte b) 
-     * in Java >= 8
-     * @param x
-     * @return
+     * This is basically Byte.toUnsignedInt(byte b) in Java >= 8
+     * (TODO: Remove this method when Java 7 support is dropped)
+     * @param x The byte value
+     * @return The byte as unsigned integer value
      */
     private int toUnsignedInt(byte x) {
         return ((int) x) & 0xff;
