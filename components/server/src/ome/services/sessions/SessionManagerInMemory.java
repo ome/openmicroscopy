@@ -98,6 +98,7 @@ public class SessionManagerInMemory
         log.debug("Created session: {}", session);
         log.debug("Setting node: {}", node);
         session.setNode(node);
+        session.setOwner(new Experimenter(roles.getRootId(), false));
         return session;
     }
 

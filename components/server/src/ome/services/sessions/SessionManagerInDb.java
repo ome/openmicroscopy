@@ -130,6 +130,8 @@ public class SessionManagerInDb extends BaseSessionManager {
                                             + s.getUuid());
                         }
                         Long id = sql.sessionId(s.getUuid());
+                        s.setNode(new Node(nodeId, false));
+                        s.setOwner(new Experimenter(roles.getRootId(), false));
                         s.setId(id);
                         return s;
                     }
