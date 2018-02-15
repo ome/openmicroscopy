@@ -186,7 +186,8 @@ public class LoginServiceImpl
                     if (cause.getCause() instanceof SecurityViolation)
                         failureIndex = ACTIVE_INDEX;
                 }
-                else if (exception.getMessage().contains("is not compatible")) {
+                else if (exception.getMessage() != null
+                        && exception.getMessage().contains("is not compatible")) {
                     failureIndex = VERSION_MISMATCH;
                     failureDetails = exception.getMessage();
                 }
