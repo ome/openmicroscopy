@@ -12,7 +12,6 @@ import ome.conditions.InternalException;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
-import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
@@ -21,7 +20,6 @@ import ome.util.SqlAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -49,10 +47,7 @@ public class SessionManagerInDb extends BaseSessionManager {
     @Override
     protected Session executeUpdate(ServiceFactory sf, Session session,
             long userId, Long sudoerId) {
-        Node node = sf.getQueryService().findByQuery(
-                "select n from Node n where uuid = :uuid",
-                new Parameters().addString("uuid", internal_uuid).setFilter(
-                        new Filter().page(0, 1)));
+        Node node = nodeProvider.getManagerByUuid(internal_uuid, sf);
         if (node == null) {
             node = new Node(0L, false); // Using default node.
         }
@@ -109,12 +104,7 @@ public class SessionManagerInDb extends BaseSessionManager {
                                 "Sessions", "Internal", null);
 
                         // Set the owner and node specially for an internal sess
-                        long nodeId = 0L;
-                        try {
-                            nodeId = sql.nodeId(internal_uuid);
-                        } catch (EmptyResultDataAccessException erdae) {
-                            // Using default node
-                        }
+                        final long nodeId = nodeProvider.getManagerIdByUuid(internal_uuid, sql);
 
                         // SQL defined in data.vm for creating original session
                         // (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
