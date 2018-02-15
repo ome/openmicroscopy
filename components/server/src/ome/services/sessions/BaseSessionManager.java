@@ -22,7 +22,6 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 import ome.api.local.LocalAdmin;
-import ome.api.local.LocalQuery;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
 import ome.conditions.InternalException;
@@ -1378,14 +1377,7 @@ public abstract class BaseSessionManager implements SessionManager, SessionCache
             final List<Long> memberOfGroupsIds = admin.getMemberOfGroupIds(exp);
             final List<Long> leaderOfGroupsIds = admin.getLeaderOfGroupIds(exp);
             final List<String> userRoles = admin.getUserRoles(exp);
-            final LocalQuery iQuery = (LocalQuery) sf.getQueryService();
-            final String sessionClass = iQuery.find(Share.class, session.getId()) == null ? "Session" : "Share";
-            final Session reloaded = (Session) iQuery.findByQuery(
-                            "select s from " + sessionClass + " s "
-                            + "left outer join fetch s.sudoer "
-                            + "left outer join fetch s.annotationLinks l "
-                            + "left outer join fetch l.child a where s.id = :id",
-                            new Parameters().addId(session.getId()).cache());
+            final Session reloaded = findSessionById(session.getId(), sf);
             final Experimenter sudoer = reloaded.getSudoer();
             boolean hasAdminPrivileges = memberOfGroupsIds.contains(roles.getSystemGroupId());
             if (sudoer != null) {

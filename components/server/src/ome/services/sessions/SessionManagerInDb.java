@@ -8,10 +8,12 @@ package ome.services.sessions;
 import java.util.HashMap;
 import java.util.Map;
 
+import ome.api.local.LocalQuery;
 import ome.conditions.InternalException;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
+import ome.model.meta.Share;
 import ome.parameters.Parameters;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
@@ -148,10 +150,13 @@ public class SessionManagerInDb extends BaseSessionManager {
 
     @Override
     protected Session findSessionById(Long id, ServiceFactory sf) {
-        return (Session) sf.getQueryService().findByQuery(
-                "select s from Session s "
-                + "left outer join fetch s.annotationLinks l "
-                + "left outer join fetch l.child a where s.id = :id",
-                    new Parameters().addId(id));
+        final LocalQuery iQuery = (LocalQuery) sf.getQueryService();
+        final String sessionClass = iQuery.find(Share.class, id) == null ? "Session" : "Share";
+        return (Session) iQuery.findByQuery(
+                        "select s from " + sessionClass + " s "
+                        + "left outer join fetch s.sudoer "
+                        + "left outer join fetch s.annotationLinks l "
+                        + "left outer join fetch l.child a where s.id = :id",
+                        new Parameters().addId(id).cache());
     }
 }
