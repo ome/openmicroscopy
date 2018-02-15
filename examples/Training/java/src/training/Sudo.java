@@ -88,26 +88,18 @@ public class Sudo
      sudoCtx.setExperimenter(sudoUser);
      sudoCtx.sudo();
 
-     // Get the sudouser's datasets
+     // Get a sudouser's dataset (assume the user has at least one dataset)
      BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
      Collection<DatasetData> datasets = browse.getDatasets(sudoCtx, sudoUser.getId());
-     Iterator<DatasetData> i = datasets.iterator();
-     DatasetData first = null;
-     while (i.hasNext()) {
-         DatasetData dataset = i.next();
-         System.out.println(dataset.getName()+" ("+dataset.getId()+")");
+     DatasetData sudoDataset = datasets.iterator().next();
 
-         if (first == null)
-             first = dataset;
-     }
-
-     // Add a tag to the first dataset on behalf of the sudouser (i.e. the sudouser will be
+     // Add a tag to the dataset on behalf of the sudouser (i.e. the sudouser will be
      // the owner of tag).
      DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
      TagAnnotationData sudoUserTag = new TagAnnotationData(sudoUsername+"'s tag");
-     dm.attachAnnotation(sudoCtx, sudoUserTag, first);
+     dm.attachAnnotation(sudoCtx, sudoUserTag, sudoDataset);
      System.out.println("Added '"+sudoUserTag.getContentAsString()+"' "
-             + "to dataset "+first.getName()+" on behalf of "+sudoUsername);
+             + "to dataset "+sudoDataset.getName()+" on behalf of "+sudoUsername);
 
      // Add a tag to the same dataset as logged in user (i. e. the logged in user will be
      // the owner of the tag). Note: This only works in a read-annotate group where the
@@ -117,9 +109,9 @@ public class Sudo
      // Have to use a SecurityContext for the correct group, otherwise this would fail
      // with a security violation
      SecurityContext groupContext = new SecurityContext(sudoUser.getGroupId());
-     dm.attachAnnotation(groupContext, adminTag, first);
+     dm.attachAnnotation(groupContext, adminTag, sudoDataset);
      System.out.println("Added '"+adminTag.getContentAsString()+"'"
-             + " to dataset "+first.getName()+" as admin.");
+             + " to dataset "+sudoDataset.getName()+" as admin.");
     }
     
     /**
