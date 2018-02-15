@@ -1339,7 +1339,8 @@ def load_chgrp_groups(request, conn=None, **kwargs):
     targetGroupIds = set.intersection(*groupSets)
     # ...but not 'user' group
     userGroupId = conn.getAdminService().getSecurityRoles().userGroupId
-    targetGroupIds.remove(userGroupId)
+    if userGroupId in targetGroupIds:
+        targetGroupIds.remove(userGroupId)
 
     # if all the Objects are in a single group, exclude it from the target
     # groups
