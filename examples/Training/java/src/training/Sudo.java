@@ -177,7 +177,7 @@ public class Sudo
         String sudoUsername = "";
         String lightAdminUsername = "";
         
-        new Sudo(args, lightAdminUsername, lightAdminUsername);
+        new Sudo(args, lightAdminUsername, sudoUsername);
         System.exit(0);
     }
 
