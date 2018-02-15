@@ -28,13 +28,12 @@ import traceback
 from django.http import Http404, HttpResponse, HttpResponseRedirect, \
     JsonResponse
 from django.http import HttpResponseForbidden, StreamingHttpResponse
+from django.shortcuts import render
 
 from django.conf import settings
 from django.utils.http import urlencode
 from functools import update_wrapper
 from django.core.urlresolvers import reverse, resolve, NoReverseMatch
-from django.template import loader as template_loader
-from django.template import RequestContext
 from django.core.cache import cache
 
 from omeroweb.utils import reverse_with_params
@@ -545,7 +544,5 @@ class render_response(object):
             else:
                 # allow additional processing of context dict
                 ctx.prepare_context(request, context, *args, **kwargs)
-                t = template_loader.get_template(template)
-                c = RequestContext(request, context)
-                return HttpResponse(t.render(c))
+                return render(request, template, context)
         return update_wrapper(wrapper, f)

@@ -38,12 +38,11 @@ import omeroweb.webclient.views
 from omero_version import build_year
 from omero_version import omero_version
 
-from django.template import loader as template_loader
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
-from django.template import RequestContext as Context
+from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_str
+from django.shortcuts import render
 
 from forms import ForgottonPasswordForm, ExperimenterForm, GroupForm
 from forms import GroupOwnerForm, MyAccountForm, ChangePassword
@@ -353,10 +352,8 @@ def forgotten_password(request, **kwargs):
 
     context = {'error': error, 'form': form, 'build_year': build_year,
                'omero_version': omero_version}
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+    return render(request, template, context)
+
 
 
 @login_required()

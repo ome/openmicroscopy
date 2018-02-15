@@ -86,22 +86,22 @@ ROLE_CHOICES = (
 )
 
 
-class RoleRenderer(forms.RadioSelect.renderer):
-    """Allows disabling of 'administrator' Radio button."""
-    def render(self):
-        midList = []
-        for x, wid in enumerate(self):
-            disabled = self.attrs.get('disabled')
-            if ROLE_CHOICES[x][0] == 'administrator':
-                if hasattr(self, 'disable_admin'):
-                    disabled = getattr(self, 'disable_admin')
-            if disabled:
-                wid.attrs['disabled'] = True
-            midList.append(u'<li>%s</li>' % force_unicode(wid))
-        finalList = mark_safe(u'<ul id="id_role">\n%s\n</ul>'
-                              % u'\n'.join([u'<li>%s</li>'
-                                           % w for w in midList]))
-        return finalList
+# class RoleRenderer(forms.RadioSelect.renderer):
+#     """Allows disabling of 'administrator' Radio button."""
+#     def render(self):
+#         midList = []
+#         for x, wid in enumerate(self):
+#             disabled = self.attrs.get('disabled')
+#             if ROLE_CHOICES[x][0] == 'administrator':
+#                 if hasattr(self, 'disable_admin'):
+#                     disabled = getattr(self, 'disable_admin')
+#             if disabled:
+#                 wid.attrs['disabled'] = True
+#             midList.append(u'<li>%s</li>' % force_unicode(wid))
+#         finalList = mark_safe(u'<ul id="id_role">\n%s\n</ul>'
+#                               % u'\n'.join([u'<li>%s</li>'
+#                                            % w for w in midList]))
+#         return finalList
 
 
 class ExperimenterForm(NonASCIIForm):
@@ -146,7 +146,7 @@ class ExperimenterForm(NonASCIIForm):
         # so required=False to avoid validation error.
         self.fields['role'] = forms.ChoiceField(
             choices=ROLE_CHOICES,
-            widget=forms.RadioSelect(renderer=RoleRenderer),
+            widget=forms.RadioSelect(),
             required=False,
             initial='user')
         # If current user is restricted Admin, can't create full Admin

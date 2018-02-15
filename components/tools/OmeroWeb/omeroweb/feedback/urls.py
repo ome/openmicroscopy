@@ -23,16 +23,15 @@
 # Version: 1.0
 #
 
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 from django.views.generic import TemplateView
 
 from omeroweb.feedback import views
 
 # url patterns
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^feedback/', views.send_feedback, name="fsend"),
     url(r'^comment/', views.send_comment, name="csend"),
     url(r'^thanks/', TemplateView.as_view(template_name='thanks.html'),
         name="fthanks"),
-)
+]

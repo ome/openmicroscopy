@@ -23,10 +23,9 @@
 # Version: 1.0
 #
 
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 from omeroweb.webredirect import views
 
-urlpatterns = patterns(
-    'django.views.generic.simple',
+urlpatterns = [
     url(r'^$', views.index, name='webredirect'),
-)
+]

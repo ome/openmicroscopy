@@ -22,12 +22,11 @@ import omero.clients
 from django.http import HttpResponse, HttpResponseBadRequest, \
     HttpResponseServerError, JsonResponse
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
-from django.template import loader as template_loader
 from django.views.decorators.http import require_POST
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.conf import settings
-from django.template import RequestContext as Context
-from django.core.servers.basehttp import FileWrapper
+from django.shortcuts import render
+from wsgiref.util import FileWrapper
 from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
@@ -2232,9 +2231,7 @@ def full_viewer(request, iid, conn=None, **kwargs):
 
         template = kwargs.get('template',
                               "webgateway/viewport/omero_image.html")
-        t = template_loader.get_template(template)
-        c = Context(request, d)
-        rsp = t.render(c)
+        return render(request, tempalte, context)
     except omero.SecurityViolation:
         logger.warn("SecurityViolation in Image:%s", iid)
         logger.warn(traceback.format_exc())
@@ -2586,10 +2583,8 @@ def su(request, user, conn=None, **kwargs):
         context = {
             'url': reverse('webgateway_su', args=[user]),
             'submit': "Do you want to su to %s" % user}
-        t = template_loader.get_template(
-            'webgateway/base/includes/post_form.html')
-        c = Context(request, context)
-        return HttpResponse(t.render(c))
+        return render(request, 'webgateway/base/includes/post_form.html',
+                      context)
 
 
 def _annotations(request, objtype, objid, conn=None, **kwargs):
