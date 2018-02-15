@@ -356,10 +356,13 @@ public abstract class BaseSessionManager implements SessionManager, SessionCache
                 public Object doWork(org.hibernate.Session __s,
                         ServiceFactory sf) {
                     Principal p = validateSessionInputs(sf, req);
-                    executeLookupUser(sf, p);
-                    // Not performed! Session s = executeUpdate(sf, oldsession,
-                    // userId);
-                    Session s = oldsession;
+                    oldsession.setDefaultEventType(p.getEventType());
+                    final long userId = executeLookupUser(sf, p);
+                    // Here, we hope that the implementation has been updated
+                    // to match read-only status. Note: this code block matches
+                    // the one below, but the annotation is a compile-time rather
+                    // than run-time concern.
+                    final Session s = executeUpdate(sf, oldsession, userId, req.sudoer);
                     return executeSessionContextLookup(sf, p, s);
                 }
             });
