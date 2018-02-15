@@ -129,11 +129,10 @@ integration()
     fi
     for x in $(echo "$FILES" | grep OmeroPy/test/integration); do
         TEST=${x#components/tools/OmeroPy/}
-        ./build.py -f components/tools/OmeroPy/build.xml test -Dtest.with.fail=true -DTEST=$TEST
-        # export PYTHONPATH=$PYTHONPATH:../target/lib/python
-        # ( cd components/tools/OmeroPy/;
-        #   python setup.py test -t $TEST
-        # )
+        export PYTHONPATH=$PYTHONPATH:../target/lib/python
+        ( cd components/tools/OmeroPy/;
+          python setup.py test -t $TEST -m "not broken"
+        )
     done
     fold end integration
 }
