@@ -342,9 +342,9 @@ public class LoginServiceImpl
             } catch (Exception e) {
                 // just ignore
             }
-            text = "OMERO."+getAgent()+" version "+ cv
+            text = getAgent()+" version "+ cv
                     + " is not compatible with the server version.\n"
-                    + "Please download the latest "+ sv + " OMERO."+ getAgent()+".";
+                    + "Please download the latest "+ sv + " "+getAgent()+".";
             break;
         case LoginService.PERMISSION_INDEX:
         default:
@@ -367,11 +367,11 @@ public class LoginServiceImpl
         int v = (Integer) container.getRegistry().lookup(
                 LookupNames.ENTRY_POINT);
         if (v == LookupNames.INSIGHT_ENTRY)
-            return "Insight";
+            return "OMERO.insight";
         if (v == LookupNames.IMPORTER_ENTRY)
-            return "Importer";
+            return "OMERO.importer";
         if (v == LookupNames.IMAGE_J)
-            return "ImageJPlugin";
+            return "OMERO ImageJ plugin";
         return "Client";
     }
 
