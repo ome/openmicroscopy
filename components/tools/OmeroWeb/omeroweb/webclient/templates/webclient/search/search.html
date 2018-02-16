@@ -401,23 +401,20 @@
 
 	<div id="center_panel_header" >
 		
-		<form class="search filtersearch" id="filtersearch" action="#" style="display:none">
+		<form class="search filtersearch searchresult_filter" id="filtersearch" action="#" style="display:none">
 		    <div>
 		        <label for="id_search">
 		            Filter Results
 		        </label>
 			    <input type="text" id="id_search" size="25" />
 			</div>
-			<input type="submit" value="Go" />
 			<span class="loading">
 				<img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
 			</span>
-
-            <ul style="position: relative; left: 180px; width: 300px; top: 7px; font-size:110%">
-                <li id="searchResultCount"></li>
-            </ul>
 		</form>
-		
+		<ul style="position: relative; left: 200px; width: 300px; top: 12px; font-size:110%">
+            <li id="searchResultCount"></li>
+        </ul>
 	</div>
 
 	<div id="content_details" class="center_panel_content"> </div>
