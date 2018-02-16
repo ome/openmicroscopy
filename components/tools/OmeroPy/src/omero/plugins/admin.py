@@ -931,7 +931,7 @@ present, the user will enter a console""")
         else:
             self.ctx.call(command)
 
-    @admin_only(AdminPrivilegeReadSession)
+    @admin_only()
     @with_config
     def fixpyramids(self, args, config):
         self.check_access()
