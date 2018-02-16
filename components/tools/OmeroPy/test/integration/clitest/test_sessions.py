@@ -28,6 +28,12 @@ import re
 permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
 
 
+@pytest.fixture(autouse=True)
+def new_session_store(tmpdir, monkeypatch):
+    # Clean sessions for this call
+    monkeypatch.setenv("OMERO_SESSIONDIR", tmpdir)
+
+
 class TestSessions(CLITest):
 
     def setup_method(self, method):
@@ -310,18 +316,35 @@ class TestSessions(CLITest):
     # open session
     # =======================================================================
     def testOpen(self, capsys):
-        asUser = self.new_user()
 
+        asUser = self.new_user()
+        asUserName = asUser.omeName.val
+
+        # Login as root
         self.set_login_args('root')
         passwd = self.root.getProperty("omero.rootpass")
         self.args += ["-w", passwd]
         self.cli.invoke(self.args, strict=True)
 
+        # Open a session for asUser
         self.args = ["sessions", "open"]
-        self.args += ["--user-name", asUser.omeName.val]
+        self.args += ["--user-name", asUserName]
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
 
+        # Check that only a UUID is printed
         pat = re.compile("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-"
                          "[a-f0-9]{4}-[a-f0-9]{12}")
         assert pat.match(o)
+
+        # Check that the UUID is in our store
+        self.args = ["sessions", "list"]
+        self.cli.invoke(self.args, strict=True)
+        o2, e2 = capsys.readouterr()
+        assert o.strip() in o2
+
+        # So that trying to login should work without password or key
+        self.set_login_args(asUserName)
+        self.cli.invoke(self.args, strict=True)
+        o3, e3 = capsys.readouterr()
+        assert o.strip() in e3

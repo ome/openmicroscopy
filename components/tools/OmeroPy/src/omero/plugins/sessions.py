@@ -309,8 +309,11 @@ class SessionsControl(UserGroupControl):
         self.ctx.out(sessId)
 
         store = self.store(args)
-        host, name, uuid, port = store.get_current()
-        store.add(host, name, sessId, {}, sudo=username)
+        # TODO: this is a race condition in the general design of
+        # SessionStore. Likely on login the file should be read,
+        # and afterwards not accessed.
+        host, sudo_user, uuid, port = store.get_current()
+        store.add(host, username, sessId, {}, sudo=sudo_user)
 
     def close(self, args):
         client = self.ctx.conn(args)
