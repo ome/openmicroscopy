@@ -20,9 +20,7 @@
  */
 package omeis.providers.re.utests;
 
-import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 
 import ome.api.IPixels;
@@ -35,6 +33,7 @@ import ome.model.enums.RenderingModel;
 import ome.util.PixelData;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.lut.LutProvider;
 import omeis.providers.re.quantum.Quantization_float;
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;
@@ -160,13 +159,14 @@ public class TestStandardFloatRenderer extends BaseRenderingTest
         settingsService.setPixelsData(pixelsService);
         RenderingDef settings = settingsService.createNewRenderingDef(pixels);
         settingsService.resetDefaultsNoSave(settings, pixels);
+        LutProvider lutProvider = new TestLutProvider();
 
         PixelBuffer pixelBuffer = pixelsService.getPixelBuffer(pixels, false);
         List<RenderingModel> renderingModels =
             pixelsMetadataService.getAllEnumerations(RenderingModel.class);
         QuantumFactory quantumFactory = createQuantumFactory();
         Renderer renderer = new Renderer(quantumFactory, renderingModels,
-                                pixels, settings, pixelBuffer, new ArrayList<File>());
+                                pixels, settings, pixelBuffer, lutProvider);
         PlaneDef def = new PlaneDef(PlaneDef.XY, 0);
         StopWatch stopWatch = new LoggingStopWatch("testRenderLargeRange");
         renderer.renderAsPackedInt(def, pixelBuffer);
