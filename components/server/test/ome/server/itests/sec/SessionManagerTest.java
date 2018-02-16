@@ -13,7 +13,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.server.itests.AbstractManagedContextTest;
-import ome.services.sessions.SessionManagerInDb;
+import ome.services.sessions.SessionManagerImpl;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.SessionStats;
@@ -30,13 +30,13 @@ import org.testng.annotations.Test;
  */
 public class SessionManagerTest extends AbstractManagedContextTest {
 
-    SessionManagerInDb sm;
+    SessionManagerImpl sm;
     SessionCache sc;
     Executor ex;
 
     @BeforeMethod
     public void setup() {
-        sm = (SessionManagerInDb) this.applicationContext
+        sm = (SessionManagerImpl) this.applicationContext
                 .getBean("sessionManager");
         sc = (SessionCache) this.applicationContext.getBean("sessionCache");
     }

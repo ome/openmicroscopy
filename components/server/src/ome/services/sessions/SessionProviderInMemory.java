@@ -35,29 +35,39 @@ import com.google.common.collect.Iterables;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
+import ome.security.NodeProvider;
+import ome.system.Roles;
 import ome.system.ServiceFactory;
 
 /**
- * In-memory implementation of {@link SessionManagerInDb}.
+ * In-memory implementation of {@link SessionProviderInDb}.
  *
  * @author Chris Allan <callan@glencoesoftware.com>
  * @since 5.3.0
  */
-public class SessionManagerInMemory
-    extends BaseSessionManager {
+public class SessionProviderInMemory implements SessionProvider {
 
     private final static Logger log =
-            LoggerFactory.getLogger(SessionManagerInMemory.class);
+            LoggerFactory.getLogger(SessionProviderInMemory.class);
+
+    private final Roles roles;
+
+    private final NodeProvider nodeProvider;
 
     private final AtomicLong currentSessionId = new AtomicLong(-1L);
 
     private final Map<String, Session> openSessions = new ConcurrentHashMap<>();
     private final Map<String, Session> closedSessions = CacheBuilder.newBuilder().maximumSize(512).<String, Session>build().asMap();
 
+    public SessionProviderInMemory(Roles roles, NodeProvider nodeProvider) {
+        this.roles = roles;
+        this.nodeProvider = nodeProvider;
+    }
+
     @Override
-    protected Session executeUpdate(ServiceFactory sf, Session session,
+    public Session executeUpdate(ServiceFactory sf, Session session, String uuid,
             long userId, Long sudoerId) {
-        Node node = nodeProvider.getManagerByUuid(internal_uuid, sf);
+        Node node = nodeProvider.getManagerByUuid(uuid, sf);
         if (node == null) {
             node = new Node(0L, false); // Using default node.
         }
@@ -84,17 +94,14 @@ public class SessionManagerInMemory
     }
 
     @Override
-    protected Long executeNextSessionId() {
+    public long executeNextSessionId() {
         return currentSessionId.getAndDecrement();
     }
 
     @Override
-    protected Session executeInternalSession() {
-        Node node = nodeProvider.getManagerByUuid(internal_uuid, null);
-        Session session = new Session(executeNextSessionId(), true);
-        define(session, internal_uuid, "Session Manager internal",
-                System.currentTimeMillis(), Long.MAX_VALUE, 0L,
-                "Sessions", "Internal", null);
+    public Session executeInternalSession(String uuid, Session session) {
+        Node node = nodeProvider.getManagerByUuid(uuid, null);
+        session.setId(executeNextSessionId());
         log.debug("Created session: {}", session);
         log.debug("Setting node: {}", node);
         session.setNode(node);
@@ -103,7 +110,7 @@ public class SessionManagerInMemory
     }
 
     @Override
-    protected Session executeCloseSession(String uuid) {
+    public Session executeCloseSession(String uuid) {
         Session session = openSessions.get(uuid);
         if (session == null) {
             if (closedSessions.containsKey(uuid)) {
@@ -121,7 +128,7 @@ public class SessionManagerInMemory
     }
 
     @Override
-    protected Session findSessionById(Long id, ServiceFactory sf) {
+    public Session findSessionById(Long id, ServiceFactory sf) {
         final SortedSet<Long> tries = new TreeSet<Long>();
         /* in Java 8 maybe could use Stream instead of Iterables */
         for (final Session session : Iterables.concat(openSessions.values(), closedSessions.values())) {

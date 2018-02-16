@@ -641,7 +641,7 @@ public class SessionCache implements ApplicationContextAware {
 
     /**
      * Provides the reloading logic of the {@link SessionCache} for the
-     * {@link ome.services.sessions.BaseSessionManager} to use.
+     * {@link ome.services.sessions.SessionManagerImpl} to use.
      *
      * @see <a href="https://trac.openmicroscopy.org/ome/ticket/4011">ticket:4011</a>
      * @see <a href="https://trac.openmicroscopy.org/ome/ticket/5849">ticket:5849</a>

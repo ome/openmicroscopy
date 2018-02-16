@@ -91,12 +91,12 @@ import com.google.common.collect.MapMaker;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public abstract class BaseSessionManager implements SessionManager, SessionCache.StaleCacheListener,
+public abstract class SessionManagerImpl implements SessionManager, SessionCache.StaleCacheListener,
         ApplicationContextAware, ApplicationListener<ApplicationEvent> {
 
     public final static String GROUP_SUDO_NS = "openmicroscopy.org/security/group-sudo";
 
-    private final static Logger log = LoggerFactory.getLogger(BaseSessionManager.class);
+    private final static Logger log = LoggerFactory.getLogger(SessionManagerImpl.class);
 
     /**
      * The id of this session manager, used to identify its own actions. This
@@ -203,7 +203,14 @@ public abstract class BaseSessionManager implements SessionManager, SessionCache
     public void init() {
         try {
             asroot = new Principal(internal_uuid, "system", "Sessions");
-            final Session session = executeInternalSession();
+
+            // Create a basic session
+            Session session = new Session();
+            define(session, internal_uuid, "Session Manager internal",
+                    System.currentTimeMillis(), Long.MAX_VALUE, 0L,
+                    "Sessions", "Internal", null);
+
+            session = executeInternalSession(internal_uuid, session);
             internalSession = new InternalSessionContext(session, LightAdminPrivileges.getAllPrivileges(), roles);
             cache.putSession(internal_uuid, internalSession);
         } catch (UncategorizedSQLException uncat) {
@@ -361,7 +368,7 @@ public abstract class BaseSessionManager implements SessionManager, SessionCache
                     // to match read-only status. Note: this code block matches
                     // the one below, but the annotation is a compile-time rather
                     // than run-time concern.
-                    final Session s = executeUpdate(sf, oldsession, userId, req.sudoer);
+                    final Session s = executeUpdate(sf, oldsession, internal_uuid, userId, req.sudoer);
                     return executeSessionContextLookup(sf, p, s);
                 }
             });
@@ -375,7 +382,7 @@ public abstract class BaseSessionManager implements SessionManager, SessionCache
                     Principal p = validateSessionInputs(sf, req);
                     oldsession.setDefaultEventType(p.getEventType());
                     long userId = executeLookupUser(sf, p);
-                    final Session s = executeUpdate(sf, oldsession, userId, req.sudoer);
+                    final Session s = executeUpdate(sf, oldsession, internal_uuid, userId, req.sudoer);
                     return executeSessionContextLookup(sf, p, s);
                 }
 
@@ -502,7 +509,7 @@ public abstract class BaseSessionManager implements SessionManager, SessionCache
                 } else {
                     sudoerId = orig.getSudoer().getId();
                 }
-                return executeUpdate(sf, copy, newctx.getCurrentUserId(), sudoerId);
+                return executeUpdate(sf, copy, internal_uuid, newctx.getCurrentUserId(), sudoerId);
             }
         });
         cache.putSession(uuid, newctx);
@@ -1101,8 +1108,11 @@ public abstract class BaseSessionManager implements SessionManager, SessionCache
         return executeCheckPassword(new Principal(name), credentials);
     }
 
-    protected abstract Session executeUpdate(ServiceFactory sf, Session session,
-            long userId, Long sudoerId);
+    protected Session executeUpdate(ServiceFactory sf, Session session, String uuid,
+            long userId, Long sudoerId) {
+        // TODO
+        return null;
+    }
 
     private boolean executeCheckPassword(final Principal _principal,
             final String credentials) {
@@ -1157,14 +1167,23 @@ public abstract class BaseSessionManager implements SessionManager, SessionCache
      * {@link #onApplicationEvent(ApplicationEvent)} when a
      * {@link DestroySessionMessage} is received.
      */
-    protected abstract Session executeCloseSession(final String uuid);
+    protected Session executeCloseSession(final String uuid) {
+        // TODO
+        return null;
+    }
 
-    protected abstract Session executeInternalSession();
+    protected Session executeInternalSession(String uuid, Session session) {
+        // TODO
+        return null;
+    }
 
     /**
      * Added as an attempt to cure ticket:1176
      */
-    protected abstract Long executeNextSessionId();
+    protected Long executeNextSessionId() {
+        // TODO
+        return null;
+    }
 
     public ome.model.IObject setSecurityContext(Principal principal, ome.model.IObject obj) {
         final Long id = obj == null ? null : obj.getId();
@@ -1349,7 +1368,10 @@ public abstract class BaseSessionManager implements SessionManager, SessionCache
      * @param sf active service factory
      * @return See above.
      */
-    protected abstract Session findSessionById(Long id, ServiceFactory sf);
+    protected Session findSessionById(Long id, ServiceFactory sf) {
+        // TODO
+        return null;
+    }
 
     /**
      * Returns a List of state for creating a new {@link SessionContext}. If an

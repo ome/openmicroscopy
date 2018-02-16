@@ -15,7 +15,9 @@ import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
 import ome.parameters.Parameters;
+import ome.security.NodeProvider;
 import ome.services.util.Executor;
+import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 
@@ -39,17 +41,29 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class SessionManagerInDb extends BaseSessionManager {
+public class SessionProviderInDb implements SessionProvider {
 
-    private final static Logger log = LoggerFactory.getLogger(SessionManagerInDb.class);
+    private final static Logger log = LoggerFactory.getLogger(SessionProviderInDb.class);
+
+    private final Roles roles;
+
+    private final Executor executor;
+
+    private final NodeProvider nodeProvider;
+
+    public SessionProviderInDb(Roles roles, Executor executor, NodeProvider nodeProvider) {
+        this.roles = roles;
+        this.executor = executor;
+        this.nodeProvider = nodeProvider;
+    }
 
     // Executor methods
     // =========================================================================
 
     @Override
-    protected Session executeUpdate(ServiceFactory sf, Session session,
+    public Session executeUpdate(ServiceFactory sf, Session session, String uuid,
             long userId, Long sudoerId) {
-        Node node = nodeProvider.getManagerByUuid(internal_uuid, sf);
+        Node node = nodeProvider.getManagerByUuid(uuid, sf);
         if (node == null) {
             node = new Node(0L, false); // Using default node.
         }
@@ -66,7 +80,7 @@ public class SessionManagerInDb extends BaseSessionManager {
     }
 
     @Override
-    protected Session executeCloseSession(final String uuid) {
+    public Session executeCloseSession(final String uuid) {
         return (Session) executor
                 .executeSql(new Executor.SimpleSqlWork(this,
                         "executeCloseSession") {
@@ -91,7 +105,7 @@ public class SessionManagerInDb extends BaseSessionManager {
     }
 
     @Override
-    protected Session executeInternalSession() {
+    public Session executeInternalSession(final String uuid, final Session session) {
         final Long sessionId = executeNextSessionId();
         return (Session) executor
                 .executeSql(new Executor.SimpleSqlWork(this,
@@ -99,14 +113,8 @@ public class SessionManagerInDb extends BaseSessionManager {
                     @Transactional(readOnly = false)
                     public Object doWork(SqlAction sql) {
 
-                        // Create a basic session
-                        final Session s = new Session();
-                        define(s, internal_uuid, "Session Manager internal",
-                                System.currentTimeMillis(), Long.MAX_VALUE, 0L,
-                                "Sessions", "Internal", null);
-
                         // Set the owner and node specially for an internal sess
-                        final long nodeId = nodeProvider.getManagerIdByUuid(internal_uuid, sql);
+                        final long nodeId = nodeProvider.getManagerIdByUuid(uuid, sql);
 
                         // SQL defined in data.vm for creating original session
                         // (id,permissions,timetoidle,timetolive,started,closed,defaulteventtype,uuid,owner,node)
@@ -114,32 +122,32 @@ public class SessionManagerInDb extends BaseSessionManager {
                         // 0,0,now(),now(),'rw----','PREVIOUSITEMS','1111',0,0;
                         Map<String, Object> params = new HashMap<String, Object>();
                         params.put("sid", sessionId);
-                        params.put("ttl", s.getTimeToLive());
-                        params.put("tti", s.getTimeToIdle());
-                        params.put("start", s.getStarted());
-                        params.put("type", s.getDefaultEventType());
-                        params.put("uuid", s.getUuid());
+                        params.put("ttl", session.getTimeToLive());
+                        params.put("tti", session.getTimeToIdle());
+                        params.put("start", session.getStarted());
+                        params.put("type", session.getDefaultEventType());
+                        params.put("uuid", session.getUuid());
                         params.put("node", nodeId);
                         params.put("owner", roles.getRootId());
-                        params.put("agent", s.getUserAgent());
-                        params.put("ip", s.getUserIP());
+                        params.put("agent", session.getUserAgent());
+                        params.put("ip", session.getUserIP());
                         int count = sql.insertSession(params);
                         if (count == 0) {
                             throw new InternalException(
                                     "Failed to insert new session: "
-                                            + s.getUuid());
+                                            + session.getUuid());
                         }
-                        Long id = sql.sessionId(s.getUuid());
-                        s.setNode(new Node(nodeId, false));
-                        s.setOwner(new Experimenter(roles.getRootId(), false));
-                        s.setId(id);
-                        return s;
+                        Long id = sql.sessionId(session.getUuid());
+                        session.setNode(new Node(nodeId, false));
+                        session.setOwner(new Experimenter(roles.getRootId(), false));
+                        session.setId(id);
+                        return session;
                     }
                 });
     }
 
     @Override
-    protected Long executeNextSessionId() {
+    public long executeNextSessionId() {
         return (Long) executor
                 .executeSql(new Executor.SimpleSqlWork(this,
                         "executeNextSessionId") {
@@ -151,7 +159,7 @@ public class SessionManagerInDb extends BaseSessionManager {
     }
 
     @Override
-    protected Session findSessionById(Long id, ServiceFactory sf) {
+    public Session findSessionById(Long id, ServiceFactory sf) {
         final LocalQuery iQuery = (LocalQuery) sf.getQueryService();
         final String sessionClass = iQuery.find(Share.class, id) == null ? "Session" : "Share";
         return (Session) iQuery.findByQuery(

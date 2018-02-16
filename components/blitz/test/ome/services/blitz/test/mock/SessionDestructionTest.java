@@ -18,7 +18,7 @@ import ome.security.basic.CurrentDetails;
 import ome.services.ThumbnailBean;
 import ome.services.messages.DestroySessionMessage;
 import ome.services.messages.GlobalMulticaster;
-import ome.services.sessions.SessionManagerInDb;
+import ome.services.sessions.SessionProviderInDb;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
 import ome.services.util.Executor;
@@ -210,7 +210,7 @@ public class SessionDestructionTest extends MockObjectTestCase {
         cache.setApplicationContext(fixture.getContext());
         cache.setCacheManager(CacheManager.getInstance());
         cache.setUpdateInterval(1000L); // Every second check for chanages
-        SessionManagerInDb manager = new SessionManagerInDb();
+        SessionProviderInDb manager = new SessionProviderInDb();
         manager.setApplicationContext(fixture.getContext());
         manager
                 .setExecutor((Executor) fixture.getContext()
