@@ -2442,6 +2442,14 @@ class UserGroupControl(BaseControl):
                            help="Name of the user(s)%s" % action)
         return group
 
+    def add_single_user_argument(self, parser, action="", required=True):
+        group = parser.add_mutually_exclusive_group(required=required)
+        group.add_argument("--user-id", metavar="user",
+                           help="ID of the user%s" % action)
+        group.add_argument("--user-name", metavar="user",
+                           help="Name of the user%s" % action)
+        return group
+
     def list_users(self, a, args, use_context=False):
         """
         Retrieve users from the arguments defined in
@@ -2500,6 +2508,14 @@ class UserGroupControl(BaseControl):
         group.add_argument(
             "--group-name", metavar="group", nargs="+",
             help="Name of the group(s)%s" % action)
+        return group
+
+    def add_single_group_argument(self, parser, action="", required=True):
+        group = parser.add_mutually_exclusive_group(required=required)
+        group.add_argument("--group-id", metavar="group",
+                           help="ID of the group%s" % action)
+        group.add_argument("--group-name", metavar="group",
+                           help="Name of the group%s" % action)
         return group
 
     def list_groups(self, a, args, use_context=False):
@@ -2582,3 +2598,25 @@ class UserGroupControl(BaseControl):
                     groups.append(gid)
 
         return users, groups
+
+    def get_single_user_group(self, args, iadmin):
+        u = None
+        g = None
+        if args.user_name:
+            uid, u = self.find_user_by_name(
+                iadmin, args.user_name, fatal=False)
+
+        if args.user_id:
+            uid, u = self.find_user_by_id(
+                iadmin, args.user_id, fatal=False)
+
+        if args.group_name:
+            gid, g = self.find_group_by_name(
+                iadmin, args.group_name, fatal=False)
+
+        if args.group_id:
+            for group_id in args.group_id:
+                gid, g = self.find_group_by_id(
+                    iadmin, args.group_id, fatal=False)
+
+        return u, g

@@ -250,7 +250,8 @@ class SessionsControl(UserGroupControl):
 
         open = parser.add(sub, self.open, "Create a session for "
                                           "the given user and group")
-        self.add_user_and_group_arguments(open)
+        self.add_single_user_argument(open)
+        self.add_single_group_argument(open, required=False)
         open.add_argument("--timeout", nargs="?", type=int, default=0,
                           help="Timeout in seconds (optional; default: "
                                "maximum possible)")
@@ -281,44 +282,15 @@ class SessionsControl(UserGroupControl):
         client = self.ctx.conn(args)
         admin = client.sf.getAdminService()
 
-        user1 = None
-        user2 = None
-        group1 = None
-        group2 = None
-
-        if args.user_id:
-            uid, user1 = self.find_user(admin, args.user_id)
-        if args.user_name:
-            uid, user2 = self.find_user(admin, args.user_name)
-        if user1 is not None and user2 is not None and user1 != user2:
-            self.ctx.die(515, "User ID and user name does not match. "
-                         "Use either ID or name or matching ID and name.")
-
-        if args.group_id:
-            gid, group1 = self.find_group(admin, args.group_id)
-        if args.group_name:
-            gid, group2 = self.find_group(admin, args.group_name)
-        if group1 is not None and group2 is not None and group1 != group2:
-            self.ctx.die(505, "Group ID and group name does not match. "
-                         "Use either ID or name or matching ID and name.")
-
-        username = None
-        if user1:
-            username = user1.omeName.val
-        elif user2:
-            username = user2.omeName.val
-        if username is None:
-            self.ctx.die(511, "No user specified.")
-
+        user, group = self.get_single_user_group(args, admin)
+        username = user.omeName.val
         groupname = None
-        if group1:
-            groupname = group1.name.val
-        elif group2:
-            groupname = group2.name.val
+        if group:
+            groupname = group.name.val
 
         p = omero.sys.Principal()
         p.name = username
-        if groupname:
+        if group:
             p.group = groupname
         p.eventType = "User"
         svc = client.sf.getSessionService()
