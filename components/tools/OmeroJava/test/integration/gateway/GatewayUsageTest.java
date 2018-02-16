@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,13 +22,20 @@ package integration.gateway;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.UUID;
 
 import integration.AbstractServerTest;
 import omero.gateway.Gateway;
 import omero.gateway.JoinSessionCredentials;
 import omero.gateway.LoginCredentials;
+import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.facility.AdminFacility;
+import omero.gateway.facility.BrowseFacility;
+import omero.gateway.facility.DataManagerFacility;
+import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 import omero.log.SimpleLogger;
 
 import org.testng.Assert;
@@ -176,4 +183,53 @@ public class GatewayUsageTest extends AbstractServerTest
         }
     }
 
+    @Test
+    public void testSwitchGroup() throws DSOutOfServiceException {
+        omero.client client = new omero.client();
+        String[] args = new String[4];
+        args[0] = "--omero.host=" + client.getProperty("omero.host");
+        args[1] = "--omero.port=" + client.getProperty("omero.port");
+        args[2] = "--omero.user=root";
+        args[3] = "--omero.pass=" + client.getProperty("omero.rootpass");
+        LoginCredentials c = new LoginCredentials(args);
+
+        long groupId = -1;
+
+        // Create a new group
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
+            ExperimenterData root = gw.connect(c);
+            SecurityContext rootCtx = new SecurityContext(root.getGroupId());
+            AdminFacility af = gw.getFacility(AdminFacility.class);
+            GroupData g = new GroupData();
+            g.setName(UUID.randomUUID().toString().substring(0, 8));
+            g = af.createGroup(rootCtx, g, root,
+                    GroupData.PERMISSIONS_GROUP_READ);
+            groupId = g.getId();
+            Assert.assertTrue(groupId > 0, "Create group failed");
+        } catch (Exception e1) {
+            Assert.fail("Create group failed.", e1);
+        }
+
+        // do something within the group context
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
+            ExperimenterData root = gw.connect(c);
+
+            // do something with root context...
+            SecurityContext rootCtx = new SecurityContext(root.getGroupId());
+            gw.getFacility(BrowseFacility.class).getDatasets(rootCtx);
+
+            // then switch group
+            SecurityContext groupCtx = new SecurityContext(groupId);
+            DataManagerFacility df = gw.getFacility(DataManagerFacility.class);
+            DatasetData ds = new DatasetData();
+            ds.setName(UUID.randomUUID().toString().substring(0, 8));
+            ds = df.createDataset(groupCtx, ds, null);
+            Assert.assertTrue(ds.getId() >= 0,
+                    "Dataset in new group was not created");
+            Assert.assertEquals(ds.getGroupId(), groupId,
+                    "Dataset does not belong to new group");
+        } catch (Exception e1) {
+            Assert.fail("Create dataset in new group failed.", e1);
+        }
+    }
 }
