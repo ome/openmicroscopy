@@ -36,7 +36,6 @@ import ome.io.nio.PixelsService;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.parameters.Parameters;
-import ome.system.OmeroContext;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -148,11 +147,27 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
             } else {
                 String name = file.getName();
                 if (name.endsWith("_pyramid")) {
-                    //TODO add check empty
-                    String[] values = name.split("_");
-                    long id = getImage(Long.parseLong(values[0]));
-                    if (id > 0) {
-                        imageIds.add(id);
+                    boolean toDelete = true;
+                    if (checkEmptyFile) {
+                        if (file.length() == 0) {
+                            File[] list = pixeldsDir.listFiles();
+                            for (File lockfile : list) {
+                                String n = lockfile.getName();
+                                if (n.startsWith("." + name) &&
+                                (n.endsWith(".tmp") || n.endsWith(".pyr_lock"))) {
+                                    toDelete = false;
+                                    break;
+                                }
+                                
+                            }
+                        }
+                    }
+                    if (toDelete) {
+                        String[] values = name.split("_");
+                        long id = getImage(Long.parseLong(values[0]));
+                        if (id > 0) {
+                            imageIds.add(id);
+                        }
                     }
                 }
             }
