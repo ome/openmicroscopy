@@ -353,10 +353,10 @@ def removepyramids(client, little_endian=False, dry_run=False,
         request.importeAfter = time.mktime(date)
     rsp = submit(client, request)
 
-    # Prepare the requests
     if len(rsp.pyramidFiles) == 0:
         print "No pyramids to delete"
 
+    # Prepare the requests
     for j in range(len(rsp.pyramidFiles)):
         image_id = rsp.pyramidFiles[j]
         if dry_run:
