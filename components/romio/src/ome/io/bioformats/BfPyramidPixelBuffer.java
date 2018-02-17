@@ -1089,6 +1089,14 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     }
 
     /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#isLittleEndian()
+     */
+    public synchronized boolean isLittleEndian()
+    {
+        return delegate().isLittleEndian();
+    }
+
+    /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#setPlane(java.nio.ByteBuffer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
      */
     public void setPlane(ByteBuffer buffer, Integer z, Integer c, Integer t)
