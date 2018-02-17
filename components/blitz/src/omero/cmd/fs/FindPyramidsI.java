@@ -27,11 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.esotericsoftware.minlog.Log;
-
 import ome.api.IQuery;
 import ome.io.bioformats.BfPixelBuffer;
 import ome.io.bioformats.BfPixelsWrapper;
@@ -60,7 +55,6 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
     private static final long serialVersionUID = -1L;
 
     private final FindPyramidsResponse rsp = new FindPyramidsResponse();
-    private transient static Logger log = LoggerFactory.getLogger(FindPyramidsI.class);
 
     /** The collection of pyramid pixels ID.*/
     private List<Long> imageIds = new ArrayList<Long>();
@@ -152,10 +146,8 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
                 String name = file.getName();
                 if (name.endsWith("_pyramid")) {
                     //TODO add check empty
-                    Log.info("pyramid: "+name);
                     String[] values = name.split("_");
                     long id = getImage(Long.parseLong(values[0]));
-                    Log.info("pyramid ID: "+id);
                     if (id > 0) {
                         imageIds.add(id);
                     }
