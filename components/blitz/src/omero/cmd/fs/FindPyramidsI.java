@@ -56,7 +56,7 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
 
     private final FindPyramidsResponse rsp = new FindPyramidsResponse();
 
-    /** The collection of pyramid pixels ID.*/
+    /** The collection of pyramid image ID.*/
     private List<Long> imageIds = new ArrayList<Long>();
 
     private final PixelsService pixelsService;
