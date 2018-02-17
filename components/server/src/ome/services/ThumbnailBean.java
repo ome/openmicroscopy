@@ -1127,6 +1127,7 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     private byte[] retrieveThumbnail(boolean rewriteMetadata)
     {
+        errorIfInvalidState();
         if (inProgress)
         {
             return retrieveThumbnailDirect(
