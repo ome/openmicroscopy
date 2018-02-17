@@ -36,8 +36,13 @@ import getpass
 
 from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
+from omero.callbacks import CmdCallbackI
+from omero.cmd import DoAll
 from omero.util import get_user
 from stat import ST_SIZE
+
+import time
+
 
 # The directories underneath an OMERO data directory to search for "dangling"
 # files and reconcile with the database. Directory name key and corresponding
@@ -327,6 +332,61 @@ def fixpyramids(data_dir, query_service,
                     else:
                         print "Removing %s" % f
                         os.remove(pixels_file)
+
+
+def removepyramids(data_dir, client, little_endian=False, dry_run=False,
+                   imported_after=None):
+    client.getImplicitContext().put(omero.constants.GROUP, '-1')
+    admin_service = client.sf.getAdminService()
+    config_service = client.sf.getConfigService()
+
+    initial_check(config_service, admin_service)
+
+    # look for any pyramid files with the specified endianness
+    # the pyramid file will be removed
+    to_delete = []
+    request = omero.cmd.FindPyramids()
+    request.littleEndian = little_endian
+    request.importeAfter = -1
+    if imported_after is not None:
+        date = time.strptime(imported_after, "%d/%m/%Y")
+        request.importeAfter = time.mktime(date)
+    rsp = submit(client, request)
+
+    # Prepare the requests
+    if len(rsp.pyramidFiles):
+        print "No pyramids to delete"
+
+    for j in range(len(rsp.pyramidFiles)):
+        image_id = rsp.pyramidFiles[j]
+        if dry_run:
+            print "Would remove pyramid for image %s" % image_id
+        else:
+            print "Removing pyramid for image %s" % image_id
+            req = omero.cmd.ManageImageBinaries()
+            req.imageId = image_id
+            req.deletePyramid = True
+            req.deleteThumbnails = True
+            to_delete.append(req)
+
+    if len(to_delete):
+        submit(client, to_delete)
+        print "%s Pyramids deleted" % len(to_delete)
+
+
+def submit(client, request):
+    if isinstance(request, list):
+        request = DoAll(request)
+    handle = client.sf.submit(request)
+    cb = CmdCallbackI(client, handle)
+    try:
+        cb.loop(50, 1000)
+        rsp = cb.getResponse()
+        if isinstance(rsp, omero.cmd.ERR):
+            raise Exception(rsp)
+        return rsp
+    finally:
+        cb.close(True)
 
 
 def main():
