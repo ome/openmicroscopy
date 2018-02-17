@@ -382,8 +382,8 @@ location.
             x.add_login_arguments()
 
         removepyramids.add_argument(
-                "--dry-run", action="store_true",
-                help="Print out which files would be deleted")
+            "--dry-run", action="store_true",
+            help="Print out which files would be deleted")
         removepyramids.add_argument(
             "--little-endian", action="store_true",
             help="Delete pyramid with little-endian true")
