@@ -988,7 +988,7 @@ present, the user will enter a console""")
         from omero.util.cleanse import removepyramids
         client = self.ctx.conn(args)
         client.getSessionId()
-        removepyramids(data_dir=args.data_dir, client=client,
+        removepyramids(client=client,
                        little_endian=args.little_endian,
                        dry_run=args.dry_run,
                        imported_after=args.imported_after)

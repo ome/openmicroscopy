@@ -334,7 +334,7 @@ def fixpyramids(data_dir, query_service,
                         os.remove(pixels_file)
 
 
-def removepyramids(data_dir, client, little_endian=False, dry_run=False,
+def removepyramids(client, little_endian=False, dry_run=False,
                    imported_after=None):
     client.getImplicitContext().put(omero.constants.GROUP, '-1')
     admin_service = client.sf.getAdminService()
@@ -354,7 +354,7 @@ def removepyramids(data_dir, client, little_endian=False, dry_run=False,
     rsp = submit(client, request)
 
     # Prepare the requests
-    if len(rsp.pyramidFiles):
+    if len(rsp.pyramidFiles) == 0:
         print "No pyramids to delete"
 
     for j in range(len(rsp.pyramidFiles)):
@@ -369,7 +369,7 @@ def removepyramids(data_dir, client, little_endian=False, dry_run=False,
             req.deleteThumbnails = True
             to_delete.append(req)
 
-    if len(to_delete):
+    if len(to_delete) > 0:
         submit(client, to_delete)
         print "%s Pyramids deleted" % len(to_delete)
 
