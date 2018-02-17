@@ -36,6 +36,7 @@ import ome.io.nio.PixelsService;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.parameters.Parameters;
+import ome.system.OmeroContext;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -67,9 +68,13 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
 
     private String query;
 
+    private File pixeldsDir;
+
     public FindPyramidsI(PixelsService pixelsService)
     {
         this.pixelsService = pixelsService;
+        File tmp = new File(pixelsService.getPixelsPath(1L));
+        pixeldsDir = tmp.getParentFile();
     }
 
     @Override
@@ -120,8 +125,6 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
      * Finds the pyramids and prepares the response
      */
     private void findPyramids() {
-        File root = new File("/OMERO"); //TODO
-        File pixeldsDir = new File(root, "/Pixels");
         StringBuilder sb = new StringBuilder();
         sb.append("select p from Pixels as p ");
         sb.append("left outer join fetch p.image as i ");
