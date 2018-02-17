@@ -50,14 +50,15 @@ module omero {
         };
 
         /**
-         * Requests all pyramids files. A {@link FindPyramidsResponse}
+         * Returns the image Ids corresponding to the pyramid files.
+         * A {@link FindPyramidsResponse}
          * will be returned under normal conditions, otherwise a {@link ERR}
          * will be returned.
          **/
         class FindPyramidsResponse extends Response {
 
             /**
-             * The pixels IDs corresponding to the pyramid
+             * The image IDs corresponding to the pyramid
              **/
             omero::api::LongList pyramidFiles;
         };
