@@ -354,7 +354,7 @@ def removepyramids(client, little_endian=False, dry_run=False,
     rsp = submit(client, request)
 
     if len(rsp.pyramidFiles) == 0:
-        print "No pyramids to delete"
+        print "No pyramids to remove"
 
     # Prepare the requests
     for j in range(len(rsp.pyramidFiles)):
@@ -371,7 +371,7 @@ def removepyramids(client, little_endian=False, dry_run=False,
 
     if len(to_delete) > 0:
         submit(client, to_delete)
-        print "%s Pyramids deleted" % len(to_delete)
+        print "%s Pyramids removed" % len(to_delete)
 
 
 def submit(client, request):
