@@ -36,7 +36,6 @@ import getpass
 
 from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
-from omero.callbacks import CmdCallbackI
 from omero.cmd import DoAll
 from omero.util import get_user
 from stat import ST_SIZE
@@ -377,16 +376,8 @@ def removepyramids(client, little_endian=False, dry_run=False,
 def submit(client, request):
     if isinstance(request, list):
         request = DoAll(request)
-    handle = client.sf.submit(request)
-    cb = CmdCallbackI(client, handle)
-    try:
-        cb.loop(50, 1000)
-        rsp = cb.getResponse()
-        if isinstance(rsp, omero.cmd.ERR):
-            raise Exception(rsp)
-        return rsp
-    finally:
-        cb.close(True)
+    cb = client.submit(request)
+    return cb.getResponse()
 
 
 def main():
@@ -438,6 +429,7 @@ def main():
     finally:
         if session_key is None:
             client.closeSession()
+
 
 if __name__ == '__main__':
     main()
