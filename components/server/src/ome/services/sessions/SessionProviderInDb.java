@@ -81,9 +81,8 @@ public class SessionProviderInDb implements SessionProvider, ReadOnlyStatus.IsAw
     }
 
     @Override
-    public Session executeCloseSession(final String uuid) {
-        return (Session) executor
-                .executeSql(new Executor.SimpleSqlWork(this,
+    public void executeCloseSession(final String uuid) {
+        executor.executeSql(new Executor.SimpleSqlWork(this,
                         "executeCloseSession") {
                     @Transactional(readOnly = false)
                     public Object doWork(SqlAction sql) {

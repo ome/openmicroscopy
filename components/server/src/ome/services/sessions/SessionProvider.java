@@ -26,7 +26,7 @@ public interface SessionProvider {
      * {@link SessionManagerImpl#onApplicationEvent(org.springframework.context.ApplicationEvent)} when a
      * {@link ome.services.messages.DestroySessionMessage} is received.
      */
-    Session executeCloseSession(String uuid);
+    void executeCloseSession(String uuid);
 
     Session executeInternalSession(String uuid, Session session);
 

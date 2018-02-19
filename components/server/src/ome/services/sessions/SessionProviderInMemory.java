@@ -111,7 +111,7 @@ public class SessionProviderInMemory implements SessionProvider, ReadOnlyStatus.
     }
 
     @Override
-    public Session executeCloseSession(String uuid) {
+    public void executeCloseSession(String uuid) {
         Session session = openSessions.get(uuid);
         if (session == null) {
             if (closedSessions.containsKey(uuid)) {
@@ -125,7 +125,6 @@ public class SessionProviderInMemory implements SessionProvider, ReadOnlyStatus.
             openSessions.remove(session.getUuid());
             log.debug("closed session {}", uuid);
         }
-        return null;  // No-op
     }
 
     @Override
