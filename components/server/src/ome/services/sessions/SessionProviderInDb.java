@@ -17,6 +17,7 @@ import ome.model.meta.Share;
 import ome.parameters.Parameters;
 import ome.security.NodeProvider;
 import ome.services.util.Executor;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
@@ -41,7 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class SessionProviderInDb implements SessionProvider {
+public class SessionProviderInDb implements SessionProvider, ReadOnlyStatus.IsAware {
 
     private final static Logger log = LoggerFactory.getLogger(SessionProviderInDb.class);
 
@@ -168,5 +169,10 @@ public class SessionProviderInDb implements SessionProvider {
                         + "left outer join fetch s.annotationLinks l "
                         + "left outer join fetch l.child a where s.id = :id",
                         new Parameters().addId(id).cache());
+    }
+
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return readOnly.isReadOnlyDb();
     }
 }

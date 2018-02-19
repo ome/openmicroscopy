@@ -36,6 +36,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.security.NodeProvider;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
 
@@ -45,7 +46,7 @@ import ome.system.ServiceFactory;
  * @author Chris Allan <callan@glencoesoftware.com>
  * @since 5.3.0
  */
-public class SessionProviderInMemory implements SessionProvider {
+public class SessionProviderInMemory implements SessionProvider, ReadOnlyStatus.IsAware {
 
     private final static Logger log =
             LoggerFactory.getLogger(SessionProviderInMemory.class);
@@ -140,5 +141,10 @@ public class SessionProviderInMemory implements SessionProvider {
         }
         log.warn("Requested session {}. Only found: {}", id, tries);
         return null;
+    }
+
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return false;
     }
 }
