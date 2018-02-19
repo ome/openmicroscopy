@@ -117,7 +117,7 @@ public class SessionProviderInMemory implements SessionProvider, ReadOnlyStatus.
             if (closedSessions.containsKey(uuid)) {
                 log.debug("attempt to close session {} but is already closed", uuid);
             } else {
-                log.warn("attempt to close session {} but is no longer cached", uuid);
+                log.info("attempt to close session {} but is no longer cached", uuid);
             }
         } else {
             session.setClosed(new Timestamp(System.currentTimeMillis()));
@@ -139,7 +139,7 @@ public class SessionProviderInMemory implements SessionProvider, ReadOnlyStatus.
                 tries.add(session.getId());
             }
         }
-        log.warn("Requested session {}. Only found: {}", id, tries);
+        log.info("Requested session {}. Only found: {}", id, tries);
         return null;
     }
 
