@@ -154,6 +154,7 @@
     <property name="counterFactory"  ref="sessionCounterFactory"/>
     <property name="readOnly"        ref="readOnlyStatus"/>
     <property name="nodeProvider"    ref="nodeProvider"/>
+    <property name="sessionProvider" ref="sessionProvider"/>
   </bean>
 
   <bean id="eventProvider" class="ome.security.basic.EventProviderWrapper">
@@ -179,6 +180,23 @@
         </bean>
         <bean class="ome.security.basic.NodeProviderInMemory">
           <constructor-arg ref="uuid"/>
+        </bean>
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="sessionProvider" class="ome.services.sessions.SessionProviderWrapper">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg>
+      <list>
+        <bean class="ome.services.sessions.SessionProviderInDb">
+          <constructor-arg ref="roles"/>
+          <constructor-arg ref="nodeProvider"/>
+          <constructor-arg ref="executor"/>
+        </bean>
+        <bean class="ome.services.sessions.SessionProviderInMemory">
+          <constructor-arg ref="roles"/>
+          <constructor-arg ref="nodeProvider"/>
         </bean>
       </list>
     </constructor-arg>
