@@ -47,14 +47,14 @@ public class SessionProviderInDb implements SessionProvider {
 
     private final Roles roles;
 
-    private final Executor executor;
-
     private final NodeProvider nodeProvider;
 
-    public SessionProviderInDb(Roles roles, Executor executor, NodeProvider nodeProvider) {
+    private final Executor executor;
+
+    public SessionProviderInDb(Roles roles, NodeProvider nodeProvider, Executor executor) {
         this.roles = roles;
-        this.executor = executor;
         this.nodeProvider = nodeProvider;
+        this.executor = executor;
     }
 
     // Executor methods
