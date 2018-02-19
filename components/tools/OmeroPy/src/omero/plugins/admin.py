@@ -34,8 +34,6 @@ from omero.cli import NonZeroReturnCode
 from omero.cli import DiagnosticsControl
 from omero.cli import UserGroupControl
 
-from omero.model.enums import AdminPrivilegeReadSession
-
 from omero.plugins.prefs import \
     WriteableConfigControl, with_config
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
