@@ -82,7 +82,7 @@ class TestRemovePyramidsFullAdmin(CLITest):
     def import_pyramid(self, tmpdir):
         fakefile = tmpdir.join("test&sizeX=4000&sizeY=4000.fake")
         fakefile.write('')
-        image = self.import_image(filename=str(fakefile), skip="checksum")[0]
+        self.import_image(filename=str(fakefile), skip="checksum")[0]
         # wait for the pyramid to be generated
         time.sleep(30)
 
