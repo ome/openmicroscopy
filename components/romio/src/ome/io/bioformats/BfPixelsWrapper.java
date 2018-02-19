@@ -472,6 +472,10 @@ public class BfPixelsWrapper {
         return FormatTools.isSigned(reader.getPixelType());
     }
 
+    public boolean isLittleEndian() {
+        return reader.isLittleEndian();
+    }
+
     /**
      * cgb - stolen from ImportLibrary - slightly modified
      *

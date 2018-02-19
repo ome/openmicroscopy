@@ -34,8 +34,6 @@ from omero.cli import NonZeroReturnCode
 from omero.cli import DiagnosticsControl
 from omero.cli import UserGroupControl
 
-from omero.model.enums import AdminPrivilegeReadSession
-
 from omero.plugins.prefs import \
     WriteableConfigControl, with_config
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
@@ -167,6 +165,16 @@ already be running. This may automatically restart some server components.""")
         fixpyramids = Action(
             "fixpyramids",
             "Remove empty pyramid pixels files (admins only)").parser
+
+        removepyramids = Action(
+            "removepyramids",
+            """Remove pyramid pixels files (admins only)
+
+Examples:
+  bin/omero admin removepyramids --dry-run
+  bin/omero admin removepyramids --dry-run --little-endian
+  bin/omero admin removepyramids --dry-run --imported-after dd/mm/YYYY
+            """).parser
         # See cleanse options below
 
         email = Action(
@@ -365,8 +373,19 @@ location.
                 help="Print out which files would be deleted")
             x.add_argument(
                 "data_dir", type=DirectoryType(),
-                help="omero.data.dir directory value (e.g. /OMERO")
+                help="omero.data.dir directory value e.g. /OMERO")
             x.add_login_arguments()
+
+        removepyramids.add_argument(
+            "--dry-run", action="store_true",
+            help="Print out which files would be deleted")
+        removepyramids.add_argument(
+            "--little-endian", action="store_true",
+            help="Delete pyramid with little-endian true")
+        removepyramids.add_argument(
+            "--imported-after", metavar="DATE",
+            help="Delete pyramid imported after a given date")
+        removepyramids.add_login_arguments()
 
         Action("checkwindows", "Run simple check of the local installation "
                "(Windows-only)")
@@ -931,7 +950,7 @@ present, the user will enter a console""")
         else:
             self.ctx.call(command)
 
-    @admin_only(AdminPrivilegeReadSession)
+    @admin_only(full_admin=True)
     @with_config
     def fixpyramids(self, args, config):
         self.check_access()
@@ -942,6 +961,16 @@ present, the user will enter a console""")
                     admin_service=client.sf.getAdminService(),
                     query_service=client.sf.getQueryService(),
                     config_service=client.sf.getConfigService())
+
+    @admin_only(full_admin=True)
+    def removepyramids(self, args):
+        from omero.util.cleanse import removepyramids
+        client = self.ctx.conn(args)
+        client.getSessionId()
+        removepyramids(client=client,
+                       little_endian=args.little_endian,
+                       dry_run=args.dry_run,
+                       imported_after=args.imported_after)
 
     @with_config
     def jvmcfg(self, args, config):
@@ -1692,7 +1721,7 @@ present, the user will enter a console""")
                            stdout=sys.stdout, stderr=sys.stderr)
         self.ctx.rv = p.wait()
 
-    @admin_only(AdminPrivilegeReadSession)
+    @admin_only(full_admin=True)
     def cleanse(self, args):
         self.check_access()
         from omero.util.cleanse import cleanse

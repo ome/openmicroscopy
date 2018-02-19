@@ -179,3 +179,46 @@ class TestCleanseRestrictedAdmin(CLITest):
         out, err = capsys.readouterr()
         output_end = "SecurityViolation: Admin restrictions: ReadSession\n"
         assert err.endswith(output_end)
+
+
+class TestFixPyramids(CLITest):
+
+    def setup_method(self, method):
+        super(TestFixPyramids, self).setup_method(method)
+        self.cli.register("admin", omero.plugins.admin.AdminControl, "TEST")
+        self.args += ["admin", "fixpyramids"]
+
+    def test_fixpyramids_admin_only(self, capsys):
+        """Test fixpyramids is admin-only"""
+        config_service = self.root.sf.getConfigService()
+        data_dir = config_service.getConfigValue("omero.data.dir")
+        self.args += [data_dir]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        assert err.endswith("SecurityViolation: Admins only!\n")
+
+
+class TestFixPyramidsRestrictedAdmin(CLITest):
+
+    # make the user in this test a member of system group
+    DEFAULT_SYSTEM = True
+    # make the new member of system group to a Restricted
+    # Admin with no privileges
+    DEFAULT_PRIVILEGES = ()
+
+    def setup_method(self, method):
+        super(TestFixPyramidsRestrictedAdmin, self).setup_method(method)
+        self.cli.register("admin", omero.plugins.admin.AdminControl, "TEST")
+        self.args += ["admin", "fixpyramids"]
+
+    def test_fixpyramids_restricted_admin(self, capsys):
+        """Test fixpyramids cannot be run by Restricted Admin"""
+        config_service = self.root.sf.getConfigService()
+        data_dir = config_service.getConfigValue("omero.data.dir")
+        self.args += [data_dir]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        output_start = "SecurityViolation: Admin restrictions: Chgrp"
+        assert err.startswith(output_start)
