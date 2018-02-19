@@ -931,7 +931,7 @@ present, the user will enter a console""")
         else:
             self.ctx.call(command)
 
-    @admin_only()
+    @admin_only(full_admin=True)
     @with_config
     def fixpyramids(self, args, config):
         self.check_access()
@@ -1692,7 +1692,7 @@ present, the user will enter a console""")
                            stdout=sys.stdout, stderr=sys.stderr)
         self.ctx.rv = p.wait()
 
-    @admin_only(AdminPrivilegeReadSession)
+    @admin_only(full_admin=True)
     def cleanse(self, args):
         self.check_access()
         from omero.util.cleanse import cleanse
