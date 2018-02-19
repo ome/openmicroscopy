@@ -41,5 +41,5 @@ public interface SessionProvider {
      * @param sf active service factory
      * @return See above.
      */
-    Session findSessionById(Long id, ServiceFactory sf);
+    Session findSessionById(long id, ServiceFactory sf);
 }

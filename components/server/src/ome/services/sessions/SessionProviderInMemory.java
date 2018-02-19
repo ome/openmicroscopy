@@ -128,7 +128,7 @@ public class SessionProviderInMemory implements SessionProvider, ReadOnlyStatus.
     }
 
     @Override
-    public Session findSessionById(Long id, ServiceFactory sf) {
+    public Session findSessionById(long id, ServiceFactory sf) {
         final SortedSet<Long> tries = new TreeSet<Long>();
         /* in Java 8 maybe could use Stream instead of Iterables */
         for (final Session session : Iterables.concat(openSessions.values(), closedSessions.values())) {
