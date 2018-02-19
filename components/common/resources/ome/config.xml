@@ -2,12 +2,8 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#
-# $Id$
-#
 # Copyright 2008, 2009, 2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
-#
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
@@ -163,6 +159,11 @@
        <property name="mutable" value="false"/>
        <property name="visibility" value="all"/>
     </bean>
+    <bean class="ome.system.Preference" id="omero.pixeldata.max_tile_length">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
     <!--  CLIENT PROPERTIES -->
     <bean class="ome.system.Preference" id="omero.client.scripts_to_ignore">
        <property name="db" value="false"/>
@@ -245,11 +246,6 @@
        <property name="visibility" value="all"/>
     </bean>
     <bean class="ome.system.Preference" id="omero.client.browser.thumb_default_size">
-       <property name="db" value="false"/>
-       <property name="mutable" value="false"/>
-       <property name="visibility" value="all"/>
-    </bean>
-    <bean class="ome.system.Preference" id="omero.webgateway.max_tile_length">
        <property name="db" value="false"/>
        <property name="mutable" value="false"/>
        <property name="visibility" value="all"/>

@@ -912,7 +912,7 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
                 try:
                     max_tile_length = int(
                         conn.getConfigService().getConfigValue(
-                            "omero.webgateway.max_tile_length"))
+                            "omero.pixeldata.max_tile_length"))
                 except:
                     pass
                 for i, tile_length in enumerate(tile_size):
