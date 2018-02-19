@@ -168,6 +168,18 @@ public class SessionProviderInDb implements SessionProvider, ReadOnlyStatus.IsAw
     }
 
     @Override
+    public Long findSessionIdByUuid(final String uuid) {
+        return (Long) executor.executeSql(new Executor.SimpleSqlWork(this,
+                "getSessionId") {
+                    @Override
+                    @Transactional(readOnly = true)
+                    public Object doWork(SqlAction sql) {
+                        return sql.sessionId(uuid);
+                    }
+        });
+    }
+
+    @Override
     public boolean isReadOnly(ReadOnlyStatus readOnly) {
         return readOnly.isReadOnlyDb();
     }

@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
 import ome.model.meta.Experimenter;
@@ -139,6 +140,17 @@ public class SessionProviderInMemory implements SessionProvider, ReadOnlyStatus.
             }
         }
         log.info("Requested session {}. Only found: {}", id, tries);
+        return null;
+    }
+
+    @Override
+    public Long findSessionIdByUuid(String uuid) {
+        for (final Map<String, Session> sessions : ImmutableList.of(openSessions, closedSessions)) {
+            final Session session = sessions.get(uuid);
+            if (session != null) {
+                return session.getId();
+            }
+        }
         return null;
     }
 
