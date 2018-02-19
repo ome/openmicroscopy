@@ -18,10 +18,10 @@ public interface SessionProvider {
     Session executeUpdate(ServiceFactory sf, Session session, String uuid, long userId, Long sudoerId);
 
     /**
-     * Loads a session directly from the database, sets its "closed" value and
-     * immediately saves it back to the database. This method is not called
+     * Loads a session directly, sets its "closed" value and immediately
+     * saves it. This method is not called
      * directly from the {@link SessionManager#close(String)} and {@link SessionManager#closeAll()} methods
-     * since there are other non-explicit ways for a session to be destroy, such
+     * since there are other non-explicit ways for a session to be destroyed, such
      * as a timeout within {@link ome.services.sessions.state.SessionCache} and so this is called from
      * {@link SessionManagerImpl#onApplicationEvent(org.springframework.context.ApplicationEvent)} when a
      * {@link ome.services.messages.DestroySessionMessage} is received.
