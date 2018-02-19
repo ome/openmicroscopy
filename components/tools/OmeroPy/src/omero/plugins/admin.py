@@ -982,9 +982,7 @@ present, the user will enter a console""")
                     config_service=client.sf.getConfigService())
 
     @admin_only(AdminPrivilegeReadSession)
-    @with_config
-    def removepyramids(self, args, config):
-        self.check_access()
+    def removepyramids(self, args):
         from omero.util.cleanse import removepyramids
         client = self.ctx.conn(args)
         client.getSessionId()
