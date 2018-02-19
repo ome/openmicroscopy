@@ -337,14 +337,8 @@ class TestSessions(CLITest):
                          "[a-f0-9]{4}-[a-f0-9]{12}")
         assert pat.match(o)
 
-        # Check that the UUID is in our store
+        # Check that the UUID is *not* in our store
         self.args = ["sessions", "list"]
         self.cli.invoke(self.args, strict=True)
         o2, e2 = capsys.readouterr()
-        assert o.strip() in o2
-
-        # So that trying to login should work without password or key
-        self.set_login_args(asUserName)
-        self.cli.invoke(self.args, strict=True)
-        o3, e3 = capsys.readouterr()
-        assert o.strip() in e3
+        assert o.strip() not in o2
