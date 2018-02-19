@@ -160,6 +160,7 @@
   <bean id="eventProvider" class="ome.security.basic.EventProviderWrapper">
     <constructor-arg ref="readOnlyStatus"/>
     <constructor-arg>
+      <!-- Providers are listed in descending order of preference. -->
       <list>
         <bean class="ome.security.basic.EventProviderInDb">
           <constructor-arg ref="internalServiceFactory"/>
@@ -173,6 +174,7 @@
   <bean id="nodeProvider" class="ome.security.basic.NodeProviderWrapper">
     <constructor-arg ref="readOnlyStatus"/>
     <constructor-arg>
+      <!-- Providers are listed in descending order of preference. -->
       <list>
         <bean class="ome.security.basic.NodeProviderInDb">
           <constructor-arg ref="uuid"/>
@@ -188,6 +190,7 @@
   <bean id="sessionProvider" class="ome.services.sessions.SessionProviderWrapper">
     <constructor-arg ref="readOnlyStatus"/>
     <constructor-arg>
+      <!-- Providers are listed in descending order of preference. -->
       <list>
         <bean class="ome.services.sessions.SessionProviderInDb">
           <constructor-arg ref="roles"/>
