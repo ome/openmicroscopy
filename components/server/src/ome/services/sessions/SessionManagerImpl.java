@@ -119,6 +119,7 @@ public abstract class SessionManagerImpl implements SessionManager, SessionCache
     protected CounterFactory factory;
     protected boolean readOnly = false;
     protected NodeProvider nodeProvider;
+    protected SessionProvider sessionProvider;
 
     // Local state
 
@@ -196,6 +197,10 @@ public abstract class SessionManagerImpl implements SessionManager, SessionCache
         this.nodeProvider = nodeProvider;
     }
 
+    public void setSessionProvider(SessionProvider sessionProvider) {
+        this.sessionProvider = sessionProvider;
+    }
+
     /**
      * Initialization method called by the Spring run-time to acquire an initial
      * {@link Session}.
@@ -210,7 +215,7 @@ public abstract class SessionManagerImpl implements SessionManager, SessionCache
                     System.currentTimeMillis(), Long.MAX_VALUE, 0L,
                     "Sessions", "Internal", null);
 
-            session = executeInternalSession(internal_uuid, session);
+            session = sessionProvider.executeInternalSession(internal_uuid, session);
             internalSession = new InternalSessionContext(session, LightAdminPrivileges.getAllPrivileges(), roles);
             cache.putSession(internal_uuid, internalSession);
         } catch (UncategorizedSQLException uncat) {
@@ -368,7 +373,7 @@ public abstract class SessionManagerImpl implements SessionManager, SessionCache
                     // to match read-only status. Note: this code block matches
                     // the one below, but the annotation is a compile-time rather
                     // than run-time concern.
-                    final Session s = executeUpdate(sf, oldsession, internal_uuid, userId, req.sudoer);
+                    final Session s = sessionProvider.executeUpdate(sf, oldsession, internal_uuid, userId, req.sudoer);
                     return executeSessionContextLookup(sf, p, s);
                 }
             });
@@ -382,7 +387,7 @@ public abstract class SessionManagerImpl implements SessionManager, SessionCache
                     Principal p = validateSessionInputs(sf, req);
                     oldsession.setDefaultEventType(p.getEventType());
                     long userId = executeLookupUser(sf, p);
-                    final Session s = executeUpdate(sf, oldsession, internal_uuid, userId, req.sudoer);
+                    final Session s = sessionProvider.executeUpdate(sf, oldsession, internal_uuid, userId, req.sudoer);
                     return executeSessionContextLookup(sf, p, s);
                 }
 
@@ -509,7 +514,7 @@ public abstract class SessionManagerImpl implements SessionManager, SessionCache
                 } else {
                     sudoerId = orig.getSudoer().getId();
                 }
-                return executeUpdate(sf, copy, internal_uuid, newctx.getCurrentUserId(), sudoerId);
+                return sessionProvider.executeUpdate(sf, copy, internal_uuid, newctx.getCurrentUserId(), sudoerId);
             }
         });
         cache.putSession(uuid, newctx);
@@ -887,7 +892,7 @@ public abstract class SessionManagerImpl implements SessionManager, SessionCache
         if (event instanceof UserGroupUpdateEvent) {
             cache.updateEvent((UserGroupUpdateEvent) event);
         } else if (event instanceof DestroySessionMessage) {
-            executeCloseSession(((DestroySessionMessage) event).getSessionId());
+            sessionProvider.executeCloseSession(((DestroySessionMessage) event).getSessionId());
         }
     }
 
@@ -1108,12 +1113,6 @@ public abstract class SessionManagerImpl implements SessionManager, SessionCache
         return executeCheckPassword(new Principal(name), credentials);
     }
 
-    protected Session executeUpdate(ServiceFactory sf, Session session, String uuid,
-            long userId, Long sudoerId) {
-        // TODO
-        return null;
-    }
-
     private boolean executeCheckPassword(final Principal _principal,
             final String credentials) {
 
@@ -1156,33 +1155,6 @@ public abstract class SessionManagerImpl implements SessionManager, SessionCache
                         _principal.getName(), credentials, false);
             }
         });
-    }
-
-    /**
-     * Loads a session directly from the database, sets its "closed" value and
-     * immediately saves it back to the database. This method is not called
-     * directly from the {@link #close(String)} and {@link #closeAll()} methods
-     * since there are other non-explicit ways for a session to be destroy, such
-     * as a timeout within {@link SessionCache} and so this is called from
-     * {@link #onApplicationEvent(ApplicationEvent)} when a
-     * {@link DestroySessionMessage} is received.
-     */
-    protected Session executeCloseSession(final String uuid) {
-        // TODO
-        return null;
-    }
-
-    protected Session executeInternalSession(String uuid, Session session) {
-        // TODO
-        return null;
-    }
-
-    /**
-     * Added as an attempt to cure ticket:1176
-     */
-    protected Long executeNextSessionId() {
-        // TODO
-        return null;
     }
 
     public ome.model.IObject setSecurityContext(Principal principal, ome.model.IObject obj) {
@@ -1363,17 +1335,6 @@ public abstract class SessionManagerImpl implements SessionManager, SessionCache
     }
 
     /**
-     * Retrieves a session by ID.
-     * @param id session ID to lookup
-     * @param sf active service factory
-     * @return See above.
-     */
-    protected Session findSessionById(Long id, ServiceFactory sf) {
-        // TODO
-        return null;
-    }
-
-    /**
      * Returns a List of state for creating a new {@link SessionContext}. If an
      * exception is thrown, return nulls since throwing an exception within the
      * Work will set our transaction to rollback only.
@@ -1399,7 +1360,7 @@ public abstract class SessionManagerImpl implements SessionManager, SessionCache
             final List<Long> memberOfGroupsIds = admin.getMemberOfGroupIds(exp);
             final List<Long> leaderOfGroupsIds = admin.getLeaderOfGroupIds(exp);
             final List<String> userRoles = admin.getUserRoles(exp);
-            final Session reloaded = findSessionById(session.getId(), sf);
+            final Session reloaded = sessionProvider.findSessionById(session.getId(), sf);
             final Experimenter sudoer = reloaded.getSudoer();
             boolean hasAdminPrivileges = memberOfGroupsIds.contains(roles.getSystemGroupId());
             if (sudoer != null) {
