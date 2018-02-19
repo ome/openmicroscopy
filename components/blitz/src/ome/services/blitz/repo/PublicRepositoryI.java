@@ -855,7 +855,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         if (null == repositoryDao.findRepoFile(sf, sql, repoUuid, checked, null)) {
             omero.ResourceError re = new omero.ResourceError();
             IceMapper.fillServerError(re, new RuntimeException(
-                    "Directory exists but is not registered: " + checked));
+                    "OMERO data directory and database out of sync. Please re-create your OMERO data directory."));
             throw re;
         }
     }
