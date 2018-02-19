@@ -4410,7 +4410,7 @@ class _BlitzGateway (object):
 
     def searchObjects(self, obj_types, text, created=None, fields=(),
                       batchSize=1000, page=0, searchGroup=None, ownedBy=None,
-                      useAcquisitionDate=False):
+                      useAcquisitionDate=False, rawQuery=True):
         """
         Search objects of type "Project", "Dataset", "Image", "Screen", "Plate"
         Returns a list of results
@@ -4418,8 +4418,11 @@ class _BlitzGateway (object):
         :param obj_types:   E.g. ["Dataset", "Image"]
         :param text:        The text to search for
         :param created:     :class:`omero.rtime` list or tuple (start, stop)
+        :param fields:      Lucene fields e.g. ['name', 'file.contents', 'tag']
         :param useAcquisitionDate: if True, then use Image.acquisitionDate
                                    rather than import date for queries.
+        :param rawQuery     If True, text is passed directly to byFullText()
+                            without processing. fields and created are ignored.
         :return:            List of Object wrappers. E.g. :class:`ImageWrapper`
         """
         if not text:
@@ -4480,10 +4483,13 @@ class _BlitzGateway (object):
             for t in types:
                 def actualSearch():
                     search.onlyType(t().OMERO_CLASS, ctx)
-                    search.byLuceneQueryBuilder(
-                        ",".join(fields),
-                        d_from, d_to, d_type,
-                        text, ctx)
+                    if rawQuery:
+                        search.byFullText(text, ctx)
+                    else:
+                        search.byLuceneQueryBuilder(
+                            ",".join(fields),
+                            d_from, d_to, d_type,
+                            text, ctx)
 
                 timeit(actualSearch)()
                 # get results
