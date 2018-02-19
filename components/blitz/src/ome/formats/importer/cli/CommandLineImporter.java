@@ -808,9 +808,9 @@ public class CommandLineImporter {
                 break;
             }
             case 26: {
-                String encrytpedArg = g.getOptarg();
-                log.info("Setting encrypted: {}", encrytpedArg);
-                config.encryptedConnection.set(Boolean.valueOf(encrytpedArg));
+                String encryptedArg = g.getOptarg();
+                log.info("Setting encrypted: {}", encryptedArg);
+                config.encryptedConnection.set(Boolean.valueOf(encryptedArg));
                 break;
             }
             // ADVANCED END ---------------------------------------------------
