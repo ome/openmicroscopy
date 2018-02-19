@@ -25,6 +25,8 @@ from omero.cli import NonZeroReturnCode
 
 import omero.plugins.admin
 import pytest
+import time
+import datetime
 
 
 class TestRemovePyramids(CLITest):
@@ -62,3 +64,56 @@ class TestRemovePyramidsRestrictedAdmin(CLITest):
         out, err = capsys.readouterr()
         output_end = "SecurityViolation: Admin restrictions: ReadSession\n"
         assert err.endswith(output_end)
+
+
+class TestRemovePyramidsFullAdmin(CLITest):
+
+    # make the user in this test a member of system group
+    DEFAULT_SYSTEM = True
+    # make the new member of system group to a Full Admin
+    DEFAULT_PRIVILEGES = None
+
+    def setup_method(self, method):
+        super(TestRemovePyramidsFullAdmin, self).setup_method(method)
+        self.cli.register("admin", omero.plugins.admin.AdminControl, "TEST")
+        self.args += ["admin", "removepyramids"]
+        self.group_ctx = {'omero.group': str(self.group.id.val)}
+
+    def import_pyramid(self, tmpdir):
+        fakefile = tmpdir.join("test&sizeX=4000&sizeY=4000.fake")
+        fakefile.write('')
+        image = self.import_image(filename=str(fakefile), skip="checksum")[0]
+        # wait for the pyramid to be generated
+        time.sleep(30)
+
+    def test_remove_pyramids_little_endian(self, tmpdir, capsys):
+        """Test removepyramids with litlle endian true"""
+        self.import_pyramid(tmpdir)
+        self.args += ["--little-endian"]
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        output_start = "Removing pyramid for image"
+        assert output_start in out
+
+    def test_remove_pyramids_imported_after_future(self, tmpdir, capsys):
+        """Test removepyramids with date in future"""
+        self.import_pyramid(tmpdir)
+        date = datetime.datetime.now() + datetime.timedelta(days=1)
+        value = date.strftime('%d/%m/%Y')
+        self.args += ["--imported-after", value]
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        output_start = "No pyramids to remove"
+        assert output_start in out
+
+    def test_remove_pyramids_imported_after_now(self, tmpdir, capsys):
+        """Test removepyramids with date in future"""
+        self.import_pyramid(tmpdir)
+        date = datetime.datetime.now() - datetime.timedelta(days=1)
+        value = date.strftime('%d/%m/%Y')
+        self.args += ["--imported-after", value]
+        self.args += ["--little-endian"]
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        output_start = "Removing pyramid for image"
+        assert output_start in out
