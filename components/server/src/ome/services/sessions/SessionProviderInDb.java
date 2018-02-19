@@ -84,24 +84,21 @@ public class SessionProviderInDb implements SessionProvider, ReadOnlyStatus.IsAw
     public void executeCloseSession(final String uuid) {
         executor.executeSql(new Executor.SimpleSqlWork(this,
                         "executeCloseSession") {
-                    @Transactional(readOnly = false)
-                    public Object doWork(SqlAction sql) {
-                        try {
-                            int count = sql.closeSessions(uuid);
-                            if (count == 0) {
-                                log.info("No session updated on closeSession:"
-                                        + uuid);
-                            } else {
-                                log.debug("Session.closed set to now() for "
-                                        + uuid);
-                            }
-                        } catch (Exception e) {
-                            log.error("FAILED TO CLOSE SESSION IN DATABASE: "
-                                    + uuid, e);
-                        }
-                        return null;
+            @Transactional(readOnly = false)
+            public Object doWork(SqlAction sql) {
+                try {
+                    final int count = sql.closeSessions(uuid);
+                    if (count == 0) {
+                        log.info("No session updated on closeSession: {}", uuid);
+                    } else {
+                        log.debug("Session.closed set to now() for {}", uuid);
                     }
-                });
+                } catch (Exception e) {
+                    log.error("FAILED TO CLOSE SESSION IN DATABASE: {}", uuid, e);
+                }
+                return null;
+            }
+        });
     }
 
     @Override
