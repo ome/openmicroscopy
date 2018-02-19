@@ -89,7 +89,7 @@ public class SessionProviderInDb implements SessionProvider, ReadOnlyStatus.IsAw
                 try {
                     final int count = sql.closeSessions(uuid);
                     if (count == 0) {
-                        log.info("No session updated on closeSession: {}", uuid);
+                        log.warn("No session updated on closeSession: {}", uuid);
                     } else {
                         log.debug("Session.closed set to now() for {}", uuid);
                     }
