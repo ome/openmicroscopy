@@ -36,8 +36,12 @@ import getpass
 
 from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
+from omero.cmd import DoAll
 from omero.util import get_user
 from stat import ST_SIZE
+
+import time
+
 
 # The directories underneath an OMERO data directory to search for "dangling"
 # files and reconcile with the database. Directory name key and corresponding
@@ -329,6 +333,53 @@ def fixpyramids(data_dir, query_service,
                         os.remove(pixels_file)
 
 
+def removepyramids(client, little_endian=False, dry_run=False,
+                   imported_after=None):
+    client.getImplicitContext().put(omero.constants.GROUP, '-1')
+    admin_service = client.sf.getAdminService()
+    config_service = client.sf.getConfigService()
+
+    initial_check(config_service, admin_service)
+
+    # look for any pyramid files with the specified endianness
+    # the pyramid file will be removed
+    to_delete = []
+    request = omero.cmd.FindPyramids()
+    request.littleEndian = little_endian
+    request.importeAfter = -1
+    if imported_after is not None:
+        date = time.strptime(imported_after, "%d/%m/%Y")
+        request.importeAfter = time.mktime(date)
+    rsp = submit(client, request)
+
+    if len(rsp.pyramidFiles) == 0:
+        print "No pyramids to remove"
+
+    # Prepare the requests
+    for j in range(len(rsp.pyramidFiles)):
+        image_id = rsp.pyramidFiles[j]
+        if dry_run:
+            print "Would remove pyramid for image %s" % image_id
+        else:
+            print "Removing pyramid for image %s" % image_id
+            req = omero.cmd.ManageImageBinaries()
+            req.imageId = image_id
+            req.deletePyramid = True
+            req.deleteThumbnails = True
+            to_delete.append(req)
+
+    if len(to_delete) > 0:
+        submit(client, to_delete)
+        print "%s Pyramids removed" % len(to_delete)
+
+
+def submit(client, request):
+    if isinstance(request, list):
+        request = DoAll(request)
+    cb = client.submit(request)
+    return cb.getResponse()
+
+
 def main():
     """
     Default main() that performs OMERO data directory cleansing.
@@ -378,6 +429,7 @@ def main():
     finally:
         if session_key is None:
             client.closeSession()
+
 
 if __name__ == '__main__':
     main()
