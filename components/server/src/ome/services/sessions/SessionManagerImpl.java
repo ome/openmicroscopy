@@ -41,7 +41,6 @@ import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
 import ome.parameters.Parameters;
-import ome.security.NodeProvider;
 import ome.security.basic.LightAdminPrivileges;
 import ome.security.basic.PrincipalHolder;
 import ome.services.messages.CreateSessionMessage;
@@ -118,7 +117,6 @@ public abstract class SessionManagerImpl implements SessionManager, SessionCache
     protected PrincipalHolder principalHolder;
     protected CounterFactory factory;
     protected boolean readOnly = false;
-    protected NodeProvider nodeProvider;
     protected SessionProvider sessionProvider;
 
     // Local state
@@ -191,10 +189,6 @@ public abstract class SessionManagerImpl implements SessionManager, SessionCache
 
     public void setReadOnly(ReadOnlyStatus readOnly) {
         this.readOnly = readOnly.isReadOnlyDb();
-    }
-
-    public void setNodeProvider(NodeProvider nodeProvider) {
-        this.nodeProvider = nodeProvider;
     }
 
     public void setSessionProvider(SessionProvider sessionProvider) {
