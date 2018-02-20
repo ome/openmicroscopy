@@ -141,6 +141,9 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
      */
     private void walkDirectory(File dir) {
         File[] files = dir.listFiles();
+        if (files == null) {
+            return;
+        }
         for (File file : files) {
             if (file.isDirectory()) {
                 walkDirectory(file);
