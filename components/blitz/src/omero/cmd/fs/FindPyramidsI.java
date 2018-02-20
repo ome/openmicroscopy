@@ -72,8 +72,7 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
     public FindPyramidsI(PixelsService pixelsService)
     {
         this.pixelsService = pixelsService;
-        File tmp = new File(pixelsService.getPixelsPath(1L));
-        pixeldsDir = tmp.getParentFile();
+        pixeldsDir = new File(pixelsService.getPixelsDirectory());
     }
 
     @Override
