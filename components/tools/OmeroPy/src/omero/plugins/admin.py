@@ -1720,7 +1720,7 @@ present, the user will enter a console""")
         cleanse(data_dir=args.data_dir, client=self.ctx.conn(args),
                 dry_run=args.dry_run)
 
-    @admin_only(AdminPrivilegeReadSession)
+    @admin_only(full_admin=False)
     def log(self, args):
         self.check_access()
         client = self.ctx.conn(args)
