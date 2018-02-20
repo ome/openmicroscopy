@@ -391,6 +391,7 @@ location.
             "--imported-after", metavar="DATE",
             help="Delete pyramid imported after a given date")
         removepyramids.add_login_arguments()
+        self._add_wait(removepyramids)
 
         Action("checkwindows", "Run simple check of the local installation "
                "(Windows-only)")
