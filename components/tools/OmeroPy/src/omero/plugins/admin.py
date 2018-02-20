@@ -987,10 +987,12 @@ present, the user will enter a console""")
         from omero.util.cleanse import removepyramids
         client = self.ctx.conn(args)
         client.getSessionId()
+        wait = args.wait if args.wait > 0 else 25
         removepyramids(client=client,
                        little_endian=args.little_endian,
                        dry_run=args.dry_run,
-                       imported_after=args.imported_after)
+                       imported_after=args.imported_after,
+                       wait=wait)
 
     @with_config
     def jvmcfg(self, args, config):

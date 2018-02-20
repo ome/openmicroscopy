@@ -38,6 +38,7 @@ from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
 from omero.cmd import DoAll
 from omero.util import get_user
+from math import ceil
 from stat import ST_SIZE
 
 import time
@@ -334,7 +335,7 @@ def fixpyramids(data_dir, query_service,
 
 
 def removepyramids(client, little_endian=False, dry_run=False,
-                   imported_after=None):
+                   imported_after=None, wait=25):
     client.getImplicitContext().put(omero.constants.GROUP, '-1')
     admin_service = client.sf.getAdminService()
     config_service = client.sf.getConfigService()
@@ -350,7 +351,7 @@ def removepyramids(client, little_endian=False, dry_run=False,
     if imported_after is not None:
         date = time.strptime(imported_after, "%d/%m/%Y")
         request.importeAfter = time.mktime(date)
-    rsp = submit(client, request)
+    rsp = submit(client, request, wait)
 
     if len(rsp.pyramidFiles) == 0:
         print "No pyramids to remove"
@@ -369,14 +370,17 @@ def removepyramids(client, little_endian=False, dry_run=False,
             to_delete.append(req)
 
     if len(to_delete) > 0:
-        submit(client, to_delete)
+        submit(client, to_delete, wait)
         print "%s Pyramids removed" % len(to_delete)
 
 
-def submit(client, request):
+def submit(client, request, wait):
     if isinstance(request, list):
         request = DoAll(request)
-    cb = client.submit(request)
+    ms = 500
+    loops = ceil(wait * 1000.0 / ms)
+    cb = client.submit(request, loops=loops, ms=ms, failonerror=True,
+                       failontimeout=True)
     return cb.getResponse()
 
 
