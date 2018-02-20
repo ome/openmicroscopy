@@ -12,7 +12,7 @@ This is a bug-fix release which also introduces some new functionality.
 
 Improvements include:
 
--  images can now be filtered by Tag in the center panel
+-  images can now be filtered by Tag in the center panel of OMERO.web
 -  enabled search by "File" and "Tag" annotations separately, as opposed to
    only being able to search by All annotations
 -  fixed an error when projecting an image with all the channels turned off
@@ -22,7 +22,7 @@ Improvements include:
 Sysadmin improvements include:
 
 -  improved installation documentation for OMERO.web, and OMERO.server on
-   Debian 9 and Centos7
+   Debian 9, Ubuntu 16.04 and Centos7
 -  added an admin command and script to allow deletion of corrupted pyramids
    created by a bug introduced with OMERO 5.2 (new uncorrupted pyramids can
    then be generated)
@@ -32,6 +32,9 @@ Developer updates include:
 -  improved loading speed of LUT
 -  improved test infrastructure and coverage
 -  allowed filtering by namespace (ns) in webclient, API and annotations
+-  added an example for using "sudo" with the Java gateway to the
+   documentation
+-  documentation is now compatible with Sphinx 1.7
 
 This release does not upgrade the version of Bio-Formats which OMERO uses,
 which remains at 5.7.3.
