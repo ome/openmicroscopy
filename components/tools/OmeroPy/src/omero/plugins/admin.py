@@ -981,7 +981,7 @@ present, the user will enter a console""")
                     query_service=client.sf.getQueryService(),
                     config_service=client.sf.getConfigService())
 
-    @admin_only(AdminPrivilegeReadSession)
+    @admin_only(full_admin=True)
     def removepyramids(self, args):
         from omero.util.cleanse import removepyramids
         client = self.ctx.conn(args)
