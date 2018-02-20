@@ -34,8 +34,6 @@ from omero.cli import NonZeroReturnCode
 from omero.cli import DiagnosticsControl
 from omero.cli import UserGroupControl
 
-from omero.model.enums import AdminPrivilegeReadSession
-
 from omero.plugins.prefs import \
     WriteableConfigControl, with_config
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
@@ -931,7 +929,7 @@ present, the user will enter a console""")
         else:
             self.ctx.call(command)
 
-    @admin_only(AdminPrivilegeReadSession)
+    @admin_only(full_admin=True)
     @with_config
     def fixpyramids(self, args, config):
         self.check_access()
@@ -1692,7 +1690,7 @@ present, the user will enter a console""")
                            stdout=sys.stdout, stderr=sys.stderr)
         self.ctx.rv = p.wait()
 
-    @admin_only(AdminPrivilegeReadSession)
+    @admin_only(full_admin=True)
     def cleanse(self, args):
         self.check_access()
         from omero.util.cleanse import cleanse

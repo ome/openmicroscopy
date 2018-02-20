@@ -605,7 +605,10 @@ class Context:
 def admin_only(*fargs, **fkwargs):
     """
     Checks that the current user is an admin and has sufficient privileges,
-    or throws an exception.
+    or throws an exception. If no arguments are present or if full_admin is
+    passed and is True, then this method assumes that the user must be a
+    full admin and have all privileges. To disable this behavior, set
+    `full_admin` to False.
     """
     def _admin_only(func):
         @wraps(func)
@@ -625,9 +628,11 @@ def admin_only(*fargs, **fkwargs):
                 else:
                     try:
                         types = client.sf.getTypesService()
-                        privs = types.allEnumerations("AdminPrivileges")
-                        need_privs = set([x.getValue() for x in privs])
-                    except:
+                        privs = types.allEnumerations("AdminPrivilege")
+                        need_privs = set(omero.rtypes.unwrap(
+                            [x.getValue() for x in privs]))
+                    except Exception, e:
+                        self.ctx.err("Error: denying access: %s" % e)
                         # If the user can't load enums assume the worst
                         self.error_admin_only(fatal=True)
 
