@@ -169,7 +169,7 @@ class TestCleanseRestrictedAdmin(CLITest):
         self.cli.register("admin", omero.plugins.admin.AdminControl, "TEST")
         self.args += ["admin", "cleanse"]
 
-    def testCleanseRestrictedAdmin(self, capsys):
+    def test_cleanse_restricted_admin(self, capsys):
         """Test cleanse cannot be run by Restricted Admin"""
         config_service = self.root.sf.getConfigService()
         data_dir = config_service.getConfigValue("omero.data.dir")
@@ -177,8 +177,8 @@ class TestCleanseRestrictedAdmin(CLITest):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
-        output_end = "SecurityViolation: Admin restrictions: ReadSession\n"
-        assert err.endswith(output_end)
+        output_end = "SecurityViolation: Admin restrictions:"
+        assert err.startswith(output_end)
 
 
 class TestFixPyramids(CLITest):
