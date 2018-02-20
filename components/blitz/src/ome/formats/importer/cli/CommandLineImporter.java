@@ -608,6 +608,9 @@ public class CommandLineImporter {
         LongOpt outputFormat =
                 new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 25);
 
+        LongOpt encryptedConnection =
+                new LongOpt("encrypted", LongOpt.REQUIRED_ARGUMENT, null, 26);
+
         // DEPRECATED OPTIONS
         LongOpt minutesWaitDeprecated =
                 new LongOpt("minutes_wait", LongOpt.REQUIRED_ARGUMENT, null, 86);
@@ -645,7 +648,7 @@ public class CommandLineImporter {
                                 closeCompleted, waitCompleted, autoClose,
                                 exclude, target, noStatsInfo,
                                 noUpgradeCheck, qaBaseURL,
-                                outputFormat,
+                                outputFormat, encryptedConnection,
                                 plateName, plateName2,
                                 plateDescription, plateDescription2,
                                 noThumbnailsDeprecated,
@@ -802,6 +805,12 @@ public class CommandLineImporter {
                 String outputArg = g.getOptarg();
                 log.info("Setting output format: {}", outputArg);
                 outputChoice = ImportOutput.valueOf(outputArg);
+                break;
+            }
+            case 26: {
+                String encryptedArg = g.getOptarg();
+                log.info("Setting encrypted: {}", encryptedArg);
+                config.encryptedConnection.set(Boolean.valueOf(encryptedArg));
                 break;
             }
             // ADVANCED END ---------------------------------------------------
