@@ -21,7 +21,7 @@
 
 import pytest
 
-from test.integration.clitest.cli import CLITest
+from omero.testlib.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.plugins.obj import ObjControl
 from omero.plugins.upload import UploadControl

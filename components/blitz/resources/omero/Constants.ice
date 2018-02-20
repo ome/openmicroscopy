@@ -164,6 +164,11 @@ module omero {
     };
 
     /**
+     * Log levels used by {@link RawAccessRequest}'s {@code log} command for {@code path}.
+     **/
+    enum LogLevel { Trace, Debug, Info, Warn, Error };
+
+    /**
      * Namespaces for the {@link omero.api.IMetadata} interface.
      **/
     module metadata {
@@ -211,7 +216,7 @@ module omero {
      **/
     module analysis {
         /** namespaces related to the FLIM analysis. **/
-        ["deprecated: It will be removed in 5.4"]
+        ["deprecate: It will be removed in 5.4"]
         module flim {
             const string NSFLIM = "openmicroscopy.org/omero/analysis/flim";
 

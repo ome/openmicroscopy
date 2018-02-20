@@ -137,12 +137,14 @@ jQuery._WeblitzPlateview = function (container, options) {
     table.addClass('showWellLabel wellSize' + opts.width);
 
     var imgIds = [];
+    var html = "";
+    // Build table html and append below
     for (i=0; i < data.rowlabels.length; i++) {
-      tr = $('<tr></tr>').appendTo(table);
-      tr.append('<th>'+data.rowlabels[i]+'</th>');
+      html += '<tr>';
+      html += '<th>'+data.rowlabels[i]+'</th>';
       for (var j=0; j<data.grid[i].length; j++) {
         if (data.grid[i][j] === null) {
-          tr.append('<td class="placeholder"><img src="' + spacer_gif_src + '" /></td>');
+          html += '<td class="placeholder"><img src="' + spacer_gif_src + '" /></td>';
         } else {
           imgIds.push(data.grid[i][j].id);
           data.grid[i][j]._wellpos = data.rowlabels[i]+data.collabels[j];
@@ -150,28 +152,30 @@ jQuery._WeblitzPlateview = function (container, options) {
           if (opts.useParentPrefix) {
               parentPrefix = thisid+'-';
           }
-          var td = $('<td class="well" id="'+parentPrefix+'well-'+data.grid[i][j].wellId+'">' +
+          html += '<td class="well" id="'+parentPrefix+'well-'+data.grid[i][j].wellId+'">' +
             '<img class="waiting" src="' + spacer_gif_src + '" />' +
             '<div class="wellLabel">' + data.rowlabels[i] + data.collabels[j] + '</div>' +
-            '<img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
-          $('img', td)
-            .click(tclick(data.grid[i][j]))
-            .load(function() {
-              $(this).removeClass('loading').siblings('.waiting').remove();
-              if (!thumbsLoaded) {
-                // When first thumbnails loads, we get aspect ratio and use that to scale
-                // all images (including unloaded images and placeholder spacers)
-                thumbAspectRatio = $(this).width()/$(this).height();
-                _this.setSpwThumbSize(opts.width);
-              }
-              _this.self.trigger('thumbLoad', [$(this).parent(), $(this)]);
-            })
-            .data('wellpos', data.rowlabels[i] + data.collabels[j]);
-          tr.append(td);
-          _this.self.trigger('thumbNew', [data.grid[i][j], $('img', td)]);
+            '<img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>';
         }
       }
+      html += '</tr>';
     }
+    table.append(html);
+
+
+    // Handle loading of images - NB: need to bind to each image since load events don't bubble
+    $("img.loading", table).on("load", function(){
+      $(this).removeClass('loading').siblings('.waiting').remove();
+      if (!thumbsLoaded) {
+        // When first thumbnails loads, we get aspect ratio and use that to scale
+        // all images (including unloaded images and placeholder spacers)
+        thumbAspectRatio = $(this).width()/$(this).height();
+        _this.setSpwThumbSize(opts.width);
+        thumbsLoaded = true;
+      }
+      _this.self.trigger('thumbLoad', [$(this).parent(), $(this)]);
+    });
+
 
     // load thumbnails in a batches
     var load_thumbnails = function(input, batch) {

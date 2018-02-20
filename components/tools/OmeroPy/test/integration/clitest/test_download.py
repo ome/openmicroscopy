@@ -25,7 +25,7 @@ import omero
 from collections import namedtuple
 from omero.plugins.download import DownloadControl
 from omero.cli import NonZeroReturnCode
-from test.integration.clitest.cli import CLITest
+from omero.testlib.cli import CLITest
 from omero.rtypes import rstring
 from omero.model import NamedValue as NV
 from omero.util.temp_files import create_path

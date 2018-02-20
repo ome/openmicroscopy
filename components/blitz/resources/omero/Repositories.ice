@@ -540,6 +540,7 @@ module omero {
          * testing and diagnosis rather than actual client
          * functionality.
          **/
+        ["deprecate:Not intended for use by production clients. Functionality to be moved from Ice to microservices."]
         class RawAccessRequest extends omero::cmd::Request {
             string repoUuid;
             string command;

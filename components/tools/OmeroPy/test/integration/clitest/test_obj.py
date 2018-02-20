@@ -23,7 +23,7 @@
 import pytest
 import omero
 
-from test.integration.clitest.cli import CLITest
+from omero.testlib.cli import CLITest
 from omero_model_NamespaceI import NamespaceI
 from omero.plugins.obj import ObjControl
 from omero.util.temp_files import create_path

@@ -26,6 +26,7 @@ import omero.gateway.model.PlateData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
+import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
 import omero.grid.BoolColumn;
 import omero.grid.Column;
@@ -225,6 +226,8 @@ public class TablesFacilityHelper {
                 for (int j = 0; j < nRows; j++) {
                     MaskData md = new MaskData(mc.x[j], mc.y[j], mc.w[j],
                             mc.h[j], mc.bytes[j]);
+                    md.setZ(mc.theZ[j]);
+                    md.setT(mc.theT[j]);
                     rowData[j] = md;
                 }
                 dataArray[i] = rowData;
@@ -467,4 +470,198 @@ public class TablesFacilityHelper {
         return gridColumns;
     }
 
+    /**
+     * Update omero.grid.Data with the provided {@link TableData} data.
+     * Note:
+     * - Size and data types must match!
+     * - Size of Double/Float/Long arrays can't be changed!
+     * 
+     * @param toUpdate
+     *            The omero.grid.Data object to update
+     * @param data
+     *            The new data
+     */
+    static void updateData(Data toUpdate, TableData data) {
+        if (toUpdate.columns.length != data.getData().length)
+            throw new IllegalArgumentException("Column size is different!");
+        if (toUpdate.rowNumbers.length != data.getData()[0].length)
+            throw new IllegalArgumentException("Row size is different!");
+
+        for (int c = 0; c < data.getColumns().length; c++) {
+            Column col = toUpdate.columns[c];
+
+            for (int r = 0; r < data.getData()[0].length; r++) {
+                if (col instanceof BoolColumn) {
+                    if (!data.getColumns()[c].getType().equals(Boolean.class))
+                        throw new IllegalArgumentException(
+                                "Boolean type expected for column "
+                                        + c
+                                        + ", but is "
+                                        + data.getColumns()[c].getType()
+                                                .getSimpleName() + " !");
+                    ((BoolColumn) col).values[r] = (Boolean) data.getData()[c][r];
+                }
+                if (col instanceof DoubleArrayColumn) {
+                    if (!data.getColumns()[c].getType().equals(Double[].class))
+                        throw new IllegalArgumentException(
+                                "Double[] type expected for column "
+                                        + c
+                                        + ", but is "
+                                        + data.getColumns()[c].getType()
+                                                .getSimpleName() + " !");
+                    if (((DoubleArrayColumn) col).size != ((Double[]) data
+                            .getData()[c][r]).length)
+                        throw new IllegalArgumentException(
+                                "Can't change the length of the array");
+
+                    Double[] a = (Double[]) data.getData()[c][r];
+                    double[] b = new double[a.length];
+                    for (int i = 0; i < a.length; i++)
+                        b[i] = a[i].doubleValue();
+                    ((DoubleArrayColumn) col).values[r] = b;
+                }
+                if (col instanceof DoubleColumn) {
+                    if (!data.getColumns()[c].getType().equals(Double.class))
+                        throw new IllegalArgumentException(
+                                "Double type expected for column "
+                                        + c
+                                        + ", but is "
+                                        + data.getColumns()[c].getType()
+                                                .getSimpleName() + " !");
+                    ((DoubleColumn) col).values[r] = (Double) data.getData()[c][r];
+                }
+                if (col instanceof FileColumn) {
+                    if (!data.getColumns()[c].getType().equals(
+                            FileAnnotationData.class))
+                        throw new IllegalArgumentException(
+                                "FileAnnotationData type expected for column "
+                                        + c
+                                        + ", but is "
+                                        + data.getColumns()[c].getType()
+                                                .getSimpleName() + " !");
+                    ((FileColumn) col).values[r] = ((FileAnnotationData) data
+                            .getData()[c][r]).getFileID();
+                }
+                if (col instanceof FloatArrayColumn) {
+                    if (!data.getColumns()[c].getType().equals(Float[].class))
+                        throw new IllegalArgumentException(
+                                "Float[] type expected for column "
+                                        + c
+                                        + ", but is "
+                                        + data.getColumns()[c].getType()
+                                                .getSimpleName() + " !");
+                    if (((FloatArrayColumn) col).size != ((Float[]) data
+                            .getData()[c][r]).length)
+                        throw new IllegalArgumentException(
+                                "Can't change the length of the array");
+
+                    Float[] a = (Float[]) data.getData()[c][r];
+                    float[] b = new float[a.length];
+                    for (int i = 0; i < a.length; i++)
+                        b[i] = a[i].floatValue();
+                    ((FloatArrayColumn) col).values[r] = b;
+                }
+                if (col instanceof ImageColumn) {
+                    if (!data.getColumns()[c].getType().equals(ImageData.class))
+                        throw new IllegalArgumentException(
+                                "ImageData type expected for column "
+                                        + c
+                                        + ", but is "
+                                        + data.getColumns()[c].getType()
+                                                .getSimpleName() + " !");
+                    ((ImageColumn) col).values[r] = ((ImageData) data.getData()[c][r])
+                            .getId();
+                }
+                if (col instanceof LongArrayColumn) {
+                    if (!data.getColumns()[c].getType().equals(Long[].class))
+                        throw new IllegalArgumentException(
+                                "Long[] type expected for column "
+                                        + c
+                                        + ", but is "
+                                        + data.getColumns()[c].getType()
+                                                .getSimpleName() + " !");
+                    if (((LongArrayColumn) col).size != ((Long[]) data
+                            .getData()[c][r]).length)
+                        throw new IllegalArgumentException(
+                                "Can't change the length of the array");
+
+                    Long[] a = (Long[]) data.getData()[c][r];
+                    long[] b = new long[a.length];
+                    for (int i = 0; i < a.length; i++)
+                        b[i] = a[i].longValue();
+                    ((LongArrayColumn) col).values[r] = b;
+                }
+                if (col instanceof LongColumn) {
+                    if (!data.getColumns()[c].getType().equals(Long.class))
+                        throw new IllegalArgumentException(
+                                "Long type expected for column "
+                                        + c
+                                        + ", but is "
+                                        + data.getColumns()[c].getType()
+                                                .getSimpleName() + " !");
+                    ((LongColumn) col).values[r] = (Long) data.getData()[c][r];
+                }
+                if (col instanceof MaskColumn) {
+                    if (!data.getColumns()[c].getType().equals(MaskData.class))
+                        throw new IllegalArgumentException(
+                                "MaskData type expected for column "
+                                        + c
+                                        + ", but is "
+                                        + data.getColumns()[c].getType()
+                                                .getSimpleName() + " !");
+                    MaskData md = (MaskData) data.getData()[c][r];
+                    ((MaskColumn) col).bytes[r] = md.getMask();
+                    ((MaskColumn) col).x[r] = md.getX();
+                    ((MaskColumn) col).y[r] = md.getY();
+                    ((MaskColumn) col).w[r] = md.getWidth();
+                    ((MaskColumn) col).h[r] = md.getHeight();
+                    ((MaskColumn) col).theZ[r] = md.getZ();
+                    ((MaskColumn) col).theT[r] = md.getT();
+                }
+                if (col instanceof PlateColumn) {
+                    if (!data.getColumns()[c].getType().equals(PlateData.class))
+                        throw new IllegalArgumentException(
+                                "PlateData type expected for column "
+                                        + c
+                                        + ", but is "
+                                        + data.getColumns()[c].getType()
+                                                .getSimpleName() + " !");
+                    ((PlateColumn) col).values[r] = ((PlateData) data.getData()[c][r])
+                            .getId();
+                }
+                if (col instanceof RoiColumn) {
+                    if (!data.getColumns()[c].getType().equals(ROIData.class))
+                        throw new IllegalArgumentException(
+                                "ROIData type expected for column "
+                                        + c
+                                        + ", but is "
+                                        + data.getColumns()[c].getType()
+                                                .getSimpleName() + " !");
+                    ((RoiColumn) col).values[r] = ((ROIData) data.getData()[c][r])
+                            .getId();
+                }
+                if (col instanceof StringColumn) {
+                    if (!data.getColumns()[c].getType().equals(String.class))
+                        throw new IllegalArgumentException(
+                                "String type expected for column "
+                                        + c
+                                        + ", but is "
+                                        + data.getColumns()[c].getType()
+                                                .getSimpleName() + " !");
+                    ((StringColumn) col).values[r] = (String) data.getData()[c][r];
+                }
+                if (col instanceof WellColumn) {
+                    if (!data.getColumns()[c].getType().equals(WellData.class))
+                        throw new IllegalArgumentException(
+                                "WellData type expected for column "
+                                        + c
+                                        + ", but is "
+                                        + data.getColumns()[c].getType()
+                                                .getSimpleName() + " !");
+                    ((WellColumn) col).values[r] = ((WellData) data.getData()[c][r])
+                            .getId();
+                }
+            }
+        }
+    }
 }

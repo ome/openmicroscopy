@@ -389,11 +389,20 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
                          str(self._storage_factory.__module__),
                          self._storage_factory.__class__.__name__)
 
-        e = None
+        self.repo_cfg = None
+        self.repo_mgr = None
+        self.repo_obj = None
         self.repo_svc = None
+        self.repo_uuid = None
+
         if retries is None:
             retries = RETRIES
 
+        wait = float(self.communicator.getProperties().getPropertyWithDefault(
+            "omero.repo.wait", "1"))
+        per_loop = wait / retries
+
+        e = None
         for x in range(retries):
             try:
                 self._get_dir()
@@ -404,6 +413,10 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
             if self.repo_svc:
                 break
+            else:
+                msg = "waiting %ss (%s of %s)" % (per_loop, x+1, retries)
+                self.logger.debug(msg)
+                self.stop_event.wait(per_loop)
 
         if e:
             raise e
@@ -414,8 +427,6 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         directory. If this is not created, then a required server has
         not started, and so this instance will not start.
         """
-        wait = int(self.communicator.getProperties().getPropertyWithDefault(
-            "omero.repo.wait", "1"))
         self.repo_dir = self.communicator.getProperties().getProperty(
             "omero.repo.dir")
 
@@ -425,14 +436,8 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
                 ).getConfigService().getConfigValue("omero.data.dir")
 
         self.repo_cfg = path(self.repo_dir) / ".omero" / "repository"
-        start = time.time()
-        while not self.repo_cfg.exists() and wait < (time.time() - start):
-            self.logger.info(
-                "%s doesn't exist; waiting 5 seconds..." % self.repo_cfg)
-            self.stop_event.wait(5)
         if not self.repo_cfg.exists():
             msg = "No repository found: %s" % self.repo_cfg
-            self.logger.error(msg)
             raise omero.ResourceError(None, None, msg)
 
     def _get_uuid(self):
@@ -452,9 +457,14 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         create a proxy for the InternalRepository attached to that.
         """
 
+        uuidfile = self.instance / "repo_uuid"
+        if not uuidfile.exists():
+            msg = "%s doesn't exist" % uuidfile
+            raise IOError(msg)
+
         # Get and parse the uuid from the RandomAccessFile format from
         # FileMaker
-        self.repo_uuid = (self.instance / "repo_uuid").lines()[0].strip()
+        self.repo_uuid = uuidfile.lines()[0].strip()
         if len(self.repo_uuid) != 38:
             raise omero.ResourceError(
                 "Poorly formed UUID: %s" % self.repo_uuid)

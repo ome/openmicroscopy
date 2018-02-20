@@ -5,6 +5,55 @@
 OMERO version history
 =====================
 
+5.4.2 (January 2018)
+--------------------
+
+This is a bug-fix release.
+
+Improvements include:
+
+-  added documentation on a complete workflow for publishing data from
+   OMERO.server
+-  added references to the new OMERO pyramid format documentation (within the
+   OME Data Model and File Formats documentation)
+-  faster loading of thumbnails for large Plates after a recent regression
+-  made projecting images belonging to another user only possible for users
+   with the required permissions to save the new images
+-  improved the public user experience for password-less access
+-  updated SwingX library version used by OMERO.insight to stop insight-ij
+   plugin crashing in Fiji
+-  CLI updates:
+
+   * ``import --target`` into a container without the necessary permissions now
+     fails before file upload starts and more transparently
+   * ``admin mail`` timeout is now configurable via ``--wait``
+   * added ``admin log`` command for inserting statements to the server log
+
+Sysadmin changes include:
+
+-  added warning about the need to regenerate your NGINX config for every
+   upgrade
+-  fixed documentation bug affecting OMERO-version-specific guidance
+-  improved OMERO.tables startup stability
+-  server performance improvements and reduction in ERROR logging
+
+Developer updates include:
+
+-  extended Python and Java examples to include Map Annotations and histograms
+-  added methods for updating OMERO.tables
+-  Java Gateway fixes for sessions and rendering
+-  fixed retrieval of Plate thumbnail URLs
+-  improved 'Editing OMERO.web' documentation
+-  improved Slice documentation for API deprecations
+-  added instructions to :doc:`/developers/cli/extending` on how to
+   create CLI plugins that are ``pip`` installable
+-  substantial effort to make third-party repositories easily testable;
+   see `omero-test-infra <https://github.com/openmicroscopy/omero-test-infra>`_
+   for more information
+
+This release also upgrades the version of Bio-Formats that OMERO uses to
+5.7.3.
+
 5.4.1 (November 2017)
 ---------------------
 
@@ -12,7 +61,7 @@ This is a bug-fix release.
 
 Improvements include:
 
--  labelled zoom slider bars in the UI to differentiate from horizontal
+-  labeled zoom slider bars in the UI to differentiate from horizontal
    scrollbars and make clear thumbnails can be zoomed (including Plate and
    Well thumbnails)
 -  fixes for installation walkthrough documentation - installation of script
@@ -36,7 +85,7 @@ Improvements include:
    * fixed the CLI metadata tablestest plugin to not use an empty list of
      Columns
 
-This release also upgrades the version of Bio-Formats which OMERO uses to
+This release also upgrades the version of Bio-Formats that OMERO uses to
 5.7.2.
 
 5.4.0 (October 2017)

@@ -177,7 +177,7 @@ module omero {
             long userId;
 
             /**
-             * The users who should have all their data targeted.
+             * The users who should have all their data targeted. <strong>Temporarily disabled.</strong>
              **/
             omero::api::LongList targetUsers;
         };
@@ -205,7 +205,7 @@ module omero {
                 /**
                  * Ignore in the operation all objects of these types.
                  **/
-                ["deprecated:experimental: may be wholly removed in next major version"]
+                ["deprecate:experimental: may be wholly removed in next major version"]
                 omero::api::StringSet typesToIgnore;
         };
 

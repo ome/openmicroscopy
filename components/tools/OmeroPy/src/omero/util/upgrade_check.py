@@ -46,7 +46,7 @@ class UpgradeCheck(object):
     # Default timeout is 3 seconds.
     # * http://docs.python.org/2/library/socket.html#socket.setdefaulttimeout
     #
-    DEFAULT_TIMEOUT = 3.0
+    DEFAULT_TIMEOUT = 6.0
 
     def __init__(self, agent, url="http://upgrade.openmicroscopy.org.uk/",
                  version=omero_version, timeout=DEFAULT_TIMEOUT):

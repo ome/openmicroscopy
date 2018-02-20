@@ -1442,7 +1442,12 @@ class OMEROGateway
 	 * @return See above.
 	 */
 	String getSessionId(ExperimenterData user) {
-	    return gw.getSessionId(user);
+	    try {
+            return gw.getSessionId(user);
+        } catch (DSOutOfServiceException e) {
+            dsFactory.getLogger().warn(this, "Cannot get session ID.");
+        }
+	    return null;
 	}
 	
     /**

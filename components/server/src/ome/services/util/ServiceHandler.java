@@ -252,7 +252,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
                 ValidationException ve = new ValidationException(t.getMessage());
                 ve.setStackTrace(t.getStackTrace());
                 printException(
-                        "HibernateObjectRetrievealFailureException thrown.", t);
+                        "HibernateObjectRetrievalFailureException thrown.", t);
                 return ve;
             }
 

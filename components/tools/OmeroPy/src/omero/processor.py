@@ -146,6 +146,8 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             "JYTHON_HOME",
             "LD_LIBRARY_PATH",
             "MLABRAW_CMD_STR",
+            "OMERO_TEMPDIR",
+            "OMERO_TMPDIR",
             "PATH",
             "PYTHONPATH",
         )

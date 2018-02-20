@@ -242,13 +242,20 @@ class WebclientLoginView(LoginView):
             'version': omero_version,
             'build_year': build_year,
             'error': error,
-            'form': form}
+            'form': form
+        }
         url = request.GET.get("url")
         if url is not None and len(url) != 0:
             context['url'] = urlencode({'url': url})
 
         if hasattr(settings, 'LOGIN_LOGO'):
             context['LOGIN_LOGO'] = settings.LOGIN_LOGO
+
+        if settings.PUBLIC_ENABLED:
+            redirect = reverse('webindex')
+            if settings.PUBLIC_URL_FILTER.search(redirect):
+                context['public_enabled'] = True
+                context['public_login_redirect'] = redirect
 
         t = template_loader.get_template(self.template)
         c = Context(request, context)
@@ -324,7 +331,7 @@ def logout(request, conn=None, **kwargs):
                 logger.error('Exception during logout.', exc_info=True)
         finally:
             request.session.flush()
-        return HttpResponseRedirect(reverse("webindex"))
+        return HttpResponseRedirect(reverse("weblogin"))
     else:
         context = {
             'url': reverse('weblogout'),
@@ -369,6 +376,15 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
     # We get the owner of the top level object, E.g. Project
     # Actual api_paths_to_object() is retrieved by jsTree once loaded
     initially_open_owner = show.initially_open_owner
+
+    # If we failed to find 'show'...
+    if request.GET.get('show', None) is not None and first_sel is None:
+        # and we're logged in as PUBLIC user...
+        if settings.PUBLIC_USER == conn.getUser().getOmeName():
+            # this is likely a regular user who needs to log in as themselves.
+            # Login then redirect to current url
+            return HttpResponseRedirect(
+                "%s?url=%s" % (reverse("weblogin"), url))
 
     # need to be sure that tree will be correct omero.group
     if first_sel is not None:
@@ -3105,17 +3121,22 @@ def activities(request, conn=None, **kwargs):
     new_results = []
     _purgeCallback(request)
 
-    # If we have a jobId, just process that (Only chgrp supported)
+    # If we have a jobId (not added to request.session) just process it...
+    # ONLY used for chgrp dry-run in Chgrp dialog.
     jobId = request.GET.get('jobId', None)
     if jobId is not None:
         jobId = str(jobId)
-        prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(jobId))
-        rsp = prx.getResponse()
-        if rsp is not None:
-            rv = chgrpMarshal(conn, rsp)
-            rv['finished'] = True
-        else:
-            rv = {'finished': False}
+        try:
+            prx = omero.cmd.HandlePrx.checkedCast(
+                conn.c.ic.stringToProxy(jobId))
+            rsp = prx.getResponse()
+            if rsp is not None:
+                rv = chgrpMarshal(conn, rsp)
+                rv['finished'] = True
+            else:
+                rv = {'finished': False}
+        except IceException:
+            rv = {'finished': True}
         return rv
 
     # test each callback for failure, errors, completion, results etc
@@ -3286,8 +3307,14 @@ def activities(request, conn=None, **kwargs):
                 continue  # ignore
             if status not in ("failed", "finished"):
                 logger.info("Check callback on script: %s" % cbString)
-                proc = omero.grid.ScriptProcessPrx.checkedCast(
-                    conn.c.ic.stringToProxy(cbString))
+                try:
+                    proc = omero.grid.ScriptProcessPrx.checkedCast(
+                        conn.c.ic.stringToProxy(cbString))
+                except IceException as e:
+                    update_callback(request, cbString, status="failed",
+                                    Message="No process found for job",
+                                    error=1)
+                    continue
                 cb = omero.scripts.ProcessCallbackI(conn.c, proc)
                 # check if we get something back from the handle...
                 if cb.block(0):  # ms.
@@ -3298,7 +3325,10 @@ def activities(request, conn=None, **kwargs):
                         update_callback(request, cbString, status="finished")
                         new_results.append(cbString)
                     except Exception, x:
-                        logger.error(traceback.format_exc())
+                        update_callback(request, cbString, status="finished",
+                                        Message="Failed to get results")
+                        logger.info(
+                            "Failed on proc.getResults() for OMERO.script")
                         continue
                     # value could be rstring, rlong, robject
                     rMap = {}

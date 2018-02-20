@@ -20,11 +20,11 @@
 
 from omero.plugins.group import GroupControl, defaultperms
 from omero.cli import NonZeroReturnCode
-from test.integration.clitest.cli import CLITest, RootCLITest
-from test.integration.clitest.cli import get_user_ids, get_group_ids
-from test.integration.clitest.cli import GroupIdNameFixtures
-from test.integration.clitest.cli import GroupFixtures
-from test.integration.clitest.cli import UserFixtures
+from omero.testlib.cli import CLITest, RootCLITest
+from omero.testlib.cli import get_user_ids, get_group_ids
+from omero.testlib.cli import GroupIdNameFixtures
+from omero.testlib.cli import GroupFixtures
+from omero.testlib.cli import UserFixtures
 import pytest
 
 GroupNames = [str(x) for x in GroupFixtures]

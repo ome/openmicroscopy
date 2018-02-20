@@ -23,7 +23,7 @@
 
 import omero
 from omero.plugins.chown import ChownControl
-from test.integration.clitest.cli import CLITest, RootCLITest
+from omero.testlib.cli import CLITest, RootCLITest
 from test.integration.clitest.test_tag import AbstractTagTest
 import pytest
 
@@ -58,6 +58,7 @@ class TestChown(CLITest):
         assert obj.id.val == oid
         assert obj.details.owner.id.val == user.id.val
 
+    @pytest.mark.broken(reason="Chown2.targetUsers disabled")
     def testChownBasicUsageTargetUser(self, simpleHierarchy):
         proj, dset, img = simpleHierarchy
         argument = "Experimenter"

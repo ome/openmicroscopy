@@ -20,12 +20,16 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import omero
+import warnings
 import logging
 from omero.testlib import ITest
 from omero.gateway import BlitzGateway
 
 
 class ScriptTest(ITest):
+    warnings.warn("Deprecated in 5.4.1."
+                  "Use omero.testlib.script",
+                  DeprecationWarning)
 
     def get_script(self, path):
         script_service = self.root.sf.getScriptService()

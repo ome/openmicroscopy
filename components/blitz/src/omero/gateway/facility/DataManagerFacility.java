@@ -37,6 +37,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+
 import omero.ServerError;
 import omero.api.IContainerPrx;
 import omero.api.IUpdatePrx;
@@ -159,6 +162,9 @@ public class DataManagerFacility extends Facility {
             Collection<FolderData> folders, boolean includeSubFolders,
             boolean includeContent) throws DSOutOfServiceException,
             DSAccessException {
+        if (CollectionUtils.isEmpty(folders))
+            return null;
+        
         try {
             Map<String, List<Long>> targetObjects = new HashMap<String, List<Long>>();
             targetObjects.put(PojoMapper.getGraphType(FolderData.class),
@@ -203,6 +209,9 @@ public class DataManagerFacility extends Facility {
      */
     public CmdCallbackI delete(SecurityContext ctx, List<IObject> objects)
             throws DSOutOfServiceException, DSAccessException {
+        if (CollectionUtils.isEmpty(objects))
+            return null;
+        
         try {
             final Delete2Builder request = Requests.delete();
             for (final IObject object : objects) {
@@ -234,6 +243,9 @@ public class DataManagerFacility extends Facility {
      */
     public IObject saveAndReturnObject(SecurityContext ctx, IObject object,
             Map options) throws DSOutOfServiceException, DSAccessException {
+        if (object == null)
+            return null;
+        
         try {
             IUpdatePrx service = gateway.getUpdateService(ctx);
             if (options == null)
@@ -262,6 +274,9 @@ public class DataManagerFacility extends Facility {
      */
     public DataObject saveAndReturnObject(SecurityContext ctx, DataObject object)
             throws DSOutOfServiceException, DSAccessException {
+        if (object == null)
+            return null;
+        
         return PojoMapper.asDataObject(saveAndReturnObject(ctx,
                 object.asIObject()));
     }
@@ -283,6 +298,9 @@ public class DataManagerFacility extends Facility {
      */
     public IObject saveAndReturnObject(SecurityContext ctx, IObject object)
             throws DSOutOfServiceException, DSAccessException {
+        if (object == null)
+            return null;
+        
         try {
             IUpdatePrx service = gateway.getUpdateService(ctx);
             IObject result = service.saveAndReturnObject(object);
@@ -315,6 +333,9 @@ public class DataManagerFacility extends Facility {
     public IObject saveAndReturnObject(SecurityContext ctx, IObject object,
             Map options, String userName) throws DSOutOfServiceException,
             DSAccessException {
+        if (object == null)
+            return null;
+        
         try {
             IUpdatePrx service = gateway.getUpdateService(ctx, userName);
 
@@ -347,6 +368,9 @@ public class DataManagerFacility extends Facility {
     public DataObject saveAndReturnObject(SecurityContext ctx,
             DataObject object, String userName) throws DSOutOfServiceException,
             DSAccessException {
+        if (object == null)
+            return null;
+        
         return PojoMapper.asDataObject(saveAndReturnObject(ctx,
                 object.asIObject(), userName));
     }
@@ -370,6 +394,9 @@ public class DataManagerFacility extends Facility {
      */
     public IObject saveAndReturnObject(SecurityContext ctx, IObject object,
             String userName) throws DSOutOfServiceException, DSAccessException {
+        if (object == null)
+            return null;
+        
         try {
             IUpdatePrx service = gateway.getUpdateService(ctx, userName);
             IObject result = service.saveAndReturnObject(object);
@@ -402,6 +429,9 @@ public class DataManagerFacility extends Facility {
     public List<IObject> saveAndReturnObject(SecurityContext ctx,
             List<IObject> objects, Map options, String userName)
             throws DSOutOfServiceException, DSAccessException {
+        if (CollectionUtils.isEmpty(objects))
+            return Collections.emptyList();
+        
         try {
             IUpdatePrx service = gateway.getUpdateService(ctx, userName);
             return service.saveAndReturnArray(objects);
@@ -431,6 +461,9 @@ public class DataManagerFacility extends Facility {
     public IObject updateObject(SecurityContext ctx, IObject object,
             Parameters options) throws DSOutOfServiceException,
             DSAccessException {
+        if (object == null)
+            return null;
+        
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
             IObject r = service.updateDataObject(object, options);
@@ -462,6 +495,9 @@ public class DataManagerFacility extends Facility {
     public List<IObject> updateObjects(SecurityContext ctx,
             List<IObject> objects, Parameters options)
             throws DSOutOfServiceException, DSAccessException {
+        if (CollectionUtils.isEmpty(objects))
+            return Collections.emptyList();
+        
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> l = service.updateDataObjects(objects, options);
@@ -499,6 +535,9 @@ public class DataManagerFacility extends Facility {
      */
     public void addImageToDataset(SecurityContext ctx, ImageData image,
             DatasetData ds) throws DSOutOfServiceException, DSAccessException {
+        if (image == null || ds == null)
+            return;
+        
         List<ImageData> l = new ArrayList<ImageData>(1);
         l.add(image);
         addImagesToDataset(ctx, l, ds);
@@ -522,6 +561,9 @@ public class DataManagerFacility extends Facility {
     public void addImagesToDataset(SecurityContext ctx,
             Collection<ImageData> images, DatasetData ds)
             throws DSOutOfServiceException, DSAccessException {
+        if (ds == null || CollectionUtils.isEmpty(images))
+            return;
+        
         List<IObject> links = new ArrayList<IObject>();
         for (ImageData img : images) {
             DatasetImageLink l = new DatasetImageLinkI();
@@ -549,6 +591,9 @@ public class DataManagerFacility extends Facility {
     public DatasetData createDataset(SecurityContext ctx, DatasetData dataset,
             ProjectData project) throws DSOutOfServiceException,
             DSAccessException {
+        if (dataset == null)
+            return null;
+        
         if (project != null) {
             ProjectDatasetLink link = new ProjectDatasetLinkI();
             link = new ProjectDatasetLinkI();
@@ -581,6 +626,9 @@ public class DataManagerFacility extends Facility {
     public Future<FileAnnotationData> attachFile(final SecurityContext ctx,
             final File file, String mimetype, final String description,
             final String namespace, final DataObject target) {
+        if (file == null || target == null)
+            return null;
+        
         final String name = file.getName();
         String absolutePath = file.getAbsolutePath();
         final String path = absolutePath.substring(0, absolutePath.length()
@@ -685,6 +733,9 @@ public class DataManagerFacility extends Facility {
     public <T extends AnnotationData> T attachAnnotation(SecurityContext ctx,
             T annotation, DataObject target) throws DSOutOfServiceException,
             DSAccessException {
+        if (annotation == null)
+            return null;
+        
         if (target != null) {
             if (target instanceof ProjectData) {
                 ProjectData project = browse.findObject(ctx, ProjectData.class,
