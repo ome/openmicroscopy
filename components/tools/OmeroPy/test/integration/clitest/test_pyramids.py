@@ -62,8 +62,8 @@ class TestRemovePyramidsRestrictedAdmin(CLITest):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
-        output_end = "SecurityViolation: Admin restrictions: ReadSession\n"
-        assert err.endswith(output_end)
+        output_end = "SecurityViolation: Admin restrictions:"
+        assert err.startswith(output_end)
 
 
 class TestRemovePyramidsFullAdmin(CLITest):
