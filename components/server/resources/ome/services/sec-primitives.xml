@@ -199,6 +199,7 @@
         <bean class="ome.services.sessions.SessionProviderInMemory">
           <constructor-arg ref="roles"/>
           <constructor-arg ref="nodeProvider"/>
+          <constructor-arg ref="executor"/>
         </bean>
       </list>
     </constructor-arg>

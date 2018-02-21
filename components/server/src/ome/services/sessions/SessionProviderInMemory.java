@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
@@ -37,9 +38,11 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.security.NodeProvider;
+import ome.services.util.Executor;
 import ome.services.util.ReadOnlyStatus;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
+import ome.util.SqlAction;
 
 /**
  * In-memory implementation of {@link SessionProviderInDb}.
@@ -56,14 +59,17 @@ public class SessionProviderInMemory implements SessionProvider, ReadOnlyStatus.
 
     private final NodeProvider nodeProvider;
 
+    private final Executor executor;
+
     private final AtomicLong currentSessionId = new AtomicLong(-1L);
 
     private final Map<String, Session> openSessions = new ConcurrentHashMap<>();
     private final Map<String, Session> closedSessions = CacheBuilder.newBuilder().maximumSize(512).<String, Session>build().asMap();
 
-    public SessionProviderInMemory(Roles roles, NodeProvider nodeProvider) {
+    public SessionProviderInMemory(Roles roles, NodeProvider nodeProvider, Executor executor) {
         this.roles = roles;
         this.nodeProvider = nodeProvider;
+        this.executor = executor;
     }
 
     @Override
@@ -101,8 +107,15 @@ public class SessionProviderInMemory implements SessionProvider, ReadOnlyStatus.
     }
 
     @Override
-    public Session executeInternalSession(String uuid, Session session) {
-        Node node = nodeProvider.getManagerByUuid(uuid, null);
+    public Session executeInternalSession(final String uuid, Session session) {
+        Node node = (Node) executor.executeSql(new Executor.SimpleSqlWork(this,
+                "executeInternalSession") {
+            @Transactional(readOnly = true)
+            public Object doWork(SqlAction sql) {
+                final Long nodeId = nodeProvider.getManagerIdByUuid(uuid, sql);
+                return nodeId == null ? null : new Node(nodeId, false);
+            }
+        });
         session.setId(executeNextSessionId());
         log.debug("Created session: {}", session);
         log.debug("Setting node: {}", node);
