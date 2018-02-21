@@ -1019,7 +1019,7 @@ button::-moz-focus-inner {
     .filtersearch{
         position: relative;
         margin:4px;
-        width:90%;
+        width: calc(100% - 100px);
         height:22px;
     }
 
