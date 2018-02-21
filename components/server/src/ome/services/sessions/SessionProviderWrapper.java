@@ -60,8 +60,8 @@ public class SessionProviderWrapper<P extends SessionProvider & ReadOnlyStatus.I
     public Session executeUpdate(ServiceFactory sf, Session session, String uuid, long userId, Long sudoerId) {
         /* working through all readers because we want a failure exception if the session exists as read-only */
         for (final P provider : read) {
-            if (provider.findSessionIdByUuid(uuid) != null) {
-                return executeUpdate(sf, session, uuid, userId, sudoerId);
+            if (provider.findSessionIdByUuid(uuid, sf) != null) {
+                return provider.executeUpdate(sf, session, uuid, userId, sudoerId);
             }
         }
         /* creating a new session */
@@ -94,6 +94,17 @@ public class SessionProviderWrapper<P extends SessionProvider & ReadOnlyStatus.I
             final Session session = provider.findSessionById(id, sf);
             if (session != null) {
                 return session;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Long findSessionIdByUuid(String uuid, ServiceFactory sf) {
+        for (final P provider : read) {
+            final Long sessionId = provider.findSessionIdByUuid(uuid, sf);
+            if (sessionId != null) {
+                return sessionId;
             }
         }
         return null;

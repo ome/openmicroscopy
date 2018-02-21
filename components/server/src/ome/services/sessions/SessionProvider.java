@@ -43,5 +43,7 @@ public interface SessionProvider {
      */
     Session findSessionById(long id, ServiceFactory sf);
 
+    Long findSessionIdByUuid(String uuid, ServiceFactory sf);
+
     Long findSessionIdByUuid(String uuid);
 }

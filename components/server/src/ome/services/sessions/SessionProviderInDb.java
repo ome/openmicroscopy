@@ -168,6 +168,12 @@ public class SessionProviderInDb implements SessionProvider, ReadOnlyStatus.IsAw
     }
 
     @Override
+    public Long findSessionIdByUuid(final String uuid, ServiceFactory sf) {
+        final Session session = sf.getQueryService().findByString(Session.class, "uuid", uuid);
+        return session == null ? null : session.getId();
+    }
+
+    @Override
     public Long findSessionIdByUuid(final String uuid) {
         return (Long) executor.executeSql(new Executor.SimpleSqlWork(this,
                 "getSessionId") {

@@ -144,6 +144,11 @@ public class SessionProviderInMemory implements SessionProvider, ReadOnlyStatus.
     }
 
     @Override
+    public Long findSessionIdByUuid(String uuid, ServiceFactory sf) {
+        return findSessionIdByUuid(uuid);
+    }
+
+    @Override
     public Long findSessionIdByUuid(String uuid) {
         for (final Map<String, Session> sessions : ImmutableList.of(openSessions, closedSessions)) {
             final Session session = sessions.get(uuid);
