@@ -27,6 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ome.api.IQuery;
 import ome.io.bioformats.BfPixelBuffer;
 import ome.io.bioformats.BfPixelsWrapper;
@@ -55,6 +58,8 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
     private static final long serialVersionUID = -1L;
 
     private final FindPyramidsResponse rsp = new FindPyramidsResponse();
+
+    private static Logger log = LoggerFactory.getLogger(FindPyramidsI.class);
 
     /** The collection of pyramid image ID.*/
     private List<Long> imageIds = new ArrayList<Long>();
@@ -202,15 +207,19 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
      * @return See above.
      */
     private boolean isLittleEndian(Pixels pixels) {
-        PixelBuffer pf = pixelsService._getPixelBuffer(pixels, false);
-        if (pf instanceof BfPixelsWrapper) {
-            return ((BfPixelsWrapper) pf).isLittleEndian();
-        }
-        if (pf instanceof BfPyramidPixelBuffer) {
-            return ((BfPyramidPixelBuffer) pf).isLittleEndian();
-        }
-        if (pf instanceof BfPixelBuffer) {
-            return ((BfPixelBuffer) pf).isLittleEndian();
+        try {
+            PixelBuffer pf = pixelsService._getPixelBuffer(pixels, false);
+            if (pf instanceof BfPixelsWrapper) {
+                return ((BfPixelsWrapper) pf).isLittleEndian();
+            }
+            if (pf instanceof BfPyramidPixelBuffer) {
+                return ((BfPyramidPixelBuffer) pf).isLittleEndian();
+            }
+            if (pf instanceof BfPixelBuffer) {
+                return ((BfPixelBuffer) pf).isLittleEndian();
+            }
+        } catch (Exception e) {
+            log.debug("Error instantiating pixel buffer", e);
         }
         return false;
     }
