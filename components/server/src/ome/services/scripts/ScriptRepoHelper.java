@@ -527,7 +527,6 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * @param mimetype the mimetype of the scripts or <code>null</code>.
      * @return See above.
      */
-    @SuppressWarnings("unchecked")
     public List<OriginalFile> loadAll(final boolean modificationCheck, final
             String mimetype) {
         return loadAllScripts(modificationCheck, mimetype, p);
@@ -549,7 +548,6 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * @param modificationCheck
      * @return See above.
      */
-    @SuppressWarnings("unchecked")
     public List<OriginalFile> loadAll(final boolean modificationCheck) {
         return loadAll(modificationCheck, null);
     }
