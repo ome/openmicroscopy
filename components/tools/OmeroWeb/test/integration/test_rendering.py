@@ -31,6 +31,12 @@ from omeroweb.testlib import post, get
 
 from django.core.urlresolvers import reverse
 
+from cStringIO import StringIO
+try:
+    from PIL import Image
+except ImportError:
+    import Image
+
 
 class TestRendering(IWebTest):
     """
@@ -294,5 +300,47 @@ class TestRenderImageRegion(IWebTest):
         )
         try:
             get(django_client, request_url, data, status_code=400)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_image_region_tile_params(self):
+        """
+        Tests whether the handed in tile parameter is respected
+        by checking the following cases:
+        1. don't hand in tile dimension => use default tile size
+        2. hand in tile dimension => use given tile size
+        3. exceed tile dimension max values => use default tile size
+        """
+        image = self.import_fake_file(name='fake')[0]
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
+        image = conn.getObject("Image", image.id.val)
+        image._prepareRenderingEngine()
+        expTileSize = image._re.getTileSize()
+        image._re.close()
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image.getId()), 'z': '0', 't': '0'}
+        )
+        data = {'tile': '0,0,0'}
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+
+        try:
+            # case 1
+            response = get(django_client, request_url, data)
+            tile = Image.open(StringIO(response.content))
+            assert tile.size == tuple(expTileSize)
+            # case 2
+            data['tile'] = '0,0,0,10,10'
+            response = get(django_client, request_url, data)
+            tile = Image.open(StringIO(response.content))
+            assert tile.size == (10, 10)
+            # case 3
+            data['tile'] = '0,0,0,0,10000'
+            response = get(django_client, request_url, data)
+            tile = Image.open(StringIO(response.content))
+            assert tile.size == tuple(expTileSize)
         finally:
             self.assert_no_leaked_rendering_engines()
