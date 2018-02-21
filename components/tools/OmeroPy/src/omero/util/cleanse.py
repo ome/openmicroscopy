@@ -379,9 +379,21 @@ def submit(client, request, wait):
         request = DoAll(request)
     ms = 500
     loops = ceil(wait * 1000.0 / ms)
-    cb = client.submit(request, loops=loops, ms=ms, failonerror=True,
-                       failontimeout=True)
-    return cb.getResponse()
+    try:
+        cb = client.submit(request, loops=loops, ms=ms,
+                           failonerror=True,
+                           failontimeout=True)
+        return cb.getResponse()
+    except omero.CmdError, ce:
+        err = ce.err
+        if err.parameters:
+            sb = err.parameters.items()
+            sb = ["%s:%s" % (k, v) for k, v in sb]
+            sb = "\n".join(sb)
+            self.ctx.die(12, sb)
+        self.ctx.die(13, "Failed to remove pyramid:\n%s" % err)
+    finally:
+        cb.close(True)
 
 
 def main():
