@@ -22,6 +22,10 @@
 from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.model import Experimenter
+from omero_model_ExperimenterI import ExperimenterI
+from omero_model_AdminPrivilegeI import AdminPrivilegeI
+from omero.rtypes import rbool, rstring
+
 import pytest
 import re
 
@@ -315,10 +319,10 @@ class TestSessions(CLITest):
 
     # open session
     # =======================================================================
-    def testOpen(self, capsys):
+    def test_open(self, capsys):
 
-        asUser = self.new_user()
-        asUserName = asUser.omeName.val
+        as_user = self.new_user()
+        as_user_name = as_user.omeName.val
 
         # Login as root
         self.set_login_args('root')
@@ -328,7 +332,131 @@ class TestSessions(CLITest):
 
         # Open a session for asUser
         self.args = ["sessions", "open"]
-        self.args += ["--user-name", asUserName]
+        self.args += ["--user-name", as_user_name]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+
+        # Check that only a UUID is printed
+        pat = re.compile("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-"
+                         "[a-f0-9]{4}-[a-f0-9]{12}")
+        assert pat.match(o)
+
+        # Check that the UUID is *not* in our store
+        self.args = ["sessions", "list"]
+        self.cli.invoke(self.args, strict=True)
+        o2, e2 = capsys.readouterr()
+        assert o.strip() not in o2
+
+    def test_open_with_id(self, capsys):
+
+        as_user = self.new_user()
+        as_user_id = as_user.id.val
+
+        # Login as root
+        self.set_login_args('root')
+        passwd = self.root.getProperty("omero.rootpass")
+        self.args += ["-w", passwd]
+        self.cli.invoke(self.args, strict=True)
+
+        # Open a session for asUser
+        self.args = ["sessions", "open"]
+        self.args += ["--user-id", str(as_user_id)]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+
+        # Check that only a UUID is printed
+        pat = re.compile("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-"
+                         "[a-f0-9]{4}-[a-f0-9]{12}")
+        assert pat.match(o)
+
+        # Check that the UUID is *not* in our store
+        self.args = ["sessions", "list"]
+        self.cli.invoke(self.args, strict=True)
+        o2, e2 = capsys.readouterr()
+        assert o.strip() not in o2
+
+
+class TestSessionsRestrictedAdmin(CLITest):
+
+    def setup_method(self, method):
+        super(TestSessionsRestrictedAdmin, self).setup_method(method)
+        self.args += ["sessions"]
+
+    def test_open_restricted_admin_no_sudo(self, capsys):
+        """Test open cannot be run by Restricted Admin without Sudo"""
+
+        as_user = self.new_user()
+        as_user_name = as_user.omeName.val
+
+        # create user1
+        uuid = self.uuid()
+        new_exp1 = ExperimenterI()
+        new_exp1.omeName = rstring("user1_%s" % uuid)
+        new_exp1.firstName = rstring("New")
+        new_exp1.lastName = rstring("Test")
+        new_exp1.ldap = rbool(False)
+        new_exp1.email = rstring("newtest@emaildomain.com")
+
+        admin = self.root.sf.getAdminService()
+        ap = AdminPrivilegeI()
+        ap.value = rstring("Chown")
+        privileges = []
+        privileges.append(ap)
+        eid1 = admin.createRestrictedSystemUserWithPassword(
+            new_exp1, privileges, rstring("ome"))
+        exp1 = admin.getExperimenter(eid1)
+
+        host = self.root.getProperty("omero.host")
+        port = self.root.getProperty("omero.port")
+        self.args = ["sessions", "login"]
+        self.conn_string = "%s@%s:%s" % (exp1.omeName.val, host, port)
+        self.args += [self.conn_string]
+        self.args += ["-w", "ome"]
+        self.cli.invoke(self.args, strict=True)
+
+        self.args = ["sessions", "open"]
+        self.args += ["--user-name", as_user_name]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
+        o, e = capsys.readouterr()
+        output_end = "SecurityViolation: Admin restrictions: Sudo\n"
+        assert e.endswith(output_end)
+
+    def test_open_restricted_admin_sudo(self, capsys):
+        """Test open can be run by Restricted Admin with Sudo"""
+
+        as_user = self.new_user()
+        as_user_name = as_user.omeName.val
+
+        # create user1
+        uuid = self.uuid()
+        new_exp1 = ExperimenterI()
+        new_exp1.omeName = rstring("user1_%s" % uuid)
+        new_exp1.firstName = rstring("New")
+        new_exp1.lastName = rstring("Test")
+        new_exp1.ldap = rbool(False)
+        new_exp1.email = rstring("newtest@emaildomain.com")
+
+        admin = self.root.sf.getAdminService()
+        ap = AdminPrivilegeI()
+        ap.value = rstring("Sudo")
+        privileges = []
+        privileges.append(ap)
+        eid1 = admin.createRestrictedSystemUserWithPassword(
+            new_exp1, privileges, rstring("ome"))
+        exp1 = admin.getExperimenter(eid1)
+
+        host = self.root.getProperty("omero.host")
+        port = self.root.getProperty("omero.port")
+        self.args = ["sessions", "login"]
+        self.conn_string = "%s@%s:%s" % (exp1.omeName.val, host, port)
+        self.args += [self.conn_string]
+        self.args += ["-w", "ome"]
+        self.cli.invoke(self.args, strict=True)
+
+        self.args = ["sessions", "open"]
+        self.args += ["--user-name", as_user_name]
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
 
