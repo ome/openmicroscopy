@@ -29,13 +29,18 @@ import ome.security.basic.BasicSecuritySystem;
 import ome.security.basic.CurrentDetails;
 import ome.security.basic.EventProviderInDb;
 import ome.security.basic.LightAdminPrivileges;
+import ome.security.basic.NodeProviderInDb;
 import ome.security.basic.OmeroInterceptor;
 import ome.security.basic.OneGroupSecurityFilter;
 import ome.security.basic.TokenHolder;
 import ome.security.policy.DefaultPolicyService;
+import ome.server.utests.DummyExecutor;
 import ome.server.utests.TestSessionCache;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.SessionProvider;
+import ome.services.sessions.SessionProviderInDb;
 import ome.services.sessions.stats.NullSessionStats;
+import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -109,12 +114,14 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 return getAllPrivileges();
             }
         };
+        final Executor executor = new DummyExecutor(null, sf);
+        final SessionProvider sessionProvider = new SessionProviderInDb(roles, new NodeProviderInDb("", executor), executor);
         OmeroInterceptor oi = new OmeroInterceptor(roles,
                 st, new ExtendedMetadata.Impl(),
                 cd, th, new NullSessionStats(),
                 mockAdminPrivileges, null, new HashSet<String>(), new HashSet<String>());
         SecurityFilter filter = new OneGroupSecurityFilter();
-        sec = new BasicSecuritySystem(oi, st, cd, mgr, new EventProviderInDb(sf), roles, sf,
+        sec = new BasicSecuritySystem(oi, st, cd, mgr, sessionProvider, new EventProviderInDb(sf), roles, sf,
                 th, Collections.singletonList(filter), new DefaultPolicyService(), aclVoter);
         aclVoter = new BasicACLVoter(cd, st, th, filter);
     }
@@ -248,7 +255,9 @@ public abstract class AbstractBasicSecuritySystemTest extends
         sf.mockAdmin.expects(once()).method("groupProxy").will(
                 returnValue(group));
         if (!readOnly) {
-            mockMgr.expects(atLeastOnce()).method("find").will(
+            sf.mockQuery.expects(once()).method("findByQuery").will(
+                    returnValue(event.getSession()));
+            sf.mockQuery.expects(once()).method("find").will(
                     returnValue(event.getSession()));
             sf.mockAdmin.expects(once()).method("userProxy").will(
                     returnValue(user));

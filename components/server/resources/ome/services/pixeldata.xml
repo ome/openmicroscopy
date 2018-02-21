@@ -81,6 +81,7 @@
     <constructor-arg ref="systemTypes"/>
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="sessionManager"/>
+    <constructor-arg ref="sessionProvider"/>
     <constructor-arg ref="eventProvider"/>
     <constructor-arg ref="roles"/>
     <constructor-arg ref="internalServiceFactory"/>

@@ -45,6 +45,8 @@ import ome.security.policy.PolicyService;
 import ome.services.messages.EventLogMessage;
 import ome.services.messages.EventLogsMessage;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.SessionProvider;
+import ome.services.sessions.SessionProviderInMemory;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.PerSessionStats;
@@ -100,6 +102,8 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     protected final SessionManager sessionManager;
 
+    protected final SessionProvider sessionProvider;
+
     protected final EventProvider eventProvider;
 
     protected final ServiceFactory sf;
@@ -128,6 +132,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         SystemTypes st = new SystemTypes();
         TokenHolder th = new TokenHolder();
         Roles roles = new Roles();
+        final SessionProvider sessionProvider = new SessionProviderInMemory(roles, new NodeProviderInMemory(""), null);
         final OmeroInterceptor oi = new OmeroInterceptor(roles,
                 st, new ExtendedMetadata.Impl(),
                 cd, th, new PerSessionStats(cd),
@@ -136,7 +141,7 @@ public class BasicSecuritySystem implements SecuritySystem,
                 cd, new OneGroupSecurityFilter(roles),
                 new AllGroupsSecurityFilter(null, roles),
                 new SharingSecurityFilter(roles, null));
-        BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm, new EventProviderInMemory(),
+        BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm, sessionProvider, new EventProviderInMemory(),
                 roles, sf, new TokenHolder(), Collections.<SecurityFilter>singletonList(holder), new DefaultPolicyService(),
                 new BasicACLVoter(cd, st, th, holder));
         return sec;
@@ -148,6 +153,7 @@ public class BasicSecuritySystem implements SecuritySystem,
      * @param sysTypes the system types
      * @param cd the current details
      * @param sessionManager the session manager
+     * @param sessionProvider a session provider
      * @param eventProvider an event provider
      * @param roles the OMERO roles
      * @param sf the session factory
@@ -158,11 +164,12 @@ public class BasicSecuritySystem implements SecuritySystem,
      */
     public BasicSecuritySystem(OmeroInterceptor interceptor,
             SystemTypes sysTypes, CurrentDetails cd,
-            SessionManager sessionManager, EventProvider eventProvider,
+            SessionManager sessionManager, SessionProvider sessionProvider, EventProvider eventProvider,
             Roles roles, ServiceFactory sf,
             TokenHolder tokenHolder, List<SecurityFilter> filters,
             PolicyService policyService, ACLVoter aclVoter) {
         this.sessionManager = sessionManager;
+        this.sessionProvider = sessionProvider;
         this.eventProvider = eventProvider;
         this.policyService = policyService;
         this.tokenHolder = tokenHolder;
@@ -446,13 +453,12 @@ public class BasicSecuritySystem implements SecuritySystem,
 
         }
 
+        final Long sessionId = ec.getCurrentSessionId();
         final ome.model.meta.Session sess;
         if (isReadOnly) {
-            final Long sessionId = ec.getCurrentSessionId();
             sess = new ome.model.meta.Session(sessionId, false);
         } else {
-            final String sessionUuid = ec.getCurrentSessionUuid();
-            sess = sessionManager.find(sessionUuid);
+            sess = sessionProvider.findSessionById(sessionId, sf);
         }
 
         tokenHolder.setToken(callGroup.getGraphHolder());
