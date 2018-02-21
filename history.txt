@@ -17,14 +17,15 @@ Improvements include:
    opposed to only being able to search by All annotations
 -  fixed an error when projecting an image with all the channels turned off
 -  fixed parsing of polygons and polyline ROIs so they can be opened in ImageJ
--  fixed creation of OMERO pyramids for little endian files
+-  fixed creation of OMERO pyramids for little-endian files
 -  improved error message when login fails for OMERO.insight
 -  improved handling of idle connections in OMERO.insight
+-  improved loading speed of LUT
 
 Sysadmin improvements include:
 
 -  improved installation documentation for OMERO.web, and OMERO.server on
-   Debian 9, Ubuntu 16.04 and Centos7
+   Debian 9, Ubuntu 16.04 and CentOS 7
 -  added an admin command and script to allow deletion of corrupted pyramids
    created by a bug introduced with OMERO 5.2 (new uncorrupted pyramids can
    then be generated)
@@ -32,7 +33,6 @@ Sysadmin improvements include:
 
 Developer updates include:
 
--  improved loading speed of LUT
 -  improved test infrastructure and coverage
 -  allowed filtering by namespace (ns) in webclient, API and annotations
 -  added support for more rendering parameters to the API
