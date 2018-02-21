@@ -341,6 +341,7 @@ def removepyramids(client, little_endian=False, dry_run=False,
     config_service = client.sf.getConfigService()
 
     initial_check(config_service, admin_service)
+    ctx = admin_service.getEventContext()
 
     # look for any pyramid files with the specified endianness
     # the pyramid file will be removed
@@ -351,7 +352,7 @@ def removepyramids(client, little_endian=False, dry_run=False,
     if imported_after is not None:
         date = time.strptime(imported_after, "%d/%m/%Y")
         request.importeAfter = time.mktime(date)
-    rsp = submit(client, request, wait)
+    rsp = submit(client, request, wait, ctx)
 
     if len(rsp.pyramidFiles) == 0:
         print "No pyramids to remove"
@@ -370,11 +371,11 @@ def removepyramids(client, little_endian=False, dry_run=False,
             to_delete.append(req)
 
     if len(to_delete) > 0:
-        submit(client, to_delete, wait)
+        submit(client, to_delete, wait, ctx)
         print "%s Pyramids removed" % len(to_delete)
 
 
-def submit(client, request, wait):
+def submit(client, request, wait, ctx):
     if isinstance(request, list):
         request = DoAll(request)
     ms = 500
@@ -390,8 +391,8 @@ def submit(client, request, wait):
             sb = err.parameters.items()
             sb = ["%s:%s" % (k, v) for k, v in sb]
             sb = "\n".join(sb)
-            self.ctx.die(12, sb)
-        self.ctx.die(13, "Failed to remove pyramid:\n%s" % err)
+            ctx.die(12, sb)
+        ctx.die(13, "Failed to remove pyramid:\n%s" % err)
     finally:
         cb.close(True)
 
