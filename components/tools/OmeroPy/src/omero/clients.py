@@ -1018,10 +1018,8 @@ class BaseClient(object):
         cannot be called, -1 is returned.
         """
 
-        s = omero.model.SessionI()
-        s.uuid = omero.rtypes.rstring(self.getSessionId())
         try:
-            svc = self.sf.getSessionService()
+            self.sf.getSessionService()
         except:
             self.__logger.warning(
                 "Cannot get session service for killSession. "
@@ -1031,12 +1029,7 @@ class BaseClient(object):
 
         count = 0
         try:
-            r = 1
-            while r > 0:
-                count += 1
-                r = svc.closeSession(s)
-        except omero.RemovedSessionException:
-            pass
+            count = self.destroySession(self.getSessionId())
         except:
             self.__logger.warning(
                 "Unknown exception while closing all references",
@@ -1044,6 +1037,27 @@ class BaseClient(object):
 
         # Now the server-side session is dead, call closeSession()
         self.closeSession()
+        return count
+
+    def destroySession(self, session_uuid):
+        """
+        Takes the UUID for a session and iterates over calls to
+        ISession.closeSession until the reference count hits 0.
+        Returns the number of calls to closeSession executed
+        before hitting 0. Raises any non-RemovedSessionExceptions.
+        """
+        svc = self.sf.getSessionService()
+        s = omero.model.SessionI()
+        s.uuid = omero.rtypes.rstring(session_uuid)
+        count = 0
+        try:
+            r = 1
+            while r > 0:
+                count += 1
+                r = svc.closeSession(s)
+        except omero.RemovedSessionException:
+            pass
+
         return count
 
     # Environment Methods

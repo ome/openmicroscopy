@@ -283,6 +283,8 @@ class SessionsControl(UserGroupControl):
         admin = client.sf.getAdminService()
 
         user, group = self.get_single_user_group(args, admin)
+        if not user:
+            self.ctx.die(156, "No user found")
         username = user.omeName.val
         groupname = None
         if group:
@@ -318,7 +320,7 @@ class SessionsControl(UserGroupControl):
             self.ctx.err("No session with the given ID found.")
 
         if session:
-            svc.closeSession(session)
+            client.destroySession(args.sessionId)
             self.ctx.out("Session %s closed." % args.sessionId)
 
     def login(self, args):
