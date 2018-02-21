@@ -2459,6 +2459,16 @@ class ImViewerComponent
 		return view.getActiveChannelsInGrid();
 	}
 
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getActiveChannelsInProjection()
+     */
+    public List getActiveChannelsInProjection()
+    {
+        if (model.getState() == DISCARDED) return null;
+        return view.getActiveChannelsInProjection();
+    }
+    
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#showPreferences()

@@ -1966,7 +1966,17 @@ class ImViewerUI
 	{
 		return controlPane.getActiveChannelsInGrid();
 	}
-	
+
+    /**
+     * Returns the collection of the active channels in the projection view.
+     * 
+     * @return See above.
+     */
+    List getActiveChannelsInProjection()
+    {
+        return controlPane.getActiveChannelsInProjection();
+    }
+
 	/** 
 	 * Adds a new item to the history. 
 	 * 
