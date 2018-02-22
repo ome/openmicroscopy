@@ -31,7 +31,7 @@ Sysadmin improvements include:
    Debian 9, Ubuntu 16.04 and CentOS 7
 -  added an admin command and script to allow deletion of corrupted pyramids
    created by a bug introduced with OMERO 5.2 (new uncorrupted pyramids can
-   then be generated)
+   then be generated - see :doc:`/sysadmins/server-upgrade` for details)
 -  allowed enforcement of a secure connection when importing data
 -  added commands to the CLI sessions plugin to enable the creation and
    removal of user sessions
