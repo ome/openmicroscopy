@@ -497,54 +497,54 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
 
         protected List<OriginalFile> innerWork(Session session, ServiceFactory sf,
                 boolean modificationCheck, String mimetype) {
-        final Iterator<File> it = iterate();
-        final List<OriginalFile> rv = new ArrayList<OriginalFile>();
-                SqlAction sqlAction = getSqlAction();
-                List<OriginalFile> list = new ArrayList<OriginalFile>();
-                File f = null;
-                RepoFile file = null;
-                //only retrieve the non-inert mimetypes
-                Set<String> types = new HashSet<String>();
-                if (StringUtils.isBlank(mimetype)) {
-                    types.addAll(mimetypes);
-                    types.removeAll(inertMimetypes);
+            final Iterator<File> it = iterate();
+            final List<OriginalFile> rv = new ArrayList<OriginalFile>();
+            SqlAction sqlAction = getSqlAction();
+            List<OriginalFile> list = new ArrayList<OriginalFile>();
+            File f = null;
+            RepoFile file = null;
+            //only retrieve the non-inert mimetypes
+            Set<String> types = new HashSet<String>();
+            if (StringUtils.isBlank(mimetype)) {
+                types.addAll(mimetypes);
+                types.removeAll(inertMimetypes);
+            } else {
+                types.add(mimetype);
+            }
+            while (it.hasNext()) {
+                f = it.next();
+                file = new RepoFile(dir, f);
+                Long id = findInDb(sqlAction, file, false); // non-scripts count
+                String hash = null;
+                OriginalFile ofile = null;
+                if (id == null) {
+                    ofile = addOrReplace(session, sqlAction, sf, file, null);
                 } else {
-                    types.add(mimetype);
-                }
-                while (it.hasNext()) {
-                    f = it.next();
-                    file = new RepoFile(dir, f);
-                    Long id = findInDb(sqlAction, file, false); // non-scripts count
-                    String hash = null;
-                    OriginalFile ofile = null;
-                    if (id == null) {
-                        ofile = addOrReplace(session, sqlAction, sf, file, null);
-                    } else {
-                        ofile = load(id, session, sqlAction, true); // checks for type & repo
-                        if (ofile == null) {
-                            continue; // wrong type or similar
-                        }
+                    ofile = load(id, session, sqlAction, true); // checks for type & repo
+                    if (ofile == null) {
+                        continue; // wrong type or similar
+                    }
 
-                        if (modificationCheck) {
-                            hash = file.hash();
-                            if (!hash.equals(ofile.getHash())) {
-                                if (readOnly.isReadOnlyDb()) {
-                                    log.info("read-only database so ignoring modification of script ID {}", id);
-                                } else {
-                                    ofile = addOrReplace(session, sqlAction, sf, file, id);
-                                }
+                    if (modificationCheck) {
+                        hash = file.hash();
+                        if (!hash.equals(ofile.getHash())) {
+                            if (readOnly.isReadOnlyDb()) {
+                                log.info("read-only database so ignoring modification of script ID {}", id);
+                            } else {
+                                ofile = addOrReplace(session, sqlAction, sf, file, id);
                             }
                         }
                     }
-                    if (types.contains(ofile.getMimetype())) {
-                        rv.add(ofile);
-                    } else {
-                        list.add(ofile);
-                    }
                 }
-                list.addAll(rv);
-                removeMissingFilesFromDb(sqlAction, session, list);
-                return rv;
+                if (types.contains(ofile.getMimetype())) {
+                    rv.add(ofile);
+                } else {
+                    list.add(ofile);
+                }
+            }
+            list.addAll(rv);
+            removeMissingFilesFromDb(sqlAction, session, list);
+            return rv;
         }
     }
 
