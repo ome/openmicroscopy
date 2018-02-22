@@ -116,4 +116,10 @@
     <property name="concurrent" value="false"/>
   </bean>
 
+  <bean id="adminPrivilegesCleanupTriggerGuard" class="ome.services.util.BeanInstantiationGuard">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg value="adminPrivilegesCleanupTrigger"/>
+    <property name="isWriteDb" value="true"/>
+  </bean>
+
 </beans>

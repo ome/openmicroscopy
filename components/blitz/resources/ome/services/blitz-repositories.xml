@@ -133,6 +133,12 @@
     <property name="cronExpression" value="${omero.scripts.cache.cron}"/>
     <property name="jobDetail" ref="paramsCacheRun"/>
   </bean>
+  <bean id="paramsCacheTriggerGuard" class="ome.services.util.BeanInstantiationGuard">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg value="paramsCacheTrigger"/>
+    <property name="isWriteDb" value="true"/>
+    <property name="isWriteRepo" value="true"/>
+  </bean>
   <bean id="paramsCacheStartupRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="paramsCache" />
     <property name="targetMethod" value="lookupAll" />
@@ -142,6 +148,12 @@
     <property name="repeatCount" value="0"/>
     <property name="repeatInterval" value="86400000"/><!-- 1 day just in case -->
     <property name="jobDetail" ref="paramsCacheStartupRun"/>
+  </bean>
+  <bean id="paramsCacheStartupTriggerGuard" class="ome.services.util.BeanInstantiationGuard">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg value="paramsCacheStartupTrigger"/>
+    <property name="isWriteDb" value="true"/>
+    <property name="isWriteRepo" value="true"/>
   </bean>
 
 </beans>
