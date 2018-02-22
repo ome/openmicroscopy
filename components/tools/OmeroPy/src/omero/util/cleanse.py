@@ -342,6 +342,9 @@ def removepyramids(client, little_endian=False, dry_run=False,
 
     initial_check(config_service, admin_service)
     ctx = admin_service.getEventContext()
+    value = long(limit)
+    if value > 500:
+        value = long(500)
 
     # look for any pyramid files with the specified endianness
     # the pyramid file will be removed
@@ -349,7 +352,7 @@ def removepyramids(client, little_endian=False, dry_run=False,
     request = omero.cmd.FindPyramids()
     request.littleEndian = little_endian
     request.importedAfter = -1
-    request.limit = long(limit)
+    request.limit = value
     if imported_after is not None:
         date = time.strptime(imported_after, "%d/%m/%Y")
         request.importedAfter = time.mktime(date)
