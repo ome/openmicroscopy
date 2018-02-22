@@ -33,7 +33,7 @@ Sysadmin improvements include:
    created by a bug introduced with OMERO 5.2 (new uncorrupted pyramids can
    then be generated)
 -  allowed enforcement of a secure connection when importing data
--  added commands to the CLI session plugin to enable the creation and
+-  added commands to the CLI sessions plugin to enable the creation and
    removal of user sessions
 
 Developer updates include:
