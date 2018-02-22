@@ -393,6 +393,10 @@ location.
             "--imported-after", metavar="DATE",
             help="Delete pyramid imported after a given date. "
             "Expected format dd/mm/YYYY")
+        removepyramids.add_argument(
+            "--limit", metavar="MAX_NUMBER",
+            help="Set the limit of pyramids to remove in one call. "
+            "The default value is set to 500")
         removepyramids.add_login_arguments()
         self._add_wait(removepyramids)
 
@@ -991,11 +995,12 @@ present, the user will enter a console""")
         client = self.ctx.conn(args)
         client.getSessionId()
         wait = args.wait if args.wait > 0 else 25
+        limit = args.limit if args.limit > 0 else 500
         removepyramids(client=client,
                        little_endian=args.little_endian,
                        dry_run=args.dry_run,
                        imported_after=args.imported_after,
-                       wait=wait)
+                       limit=limit, wait=wait)
 
     @with_config
     def jvmcfg(self, args, config):

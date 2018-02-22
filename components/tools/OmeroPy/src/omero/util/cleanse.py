@@ -335,7 +335,7 @@ def fixpyramids(data_dir, query_service,
 
 
 def removepyramids(client, little_endian=False, dry_run=False,
-                   imported_after=None, wait=25):
+                   imported_after=None, wait=25, limit=500):
     client.getImplicitContext().put(omero.constants.GROUP, '-1')
     admin_service = client.sf.getAdminService()
     config_service = client.sf.getConfigService()
@@ -349,6 +349,7 @@ def removepyramids(client, little_endian=False, dry_run=False,
     request = omero.cmd.FindPyramids()
     request.littleEndian = little_endian
     request.importedAfter = -1
+    request.limit = long(limit)
     if imported_after is not None:
         date = time.strptime(imported_after, "%d/%m/%Y")
         request.importedAfter = time.mktime(date)

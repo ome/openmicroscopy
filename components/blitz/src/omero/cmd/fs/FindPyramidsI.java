@@ -149,6 +149,9 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
             return;
         }
         for (File file : files) {
+            if (imageIds.size() >= limit) {
+                break;
+            }
             if (file.isDirectory()) {
                 walkDirectory(file);
             } else {

@@ -47,6 +47,11 @@ module omero {
              * Retrieves the pyramids of length 0 if true
              **/
             bool checkEmptyFile;
+            /**
+             * The maximum number of files to find. No limit will be applied
+             * if set to 0 or to a negative value.
+             **/
+             long limit;
         };
 
         /**
