@@ -15,13 +15,15 @@ Improvements include:
 -  images can now be filtered by Tag in the center panel of OMERO.web
 -  enabled search by "File" and "Tag" annotations separately in OMERO.web, as
    opposed to only being able to search by All annotations
--  fixed the image preview when trying to project an image with all the
-   channels turned off
+-  fixed switching between grid display and thumbnail display in OMERO.web
+-  fixed the image preview and disabled projection in OMERO.insight when
+   trying to project an image with all the channels turned off
 -  fixed parsing of polygons and polyline ROIs so they can be opened in ImageJ
 -  fixed creation of OMERO pyramids for little-endian files
 -  improved error message when login fails for OMERO.insight
 -  improved handling of idle connections in OMERO.insight
 -  improved loading speed of LUT
+-  OMERO.insight and OMERO.importer are now compatible with Java 9
 
 Sysadmin improvements include:
 
@@ -31,6 +33,8 @@ Sysadmin improvements include:
    created by a bug introduced with OMERO 5.2 (new uncorrupted pyramids can
    then be generated)
 -  allowed enforcement of a secure connection when importing data
+-  added commands to the CLI admin session plugin to enable the creation and
+   removal of user sessions
 
 Developer updates include:
 
