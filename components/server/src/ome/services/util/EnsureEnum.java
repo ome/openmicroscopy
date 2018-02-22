@@ -110,7 +110,7 @@ public class EnsureEnum {
         return isReadOnlyDb ? (List<Long>) executor.execute(callContext, principal, new FetchEnums<E>() {
             @Override
             public String description() {
-                return "check enum values";
+                return "check enum values (ro)";
             }
 
             @Override
@@ -122,7 +122,7 @@ public class EnsureEnum {
         : (List<Long>) executor.execute(callContext, principal, new FetchEnums<E>() {
             @Override
             public String description() {
-                return "ensure enum values";
+                return "ensure enum values (rw)";
             }
 
             @Override
