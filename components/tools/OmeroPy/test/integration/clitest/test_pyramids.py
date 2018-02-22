@@ -106,14 +106,14 @@ class TestRemovePyramidsFullAdmin(CLITest):
         output_start = "No pyramids to remove"
         assert output_start in out
 
-    def test_remove_pyramids_imported_after_now(self, tmpdir, capsys):
+    def test_remove_pyramids_limit(self, tmpdir, capsys):
         """Test removepyramids with date in future"""
         self.import_pyramid(tmpdir)
-        date = datetime.datetime.now() - datetime.timedelta(days=1)
-        value = date.strftime('%d/%m/%Y')
-        self.args += ["--imported-after", value]
+        self.import_pyramid(tmpdir)
         self.args += ["--little-endian"]
+        self.args += ["--limit", "1"]
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
-        output_start = "Removing pyramid for image"
+        output_start = "1 Pyramids removed"
         assert output_start in out
+
