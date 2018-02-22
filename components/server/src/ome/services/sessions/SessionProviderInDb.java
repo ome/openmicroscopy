@@ -25,6 +25,7 @@ import ome.util.SqlAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -180,7 +181,11 @@ public class SessionProviderInDb implements SessionProvider, ReadOnlyStatus.IsAw
                     @Override
                     @Transactional(readOnly = true)
                     public Object doWork(SqlAction sql) {
-                        return sql.sessionId(uuid);
+                        try {
+                            return sql.sessionId(uuid);
+                        } catch (EmptyResultDataAccessException erdae) {
+                            return null;
+                        }
                     }
         });
     }
