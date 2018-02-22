@@ -51,7 +51,7 @@ import omero.gateway.model.ImageData;
 
 
 /**
- * Notifies the user that some images he wants to delete are linked to multiple
+ * Notifies the user that some images they want to delete are linked to multiple
  * DataSets
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; 
