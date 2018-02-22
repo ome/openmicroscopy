@@ -1889,7 +1889,7 @@ public class LightAdminRolesTest extends RolesTests {
             String groupPermissions) throws Exception {
         /* isPrivileged translates in this test into ModifyGroupMembership permission, see below.*/
         boolean isExpectSuccessUnsetOwnerOfGroup= isPrivileged;
-        /* Set up the normalUser and make him an Owner by passing "true" in the
+        /* Set up the normalUser and make them an Owner by passing "true" in the
          * newUserAndGroup method argument.*/
         final EventContext normalUser = newUserAndGroup(groupPermissions, true);
         List<String> permissions = new ArrayList<String>();
