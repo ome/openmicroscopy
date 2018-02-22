@@ -208,6 +208,7 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
      */
     private boolean isLittleEndian(Pixels pixels) {
         try {
+            //TODO: review after work on OmeroPyramidWriter
             PixelBuffer pf = pixelsService._getPixelBuffer(pixels, false);
             if (pf instanceof BfPixelsWrapper) {
                 return ((BfPixelsWrapper) pf).isLittleEndian();
