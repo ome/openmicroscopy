@@ -348,10 +348,10 @@ def removepyramids(client, little_endian=False, dry_run=False,
     to_delete = []
     request = omero.cmd.FindPyramids()
     request.littleEndian = little_endian
-    request.importeAfter = -1
+    request.importedAfter = -1
     if imported_after is not None:
         date = time.strptime(imported_after, "%d/%m/%Y")
-        request.importeAfter = time.mktime(date)
+        request.importedAfter = time.mktime(date)
     rsp = submit(client, request, wait, ctx)
 
     if len(rsp.pyramidFiles) == 0:
