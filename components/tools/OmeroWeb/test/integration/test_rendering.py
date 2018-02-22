@@ -54,6 +54,7 @@ class TestRendering(IWebTest):
         image1 = conn.getObject("Image", iid1)
         image1.resetDefaults()
         image1.setColorRenderingModel()
+        image1.setQuantizationMap(0, "logarithmic", 0.5)
         image1.saveDefaults()
         image1 = conn.getObject("Image", iid1)
 
@@ -65,6 +66,13 @@ class TestRendering(IWebTest):
 
         assert image1.isGreyscaleRenderingModel() is False
         assert image2.isGreyscaleRenderingModel() is True
+
+        img1_chan = image1.getChannels()[0]
+        assert img1_chan.getFamily().getValue() == 'logarithmic'
+        assert img1_chan.getCoefficient() == 0.5
+        img2_chan = image2.getChannels()[0]
+        assert img2_chan.getFamily().getValue() == 'linear'
+        assert img2_chan.getCoefficient() == 1.0
 
         # copy rendering settings from image1 via ID
         request_url = reverse('webgateway.views.copy_image_rdef_json')
@@ -82,6 +90,9 @@ class TestRendering(IWebTest):
 
         image2 = conn.getObject("Image", iid2)
         assert image2.isGreyscaleRenderingModel() is False
+        img2_chan = image2.getChannels()[0]
+        assert img2_chan.getFamily().getValue() == 'logarithmic'
+        assert img2_chan.getCoefficient() == 0.5
 
     def test_copy_past_rendering_settings_from_url(self):
         # Create 2 images with 2 channels each
@@ -96,6 +107,7 @@ class TestRendering(IWebTest):
         image1.setColorRenderingModel()
         image1.setActiveChannels([1, 2], [[20, 300], [50, 100]],
                                  ['00FF00', 'FF0000'], [True, False])
+        image1.setQuantizationMap(0, "exponential", 0.8)
         image1.saveDefaults()
         image1 = conn.getObject("Image", iid1)
 
@@ -110,20 +122,30 @@ class TestRendering(IWebTest):
 
         def buildParamC(im):
             chs = []
+            maps = []
             for i, ch in enumerate(im.getChannels()):
                 act = "" if ch.isActive() else "-"
                 start = int(ch.getWindowStart())
                 end = int(ch.getWindowEnd())
                 rev = 'r' if ch.isInverted() else '-r'
                 color = ch.getColor().getHtml()
+                map = '{"quantization":' \
+                    '{"family":"%s","coefficient":%s}}' % \
+                    (ch.getFamily().getValue(),
+                        str(ch.getCoefficient()))
+                maps.append(map)
                 chs.append("%s%s|%s:%s%s$%s" % (act, i+1, start, end,
                                                 rev, color))
-            return ",".join(chs)
+            return ",".join(chs) + "&maps=[" + ",".join(maps) + "]"
 
         # build channel parameter e.g. 1|0:15$FF0000...
         old_c1 = buildParamC(image1)
         # Check it is what we expect
-        assert old_c1 == "1|20:300r$00FF00,2|50:100-r$FF0000"
+        exp_map1 = '{"quantization":' \
+            '{"family":"exponential","coefficient":0.8}}'
+        exp_map2 = '{"quantization":{"family":"linear","coefficient":1.0}}'
+        assert old_c1 == '1|20:300r$00FF00,2|50:100-r$FF0000' \
+            '&maps=[' + exp_map1 + ',' + exp_map2 + ']'
 
         # copy rendering settings from image1 via URL
         request_url = reverse('webgateway.views.copy_image_rdef_json')
@@ -163,6 +185,9 @@ class TestRendering(IWebTest):
         assert old_c1 == new_c2
         # check if image2 rendering model changed from greyscale to color
         assert image2.isGreyscaleRenderingModel() is False
+        newChan = image2.getChannels()[0]
+        assert newChan.getFamily().getValue() == 'exponential'
+        assert newChan.getCoefficient() == 0.8
 
     """
     Tests retrieving all rendering defs for an image (given id)
@@ -177,6 +202,8 @@ class TestRendering(IWebTest):
         image.resetDefaults()
         image.setColorRenderingModel()
         image.setChannelInverted(0, True)
+        image.setQuantizationMap(0, "logarithmic", 0.45)
+        image.setQuantizationMap(1, "exponential", 0.9)
         image.saveDefaults()
         image = conn.getObject("Image", iid)
 
@@ -204,13 +231,16 @@ class TestRendering(IWebTest):
         # channel info is supposed to match
         expChannels = image.getChannels()
         inverted = [True, False, False]    # expected reverse intensity flags
+        expFamilies = ['logarithmic', 'exponential', 'linear']
+        expCoefficients = [0.45, 0.9, 1.0]
         for i, c in enumerate(channels):
             assert c['active'] == expChannels[i].isActive()
             assert c['start'] == expChannels[i].getWindowStart()
             assert c['end'] == expChannels[i].getWindowEnd()
             assert c['color'] == expChannels[i].getColor().getHtml()
             assert c['reverseIntensity'] == inverted[i]
-            assert c['inverted'] == inverted[i]
+            assert c['family'] == expFamilies[i]
+            assert c['coefficient'] == expCoefficients[i]
 
         # id and owner check
         assert rdefs[0].get("id") is not None
