@@ -41,6 +41,13 @@
     <property name="cronExpression" value="${omero.search.cron}" />
   </bean>
 
+  <bean id="fullTextIndexerTriggerGuard" class="ome.services.util.BeanInstantiationGuard">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg value="fullTextIndexerTrigger"/>
+    <property name="isWriteDb" value="true"/>
+    <property name="isWriteRepo" value="true"/>
+  </bean>
+
   <!-- used by session factory -->
   <bean id="org.hibernate.EmptyInterceptor.INSTANCE"
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
