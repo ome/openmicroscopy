@@ -38,6 +38,13 @@ class ScriptTest(ITest):
             return -1
         return script.getId().getValue()
 
+    def get_script_by_name(self, path, name):
+        script_service = self.root.sf.getScriptService()
+        script = _get_script_by_name(script_service, path, name)
+        if script is None:
+            return -1
+        return script.getId().getValue()
+
 
 def run_script(client, script_id, args, key=None):
     script_service = client.sf.getScriptService()
@@ -78,6 +85,30 @@ def _get_script(script_service, script_path):
     named_scripts = [
         s for s in scripts if
         s.getPath().getValue() + s.getName().getValue() == script_path]
+
+    if len(named_scripts) == 0:
+        return None
+
+    return named_scripts[0]
+
+
+def _get_script_by_name(script_service, script_path, script_name):
+    """ Utility method, return the script or None """
+    scripts = script_service.getScripts()     # returns list of OriginalFiles
+
+    # make sure path starts with a slash.
+    # ** If you are a Windows client - will need to convert all path separators
+    #    to "/" since server stores /path/to/script.py **
+    if not script_path.startswith("/"):
+        script_path = "/" + script_path
+
+    if not script_path.endswith("/"):
+        script_path = script_path + "/"
+
+    named_scripts = [
+        s for s in scripts if
+        s.getPath().getValue() == script_path and
+        s.getName().getValue().endswith(script_name)]
 
     if len(named_scripts) == 0:
         return None
