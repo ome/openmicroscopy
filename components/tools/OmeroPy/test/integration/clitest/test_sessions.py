@@ -22,7 +22,8 @@
 from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.model import Experimenter
-
+from Glacier2 import PermissionDeniedException
+import omero
 import pytest
 import re
 
@@ -428,3 +429,39 @@ class TestSessions(CLITest):
         self.cli.invoke(self.args, strict=True)
         o2, e2 = capsys.readouterr()
         assert o.strip() not in o2
+
+    # close session
+    # =======================================================================
+    def test_close(self, capsys):
+
+        as_user = self.new_user()
+        as_user_name = as_user.omeName.val
+
+        # Login as root
+        self.set_login_args('root')
+        passwd = self.root.getProperty("omero.rootpass")
+        self.args += ["-w", passwd]
+        self.cli.invoke(self.args, strict=True)
+
+        # Open a session for asUser
+        self.args = ["sessions", "open"]
+        self.args += ["--user-name", as_user_name]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+
+        # Check that only a UUID is printed
+        id = re.findall("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-"
+                        "[a-f0-9]{4}-[a-f0-9]{12}", o)[0]
+
+        # Close the session
+        self.args = ["sessions", "close"]
+        self.args += [id]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        message = "Session %s closed." % id
+        assert message in o
+
+        # Check that user cannot rejoin the session
+        cl = omero.client()
+        with pytest.raises(PermissionDeniedException):
+            cl.joinSession(id)
