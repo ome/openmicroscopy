@@ -317,6 +317,18 @@ class TestSessions(CLITest):
 
     # open session
     # =======================================================================
+
+    @staticmethod
+    def assert_uuid(o):
+        # Check that only a UUID is printed
+        pat = re.compile("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-"
+                         "[a-f0-9]{4}-[a-f0-9]{12}")
+        m = pat.match(o)
+        if not m:
+            raise Exception("%s is not a UUID" % o)
+        else:
+            return m.group()
+
     def test_open(self, capsys):
 
         as_user = self.new_user()
@@ -333,11 +345,7 @@ class TestSessions(CLITest):
         self.args += ["--user-name", as_user_name]
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
-
-        # Check that only a UUID is printed
-        pat = re.compile("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-"
-                         "[a-f0-9]{4}-[a-f0-9]{12}")
-        assert pat.match(o)
+        self.assert_uuid(o)
 
         # Check that the UUID is *not* in our store
         self.args = ["sessions", "list"]
@@ -361,11 +369,7 @@ class TestSessions(CLITest):
         self.args += ["--user-id", str(as_user_id)]
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
-
-        # Check that only a UUID is printed
-        pat = re.compile("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-"
-                         "[a-f0-9]{4}-[a-f0-9]{12}")
-        assert pat.match(o)
+        self.assert_uuid(o)
 
         # Check that the UUID is *not* in our store
         self.args = ["sessions", "list"]
@@ -418,11 +422,7 @@ class TestSessions(CLITest):
         self.args += ["--user-name", as_user_name]
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
-
-        # Check that only a UUID is printed
-        pat = re.compile("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-"
-                         "[a-f0-9]{4}-[a-f0-9]{12}")
-        assert pat.match(o)
+        self.assert_uuid(o)
 
         # Check that the UUID is *not* in our store
         self.args = ["sessions", "list"]
@@ -448,10 +448,7 @@ class TestSessions(CLITest):
         self.args += ["--user-name", as_user_name]
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
-
-        # Retrieve the session ID
-        id = re.findall("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-"
-                        "[a-f0-9]{4}-[a-f0-9]{12}", o)[0]
+        id = self.assert_uuid(o)
 
         # Close the session
         self.args = ["sessions", "close"]
