@@ -22,9 +22,6 @@
 from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.model import Experimenter
-from omero_model_ExperimenterI import ExperimenterI
-from omero_model_AdminPrivilegeI import AdminPrivilegeI
-from omero.rtypes import rbool, rstring
 
 import pytest
 import re
@@ -375,43 +372,20 @@ class TestSessions(CLITest):
         o2, e2 = capsys.readouterr()
         assert o.strip() not in o2
 
-
-class TestSessionsRestrictedAdmin(CLITest):
-
-    def setup_method(self, method):
-        super(TestSessionsRestrictedAdmin, self).setup_method(method)
-        self.args += ["sessions"]
-
     def test_open_restricted_admin_no_sudo(self, capsys):
         """Test open cannot be run by Restricted Admin without Sudo"""
 
         as_user = self.new_user()
         as_user_name = as_user.omeName.val
 
-        # create user1
-        uuid = self.uuid()
-        new_exp1 = ExperimenterI()
-        new_exp1.omeName = rstring("user1_%s" % uuid)
-        new_exp1.firstName = rstring("New")
-        new_exp1.lastName = rstring("Test")
-        new_exp1.ldap = rbool(False)
-        new_exp1.email = rstring("newtest@emaildomain.com")
-
-        admin = self.root.sf.getAdminService()
-        ap = AdminPrivilegeI()
-        ap.value = rstring("Chown")
-        privileges = []
-        privileges.append(ap)
-        eid1 = admin.createRestrictedSystemUserWithPassword(
-            new_exp1, privileges, rstring("ome"))
-        exp1 = admin.getExperimenter(eid1)
-
+        # create user with chown privilege
+        exp = self.new_user(privileges=["Chown"])
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
         self.args = ["sessions", "login"]
-        self.conn_string = "%s@%s:%s" % (exp1.omeName.val, host, port)
+        self.conn_string = "%s@%s:%s" % (exp.omeName.val, host, port)
         self.args += [self.conn_string]
-        self.args += ["-w", "ome"]
+        self.args += ["-w", exp.omeName.val]
         self.cli.invoke(self.args, strict=True)
 
         self.args = ["sessions", "open"]
@@ -429,30 +403,14 @@ class TestSessionsRestrictedAdmin(CLITest):
         as_user = self.new_user()
         as_user_name = as_user.omeName.val
 
-        # create user1
-        uuid = self.uuid()
-        new_exp1 = ExperimenterI()
-        new_exp1.omeName = rstring("user1_%s" % uuid)
-        new_exp1.firstName = rstring("New")
-        new_exp1.lastName = rstring("Test")
-        new_exp1.ldap = rbool(False)
-        new_exp1.email = rstring("newtest@emaildomain.com")
-
-        admin = self.root.sf.getAdminService()
-        ap = AdminPrivilegeI()
-        ap.value = rstring("Sudo")
-        privileges = []
-        privileges.append(ap)
-        eid1 = admin.createRestrictedSystemUserWithPassword(
-            new_exp1, privileges, rstring("ome"))
-        exp1 = admin.getExperimenter(eid1)
-
+        # create user with chown privilege
+        exp = self.new_user(privileges=["Sudo"])
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
         self.args = ["sessions", "login"]
-        self.conn_string = "%s@%s:%s" % (exp1.omeName.val, host, port)
+        self.conn_string = "%s@%s:%s" % (exp.omeName.val, host, port)
         self.args += [self.conn_string]
-        self.args += ["-w", "ome"]
+        self.args += ["-w", exp.omeName.val]
         self.cli.invoke(self.args, strict=True)
 
         self.args = ["sessions", "open"]
