@@ -30,6 +30,11 @@ public class ReadOnlyStatus {
 
     private final boolean isReadOnlyDb, isReadOnlyRepo;
 
+    public ReadOnlyStatus(boolean isReadOnlyDb, boolean isReadOnlyRepo) {
+        this.isReadOnlyDb = isReadOnlyDb;
+        this.isReadOnlyRepo = isReadOnlyRepo;
+    }
+
     public ReadOnlyStatus(boolean isReadOnly, boolean isReadOnlyDb, boolean isReadOnlyRepo,
             SqlAction sqlAction, String omeroDataDir, String omeroManagedDir) throws SQLException {
         this.isReadOnlyDb = isReadOnly || isReadOnlyDb || !canWriteDb(sqlAction);

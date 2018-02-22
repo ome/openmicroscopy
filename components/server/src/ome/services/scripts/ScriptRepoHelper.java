@@ -26,6 +26,7 @@ import ome.model.enums.ChecksumAlgorithm;
 import ome.model.meta.ExperimenterGroup;
 import ome.services.delete.Deletion;
 import ome.services.util.Executor;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -104,6 +105,8 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
 
     private final Roles roles;
 
+    private final ReadOnlyStatus readOnly;
+
     private final String fileRepoSecretKey;
 
     /**
@@ -117,8 +120,15 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
      */
     public ScriptRepoHelper(Executor ex, String sessionUuid, Roles roles) {
+        this(ex, sessionUuid, roles, new ReadOnlyStatus(false, false));
+    }
+
+    /**
+     * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
+     */
+    public ScriptRepoHelper(Executor ex, String sessionUuid, Roles roles, ReadOnlyStatus readOnly) {
         this(new File(getDefaultScriptDir()), ex, sessionUuid, new Principal(sessionUuid),
-                roles);
+                roles, readOnly);
     }
 
     /**
@@ -126,6 +136,20 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      */
     public ScriptRepoHelper(File dir, Executor ex, String sessionUuid, Principal p, Roles roles) {
         this(SCRIPT_REPO, dir, ex, sessionUuid, p, roles);
+    }
+
+    /**
+     * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
+     */
+    public ScriptRepoHelper(String uuid, File dir, Executor ex, String sessionUuid, Principal p, Roles roles) {
+        this(uuid, dir, ex, sessionUuid, p, roles, new ReadOnlyStatus(false, false));
+    }
+
+    /**
+     * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
+     */
+    public ScriptRepoHelper(File dir, Executor ex, String sessionUuid, Principal p, Roles roles, ReadOnlyStatus readOnly) {
+        this(SCRIPT_REPO, dir, ex, sessionUuid, p, roles, readOnly);
     }
 
     /**
@@ -141,13 +165,14 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * @param p
      */
     public ScriptRepoHelper(String uuid, File dir, Executor ex, String sessionUuid, Principal p,
-            Roles roles) {
+            Roles roles, ReadOnlyStatus readOnly) {
         this.roles = roles;
         this.uuid = uuid;
         this.dir = sanityCheck(log, dir);
         this.ex = ex;
         this.fileRepoSecretKey = sessionUuid;
         this.p = p;
+        this.readOnly = readOnly;
     }
 
     /**
@@ -460,16 +485,20 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
         return FileUtils.iterateFiles(dir, scriptFilter, TrueFileFilter.TRUE);
     }
 
-    @SuppressWarnings("unchecked")
-    private List<OriginalFile> loadAllScripts(final boolean modificationCheck,
-            final String mimetype, final Principal pp) {
+    /**
+     * Perhaps could be refactored away in Java 8.
+     * @author m.t.b.carroll@dundee.ac.uk
+     */
+    public abstract class LoadScripts extends Executor.SimpleWork {
+
+        public LoadScripts(Object object, String action) {
+            super(object, action);
+        }
+
+        protected List<OriginalFile> innerWork(Session session, ServiceFactory sf,
+                boolean modificationCheck, String mimetype) {
         final Iterator<File> it = iterate();
         final List<OriginalFile> rv = new ArrayList<OriginalFile>();
-        return (List<OriginalFile>) ex.execute(pp, new Executor.SimpleWork(this,
-                "loadAll", modificationCheck) {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-
                 SqlAction sqlAction = getSqlAction();
                 List<OriginalFile> list = new ArrayList<OriginalFile>();
                 File f = null;
@@ -491,7 +520,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                     if (id == null) {
                         ofile = addOrReplace(session, sqlAction, sf, file, null);
                     } else {
-                        ofile = load(id, session, getSqlAction(), true); // checks for type & repo
+                        ofile = load(id, session, sqlAction, true); // checks for type & repo
                         if (ofile == null) {
                             continue; // wrong type or similar
                         }
@@ -499,7 +528,11 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                         if (modificationCheck) {
                             hash = file.hash();
                             if (!hash.equals(ofile.getHash())) {
-                                ofile = addOrReplace(session, sqlAction, sf, file, id);
+                                if (readOnly.isReadOnlyDb()) {
+                                    log.info("read-only database so ignoring modification of script ID {}", id);
+                                } else {
+                                    ofile = addOrReplace(session, sqlAction, sf, file, id);
+                                }
                             }
                         }
                     }
@@ -512,7 +545,27 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                 list.addAll(rv);
                 removeMissingFilesFromDb(sqlAction, session, list);
                 return rv;
-            }});
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<OriginalFile> loadAllScripts(final boolean modificationCheck,
+            final String mimetype, final Principal pp) {
+        if (readOnly.isReadOnlyDb()) {
+            return (List<OriginalFile>) ex.execute(pp, new LoadScripts(this, "LoadScripts (ro)") {
+                @Override
+                @Transactional(readOnly = true)
+                public List<OriginalFile> doWork(Session session, ServiceFactory sf) {
+                    return innerWork(session, sf, modificationCheck, mimetype);
+                }});
+        } else {
+            return (List<OriginalFile>) ex.execute(pp, new LoadScripts(this, "LoadScripts (rw)") {
+                @Override
+                @Transactional(readOnly = false)
+                public List<OriginalFile> doWork(Session session, ServiceFactory sf) {
+                    return innerWork(session, sf, modificationCheck, mimetype);
+                }});
+        }
     }
 
     /**
@@ -604,7 +657,11 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
         setInDb.removeAll(setOnDisk);
 
         for (Long l : setInDb) {
-            unregister(l, sqlAction);
+            if (readOnly.isReadOnlyDb()) {
+                log.info("read-only database so ignoring missing script ID {}", l);
+            } else {
+                unregister(l, sqlAction);
+            }
         }
 
         return setInDb.size();
