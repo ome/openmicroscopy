@@ -386,10 +386,13 @@ location.
             help="Print out which files would be deleted")
         removepyramids.add_argument(
             "--little-endian", action="store_true",
-            help="Delete pyramid with little-endian true")
+            help="Delete pyramid with little-endian equals to true. "
+            "If not specified, pyramid with big-endian equals to true will "
+            "be deleted")
         removepyramids.add_argument(
             "--imported-after", metavar="DATE",
-            help="Delete pyramid imported after a given date")
+            help="Delete pyramid imported after a given date. "
+            "Expected format dd/mm/YYYY")
         removepyramids.add_login_arguments()
         self._add_wait(removepyramids)
 
