@@ -42,7 +42,7 @@ module omero {
              * Retrieves the pyramids created after a specified time.
              * Pass -1 not to check date
              **/
-            long importeAfter;
+            long importedAfter;
             /**
              * Retrieves the pyramids of length 0 if true
              **/
