@@ -116,4 +116,3 @@ class TestRemovePyramidsFullAdmin(CLITest):
         out, err = capsys.readouterr()
         output_start = "1 Pyramids removed"
         assert output_start in out
-
