@@ -154,7 +154,7 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
             } else {
                 String name = file.getName();
                 if (name.endsWith("_pyramid")) {
-                    boolean toDelete = true;
+                    boolean toFind = true;
                     if (checkEmptyFile) {
                         if (file.length() == 0) {
                             File[] list = pixeldsDir.listFiles();
@@ -162,14 +162,14 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
                                 String n = lockfile.getName();
                                 if (n.startsWith("." + name) &&
                                 (n.endsWith(".tmp") || n.endsWith(".pyr_lock"))) {
-                                    toDelete = false;
+                                    toFind = false;
                                     break;
                                 }
                                 
                             }
                         }
                     }
-                    if (toDelete) {
+                    if (toFind) {
                         String[] values = name.split("_");
                         long id = getImage(Long.parseLong(values[0]));
                         if (id > 0) {
