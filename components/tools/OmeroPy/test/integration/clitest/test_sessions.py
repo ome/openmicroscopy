@@ -328,7 +328,7 @@ class TestSessions(CLITest):
         self.args += ["-w", passwd]
         self.cli.invoke(self.args, strict=True)
 
-        # Open a session for asUser
+        # Open a session for as_user
         self.args = ["sessions", "open"]
         self.args += ["--user-name", as_user_name]
         self.cli.invoke(self.args, strict=True)
@@ -356,7 +356,7 @@ class TestSessions(CLITest):
         self.args += ["-w", passwd]
         self.cli.invoke(self.args, strict=True)
 
-        # Open a session for asUser
+        # Open a session for as_user
         self.args = ["sessions", "open"]
         self.args += ["--user-id", str(as_user_id)]
         self.cli.invoke(self.args, strict=True)
@@ -379,7 +379,7 @@ class TestSessions(CLITest):
         as_user = self.new_user()
         as_user_name = as_user.omeName.val
 
-        # create user with chown privilege
+        # create user with Chown privilege
         exp = self.new_user(privileges=["Chown"])
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
@@ -404,7 +404,7 @@ class TestSessions(CLITest):
         as_user = self.new_user()
         as_user_name = as_user.omeName.val
 
-        # create user with chown privilege
+        # create user with Sudo privilege
         exp = self.new_user(privileges=["Sudo"])
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
@@ -443,13 +443,13 @@ class TestSessions(CLITest):
         self.args += ["-w", passwd]
         self.cli.invoke(self.args, strict=True)
 
-        # Open a session for asUser
+        # Open a session for as_user
         self.args = ["sessions", "open"]
         self.args += ["--user-name", as_user_name]
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
 
-        # Check that only a UUID is printed
+        # Retrieve the session ID
         id = re.findall("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-"
                         "[a-f0-9]{4}-[a-f0-9]{12}", o)[0]
 
