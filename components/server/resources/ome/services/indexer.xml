@@ -41,7 +41,7 @@
     <property name="cronExpression" value="${omero.search.cron}" />
   </bean>
 
-  <bean id="fullTextIndexerTriggerGuard" class="ome.services.util.BeanInstantiationGuard">
+  <bean id="fullTextIndexerTriggerGuard" class="ome.services.util.BeanInstantiationGuard" depends-on="executor">
     <constructor-arg ref="readOnlyStatus"/>
     <constructor-arg value="fullTextIndexerTrigger"/>
     <property name="isWriteDb" value="true"/>
