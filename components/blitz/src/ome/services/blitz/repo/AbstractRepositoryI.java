@@ -405,8 +405,6 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                     r.setMimetype("Repository"); // ticket:2211
                     r.setSize(0L);
                     r = sf.getUpdateService().saveAndReturnObject(r);
-                    // ticket:1794
-                    sf.getAdminService().moveToCommonSpace(r);
                     fileMaker.writeLine(repoUuid);
                     log.info(String.format(
                             "Registered new repository %s (uuid=%s)", r
