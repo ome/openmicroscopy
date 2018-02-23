@@ -211,7 +211,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
     public boolean takeover() {
 
         if (!state.compareAndSet(State.EAGER, State.WAITING)) {
-            log.debug("Skipping takeover");
+            log.debug("Skipping takeover: EAGER / WAITING");
             return false;
         }
 
