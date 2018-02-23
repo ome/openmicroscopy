@@ -84,9 +84,14 @@ public class FileMaker {
 
             repoUuidFile = new File(uuidDir, "repo_uuid");
             dotLockFile = new File(uuidDir, ".lock");
-            repoUuidRaf = new RandomAccessFile(repoUuidFile, "rw");
-            dotLockRaf = new RandomAccessFile(dotLockFile, "rw");
 
+            if (isReadOnlyRepo) {
+                repoUuidRaf = new RandomAccessFile(repoUuidFile, "r");
+                dotLockRaf = null;
+            } else {
+                repoUuidRaf = new RandomAccessFile(repoUuidFile, "rw");
+                dotLockRaf = new RandomAccessFile(dotLockFile, "rw");
+            }
         }
     }
 
@@ -97,9 +102,11 @@ public class FileMaker {
                 throw new InternalException("Not initialized");
             }
 
-            lock = dotLockRaf.getChannel().lock();
-            dotLockRaf.seek(0);
-            dotLockRaf.writeUTF(new Date().toString());
+            if (!isReadOnlyRepo) {
+                lock = dotLockRaf.getChannel().lock();
+                dotLockRaf.seek(0);
+                dotLockRaf.writeUTF(new Date().toString());
+            }
 
             String line = null;
             try {
@@ -159,7 +166,7 @@ public class FileMaker {
 
             dbUuid = null;
             repoUuidFile = null;
-            if (!dotLockFile.delete()) {
+            if (!(isReadOnlyRepo || dotLockFile.delete())) {
                 log.warn("Failed to delete lock file: "
                         + dotLockFile.getAbsolutePath());
             }
