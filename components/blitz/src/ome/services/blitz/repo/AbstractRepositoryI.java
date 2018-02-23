@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.repo;
 
 import java.io.File;
@@ -31,6 +30,7 @@ import ome.services.blitz.fire.Registry;
 import ome.services.messages.DeleteLogMessage;
 import ome.services.messages.DeleteLogsMessage;
 import ome.services.util.Executor;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
@@ -75,6 +75,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
 
     private final FileMaker fileMaker;
 
+    private final ReadOnlyStatus readOnly;
+
     private final PublicRepositoryI servant;
 
     private OriginalFile description;
@@ -91,17 +93,30 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
 
     public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
             Principal p, String repoDir, PublicRepositoryI servant) {
-        this(oa, reg, ex, p, new FileMaker(repoDir), servant);
+        this(oa, reg, ex, p, repoDir, new ReadOnlyStatus(false, false), servant);
+        log.info("assuming read-write repository");
     }
 
     public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
             Principal p, FileMaker fileMaker, PublicRepositoryI servant) {
+        this(oa, reg, ex, p, fileMaker, new ReadOnlyStatus(false, false), servant);
+        log.info("assuming read-write repository");
+    }
+
+    public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
+            Principal p, String repoDir, ReadOnlyStatus readOnly, PublicRepositoryI servant) {
+        this(oa, reg, ex, p, new FileMaker(repoDir), readOnly, servant);
+    }
+
+    public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
+            Principal p, FileMaker fileMaker, ReadOnlyStatus readOnly, PublicRepositoryI servant) {
         this.state.set(State.EAGER);
         this.p = p;
         this.oa = oa;
         this.ex = ex;
         this.reg = reg;
         this.fileMaker = fileMaker;
+        this.readOnly = readOnly;
         this.servant = servant;
         log.info("Initializing repository in " + fileMaker.getDir());
     }
