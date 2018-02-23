@@ -777,8 +777,8 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * Unlike {@link #delete(long)} this method simply performs the DB delete
      * on the given original file id.
      *
-     * @param context 
-     *                  Call context which affecets which group the current user is in. 
+     * @param context
+     *                  Call context which affects which group the current user is in.
      *                  Can be null to pass no call context.
      * @param executor
      * @param p
