@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -36,6 +34,8 @@ public class FileMaker {
 
     private/* final */String dbUuid;
 
+    private boolean isReadOnlyRepo;
+
     private File repoUuidFile, dotLockFile;
 
     private RandomAccessFile repoUuidRaf, dotLockRaf;
@@ -61,6 +61,10 @@ public class FileMaker {
      * @throws Exception
      */
     public void init(String dbUuid) throws Exception {
+        init(dbUuid, false);
+    }
+
+    public void init(String dbUuid, boolean isReadOnlyRepo) throws Exception {
         synchronized (mutex) {
 
             if (this.dbUuid != null) {
@@ -68,6 +72,7 @@ public class FileMaker {
             }
 
             this.dbUuid = dbUuid;
+            this.isReadOnlyRepo = isReadOnlyRepo;
             File mountDir = new File(repoDir);
             File omeroDir = new File(mountDir, ".omero");
             File repoCfg = new File(omeroDir, "repository");
