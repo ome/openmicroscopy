@@ -21,12 +21,12 @@
   </bean>
 
   <bean id="legacyRepository" class="ome.services.blitz.repo.LegacyRepositoryI" destroy-method="close">
-      <constructor-arg index="0" ref="BlitzAdapter"/>
-      <constructor-arg index="1" ref="Registry"/>
-      <constructor-arg index="2" ref="executor"/>
-      <constructor-arg index="3" ref="repoPrincipal"/>
-      <constructor-arg index="4" value="${omero.data.dir}"/>
-      <constructor-arg index="5">
+      <constructor-arg ref="BlitzAdapter"/>
+      <constructor-arg ref="Registry"/>
+      <constructor-arg ref="executor"/>
+      <constructor-arg ref="repoPrincipal"/>
+      <constructor-arg value="${omero.data.dir}"/>
+      <constructor-arg>
           <bean class="ome.services.blitz.repo.PublicRepositoryI">
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="checksumProviderFactory"/>
@@ -52,12 +52,12 @@
   </bean>
 
   <bean id="managedRepository" class="ome.services.blitz.repo.LegacyRepositoryI" destroy-method="close">
-      <constructor-arg index="0" ref="BlitzAdapter"/>
-      <constructor-arg index="1" ref="Registry"/>
-      <constructor-arg index="2" ref="executor"/>
-      <constructor-arg index="3" ref="repoPrincipal"/>
-      <constructor-arg index="4" value="${omero.managed.dir}"/>
-      <constructor-arg index="5">
+      <constructor-arg ref="BlitzAdapter"/>
+      <constructor-arg ref="Registry"/>
+      <constructor-arg ref="executor"/>
+      <constructor-arg ref="repoPrincipal"/>
+      <constructor-arg value="${omero.managed.dir}"/>
+      <constructor-arg>
           <bean class="ome.services.blitz.repo.ManagedRepositoryI">
               <constructor-arg value="${omero.fs.repo.path}"/>
               <constructor-arg ref="repositoryDao"/>
@@ -92,12 +92,12 @@
         Script repository which makes the contents of lib/scripts available
         for processing.
       </description>
-      <constructor-arg index="0" ref="BlitzAdapter"/>
-      <constructor-arg index="1" ref="Registry"/>
-      <constructor-arg index="2" ref="executor"/>
-      <constructor-arg index="3" ref="repoPrincipal"/>
-      <constructor-arg index="4" ref="scriptRepoHelper"/>
-      <constructor-arg index="5">
+      <constructor-arg ref="BlitzAdapter"/>
+      <constructor-arg ref="Registry"/>
+      <constructor-arg ref="executor"/>
+      <constructor-arg ref="repoPrincipal"/>
+      <constructor-arg ref="scriptRepoHelper"/>
+      <constructor-arg>
           <bean class="ome.services.blitz.repo.PublicRepositoryI">
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="checksumProviderFactory"/>
