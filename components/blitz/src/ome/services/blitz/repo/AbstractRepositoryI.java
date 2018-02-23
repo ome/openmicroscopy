@@ -347,7 +347,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
             try {
 
                 if (fileMaker.needsInit()) {
-                    fileMaker.init(sf.getConfigService().getDatabaseUuid());
+                    fileMaker.init(sf.getConfigService().getDatabaseUuid(), readOnly.isReadOnlyRepo());
                 }
 
                 String line = null;
@@ -369,7 +369,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                         fileMaker.close();
                         FileMaker newFileMaker = new FileMaker(new File(
                                 fileMaker.getDir()).getAbsolutePath());
-                        fileMaker.init(sf.getConfigService().getDatabaseUuid());
+                        fileMaker.init(sf.getConfigService().getDatabaseUuid(), readOnly.isReadOnlyRepo());
                         line = newFileMaker.getLine();
                     }
                 }
