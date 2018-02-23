@@ -345,7 +345,7 @@ def removepyramids(client, little_endian=False, dry_run=False,
     value = long(limit)
     if value > 500:
         value = long(500)
-
+    print "No more than %s pyramids will be removed" % limit
     # look for any pyramid files with the specified endianness
     # the pyramid file will be removed
     to_delete = []
