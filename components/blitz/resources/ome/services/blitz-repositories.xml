@@ -26,6 +26,7 @@
       <constructor-arg ref="executor"/>
       <constructor-arg ref="repoPrincipal"/>
       <constructor-arg value="${omero.data.dir}"/>
+      <constructor-arg ref="readOnlyStatus"/>
       <constructor-arg>
           <bean class="ome.services.blitz.repo.PublicRepositoryI">
               <constructor-arg ref="repositoryDao"/>
@@ -57,6 +58,7 @@
       <constructor-arg ref="executor"/>
       <constructor-arg ref="repoPrincipal"/>
       <constructor-arg value="${omero.managed.dir}"/>
+      <constructor-arg ref="readOnlyStatus"/>
       <constructor-arg>
           <bean class="ome.services.blitz.repo.ManagedRepositoryI">
               <constructor-arg value="${omero.fs.repo.path}"/>
@@ -97,6 +99,7 @@
       <constructor-arg ref="executor"/>
       <constructor-arg ref="repoPrincipal"/>
       <constructor-arg ref="scriptRepoHelper"/>
+      <constructor-arg ref="readOnlyStatus"/>
       <constructor-arg>
           <bean class="ome.services.blitz.repo.PublicRepositoryI">
               <constructor-arg ref="repositoryDao"/>

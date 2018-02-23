@@ -32,6 +32,7 @@
     <constructor-arg ref="executor"/>
     <constructor-arg ref="uuid"/>
     <constructor-arg value="${omero.repo.dir}"/>
+    <constructor-arg ref="readOnlyStatus"/>
   </bean>
 
   <bean id="executor" class="ome.services.util.Executor$Impl">
