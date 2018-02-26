@@ -341,11 +341,18 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
 
         @Transactional(readOnly = false)
         public Object doWork(Session session, ServiceFactory sf) {
-
-            ome.model.core.OriginalFile r = null;
-
             try {
+                final String line = handleFileMaker(sf);
+                final ome.model.core.OriginalFile r = handleRepository(sf, line);
+                handleServants(r);
+                return r;
+            } catch (Exception e) {
+                fileMaker.close();  // If anything goes awry, we release for others!
+                return e;
+            }
+        }
 
+        private String handleFileMaker(ServiceFactory sf) throws Exception {
                 if (fileMaker.needsInit()) {
                     fileMaker.init(sf.getConfigService().getDatabaseUuid(), readOnly.isReadOnlyRepo());
                 }
@@ -373,17 +380,30 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                         line = newFileMaker.getLine();
                     }
                 }
+                return line;
+        }
 
+        private ome.model.core.OriginalFile handleRepository(ServiceFactory sf, String line) throws Exception {
                 if (line == null) {
                     repoUuid = repo.generateRepoUuid();
                 } else {
                     repoUuid = line;
                 }
 
-                r = sf.getQueryService()
+                ome.model.core.OriginalFile r = sf.getQueryService()
                 .findByString(ome.model.core.OriginalFile.class,
                         "hash", repoUuid);
 
+                if (!(readOnly.isReadOnlyDb() || readOnly.isReadOnlyRepo())) {
+                    handleRepoChanges(sf, r, line);
+                }
+
+                log.info(String.format("Opened repository %s (uuid=%s)", r
+                        .getName(), repoUuid));
+                return r;
+        }
+
+        private void handleRepoChanges(ServiceFactory sf, ome.model.core.OriginalFile r, String line) throws Exception {
                 final String path = FilenameUtils.normalize(
                         new File(fileMaker.getDir()).getAbsolutePath());
                 final String pathName = FilenameUtils.getName(path);
@@ -422,11 +442,9 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
 
                 // ticket:1794 - only adds if necessary
                 sf.getAdminService().moveToCommonSpace(r);
+        }
 
-
-                log.info(String.format("Opened repository %s (uuid=%s)", r
-                        .getName(), repoUuid));
-
+        private void handleServants(ome.model.core.OriginalFile r) throws Exception {
                 //
                 // Servants
                 //
@@ -448,13 +466,6 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                 }
 
                 log.info("Repository now active");
-                return r;
-            } catch (Exception e) {
-                fileMaker.close(); // If anything goes awry, we release for
-                // others!
-                return e;
-            }
-
         }
 
         private Ice.ObjectPrx addOrReplace(String prefix, Ice.Object obj) {
