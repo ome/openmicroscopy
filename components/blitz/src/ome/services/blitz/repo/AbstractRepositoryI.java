@@ -332,6 +332,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
 
         private final AbstractRepositoryI repo;
 
+        private ServiceFactory sf;
+
         RepositoryPrx publicPrx;
 
         public GetOrCreateRepo(AbstractRepositoryI repo) {
@@ -342,8 +344,9 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
         @Transactional(readOnly = false)
         public Object doWork(Session session, ServiceFactory sf) {
             try {
-                final String line = handleFileMaker(sf);
-                final ome.model.core.OriginalFile r = handleRepository(sf, line);
+                this.sf = sf;
+                final String line = handleFileMaker();
+                final ome.model.core.OriginalFile r = handleRepository(line);
                 handleServants(r);
                 return r;
             } catch (Exception e) {
@@ -352,7 +355,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
             }
         }
 
-        private String handleFileMaker(ServiceFactory sf) throws Exception {
+        private String handleFileMaker() throws Exception {
                 if (fileMaker.needsInit()) {
                     fileMaker.init(sf.getConfigService().getDatabaseUuid(), readOnly.isReadOnlyRepo());
                 }
@@ -383,7 +386,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                 return line;
         }
 
-        private ome.model.core.OriginalFile handleRepository(ServiceFactory sf, String line) throws Exception {
+        private ome.model.core.OriginalFile handleRepository(String line) throws Exception {
                 if (line == null) {
                     repoUuid = repo.generateRepoUuid();
                 } else {
@@ -395,7 +398,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                         "hash", repoUuid);
 
                 if (!(readOnly.isReadOnlyDb() || readOnly.isReadOnlyRepo())) {
-                    handleRepoChanges(sf, r, line);
+                    handleRepoChanges(r, line);
                 }
 
                 log.info(String.format("Opened repository %s (uuid=%s)", r
@@ -403,7 +406,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                 return r;
         }
 
-        private void handleRepoChanges(ServiceFactory sf, ome.model.core.OriginalFile r, String line) throws Exception {
+        private void handleRepoChanges(ome.model.core.OriginalFile r, String line) throws Exception {
                 final String path = FilenameUtils.normalize(
                         new File(fileMaker.getDir()).getAbsolutePath());
                 final String pathName = FilenameUtils.getName(path);
