@@ -221,7 +221,24 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
 
         Object rv = null;
         try {
-            GetOrCreateRepo gorc = new GetOrCreateRepo(this);
+            final GetOrCreateRepo gorc;
+            if (readOnly.isReadOnlyDb()) {
+                gorc = new GetOrCreateRepo(this, "takeover (ro)") {
+                    @Override
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return innerWork(sf);
+                    }
+                };
+            } else {
+                gorc = new GetOrCreateRepo(this, "takeover (rw)") {
+                    @Override
+                    @Transactional(readOnly = false)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return innerWork(sf);
+                    }
+                };
+            }
             rv = ex.execute(p, gorc);
             if (rv instanceof ome.model.core.OriginalFile) {
 
@@ -328,21 +345,17 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
      * Instead it simple returns an {@link Exception} ("failure") or null
      * ("success").
      */
-    class GetOrCreateRepo extends Executor.SimpleWork {
-
-        private final AbstractRepositoryI repo;
+    abstract class GetOrCreateRepo extends Executor.SimpleWork {
 
         private ServiceFactory sf;
 
         RepositoryPrx publicPrx;
 
-        public GetOrCreateRepo(AbstractRepositoryI repo) {
-            super(repo, "takeover");
-            this.repo = repo;
+        public GetOrCreateRepo(Object object, String method) {
+            super(object, method);
         }
 
-        @Transactional(readOnly = false)
-        public Object doWork(Session session, ServiceFactory sf) {
+        public Object innerWork(ServiceFactory sf) {
             try {
                 this.sf = sf;
                 final String line = handleFileMaker();
@@ -388,7 +401,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
 
         private ome.model.core.OriginalFile handleRepository(String line) throws Exception {
                 if (line == null) {
-                    repoUuid = repo.generateRepoUuid();
+                    repoUuid = generateRepoUuid();
                 } else {
                     repoUuid = line;
                 }
@@ -455,7 +468,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                 servant.initialize(fileMaker, r.getId(), repoUuid);
 
                 LinkedList<Ice.ObjectPrx> objs = new LinkedList<Ice.ObjectPrx>();
-                objs.add(addOrReplace("InternalRepository-", repo));
+                objs.add(addOrReplace("InternalRepository-", AbstractRepositoryI.this));
                 objs.add(addOrReplace("PublicRepository-", servant.tie()));
                 publicPrx = RepositoryPrxHelper.uncheckedCast(objs.getLast());
 
