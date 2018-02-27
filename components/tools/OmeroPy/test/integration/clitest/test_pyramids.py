@@ -99,7 +99,7 @@ class TestRemovePyramidsFullAdmin(CLITest):
         """Test removepyramids with date in future"""
         self.import_pyramid(tmpdir)
         date = datetime.datetime.now() + datetime.timedelta(days=1)
-        value = date.strftime('%d/%m/%Y')
+        value = date.strftime('%Y-%m-%d')
         self.args += ["--imported-after", value]
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
