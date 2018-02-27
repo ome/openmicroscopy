@@ -172,7 +172,9 @@ already be running. This may automatically restart some server components.""")
 
         removepyramids = Action(
             "removepyramids",
-            """Remove pyramid pixels files (admins only)
+            """Remove pyramid pixels files (admins only) according to endianness.
+By default pyramids with big-endian equals to true will be deleted.
+To delete pyramids with little-endian equals to true use --little-endian.
 
 Examples:
   bin/omero admin removepyramids --dry-run
@@ -387,8 +389,7 @@ location.
         removepyramids.add_argument(
             "--little-endian", action="store_true",
             help="Delete pyramid with little-endian equals to true. "
-            "If not specified, pyramid with big-endian equals to true will "
-            "be deleted")
+            "If not specified, little-endian equals to false will")
         removepyramids.add_argument(
             "--imported-after", metavar="DATE",
             help="Delete pyramid imported after a given date. "
