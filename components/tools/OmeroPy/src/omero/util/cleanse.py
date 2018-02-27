@@ -384,6 +384,7 @@ def submit(client, request, wait, ctx):
         request = DoAll(request)
     ms = 500
     loops = ceil(wait * 1000.0 / ms)
+    cb = None
     try:
         cb = client.submit(request, loops=loops, ms=ms,
                            failonerror=True,
@@ -398,7 +399,8 @@ def submit(client, request, wait, ctx):
             ctx.die(12, sb)
         ctx.die(13, "Failed to remove pyramid:\n%s" % err)
     finally:
-        cb.close(True)
+        if cb is not None:
+            cb.close(True)
 
 
 def main():
