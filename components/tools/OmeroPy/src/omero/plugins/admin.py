@@ -997,7 +997,7 @@ present, the user will enter a console""")
         client.getSessionId()
         wait = args.wait if args.wait > 0 else 25
         limit = args.limit if args.limit > 0 else 500
-        removepyramids(client=client,
+        removepyramids(client=client, ctx=self.ctx,
                        little_endian=args.little_endian,
                        dry_run=args.dry_run,
                        imported_after=args.imported_after,
