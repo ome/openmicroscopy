@@ -179,7 +179,7 @@ To delete pyramids with little-endian equals to true use --little-endian.
 Examples:
   bin/omero admin removepyramids --dry-run
   bin/omero admin removepyramids --dry-run --little-endian
-  bin/omero admin removepyramids --dry-run --imported-after dd/mm/YYYY
+  bin/omero admin removepyramids --dry-run --imported-after YYYY-mm-dd
             """).parser
         # See cleanse options below
 
@@ -393,7 +393,7 @@ location.
         removepyramids.add_argument(
             "--imported-after", metavar="DATE",
             help="Delete pyramid imported after a given date. "
-            "Expected format dd/mm/YYYY")
+            "Expected format YYYY-mm-dd")
         removepyramids.add_argument(
             "--limit", metavar="MAX_NUMBER",
             help="Set the limit of pyramids to remove in one call. "

@@ -354,7 +354,7 @@ def removepyramids(client, little_endian=False, dry_run=False,
     request.importedAfter = -1
     request.limit = value
     if imported_after is not None:
-        date = time.strptime(imported_after, "%d/%m/%Y")
+        date = time.strptime(imported_after, "%Y-%m-%d")
         request.importedAfter = time.mktime(date)
     rsp = submit(client, request, wait, ctx)
 
