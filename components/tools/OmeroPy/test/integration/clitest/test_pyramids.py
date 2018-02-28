@@ -22,7 +22,7 @@
 
 from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
-
+import os
 import omero.plugins.admin
 import pytest
 import time
@@ -84,9 +84,11 @@ class TestRemovePyramidsFullAdmin(CLITest):
             name = "test&sizeX=4000&sizeY=4000.fake"
         fakefile = tmpdir.join(name)
         fakefile.write('')
-        self.import_image(filename=str(fakefile), skip="checksum")[0]
+        pixels = self.import_image(filename=str(fakefile), skip="checksum")[0]
         # wait for the pyramid to be generated
+        assert long(float(pixels)) >= 0
         time.sleep(30)
+        return pixels
 
     def test_remove_pyramids_little_endian(self, tmpdir, capsys):
         """Test removepyramids with litlle endian true"""
@@ -123,6 +125,7 @@ class TestRemovePyramidsFullAdmin(CLITest):
         self.import_pyramid(tmpdir)
         date = datetime.datetime.now() + datetime.timedelta(days=1)
         value = date.strftime('%Y-%m-%d')
+        self.args += ["--endian=little"]
         self.args += ["--imported-after", value]
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
@@ -147,4 +150,18 @@ class TestRemovePyramidsFullAdmin(CLITest):
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
         output_start = "No more than 500 pyramids will be removed"
+        assert output_start in out
+
+    def test_remove_pyramids_manual(self, tmpdir, capsys):
+        """Test removepyramids for a file manually added under /Pixels"""
+        proxy, description = self.client.getManagedRepository(description=True)
+        base = description.path.val
+        path = base + "/Pixels/0_pyramid"
+        with open(path, 'a'):
+            os.utime(path, None)
+        self.cli.invoke(self.args, strict=True)
+        # remove the file
+        os.remove(path)
+        out, err = capsys.readouterr()
+        output_start = "No pyramids to remove"
         assert output_start in out
