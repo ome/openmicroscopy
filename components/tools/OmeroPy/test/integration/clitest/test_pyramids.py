@@ -81,7 +81,7 @@ class TestRemovePyramidsFullAdmin(CLITest):
 
     def import_pyramid(self, tmpdir, name=None):
         if name is None:
-            name="test&sizeX=4000&sizeY=4000.fake"
+            name = "test&sizeX=4000&sizeY=4000.fake"
         fakefile = tmpdir.join(name)
         fakefile.write('')
         self.import_image(filename=str(fakefile), skip="checksum")[0]
@@ -118,7 +118,6 @@ class TestRemovePyramidsFullAdmin(CLITest):
         output_start = "Pyramid removed for image"
         assert output_start in out
 
-
     def test_remove_pyramids_imported_after_future(self, tmpdir, capsys):
         """Test removepyramids with date in future"""
         self.import_pyramid(tmpdir)
@@ -139,4 +138,13 @@ class TestRemovePyramidsFullAdmin(CLITest):
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
         output_start = "No more than 1 pyramids will be removed"
+        assert output_start in out
+
+    def test_remove_pyramids_not_valid_limit(self, tmpdir, capsys):
+        """Test removepyramids with date in future"""
+        self.import_pyramid(tmpdir)
+        self.args += ["--limit", "0"]
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        output_start = "No more than 500 pyramids will be removed"
         assert output_start in out
