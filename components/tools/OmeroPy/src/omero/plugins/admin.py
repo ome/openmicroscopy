@@ -389,7 +389,7 @@ location.
         removepyramids.add_argument(
             "--little-endian", action="store_true",
             help="Delete pyramid with little-endian equals to true. "
-            "If not specified, little-endian equals to false will")
+            "If not specified, little-endian is false")
         removepyramids.add_argument(
             "--imported-after", metavar="DATE",
             help="Delete pyramid imported after a given date. "
