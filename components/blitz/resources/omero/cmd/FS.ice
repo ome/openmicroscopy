@@ -35,9 +35,10 @@ module omero {
         class FindPyramids extends Request {
 
             /**
-             * Retrieves the pyramids with little endian true or false
+             * Retrieves the pyramids with little endian true or false.
+             * If unset, both will be retrieved.
              **/
-            bool littleEndian;
+            omero::RBool littleEndian;
             /**
              * Retrieves the pyramids created after a specified time.
              * Pass -1 not to check date

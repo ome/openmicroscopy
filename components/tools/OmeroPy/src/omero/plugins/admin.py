@@ -173,12 +173,12 @@ already be running. This may automatically restart some server components.""")
         removepyramids = Action(
             "removepyramids",
             """Remove pyramid pixels files (admins only) according to endianness.
-By default pyramids with big-endian equals to true will be deleted.
-To delete pyramids with little-endian equals to true use --little-endian.
+By default pyramids with big and little-endianness will be deleted.
+To delete pyramids with little-endianness equals to true use --endian=little.
 
 Examples:
   bin/omero admin removepyramids --dry-run
-  bin/omero admin removepyramids --dry-run --little-endian
+  bin/omero admin removepyramids --dry-run --endian=little
   bin/omero admin removepyramids --dry-run --imported-after YYYY-mm-dd
             """).parser
         # See cleanse options below
@@ -387,9 +387,9 @@ location.
             "--dry-run", action="store_true",
             help="Print out which files would be deleted")
         removepyramids.add_argument(
-            "--little-endian", action="store_true",
-            help="Delete pyramid with little-endian equals to true. "
-            "If not specified, little-endian is false")
+            "--endian", choices=("little", "big", "both"), default="both",
+            help="Delete pyramid with given endianness. "
+            "If not specified, all will be removed.")
         removepyramids.add_argument(
             "--imported-after", metavar="DATE",
             help="Delete pyramid imported after a given date. "
@@ -997,8 +997,14 @@ present, the user will enter a console""")
         client.getSessionId()
         wait = args.wait if args.wait > 0 else 25
         limit = args.limit if args.limit > 0 else 500
+        if args.endian == "both":
+            little = None
+        elif args.endian == "little":
+            little = omero.rtypes.rbool(True)
+        else:
+            little = omero.rtypes.rbool(False)
         removepyramids(client=client, ctx=self.ctx,
-                       little_endian=args.little_endian,
+                       little_endian=little,
                        dry_run=args.dry_run,
                        imported_after=args.imported_after,
                        limit=limit, wait=wait)

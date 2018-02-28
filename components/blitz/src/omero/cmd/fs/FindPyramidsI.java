@@ -199,7 +199,7 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
         }
         long creation = image.getDetails().getCreationEvent().getTime().getTime();
         if (importedAfter < creation/1000) {
-            if (isLittleEndian(pixels) == littleEndian) {
+            if (littleEndian == null || isLittleEndian(pixels) == littleEndian.getValue()) {
                 return image.getId().longValue();
             }
         }
