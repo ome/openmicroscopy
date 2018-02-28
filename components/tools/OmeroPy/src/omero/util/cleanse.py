@@ -36,7 +36,6 @@ import getpass
 
 from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
-from omero.cmd import DoAll
 from omero.util import get_user
 from math import ceil
 from stat import ST_SIZE
@@ -347,7 +346,6 @@ def removepyramids(client, ctx, little_endian=None, dry_run=False,
     print "No more than %s pyramids will be removed" % limit
     # look for any pyramid files with the specified endianness
     # the pyramid file will be removed
-    to_delete = []
     request = omero.cmd.FindPyramids()
     request.littleEndian = little_endian
     request.importedAfter = -1
