@@ -333,7 +333,7 @@ def fixpyramids(data_dir, query_service,
                         os.remove(pixels_file)
 
 
-def removepyramids(client, ctx, little_endian=None, dry_run=False,
+def removepyramids(client, little_endian=None, dry_run=False,
                    imported_after=None, wait=25, limit=500):
     client.getImplicitContext().put(omero.constants.GROUP, '-1')
     admin_service = client.sf.getAdminService()

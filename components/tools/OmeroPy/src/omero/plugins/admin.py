@@ -1003,7 +1003,7 @@ present, the user will enter a console""")
             little = omero.rtypes.rbool(True)
         else:
             little = omero.rtypes.rbool(False)
-        removepyramids(client=client, ctx=self.ctx,
+        removepyramids(client=client,
                        little_endian=little,
                        dry_run=args.dry_run,
                        imported_after=args.imported_after,
