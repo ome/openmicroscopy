@@ -79,8 +79,10 @@ class TestRemovePyramidsFullAdmin(CLITest):
         self.args += ["admin", "removepyramids"]
         self.group_ctx = {'omero.group': str(self.group.id.val)}
 
-    def import_pyramid(self, tmpdir):
-        fakefile = tmpdir.join("test&sizeX=4000&sizeY=4000.fake")
+    def import_pyramid(self, tmpdir, name=None):
+        if name is None:
+            name="test&sizeX=4000&sizeY=4000.fake"
+        fakefile = tmpdir.join(name)
         fakefile.write('')
         self.import_image(filename=str(fakefile), skip="checksum")[0]
         # wait for the pyramid to be generated
@@ -89,11 +91,33 @@ class TestRemovePyramidsFullAdmin(CLITest):
     def test_remove_pyramids_little_endian(self, tmpdir, capsys):
         """Test removepyramids with litlle endian true"""
         self.import_pyramid(tmpdir)
-        self.args += ["--little-endian"]
+        self.args += ["--endian=little"]
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
-        output_start = "Removing pyramid for image"
+        output_start = "Pyramid removed for image"
         assert output_start in out
+
+    def test_remove_pyramids_big_endian(self, tmpdir, capsys):
+        """Test removepyramids with litlle endian true"""
+        name = "big&sizeX=3500&sizeY=3500&little=false.fake"
+        self.import_pyramid(tmpdir, name)
+        self.args += ["--endian=big"]
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        output_start = "Pyramid removed for image"
+        assert output_start in out
+
+    def test_remove_pyramids(self, tmpdir, capsys):
+        """Test removepyramids with litlle endian true"""
+        name = "big&sizeX=3500&sizeY=3500&little=false.fake"
+        self.import_pyramid(tmpdir, name)
+        name = "little&sizeX=3500&sizeY=3500&little=true.fake"
+        self.import_pyramid(tmpdir, name)
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        output_start = "Pyramid removed for image"
+        assert output_start in out
+
 
     def test_remove_pyramids_imported_after_future(self, tmpdir, capsys):
         """Test removepyramids with date in future"""
@@ -110,9 +134,9 @@ class TestRemovePyramidsFullAdmin(CLITest):
         """Test removepyramids with date in future"""
         self.import_pyramid(tmpdir)
         self.import_pyramid(tmpdir)
-        self.args += ["--little-endian"]
+        self.args += ["--endian=little"]
         self.args += ["--limit", "1"]
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
-        output_start = "1 Pyramids removed"
+        output_start = "No more than 1 pyramids will be removed"
         assert output_start in out
