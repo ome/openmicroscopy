@@ -22,6 +22,11 @@
 
 from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
+from omero.model import PixelsI
+from omero.rtypes import rint
+from omero.rtypes import unwrap
+from omero.sys import ParametersI
+
 import os
 import omero.plugins.admin
 import pytest
@@ -90,31 +95,55 @@ class TestRemovePyramidsFullAdmin(CLITest):
         time.sleep(30)
         return pixels
 
+    def import_pyramid_pre_fs(self, tmpdir):
+        name = "test&sizeX=4000&sizeY=4000.fake"
+        fakefile = tmpdir.join(name)
+        fakefile.write('')
+        pixels = self.import_image(filename=str(fakefile), skip="checksum")[0]
+        # wait for the pyramid to be generated
+        time.sleep(30)
+        id = long(float(pixels))
+        query_service = self.client.sf.getQueryService()
+        pixels_service = self.client.sf.getPixelsService()
+        orig_pix = query_service.findByQuery(
+            "select p from Pixels p where p.id = :id",
+            ParametersI().addId(id))
+        orig_fs = query_service.findByQuery(
+            "select f from Image i join i.fileset f where i.id = :id",
+            ParametersI().addId(orig_pix.image.id.val))
+
+        try:
+            new_img = pixels_service.copyAndResizeImage(
+                orig_pix.image.id.val, rint(4000), rint(4000), rint(1),
+                rint(1), [0], None, True).val
+            pix_id = unwrap(query_service.projection(
+                "select p.id from Image i join i.pixels p where i.id = :id",
+                ParametersI().addId(new_img)))[0][0]
+            # This won't work but it but we then have a pyramid without fileset
+            self.copyPixels(orig_pix, PixelsI(pix_id, False))
+        except omero.InternalException:
+            print "Cannot copy pixels for image %s" % orig_pix.image.id.val
+        finally:
+            self.delete([orig_fs])
+        return pix_id
+
+    def copyPixels(self, orig_pix, new_pix):
+        orig_source = self.client.sf.createRawPixelsStore()
+        new_sink = self.client.sf.createRawPixelsStore()
+
+        try:
+            orig_source.setPixelsId(orig_pix.id.val, False)
+            new_sink.setPixelsId(new_pix.id.val, False)
+            buf = orig_source.getPlane(0, 0, 0)
+            new_sink.setPlane(buf, 0, 0, 0)
+        finally:
+            orig_source.close()
+            new_sink.close()
+
     def test_remove_pyramids_little_endian(self, tmpdir, capsys):
         """Test removepyramids with litlle endian true"""
         self.import_pyramid(tmpdir)
         self.args += ["--endian=little"]
-        self.cli.invoke(self.args, strict=True)
-        out, err = capsys.readouterr()
-        output_start = "Pyramid removed for image"
-        assert output_start in out
-
-    def test_remove_pyramids_big_endian(self, tmpdir, capsys):
-        """Test removepyramids with litlle endian true"""
-        name = "big&sizeX=3500&sizeY=3500&little=false.fake"
-        self.import_pyramid(tmpdir, name)
-        self.args += ["--endian=big"]
-        self.cli.invoke(self.args, strict=True)
-        out, err = capsys.readouterr()
-        output_start = "Pyramid removed for image"
-        assert output_start in out
-
-    def test_remove_pyramids(self, tmpdir, capsys):
-        """Test removepyramids with litlle endian true"""
-        name = "big&sizeX=3500&sizeY=3500&little=false.fake"
-        self.import_pyramid(tmpdir, name)
-        name = "little&sizeX=3500&sizeY=3500&little=true.fake"
-        self.import_pyramid(tmpdir, name)
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
         output_start = "Pyramid removed for image"
@@ -146,6 +175,7 @@ class TestRemovePyramidsFullAdmin(CLITest):
     def test_remove_pyramids_not_valid_limit(self, tmpdir, capsys):
         """Test removepyramids with date in future"""
         self.import_pyramid(tmpdir)
+        self.args += ["--endian=little"]
         self.args += ["--limit", "0"]
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
@@ -156,12 +186,44 @@ class TestRemovePyramidsFullAdmin(CLITest):
         """Test removepyramids for a file manually added under /Pixels"""
         proxy, description = self.client.getManagedRepository(description=True)
         base = description.path.val
-        path = base + "/Pixels/0_pyramid"
+        path = base + "Pixels/0_pyramid"
         with open(path, 'a'):
             os.utime(path, None)
+        self.args += ["--endian=little"]
         self.cli.invoke(self.args, strict=True)
         # remove the file
         os.remove(path)
         out, err = capsys.readouterr()
         output_start = "No pyramids to remove"
+        assert output_start in out
+
+    def test_remove__pre_fs_pyramids(self, tmpdir, capsys):
+        """Test removepyramids for pre-fs data"""
+        self.import_pyramid_pre_fs(tmpdir)
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        output_start = "Failed to remove for image"
+        reason = "pyramid-requires-fileset"
+        assert output_start in out
+        assert reason in out
+
+    def test_remove_pyramids_big_endian(self, tmpdir, capsys):
+        """Test removepyramids with litlle endian true"""
+        name = "big&sizeX=3500&sizeY=3500&little=false.fake"
+        self.import_pyramid(tmpdir, name)
+        self.args += ["--endian=big"]
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        output_start = "Pyramid removed for image"
+        assert output_start in out
+
+    def test_remove_pyramids(self, tmpdir, capsys):
+        """Test removepyramids with litlle endian true"""
+        name = "big&sizeX=3500&sizeY=3500&little=false.fake"
+        self.import_pyramid(tmpdir, name)
+        name = "little&sizeX=3500&sizeY=3500&little=true.fake"
+        self.import_pyramid(tmpdir, name)
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        output_start = "Pyramid removed for image"
         assert output_start in out
