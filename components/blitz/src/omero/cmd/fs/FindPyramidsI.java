@@ -168,14 +168,13 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
                                     toFind = false;
                                     break;
                                 }
-                                
                             }
                         }
                     }
                     if (toFind) {
                         String[] values = name.split("_");
                         long id = getImage(Long.parseLong(values[0]));
-                        if (id > 0) {
+                        if (id >= 0) {
                             imageIds.add(id);
                         }
                     }
@@ -191,6 +190,9 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
      */
     private long getImage(long pixelsId) {
         Pixels pixels = service.findByQuery(query, new Parameters().addId(pixelsId));
+        if (pixels == null) {
+            return -1;
+        }
         Image image = pixels.getImage();
         if (checkEmptyFile) {
             return image.getId().longValue();
