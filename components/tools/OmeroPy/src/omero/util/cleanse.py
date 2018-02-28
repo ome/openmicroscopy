@@ -33,6 +33,7 @@ import omero
 import sys
 import os
 import getpass
+import Ice
 
 from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
@@ -393,7 +394,10 @@ def removepyramids(client, little_endian=None, dry_run=False,
                     image_id, ce.err.name)
             finally:
                 if cb:
-                    cb.close(True)
+                    try:
+                        cb.close(True)
+                    except Ice.NotRegisteredException:
+                        print "Error closing callback for %s" % image_id
 
 
 def main():
