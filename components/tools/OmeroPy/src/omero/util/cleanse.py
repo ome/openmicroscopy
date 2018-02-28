@@ -355,52 +355,47 @@ def removepyramids(client, ctx, little_endian=None, dry_run=False,
     if imported_after is not None:
         date = time.strptime(imported_after, "%Y-%m-%d")
         request.importedAfter = time.mktime(date)
-    rsp = submit(client, request, wait, ctx)
 
-    if rsp is None or len(rsp.pyramidFiles) == 0:
+    cb = None
+    ms = 500
+    loops = ceil(wait * 1000.0 / ms)
+
+    try:
+        cb = client.submit(request, loops=loops, ms=ms,
+                           failonerror=True,
+                           failontimeout=True)
+        rsp = cb.getResponse()
+    except omero.CmdError, ce:
+        print "Failed to load pyramids: %s" % ce.err.name
+        return
+    finally:
+        if cb:
+            cb.close(True)
+
+    if len(rsp.pyramidFiles) == 0:
         print "No pyramids to remove"
         return
 
-    # Prepare the requests
     for j in range(len(rsp.pyramidFiles)):
         image_id = rsp.pyramidFiles[j]
         if dry_run:
             print "Would remove pyramid for image %s" % image_id
         else:
-            print "Removing pyramid for image %s" % image_id
             req = omero.cmd.ManageImageBinaries()
             req.imageId = image_id
             req.deletePyramid = True
             req.deleteThumbnails = True
-            to_delete.append(req)
-
-    if len(to_delete) > 0:
-        submit(client, to_delete, wait, ctx)
-        print "%s Pyramids removed" % len(to_delete)
-
-
-def submit(client, request, wait, ctx):
-    if isinstance(request, list):
-        request = DoAll(request)
-    ms = 500
-    loops = ceil(wait * 1000.0 / ms)
-    cb = None
-    try:
-        cb = client.submit(request, loops=loops, ms=ms,
-                           failonerror=True,
-                           failontimeout=True)
-        return cb.getResponse()
-    except omero.CmdError, ce:
-        err = ce.err
-        if err.parameters:
-            sb = err.parameters.items()
-            sb = ["%s:%s" % (k, v) for k, v in sb]
-            sb = "\n".join(sb)
-            ctx.die(12, sb)
-        ctx.die(13, "Failed to remove pyramid:\n%s" % err)
-    finally:
-        if cb is not None:
-            cb.close(True)
+            try:
+                cb = client.submit(req, loops=loops, ms=ms,
+                                   failonerror=True,
+                                   failontimeout=True)
+                print "Pyramid removed for image %s" % image_id
+            except omero.CmdError, ce:
+                print "Failed to remove for image %s: %s" % (
+                    image_id, ce.err.name)
+            finally:
+                if cb:
+                    cb.close(True)
 
 
 def main():
