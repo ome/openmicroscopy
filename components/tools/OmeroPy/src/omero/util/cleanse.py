@@ -341,9 +341,9 @@ def removepyramids(client, little_endian=None, dry_run=False,
 
     initial_check(config_service, admin_service)
     value = long(limit)
-    if value > 500:
+    if value > 500 or value <= 0:
         value = long(500)
-    print "No more than %s pyramids will be removed" % limit
+    print "No more than %s pyramids will be removed" % value
     # look for any pyramid files with the specified endianness
     # the pyramid file will be removed
     request = omero.cmd.FindPyramids()
