@@ -269,8 +269,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     {
         metadata.setImageID("Image:" + series, series);
         metadata.setPixelsID("Pixels: " + series, series);
-        metadata.setPixelsBinDataBigEndian(
-                byteOrder == ByteOrder.BIG_ENDIAN? true : false, series, 0);
+        metadata.setPixelsBigEndian(
+                byteOrder == ByteOrder.BIG_ENDIAN? true : false, series);
         metadata.setPixelsDimensionOrder(DimensionOrder.XYZCT, series);
         metadata.setPixelsType(ome.xml.model.enums.PixelType.fromString(
                 pixels.getPixelsType().getValue()), series);
@@ -1086,6 +1086,14 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     public synchronized boolean isSigned()
     {
         return delegate().isSigned();
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#isLittleEndian()
+     */
+    public synchronized boolean isLittleEndian()
+    {
+        return delegate().isLittleEndian();
     }
 
     /* (non-Javadoc)

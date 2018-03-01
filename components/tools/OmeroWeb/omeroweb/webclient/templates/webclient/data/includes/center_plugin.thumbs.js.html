@@ -391,6 +391,10 @@ $(document).ready(function() {
 
     var setupFiltering = function() {
         // All the image filtering functionality setup here...
+        // {'id': {'text': 'name', 'images': [1,2,3]} } for all tags used for filtering
+        var usedTags = {};
+        var filter_tag_ids = [];
+
         // Chooser for revealing various filter components
         $("#choosefilter").change(function() {
             var $this = $(this),
@@ -412,6 +416,9 @@ $(document).ready(function() {
                 $("#filterrating img").attr('src', "{% static 'webclient/image/rating' %}0.png");
                 // clear any filtering by rating/unrated
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
+                // reset Tag filtering
+                filter_tag_ids = [];
+                renderFilterTags();
             }
 
             // Unrated and By rating are mutually exclusive
@@ -425,20 +432,57 @@ $(document).ready(function() {
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
             }
 
+            if (filterby === "tag") {
+                // Load tags for images
+                var iids = [];
+                $("#dataIcons li.row").each(function(){
+                    iids.push($(this).attr("data-id"));
+                });
+                // Check to ensure images are available for filtering
+                // if (iids.length === 0) {
+                //     // No images to filter
+                //     return;
+                // }
+                var query = "image=" + iids.join("&image=");
+                $.getJSON("{% url 'api_annotations' %}?type=tag&" + query, function(data){
+                    // map imageId to rating... rdata = {'iid': hide?}
+                    usedTags = data.annotations.reduce(function(prev, t){
+                        var imgId = t.link.parent.id;
+                        if (!prev[t.id]) {
+                            prev[t.id] = {'textValue': t.textValue, 'images': []};
+                        }
+                        prev[t.id].images.push(imgId);
+                        return prev;
+                    }, {});
+                    renderFilterTags();
+                });
+            }
+
             // Show filter
             if (filterby != "addfilter") {
-                $("#filter" + filterby).appendTo("#filtersContainer").show();
+                $("#filter" + filterby).show();
             }
         });
-        // Rating has a 'X' for clearing filter
-        $(".removefilter").click(function(){
+        // Filters have a 'X' for clearing filter
+        $(".filtersearch").on('click', '.removefilter', function(){
             var $fltr = $(this).parent();
-            if ($fltr.attr('id') === 'filterrating') {
+            var fid = $fltr.attr('id');
+            if (fid === 'filterrating') {
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
                 $("#filterrating img").attr('src', "{% static 'webclient/image/rating' %}0.png");
-            } else if ($fltr.attr('id') === 'filterunrated') {
+            } else if (fid === 'filterunrated') {
                 $("#dataIcons li.row").removeClass('ratingFilter_hidden');
                 $fltr.hide();
+            } else if ($fltr.attr('data-tagId')) {
+                // Remove a single Tag
+                var tagId = $fltr.attr('data-tagId');
+                filter_tag_ids = filter_tag_ids.filter(function(i){return i !== tagId});
+                renderFilterTags();
+            } else if (fid == 'filtertag') {
+                // Remove ALL tags and hide tag filter
+                $fltr.hide();
+                filter_tag_ids = [];
+                renderFilterTags();
             }
         });
 
@@ -537,6 +581,66 @@ $(document).ready(function() {
                 // finally, we de-select hidden
                 deselectFiltered();
             });
+        });
+
+        // Filtering by Tag
+        function renderFilterTags() {
+            // Render Tag filter chooser, without current filter tags
+            var tagList = [];
+
+            for (t in usedTags) {
+                if (usedTags.hasOwnProperty(t)) {
+                    tagList.push({id: t, text: usedTags[t].textValue});
+                }
+            }
+            // sort list of tags
+            tagList.sort(function(a, b){
+                return a.text < b.text ? -1 : 1;
+            });
+            var html = tagList.map(function(t){
+                // don't show tags we're filtering by
+                if (filter_tag_ids.indexOf(t.id) > -1) return "";
+                return "<option value='" + t.id + "'>" + t.text + "</option>";
+            }).join("");
+            html = "<option value='0'>Choose Tag</option>" + html;
+            $("#filter_by_tag").html(html);
+
+            // hide filtered images 
+            $("#dataIcons li.row").each(function() {
+                var $this = $(this),
+                    iid = parseInt($this.attr("data-id"), 10);
+                // Visible if image has ALL filter tags
+                var visible = filter_tag_ids.reduce(function(prev, tid){
+                    return prev && (usedTags[tid].images.indexOf(iid) > -1);
+                }, true);
+                if (visible) {
+                    $this.removeClass('tagFilter_hidden');
+                } else {
+                    $this.addClass('tagFilter_hidden');
+                }
+            });
+            // show tags
+            var html = filter_tag_ids.map(function(tagId){
+                var tagText = usedTags[tagId].textValue;
+                return "<div class='tag' data-tagId='" + tagId + "'><a class='tag_inner' href='#'>" + tagText + "</a><span class='removeTag removefilter' title='Remove Tag'>-</span></div>";
+            }).join("");
+            $("#currentFilterTags").html(html);
+        };
+
+        $("#filter_by_tag").change(function(event){
+            var $this = $(event.target);
+            var tagId = $this.val();
+            if (filter_tag_ids.indexOf(tagId) === -1) {
+                filter_tag_ids.push(tagId);
+            }
+
+            renderFilterTags();
+
+            // reset choose
+            $this.val('0');
+
+            // finally, we de-select hidden
+            deselectFiltered();
         });
     }
 

@@ -1,0 +1,98 @@
+*** Settings ***
+Documentation       A resource file containing the application specific keywords
+...                 that handle annotations
+Library             Selenium2Library
+
+*** Keywords ***
+
+Launch Tag Dialog
+    Wait Until Element Is Visible           id=launch_tags_form
+    Click Element                           id=launch_tags_form
+    Wait Until Page Contains Element        id_tag
+    Wait Until Page Contains Element        xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
+
+Add New Tag
+    [Arguments]                                 ${tagText}
+    Launch Tag Dialog
+    Input Text                                  id_tag              ${tagText}
+    Click Element                               id_add_new_tag
+    Click Dialog Button                         Save
+
+Remove Tag
+    [Arguments]                                 ${tagText}
+    Wait Until Element Is Visible               xpath=//div[@class='tag'][descendant::a[contains(text(), '${tagText}')]]/span[@title='Remove Tag']
+    Click Element                               xpath=//div[@class='tag'][descendant::a[contains(text(), '${tagText}')]]/span[@title='Remove Tag']
+    Click Dialog Button                         OK
+
+Add Comment
+    [Arguments]                                 ${text}
+    Wait Until Element Is Visible               id=id_comment
+    Input Text                                  comment            ${text}
+    Submit Form                                 add_comment_form
+    Check For Comment                           ${text}
+
+Check For Comment
+    [Arguments]                                 ${text}
+    Wait Until Page Contains Element            xpath=//div[@class='commentText'][contains(text(), '${text}')]
+
+Add File Annotation
+    [Arguments]                                 ${fileAnnotationName}
+    Wait Until Element Is Visible               id=choose_file_anns    ${TIMEOUT}
+    Click Element                               id=choose_file_anns
+    Wait Until Page Contains Element            id=id_files
+    # Click Element                          xpath=//select[@id='id_files']/option[contains(text(), ${fileName})]
+    Select From List By Label                   id=id_files     ${fileAnnotationName}
+    Click Dialog Button                         Accept
+    Check For File Annotation                   ${fileAnnotationName}
+
+Check For File Annotation
+    [Arguments]                                 ${fileAnnotationName}
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//a[@class='deleteFile action']
+    Wait Until Element Is Visible               xpath=//ul[@id="fileanns_container"]//a[contains(text(), '${fileAnnotationName}')]
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//span
+    # Mouse Over                                  //ul[@id="fileanns_container"]//a[contains(@class, 'tooltip')]
+    # Wait Until Element Is Visible               //ul[@id="fileanns_container"]//a[contains(@class, 'tooltip')][contains(@aria-describedby, 'ui-tooltip')]
+
+Remove File Annotation
+    [Arguments]                                 ${fileAnnotationName}
+
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
+    Click Element                               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::*[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
+
+    Click Dialog Button                         OK
+    Wait Until Keyword Succeeds                 ${TIMEOUT}   ${INTERVAL}    Check File Annotation Gone  ${fileAnnotationName}
+
+Check File Annotation Gone
+    [Arguments]                                 ${fileAnnotationName}
+    Page Should Not Contain Element             xpath=//ul[@id="fileanns_container"]//a[contains(text(), '${fileAnnotationName}')]
+
+Click Rating
+    [Arguments]                                 ${rating}
+    # Calculate offset from centre of img (84px wide)
+    ${xoffset}=                                 Evaluate    ${rating}*17 - 52
+    Wait Until Element Is Visible               xpath=//img[@title='Click to add rating']
+    Click Element At Coordinates                xpath=//img[@title='Click to add rating']   ${xoffset}  5
+
+Filter Rating
+    [Arguments]                                 ${rating}
+    # Calculate offset from centre of img (84px wide)
+    ${xoffset}=                                 Evaluate    ${rating}*17 - 52
+    Wait Until Element Is Visible               xpath=//img[@title='Filter by rating (exact match)']
+    Click Element At Coordinates                xpath=//img[@title='Filter by rating (exact match)']   ${xoffset}  5
+
+Remove Rating
+    Mouse Over                                  xpath=//div[@id='rating_annotations']//li[contains(@class, 'myRating')]
+    Set Focus To Element                        xpath=//div[@id='rating_annotations']//li[contains(@class, 'myRating')]
+    Click Element                               xpath=//div[@id='rating_annotations']//a[contains(@class, 'removeRating')]
+
+Count Thumbs With Class
+    # Check that the number of thumbnails with this class is the expected number
+    [Arguments]                                 ${className}    ${expectedCount}
+    Page Should Contain Element                 locator=//ul[@id='dataIcons']/li[contains(@class, 'row')][contains(@class, '${className}')]       limit=${expectedCount}
+
+Count Thumbs Without Class
+    # Check that the number of thumbnails *without* this class is the expected number
+    [Arguments]                                 ${className}    ${expectedCount}
+    Page Should Contain Element                 locator=//ul[@id='dataIcons']/li[contains(@class, 'row')][not(contains(@class, '${className}'))]       limit=${expectedCount}
+

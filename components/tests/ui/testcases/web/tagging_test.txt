@@ -4,20 +4,15 @@ Documentation     Tests submission of forms.
 Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
+Resource          ../../resources/web/annotation.txt
 
-Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
-Suite Teardown      Close all browsers
+Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
 
 *** Keywords ***
 
-Launch Tag Dialog
-    Click Element                           launch_tags_form
-    Wait Until Page Contains Element        id_tag
-    Wait Until Page Contains Element        xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
-
 Check For Tag
     [Arguments]                             ${tagText}
-    Wait Until Page Contains Element        xpath=//div[@class='tag']/a[contains(text(), '${tagText}')]  10
+    Wait Until Page Contains Element        xpath=//div[@class='tag']/a[contains(text(), '${tagText}')]  ${WAIT}
 
 Check No Tag
     [Arguments]                             ${tagText}
@@ -36,17 +31,10 @@ Test Tag Dialog
     Check No Tag                                robotTagTest${pid}TagOne
     Check No Tag                                robotTagTest${pid}TagTwo
 
-    # Tag a single Project
+    # Tag Project robot test tagging_2
     Click Element                               xpath=//h1[@data-name='tags']
-    Launch Tag Dialog
-    Input Text                                  id_tag     robotTagTest${pid}TagOne
-    Click Element                               id_add_new_tag
-    Click Dialog Button                         Save
-    Check For Tag                               robotTagTest${pid}TagOne
-    # Refresh (select other Project and re-select)
-    ${nodeId}=                                  Select Project By Id     ${projectId}
-    Wait Until Right Panel Loads                Project                  ${projectId}
-    Select Project By Id                        ${pId}
+    Add New Tag                                 robotTagTest${pid}TagOne
+
     # Check and add another Tag, remove first one
     Check For Tag                               robotTagTest${pid}TagOne
     Launch Tag Dialog
@@ -59,11 +47,15 @@ Test Tag Dialog
     Page Should Not Contain Element             xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
     # Save - check Tag added and Tag removed
     Click Dialog Button                         Save
+    # Refresh (select other Project and re-select)
+    ${nodeId}=                                  Select Project By Id     ${pid}
+    Wait Until Right Panel Loads                Project                  ${pid}
     Check For Tag                               robotTagTest${pid}TagTwo
     Check No Tag                                robotTagTest${pid}TagOne
 
 
     # Now select both Projects...
+    Select Project By Id                        ${projectId}
     Meta Click Node                             ${nodeId}
     Wait Until Page Contains Element            id=batch_ann_title
     # Previously added Tag will show up
@@ -81,7 +73,7 @@ Test Tag Dialog
     Click Element                               xpath=//div[@id='id_all_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
     Click Element                               id=id_tag_select_button
     # Just 1 tag should be moved to right
-    Page Should Contain Element                 xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
+    Wait Until Page Contains Element            xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
     Page Should Not Contain Element             xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagTwo')]
     # Save - check Tag added and Tag removed
     Click Dialog Button                         Save
@@ -113,6 +105,14 @@ Test Tag Dialog
     Check For Tag                               robotTagTest${pid}TagTwo
     Check No Tag                                robotTagTest${pid}TagOne
 
+    # Delete the projects
+    Select Project By Id                        ${projectId}
+    Meta Click Node                             ${nodeId}
+    Click Element                               id=deleteButton
+    Wait Until Element Is Visible               id=delete-dialog-form
+    Select Checkbox                             id=delete_anns
+    Click Dialog Button                         Yes
+
 
 Test Tag Removal
     [Documentation]     Tests the removal of tags by clicking on the Tag (-) button
@@ -127,10 +127,10 @@ Test Tag Removal
     Input Text                                  id_tag     removeTest${pid}One
     Click Element                               id_add_new_tag
     Click Dialog Button                         Save
+
     Check For Tag                               removeTest${pid}One
     # Click (-) button on Tag to remove
-    Click Element                               xpath=//div[@class='tag'][descendant::a[contains(text(), 'removeTest${pid}One')]]/span[@title='Remove Tag']
-    Click Dialog Button                         OK
+    Remove Tag                                  removeTest${pid}One
     Check No Tag                                removeTest${pid}One
 
     # Batch Tag 2 Projects
@@ -147,8 +147,7 @@ Test Tag Removal
     Click Dialog Button                         Save
     Check For Tag                               removeTest${pid}Two
     # Click (-) button on Tag to remove
-    Click Element                               xpath=//div[@class='tag'][descendant::a[contains(text(), 'removeTest${pid}Two')]]/span[@title='Remove Tag']
-    Click Dialog Button                         OK
+    Remove Tag                                  removeTest${pid}Two
     Check No Tag                                removeTest${pid}Two
 
     # Select each Project in turn, check tags One and Two are gone (but Three remains)
@@ -162,3 +161,13 @@ Test Tag Removal
     Check For Tag                               removeTest${pid}Three
     Check No Tag                                removeTest${pid}One
     Check No Tag                                removeTest${pid}Two
+
+    # Delete the projects
+    Select Project By Id                        ${pId}
+    Meta Click Node                             ${projectNodeId}
+    Click Element                               id=deleteButton
+    Wait Until Element Is Visible               id=delete-dialog-form
+    Select Checkbox                             id=delete_anns
+    Click Dialog Button                         Yes
+
+[Teardown]    Close Browser

@@ -9,7 +9,6 @@ Resource            ../../resources/web/webadmin.txt
 Resource            ../../resources/config.txt
 
 Suite Setup         Open Browser To Login Page      ${WEBADMIN WELCOME URL}     ${WEBADMIN LOGIN URL}
-Suite Teardown      Close all browsers
 
 *** Test Cases ***
 
@@ -64,3 +63,5 @@ Guest Login
     Log In As               guest                           secret                  ${SERVER_ID}
     Page Should Be Open     ${LOGIN URL}                    OMERO.web - Login
     Page Should Contain     Guest account is not supported.
+
+[Teardown]    Close Browser

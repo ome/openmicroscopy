@@ -1183,6 +1183,7 @@ def api_annotations(request, conn=None, **kwargs):
     limit = get_long_or_default(request, 'limit', settings.PAGE)
 
     ann_type = r.get('type', None)
+    ns = r.get('ns', None)
 
     anns, exps = tree.marshal_annotations(conn, project_ids=project_ids,
                                           dataset_ids=dataset_ids,
@@ -1192,6 +1193,7 @@ def api_annotations(request, conn=None, **kwargs):
                                           run_ids=run_ids,
                                           well_ids=well_ids,
                                           ann_type=ann_type,
+                                          ns=ns,
                                           page=page,
                                           limit=limit)
 
