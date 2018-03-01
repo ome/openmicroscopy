@@ -77,6 +77,9 @@ class TestRemovePyramidsFullAdmin(CLITest):
     DEFAULT_SYSTEM = True
     # make the new member of system group to a Full Admin
     DEFAULT_PRIVILEGES = None
+    # indicate to the test locally only
+    LOCAL = False
+    local_only = pytest.mark.skipif(LOCAL is False, reason="Run locally only")
 
     def setup_method(self, method):
         super(TestRemovePyramidsFullAdmin, self).setup_method(method)
@@ -186,6 +189,7 @@ class TestRemovePyramidsFullAdmin(CLITest):
         output_start = "No more than 500 pyramids will be removed"
         assert output_start in out
 
+    @local_only
     def test_remove_pyramids_manual(self, tmpdir, capsys):
         """Test removepyramids for a file manually added under /Pixels"""
         proxy, description = self.client.getManagedRepository(description=True)
