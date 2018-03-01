@@ -20,6 +20,7 @@ import stat
 import platform
 import datetime
 import Ice
+import time
 
 from glob import glob
 from math import ceil
@@ -1003,10 +1004,15 @@ present, the user will enter a console""")
             little = omero.rtypes.rbool(True)
         else:
             little = omero.rtypes.rbool(False)
+        # check time
+        value = None
+        if args.imported_after is not None:
+            date = time.strptime(args.imported_after, "%Y-%m-%d")
+            value = omero.rtypes.rtime(time.mktime(date)*1000)
         removepyramids(client=client,
                        little_endian=little,
                        dry_run=args.dry_run,
-                       imported_after=args.imported_after,
+                       imported_after=value,
                        limit=limit, wait=wait)
 
     @with_config

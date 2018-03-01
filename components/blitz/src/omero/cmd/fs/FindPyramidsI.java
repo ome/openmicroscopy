@@ -198,7 +198,11 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
             return image.getId().longValue();
         }
         long creation = image.getDetails().getCreationEvent().getTime().getTime();
-        if (importedAfter < creation/1000) {
+        long time = -1;
+        if (importedAfter != null) {
+            time = importedAfter.getValue();
+        }
+        if (time < creation) {
             if (littleEndian == null || isLittleEndian(pixels) == littleEndian.getValue()) {
                 return image.getId().longValue();
             }

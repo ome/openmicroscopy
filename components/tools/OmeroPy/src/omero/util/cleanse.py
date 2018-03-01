@@ -41,8 +41,6 @@ from omero.util import get_user
 from math import ceil
 from stat import ST_SIZE
 
-import time
-
 
 # The directories underneath an OMERO data directory to search for "dangling"
 # files and reconcile with the database. Directory name key and corresponding
@@ -349,11 +347,8 @@ def removepyramids(client, little_endian=None, dry_run=False,
     # the pyramid file will be removed
     request = omero.cmd.FindPyramids()
     request.littleEndian = little_endian
-    request.importedAfter = -1
+    request.importedAfter = imported_after
     request.limit = value
-    if imported_after is not None:
-        date = time.strptime(imported_after, "%Y-%m-%d")
-        request.importedAfter = time.mktime(date)
 
     cb = None
     ms = 500

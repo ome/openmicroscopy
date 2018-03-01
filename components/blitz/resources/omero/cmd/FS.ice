@@ -40,10 +40,9 @@ module omero {
              **/
             omero::RBool littleEndian;
             /**
-             * Retrieves the pyramids created after a specified time.
-             * Pass -1 not to check date
+             * Retrieves the pyramids created after a specified time if set.
              **/
-            long importedAfter;
+            omero::RTime importedAfter;
             /**
              * Retrieves the pyramids of length 0 if true
              **/
