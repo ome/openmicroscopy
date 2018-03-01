@@ -20,6 +20,7 @@ import stat
 import platform
 import datetime
 import Ice
+import time
 
 from glob import glob
 from math import ceil
@@ -169,6 +170,18 @@ already be running. This may automatically restart some server components.""")
         fixpyramids = Action(
             "fixpyramids",
             "Remove empty pyramid pixels files (admins only)").parser
+
+        removepyramids = Action(
+            "removepyramids",
+            """Remove pyramid pixels files (admins only) according to endianness.
+By default pyramids with big and little-endianness will be deleted.
+To delete pyramids with little-endianness equals to true use --endian=little.
+
+Examples:
+  bin/omero admin removepyramids --dry-run
+  bin/omero admin removepyramids --dry-run --endian=little
+  bin/omero admin removepyramids --dry-run --imported-after YYYY-mm-dd
+            """).parser
         # See cleanse options below
 
         email = Action(
@@ -368,8 +381,26 @@ location.
                 help="Print out which files would be deleted")
             x.add_argument(
                 "data_dir", type=DirectoryType(),
-                help="omero.data.dir directory value (e.g. /OMERO")
+                help="omero.data.dir directory value e.g. /OMERO")
             x.add_login_arguments()
+
+        removepyramids.add_argument(
+            "--dry-run", action="store_true",
+            help="Print out which files would be deleted")
+        removepyramids.add_argument(
+            "--endian", choices=("little", "big", "both"), default="both",
+            help="Delete pyramid with given endianness. "
+            "If not specified, all will be removed.")
+        removepyramids.add_argument(
+            "--imported-after", metavar="DATE",
+            help="Delete pyramid imported after a given date. "
+            "Expected format YYYY-mm-dd")
+        removepyramids.add_argument(
+            "--limit", metavar="MAX_NUMBER",
+            help="Set the limit of pyramids to remove in one call. "
+            "The default value is set to 500")
+        removepyramids.add_login_arguments()
+        self._add_wait(removepyramids)
 
         Action("checkwindows", "Run simple check of the local installation "
                "(Windows-only)")
@@ -959,6 +990,30 @@ present, the user will enter a console""")
                     admin_service=client.sf.getAdminService(),
                     query_service=client.sf.getQueryService(),
                     config_service=client.sf.getConfigService())
+
+    @admin_only(full_admin=True)
+    def removepyramids(self, args):
+        from omero.util.cleanse import removepyramids
+        client = self.ctx.conn(args)
+        client.getSessionId()
+        wait = args.wait if args.wait > 0 else 25
+        limit = args.limit if args.limit > 0 else 500
+        if args.endian == "both":
+            little = None
+        elif args.endian == "little":
+            little = omero.rtypes.rbool(True)
+        else:
+            little = omero.rtypes.rbool(False)
+        # check time
+        value = None
+        if args.imported_after is not None:
+            date = time.strptime(args.imported_after, "%Y-%m-%d")
+            value = omero.rtypes.rtime(time.mktime(date)*1000)
+        removepyramids(client=client,
+                       little_endian=little,
+                       dry_run=args.dry_run,
+                       imported_after=value,
+                       limit=limit, wait=wait)
 
     @with_config
     def jvmcfg(self, args, config):

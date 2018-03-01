@@ -26,6 +26,48 @@ module omero {
 
     module cmd {
 
+
+        /**
+         * Requests all pyramids files. A {@link FindPyramidsResponse}
+         * will be returned under normal conditions, otherwise a {@link ERR}
+         * will be returned.
+         **/
+        class FindPyramids extends Request {
+
+            /**
+             * Retrieves the pyramids with little endian true or false.
+             * If unset, both will be retrieved.
+             **/
+            omero::RBool littleEndian;
+            /**
+             * Retrieves the pyramids created after a specified time if set.
+             **/
+            omero::RTime importedAfter;
+            /**
+             * Retrieves the pyramids of length 0 if true
+             **/
+            bool checkEmptyFile;
+            /**
+             * The maximum number of files to find. No limit will be applied
+             * if set to 0 or to a negative value.
+             **/
+             long limit;
+        };
+
+        /**
+         * Returns the image Ids corresponding to the pyramid files.
+         * A {@link FindPyramidsResponse}
+         * will be returned under normal conditions, otherwise a {@link ERR}
+         * will be returned.
+         **/
+        class FindPyramidsResponse extends Response {
+
+            /**
+             * The image IDs corresponding to the pyramid
+             **/
+            omero::api::LongList pyramidFiles;
+        };
+
         /**
          * Requests the file metadata to be loaded for a given
          * image. This should handle both the pre-FS metadata
@@ -163,6 +205,7 @@ module omero {
             long imageId;
             bool togglePixels;
             bool deletePyramid;
+            bool deleteThumbnails;
 
         };
 
