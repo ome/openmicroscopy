@@ -91,9 +91,14 @@ class TestRemovePyramidsFullAdmin(CLITest):
         fakefile.write('')
         pixels = self.import_image(filename=str(fakefile), skip="checksum")[0]
         # wait for the pyramid to be generated
-        assert long(float(pixels)) >= 0
+        id = long(float(pixels))
+        assert id >= 0
         time.sleep(30)
-        return pixels
+        query_service = self.client.sf.getQueryService()
+        pix = query_service.findByQuery(
+            "select p from Pixels p where p.id = :id",
+            ParametersI().addId(id))
+        return pix.image.id.val
 
     def import_pyramid_pre_fs(self, tmpdir):
         name = "test&sizeX=4000&sizeY=4000.fake"
@@ -142,11 +147,11 @@ class TestRemovePyramidsFullAdmin(CLITest):
 
     def test_remove_pyramids_little_endian(self, tmpdir, capsys):
         """Test removepyramids with litlle endian true"""
-        self.import_pyramid(tmpdir)
+        img_id = self.import_pyramid(tmpdir)
         self.args += ["--endian=little"]
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
-        output_start = "Pyramid removed for image"
+        output_start = "Pyramid removed for image %s" % img_id
         assert output_start in out
 
     def test_remove_pyramids_imported_after_future(self, tmpdir, capsys):
@@ -163,7 +168,6 @@ class TestRemovePyramidsFullAdmin(CLITest):
 
     def test_remove_pyramids_limit(self, tmpdir, capsys):
         """Test removepyramids with date in future"""
-        self.import_pyramid(tmpdir)
         self.import_pyramid(tmpdir)
         self.args += ["--endian=little"]
         self.args += ["--limit", "1"]
@@ -210,20 +214,22 @@ class TestRemovePyramidsFullAdmin(CLITest):
     def test_remove_pyramids_big_endian(self, tmpdir, capsys):
         """Test removepyramids with litlle endian true"""
         name = "big&sizeX=3500&sizeY=3500&little=false.fake"
-        self.import_pyramid(tmpdir, name)
+        img_id = self.import_pyramid(tmpdir, name)
         self.args += ["--endian=big"]
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
-        output_start = "Pyramid removed for image"
+        output_start = "Pyramid removed for image %s" % img_id
         assert output_start in out
 
     def test_remove_pyramids(self, tmpdir, capsys):
         """Test removepyramids with litlle endian true"""
         name = "big&sizeX=3500&sizeY=3500&little=false.fake"
-        self.import_pyramid(tmpdir, name)
+        big_id = self.import_pyramid(tmpdir, name)
         name = "little&sizeX=3500&sizeY=3500&little=true.fake"
-        self.import_pyramid(tmpdir, name)
+        little_id = self.import_pyramid(tmpdir, name)
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
-        output_start = "Pyramid removed for image"
+        output_start = "Pyramid removed for image %s" % big_id
+        assert output_start in out
+        output_start = "Pyramid removed for image %s" % little_id
         assert output_start in out
