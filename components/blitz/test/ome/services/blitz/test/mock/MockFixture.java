@@ -15,6 +15,7 @@ import net.sf.ehcache.Cache;
 
 import ome.model.meta.Session;
 import ome.security.SecuritySystem;
+import ome.security.basic.NodeProviderInMemory;
 import ome.services.blitz.fire.Ring;
 import ome.services.blitz.fire.SessionManagerI;
 import ome.services.blitz.fire.TopicManager;
@@ -23,6 +24,8 @@ import ome.services.blitz.util.BlitzConfiguration;
 import ome.services.roi.RoiTypes;
 import ome.services.scheduler.SchedulerFactoryBean;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.SessionProvider;
+import ome.services.sessions.SessionProviderInMemory;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Roles;
@@ -137,7 +140,8 @@ public class MockFixture {
         this.mock("executorMock").expects(test.once()).method("execute").will(test.returnValue(true));
         this.mock("executorMock").expects(test.once()).method("execute").will(test.returnValue(Collections.EMPTY_LIST));
         */
-        blitz = new BlitzConfiguration(id, ring, mgr, ss, ex, 10000);
+        final SessionProvider sessionProvider = new SessionProviderInMemory(new Roles(), new NodeProviderInMemory(""), ex);
+        blitz = new BlitzConfiguration(id, ring, mgr, sessionProvider, ss, ex, 10000);
         this.sm = (SessionManagerI) blitz.getBlitzManager();
         this.sm.setApplicationContext(ctx);
         this.ctx.addApplicationListener(this.sm);

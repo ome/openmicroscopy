@@ -25,6 +25,7 @@
     in Spring. All created instances are available via getters.
     </description>
     <constructor-arg ref="sessionManager"/>
+    <constructor-arg ref="sessionProvider"/>
     <constructor-arg ref="securitySystem"/>
     <constructor-arg ref="executor"/>
     <constructor-arg ref="ring"/>

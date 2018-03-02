@@ -13,6 +13,7 @@ import ome.services.blitz.fire.Registry;
 import ome.services.blitz.fire.Ring;
 import ome.services.blitz.fire.SessionManagerI;
 import ome.services.blitz.fire.TopicManager;
+import ome.services.sessions.SessionProvider;
 import ome.services.util.Executor;
 
 import org.slf4j.Logger;
@@ -69,11 +70,11 @@ public class BlitzConfiguration {
      * should be careful to check for nulls.
      */
     public BlitzConfiguration(Ring ring,
-            ome.services.sessions.SessionManager sessionManager,
+            ome.services.sessions.SessionManager sessionManager, SessionProvider sessionProvider,
             SecuritySystem securitySystem, Executor executor,
             int servantsPerSession)
             throws RuntimeException {
-        this(createId(), ring, sessionManager, securitySystem, executor,
+        this(createId(), ring, sessionManager, sessionProvider, securitySystem, executor,
             servantsPerSession);
     }
 
@@ -92,7 +93,7 @@ public class BlitzConfiguration {
      * @throws RuntimeException
      */
     public BlitzConfiguration(Ice.InitializationData id, Ring ring,
-            ome.services.sessions.SessionManager sessionManager,
+            ome.services.sessions.SessionManager sessionManager, SessionProvider sessionProvider,
             SecuritySystem securitySystem, Executor executor,
             int servantsPerSession)
             throws RuntimeException {
@@ -116,7 +117,7 @@ public class BlitzConfiguration {
             blitzAdapter = createAdapter();
             blitzManager = createAndRegisterManager(sessionManager,
                     securitySystem, executor);
-            blitzVerifier = createAndRegisterVerifier(sessionManager, executor);
+            blitzVerifier = createAndRegisterVerifier(sessionManager, sessionProvider, executor);
             managerDirectProxy = blitzAdapter.createDirectProxy(managerId());
 
             blitzAdapter.activate();
@@ -265,12 +266,12 @@ public class BlitzConfiguration {
 
     protected PermissionsVerifier createAndRegisterVerifier(
             ome.services.sessions.SessionManager sessionManager,
-            Executor executor) {
+            SessionProvider sessionProvider, Executor executor) {
 
         throwIfInitialized(blitzVerifier);
 
         PermissionsVerifierI verifier = new PermissionsVerifierI(blitzRing,
-                sessionManager, executor, blitzRing.uuid);
+                sessionManager, sessionProvider, executor, blitzRing.uuid);
         this.blitzAdapter.add(verifier, Ice.Util
                 .stringToIdentity("BlitzVerifier"));
         return verifier;
