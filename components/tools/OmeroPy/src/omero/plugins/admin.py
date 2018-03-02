@@ -705,7 +705,7 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
-        self.check_access(config=config)
+        self.check_access(mask=os.R_OK, config=config)
         self.checkice()
         self.check_node(args)
 
