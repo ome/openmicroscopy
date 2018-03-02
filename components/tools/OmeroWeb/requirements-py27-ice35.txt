@@ -9,4 +9,4 @@ django-pipeline==1.3.20
 gunicorn>=19.3
 
 omero-marshal==0.5.2
-django-redis>=4.4
+django-redis>=4.4,<4.9
