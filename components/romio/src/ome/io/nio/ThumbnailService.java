@@ -37,6 +37,10 @@ public class ThumbnailService extends AbstractFileSystemService {
         super(path);
     }
 
+    public ThumbnailService(String path, boolean isReadOnlyRepo) {
+        super(path, isReadOnlyRepo);
+    }
+
     /**
      * Creates thumbnail on disk using byte array
      *

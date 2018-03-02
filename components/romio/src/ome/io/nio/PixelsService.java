@@ -153,15 +153,32 @@ public class PixelsService extends AbstractFileSystemService
      * Call {@link #PixelsService(String, File, long, FilePathResolver, BackOff, TileSizes, IQuery)}
      * with {@link #MEMOIZER_WAIT}.
      */
+    public PixelsService(String path, boolean isReadOnlyRepo, long memoizerWait,
+            FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery) {
+        this(path, isReadOnlyRepo, new File(new File(path), "BioFormatsCache"),
+                memoizerWait, resolver, backOff, sizes, iQuery);
+    }
+
+    /**
+     * Call {@link #PixelsService(String, File, long, FilePathResolver, BackOff, TileSizes, IQuery)}
+     * with {@link #MEMOIZER_WAIT}.
+     */
     public PixelsService(String path, File memoizerDirectory,
             FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery) {
         this(path, memoizerDirectory, MEMOIZER_WAIT, resolver, backOff, sizes, iQuery);
     }
 
     public PixelsService(String path, File memoizerDirectory, long memoizerWait,
+            FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery) {
+        this(path, false, memoizerDirectory, memoizerWait, resolver, backOff, sizes, iQuery);
+        /* easiest not to use superclass' warning message due to Java's restrictions on constructors */
+        log.info("assuming read-write repository at " + path);
+    }
+
+    public PixelsService(String path, boolean isReadOnlyRepo, File memoizerDirectory, long memoizerWait,
             FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery)
     {
-        super(path);
+        super(path, isReadOnlyRepo);
         this.resolver = resolver;
         this.backOff = backOff;
         this.sizes = sizes;

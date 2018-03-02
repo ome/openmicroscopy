@@ -39,6 +39,10 @@ public class OriginalFilesService extends AbstractFileSystemService {
         super(path);
     }
 
+    public OriginalFilesService(String path, boolean isReadOnlyRepo) {
+        super(path, isReadOnlyRepo);
+    }
+
     /**
      * Returns FileBuffer based on OriginalFile path
      * 
