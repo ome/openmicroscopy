@@ -51,7 +51,7 @@ public class LegacyRepositoryI extends AbstractRepositoryI {
     public LegacyRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
             Principal p, FileMaker fileMaker, ReadOnlyStatus readOnly, PublicRepositoryI servant) {
         super(oa, reg, ex, p, fileMaker, readOnly, servant);
-        this.fs = new OriginalFilesService(fileMaker.getDir());
+        this.fs = new OriginalFilesService(fileMaker.getDir(), readOnly.isReadOnlyRepo());
     }
 
     /**

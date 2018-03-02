@@ -31,8 +31,8 @@
 
   <bean name="/OMERO/Pixels" class="ome.io.nio.PixelsService"
         parent="filesystem">
-    <!-- index=0 "path" comes from parent -->
-    <constructor-arg index="1" ref="MemoizerWait"/>
+    <!-- note constructor-args from parent bean -->
+    <constructor-arg ref="MemoizerWait"/>
     <constructor-arg ref="omeroFilePathResolver"/>
     <constructor-arg ref="backOff"/>
     <constructor-arg ref="tileSizes"/>
