@@ -7,6 +7,7 @@ package ome.services.blitz.repo;
 
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
@@ -86,7 +87,11 @@ public class FileMaker {
             dotLockFile = new File(uuidDir, ".lock");
 
             if (isReadOnlyRepo) {
-                repoUuidRaf = new RandomAccessFile(repoUuidFile, "r");
+                try {
+                    repoUuidRaf = new RandomAccessFile(repoUuidFile, "r");
+                } catch (FileNotFoundException fnfe) {
+                    repoUuidRaf = null;
+                }
                 dotLockRaf = null;
             } else {
                 repoUuidRaf = new RandomAccessFile(repoUuidFile, "rw");
@@ -100,6 +105,10 @@ public class FileMaker {
 
             if (dbUuid == null) {
                 throw new InternalException("Not initialized");
+            }
+
+            if (repoUuidRaf == null) {
+                return null;
             }
 
             if (!isReadOnlyRepo) {
