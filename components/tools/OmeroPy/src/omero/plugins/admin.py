@@ -1484,7 +1484,7 @@ present, the user will enter a console""")
 
         if config is not None:
             omero_data_dir = self._get_data_dir(config)
-            self.can_access(omero_data_dir)
+            self.can_access(omero_data_dir, mask)
 
         for p in os.listdir(var):
             subpath = os.path.join(var, p)
