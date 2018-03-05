@@ -1296,7 +1296,7 @@ public class LightAdminRolesTest extends RolesTests {
      * @throws Exception unexpected
      * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testChownAllBelongingToUserLightAdmin.pptx">graphical explanation</a>
      */
-    @Test(dataProvider = "isPrivileged cases", groups = "broken")
+    @Test(dataProvider = "isPrivileged cases")
     public void testChownAllBelongingToUser(boolean isPrivileged, String groupPermissions) throws Exception {
         /* Chown privilege is sufficient for the workflow.*/
         final boolean chownPassing = isPrivileged;

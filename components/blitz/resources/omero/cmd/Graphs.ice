@@ -177,7 +177,7 @@ module omero {
             long userId;
 
             /**
-             * The users who should have all their data targeted. <strong>Temporarily disabled.</strong>
+             * The users who should have all their data targeted.
              **/
             omero::api::LongList targetUsers;
         };

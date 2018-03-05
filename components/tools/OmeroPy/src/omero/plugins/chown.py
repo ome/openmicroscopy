@@ -24,8 +24,7 @@ transferred or specify users from whom the ownership of all their data
 will be transferred. These two usage ways can be combined.
 
 The usage with specified users has to be considered as advanced usage
-and might potentially be slow.  WARNING: It is also temporarily
-disabled on some OMERO 5.4 servers to protect users from a bug.
+and might potentially be slow.
 
 This command can only be used by OMERO administrators and group owners.
 

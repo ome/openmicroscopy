@@ -58,7 +58,6 @@ class TestChown(CLITest):
         assert obj.id.val == oid
         assert obj.details.owner.id.val == user.id.val
 
-    @pytest.mark.broken(reason="Chown2.targetUsers disabled")
     def testChownBasicUsageTargetUser(self, simpleHierarchy):
         proj, dset, img = simpleHierarchy
         argument = "Experimenter"

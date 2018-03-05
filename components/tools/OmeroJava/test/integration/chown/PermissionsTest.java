@@ -436,7 +436,7 @@ public class PermissionsTest extends AbstractServerTest {
      * @see <a href="https://downloads.openmicroscopy.org/resources/experimental/tests/graph-permissions/0.1/testChownAllBelongingToUser.pptx">graphical explanation</a>
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "chown targetUser test cases", groups = "broken")
+    @Test(dataProvider = "chown targetUser test cases")
     public void testChownAllBelongingToUser(boolean areDataOwnersInOneGroup, boolean isAdmin, boolean isGroupOwner, boolean isRecipientInGroup,
             boolean isExpectSuccessOneTargetUser, boolean isExpectSuccessTwoTargetUsers,
             String groupPermissions) throws Exception {
