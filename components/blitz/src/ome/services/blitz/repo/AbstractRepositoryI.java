@@ -412,7 +412,11 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
                     .findByString(ome.model.core.OriginalFile.class, "hash", repoUuid);
 
             if (!(readOnly.isReadOnlyDb() || readOnly.isReadOnlyRepo())) {
-                handleRepoChanges(r, line);
+                r = handleRepoChanges(r, line);
+            }
+
+            if (r == null) {
+                throw new NullPointerException("No repository to open!");
             }
 
             log.info(String.format("Opened repository %s (uuid=%s)",
@@ -420,7 +424,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
             return r;
         }
 
-        private void handleRepoChanges(ome.model.core.OriginalFile r, String line) throws Exception {
+        private ome.model.core.OriginalFile handleRepoChanges(ome.model.core.OriginalFile r, String line) throws Exception {
             final String path = FilenameUtils.normalize(
                     new File(fileMaker.getDir()).getAbsolutePath());
             final String pathName = FilenameUtils.getName(path);
@@ -458,6 +462,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
 
             // ticket:1794 - only adds if necessary
             sf.getAdminService().moveToCommonSpace(r);
+
+            return r;
         }
 
         private void handleServants(ome.model.core.OriginalFile r) throws Exception {
