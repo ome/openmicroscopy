@@ -118,6 +118,7 @@ public class BasicACLVoter implements ACLVoter {
                     new DefaultPolicyService(), new Roles(), sessionProvider);
         }
 
+    @Deprecated
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
         PolicyService policyService) {

@@ -119,6 +119,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     /**
      * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
      */
+    @Deprecated
     public ScriptRepoHelper(Executor ex, String sessionUuid, Roles roles) {
         this(ex, sessionUuid, roles, new ReadOnlyStatus(false, false));
         log.info("assuming read-write repository");
@@ -128,13 +129,14 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
      */
     public ScriptRepoHelper(Executor ex, String sessionUuid, Roles roles, ReadOnlyStatus readOnly) {
-        this(new File(getDefaultScriptDir()), ex, sessionUuid, new Principal(sessionUuid),
+        this(SCRIPT_REPO, new File(getDefaultScriptDir()), ex, sessionUuid, new Principal(sessionUuid),
                 roles, readOnly);
     }
 
     /**
      * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
      */
+    @Deprecated
     public ScriptRepoHelper(File dir, Executor ex, String sessionUuid, Principal p, Roles roles) {
         this(SCRIPT_REPO, dir, ex, sessionUuid, p, roles);
     }
@@ -142,6 +144,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     /**
      * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
      */
+    @Deprecated
     public ScriptRepoHelper(String uuid, File dir, Executor ex, String sessionUuid, Principal p, Roles roles) {
         this(uuid, dir, ex, sessionUuid, p, roles, new ReadOnlyStatus(false, false));
         log.info("assuming read-write repository");
@@ -150,6 +153,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     /**
      * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
      */
+    @Deprecated
     public ScriptRepoHelper(File dir, Executor ex, String sessionUuid, Principal p, Roles roles, ReadOnlyStatus readOnly) {
         this(SCRIPT_REPO, dir, ex, sessionUuid, p, roles, readOnly);
     }

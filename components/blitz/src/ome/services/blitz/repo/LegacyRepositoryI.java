@@ -31,6 +31,7 @@ public class LegacyRepositoryI extends AbstractRepositoryI {
 
     private final OriginalFilesService fs;
 
+    @Deprecated
     public LegacyRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
             Principal p, String repoDir, PublicRepositoryI servant) {
         this(oa, reg, ex, p, new FileMaker(repoDir), new ReadOnlyStatus(false, false), servant);
@@ -42,6 +43,7 @@ public class LegacyRepositoryI extends AbstractRepositoryI {
         this(oa, reg, ex, p, new FileMaker(repoDir), readOnly, servant);
     }
 
+    @Deprecated
     public LegacyRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
             Principal p, FileMaker fileMaker, PublicRepositoryI servant) {
         this(oa, reg, ex, p, fileMaker, new ReadOnlyStatus(false, false), servant);

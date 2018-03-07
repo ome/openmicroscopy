@@ -28,6 +28,7 @@ public class InternalRepositoryI extends AbstractRepositoryI {
 
     private final static Logger log = LoggerFactory.getLogger(InternalRepositoryI.class);
 
+    @Deprecated
     public InternalRepositoryI(ObjectAdapter oa, Registry reg, Executor ex,
             Principal p, String repoDir, PublicRepositoryI servant) {
         this(oa, reg, ex, p, repoDir, new ReadOnlyStatus(false, false), servant);

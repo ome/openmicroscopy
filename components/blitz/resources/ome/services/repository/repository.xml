@@ -3,8 +3,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2009 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -33,6 +31,7 @@
     <constructor-arg ref="uuid"/>
     <constructor-arg value="${omero.repo.dir}"/>
     <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg><null/></constructor-arg>  <!-- TODO: servant? -->
   </bean>
 
   <bean id="executor" class="ome.services.util.Executor$Impl">

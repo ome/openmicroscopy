@@ -7,6 +7,7 @@ package ome.services.blitz.repo;
 
 import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Principal;
 import omero.ServerError;
 import omero.model.OriginalFile;
@@ -31,7 +32,7 @@ public class TemporaryRepositoryI extends AbstractRepositoryI {
 
     public TemporaryRepositoryI(Ice.ObjectAdapter oa, Registry reg,
             Executor ex, Principal p, PublicRepositoryI servant) {
-        super(oa, reg, ex, p, System.getProperty("java.io.tmpdir"), servant);
+        super(oa, reg, ex, p, System.getProperty("java.io.tmpdir"), new ReadOnlyStatus(false, false), servant);
     }
 
     //TODO CACHING

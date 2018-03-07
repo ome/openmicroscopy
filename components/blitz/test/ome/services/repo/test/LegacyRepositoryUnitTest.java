@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -19,6 +17,7 @@ import ome.services.blitz.repo.PublicRepositoryI;
 import ome.services.blitz.repo.RepositoryDaoImpl;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.util.Executor;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -84,7 +83,7 @@ public class LegacyRepositoryUnitTest extends AbstractRepoUnitTest {
 
     private LegacyRepositoryI mk(Registry registry) throws Exception {
         Principal p = new Principal("sessionUuid", "system", "Internal");
-        return new LegacyRepositoryI(oa, registry, ex, p, tmpRepo.getAbsolutePath(),
+        return new LegacyRepositoryI(oa, registry, ex, p, tmpRepo.getAbsolutePath(), new ReadOnlyStatus(false, false),
                 new PublicRepositoryI(new RepositoryDaoImpl(p, ex), cpf,
                         ChecksumAlgorithmAdler32.value,
                         FilePathRestrictionInstance.UNIX_REQUIRED.name));

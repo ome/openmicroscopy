@@ -32,6 +32,7 @@ public class ScriptRepositoryI extends AbstractRepositoryI {
 
     private final ScriptRepoHelper helper;
 
+    @Deprecated
     public ScriptRepositoryI(ObjectAdapter oa, Registry reg, Executor ex,
             Principal p, ScriptRepoHelper helper, PublicRepositoryI servant, Set<String> scriptRepoUuids) {
         this(oa, reg, ex, p, helper, new ReadOnlyStatus(false, false), servant, scriptRepoUuids);

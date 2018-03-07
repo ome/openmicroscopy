@@ -32,6 +32,7 @@ public class AbstractFileSystemService {
 
     private final String root;
 
+    @Deprecated
     public AbstractFileSystemService(String path) {
         this(path, false);
         log.info("assuming read-write repository at " + path);

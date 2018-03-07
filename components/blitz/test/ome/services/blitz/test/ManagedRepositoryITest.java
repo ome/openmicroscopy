@@ -41,6 +41,7 @@ import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FilePathRestrictions;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Principal;
 
 import omero.api.AMD_RawFileStore_write;
@@ -90,7 +91,7 @@ public class ManagedRepositoryITest extends AbstractServantTest {
         repo.setApplicationContext(user.ctx);
 
         internal = new LegacyRepositoryI(user.adapter, reg, user.ex, rootPrincipal,
-                targetDir.getAbsolutePath(), repo);
+                targetDir.getAbsolutePath(), new ReadOnlyStatus(false, false), repo);
         internal.takeover();
     }
 

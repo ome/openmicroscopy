@@ -15,6 +15,7 @@ import ome.model.core.OriginalFile;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.scripts.RepoFile;
 import ome.services.scripts.ScriptRepoHelper;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 
@@ -47,7 +48,7 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
         mkdir();
         loginRoot();
         helper = new ScriptRepoHelper(uuid(""), dir, this.executor, applicationContext.getBean("uuid", String.class),
-                this.loginAop.p, new Roles());
+                this.loginAop.p, new Roles(), new ReadOnlyStatus(false, false));
         ContextRefreshedEvent event = new ContextRefreshedEvent(
                 OmeroContext.getManagedServerContext());
         helper.handleContextRefreshedEvent(event);

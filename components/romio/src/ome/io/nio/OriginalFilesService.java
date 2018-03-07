@@ -35,6 +35,7 @@ public class OriginalFilesService extends AbstractFileSystemService {
      * Constructor
      * @param path
      */
+	@Deprecated
     public OriginalFilesService(String path) {
         super(path);
     }

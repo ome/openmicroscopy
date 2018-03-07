@@ -91,12 +91,14 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
         ACTIVE, EAGER, WAITING, CLOSED;
     }
 
+    @Deprecated
     public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
             Principal p, String repoDir, PublicRepositoryI servant) {
         this(oa, reg, ex, p, repoDir, new ReadOnlyStatus(false, false), servant);
         log.info("assuming read-write repository");
     }
 
+    @Deprecated
     public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
             Principal p, FileMaker fileMaker, PublicRepositoryI servant) {
         this(oa, reg, ex, p, fileMaker, new ReadOnlyStatus(false, false), servant);

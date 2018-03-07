@@ -71,6 +71,7 @@ public class EventHandler implements MethodInterceptor, ApplicationListener<Cont
      * @param factory the Hibernate session factory
      * @param txSource the Spring transaction attribute source
      */
+    @Deprecated
     public EventHandler(SqlAction sql,
             BasicSecuritySystem securitySystem, SessionFactory factory,
             TransactionAttributeSource txSource) {

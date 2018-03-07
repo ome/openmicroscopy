@@ -122,6 +122,7 @@ public class PixelsService extends AbstractFileSystemService
      * @param path The root of the ROMIO proprietary pixels store. (usually
      * <code>/OMERO/Pixels</code>).
      */
+    @Deprecated
     public PixelsService(String path, FilePathResolver resolver)
     {
         this(path, resolver, new SimpleBackOff(), new ConfiguredTileSizes(), null);
@@ -143,6 +144,7 @@ public class PixelsService extends AbstractFileSystemService
      * Call {@link #PixelsService(String, File, long, FilePathResolver, BackOff, TileSizes, IQuery)}
      * with {@link #MEMOIZER_WAIT}.
      */
+    @Deprecated
     public PixelsService(String path, long memoizerWait,
             FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery) {
         this(path, new File(new File(path), "BioFormatsCache"),
@@ -153,6 +155,7 @@ public class PixelsService extends AbstractFileSystemService
      * Call {@link #PixelsService(String, File, long, FilePathResolver, BackOff, TileSizes, IQuery)}
      * with {@link #MEMOIZER_WAIT}.
      */
+    @Deprecated
     public PixelsService(String path, boolean isReadOnlyRepo, long memoizerWait,
             FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery) {
         this(path, isReadOnlyRepo, new File(new File(path), "BioFormatsCache"),
@@ -160,14 +163,17 @@ public class PixelsService extends AbstractFileSystemService
     }
 
     /**
-     * Call {@link #PixelsService(String, File, long, FilePathResolver, BackOff, TileSizes, IQuery)}
+     * Call {@link #PixelsService(String, boolean, File, long, FilePathResolver, BackOff, TileSizes, IQuery)}
      * with {@link #MEMOIZER_WAIT}.
      */
     public PixelsService(String path, File memoizerDirectory,
             FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery) {
-        this(path, memoizerDirectory, MEMOIZER_WAIT, resolver, backOff, sizes, iQuery);
+        this(path, false, memoizerDirectory, MEMOIZER_WAIT, resolver, backOff, sizes, iQuery);
+        /* easiest not to use superclass' warning message due to Java's restrictions on constructors */
+        log.info("assuming read-write repository at " + path);
     }
 
+    @Deprecated
     public PixelsService(String path, File memoizerDirectory, long memoizerWait,
             FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery) {
         this(path, false, memoizerDirectory, memoizerWait, resolver, backOff, sizes, iQuery);

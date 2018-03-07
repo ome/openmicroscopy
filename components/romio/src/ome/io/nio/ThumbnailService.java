@@ -33,6 +33,7 @@ public class ThumbnailService extends AbstractFileSystemService {
      * Constructor
      * @param path
      */
+    @Deprecated
     public ThumbnailService(String path) {
         super(path);
     }
