@@ -121,6 +121,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      */
     public ScriptRepoHelper(Executor ex, String sessionUuid, Roles roles) {
         this(ex, sessionUuid, roles, new ReadOnlyStatus(false, false));
+        log.info("assuming read-write repository");
     }
 
     /**
@@ -143,6 +144,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      */
     public ScriptRepoHelper(String uuid, File dir, Executor ex, String sessionUuid, Principal p, Roles roles) {
         this(uuid, dir, ex, sessionUuid, p, roles, new ReadOnlyStatus(false, false));
+        log.info("assuming read-write repository");
     }
 
     /**
