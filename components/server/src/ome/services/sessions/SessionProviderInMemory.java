@@ -121,6 +121,7 @@ public class SessionProviderInMemory implements SessionProvider, ReadOnlyStatus.
         log.debug("Setting node: {}", node);
         session.setNode(node);
         session.setOwner(new Experimenter(roles.getRootId(), false));
+        openSessions.put(session.getUuid(), session);
         return session;
     }
 
