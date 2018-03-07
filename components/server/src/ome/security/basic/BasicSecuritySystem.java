@@ -143,7 +143,7 @@ public class BasicSecuritySystem implements SecuritySystem,
                 new SharingSecurityFilter(roles, null));
         BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm, sessionProvider, new EventProviderInMemory(),
                 roles, sf, new TokenHolder(), Collections.<SecurityFilter>singletonList(holder), new DefaultPolicyService(),
-                new BasicACLVoter(cd, st, th, holder));
+                new BasicACLVoter(cd, st, th, holder, sessionProvider));
         return sec;
     }
 

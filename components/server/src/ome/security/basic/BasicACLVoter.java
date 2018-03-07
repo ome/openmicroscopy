@@ -37,6 +37,7 @@ import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.security.policy.DefaultPolicyService;
 import ome.security.policy.PolicyService;
+import ome.services.sessions.SessionProvider;
 import ome.system.EventContext;
 import ome.system.Roles;
 import ome.tools.hibernate.HibernateUtils;
@@ -98,6 +99,8 @@ public class BasicACLVoter implements ACLVoter {
 
     private final LightAdminPrivileges adminPrivileges;
 
+    private final SessionProvider sessionProvider;
+
     /* thread-safe */
     private final Set<String> managedRepoUuids, scriptRepoUuids;
 
@@ -107,6 +110,12 @@ public class BasicACLVoter implements ACLVoter {
             TokenHolder tokenHolder, SecurityFilter securityFilter) {
             this(cd, sysTypes, tokenHolder, securityFilter,
                     new DefaultPolicyService(), new Roles());
+        }
+
+    public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
+            TokenHolder tokenHolder, SecurityFilter securityFilter, SessionProvider sessionProvider) {
+            this(cd, sysTypes, tokenHolder, securityFilter,
+                    new DefaultPolicyService(), new Roles(), sessionProvider);
         }
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
@@ -121,14 +130,24 @@ public class BasicACLVoter implements ACLVoter {
             PolicyService policyService,
             Roles roles) {
         this(cd, sysTypes, tokenHolder, securityFilter, policyService,
-                roles, new LightAdminPrivileges(roles), new HashSet<String>(), new HashSet<String>(), UUID.randomUUID().toString());
+                roles, new LightAdminPrivileges(roles), null,
+                new HashSet<String>(), new HashSet<String>(), UUID.randomUUID().toString());
+    }
+
+    public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
+            TokenHolder tokenHolder, SecurityFilter securityFilter,
+            PolicyService policyService,
+            Roles roles, SessionProvider sessionProvider) {
+        this(cd, sysTypes, tokenHolder, securityFilter, policyService,
+                roles, new LightAdminPrivileges(roles), sessionProvider,
+                new HashSet<String>(), new HashSet<String>(), UUID.randomUUID().toString());
     }
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
         PolicyService policyService,
-        Roles roles, LightAdminPrivileges adminPrivileges, Set<String> managedRepoUuids, Set<String> scriptRepoUuids,
-        String fileRepoSecretKey) {
+        Roles roles, LightAdminPrivileges adminPrivileges, SessionProvider sessionProvider,
+        Set<String> managedRepoUuids, Set<String> scriptRepoUuids, String fileRepoSecretKey) {
         this.currentUser = cd;
         this.sysTypes = sysTypes;
         this.securityFilter = securityFilter;
@@ -136,6 +155,7 @@ public class BasicACLVoter implements ACLVoter {
         this.roles = roles;
         this.policyService = policyService;
         this.adminPrivileges = adminPrivileges;
+        this.sessionProvider = sessionProvider;
         this.managedRepoUuids = managedRepoUuids;
         this.scriptRepoUuids = scriptRepoUuids;
         this.fileRepoSecretKey = fileRepoSecretKey;
