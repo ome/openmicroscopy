@@ -227,14 +227,12 @@ public class BasicACLVoter implements ACLVoter {
         /* regarding sessions see LightAdminPrivilegesSecurityFilter */
         if (klass == ome.model.meta.Session.class) {
             /* determine "real" owner of current and queried session, i.e. taking sudo into account */
-            final ome.model.meta.Session currentSession = (ome.model.meta.Session)
-                    session.get(ome.model.meta.Session.class, ec.getCurrentSessionId());
+            final ome.model.meta.Session currentSession = sessionProvider.findSessionById(ec.getCurrentSessionId(), session);
             Experimenter sessionOwnerCurrent = currentSession.getSudoer();
             if (sessionOwnerCurrent == null) {
                 sessionOwnerCurrent = currentSession.getOwner();
             }
-            final ome.model.meta.Session queriedSession = (ome.model.meta.Session)
-                    session.get(ome.model.meta.Session.class, id);
+            final ome.model.meta.Session queriedSession = sessionProvider.findSessionById(id, session);
             Experimenter sessionOwnerQueried = queriedSession.getSudoer();
             if (sessionOwnerQueried == null) {
                 sessionOwnerQueried = queriedSession.getOwner();
