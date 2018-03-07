@@ -142,6 +142,11 @@ public class SessionProviderInMemory implements SessionProvider, ReadOnlyStatus.
     }
 
     @Override
+    public Session findSessionById(long id, org.hibernate.Session session) {
+        return findSessionById(id, (ServiceFactory) null);
+    }
+
+    @Override
     public Session findSessionById(long id, ServiceFactory sf) {
         final SortedSet<Long> tries = new TreeSet<Long>();
         /* in Java 8 maybe could use Stream instead of Iterables */

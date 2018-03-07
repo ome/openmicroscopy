@@ -157,6 +157,11 @@ public class SessionProviderInDb implements SessionProvider, ReadOnlyStatus.IsAw
     }
 
     @Override
+    public Session findSessionById(long id, org.hibernate.Session session) {
+        return (Session) session.get(Session.class, id);
+    }
+
+    @Override
     public Session findSessionById(long id, ServiceFactory sf) {
         final LocalQuery iQuery = (LocalQuery) sf.getQueryService();
         final String sessionClass = iQuery.find(Share.class, id) == null ? "Session" : "Share";

@@ -89,6 +89,17 @@ public class SessionProviderWrapper<P extends SessionProvider & ReadOnlyStatus.I
     }
 
     @Override
+    public Session findSessionById(long id, org.hibernate.Session hibernateSession) {
+        for (final P provider : read) {
+            final Session session = provider.findSessionById(id, hibernateSession);
+            if (session != null) {
+                return session;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public Session findSessionById(long id, ServiceFactory sf) {
         for (final P provider : read) {
             final Session session = provider.findSessionById(id, sf);

@@ -38,6 +38,14 @@ public interface SessionProvider {
     /**
      * Retrieves a session by ID.
      * @param id session ID to lookup
+     * @param session active Hibernate session
+     * @return See above.
+     */
+    Session findSessionById(long id, org.hibernate.Session session);
+
+    /**
+     * Retrieves a session by ID.
+     * @param id session ID to lookup
      * @param sf active service factory
      * @return See above.
      */
