@@ -3592,7 +3592,7 @@ def script_ui(request, scriptId, conn=None, **kwargs):
         elif pt.__class__.__name__ == 'list':
             i["list"] = True
             if "default" in i:
-                i["default"] = i["default"][0]
+                i["default"] = ",".join([str(d) for d in i["default"]])
         elif isinstance(pt, bool):
             i["boolean"] = True
         elif isinstance(pt, int) or isinstance(pt, long):
