@@ -102,7 +102,7 @@ class HdfList(object):
         self.__paths = {}
 
     @locked
-    def addOrThrow(self, hdfpath, hdfstorage):
+    def addOrThrow(self, hdfpath, hdfstorage, read_only=False):
 
         if hdfpath in self.__paths:
             raise omero.LockTimeout(
@@ -113,20 +113,22 @@ class HdfList(object):
             raise omero.ApiUsageException(
                 None, None, "Parent directory does not exist: %s" % parent)
 
-        hdffile = hdfstorage.openfile("a")
+        mode = read_only and "r" or "a"
+        hdffile = hdfstorage.openfile(mode)
         fileno = hdffile.fileno()
 
-        try:
-            portalocker.lockno(
-                fileno, portalocker.LOCK_NB | portalocker.LOCK_EX)
-        except portalocker.LockException:
-            hdffile.close()
-            raise omero.LockTimeout(
-                None, None,
-                "Cannot acquire exclusive lock on: %s" % hdfpath, 0)
-        except:
-            hdffile.close()
-            raise
+        if not read_only:
+            try:
+                portalocker.lockno(
+                    fileno, portalocker.LOCK_NB | portalocker.LOCK_EX)
+            except portalocker.LockException:
+                hdffile.close()
+                raise omero.LockTimeout(
+                    None, None,
+                    "Cannot acquire exclusive lock on: %s" % hdfpath, 0)
+            except:
+                hdffile.close()
+                raise
 
         if fileno in self.__filenos.keys():
             hdffile.close()
@@ -139,11 +141,12 @@ class HdfList(object):
         return hdffile
 
     @locked
-    def getOrCreate(self, hdfpath):
+    def getOrCreate(self, hdfpath, read_only=False):
         try:
             return self.__paths[hdfpath]
         except KeyError:
-            return HdfStorage(hdfpath, self._lock)  # Adds itself.
+            # Adds itself to the global list
+            return HdfStorage(hdfpath, self._lock, read_only=read_only)
 
     @locked
     def remove(self, hdfpath, hdffile):
@@ -161,7 +164,7 @@ class HdfStorage(object):
     instance will be available for any given physical HDF5 file.
     """
 
-    def __init__(self, file_path, hdf5lock):
+    def __init__(self, file_path, hdf5lock, read_only=False):
         """
         file_path should be the path to a file in a valid directory where
         this HDF instance can be stored (Not None or Empty). Once this
@@ -177,7 +180,7 @@ class HdfStorage(object):
         self.__hdf_path = path(file_path)
         # Locking first as described at:
         # http://www.pytables.org/trac/ticket/185
-        self.__hdf_file = HDFLIST.addOrThrow(file_path, self)
+        self.__hdf_file = HDFLIST.addOrThrow(file_path, self, read_only)
         self.__tables = []
 
         self._lock = hdf5lock
