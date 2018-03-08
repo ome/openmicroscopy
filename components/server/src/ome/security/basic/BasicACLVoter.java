@@ -1,7 +1,5 @@
 /*
- * ome.security.BasicACLVoter
- *
- *   Copyright 2006-2017 University of Dundee. All rights reserved.
+ *   Copyright 2006-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -38,6 +36,7 @@ import ome.security.SystemTypes;
 import ome.security.policy.DefaultPolicyService;
 import ome.security.policy.PolicyService;
 import ome.services.sessions.SessionProvider;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
 import ome.system.Roles;
 import ome.tools.hibernate.HibernateUtils;
@@ -101,6 +100,8 @@ public class BasicACLVoter implements ACLVoter {
 
     private final SessionProvider sessionProvider;
 
+    private final boolean isReadOnlyDb;
+
     /* thread-safe */
     private final Set<String> managedRepoUuids, scriptRepoUuids;
 
@@ -113,9 +114,9 @@ public class BasicACLVoter implements ACLVoter {
         }
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
-            TokenHolder tokenHolder, SecurityFilter securityFilter, SessionProvider sessionProvider) {
+            TokenHolder tokenHolder, SecurityFilter securityFilter, SessionProvider sessionProvider, ReadOnlyStatus readOnly) {
             this(cd, sysTypes, tokenHolder, securityFilter,
-                    new DefaultPolicyService(), new Roles(), sessionProvider);
+                    new DefaultPolicyService(), new Roles(), sessionProvider, readOnly);
         }
 
     @Deprecated
@@ -131,23 +132,24 @@ public class BasicACLVoter implements ACLVoter {
             PolicyService policyService,
             Roles roles) {
         this(cd, sysTypes, tokenHolder, securityFilter, policyService,
-                roles, new LightAdminPrivileges(roles), null,
+                roles, new LightAdminPrivileges(roles), null, new ReadOnlyStatus(false, false),
                 new HashSet<String>(), new HashSet<String>(), UUID.randomUUID().toString());
+        log.info("assuming read-write repository");
     }
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
             TokenHolder tokenHolder, SecurityFilter securityFilter,
             PolicyService policyService,
-            Roles roles, SessionProvider sessionProvider) {
+            Roles roles, SessionProvider sessionProvider, ReadOnlyStatus readOnly) {
         this(cd, sysTypes, tokenHolder, securityFilter, policyService,
-                roles, new LightAdminPrivileges(roles), sessionProvider,
+                roles, new LightAdminPrivileges(roles), sessionProvider, readOnly,
                 new HashSet<String>(), new HashSet<String>(), UUID.randomUUID().toString());
     }
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
         TokenHolder tokenHolder, SecurityFilter securityFilter,
         PolicyService policyService,
-        Roles roles, LightAdminPrivileges adminPrivileges, SessionProvider sessionProvider,
+        Roles roles, LightAdminPrivileges adminPrivileges, SessionProvider sessionProvider, ReadOnlyStatus readOnly,
         Set<String> managedRepoUuids, Set<String> scriptRepoUuids, String fileRepoSecretKey) {
         this.currentUser = cd;
         this.sysTypes = sysTypes;
@@ -157,6 +159,7 @@ public class BasicACLVoter implements ACLVoter {
         this.policyService = policyService;
         this.adminPrivileges = adminPrivileges;
         this.sessionProvider = sessionProvider;
+        this.isReadOnlyDb = readOnly.isReadOnlyDb();
         this.managedRepoUuids = managedRepoUuids;
         this.scriptRepoUuids = scriptRepoUuids;
         this.fileRepoSecretKey = fileRepoSecretKey;
@@ -168,6 +171,9 @@ public class BasicACLVoter implements ACLVoter {
     public boolean allowChmod(IObject iObject) {
         if (iObject == null) {
             throw new ApiUsageException("Object can't be null");
+        }
+        if (isReadOnlyDb) {
+            return false;
         }
         final Long ownerId = HibernateUtils.nullSafeOwnerId(iObject);
         final Long groupId; // see 2874 and chmod
@@ -296,6 +302,11 @@ public class BasicACLVoter implements ACLVoter {
 
     public boolean allowCreation(IObject iObject) {
         Assert.notNull(iObject);
+
+        if (isReadOnlyDb) {
+            return false;
+        }
+
         Class<?> cls = iObject.getClass();
 
         boolean sysType = sysTypes.isSystemType(cls);
@@ -437,6 +448,10 @@ public class BasicACLVoter implements ACLVoter {
 
         if (iObject == null) {
             throw new IllegalArgumentException("null object");
+        }
+
+        if (isReadOnlyDb) {
+            return rv;
         }
 
         // Do not take the details directly from iObject

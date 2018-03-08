@@ -131,6 +131,7 @@
     <constructor-arg ref="roles"/>
     <constructor-arg ref="adminPrivileges"/>
     <constructor-arg ref="sessionProviderBare"/>
+    <constructor-arg ref="readOnlyStatus"/>
     <constructor-arg ref="managedRepoUuids"/>
     <constructor-arg ref="scriptRepoUuids"/>
     <constructor-arg ref="uuid"/>  <!-- allows setting OriginalFile.repo -->

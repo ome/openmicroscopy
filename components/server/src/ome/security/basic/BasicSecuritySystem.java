@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2017 University of Dundee. All rights reserved.
+ *   Copyright 2006-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -51,6 +51,7 @@ import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.PerSessionStats;
 import ome.services.sharing.ShareStore;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -143,7 +144,7 @@ public class BasicSecuritySystem implements SecuritySystem,
                 new SharingSecurityFilter(roles, null));
         BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm, sessionProvider, new EventProviderInMemory(),
                 roles, sf, new TokenHolder(), Collections.<SecurityFilter>singletonList(holder), new DefaultPolicyService(),
-                new BasicACLVoter(cd, st, th, holder, sessionProvider));
+                new BasicACLVoter(cd, st, th, holder, sessionProvider, new ReadOnlyStatus(false, false)));
         return sec;
     }
 
