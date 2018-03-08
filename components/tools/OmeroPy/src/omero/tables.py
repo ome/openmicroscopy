@@ -20,6 +20,7 @@ import omero.callbacks
 from omero import LockTimeout
 from omero.rtypes import rstring
 from omero.rtypes import unwrap
+from omero.util import internal_repository
 from omero.util.decorators import remoted, perf
 
 
@@ -395,6 +396,17 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         self.repo_svc = None
         self.repo_uuid = None
 
+        try:
+            config_service = ctx.getSession().getConfigService()
+            prefix = "omero.cluster.read_only.runtime"
+            self.read_only = "true" in [config_service.getConfigValue(
+                "{}.{}".format(prefix, suffix)) for suffix in ["db", "repo"]]
+        except:
+            self.read_only = False
+
+        if self.read_only:
+            self.logger.info("Starting in read-only mode.")
+
         if retries is None:
             retries = RETRIES
 
@@ -504,7 +516,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         if not p.exists():
             p.makedirs()
 
-        storage = self._storage_factory.getOrCreate(file_path)
+        storage = self._storage_factory.getOrCreate(file_path, self.read_only)
         id = Ice.Identity()
         id.name = Ice.generateUUID()
         table = TableI(self.ctx, file_obj, factory, storage, uuid=id.name,
