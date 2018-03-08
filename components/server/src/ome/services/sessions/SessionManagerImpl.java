@@ -102,7 +102,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
      * value may be overwritten by an injector with a value which is used
      * throughout this server instance.
      */
-    protected String internal_uuid = UUID.randomUUID().toString();
+    private String internal_uuid = UUID.randomUUID().toString();
 
     // Injected
     protected OmeroContext context;
