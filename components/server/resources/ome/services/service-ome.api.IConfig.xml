@@ -3,9 +3,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# $Id$
-# 
-# Copyright 2006 University of Dundee. All rights reserved.
+# Copyright 2006-2018 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,7 +59,15 @@
     <property name="proxyInterfaces" value="ome.api.IConfig"/>
     <property name="target" ref="internal-ome.api.IConfig"/>
   </bean>
-  
+
+  <bean class="ome.services.util.ReadOnlyConfigInit" lazy-init="false">
+    <description>
+    Includes among the configuration keys information about the read-only status as determined at run-time during start-up.
+    </description>
+    <constructor-arg ref="internal-ome.api.IConfig"/>
+    <constructor-arg ref="readOnlyStatus"/>
+  </bean>
+
 <!--
   "Private" resources
   =======================================================================

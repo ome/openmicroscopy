@@ -21,6 +21,8 @@ import org.springframework.dao.InvalidDataAccessResourceUsageException;
  * connection is read-only. This object can be used by other objects
  * to skip certain steps. Later actions may flip the state of the status.
  *
+ * @see ReadOnlyConfigInit which sets this status in the configuration service.
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @author m.t.b.carroll@dundee.ac.uk
  */
