@@ -158,7 +158,8 @@ public class SessionProviderInMemory implements SessionProvider, ReadOnlyStatus.
                 tries.add(session.getId());
             }
         }
-        log.info("Requested session {}. Only found: {}", id, tries);
+        log.info("Requested unknown session ID {}. Found {} other sessions.", id, tries.size());
+        log.debug("Found sessions: {}", tries);
         return null;
     }
 
