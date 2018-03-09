@@ -224,7 +224,7 @@ class ConfigXml(object):
         immediately do the upgrade.
         """
         if version == "4.2.0":
-            # https://trac.openmicroscopy.org.uk/ome/ticket/2613
+            # https://trac.openmicroscopy.org/ome/ticket/2613
             # Remove any reference to the ${omero.dollar} workaround
             # then map anything of the form: ${...} to @{...}
             if props:

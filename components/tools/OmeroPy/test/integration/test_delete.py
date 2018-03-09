@@ -578,7 +578,7 @@ class TestDelete(ITest):
         P->D
         Delete P
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         p = self.make_project()
         d = self.make_dataset()
@@ -594,7 +594,7 @@ class TestDelete(ITest):
         P2->D
         Delete P1
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         p1 = self.make_project()
         p2 = self.make_project()
@@ -613,7 +613,7 @@ class TestDelete(ITest):
         P2->D
         Delete P1
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         p1 = self.make_project()
         p2 = self.make_project()
@@ -636,7 +636,7 @@ class TestDelete(ITest):
         P2->D->I
         Delete P1
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         p1 = self.make_project()
         p2 = self.make_project()
@@ -658,7 +658,7 @@ class TestDelete(ITest):
         P2->D->I
         Delete D
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         p1 = self.make_project()
         p2 = self.make_project()
@@ -680,7 +680,7 @@ class TestDelete(ITest):
         D2->I
         Delete D1
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         d1 = self.make_dataset()
         d2 = self.make_dataset()
@@ -699,7 +699,7 @@ class TestDelete(ITest):
         D2->I
         Delete D1
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
 
         d1 = self.make_dataset()

@@ -562,7 +562,7 @@ class TestChgrp(ITest):
         D->I
         ChGrp D
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
@@ -588,7 +588,7 @@ class TestChgrp(ITest):
         P->D->I
         ChGrp P
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
@@ -619,7 +619,7 @@ class TestChgrp(ITest):
         D2->I
         ChGrp D1
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
@@ -650,7 +650,7 @@ class TestChgrp(ITest):
         D2->I
         ChGrp D1
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
@@ -686,7 +686,7 @@ class TestChgrp(ITest):
            D2->I
         ChGrp P
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
@@ -719,7 +719,7 @@ class TestChgrp(ITest):
            D2->I
         ChGrp P
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
@@ -759,7 +759,7 @@ class TestChgrp(ITest):
         P2->D->I
         ChGrp D
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
@@ -795,7 +795,7 @@ class TestChgrp(ITest):
         P2->D->I
         ChGrp P1
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
@@ -828,7 +828,7 @@ class TestChgrp(ITest):
         P2->D->I
         ChGrp P1
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
@@ -868,7 +868,7 @@ class TestChgrp(ITest):
         P2->D
         ChGrp P1
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
@@ -897,7 +897,7 @@ class TestChgrp(ITest):
         P2->D
         ChGrp P1
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
@@ -933,7 +933,7 @@ class TestChgrp(ITest):
         P->D2->I
         ChGrp P
 
-        See https://trac.openmicroscopy.org.uk/ome/ticket/12452
+        See https://trac.openmicroscopy.org/ome/ticket/12452
         """
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
