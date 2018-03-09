@@ -180,7 +180,6 @@ def internal_repository(communicator, stop_event=None):
     query = IceGrid.QueryPrx.checkedCast(query)
 
     repos = query.findAllObjectsByType("::omero::grid::InternalRepository")
-    print repos
     for repo in repos:
         try:
             repo = omero.grid.InternalRepositoryPrx.checkedCast(repo)
