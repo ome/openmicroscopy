@@ -37,7 +37,9 @@ import Ice
 
 from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
+from omero.cmd import Delete2, DoAll
 from omero.util import get_user
+from omero.sys import ParametersI
 from math import ceil
 from stat import ST_SIZE
 
@@ -337,6 +339,7 @@ def removepyramids(client, little_endian=None, dry_run=False,
     client.getImplicitContext().put(omero.constants.GROUP, '-1')
     admin_service = client.sf.getAdminService()
     config_service = client.sf.getConfigService()
+    query_service = client.sf.getQueryService()
 
     initial_check(config_service, admin_service)
     value = long(limit)
@@ -349,6 +352,14 @@ def removepyramids(client, little_endian=None, dry_run=False,
     request.littleEndian = little_endian
     request.importedAfter = imported_after
     request.limit = value
+
+    # query to find the settings associated to a pixels set
+    query = """
+    select rdef from RenderingDef as rdef
+    left outer join fetch rdef.pixels as p
+    left outer join fetch p.image as i
+    where i.id =:id
+    """
 
     cb = None
     ms = 500
@@ -379,8 +390,18 @@ def removepyramids(client, little_endian=None, dry_run=False,
             req.imageId = image_id
             req.deletePyramid = True
             req.deleteThumbnails = True
+            reqs = [req]
+            params = ParametersI()
+            params.addId(image_id)
+            rnd_defs = query_service.findAllByQuery(query, params)
+            if len(rnd_defs) > 0:
+                ids = []
+                for rnd_def in rnd_defs:
+                    ids.append(rnd_def.id.val)
+                dc = Delete2(targetObjects={'RenderingDef': ids})
+                reqs.append(dc)
             try:
-                cb = client.submit(req, loops=loops, ms=ms,
+                cb = client.submit(DoAll(reqs), loops=loops, ms=ms,
                                    failonerror=True,
                                    failontimeout=True)
                 print "Pyramid removed for image %s" % image_id
