@@ -42,7 +42,7 @@ import com.google.common.collect.MapMaker;
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
- * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/800">#800</a>
+ * @see <a href="https://trac.openmicroscopy.org/ome/ticket/800">#800</a>
  */
 public class PreferenceContext extends PropertyPlaceholderConfigurer {
 
