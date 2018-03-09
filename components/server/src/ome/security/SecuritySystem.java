@@ -238,11 +238,11 @@ public interface SecuritySystem {
      * a {@link ExperimenterGroup} value, then throw as well.
      *
      * @see <a
-     *      href="https://trac.openmicroscopy.org.uk/ome/ticket/1434>1434</a>
+     *      href="https://trac.openmicroscopy.org/ome/ticket/1434>1434</a>
      * @see <a
-     *      href="https://trac.openmicroscopy.org.uk/ome/ticket/1769>1769</a>
+     *      href="https://trac.openmicroscopy.org/ome/ticket/1769>1769</a>
      * @see <a
-     *      href="https://trac.openmicroscopy.org.uk/ome/ticket/9474>9474</a>
+     *      href="https://trac.openmicroscopy.org/ome/ticket/9474>9474</a>
      * @param details the details
      * @return if the graph is critical
      */

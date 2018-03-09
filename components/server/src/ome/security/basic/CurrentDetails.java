@@ -426,7 +426,7 @@ public class CurrentDetails implements PrincipalHolder {
      * group as well as the user's umask.
      *
      * @return details for the current security context
-     * @see <a href="https://trac.openmicroscopy.org.uk/trac/omero/ticket:1434">ticket:1434</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/1434">ticket:1434</a>
      */
     public Details createDetails() {
         final BasicEventContext c = current();
