@@ -297,7 +297,8 @@ class PrefsControl(WriteableConfigControl):
             if args.KEY and len(args.KEY) == 1:
                 self.ctx.out(config[k])
             else:
-                if is_password(k) and not args.show_password:
+                if is_password(k) and not getattr(
+                        args, "show_password", False):
                     self.ctx.out("%s=%s" % (k, '*' * 8 if config[k] else ''))
                 else:
                     self.ctx.out("%s=%s" % (k, config[k]))
