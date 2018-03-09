@@ -38,8 +38,8 @@ import Ice
 from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
 from omero.cmd import Delete2, DoAll
-from omero.util import get_user
 from omero.sys import ParametersI
+from omero.util import get_user
 from math import ceil
 from stat import ST_SIZE
 
