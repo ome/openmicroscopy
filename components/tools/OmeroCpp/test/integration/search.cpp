@@ -1874,7 +1874,7 @@ TEST(SearchTest, DISABLED_testCommentAnnotationDoesntTryToLoadUpdateEvent) {
 // =========================================================================
 
 // Test failing due to OMERO server bug
-// https://trac.openmicroscopy.org.uk/ome/ticket/10408
+// https://trac.openmicroscopy.org/ome/ticket/10408
 TEST(SearchTest, DISABLED_testExperimenterDoesntTryToLoadOwner) {
     SearchFixture f;
     SearchPrx search = f.search();
@@ -1884,7 +1884,7 @@ TEST(SearchTest, DISABLED_testExperimenterDoesntTryToLoadOwner) {
 }
 
 // Test failing due to OMERO server bug
-// https://trac.openmicroscopy.org.uk/ome/ticket/10408
+// https://trac.openmicroscopy.org/ome/ticket/10408
 TEST(SearchTest, DISABLED_testLookingForExperimenterWithOwner) {
     SearchFixture f;
     SearchPrx search = f.search();
