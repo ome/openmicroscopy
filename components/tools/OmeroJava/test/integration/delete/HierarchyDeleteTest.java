@@ -114,7 +114,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         ds2.linkImage(i1);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        // https://trac.openmicroscopy.org.uk/ome/ticket/3031#comment:7
+        // https://trac.openmicroscopy.org/ome/ticket/3031#comment:7
         // This image is only singly linked and should be removed.
 
         Image i2 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
