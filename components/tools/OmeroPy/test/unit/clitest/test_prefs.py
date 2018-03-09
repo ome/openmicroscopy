@@ -133,6 +133,18 @@ class TestPrefs(object):
             'omero.Z.mypassword=\n'
             'omero.Z.pass=\n'
             'omero.Z.password='))
+        self.invoke("list")
+        self.assertStdoutStderr(capsys, out=(
+            'omero.X.mypassword=********\n'
+            'omero.X.pass=********\n'
+            'omero.X.password=********\n'
+            'omero.X.regular=value\n'
+            'omero.Y.MyPassword=********\n'
+            'omero.Y.Pass=********\n'
+            'omero.Y.Password=********\n'
+            'omero.Z.mypassword=\n'
+            'omero.Z.pass=\n'
+            'omero.Z.password='))
 
     @pytest.mark.parametrize('argument', ['A=B', 'A= B'])
     def testSetFails(self, capsys, argument):
