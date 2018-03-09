@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * Any other attempt to acquire the omero.data.dir directly may cause issues in
  * non-standard environments.
  * 
- * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/800">ticket:800</a>
+ * @see <a href="https://trac.openmicroscopy.org/ome/ticket/800">ticket:800</a>
  */
 class PathUtil {
 
