@@ -87,7 +87,7 @@ class TestRemovePyramidsFullAdmin(CLITest):
         self.args += ["admin", "removepyramids"]
         self.group_ctx = {'omero.group': str(self.group.id.val)}
 
-    def import_pyramid(self, tmpdir, name=None):
+    def import_pyramid(self, tmpdir, name=None, settings=False):
         if name is None:
             name = "test&sizeX=4000&sizeY=4000.fake"
         fakefile = tmpdir.join(name)
@@ -98,9 +98,24 @@ class TestRemovePyramidsFullAdmin(CLITest):
         assert id >= 0
         time.sleep(30)
         query_service = self.client.sf.getQueryService()
+        param = ParametersI().addId(id)
+        if settings:
+            tb = self.client.sf.createThumbnailStore()
+            try:
+                tb.getThumbnailByLongestSideSet(rint(16), [id])
+            finally:
+                tb.close()
+            # check the rendering settings
+            query = """
+            select rdef from RenderingDef as rdef
+            left outer join fetch rdef.pixels as p
+            where p.id =:id
+            """
+            rnd_defs = query_service.findAllByQuery(query, param)
+            assert len(rnd_defs) > 0
+        # find image id
         pix = query_service.findByQuery(
-            "select p from Pixels p where p.id = :id",
-            ParametersI().addId(id))
+            "select p from Pixels p where p.id = :id", param)
         return pix.image.id.val
 
     def import_pyramid_pre_fs(self, tmpdir):
@@ -150,12 +165,23 @@ class TestRemovePyramidsFullAdmin(CLITest):
 
     def test_remove_pyramids_little_endian(self, tmpdir, capsys):
         """Test removepyramids with litlle endian true"""
-        img_id = self.import_pyramid(tmpdir)
+        img_id = self.import_pyramid(tmpdir, settings=True)
         self.args += ["--endian=little"]
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
         output_start = "Pyramid removed for image %s" % img_id
         assert output_start in out
+        # check that the rendering settings have been deleted
+        query_service = self.client.sf.getQueryService()
+        query = """
+        select rdef from RenderingDef as rdef
+        left outer join fetch rdef.pixels as p
+        left outer join fetch p.image as i
+        where i.id =:id
+        """
+        param = ParametersI().addId(img_id)
+        rnd_defs = query_service.findAllByQuery(query, param)
+        assert len(rnd_defs) == 0
 
     def test_remove_pyramids_imported_after_future(self, tmpdir, capsys):
         """Test removepyramids with date in future"""
