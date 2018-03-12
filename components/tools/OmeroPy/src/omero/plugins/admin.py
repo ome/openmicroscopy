@@ -398,7 +398,7 @@ location.
         removepyramids.add_argument(
             "--limit", metavar="MAX_NUMBER",
             help="Set the limit of pyramids to remove in one call. "
-            "The default value is set to 500")
+            "Values greater than 500 (default) are not supported")
         removepyramids.add_login_arguments()
         self._add_wait(removepyramids)
 
