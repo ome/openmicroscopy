@@ -340,6 +340,8 @@ def removepyramids(client, little_endian=None, dry_run=False,
 
     initial_check(config_service, admin_service)
     value = long(limit)
+    # If the default limit is changed, please update the help
+    # in admin.py
     if value > 500 or value <= 0:
         value = long(500)
     print "No more than %s pyramids will be removed" % value
