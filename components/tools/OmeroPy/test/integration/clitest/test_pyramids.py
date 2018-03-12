@@ -32,6 +32,7 @@ import omero.plugins.admin
 import pytest
 import time
 import datetime
+import hashlib
 
 
 class TestRemovePyramids(CLITest):
@@ -87,7 +88,12 @@ class TestRemovePyramidsFullAdmin(CLITest):
         self.args += ["admin", "removepyramids"]
         self.group_ctx = {'omero.group': str(self.group.id.val)}
 
-    def import_pyramid(self, tmpdir, name=None):
+    def calculate_sha1(self, data):
+        h = hashlib.sha1()
+        h.update(data)
+        return h.hexdigest()
+
+    def import_pyramid(self, tmpdir, name=None, thumb=False):
         if name is None:
             name = "test&sizeX=4000&sizeY=4000.fake"
         fakefile = tmpdir.join(name)
@@ -237,3 +243,46 @@ class TestRemovePyramidsFullAdmin(CLITest):
         assert output_start in out
         output_start = "Pyramid removed for image %s" % little_id
         assert output_start in out
+
+    def test_remove_pyramids_check_thumbnails(self, tmpdir, capsys):
+        """Test check that the thumbnail is correctly created"""
+        name = "big&sizeX=3500&sizeY=3500&little=false.fake"
+        img_id = self.import_pyramid(tmpdir, name)
+        query_service = self.client.sf.getQueryService()
+        pix = query_service.findByQuery(
+            "select p from Pixels p where p.image.id = :id",
+            ParametersI().addId(img_id))
+        tb = self.client.sf.createThumbnailStore()
+        id = pix.id.val
+        thumb_hash = None
+        try:
+            thumbs = tb.getThumbnailByLongestSideSet(rint(64), [id],
+                                                     {'omero.group': '-1'})
+            assert len(thumbs) == 1
+            thumb_hash = self.calculate_sha1(thumbs[id])
+        finally:
+            tb.close()
+
+        # remove the pyramid and the thumbnail
+        self.args += ["--endian=big"]
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        # regenerate pyramid and thumbnail
+        tb = self.client.sf.createThumbnailStore()
+        try:
+            thumbs = tb.getThumbnailByLongestSideSet(rint(64), [id],
+                                                     {'omero.group': '-1'})
+            assert len(thumbs) == 1
+            # The clock should be returned during the pyramid generation
+            digest = self.calculate_sha1(thumbs[id])
+            assert digest != thumb_hash
+            while digest != thumb_hash:
+                thumbs = tb.getThumbnailByLongestSideSet(rint(64), [id],
+                                                         {'omero.group': '-1'})
+                digest = self.calculate_sha1(thumbs[id])
+                # wait few seconds before the next check
+                time.sleep(5)
+            # The thumbnail should now be back
+            assert digest == thumb_hash
+        finally:
+            tb.close()
