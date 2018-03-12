@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1128,6 +1129,20 @@ public class ThumbnailBean extends AbstractLevel2Service
                 _createThumbnail();
             }
             byte[] thumbnail = ioService.getThumbnail(thumbnailMetadata);
+            //Thumbnails are copied to disk retrieved from disk including
+            //the "clock"
+            //When existing pyramids and thumbnails are deleted from disk
+            //using method like removepyramids, the "clock" will be, the first
+            //time saved to disk, then always as used as the thumbnail since the
+            //current implementation assumes that the image does not already
+            //have some rendering settings.
+            //In the check, the "clock" is deleted from disk after creation.
+            //This means that the clock will have to be created every time until
+            //the correct thumbnail is ready.
+            if (inProgress) {
+                ioService.removeThumbnails(
+                        Arrays.asList(new Long[] { thumbnailMetadata.getId() }));
+            }
             return thumbnail;
         }
         catch (IOException e)
