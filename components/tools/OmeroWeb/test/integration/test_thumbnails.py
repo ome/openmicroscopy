@@ -125,3 +125,17 @@ class TestThumbnails(IWebTest):
             assert json.dumps(expected_thumbs) == b64rsp
         finally:
             self.assert_no_leaked_rendering_engines()
+
+    def test_render_birds_eye_view(self):
+        size = 100
+        image_id = self.create_test_image(size_x=125, size_y=125,
+                                          session=self.sf).getId().getValue()
+        args = [image_id]
+        args.append(size)
+        request_url = reverse('webgateway.views.render_birds_eye_view', args=args)
+        try:
+            rsp = get(self.django_client, request_url)
+            thumb = Image.open(StringIO(rsp.content))
+            assert thumb.size == (size, size)
+        finally:
+            self.assert_no_leaked_rendering_engines()
