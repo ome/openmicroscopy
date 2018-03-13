@@ -39,10 +39,49 @@ except ImportError:
 
 
 class TestRendering(IWebTest):
+
+    def assert_no_leaked_rendering_engines(self):
+        """
+        Assert no rendering engine stateful services are left open for the
+        current session.
+        """
+        for v in self.client.getSession().activeServices():
+            assert 'RenderingEngine' not in v, 'Leaked rendering engine!'
+
+    def test_save_image_rdef_json(self):
+        image_id = self.create_test_image(size_c=3, session=self.sf).id.val
+
+        request_url = reverse(
+            'webgateway.views.save_image_rdef_json',
+            kwargs={'iid': str(image_id)}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            post(django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_reset_rdef_json(self):
+        image_id = self.create_test_image(size_c=3, session=self.sf).id.val
+
+        request_url = reverse('webgateway.views.reset_rdef_json')
+        data = {
+            'toids': image_id,
+            'to_type': 'image'
+        }
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            post(django_client, request_url, data)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
     """
     Tests copying and pasting of rendering settings from one image to another
     """
-
     def test_copy_past_rendering_settings_from_image(self):
         # Create 2 images with 2 channels each
         iid1 = self.create_test_image(size_c=2, session=self.sf).id.val
@@ -249,7 +288,6 @@ class TestRendering(IWebTest):
         fullOwner = owner.get("firstName", "") + " " +\
             owner.get("lastName", "")
         assert fullOwner == conn.getUser().getFullName()
-
 
 class TestRenderImage(IWebTest):
 
