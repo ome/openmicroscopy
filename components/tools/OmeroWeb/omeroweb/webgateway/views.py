@@ -2760,7 +2760,7 @@ def _table_query(request, fileid, conn=None, **kwargs):
             )
         )
     finally:
-        if t is None:
+        if t is not None:
             t.close()
 
 table_query = login_required()(jsonp(_table_query))
