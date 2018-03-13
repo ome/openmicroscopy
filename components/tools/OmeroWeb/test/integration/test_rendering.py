@@ -251,6 +251,48 @@ class TestRendering(IWebTest):
         assert fullOwner == conn.getUser().getFullName()
 
 
+class TestRenderImage(IWebTest):
+
+    def assert_no_leaked_rendering_engines(self):
+        """
+        Assert no rendering engine stateful services are left open for the
+        current session.
+        """
+        for v in self.client.getSession().activeServices():
+            assert 'RenderingEngine' not in v, 'Leaked rendering engine!'
+
+    def test_render_image(self):
+        image_id = self.create_test_image(size_c=3, session=self.sf).id.val
+
+        request_url = reverse(
+            'webgateway.views.render_image',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            get(django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_ome_tiff(self):
+        image_id = self.create_test_image(size_c=3, session=self.sf).id.val
+
+        request_url = reverse(
+            'webgateway.views.render_ome_tiff',
+            kwargs={'cid': str(image_id), 'ctx': 'i'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            get(django_client, request_url)
+        finally:
+            for v in self.client.getSession().activeServices():
+                assert 'ExporterPrx' not in v, 'Leaked exporter!'
+
+
 class TestRenderImageRegion(IWebTest):
     """
     Tests rendering of image regions
