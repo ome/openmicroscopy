@@ -404,7 +404,7 @@ class TestPlateGrid(object):
         assert metadata['grid'][0][0]['description'] == description
 
 
-class TestScreenPlateTables(object):
+class TestScreenPlateTables(IWebTest):
     """
     Tests the retrieval of tabular data attached to Plate
     """
@@ -419,10 +419,14 @@ class TestScreenPlateTables(object):
         # E.g. webgateway/table/Plate.wells/2061/query/?query=Well-2061
         request_url = reverse('webgateway_object_table_query',
                               args=("Plate.wells", wellId))
-        response = django_client.get(request_url,
-                                     data={'query': 'Well-%s' % wellId})
-        rspJson = json.loads(response.content)
-        print rspJson
+        try:
+            response = django_client.get(request_url,
+                                         data={'query': 'Well-%s' % wellId})
+            rspJson = json.loads(response.content)
+        finally:
+            for v in self.client.getSession().activeServices():
+                assert 'TableProxy' not in v, 'Leaked table!'
+
         assert rspJson['data'] == {
             'rows': [[wellId, 'foobar']],
             'columns': ['Well', 'TestColumn']}
