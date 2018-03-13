@@ -349,6 +349,8 @@
                     {% elif manager.image %}
                     var screenQuery = "{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells.wellSamples.image' manager.image.id %}";
                     var plateQuery = "{% url 'webgateway_object_table_query' 'Plate.wells.wellSamples.image' manager.image.id %}";
+                    var projectQuery = "{% url 'webgateway_object_table_query' 'Project.datasetLinks.child.imageLinks.child.image' manager.image.id %}";
+                    var datasetQuery = "{% url 'webgateway_object_table_query' 'Dataset.imageLinks.child.image' manager.image.id %}";
                     var query = "Image-{{ manager.image.id }}";
                     {% endif %}
 
@@ -387,6 +389,8 @@
                         if (expanded && $("#bulk_annotations_table").is(":empty")) {
                             loadBulkAnnotations(screenQuery, query, showBulkAnnTooltip);
                             loadBulkAnnotations(plateQuery, query, showBulkAnnTooltip);
+                            loadBulkAnnotations(projectQuery, query, showBulkAnnTooltip);
+                            loadBulkAnnotations(datasetQuery, query, showBulkAnnTooltip);
                         }
                     });
 
@@ -398,6 +402,8 @@
                         if ($("#bulk_annotations_table").is(":empty")) {
                             loadBulkAnnotations(screenQuery, query, showBulkAnnTooltip);
                             loadBulkAnnotations(plateQuery, query, showBulkAnnTooltip);
+                            loadBulkAnnotations(projectQuery, query, showBulkAnnTooltip);
+                            loadBulkAnnotations(datasetQuery, query, showBulkAnnTooltip);
                         }
                     }
 
