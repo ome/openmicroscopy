@@ -82,9 +82,12 @@ class TestThumbnails(IWebTest):
         if size is not None:
             args.append(size)
         request_url = reverse('webgateway.views.render_thumbnail', args=args)
-        rsp = get(self.django_client, request_url)
-        thumb = json.dumps(
-            "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content))
+        try:
+            rsp = get(self.django_client, request_url)
+            thumb = json.dumps(
+                "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content))
+        finally:
+            self.assert_no_leaked_rendering_engines()
 
         request_url = reverse('webgateway.views.get_thumbnail_json',
                               args=args)
