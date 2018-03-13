@@ -443,7 +443,7 @@ def render_roi_thumbnail(request, roiId, w=None, h=None, conn=None, **kwargs):
 def render_shape_thumbnail(request, shapeId, w=None, h=None, conn=None,
                            **kwargs):
     """
-    For the given Shape, redner a region around that shape, scale to width and
+    For the given Shape, render a region around that shape, scale to width and
     height (or default size) and draw the shape on to the region.
     """
     server_id = request.session['connector'].server_id
