@@ -2502,10 +2502,11 @@ class UserGroupControl(BaseControl):
 
         return uid_list, u_list
 
-    def add_group_arguments(self, parser, action=""):
+    def add_group_arguments(self, parser, action="", mandatory=False):
         group = parser.add_argument_group('Group arguments')
+        nargs = "+" if mandatory else "*"
         group.add_argument(
-            "group_id_or_name",  metavar="group", nargs="*",
+            "group_id_or_name",  metavar="group", nargs=nargs,
             help="ID or name of the group(s)%s" % action)
         group.add_argument(
             "--group-id", metavar="group", nargs="+",
