@@ -166,3 +166,26 @@ class TestThumbnails(IWebTest):
             rsp = get(self.django_client, request_url)
         finally:
             self.assert_no_leaked_rendering_engines()
+
+    def test_render_shape_thumbnail(self):
+        image_id = self.create_test_image(size_x=125, size_y=125,
+                                          session=self.sf).getId().getValue()
+        size = 40
+        img = omero.model.ImageI(image_id, False)
+        roi = omero.model.RoiI()
+        rect = omero.model.RectangleI()
+        rect.x = rdouble(0)
+        rect.y = rdouble(0)
+        rect.width = rdouble(size)
+        rect.height = rdouble(size)
+        roi.addShape(rect)
+        roi.setImage(img)
+
+        roi = self.update.saveAndReturnObject(roi)
+        shape = roi.copyShapes()[0]
+        args = [shape.id.val]
+        request_url = reverse('webgateway.views.render_shape_thumbnail', args=args)
+        try:
+            rsp = get(self.django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
