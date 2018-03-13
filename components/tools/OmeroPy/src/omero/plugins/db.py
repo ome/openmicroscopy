@@ -263,7 +263,7 @@ BEGIN;
             password_hash = self._get_password_hash(args, root_pass,
                                                     old_prompt)
         self.ctx.out("UPDATE password SET hash = '%s' "
-                     "WHERE experimenter_id  = %s;""" %
+                     "WHERE experimenter_id = %s;""" %
                      (password_hash, user_id))
 
     @windows_warning
