@@ -82,7 +82,7 @@ class TestRendering(IWebTest):
     """
     Tests copying and pasting of rendering settings from one image to another
     """
-    def test_copy_past_rendering_settings_from_image(self):
+    def test_copy_paste_rendering_settings_from_image(self):
         # Create 2 images with 2 channels each
         iid1 = self.create_test_image(size_c=2, session=self.sf).id.val
         iid2 = self.create_test_image(size_c=2, session=self.sf).id.val
@@ -95,12 +95,14 @@ class TestRendering(IWebTest):
         image1.setColorRenderingModel()
         image1.setQuantizationMap(0, "logarithmic", 0.5)
         image1.saveDefaults()
+        image1._closeRE()
         image1 = conn.getObject("Image", iid1)
 
         # image2 set greyscale model
         image2 = conn.getObject("Image", iid2)
         image2.setGreyscaleRenderingModel()
         image2.saveDefaults()
+        image2._closeRE()
         image2 = conn.getObject("Image", iid2)
 
         assert image1.isGreyscaleRenderingModel() is False
@@ -113,6 +115,8 @@ class TestRendering(IWebTest):
         assert img2_chan.getFamily().getValue() == 'linear'
         assert img2_chan.getCoefficient() == 1.0
 
+        image1._closeRE()
+        image2._closeRE()
         # copy rendering settings from image1 via ID
         request_url = reverse('webgateway.views.copy_image_rdef_json')
         data = {
@@ -124,16 +128,20 @@ class TestRendering(IWebTest):
         data = {
             'toids': iid2
         }
-
-        post(self.django_client, request_url, data)
+        try:
+            post(self.django_client, request_url, data)
+        finally:
+            self.assert_no_leaked_rendering_engines()
 
         image2 = conn.getObject("Image", iid2)
         assert image2.isGreyscaleRenderingModel() is False
         img2_chan = image2.getChannels()[0]
         assert img2_chan.getFamily().getValue() == 'logarithmic'
         assert img2_chan.getCoefficient() == 0.5
+        image2._closeRE()
+        self.assert_no_leaked_rendering_engines()
 
-    def test_copy_past_rendering_settings_from_url(self):
+    def test_copy_paste_rendering_settings_from_url(self):
         # Create 2 images with 2 channels each
         iid1 = self.create_test_image(size_c=2, session=self.sf).id.val
         iid2 = self.create_test_image(size_c=2, session=self.sf).id.val
@@ -148,12 +156,14 @@ class TestRendering(IWebTest):
                                  ['00FF00', 'FF0000'], [True, False])
         image1.setQuantizationMap(0, "exponential", 0.8)
         image1.saveDefaults()
+        image1._closeRE()
         image1 = conn.getObject("Image", iid1)
 
         # image2 set greyscale model
         image2 = conn.getObject("Image", iid2)
         image2.setGreyscaleRenderingModel()
         image2.saveDefaults()
+        image2._closeRE()
         image2 = conn.getObject("Image", iid2)
 
         assert image1.isGreyscaleRenderingModel() is False
@@ -179,6 +189,8 @@ class TestRendering(IWebTest):
 
         # build channel parameter e.g. 1|0:15$FF0000...
         old_c1 = buildParamC(image1)
+        image1._closeRE()
+        image2._closeRE()
         # Check it is what we expect
         exp_map1 = '{"quantization":' \
             '{"family":"exponential","coefficient":0.8}}'
@@ -201,13 +213,13 @@ class TestRendering(IWebTest):
             "z": 1,
             "zm": 100
         }
-        get(self.django_client, request_url, data)
-
-        # paste rendering settings to image2
-        data = {
-            'toids': iid2
-        }
-        post(self.django_client, request_url, data)
+        try:
+            get(self.django_client, request_url, data)
+            # paste rendering settings to image2
+            data = {'toids': iid2}
+            post(self.django_client, request_url, data)
+        finally:
+            self.assert_no_leaked_rendering_engines()
 
         # reload image1
         image1 = conn.getObject("Image", iid1)
@@ -227,6 +239,9 @@ class TestRendering(IWebTest):
         newChan = image2.getChannels()[0]
         assert newChan.getFamily().getValue() == 'exponential'
         assert newChan.getCoefficient() == 0.8
+        image1._closeRE()
+        image2._closeRE()
+        self.assert_no_leaked_rendering_engines()
 
     """
     Tests retrieving all rendering defs for an image (given id)
@@ -244,14 +259,18 @@ class TestRendering(IWebTest):
         image.setQuantizationMap(0, "logarithmic", 0.45)
         image.setQuantizationMap(1, "exponential", 0.9)
         image.saveDefaults()
+        image._closeRE()
         image = conn.getObject("Image", iid)
 
         assert image.isGreyscaleRenderingModel() is False
-
+        image._closeRE()
         # request the rendering def via the method we want to test
         request_url = reverse(
             'webgateway.views.get_image_rdefs_json', args=[iid])
-        response = get(self.django_client, request_url)
+        try:
+            response = get(self.django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
 
         # check expected response
         assert response is not None and response.content is not None
@@ -288,6 +307,9 @@ class TestRendering(IWebTest):
         fullOwner = owner.get("firstName", "") + " " +\
             owner.get("lastName", "")
         assert fullOwner == conn.getUser().getFullName()
+        image._closeRE()
+        self.assert_no_leaked_rendering_engines()
+
 
 class TestRenderImage(IWebTest):
 
