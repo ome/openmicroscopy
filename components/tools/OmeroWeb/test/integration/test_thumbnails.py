@@ -29,12 +29,20 @@ import pytest
 from django.core.urlresolvers import reverse
 try:
     from PIL import Image
-except:
+except Exception:
     import Image
 
 
 class TestThumbnails(IWebTest):
     """Tests loading of thumbnails."""
+
+    def assert_no_leaked_rendering_engines(self):
+        """
+        Assert no rendering engine stateful services are left open for the
+        current session.
+        """
+        for v in self.client.getSession().activeServices():
+            assert 'RenderingEngine' not in v, 'Leaked rendering engine!'
 
     @pytest.mark.parametrize("size", [None, 100])
     def test_default_thumb_size(self, size):
@@ -44,13 +52,16 @@ class TestThumbnails(IWebTest):
         Default size is 96.
         """
         # Create a square image
-        iId = self.create_test_image(size_x=125, size_y=125,
-                                     session=self.sf).getId().getValue()
-        args = [iId]
+        image_id = self.create_test_image(size_x=125, size_y=125,
+                                          session=self.sf).getId().getValue()
+        args = [image_id]
         if size is not None:
             args.append(size)
         request_url = reverse('webgateway.views.render_thumbnail', args=args)
-        rsp = get(self.django_client, request_url)
+        try:
+            rsp = get(self.django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
 
         thumb = Image.open(StringIO(rsp.content))
         # Should be 96 on both sides
@@ -77,8 +88,11 @@ class TestThumbnails(IWebTest):
 
         request_url = reverse('webgateway.views.get_thumbnail_json',
                               args=args)
-        b64rsp = get(self.django_client, request_url).content
-        assert thumb == b64rsp
+        try:
+            b64rsp = get(self.django_client, request_url).content
+            assert thumb == b64rsp
+        finally:
+            self.assert_no_leaked_rendering_engines()
 
     def test_base64_thumb_set(self):
         """
@@ -95,15 +109,19 @@ class TestThumbnails(IWebTest):
         for i in images:
             request_url = reverse('webgateway.views.render_thumbnail',
                                   args=[i])
-            rsp = get(self.django_client, request_url)
-
-            expected_thumbs[i] = \
-                "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content)
+            try:
+                rsp = get(self.django_client, request_url)
+                expected_thumbs[i] = \
+                    "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content)
+            finally:
+                self.assert_no_leaked_rendering_engines()
 
         iids = {'id': images}
         request_url = reverse('webgateway.views.get_thumbnails_json')
-        b64rsp = get(self.django_client, request_url, iids).content
-
-        assert cmp(json.loads(b64rsp),
-                   json.loads(json.dumps(expected_thumbs))) == 0
-        assert json.dumps(expected_thumbs) == b64rsp
+        try:
+            b64rsp = get(self.django_client, request_url, iids).content
+            assert cmp(json.loads(b64rsp),
+                       json.loads(json.dumps(expected_thumbs))) == 0
+            assert json.dumps(expected_thumbs) == b64rsp
+        finally:
+            self.assert_no_leaked_rendering_engines()
