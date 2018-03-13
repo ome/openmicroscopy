@@ -45,8 +45,12 @@ class TestImgDetail(IWebTest):
 
         json_url = reverse('webgateway.views.imageData_json', args=[iid])
         data = {}
-        img_data = get_json(self.django_client, json_url, data,
-                            status_code=200)
+        try:
+            img_data = get_json(self.django_client, json_url, data,
+                                status_code=200)
+        finally:
+            for v in self.client.getSession().activeServices():
+                assert 'RenderingEngine' not in v, 'Leaked rendering engine!'
 
         # Not a big image - tiles should be False with no other tiles metadata
         assert img_data['tiles'] is False
