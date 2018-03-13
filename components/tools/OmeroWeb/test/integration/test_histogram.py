@@ -46,12 +46,16 @@ class TestHistogram(IWebTest):
         if bins is not None:
             payload['bins'] = bins
         request_url = reverse('histogram_json', args=args)
-        json = get_json(self.django_client, request_url, payload)
-        data = json['data']
-        # Sum of all pixel counts should equal number of pixels in image
-        assert sum(data) == size_x * size_y
-        # Number of bins should equal the 'bins' parameter (256 by default)
-        if bins is None:
-            assert len(data) == 256
-        else:
-            assert len(data) == bins
+        try:
+            json = get_json(self.django_client, request_url, payload)
+            data = json['data']
+            # Sum of all pixel counts should equal number of pixels in image
+            assert sum(data) == size_x * size_y
+            # Number of bins should equal the 'bins' parameter (256 by default)
+            if bins is None:
+                assert len(data) == 256
+            else:
+                assert len(data) == bins
+        finally:
+            for v in self.client.getSession().activeServices():
+                assert 'RawPixelsStore' not in v, 'Leaked RawPixelsStore!'
