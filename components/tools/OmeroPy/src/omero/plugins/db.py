@@ -70,8 +70,11 @@ class DatabaseControl(BaseControl):
         pw = sub.add_parser(
             "password",
             help="Prints SQL command for updating your root password")
-        pw.add_argument("password", nargs="?")
         pw.set_defaults(func=self.password)
+        pw_spec = pw.add_mutually_exclusive_group()
+        pw_spec.add_argument("password", nargs="?")
+        pw_spec.add_argument("--no-password", action="store_true",
+            help="Remove the password, allowing any for login.")
         pw.add_argument("--user-id",
                         help="User ID to salt into the password. "
                         "Defaults to '0', i.e. 'root'",
@@ -254,7 +257,11 @@ BEGIN;
             root_pass = args.password
         except Exception, e:
             self.ctx.dbg("While getting arguments:" + str(e))
-        password_hash = self._get_password_hash(args, root_pass, old_prompt)
+        if args.no_password:
+            password_hash = ""
+        else:
+            password_hash = self._get_password_hash(args, root_pass,
+                                                    old_prompt)
         self.ctx.out("UPDATE password SET hash = '%s' "
                      "WHERE experimenter_id  = %s;""" %
                      (password_hash, user_id))
