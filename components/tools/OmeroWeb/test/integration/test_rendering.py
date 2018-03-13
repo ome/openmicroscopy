@@ -306,6 +306,36 @@ class TestRenderImage(IWebTest):
         finally:
             self.assert_no_leaked_rendering_engines()
 
+    def test_render_row_plot(self):
+        image_id = self.create_test_image(size_x=125, size_y=125,
+                                          session=self.sf).getId().getValue()
+        request_url = reverse(
+            'webgateway.views.render_row_plot',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0', 'y': '100'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            get(django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_col_plot(self):
+        image_id = self.create_test_image(size_x=125, size_y=125,
+                                          session=self.sf).getId().getValue()
+        request_url = reverse(
+            'webgateway.views.render_col_plot',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0', 'x': '100'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            get(django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
 
 class TestRenderImageRegion(IWebTest):
     """
