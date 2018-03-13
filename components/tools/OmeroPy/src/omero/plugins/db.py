@@ -73,7 +73,7 @@ class DatabaseControl(BaseControl):
         pw.set_defaults(func=self.password)
         pw_spec = pw.add_mutually_exclusive_group()
         pw_spec.add_argument("password", nargs="?")
-        pw_spec.add_argument("--no-password", action="store_true",
+        pw_spec.add_argument("--empty", action="store_true",
             help="Remove the password, allowing any for login.")
         pw.add_argument("--user-id",
                         help="User ID to salt into the password. "
@@ -257,7 +257,7 @@ BEGIN;
             root_pass = args.password
         except Exception, e:
             self.ctx.dbg("While getting arguments:" + str(e))
-        if args.no_password:
+        if args.empty:
             password_hash = ""
         else:
             password_hash = self._get_password_hash(args, root_pass,
