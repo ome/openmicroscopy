@@ -8283,7 +8283,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 # else:
                 #     pos = None
             if self.getProjection() != 'normal':
-                return self._getProjectedThumbnail(size, pos)
+                try:
+                    return self._getProjectedThumbnail(size, pos)
+                finally:
+                    self._closeRE()
             if len(size) == 1:
                 if pos is None:
                     if direct:
@@ -8308,13 +8311,14 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             args += [ctx]
             rv = thumb(*args)
             self._thumbInProgress = tb.isInProgress()
-            tb.close()      # close every time to prevent stale state
             return rv
         except Exception:  # pragma: no cover
             logger.error(traceback.format_exc())
+            return None
+        finally:
             if tb is not None:
                 tb.close()
-            return None
+
 
     @assert_pixels
     def getPixelRange(self):
