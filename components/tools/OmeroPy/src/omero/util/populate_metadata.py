@@ -288,8 +288,13 @@ class ValueResolver(object):
         q = "select x.details.group.id from %s x where x.id = %d " % (
             self.target_type, self.target_id
         )
-        self.target_group = unwrap(
-            self.client.sf.getQueryService().projection(q, None))
+        rows = unwrap(
+            self.client.sf.getQueryService().projection(
+                q, None, {'omero.group': '-1'}))
+        if rows is None or len(rows) != 1:
+            raise MetadataError(
+                "Cannot find %s:%d" % (self.target_type, self.target_id))
+        self.target_group = rows[0][0]
         # The goal is to make this the only instance of
         # a if/elif/else block on the target_class. All
         # logic should be placed in a the concrete wrapper
@@ -650,7 +655,10 @@ class DatasetWrapper(PDIWrapper):
         self._load()
 
     def get_image_id_by_name(self, iname, dname=None):
-        return self.images_by_name[iname]
+        return self.images_by_name[iname].id.val
+
+    def get_image_name_by_id(self, iid, did):
+        return self.images_by_id[did][iid].name.val
 
     def _load(self):
         query_service = self.client.getSession().getQueryService()
@@ -667,12 +675,12 @@ class DatasetWrapper(PDIWrapper):
         data = list()
         while True:
             parameters.page(len(data), 1000)
-            rv = unwrap(query_service.projection((
-                'select distinct i.id, i.name from Dataset as d '
+            rv = query_service.findAllByQuery((
+                'select distinct i from Dataset as d '
                 'join d.imageLinks as l '
                 'join l.child as i '
                 'where d.id = :id order by i.id desc'),
-                parameters, {'omero.group': '-1'}))
+                parameters, {'omero.group': '-1'})
             if len(rv) == 0:
                 break
             else:
@@ -680,13 +688,17 @@ class DatasetWrapper(PDIWrapper):
         if not data:
             raise MetadataError('Could not find target object!')
 
-        for iid, iname in data:
-            self.images_by_id[iid] = iname
+        images_by_id = dict()
+        for image in data:
+            iname = image.name.val
+            iid = image.id.val
+            images_by_id[iid] = image
             if iname in self.images_by_name:
                 raise Exception("Image named %s(id=%d) present. (id=%s)" % (
                     iname, self.images_by_name[iname], iid
                 ))
-            self.images_by_name[iname] = iid
+            self.images_by_name[iname] = image
+        self.images_by_id[self.target_object.id.val] = images_by_id
         log.debug('Completed parsing dataset: %s' % self.target_name)
 
 
@@ -936,19 +948,21 @@ class ParsingContext(object):
             if image_name_column is not None and (
                     DatasetI is target_class or
                     ProjectI is target_class):
-                iid = -1
+                iname = ""
                 try:
-                    iname = image_name_column.values[i]
-                    did = None
+                    log.debug(image_name_column)
+                    log.debug(image_name_column.values)
+                    iid = image_column.values[i]
+                    did = self.target_object.id.val
                     if "Dataset Name" in columns_by_name:  # FIXME
                         did = columns_by_name["Dataset Name"].values[i]
-                    iid = self.value_resolver.get_image_id_by_name(
-                        iname, did)
+                    iname = self.value_resolver.get_image_name_by_id(
+                        iid, did)
                 except KeyError:
                     log.warn(
-                        "%s not found in image names" % iname)
-                assert i == len(image_column.values)
-                image_column.values.append(iid)
+                        "%d not found in image ids" % iid)
+                assert i == len(image_name_column.values)
+                image_name_column.values.append(iname)
                 image_name_column.size = max(
                     image_name_column.size, len(iname))
             elif image_name_column is not None and (
