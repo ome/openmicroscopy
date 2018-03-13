@@ -292,6 +292,20 @@ class TestRenderImage(IWebTest):
             for v in self.client.getSession().activeServices():
                 assert 'ExporterPrx' not in v, 'Leaked exporter!'
 
+    def test_render_split_channel(self):
+        image_id = self.create_test_image(size_c=3, session=self.sf).id.val
+        request_url = reverse(
+            'webgateway.views.render_split_channel',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            get(django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
 
 class TestRenderImageRegion(IWebTest):
     """
