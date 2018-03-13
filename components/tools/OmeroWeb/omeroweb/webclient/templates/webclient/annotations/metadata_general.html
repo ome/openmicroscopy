@@ -349,8 +349,8 @@
                     {% elif manager.image %}
                     var screenQuery = "{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells.wellSamples.image' manager.image.id %}";
                     var plateQuery = "{% url 'webgateway_object_table_query' 'Plate.wells.wellSamples.image' manager.image.id %}";
-                    var projectQuery = "{% url 'webgateway_object_table_query' 'Project.datasetLinks.child.imageLinks.child.image' manager.image.id %}";
-                    var datasetQuery = "{% url 'webgateway_object_table_query' 'Dataset.imageLinks.child.image' manager.image.id %}";
+                    var projectQuery = "{% url 'webgateway_object_table_query' 'Project.datasetLinks.child.imageLinks.child' manager.image.id %}";
+                    var datasetQuery = "{% url 'webgateway_object_table_query' 'Dataset.imageLinks.child' manager.image.id %}";
                     var query = "Image-{{ manager.image.id }}";
                     {% endif %}
 
