@@ -32,7 +32,8 @@ class TestImage (object):
     def setUp(self, author_testimg):
         self.image = author_testimg
 
-    def testThumbnail(self, author_testimg_bad, author_testimg_big):
+    def testThumbnail(self, author_testimg_bad, author_testimg_big,
+                      gatewaywrapper):
         thumb = self.image.getThumbnail()
         tfile = StringIO(thumb)
         thumb = Image.open(tfile)  # Raises if invalid
@@ -65,6 +66,9 @@ class TestImage (object):
         ptfile = StringIO(pThumb)
         pthumb = Image.open(ptfile)  # Raises if invalid
         pthumb.verify()  # Raises if invalid
+        # Check that the thumbnail store is closed
+        for v in gatewaywrapper.gateway.c.getSession().activeServices():
+            assert 'ThumbnailStore' not in v, 'Leaked thumbnail store!'
 
     def testThumbnailSet(self, author_testimg_bad, author_testimg_big):
         # ordinary and big image (4k x 4k and up)
@@ -367,3 +371,6 @@ class TestImage (object):
         finally:
             gatewaywrapper.loginAsAdmin()
             admin = gatewaywrapper.gateway.getAdminService()
+        # Check that the exporter is closed
+        for v in gatewaywrapper.gateway.c.getSession().activeServices():
+            assert 'ExporterPrx' not in v, 'Leaked exporter!'
