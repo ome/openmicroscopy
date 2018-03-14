@@ -137,7 +137,8 @@ class TestThumbnails(IWebTest):
                                           session=self.sf).getId().getValue()
         args = [image_id]
         args.append(size)
-        request_url = reverse('webgateway.views.render_birds_eye_view', args=args)
+        request_url = reverse('webgateway.views.render_birds_eye_view',
+                              args=args)
         try:
             rsp = get(self.django_client, request_url)
             thumb = Image.open(StringIO(rsp.content))
@@ -161,9 +162,10 @@ class TestThumbnails(IWebTest):
 
         roi = self.update.saveAndReturnObject(roi)
         args = [roi.id.val]
-        request_url = reverse('webgateway.views.render_roi_thumbnail', args=args)
+        request_url = reverse('webgateway.views.render_roi_thumbnail',
+                              args=args)
         try:
-            rsp = get(self.django_client, request_url)
+            get(self.django_client, request_url)
         finally:
             self.assert_no_leaked_rendering_engines()
 
@@ -184,9 +186,10 @@ class TestThumbnails(IWebTest):
         roi = self.update.saveAndReturnObject(roi)
         shape = roi.copyShapes()[0]
         args = [shape.id.val]
-        request_url = reverse('webgateway.views.render_shape_thumbnail', args=args)
+        request_url = reverse('webgateway.views.render_shape_thumbnail',
+                              args=args)
         try:
-            rsp = get(self.django_client, request_url)
+            get(self.django_client, request_url)
         finally:
             self.assert_no_leaked_rendering_engines()
 
@@ -209,6 +212,6 @@ class TestThumbnails(IWebTest):
         args = [shape.id.val]
         request_url = reverse('webgateway.views.render_shape_mask', args=args)
         try:
-            rsp = get(self.django_client, request_url)
+            get(self.django_client, request_url)
         finally:
             self.assert_no_leaked_rendering_engines()
