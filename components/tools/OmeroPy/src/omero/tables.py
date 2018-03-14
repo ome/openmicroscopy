@@ -20,7 +20,6 @@ import omero.callbacks
 from omero import LockTimeout
 from omero.rtypes import rstring
 from omero.rtypes import unwrap
-from omero.util import internal_repository
 from omero.util.decorators import remoted, perf
 
 
