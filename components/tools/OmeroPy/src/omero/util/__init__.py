@@ -161,37 +161,6 @@ class Dependency(object):
             return False
 
 
-def internal_repository(communicator, stop_event=None):
-    """
-    Try to return an InternalRepository from the grid.
-
-    Try a number of times then give up and raise the
-    last exception returned. This method will only
-    work internally to the grid, i.e. behind the Glacier2
-    firewall.
-
-        communicator := Ice.Communicator used to find the registry
-    """
-    if stop_event is None:
-        stop_event = omero.util.concurrency.get_event(
-            name="internal_repository")
-
-    query = communicator.stringToProxy("IceGrid/Query")
-    query = IceGrid.QueryPrx.checkedCast(query)
-
-    repos = query.findAllObjectsByType("::omero::grid::InternalRepository")
-    for repo in repos:
-        try:
-            repo = omero.grid.InternalRepositoryPrx.checkedCast(repo)
-            if repo is None:
-                continue
-            elif "ScriptRepo" in str(repo):
-                continue
-            return repo
-        except Ice.ConnectionRefusedException:
-            pass
-
-
 def internal_service_factory(communicator, user="root", group=None, retries=6,
                              interval=10, client_uuid=None, stop_event=None):
     """
