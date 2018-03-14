@@ -8283,10 +8283,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 # else:
                 #     pos = None
             if self.getProjection() != 'normal':
-                try:
-                    return self._getProjectedThumbnail(size, pos)
-                finally:
-                    self._closeRE()
+                return self._getProjectedThumbnail(size, pos)
             if len(size) == 1:
                 if pos is None:
                     if direct:
