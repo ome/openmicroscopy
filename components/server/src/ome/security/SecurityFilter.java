@@ -22,11 +22,11 @@ import ome.system.EventContext;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.4
  * @see <a
- *      href="https://trac.openmicroscopy.org.uk/ome/ticket/117">ticket117</a>
+ *      href="https://trac.openmicroscopy.org/ome/ticket/117">ticket117</a>
  * @see <a
- *      href="https://trac.openmicroscopy.org.uk/ome/ticket/1154">ticket1154</a>
+ *      href="https://trac.openmicroscopy.org/ome/ticket/1154">ticket1154</a>
  * @see <a
- *      href="https://trac.openmicroscopy.org.uk/ome/ticket/3529">ticket3529</a>
+ *      href="https://trac.openmicroscopy.org/ome/ticket/3529">ticket3529</a>
  */
 public interface SecurityFilter {
 

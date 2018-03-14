@@ -80,8 +80,8 @@ public interface RawFileStore extends StatefulServiceInterface {
      * If save has not been called, {@link RawFileStore} instances will save the
      * {@link OriginalFile} object associated with it on {@link #close()}.
      *
-     * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/1651>1651</a>
-     * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/2161>2161</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/1651>1651</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/2161>2161</a>
      */
     public OriginalFile save();
 }

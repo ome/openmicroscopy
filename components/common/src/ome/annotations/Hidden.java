@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
  * 
  * @author Josh Moore, josh.moore at gmx.de
  * @since 3.0-M3
- * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/209">ticket:209</a>
+ * @see <a href="https://trac.openmicroscopy.org/ome/ticket/209">ticket:209</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)

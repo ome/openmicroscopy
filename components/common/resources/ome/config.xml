@@ -20,7 +20,7 @@
     etc. used within OMERO. These values may be pulled from the environment,
     the Java runtime, your Java preferences, or from configuration files.
 
-    See https://trac.openmicroscopy.org.uk/ome/ticket/800 for more information
+    See https://trac.openmicroscopy.org/ome/ticket/800 for more information
     on how this works.
     </description>
 
