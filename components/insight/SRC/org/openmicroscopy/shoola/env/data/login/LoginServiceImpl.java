@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.login.LoginServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -96,6 +96,9 @@ public class LoginServiceImpl
 
     /** The index set if an error occurred while trying to connect. */
     private int failureIndex;
+    
+    /** The error message */
+    private String failureDetails;
 
     /** Allows to easily access the service's configuration. */
     protected LoginConfig config;
@@ -183,7 +186,13 @@ public class LoginServiceImpl
                     if (cause.getCause() instanceof SecurityViolation)
                         failureIndex = ACTIVE_INDEX;
                 }
-            } else failureIndex = SYSTEM_FAILURE_INDEX;
+                else if (exception.getMessage() != null
+                        && exception.getMessage().contains("is not compatible")) {
+                    failureIndex = VERSION_MISMATCH;
+                    failureDetails = exception.getMessage();
+                }
+            } else
+                failureIndex = SYSTEM_FAILURE_INDEX;
             LogMessage msg = new LogMessage();
             msg.println("Failed to log onto OMERO.");
             msg.println("Reason: "+exception.getMessage());
@@ -306,7 +315,7 @@ public class LoginServiceImpl
             text = "Please check the server address\nor try again later.";
             break;
         case LoginService.CONNECTION_INDEX:
-            text = "Please check the port\nor try again later.";
+            text = "Please check the server address/port\nor try again later.";
             break;
         case LoginService.ACTIVE_INDEX:
             text = "Your user account is no longer active.\nPlease" +
@@ -318,6 +327,25 @@ public class LoginServiceImpl
         case LoginService.SYSTEM_FAILURE_INDEX:
             text = "Error: System Failure.";
             break;
+        case LoginService.VERSION_MISMATCH:
+            String cv = "";
+            try {
+                cv = failureDetails.split("\\s")[2];
+            } catch (Exception e) {
+                // just ignore
+            }
+            String sv = "";
+            try {
+                String[] tmp = failureDetails.split("\\s");
+                sv = tmp[tmp.length - 1];
+                sv = sv.substring(0, sv.lastIndexOf('.'));
+            } catch (Exception e) {
+                // just ignore
+            }
+            text = getAgent()+" version "+ cv
+                    + " is not compatible with the server version.\n"
+                    + "Please download the latest "+ sv + " "+getAgent()+".";
+            break;
         case LoginService.PERMISSION_INDEX:
         default:
             text = "Please check your user name\nand/or password " +
@@ -328,6 +356,23 @@ public class LoginServiceImpl
                 IconManager.getDefaultErrorIcon());
         dialog.pack();  
         UIUtilities.centerAndShow(dialog);
+    }
+
+    /**
+     * Just get the currently used agent name.
+     * 
+     * @return See above
+     */
+    private String getAgent() {
+        int v = (Integer) container.getRegistry().lookup(
+                LookupNames.ENTRY_POINT);
+        if (v == LookupNames.INSIGHT_ENTRY)
+            return "OMERO.insight";
+        if (v == LookupNames.IMPORTER_ENTRY)
+            return "OMERO.importer";
+        if (v == LookupNames.IMAGE_J)
+            return "OMERO ImageJ plugin";
+        return "Client";
     }
 
     /**

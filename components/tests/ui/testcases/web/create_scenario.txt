@@ -1,12 +1,12 @@
 *** Settings ***
+
 Documentation     Tests the tree for creating new projects, datasets and screens.
 
 Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
-Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
-Suite Teardown      Close all browsers
+Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
 
 *** Variables ***
 
@@ -19,6 +19,7 @@ ${orphaned}                         True
 ${notOrphaned}                      False
 
 *** Keywords ***
+
 Right Click Create P/D/S
     [Arguments]                             ${rootId}       ${optionText}       ${P/D/S Name}
     Open Context Menu                       xpath=//li[@id='${rootId}']/a
@@ -110,6 +111,7 @@ Screen Should Exist
     Wait Until Page Contains Element        xpath=//li[@id='${treeRootId}']/ul/li[@id='${nodeId}']
 
 *** Test Cases ***
+
 Test Container Creation Enabled
     [Documentation]     Select User, Project, Dataset, Image and checks
     ...                 whether the toolbar/right-click menu options for
@@ -174,7 +176,6 @@ Test Container Creation Enabled
     Thumbnail Should Be Selected                ${imageId}
     Image Should Be Selected By Id              ${imageId}
 
-
 Test Create Project Using Icon
 
     Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
@@ -217,7 +218,6 @@ Test Create Project Using Right Click
     ${treeId}=                                                  Wait For Image Node             ${imageId}
     Create Project Using Right Click and Check If It Exists     ${treeId}                       ${CtxProjectName}
 
-
 Test Create Dataset Using Icon
 
     Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
@@ -243,7 +243,6 @@ Test Create Dataset Using Icon
 
     Select Orphaned Images Section
     Create Dataset Using Icon and Check If Orphaned             ${orphaned}
-
 
 Test Create Dataset Using Right Click
 
@@ -284,7 +283,6 @@ Test Create Dataset Using Right Click
     ${datasetId}=                                               Create Dataset Using Right Click and Check If Orphaned      ${treeId}                   ${CtxDatasetName}               ${orphaned}
     Dataset Should Contain Image                                ${imageId}                  ${datasetId}
     Delete Container
-
 
 Test Create Screen Using Icon
 

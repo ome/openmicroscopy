@@ -205,8 +205,6 @@
         <option>-Djava.awt.headless=true</option>
         <option>-Dlogback.configurationFile=${OMERO_ETC}logback.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
-        <!-- This is a hack, the value needs to come from omero.properties -->
-        <option>-Domero.logbase=/OMERO/ManagedRepository/</option>
         <option>-Domero.name=Blitz-${index}</option>
         <target name="jmx">
             <!-- Be sure to understand the consequences of enabling JMX.

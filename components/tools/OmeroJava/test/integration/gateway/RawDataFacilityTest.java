@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -72,6 +72,26 @@ public class RawDataFacilityTest extends GatewayTest {
             planeData[i] = plane.getRawValue(i);
         
         Assert.assertEquals(planeData, rawData);
+    }
+    
+    @Test
+    public void testGetPixelValues() throws DataSourceException,
+            DSOutOfServiceException, DSAccessException {
+        ImageData img = browseFacility.getImage(rootCtx, imgId);
+        Plane2D plane = rawdataFacility.getPlane(rootCtx,
+                img.getDefaultPixels(), 0, 0, 0);
+        double[][] pixelData = new double[100][100];
+        double[][] expPixelData = new double[100][100];
+        for (int i = 0; i < 10000; i++) {
+            int x = i % 100;
+            int y = i / 100;
+            pixelData[x][y] = plane.getPixelValue(x, y);
+            expPixelData[x][y] = (double) toUnsignedInt(plane
+                    .getRawValue(y * 100 + x));
+        }
+
+        Assert.assertEquals(pixelData, expPixelData);
+        Assert.assertEquals(plane.getPixelValues(), expPixelData);
     }
     
     @Test
@@ -151,5 +171,15 @@ public class RawDataFacilityTest extends GatewayTest {
         }
         store.setPlane(rawData, 0, 0, 0);
         gw.closeService(rootCtx, store);
+    }
+    
+    /**
+     * This is basically Byte.toUnsignedInt(byte b) in Java >= 8
+     * (TODO: Remove this method when Java 7 support is dropped)
+     * @param x The byte value
+     * @return The byte as unsigned integer value
+     */
+    private int toUnsignedInt(byte x) {
+        return ((int) x) & 0xff;
     }
 }

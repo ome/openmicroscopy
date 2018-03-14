@@ -74,6 +74,8 @@ def channelMarshal(channel):
             # 'reverseIntensity' is deprecated. Use 'inverted'
             'inverted': channel.isInverted(),
             'reverseIntensity': channel.isInverted(),
+            'family': unwrap(channel.getFamily()),
+            'coefficient': unwrap(channel.getCoefficient()),
             'window': {'min': channel.getWindowMin(),
                        'max': channel.getWindowMax(),
                        'start': channel.getWindowStart(),

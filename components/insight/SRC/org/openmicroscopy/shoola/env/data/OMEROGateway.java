@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -387,6 +387,9 @@ class OMEROGateway
 	
 	private Gateway gw;
 	
+    // Keep track of the rendering engines currently in use
+    private Map<SecurityContext, Set<Long>> renderingEngines = new HashMap<SecurityContext, Set<Long>>();
+	
 	/**
 	 * Creates the query to load the file set corresponding to a given image.
 	 *
@@ -514,7 +517,17 @@ class OMEROGateway
 	void closeService(SecurityContext ctx,
             StatefulServiceInterfacePrx svc)
     {
-        if (ctx == null || svc == null) return;
+        if (ctx == null || svc == null)
+            return;
+        if (svc instanceof RenderingEnginePrx && renderingEngines.containsKey(ctx)) { 
+            try {
+                renderingEngines.get(ctx).remove(
+                        ((RenderingEnginePrx) svc).getPixels().getId()
+                                .getValue());
+            } catch (ServerError e) {
+                // do nothing
+            }
+        }
         gw.closeService(ctx, svc);
     }
 
@@ -1602,7 +1615,7 @@ class OMEROGateway
 	 */
 	Map<SecurityContext, Set<Long>> getRenderingEngines()
 	{
-		return gw.getRenderingEngines();
+		return renderingEngines;
 	}
 
 	boolean joinSession() {
@@ -2397,6 +2410,12 @@ class OMEROGateway
 			service.lookupPixels(pixelsID);
 			needDefault(pixelsID, service);
 			service.load();
+            Set<Long> pixIds = renderingEngines.get(ctx);
+            if (pixIds == null) {
+                pixIds = new HashSet<Long>();
+                renderingEngines.put(ctx, pixIds);
+            }
+            pixIds.add(pixelsID);
 			return service;
 		} catch (Throwable t) {
 		    log(t.getMessage());

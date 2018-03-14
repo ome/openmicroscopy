@@ -1921,10 +1921,6 @@ class _BlitzGateway (object):
         self._proxies = NoProxies()
         logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
 
-    def __del__(self):
-        logger.debug("##GARBAGE COLLECTOR KICK IN")
-        self._assert_unregistered()
-
     def _createProxies(self):
         """
         Creates proxies to the server services. Called on connection or
@@ -8938,6 +8934,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     # 'reverseIntensity' is deprecated. Use 'inverted'
                     'inverted': reverse,
                     'reverseIntensity': reverse,
+                    'family': unwrap(w.getFamily().getValue()),
+                    'coefficient': unwrap(w.getCoefficient()),
                     'rgb': {'red': w.getRed().val,
                             'green': w.getGreen().val,
                             'blue': w.getBlue().val}

@@ -411,7 +411,6 @@
         <bean parent="graphPolicyRule" p:matches="FA:FileAnnotation[E]{i}.file = [E]{r}" p:changes="FA:{r}"/>
         <bean parent="graphPolicyRule" p:matches="FE:FilesetEntry[E]{i}.originalFile = [E]{r}" p:changes="FE:{r}"/>
         <bean parent="graphPolicyRule" p:matches="ROI:Roi[E]{i}.source = [E]{r}" p:changes="ROI:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E]{i}, L.child = [E]{r}" p:changes="J:{r}"/>
         <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = P:[E]{i}, L.parent = [E]{r}" p:changes="P:{r}"/>
 
         <!-- Consider deleting or giving an original file if it is unlinked from an object. -->
@@ -419,8 +418,69 @@
         <bean parent="graphPolicyRule" p:matches="FileAnnotation[I].file = OF:[E]{i}" p:changes="OF:{r}"/>
         <bean parent="graphPolicyRule" p:matches="FilesetEntry[I].originalFile = OF:[E]{i}" p:changes="OF:{r}"/>
         <bean parent="graphPolicyRule" p:matches="Roi[I].source = OF:[E]{i}" p:changes="OF:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = [I], L.child = OF:[E]{i}" p:changes="OF:{r}"/>
         <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = [I], L.parent = OF:[E]{i}" p:changes="OF:{r}"/>
+
+        <!--
+             Consider giving a job if considering giving a same-owner original file to which it links.
+             Applies only to the kinds of job that a user typically has attached to their own data.
+          -->
+
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:IndexingJob[E]{i}, L.child = OF:[E]{r}, J =/o OF"
+                                       p:changes="J:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:MetadataImportJob[E]{i}, L.child = OF:[E]{r}, J =/o OF"
+                                       p:changes="J:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:PixelDataJob[E]{i}, L.child = OF:[E]{r}, J =/o OF"
+                                       p:changes="J:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:ThumbnailGenerationJob[E]{i}, L.child = OF:[E]{r}, J =/o OF"
+                                       p:changes="J:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:UploadJob[E]{i}, L.child = OF:[E]{r}, J =/o OF"
+                                       p:changes="J:{r}"/>
+
+        <!--
+             Consider giving an original file if giving a same-owner job that links to it.
+             Applies only to the kinds of job that a user typically has attached to their own data.
+          -->
+
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:IndexingJob[I], L.child = OF:[E]{i}, J =/o OF"
+                                       p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:MetadataImportJob[I], L.child = OF:[E]{i}, J =/o OF"
+                                       p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:PixelDataJob[I], L.child = OF:[E]{i}, J =/o OF"
+                                       p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:ThumbnailGenerationJob[I], L.child = OF:[E]{i}, J =/o OF"
+                                       p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:UploadJob[I], L.child = OF:[E]{i}, J =/o OF"
+                                       p:changes="OF:{r}"/>
+
+        <!--
+             Consider giving a job if considering giving a same-owner original file to which it links.
+             Applies only to the kinds of job associated with scripts. The file must not be in the "user" group.
+          -->
+
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:ParseJob[E]{i}, L.child = OF:[E]{r};group=!user, J =/o OF"
+                                       p:changes="J:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:ScriptJob[E]{i}, L.child = OF:[E]{r};group=!user, J =/o OF"
+                                       p:changes="J:{r}"/>
+
+        <!--
+             Ignore jobs that are not being given and are linked to original files that are being given.
+             Applies only to the kinds of job associated with scripts, linked to files in the "user" group.
+          -->
+
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:ParseJob[E]{i}, L.child = [I];group=user"
+                                       p:changes="J:[O]"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:ScriptJob[E]{i}, L.child = [I];group=user"
+                                       p:changes="J:[O]"/>
+
+        <!--
+             Ignore original files that are not being given and are linked from jobs that are being given.
+             Applies only to the kinds of job associated with scripts, linked to files in the "user" group.
+          -->
+
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:ParseJob[I], L.child = OF:[E]{i};group=user"
+                                       p:changes="OF:[O]"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:ScriptJob[I], L.child = OF:[E]{i};group=user"
+                                       p:changes="OF:[O]"/>
 
         <!-- Do not give an original file that is being used by an object. -->
 
@@ -556,9 +616,9 @@
 
         <!-- JOB -->
 
-        <!-- Give job link to original file if both job and file are to be given. -->
+        <!-- Give job link to original file if both job and file are to be given (or file is ignored). -->
 
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[E].parent = J:[I], L.child = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[E].parent = J:[I], L.child = [IO]" p:changes="L:[I]"/>
 
         <!-- Cannot break link from job to original file. -->
 

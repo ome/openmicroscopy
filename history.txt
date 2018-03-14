@@ -5,6 +5,61 @@
 OMERO version history
 =====================
 
+5.4.4 (March 2018)
+------------------
+
+This is a bug-fix release which also introduces some new functionality.
+
+It includes a security fix for :secvuln:`2017-SV6 <>`. **It is highly
+recommended that you upgrade your server**.
+
+Improvements include:
+
+-  images can now be filtered by Tag in the center panel of OMERO.web
+-  enabled search by "File" and "Tag" annotations separately in OMERO.web, as
+   opposed to only being able to search by All annotations
+-  fixed switching between grid display and thumbnail display in OMERO.web
+-  fixed the image preview and disabled projection in OMERO.insight when
+   trying to project an image with all the channels turned off
+-  fixed parsing of polygons and polyline ROIs so they can be opened in ImageJ
+-  fixed creation of OMERO pyramids for little-endian files
+-  improved error message when login fails for OMERO.insight
+-  improved handling of idle connections in OMERO.insight
+-  improved loading speed of LUT
+-  OMERO.insight and OMERO.importer are now compatible with Java 9
+
+Sysadmin improvements include:
+
+-  improved installation documentation for OMERO.web, and OMERO.server on
+   Debian 9, Ubuntu 16.04 and CentOS 7
+-  added an admin command and script to allow deletion of corrupted pyramids
+   created by a bug introduced with OMERO 5.2 (new uncorrupted pyramids can
+   then be generated - see :doc:`/sysadmins/server-upgrade` for details)
+-  allowed enforcement of a secure connection when importing data
+-  added commands to the CLI sessions plugin to enable the creation and
+   removal of user sessions
+
+Developer updates include:
+
+-  improved test infrastructure and coverage
+-  allowed filtering by namespace (ns) in webclient, API and annotations
+-  added support for more rendering parameters to the API
+-  added the option to respect a specific tile size
+-  added a method to load planes using JavaGateway
+-  added an example to the documentation for using "sudo" to create sessions
+   for others with the JavaGateway
+-  documentation is now compatible with Sphinx 1.7
+
+This release does not upgrade the version of Bio-Formats which OMERO uses,
+which remains at 5.7.3.
+
+5.4.3 (January 2018)
+--------------------
+
+This is a bug fix release for a resource leak in omero.gateway.BlitzGateway
+introduced with 5.4.2 that caused long-running processes to hang. No other
+changes are included.
+
 5.4.2 (January 2018)
 --------------------
 
@@ -48,7 +103,7 @@ Developer updates include:
 -  added instructions to :doc:`/developers/cli/extending` on how to
    create CLI plugins that are ``pip`` installable
 -  substantial effort to make third-party repositories easily testable;
-   see `omero-test-infra <https://github.com/openmicroscopy/omero-test-infra>_`
+   see `omero-test-infra <https://github.com/openmicroscopy/omero-test-infra>`_
    for more information
 
 This release also upgrades the version of Bio-Formats that OMERO uses to

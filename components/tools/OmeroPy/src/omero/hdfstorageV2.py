@@ -92,7 +92,7 @@ class HdfList(object):
 
     This also holds a global lock for all HDF5 calls since libhdf5 is usually
     compiled without --enable-threadsafe, see
-    https://trac.openmicroscopy.org.uk/ome/ticket/10464
+    https://trac.openmicroscopy.org/ome/ticket/10464
     """
 
     def __init__(self):
@@ -452,7 +452,7 @@ class HdfStorage(object):
                 # Metadata methods were generally broken for v1 tables so
                 # the introduction of internal metadata attributes is unlikely
                 # to affect anyone.
-                # https://trac.openmicroscopy.org.uk/ome/ticket/12606
+                # https://trac.openmicroscopy.org/ome/ticket/12606
                 msg = 'Tables metadata is only supported for OMERO.tables >= 2'
                 self.logger.error(msg)
                 raise omero.ApiUsageException(None, None, msg)

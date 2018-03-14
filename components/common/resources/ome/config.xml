@@ -2,10 +2,8 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# 
 # Copyright 2008, 2009, 2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
-#
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
@@ -22,7 +20,7 @@
     etc. used within OMERO. These values may be pulled from the environment,
     the Java runtime, your Java preferences, or from configuration files.
 
-    See https://trac.openmicroscopy.org.uk/ome/ticket/800 for more information
+    See https://trac.openmicroscopy.org/ome/ticket/800 for more information
     on how this works.
     </description>
 
@@ -32,7 +30,7 @@
             The PreferencesContext class handles much of the configuration and
             lookup necessary for the OmeroContext, including settings defaults
             which on the traditional Spring classes like:
-            
+
             org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer
 
             or
@@ -165,6 +163,11 @@
        <property name="visibility" value="all"/>
     </bean>
     <bean class="ome.system.Preference" id="omero.pixeldata.max_plane_height">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.pixeldata.max_tile_length">
        <property name="db" value="false"/>
        <property name="mutable" value="false"/>
        <property name="visibility" value="all"/>

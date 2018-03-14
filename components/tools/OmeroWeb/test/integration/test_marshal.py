@@ -65,6 +65,8 @@ class TestImgDetail(IWebTest):
                 'start': 88,
                 'min': 88
             },
+            'family': 'linear',
+            'coefficient': 1,
             'reverseIntensity': False,
             'inverted': False,
             'emissionWave': 500,

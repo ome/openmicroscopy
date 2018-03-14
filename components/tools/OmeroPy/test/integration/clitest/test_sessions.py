@@ -22,9 +22,18 @@
 from omero.testlib.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.model import Experimenter
+from Glacier2 import PermissionDeniedException
+import omero
 import pytest
+import re
 
 permissions = ["rw----", "rwr---", "rwra--", "rwrw--"]
+
+
+@pytest.fixture(autouse=True)
+def new_session_store(tmpdir, monkeypatch):
+    # Clean sessions for this call
+    monkeypatch.setenv("OMERO_SESSIONDIR", tmpdir)
 
 
 class TestSessions(CLITest):
@@ -305,3 +314,151 @@ class TestSessions(CLITest):
         # Attempt who
         self.args = ["sessions", "who"]
         self.cli.invoke(self.args, strict=True)
+
+    # open session
+    # =======================================================================
+
+    @staticmethod
+    def assert_uuid(o):
+        # Check that only a UUID is printed
+        pat = re.compile("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-"
+                         "[a-f0-9]{4}-[a-f0-9]{12}")
+        m = pat.match(o)
+        if not m:
+            raise Exception("%s is not a UUID" % o)
+        else:
+            return m.group()
+
+    def test_open(self, capsys):
+
+        as_user = self.new_user()
+        as_user_name = as_user.omeName.val
+
+        # Login as root
+        self.set_login_args('root')
+        passwd = self.root.getProperty("omero.rootpass")
+        self.args += ["-w", passwd]
+        self.cli.invoke(self.args, strict=True)
+
+        # Open a session for as_user
+        self.args = ["sessions", "open"]
+        self.args += ["--user-name", as_user_name]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        self.assert_uuid(o)
+
+        # Check that the UUID is *not* in our store
+        self.args = ["sessions", "list"]
+        self.cli.invoke(self.args, strict=True)
+        o2, e2 = capsys.readouterr()
+        assert o.strip() not in o2
+
+    def test_open_with_id(self, capsys):
+
+        as_user = self.new_user()
+        as_user_id = as_user.id.val
+
+        # Login as root
+        self.set_login_args('root')
+        passwd = self.root.getProperty("omero.rootpass")
+        self.args += ["-w", passwd]
+        self.cli.invoke(self.args, strict=True)
+
+        # Open a session for as_user
+        self.args = ["sessions", "open"]
+        self.args += ["--user-id", str(as_user_id)]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        self.assert_uuid(o)
+
+        # Check that the UUID is *not* in our store
+        self.args = ["sessions", "list"]
+        self.cli.invoke(self.args, strict=True)
+        o2, e2 = capsys.readouterr()
+        assert o.strip() not in o2
+
+    def test_open_restricted_admin_no_sudo(self, capsys):
+        """Test open cannot be run by Restricted Admin without Sudo"""
+
+        as_user = self.new_user()
+        as_user_name = as_user.omeName.val
+
+        # create user with Chown privilege
+        exp = self.new_user(privileges=["Chown"])
+        host = self.root.getProperty("omero.host")
+        port = self.root.getProperty("omero.port")
+        self.args = ["sessions", "login"]
+        self.conn_string = "%s@%s:%s" % (exp.omeName.val, host, port)
+        self.args += [self.conn_string]
+        self.args += ["-w", exp.omeName.val]
+        self.cli.invoke(self.args, strict=True)
+
+        self.args = ["sessions", "open"]
+        self.args += ["--user-name", as_user_name]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
+        o, e = capsys.readouterr()
+        output_end = "SecurityViolation: Admin restrictions: Sudo\n"
+        assert e.endswith(output_end)
+
+    def test_open_restricted_admin_sudo(self, capsys):
+        """Test open can be run by Restricted Admin with Sudo"""
+
+        as_user = self.new_user()
+        as_user_name = as_user.omeName.val
+
+        # create user with Sudo privilege
+        exp = self.new_user(privileges=["Sudo"])
+        host = self.root.getProperty("omero.host")
+        port = self.root.getProperty("omero.port")
+        self.args = ["sessions", "login"]
+        self.conn_string = "%s@%s:%s" % (exp.omeName.val, host, port)
+        self.args += [self.conn_string]
+        self.args += ["-w", exp.omeName.val]
+        self.cli.invoke(self.args, strict=True)
+
+        self.args = ["sessions", "open"]
+        self.args += ["--user-name", as_user_name]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        self.assert_uuid(o)
+
+        # Check that the UUID is *not* in our store
+        self.args = ["sessions", "list"]
+        self.cli.invoke(self.args, strict=True)
+        o2, e2 = capsys.readouterr()
+        assert o.strip() not in o2
+
+    # close session
+    # =======================================================================
+    def test_close(self, capsys):
+
+        as_user = self.new_user()
+        as_user_name = as_user.omeName.val
+
+        # Login as root
+        self.set_login_args('root')
+        passwd = self.root.getProperty("omero.rootpass")
+        self.args += ["-w", passwd]
+        self.cli.invoke(self.args, strict=True)
+
+        # Open a session for as_user
+        self.args = ["sessions", "open"]
+        self.args += ["--user-name", as_user_name]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        id = self.assert_uuid(o)
+
+        # Close the session
+        self.args = ["sessions", "close"]
+        self.args += [id]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        message = "Session %s closed." % id
+        assert message in o
+
+        # Check that user cannot rejoin the session
+        cl = omero.client()
+        with pytest.raises(PermissionDeniedException):
+            cl.joinSession(id)

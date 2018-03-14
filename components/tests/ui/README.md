@@ -5,19 +5,15 @@ These scripts, and the implementations of the keywords they use,
 specify automated operation of OMERO clients. This allows acceptance
 testing of user interface behavior and detection of regressions.
 
-Requirements:
- * Robot Framework
- * Python 2.5 or above, Python 3.x is not supported.
- * Jython 2.5 (Insight tests)
+**Requirements**:
+ * [Robot Framework](http://robotframework.org)
+ * Python 2.x and [pip](https://pip.pypa.io/en/stable/) (Python 3.x is not supported)
+ * [Jython](http://www.jython.org/) 2.5.x (Insight tests)
     + higher versions may not be supported, we use 2.5.4rc1
  * one or both of these web browsers (Web tests)
-    + Firefox version 21. It may not work with some more recent versions.
-    + Chrome
+    + Firefox - [requires geckodriver](#web-browser-drivers)
+    + Chrome - [requires chromedriver](#web-browser-drivers)
  * robotframework-selenium2library (Web tests)
- * chromedriver (Web tests using Chrome)
-
-Read about Robot Framework at
-http://robotframework.org
 
 Before installing please visit
 https://github.com/robotframework/robotframework/blob/master/INSTALL.rst
@@ -35,17 +31,38 @@ you will have to run robotframework with Python and with Jython.
 In that case it is easier to install robotframework using the
 `setup.py` scripts provided.
 
-After installing the robotframework,  you need to install the
-robotframework-selenium2library, we are not planning to use Selenium1.
-See http://github.com/rtomac/robotframework-selenium2library
+Testing frameworks
+------------------
 
-If you have pip installed, you can install the library with the following
+#### [selenium](http://github.com/rtomac/robotframework-selenium2library)
+
+Selenium runs tests _one at a time (recommended way to run tests for now)_.
+You can install the library with the following:
 
 ```
 pip install robotframework-selenium2library
 ```
 
-By default, the tests are run using the default browser i.e. Firefox
+#### [pabot](https://github.com/mkorpela/pabot/)
+
+Pabot is a relativily new library for running robot tests and allows them to run in _parallel_.
+This can significantly reduce testing times, however not all tests pass and there could be
+unexpected results. To install robotframework-pabot:
+
+``` 
+pip install robotframework-pabot
+```
+
+Web browser drivers
+-------------------
+
+By default, the tests are run using the default browser i.e. Firefox.
+If you are running the tests on Mac OS X, you can install with the following
+
+```
+brew install geckodriver
+```
+
 If you want to run the tests on Chrome, you need to install the chromedriver.
 See https://sites.google.com/a/chromium.org/chromedriver/downloads
 
@@ -198,8 +215,8 @@ for each browser.
 To run all the web tests on only Firefox or Chrome respectively, use
 
 ```
-./build.py -f components/tests/ui/build.xml web-firefox
-./build.py -f components/tests/ui/build.xml web-chrome
+./build.py -f components/tests/ui/build.xml web-browser
+./build.py -f components/tests/ui/build.xml web-browser -DBROWSER=chrome
 ```
 
 The output of the tests can be found repectively under
@@ -209,10 +226,10 @@ components/tests/ui/target/reports/web/firefox/
 components/tests/ui/target/reports/web/chrome/
 ```
 
-To run a single test under `testcases/web`, for example
+To run a single test under `testcases/web` in firefox, for example
 
 ```
-./build.py -f components/tests/ui/build.xml web-firefox -DTEST=tree_test.txt
+./build.py -f components/tests/ui/build.xml web-browser -DTEST=annotate_test.txt
 ```
 
 with the ouput being available under
@@ -221,6 +238,46 @@ with the ouput being available under
 components/tests/ui/target/reports/web/firefox/
 ```
 
+It is possible to rerun tests that failed either in a different browser or the same browser.
+By default, the tests will be first run in Firefox and rerun in Chrome.
+
+To run all the web tests on Firefox then Chrome, use
+
+```
+./build.py -f components/tests/ui/build.xml web-browser-rerun
+```
+
+To run all the web tests on Chrome then Firefox, use
+
+```
+./build.py -f components/tests/ui/build.xml web-browser-rerun -DBROWSER=chrome -DTARGETBROWSER=firefox
+```
+
+It is often useful to merge the outputs of the run instead of aggregating the results.
+To merge the outputs use
+
+```
+./build.py -f components/tests/ui/build.xml merge-results
+```
+
+To merge the outputs after running a `rerun` task first on Firefox use
+
+```
+./build.py -f components/tests/ui/build.xml merge-results-run
+```
+
+otherwise
+
+```
+./build.py -f components/tests/ui/build.xml merge-results-run -DBROWSER=chrome
+```
+
+To run all the web tests in parallel using robotframework-pabot on Firefox or Chrome, use
+
+```
+./build.py -f components/tests/ui/build.xml web-browser-pabot
+./build.py -f components/tests/ui/build.xml web-browser-pabot -DBROWSER=chrome
+```
 
 OMERO CLI
 ---------

@@ -4,4 +4,4 @@
 #     pip install -r requirements-redis.txt
 #
 
-django-redis>=4.4
+django-redis>=4.4,<4.9

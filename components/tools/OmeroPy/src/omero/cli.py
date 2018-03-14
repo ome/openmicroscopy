@@ -605,7 +605,10 @@ class Context:
 def admin_only(*fargs, **fkwargs):
     """
     Checks that the current user is an admin and has sufficient privileges,
-    or throws an exception.
+    or throws an exception. If no arguments are present or if full_admin is
+    passed and is True, then this method assumes that the user must be a
+    full admin and have all privileges. To disable this behavior, set
+    `full_admin` to False.
     """
     def _admin_only(func):
         @wraps(func)
@@ -625,9 +628,11 @@ def admin_only(*fargs, **fkwargs):
                 else:
                     try:
                         types = client.sf.getTypesService()
-                        privs = types.allEnumerations("AdminPrivileges")
-                        need_privs = set([x.getValue() for x in privs])
-                    except:
+                        privs = types.allEnumerations("AdminPrivilege")
+                        need_privs = set(omero.rtypes.unwrap(
+                            [x.getValue() for x in privs]))
+                    except Exception, e:
+                        self.ctx.err("Error: denying access: %s" % e)
                         # If the user can't load enums assume the worst
                         self.error_admin_only(fatal=True)
 
@@ -2442,6 +2447,14 @@ class UserGroupControl(BaseControl):
                            help="Name of the user(s)%s" % action)
         return group
 
+    def add_single_user_argument(self, parser, action="", required=True):
+        group = parser.add_mutually_exclusive_group(required=required)
+        group.add_argument("--user-id", metavar="user",
+                           help="ID of the user%s" % action)
+        group.add_argument("--user-name", metavar="user",
+                           help="Name of the user%s" % action)
+        return group
+
     def list_users(self, a, args, use_context=False):
         """
         Retrieve users from the arguments defined in
@@ -2500,6 +2513,14 @@ class UserGroupControl(BaseControl):
         group.add_argument(
             "--group-name", metavar="group", nargs="+",
             help="Name of the group(s)%s" % action)
+        return group
+
+    def add_single_group_argument(self, parser, action="", required=True):
+        group = parser.add_mutually_exclusive_group(required=required)
+        group.add_argument("--group-id", metavar="group",
+                           help="ID of the group%s" % action)
+        group.add_argument("--group-name", metavar="group",
+                           help="Name of the group%s" % action)
         return group
 
     def list_groups(self, a, args, use_context=False):
@@ -2582,3 +2603,25 @@ class UserGroupControl(BaseControl):
                     groups.append(gid)
 
         return users, groups
+
+    def get_single_user_group(self, args, iadmin):
+        u = None
+        g = None
+        if args.user_name:
+            uid, u = self.find_user_by_name(
+                iadmin, args.user_name, fatal=False)
+
+        if args.user_id:
+            uid, u = self.find_user_by_id(
+                iadmin, args.user_id, fatal=False)
+
+        if args.group_name:
+            gid, g = self.find_group_by_name(
+                iadmin, args.group_name, fatal=False)
+
+        if args.group_id:
+            for group_id in args.group_id:
+                gid, g = self.find_group_by_id(
+                    iadmin, args.group_id, fatal=False)
+
+        return u, g

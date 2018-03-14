@@ -86,7 +86,7 @@ public class TimeRefObject
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param userID	he user's id.
+	 * @param userID	The user's id.
 	 * @param index		One of the constants defined by this class. 
 	 */
 	public TimeRefObject(long userID, int index)

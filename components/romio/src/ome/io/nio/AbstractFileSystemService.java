@@ -73,6 +73,17 @@ public class AbstractFileSystemService {
 
     /**
      * Returns a numbered path relative to the root of this service, but is
+     * ignorant of FS and similar constructs. For example, this will return
+     * "ROOT/Pixels/"
+     *
+     * @return the path relative to the root
+     */
+    public String getPixelsDirectory() {
+        return FilenameUtils.concat(root, PIXELS_PATH);
+    }
+
+    /**
+     * Returns a numbered path relative to the root of this service, but is
      * ignorant of FS and similar constructs. For example, given an id of
      * 12345 this will return "ROOT/Pixels/Dir-123/Dir-456/123456"
      *

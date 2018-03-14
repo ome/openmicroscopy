@@ -909,6 +909,10 @@ def api_links(request, conn=None, **kwargs):
     We delegate depending on request method to
     create or delete links between objects.
     """
+    if request.method not in ['POST', 'DELETE']:
+        return JsonResponse(
+            {'Error': 'Need to POST or DELETE JSON data to update links'},
+            status=405)
     # Handle link creation/deletion
     json_data = json.loads(request.body)
 
@@ -1179,6 +1183,7 @@ def api_annotations(request, conn=None, **kwargs):
     limit = get_long_or_default(request, 'limit', settings.PAGE)
 
     ann_type = r.get('type', None)
+    ns = r.get('ns', None)
 
     anns, exps = tree.marshal_annotations(conn, project_ids=project_ids,
                                           dataset_ids=dataset_ids,
@@ -1188,6 +1193,7 @@ def api_annotations(request, conn=None, **kwargs):
                                           run_ids=run_ids,
                                           well_ids=well_ids,
                                           ann_type=ann_type,
+                                          ns=ns,
                                           page=page,
                                           limit=limit)
 
@@ -1335,7 +1341,8 @@ def load_chgrp_groups(request, conn=None, **kwargs):
     targetGroupIds = set.intersection(*groupSets)
     # ...but not 'user' group
     userGroupId = conn.getAdminService().getSecurityRoles().userGroupId
-    targetGroupIds.remove(userGroupId)
+    if userGroupId in targetGroupIds:
+        targetGroupIds.remove(userGroupId)
 
     # if all the Objects are in a single group, exclude it from the target
     # groups
@@ -1396,7 +1403,10 @@ def load_searching(request, form=None, conn=None, **kwargs):
     # form = 'form' if we are searching. Get query from request...
     r = request.GET
     if form is not None:
-        query_search = r.get('query').replace("+", " ")
+        query_search = r.get('query', None)
+        if query_search is None:
+            return HttpResponse("No search '?query' included")
+        query_search = query_search.replace("+", " ")
         template = "webclient/search/search_details.html"
 
         onlyTypes = r.getlist("datatype")
@@ -2563,8 +2573,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         # Used within the jsTree to add a new Project, Dataset, Tag,
         # Tagset etc under a specified parent OR top-level
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers",
-                                        args=["edit", o_type, o_id]))
+            return JsonResponse({"Error": "Must use POST to create container"},
+                                status=405)
 
         form = ContainerForm(data=request.POST.copy())
         if form.is_valid():
@@ -2642,7 +2652,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         context = {'manager': manager, 'form': form}
 
     elif action == 'edit':
-        # form for editing an Object. E.g. Project etc. TODO: not used now?
+        # form for editing Shares only
         if o_type == "share" and o_id > 0:
             template = "webclient/public/share_form.html"
             manager.getMembers(o_id)
@@ -2659,12 +2669,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 initial['expiration'] = \
                     manager.share.getExpireDate().strftime("%Y-%m-%d")
             form = ShareForm(initial=initial)  # 'guests':share.guestsInShare,
-            context = {'manager': manager, 'form': form}
-        elif hasattr(manager, o_type) and o_id > 0:
-            obj = getattr(manager, o_type)
-            template = "webclient/data/container_form.html"
-            form = ContainerForm(
-                initial={'name': obj.name, 'description': obj.description})
             context = {'manager': manager, 'form': form}
     elif action == 'save':
         # Handles submission of the 'edit' form above. TODO: not used now?
@@ -4059,10 +4063,13 @@ def chgrp(request, conn=None, **kwargs):
     Handles submission of chgrp form: all data in POST.
     Adds the callback handle to the request.session['callback']['jobId']
     """
+    if not request.method == 'POST':
+        return JsonResponse({'Error': "Need to POST to chgrp"},
+                            status=405)
     # Get the target group_id
     group_id = getIntOrDefault(request, 'group_id', None)
     if group_id is None:
-        raise AttributeError("chgrp: No group_id specified")
+        return JsonResponse({'Error': "chgrp: No group_id specified"})
     group_id = long(group_id)
 
     def getObjectOwnerId(r):

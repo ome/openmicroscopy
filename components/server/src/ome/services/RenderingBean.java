@@ -7,12 +7,10 @@ package ome.services;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,14 +26,12 @@ import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
-import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.io.nio.InMemoryPlanarPixelBuffer;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
 import ome.model.core.Channel;
-import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
@@ -46,7 +42,6 @@ import ome.model.enums.RenderingModel;
 import ome.model.roi.Mask;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
-import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
@@ -57,11 +52,11 @@ import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.codomain.CodomainChain;
-import omeis.providers.re.codomain.CodomainMap;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.codomain.ReverseIntensityContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.RegionDef;
+import omeis.providers.re.lut.LutProvider;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 
@@ -158,7 +153,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     private final LocalCompress compressionSrv;
 
     /** Reference to the helper used to retrieve luts.*/
-    private final ScriptRepoHelper helper;
+    private final LutProvider lutProvider;
 
     /** Notification that the bean has just returned from passivation. */
     private transient boolean wasPassivated = false;
@@ -185,16 +180,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
      *          Reference to the executor.
      * @param secSys
      *          Reference to the security system.
-     * @param helper
-     *          Reference to the script repo.
+     * @param lutProvider
+     *          Reference to the lookup table provider.
      */
     public RenderingBean(PixelsService dataService, LocalCompress compress,
-            Executor ex, SecuritySystem secSys, ScriptRepoHelper helper) {
+            Executor ex, SecuritySystem secSys, LutProvider lutProvider) {
         this.ex = ex;
         this.secSys = secSys;
         this.pixDataSrv = dataService;
         this.compressionSrv = compress;
-        this.helper = helper;
+        this.lutProvider = lutProvider;
     }
 
     @RolesAllowed("user")
@@ -420,15 +415,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
             QuantumFactory quantumFactory = new QuantumFactory(families);
             // Loading last to try to ensure that the buffer will get closed.
             PixelBuffer buffer = getPixelBuffer();
-            List<File> luts = Collections.emptyList();
-            try {
-                luts = loadLuts();
-            } catch (SecurityViolation sv) {
-                /* probably in a share */
-                log.debug("failed to load LUTs");
-            }
             renderer = new Renderer(quantumFactory, renderingModels, pixelsObj,
-                    rendDefObj, buffer, luts);
+                    rendDefObj, buffer, lutProvider);
         } finally {
             rwl.writeLock().unlock();
         }
@@ -608,6 +596,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
                             stepping, start, end, pixelsId, i);
                     projectedSizeC += 1;
                 }
+            }
+            if (projectedSizeC == 0) {
+                projectedSizeC = 1;
             }
             Pixels projectedPixels = new Pixels();
             projectedPixels.setSizeX(pixelsObj.getSizeX());
@@ -2111,21 +2102,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
                         return sf.getPixelsService().loadRndSettings(rdefId);
                     }
                 });
-    }
-
-    /** Loads the lookup tables.*/
-    private List<File> loadLuts()
-    {
-        List<OriginalFile> luts = helper.loadAll(true, "text/x-lut", null);
-        Iterator<OriginalFile> i = luts.iterator();
-        File dir = new File(ScriptRepoHelper.getDefaultScriptDir());
-        List<File> files = new ArrayList<File>(luts.size());
-        while (i.hasNext()) {
-            OriginalFile f = i.next();
-            String path = (new File(f.getPath(), f.getName())).getPath();
-            files.add(new File(dir, path));
-        }
-        return files;
     }
 
     /**

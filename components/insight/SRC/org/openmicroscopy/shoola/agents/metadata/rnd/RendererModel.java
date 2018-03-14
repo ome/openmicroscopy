@@ -176,7 +176,7 @@ class RendererModel
     /** Map hosting the extra dimension if available.*/
     private Map<Integer, ModuloInfo> modulo;
 
-    /** he alternative rendering settings if any.*/
+    /** The alternative rendering settings if any.*/
     private RndProxyDef def;
 
     /** The data used to create the histogram. */

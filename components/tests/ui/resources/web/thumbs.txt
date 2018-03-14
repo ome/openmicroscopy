@@ -4,8 +4,8 @@ Capture Image Element
     [Arguments]  ${xpath}                 ${thumbnailName}=thumbnail_capture.jpg
     ${thumbY}    Get Vertical Position    xpath=${xpath}
     ${thumbX}    Get Horizontal Position  xpath=${xpath}
-    ${thumbH}    Get Element Attribute    xpath=${xpath}@height
-    ${thumbW}    Get Element Attribute    xpath=${xpath}@width
+    ${thumbH}    Get Element Attribute    xpath=${xpath}                            attribute=height
+    ${thumbW}    Get Element Attribute    xpath=${xpath}                            attribute=width
     Log          ${thumbX}
     Log          ${thumbY}
     Log          ${thumbW}

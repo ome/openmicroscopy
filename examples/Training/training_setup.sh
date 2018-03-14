@@ -14,6 +14,7 @@ GROUP_NAME=${GROUP_NAME:-training_group}
 GROUP_NAME_2=${GROUP_NAME_2:-training_group-2}
 USER_NAME=${USER_NAME:-training_user}
 USER_NAME_2=${USER_NAME_2:-training_user-2}
+LIGHTADMIN_USER_NAME=${LIGHTADMIN_USER_NAME:-ladmin_user}
 USER_PASSWORD=${USER_PASSWORD:-ome}
 CONFIG_FILENAME=${CONFIG_FILENAME:-training_ice.config}
 
@@ -23,6 +24,9 @@ bin/omero group add $GROUP_NAME --type read-only --ignore-existing
 bin/omero group add $GROUP_NAME_2 --type read-only --ignore-existing
 bin/omero user add $USER_NAME $USER_NAME $USER_NAME $GROUP_NAME $GROUP_NAME_2 --ignore-existing -P $USER_PASSWORD
 bin/omero user add $USER_NAME_2 $USER_NAME_2 $USER_NAME_2 $GROUP_NAME $GROUP_NAME_2 --ignore-existing -P $USER_PASSWORD
+bin/omero user add $LIGHTADMIN_USER_NAME $LIGHTADMIN_USER_NAME $LIGHTADMIN_USER_NAME $GROUP_NAME $GROUP_NAME_2 -a --ignore-existing -P $USER_PASSWORD
+id=$(bin/omero user info $LIGHTADMIN_USER_NAME  --style plain |  cut -d, -f1)
+bin/omero obj map-set Experimenter:$id config AdminPrivilege:Sudo true
 bin/omero logout
 
 # Create fake files
@@ -104,6 +108,7 @@ echo "omero.imageid=${imageid}" >> "$CONFIG_FILENAME"
 echo "omero.plateid=${plateid}" >> "$CONFIG_FILENAME"
 echo "omero.screenid=${screen##*:}" >> "$CONFIG_FILENAME"
 echo "omero.group2=$GROUP_NAME_2" >> "$CONFIG_FILENAME"
+echo "omero.ladmin=$LIGHTADMIN_USER_NAME" >> "$CONFIG_FILENAME"
 
 # Remove fake file
 rm *.fake

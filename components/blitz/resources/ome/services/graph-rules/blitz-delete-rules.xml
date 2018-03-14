@@ -305,13 +305,21 @@
 
         <bean parent="graphPolicyRule" p:matches="FileAnnotation[D].file = OF:[E]{i}" p:changes="OF:{r}"/>
         <bean parent="graphPolicyRule" p:matches="FilesetEntry[D].originalFile = OF:[E]{i}" p:changes="OF:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="JobOriginalFileLink[D].child = OF:[E]{i}" p:changes="OF:{r}"/>
         <bean parent="graphPolicyRule" p:matches="PixelsOriginalFileMap[D].parent = OF:[E]{i}" p:changes="OF:{r}"/>
         <bean parent="graphPolicyRule" p:matches="Roi[D].source = OF:[E]{i}" p:changes="OF:{r}"/>
 
         <!-- Consider deleting an original file if it is linked to a job that is deleted. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = [D], L.child = OF:[E]{i}" p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:IndexingJob[D], L.child = OF:[E]{i}, J =/o OF"
+                                       p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:MetadataImportJob[D], L.child = OF:[E]{i}, J =/o OF"
+                                       p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:PixelDataJob[D], L.child = OF:[E]{i}, J =/o OF"
+                                       p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:ThumbnailGenerationJob[D], L.child = OF:[E]{i}, J =/o OF"
+                                       p:changes="OF:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:UploadJob[D], L.child = OF:[E]{i}, J =/o OF"
+                                       p:changes="OF:{r}"/>
 
         <!-- Do not delete an original file that is being used by an object. -->
 

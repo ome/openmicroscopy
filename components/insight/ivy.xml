@@ -34,7 +34,7 @@
         <exclude ext="pom"/>
     </dependency>
     <!-- For build -->
-    <dependency org="ome" name="appbundler" rev="${versions.appbundler}" conf="build->default"/>
+    <dependency org="com.panayotis" name="appbundler" rev="${versions.appbundler}" conf="build->default"/>
     <!-- From classpath -->
     <dependency org="org.apache.axis" name="axis" rev="${versions.axis}"/>
     <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="${versions.backport}"/>
@@ -64,12 +64,12 @@
     <!-- from Java 9 on javax.activation is not included any longer -->
     <dependency org="javax.activation" name="activation" rev="${versions.activation}"/>
     <!-- Bioformats -->
-    <dependency org="ome" name="formats-bsd" rev="${versions.bioformats}">
+    <dependency org="${org.bioformats}" name="formats-bsd" rev="${versions.bioformats}">
         <exclude org="com.jgoodies"/>
         <exclude org="org.slf4j"/>
         <exclude org="xml-apis"/>
     </dependency>
-    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}">
+    <dependency org="${org.bioformats}" name="formats-gpl" rev="${versions.bioformats}">
         <exclude org="org.slf4j"/>
         <exclude org="commons-logging"/>
     </dependency>
