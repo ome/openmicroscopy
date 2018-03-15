@@ -373,4 +373,4 @@ class TestImage (object):
             admin = gatewaywrapper.gateway.getAdminService()
         # Check that the exporter is closed
         for v in gatewaywrapper.gateway.c.getSession().activeServices():
-            assert 'ExporterPrx' not in v, 'Leaked exporter!'
+            assert 'Exporter' not in v, 'Leaked exporter!'
