@@ -425,7 +425,7 @@ class TestScreenPlateTables(IWebTest):
             rspJson = json.loads(response.content)
         finally:
             for v in self.client.getSession().activeServices():
-                assert 'TableProxy' not in v, 'Leaked table!'
+                assert 'TablePrx' not in v, 'Leaked table!'
 
         assert rspJson['data'] == {
             'rows': [[wellId, 'foobar']],
