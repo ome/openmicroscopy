@@ -32,6 +32,11 @@ class TestImage (object):
     def setUp(self, author_testimg):
         self.image = author_testimg
 
+    def assert_no_leaked_exporter(self, client):
+        # Check that the exporter is closed
+        for v in client.getSession().activeServices():
+            assert 'Exporter' not in v, 'Leaked exporter!'
+
     def testThumbnail(self, author_testimg_bad, author_testimg_big,
                       gatewaywrapper):
         thumb = self.image.getThumbnail()
@@ -349,12 +354,14 @@ class TestImage (object):
         assert hasattr(gen, 'next')
         assert len(gen.next()) == 16
         del gen
+        self.assert_no_leaked_exporter(gatewaywrapper.gateway.c)
         # Now try the same using a different user, admin first
         gatewaywrapper.loginAsAdmin()
         gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         image = gatewaywrapper.getTestImage()
         assert image.getId() == self.image.getId()
         assert len(image.exportOmeTiff()) > 0
+        self.assert_no_leaked_exporter(gatewaywrapper.gateway.c)
         # what about a regular user?
         g = image.getDetails().getGroup()._obj
         gatewaywrapper.loginAsUser()
@@ -368,9 +375,7 @@ class TestImage (object):
             image = gatewaywrapper.getTestImage()
             assert image.getId() == self.image.getId()
             assert len(image.exportOmeTiff()) > 0
+            self.assert_no_leaked_exporter(gatewaywrapper.gateway.c)
         finally:
             gatewaywrapper.loginAsAdmin()
             admin = gatewaywrapper.gateway.getAdminService()
-        # Check that the exporter is closed
-        for v in gatewaywrapper.gateway.c.getSession().activeServices():
-            assert 'Exporter' not in v, 'Leaked exporter!'
