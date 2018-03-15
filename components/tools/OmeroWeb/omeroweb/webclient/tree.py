@@ -30,6 +30,17 @@ from copy import deepcopy
 from omero.gateway import _letterGridLabel
 
 
+def get_group_id(conn, group_id):
+    """Get a valid group ID for use in queries."""
+    if group_id is None:
+        group_id = -1
+    if group_id != -1:
+        # Make sure we don't get security violation.
+        if group_id not in conn.getEventContext().memberOfGroups:
+            group_id = -1
+    return group_id
+
+
 def build_clause(components, name='', join=','):
     ''' Build a string from a list of components.
         This is to simplify building where clauses in particular that
@@ -185,8 +196,7 @@ def marshal_experimenters(conn, group_id=-1, page=1, limit=settings.PAGE):
     params = omero.sys.ParametersI()
     service_opts = deepcopy(conn.SERVICE_OPTS)
 
-    if group_id is None:
-        group_id = -1
+    group_id = get_group_id(conn, group_id)
 
     # This does not actually restrict the results so the restriction to
     # a certain group is done in the query
@@ -306,8 +316,7 @@ def marshal_projects(conn, group_id=-1, experimenter_id=-1,
     service_opts = deepcopy(conn.SERVICE_OPTS)
 
     # Set the desired group context
-    if group_id is None:
-        group_id = -1
+    group_id = get_group_id(conn, group_id)
     service_opts.setOmeroGroup(group_id)
 
     # Paging
@@ -397,8 +406,7 @@ def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
     service_opts = deepcopy(conn.SERVICE_OPTS)
 
     # Set the desired group context
-    if group_id is None:
-        group_id = -1
+    group_id = get_group_id(conn, group_id)
     service_opts.setOmeroGroup(group_id)
 
     # Paging
@@ -566,8 +574,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
     service_opts = deepcopy(conn.SERVICE_OPTS)
 
     # Set the desired group context
-    if group_id is None:
-        group_id = -1
+    group_id = get_group_id(conn, group_id)
     service_opts.setOmeroGroup(group_id)
 
     # Paging
@@ -783,8 +790,7 @@ def marshal_screens(conn, group_id=-1, experimenter_id=-1, page=1,
     service_opts = deepcopy(conn.SERVICE_OPTS)
 
     # Set the desired group context
-    if group_id is None:
-        group_id = -1
+    group_id = get_group_id(conn, group_id)
     service_opts.setOmeroGroup(group_id)
 
     # Paging
@@ -878,8 +884,7 @@ def marshal_plates(conn, screen_id=None, orphaned=False, group_id=-1,
     service_opts = deepcopy(conn.SERVICE_OPTS)
 
     # Set the desired group context
-    if group_id is None:
-        group_id = -1
+    group_id = get_group_id(conn, group_id)
     service_opts.setOmeroGroup(group_id)
 
     # Paging
@@ -1048,8 +1053,7 @@ def marshal_orphaned(conn, group_id=-1, experimenter_id=-1, page=1,
     service_opts = deepcopy(conn.SERVICE_OPTS)
 
     # Set the desired group context
-    if group_id is None:
-        group_id = -1
+    group_id = get_group_id(conn, group_id)
     service_opts.setOmeroGroup(group_id)
 
     # Paging
@@ -1165,8 +1169,7 @@ def marshal_tags(conn, tag_id=None, group_id=-1, experimenter_id=-1, page=1,
     service_opts = deepcopy(conn.SERVICE_OPTS)
 
     # Set the desired group context
-    if group_id is None:
-        group_id = -1
+    group_id = get_group_id(conn, group_id)
     service_opts.setOmeroGroup(group_id)
 
     # Paging
@@ -1294,8 +1297,7 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
     service_opts = deepcopy(conn.SERVICE_OPTS)
 
     # Set the desired group context
-    if group_id is None:
-        group_id = -1
+    group_id = get_group_id(conn, group_id)
     service_opts.setOmeroGroup(group_id)
 
     # Paging
@@ -1806,8 +1808,7 @@ def marshal_annotations(conn, project_ids=None, dataset_ids=None,
     service_opts = deepcopy(conn.SERVICE_OPTS)
 
     # Set the desired group context
-    if group_id is None:
-        group_id = -1
+    group_id = get_group_id(conn, group_id)
     service_opts.setOmeroGroup(group_id)
 
     where_clause = ['pa.id in (:ids)']
