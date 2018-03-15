@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1101,7 +1102,6 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     private byte[] retrieveThumbnail(boolean rewriteMetadata)
     {
-        errorIfInvalidState();
         if (inProgress)
         {
             return retrieveThumbnailDirect(
@@ -1129,6 +1129,27 @@ public class ThumbnailBean extends AbstractLevel2Service
                 _createThumbnail();
             }
             byte[] thumbnail = ioService.getThumbnail(thumbnailMetadata);
+            //Thumbnails are always saved to disk and then retrieved when the
+            //call stack includes retrieveThumbnail(). This includes the "clock".
+            //inProgress is not set early enough for retrieveThumbnailDirect()
+            //to be called.
+            //
+            //The current implementation assumes that if an image has valid
+            //rendering settings for the current user then it will have a valid
+            //pyramid. When existing pyramids, thumbnail metadata, and cached
+            //thumbnails are deleted from disk using a method like
+            //removepyramids it invalidates this assumption.
+            //The "clock" will first be saved to disk. inProgress will then be
+            //checked and the "clock" deleted from disk after creation.
+            //The "clock" will have to be created, saved to disk, and then
+            //retrieved every time the thumbnail is requested until pyramid
+            //creation completes and the correct thumbnail can be created.
+            //Otherwise the "clock" would stay as the cached thumbnail until
+            //the valid rendering settings for the current user are modified.
+            if (inProgress) {
+                ioService.removeThumbnails(
+                        Arrays.asList(new Long[] { thumbnailMetadata.getId() }));
+            }
             return thumbnail;
         }
         catch (IOException e)
