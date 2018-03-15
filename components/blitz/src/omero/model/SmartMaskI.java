@@ -28,7 +28,7 @@ public class SmartMaskI extends omero.model.MaskI implements SmartShape {
 
     public Shape asAwtShape() {
         double[] d = data();
-        if (d == null) {
+        if (d == null || d.length != 4) {
             return null;
         }
         Rectangle2D.Double rect = new Rectangle2D.Double(d[0], d[1], d[2], d[3]);
@@ -37,7 +37,7 @@ public class SmartMaskI extends omero.model.MaskI implements SmartShape {
 
     public List<Point> asPoints() {
         double[] d = data();
-        if (d == null) {
+        if (d == null || d.length != 4) {
             return null;
         }
         List<Point> points = Util.points(d[0], d[1], d[2], d[3]);
