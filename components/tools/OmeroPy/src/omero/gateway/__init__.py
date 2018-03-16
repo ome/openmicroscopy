@@ -116,11 +116,13 @@ def fileread(fin, fsize, bufsize):
     # Read it all in one go
     p = 0
     rv = ''
-    while p < fsize:
-        s = min(bufsize, fsize-p)
-        rv += fin.read(p, s)
-        p += s
-    fin.close()
+    try:
+        while p < fsize:
+            s = min(bufsize, fsize-p)
+            rv += fin.read(p, s)
+            p += s
+    finally:
+        fin.close()
     return rv
 
 
@@ -138,11 +140,13 @@ def fileread_gen(fin, fsize, bufsize):
     :return: generator of string buffers of size up to bufsize read from fin
     """
     p = 0
-    while p < fsize:
-        s = min(bufsize, fsize-p)
-        yield fin.read(p, s)
-        p += s
-    fin.close()
+    try:
+        while p < fsize:
+            s = min(bufsize, fsize-p)
+            yield fin.read(p, s)
+            p += s
+    finally:
+        fin.close()
 
 
 def getAnnotationLinkTableName(objecttype):
@@ -8308,13 +8312,13 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             args += [ctx]
             rv = thumb(*args)
             self._thumbInProgress = tb.isInProgress()
-            tb.close()      # close every time to prevent stale state
             return rv
         except Exception:  # pragma: no cover
             logger.error(traceback.format_exc())
+            return None
+        finally:
             if tb is not None:
                 tb.close()
-            return None
 
     @assert_pixels
     def getPixelRange(self):
@@ -9130,6 +9134,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :rtype:         String or (size, data generator)
         """
 
+        # the exporter is closed in the fileread* methods
         e = self._conn.createExporter()
         e.addImage(self.getId())
         size = e.generateTiff(self._conn.SERVICE_OPTS)
