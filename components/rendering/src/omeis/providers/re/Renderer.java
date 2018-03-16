@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
+import ome.io.nio.RomioPixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
@@ -956,6 +957,9 @@ public class Renderer {
      **/
     public void setResolutionLevel(int resolutionLevel)
     {
+        if (buffer instanceof RomioPixelBuffer) {
+            return;
+        }
         buffer.setResolutionLevel(resolutionLevel);
     }
 
