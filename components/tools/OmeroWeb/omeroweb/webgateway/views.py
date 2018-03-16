@@ -926,9 +926,6 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             level = levels-int(zxyt[0])
             x = int(zxyt[1])*w
             y = int(zxyt[2])*h
-            # check if the image requires pyramid
-            if not img._re.requiresPixelsPyramid():
-                level = None
         except:
             logger.debug(
                 "render_image_region: tile=%s" % tile, exc_info=True

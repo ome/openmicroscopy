@@ -8982,8 +8982,11 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 tile_height = round(tile_height / 2.0)
             width = int(tiles_wide * tile_width)
             height = int(tiles_high * tile_height)
+            level = 0
+            if not re.requiresPixelsPyramid():
+                level = None
             jpeg_data = self.renderJpegRegion(
-                z, t, x, y, width, height, level=0)
+                z, t, x, y, width, height, level=level)
             if size is None:
                 return jpeg_data
             # We've been asked to scale the image by its longest side so we'll
@@ -9031,7 +9034,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         regionDef.height = int(height)
         self._pd.region = regionDef
         try:
-            if level is not None:
+            if level is not None and self._re.requiresPixelsPyramid():
                 self._re.setResolutionLevel(level)
             if compression is not None:
                 try:
