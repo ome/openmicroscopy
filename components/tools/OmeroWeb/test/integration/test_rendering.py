@@ -374,3 +374,34 @@ class TestRenderImageRegion(IWebTest):
             assert tile.size == tuple(expTileSize)
         finally:
             self.assert_no_leaked_rendering_engines()
+
+    def test_render_image_region_tile_params_invalid_resolution(self):
+        """
+        Tests whether the handed in tile parameter is respected
+        by checking the following cases:
+        1. don't hand in tile dimension => use default tile size
+        2. hand in tile dimension => use given tile size
+        3. exceed tile dimension max values => use default tile size
+        """
+        image_id = self.create_test_image(size_c=2, session=self.sf).id.val
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
+        image = conn.getObject("Image", image_id)
+        image._prepareRenderingEngine()
+        expTileSize = image._re.getTileSize()
+        image._re.close()
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image.getId()), 'z': '0', 't': '0'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        data = {}
+        try:
+            data['tile'] = '1,0,0,10,10'
+            response = get(django_client, request_url, data)
+            tile = Image.open(StringIO(response.content))
+            assert tile.size == (10, 10)
+        finally:
+            self.assert_no_leaked_rendering_engines()
