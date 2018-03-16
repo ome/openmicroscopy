@@ -338,18 +338,30 @@ class ValueResolver(object):
             if len(self.wrapper.images_by_id) == 1:
                 images_by_id = self.wrapper.images_by_id.values()[0]
             else:
-                for column, plate in row:
+                for column, column_value in row:
                     if column.__class__ is PlateColumn:
-                        images_by_id = self.images_by_id[
-                            self.plates_by_name[plate].id.val
+                        images_by_id = self.wrapper.images_by_id[
+                            self.wrapper.plates_by_name[column_value].id.val
                         ]
                         log.debug(
-                            "Got plate %i", self.plates_by_name[plate].id.val
+                            "Got plate %i",
+                            self.wrapper.plates_by_name[column_value].id.val
                         )
-                    break
+                        break
+                    elif column.name.lower() == "dataset":
+                        # DatasetColumn unimplemented at the momnet
+                        # We can still access column names though
+                        images_by_id = self.wrapper.images_by_id[
+                            self.wrapper.datasets_by_name[column_value].id.val
+                        ]
+                        log.debug(
+                            "Got dataset %i",
+                            self.wrapper.datasets_by_name[column_value].id.val
+                        )
+                        break
             if images_by_id is None:
                 raise MetadataError(
-                    'Unable to locate Plate column in Row: %r' % row
+                    'Unable to locate Parent column in Row: %r' % row
                 )
             try:
                 return images_by_id[long(value)].id.val
@@ -709,12 +721,24 @@ class ProjectWrapper(PDIWrapper):
 
     def __init__(self, value_resolver):
         super(ProjectWrapper, self).__init__(value_resolver)
-        self.graph_by_id = defaultdict(lambda: dict())
-        self.graph_by_name = defaultdict(lambda: dict())
+        self.images_by_id = defaultdict(lambda: dict())
+        self.images_by_name = defaultdict(lambda: dict())
+        self.datasets_by_id = dict()
+        self.datasets_by_name = dict()
         self._load()
 
     def get_image_id_by_name(self, iname, dname=None):
-        return self.graph_by_name[dname][iname][2]
+        return self.images_by_name[dname][iname].id.val
+
+    def get_image_name_by_id(self, iid, did=None):
+        return self.images_by_id[did][iid].name.val
+
+    def resolve_dataset(self, column, row, value):
+        try:
+            return self.datasets_by_name[value].id.val
+        except KeyError:
+            log.warn('Project is missing dataset: %s' % value)
+            return Skip()
 
     def _load(self):
         query_service = self.client.getSession().getQueryService()
@@ -732,7 +756,7 @@ class ProjectWrapper(PDIWrapper):
         while True:
             parameters.page(len(data), 1000)
             rv = unwrap(query_service.projection((
-                'select distinct d.id, d.name, i.id, i.name '
+                'select distinct d, i '
                 'from Project p '
                 'join p.datasetLinks as pdl '
                 'join pdl.child as d '
@@ -748,9 +772,12 @@ class ProjectWrapper(PDIWrapper):
             raise MetadataError('Could not find target object!')
 
         seen = dict()
-        for row in data:
-            did, dname, iid, iname = row
-
+        for dataset, image in data:
+            did = dataset.id.val
+            dname = dataset.name.val
+            iid = image.id.val
+            iname = image.name.val
+            log.info("Adding dataset:%d image:%s" % (did, iid))
             if dname in seen and seen[dname] != did:
                 raise Exception("Duplicate datasets: '%s' = %s, %s" % (
                     dname, seen[dname], did
@@ -765,8 +792,10 @@ class ProjectWrapper(PDIWrapper):
             else:
                 seen[ikey] = iid
 
-            self.graph_by_id[did][iid] = row
-            self.graph_by_name[dname][iname] = row
+            self.images_by_id[did][iid] = image
+            self.images_by_name[dname][iname] = image
+            self.datasets_by_id[did] = dataset
+            self.datasets_by_name[dname] = dataset
         log.debug('Completed parsing project: %s' % self.target_object.id.val)
 
 
@@ -957,8 +986,9 @@ class ParsingContext(object):
                     log.debug(image_name_column.values)
                     iid = image_column.values[i]
                     did = self.target_object.id.val
-                    if "Dataset Name" in columns_by_name:  # FIXME
-                        did = columns_by_name["Dataset Name"].values[i]
+                    if "Dataset" in columns_by_name:
+                        did = columns_by_name["Dataset"].values[i]
+                    log.debug("Using Dataset:%d" % did)
                     iname = self.value_resolver.get_image_name_by_id(
                         iid, did)
                 except KeyError:
@@ -1696,6 +1726,8 @@ def parse_target_object(target_object):
     type, id = target_object.split(':')
     if 'Dataset' == type:
         return DatasetI(long(id), False)
+    if 'Project' == type:
+        return ProjectI(long(id), False)
     if 'Plate' == type:
         return PlateI(long(id), False)
     if 'Screen' == type:
