@@ -39,11 +39,50 @@ except ImportError:
 
 
 class TestRendering(IWebTest):
+
+    def assert_no_leaked_rendering_engines(self):
+        """
+        Assert no rendering engine stateful services are left open for the
+        current session.
+        """
+        for v in self.client.getSession().activeServices():
+            assert 'RenderingEngine' not in v, 'Leaked rendering engine!'
+
+    def test_save_image_rdef_json(self):
+        image_id = self.create_test_image(size_c=3, session=self.sf).id.val
+
+        request_url = reverse(
+            'webgateway.views.save_image_rdef_json',
+            kwargs={'iid': str(image_id)}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            post(django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_reset_rdef_json(self):
+        image_id = self.create_test_image(size_c=3, session=self.sf).id.val
+
+        request_url = reverse('webgateway.views.reset_rdef_json')
+        data = {
+            'toids': image_id,
+            'to_type': 'image'
+        }
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            post(django_client, request_url, data)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
     """
     Tests copying and pasting of rendering settings from one image to another
     """
-
-    def test_copy_past_rendering_settings_from_image(self):
+    def test_copy_paste_rendering_settings_from_image(self):
         # Create 2 images with 2 channels each
         iid1 = self.create_test_image(size_c=2, session=self.sf).id.val
         iid2 = self.create_test_image(size_c=2, session=self.sf).id.val
@@ -56,12 +95,14 @@ class TestRendering(IWebTest):
         image1.setColorRenderingModel()
         image1.setQuantizationMap(0, "logarithmic", 0.5)
         image1.saveDefaults()
+        image1._closeRE()
         image1 = conn.getObject("Image", iid1)
 
         # image2 set greyscale model
         image2 = conn.getObject("Image", iid2)
         image2.setGreyscaleRenderingModel()
         image2.saveDefaults()
+        image2._closeRE()
         image2 = conn.getObject("Image", iid2)
 
         assert image1.isGreyscaleRenderingModel() is False
@@ -74,6 +115,8 @@ class TestRendering(IWebTest):
         assert img2_chan.getFamily().getValue() == 'linear'
         assert img2_chan.getCoefficient() == 1.0
 
+        image1._closeRE()
+        image2._closeRE()
         # copy rendering settings from image1 via ID
         request_url = reverse('webgateway.views.copy_image_rdef_json')
         data = {
@@ -85,16 +128,20 @@ class TestRendering(IWebTest):
         data = {
             'toids': iid2
         }
-
-        post(self.django_client, request_url, data)
+        try:
+            post(self.django_client, request_url, data)
+        finally:
+            self.assert_no_leaked_rendering_engines()
 
         image2 = conn.getObject("Image", iid2)
         assert image2.isGreyscaleRenderingModel() is False
         img2_chan = image2.getChannels()[0]
         assert img2_chan.getFamily().getValue() == 'logarithmic'
         assert img2_chan.getCoefficient() == 0.5
+        image2._closeRE()
+        self.assert_no_leaked_rendering_engines()
 
-    def test_copy_past_rendering_settings_from_url(self):
+    def test_copy_paste_rendering_settings_from_url(self):
         # Create 2 images with 2 channels each
         iid1 = self.create_test_image(size_c=2, session=self.sf).id.val
         iid2 = self.create_test_image(size_c=2, session=self.sf).id.val
@@ -109,12 +156,14 @@ class TestRendering(IWebTest):
                                  ['00FF00', 'FF0000'], [True, False])
         image1.setQuantizationMap(0, "exponential", 0.8)
         image1.saveDefaults()
+        image1._closeRE()
         image1 = conn.getObject("Image", iid1)
 
         # image2 set greyscale model
         image2 = conn.getObject("Image", iid2)
         image2.setGreyscaleRenderingModel()
         image2.saveDefaults()
+        image2._closeRE()
         image2 = conn.getObject("Image", iid2)
 
         assert image1.isGreyscaleRenderingModel() is False
@@ -140,6 +189,8 @@ class TestRendering(IWebTest):
 
         # build channel parameter e.g. 1|0:15$FF0000...
         old_c1 = buildParamC(image1)
+        image1._closeRE()
+        image2._closeRE()
         # Check it is what we expect
         exp_map1 = '{"quantization":' \
             '{"family":"exponential","coefficient":0.8}}'
@@ -162,13 +213,13 @@ class TestRendering(IWebTest):
             "z": 1,
             "zm": 100
         }
-        get(self.django_client, request_url, data)
-
-        # paste rendering settings to image2
-        data = {
-            'toids': iid2
-        }
-        post(self.django_client, request_url, data)
+        try:
+            get(self.django_client, request_url, data)
+            # paste rendering settings to image2
+            data = {'toids': iid2}
+            post(self.django_client, request_url, data)
+        finally:
+            self.assert_no_leaked_rendering_engines()
 
         # reload image1
         image1 = conn.getObject("Image", iid1)
@@ -188,6 +239,9 @@ class TestRendering(IWebTest):
         newChan = image2.getChannels()[0]
         assert newChan.getFamily().getValue() == 'exponential'
         assert newChan.getCoefficient() == 0.8
+        image1._closeRE()
+        image2._closeRE()
+        self.assert_no_leaked_rendering_engines()
 
     """
     Tests retrieving all rendering defs for an image (given id)
@@ -205,14 +259,18 @@ class TestRendering(IWebTest):
         image.setQuantizationMap(0, "logarithmic", 0.45)
         image.setQuantizationMap(1, "exponential", 0.9)
         image.saveDefaults()
+        image._closeRE()
         image = conn.getObject("Image", iid)
 
         assert image.isGreyscaleRenderingModel() is False
-
+        image._closeRE()
         # request the rendering def via the method we want to test
         request_url = reverse(
             'webgateway.views.get_image_rdefs_json', args=[iid])
-        response = get(self.django_client, request_url)
+        try:
+            response = get(self.django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
 
         # check expected response
         assert response is not None and response.content is not None
@@ -249,6 +307,94 @@ class TestRendering(IWebTest):
         fullOwner = owner.get("firstName", "") + " " +\
             owner.get("lastName", "")
         assert fullOwner == conn.getUser().getFullName()
+        image._closeRE()
+        self.assert_no_leaked_rendering_engines()
+
+
+class TestRenderImage(IWebTest):
+
+    def assert_no_leaked_rendering_engines(self):
+        """
+        Assert no rendering engine stateful services are left open for the
+        current session.
+        """
+        for v in self.client.getSession().activeServices():
+            assert 'RenderingEngine' not in v, 'Leaked rendering engine!'
+
+    def test_render_image(self):
+        image_id = self.create_test_image(size_c=3, session=self.sf).id.val
+
+        request_url = reverse(
+            'webgateway.views.render_image',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            get(django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_ome_tiff(self):
+        image_id = self.create_test_image(size_c=3, session=self.sf).id.val
+
+        request_url = reverse(
+            'webgateway.views.render_ome_tiff',
+            kwargs={'cid': str(image_id), 'ctx': 'i'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            get(django_client, request_url)
+        finally:
+            for v in self.client.getSession().activeServices():
+                assert 'Exporter' not in v, 'Leaked exporter!'
+
+    def test_render_split_channel(self):
+        image_id = self.create_test_image(size_c=3, session=self.sf).id.val
+        request_url = reverse(
+            'webgateway.views.render_split_channel',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            get(django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_row_plot(self):
+        image_id = self.create_test_image(size_x=125, size_y=125,
+                                          session=self.sf).getId().getValue()
+        request_url = reverse(
+            'webgateway.views.render_row_plot',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0', 'y': '100'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            get(django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_col_plot(self):
+        image_id = self.create_test_image(size_x=125, size_y=125,
+                                          session=self.sf).getId().getValue()
+        request_url = reverse(
+            'webgateway.views.render_col_plot',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0', 'x': '100'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            get(django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
 
 
 class TestRenderImageRegion(IWebTest):

@@ -443,7 +443,7 @@ def render_roi_thumbnail(request, roiId, w=None, h=None, conn=None, **kwargs):
 def render_shape_thumbnail(request, shapeId, w=None, h=None, conn=None,
                            **kwargs):
     """
-    For the given Shape, redner a region around that shape, scale to width and
+    For the given Shape, render a region around that shape, scale to width and
     height (or default size) and draw the shape on to the region.
     """
     server_id = request.session['connector'].server_id
@@ -2732,31 +2732,36 @@ def _table_query(request, fileid, conn=None, **kwargs):
     ctx.setOmeroGroup("-1")
 
     r = conn.getSharedResources()
-    t = r.openTable(omero.model.OriginalFileI(fileid), ctx)
-    if not t:
-        return dict(error="Table %s not found" % fileid)
+    t = None
+    try:
+        t = r.openTable(omero.model.OriginalFileI(fileid), ctx)
+        if not t:
+            return dict(error="Table %s not found" % fileid)
 
-    cols = t.getHeaders()
-    rows = t.getNumberOfRows()
+        cols = t.getHeaders()
+        rows = t.getNumberOfRows()
 
-    if query == '*':
-        hits = range(rows)
-    else:
-        match = re.match(r'^(\w+)-(\d+)', query)
-        if match:
-            query = '(%s==%s)' % (match.group(1), match.group(2))
-        try:
-            hits = t.getWhereList(query, None, 0, rows, 1)
-        except Exception:
-            return dict(error='Error executing query: %s' % query)
+        if query == '*':
+            hits = range(rows)
+        else:
+            match = re.match(r'^(\w+)-(\d+)', query)
+            if match:
+                query = '(%s==%s)' % (match.group(1), match.group(2))
+            try:
+                hits = t.getWhereList(query, None, 0, rows, 1)
+            except Exception:
+                return dict(error='Error executing query: %s' % query)
 
-    return dict(data=dict(
-        columns=[col.name for col in cols],
-        rows=[[col.values[0] for col in t.read(range(len(cols)), hit,
-                                               hit+1).columns]
-              for hit in hits],
+        return dict(data=dict(
+            columns=[col.name for col in cols],
+            rows=[[col.values[0] for col in t.read(range(len(cols)), hit,
+                                                   hit+1).columns]
+                  for hit in hits],
+            )
         )
-    )
+    finally:
+        if t is not None:
+            t.close()
 
 table_query = login_required()(jsonp(_table_query))
 

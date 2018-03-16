@@ -21,6 +21,8 @@
 
 import base64
 import json
+import omero
+from omero.rtypes import rdouble
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get
 
@@ -29,12 +31,20 @@ import pytest
 from django.core.urlresolvers import reverse
 try:
     from PIL import Image
-except:
+except Exception:
     import Image
 
 
 class TestThumbnails(IWebTest):
     """Tests loading of thumbnails."""
+
+    def assert_no_leaked_rendering_engines(self):
+        """
+        Assert no rendering engine stateful services are left open for the
+        current session.
+        """
+        for v in self.client.getSession().activeServices():
+            assert 'RenderingEngine' not in v, 'Leaked rendering engine!'
 
     @pytest.mark.parametrize("size", [None, 100])
     def test_default_thumb_size(self, size):
@@ -44,13 +54,16 @@ class TestThumbnails(IWebTest):
         Default size is 96.
         """
         # Create a square image
-        iId = self.create_test_image(size_x=125, size_y=125,
-                                     session=self.sf).getId().getValue()
-        args = [iId]
+        image_id = self.create_test_image(size_x=125, size_y=125,
+                                          session=self.sf).getId().getValue()
+        args = [image_id]
         if size is not None:
             args.append(size)
         request_url = reverse('webgateway.views.render_thumbnail', args=args)
-        rsp = get(self.django_client, request_url)
+        try:
+            rsp = get(self.django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
 
         thumb = Image.open(StringIO(rsp.content))
         # Should be 96 on both sides
@@ -71,14 +84,20 @@ class TestThumbnails(IWebTest):
         if size is not None:
             args.append(size)
         request_url = reverse('webgateway.views.render_thumbnail', args=args)
-        rsp = get(self.django_client, request_url)
-        thumb = json.dumps(
-            "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content))
+        try:
+            rsp = get(self.django_client, request_url)
+            thumb = json.dumps(
+                "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content))
+        finally:
+            self.assert_no_leaked_rendering_engines()
 
         request_url = reverse('webgateway.views.get_thumbnail_json',
                               args=args)
-        b64rsp = get(self.django_client, request_url).content
-        assert thumb == b64rsp
+        try:
+            b64rsp = get(self.django_client, request_url).content
+            assert thumb == b64rsp
+        finally:
+            self.assert_no_leaked_rendering_engines()
 
     def test_base64_thumb_set(self):
         """
@@ -95,15 +114,104 @@ class TestThumbnails(IWebTest):
         for i in images:
             request_url = reverse('webgateway.views.render_thumbnail',
                                   args=[i])
-            rsp = get(self.django_client, request_url)
-
-            expected_thumbs[i] = \
-                "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content)
+            try:
+                rsp = get(self.django_client, request_url)
+                expected_thumbs[i] = \
+                    "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content)
+            finally:
+                self.assert_no_leaked_rendering_engines()
 
         iids = {'id': images}
         request_url = reverse('webgateway.views.get_thumbnails_json')
-        b64rsp = get(self.django_client, request_url, iids).content
+        try:
+            b64rsp = get(self.django_client, request_url, iids).content
+            assert cmp(json.loads(b64rsp),
+                       json.loads(json.dumps(expected_thumbs))) == 0
+            assert json.dumps(expected_thumbs) == b64rsp
+        finally:
+            self.assert_no_leaked_rendering_engines()
 
-        assert cmp(json.loads(b64rsp),
-                   json.loads(json.dumps(expected_thumbs))) == 0
-        assert json.dumps(expected_thumbs) == b64rsp
+    def test_render_birds_eye_view(self):
+        size = 100
+        image_id = self.create_test_image(size_x=125, size_y=125,
+                                          session=self.sf).getId().getValue()
+        args = [image_id]
+        args.append(size)
+        request_url = reverse('webgateway.views.render_birds_eye_view',
+                              args=args)
+        try:
+            rsp = get(self.django_client, request_url)
+            thumb = Image.open(StringIO(rsp.content))
+            assert thumb.size == (size, size)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_roi_thumbnail(self):
+        image_id = self.create_test_image(size_x=125, size_y=125,
+                                          session=self.sf).getId().getValue()
+        size = 40
+        img = omero.model.ImageI(image_id, False)
+        roi = omero.model.RoiI()
+        rect = omero.model.RectangleI()
+        rect.x = rdouble(0)
+        rect.y = rdouble(0)
+        rect.width = rdouble(size)
+        rect.height = rdouble(size)
+        roi.addShape(rect)
+        roi.setImage(img)
+
+        roi = self.update.saveAndReturnObject(roi)
+        args = [roi.id.val]
+        request_url = reverse('webgateway.views.render_roi_thumbnail',
+                              args=args)
+        try:
+            get(self.django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_shape_thumbnail(self):
+        image_id = self.create_test_image(size_x=125, size_y=125,
+                                          session=self.sf).getId().getValue()
+        size = 40
+        img = omero.model.ImageI(image_id, False)
+        roi = omero.model.RoiI()
+        rect = omero.model.RectangleI()
+        rect.x = rdouble(0)
+        rect.y = rdouble(0)
+        rect.width = rdouble(size)
+        rect.height = rdouble(size)
+        roi.addShape(rect)
+        roi.setImage(img)
+
+        roi = self.update.saveAndReturnObject(roi)
+        shape = roi.copyShapes()[0]
+        args = [shape.id.val]
+        request_url = reverse('webgateway.views.render_shape_thumbnail',
+                              args=args)
+        try:
+            get(self.django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_shape_mask(self):
+        image_id = self.create_test_image(size_x=125, size_y=125,
+                                          session=self.sf).getId().getValue()
+        size = 40
+        img = omero.model.ImageI(image_id, False)
+        roi = omero.model.RoiI()
+        mask = omero.model.MaskI()
+        mask.x = rdouble(0)
+        mask.y = rdouble(0)
+        mask.width = rdouble(size)
+        mask.height = rdouble(size)
+        roi.addShape(mask)
+        roi.setImage(img)
+
+        roi = self.update.saveAndReturnObject(roi)
+        shape = roi.copyShapes()[0]
+        args = [shape.id.val]
+        request_url = reverse('webgateway.views.render_shape_mask', args=args)
+        try:
+            get(self.django_client, request_url)
+        finally:
+            self.assert_no_leaked_rendering_engines()
