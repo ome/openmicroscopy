@@ -100,8 +100,8 @@ IMAGE_NAME_COLUMN = 'Image Name'
 
 COLUMN_TYPES = {
     'plate': PlateColumn, 'well': WellColumn, 'image': ImageColumn,
-    'roi': RoiColumn, 'd': DoubleColumn, 'l': LongColumn, 's': StringColumn,
-    'b': BoolColumn
+    'dataset': DatasetColumn, 'roi': RoiColumn,
+    'd': DoubleColumn, 'l': LongColumn, 's': StringColumn, 'b': BoolColumn
 }
 
 REGEX_HEADER_SPECIFIER = r'# header '
@@ -361,6 +361,9 @@ class ValueResolver(object):
             return self.wrapper.resolve_well(column, row, value)
         if PlateColumn is column_class:
             return self.wrapper.resolve_plate(column, row, value)
+        # Prepared to handle DatasetColumn
+        if DatasetColumn is column_class:
+            return self.wrapper.resolve_dataset(column, row, value)
         if column_as_lower in ('row', 'column') \
            and column_class is LongColumn:
             try:
