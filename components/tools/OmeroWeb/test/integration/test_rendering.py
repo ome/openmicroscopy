@@ -387,7 +387,6 @@ class TestRenderImageRegion(IWebTest):
         conn = omero.gateway.BlitzGateway(client_obj=self.client)
         image = conn.getObject("Image", image_id)
         image._prepareRenderingEngine()
-        expTileSize = image._re.getTileSize()
         image._re.close()
 
         request_url = reverse(
@@ -419,7 +418,6 @@ class TestRenderImageRegion(IWebTest):
         conn = omero.gateway.BlitzGateway(client_obj=self.client)
         image = conn.getObject("Image", image_id)
         image._prepareRenderingEngine()
-        expTileSize = image._re.getTileSize()
         image._re.close()
 
         request_url = reverse(
