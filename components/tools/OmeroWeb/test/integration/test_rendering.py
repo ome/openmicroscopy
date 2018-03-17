@@ -499,3 +499,23 @@ class TestRenderImageRegion(IWebTest):
             assert region.size == (2000, 2000)
         finally:
             self.assert_no_leaked_rendering_engines()
+
+    def test_render_birds_eye_view_big_image(self, tmpdir):
+        """
+        Tests the retrieval of pyramid image at different
+        resolution. Resolution changes is supported in that case.
+        """
+        image_id = self.import_pyramid(tmpdir, client=self.client)
+        request_url = reverse(
+            'webgateway.views.render_birds_eye_view',
+            kwargs={'iid': str(image_id), 'size': '100'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            response = get(django_client, request_url)
+            region = Image.open(StringIO(response.content))
+            assert region.size == (100, 100)
+        finally:
+            self.assert_no_leaked_rendering_engines()
