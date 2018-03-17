@@ -62,8 +62,11 @@ from omero.model.enums import PixelsTypeuint32, PixelsTypefloat
 from omero.model.enums import PixelsTypedouble
 
 from omero.rtypes import rbool, rstring, rlong, rtime, rint, unwrap
+from omero.sys import ParametersI
 from omero.util.temp_files import create_path
 from path import path
+
+import hashlib
 
 
 class Clients(object):
@@ -1123,6 +1126,49 @@ class ITest(object):
             targetObjects={'ExperimenterGroup': [gid]}, permissions=perms)
 
         self.do_submit(command, client)
+
+    def wait_for_pyramid(self, id):
+        store = self.client.sf.createRawPixelsStore()
+        not_ready = True
+        count = 0
+        elapse_time = 1  # time in seconds
+        try:
+            # Do not wait more than 60 seconds
+            while not_ready and count < 60:
+                try:
+                    store.setPixelsId(id, True)
+                    # No exception. The pyramid is now ready
+                    not_ready = False
+                except Exception:
+                    # try again in elapse_time
+                    time.sleep(elapse_time)
+                    count = count + elapse_time
+        finally:
+            store.close()
+
+    def import_pyramid(self, tmpdir, name=None, client=None, skip=None):
+        if name is None:
+            name = "test&sizeX=4000&sizeY=4000.fake"
+        fakefile = tmpdir.join(name)
+        fakefile.write('')
+        if client is None:
+            client = self.client
+        pixels = self.import_image(filename=str(fakefile), client=client,
+                                   skip=skip)[0]
+        id = long(float(pixels))
+        assert id >= 0
+        # wait for the pyramid to be generated
+        self.wait_for_pyramid(id)
+        query_service = client.sf.getQueryService()
+        pix = query_service.findByQuery(
+            "select p from Pixels p where p.id = :id",
+            ParametersI().addId(id))
+        return pix.image.id.val
+
+    def calculate_sha1(self, data):
+        h = hashlib.sha1()
+        h.update(data)
+        return h.hexdigest()
 
 
 class ProjectionFixture(object):
