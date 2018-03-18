@@ -1146,7 +1146,7 @@ class ITest(object):
         finally:
             store.close()
 
-    def import_pyramid(self, tmpdir, name=None, client=None, skip=None):
+    def import_pyramid(self, tmpdir, name=None, client=None, skip="all"):
         if name is None:
             name = "test&sizeX=4000&sizeY=4000.fake"
         fakefile = tmpdir.join(name)
