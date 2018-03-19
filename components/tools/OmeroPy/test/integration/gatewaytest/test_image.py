@@ -391,16 +391,22 @@ class TestImage (object):
         assert img_file.size == (width, height)
         assert self.image._re.getResolutionLevel() == 0
 
-    def testRenderJpegRegion_Resolution(self, gatewaywrapper):
+    def testRenderJpegRegion_resolution(self, gatewaywrapper):
         width = 10
         height = 10
-        img = self.image.renderJpegRegion(0, 0, 0, 0, width, height, level=1)
+        img = self.image.renderJpegRegion(0, 0, 0, 0, width, height, level=0)
         ifile = StringIO(img)
         img_file = Image.open(ifile)  # Raises if invalid
         img_file.verify()  # Raises if invalid
         assert img_file.format == 'JPEG'
         assert img_file.size == (width, height)
         assert self.image._re.getResolutionLevel() == 0
+
+    def testRenderJpegRegion_invalid_resolution(self, gatewaywrapper):
+        width = 10
+        height = 10
+        img = self.image.renderJpegRegion(0, 0, 0, 0, width, height, level=1)
+        assert img is None
 
     def testRenderBirdsEyeView(self, gatewaywrapper):
         img = self.image.renderBirdsEyeView(None)

@@ -403,14 +403,33 @@ class TestRenderImageRegion(IWebTest):
             tile = Image.open(StringIO(tile_content))
             assert tile.size == (512, 512)
             digest = self.calculate_sha1(tile_content)
-            # request another resolution. It should default to 0
-            data['tile'] = '1,0,0,512,512'
-            response = get(django_client, request_url, data)
-            tile_res_content = response.content
-            tile = Image.open(StringIO(tile_res_content))
-            assert tile.size == (512, 512)
-            digest_res = self.calculate_sha1(tile_res_content)
-            assert digest == digest_res
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_image_region_tile_params_invalid_resolution(self):
+        """
+        Tests the retrieval of large non pyramid image at different
+        resolution. Resolution changes is not supported in that case.
+        It should default to 0.
+        """
+        image_id = self.create_test_image(size_x=512, size_y=512,
+                                          session=self.sf).id.val
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
+        image = conn.getObject("Image", image_id)
+        image._prepareRenderingEngine()
+        image._re.close()
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image.getId()), 'z': '0', 't': '0'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        data = {}
+        try:
+            data['tile'] = '1,0,0,200,200'
+            get(django_client, request_url, data, status_code = 404)
         finally:
             self.assert_no_leaked_rendering_engines()
 
