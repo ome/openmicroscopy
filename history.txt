@@ -18,6 +18,7 @@ Improvements include:
 -  fixed display of thumbnails when searching for images by ID
 -  increased OMERO.web log size
 -  fixed CLI config list subcommand
+-  fixed leaking services in OMERO.py
 
 
 5.4.4 (March 2018)
