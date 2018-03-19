@@ -377,9 +377,7 @@ class TestRenderImageRegion(IWebTest):
 
     def test_render_image_region_tile_params_large_image(self):
         """
-        Tests the retrieval of large non pyramid image at different
-        resolution. Resolution changes is not supported in that case.
-        It should default to 0.
+        Tests the retrieval of large non pyramid image.
         """
         image_id = self.create_test_image(size_x=3000, size_y=3000,
                                           session=self.sf).id.val
@@ -402,15 +400,12 @@ class TestRenderImageRegion(IWebTest):
             tile_content = response.content
             tile = Image.open(StringIO(tile_content))
             assert tile.size == (512, 512)
-            digest = self.calculate_sha1(tile_content)
         finally:
             self.assert_no_leaked_rendering_engines()
 
     def test_render_image_region_tile_params_invalid_resolution(self):
         """
-        Tests the retrieval of large non pyramid image at different
-        resolution. Resolution changes is not supported in that case.
-        It should default to 0.
+        Tests the retrieval of image at an invalid resolution.
         """
         image_id = self.create_test_image(size_x=512, size_y=512,
                                           session=self.sf).id.val
@@ -429,13 +424,13 @@ class TestRenderImageRegion(IWebTest):
         data = {}
         try:
             data['tile'] = '1,0,0,200,200'
-            get(django_client, request_url, data, status_code = 404)
+            get(django_client, request_url, data, status_code=404)
         finally:
             self.assert_no_leaked_rendering_engines()
 
     def test_render_image_region_tile_params_big_image(self, tmpdir):
         """
-        Tests the retrieval of lpyramid image at different
+        Tests the retrieval of pyramid image at different
         resolution. Resolution changes is supported in that case.
         """
         image_id = self.import_pyramid(tmpdir, client=self.client)
