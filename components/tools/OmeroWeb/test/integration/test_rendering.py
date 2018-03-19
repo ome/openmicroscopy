@@ -403,6 +403,31 @@ class TestRenderImageRegion(IWebTest):
         finally:
             self.assert_no_leaked_rendering_engines()
 
+    def test_render_image_region_tile_params_negative_resolution(self):
+        """
+        Tests the retrieval of image at a negative resolution.
+        """
+        image_id = self.create_test_image(size_x=512, size_y=512,
+                                          session=self.sf).id.val
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
+        image = conn.getObject("Image", image_id)
+        image._prepareRenderingEngine()
+        image._re.close()
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image.getId()), 'z': '0', 't': '0'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        data = {}
+        try:
+            data['tile'] = '-1,0,0,200,200'
+            get(django_client, request_url, data, status_code=400)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
     def test_render_image_region_tile_params_invalid_resolution(self):
         """
         Tests the retrieval of image at an invalid resolution.
