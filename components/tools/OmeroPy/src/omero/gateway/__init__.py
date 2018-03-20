@@ -9036,8 +9036,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     self._re.setResolutionLevel(level)
                 else:
                     if level != 0:
-                        logger.debug('On renderJpegRegion')
-                        logger.debug('Cannot set resolution %s' % level)
+                        logger.warn('On renderJpegRegion')
+                        logger.warn('Cannot set resolution %s' % level)
                         return None
             if compression is not None:
                 try:
