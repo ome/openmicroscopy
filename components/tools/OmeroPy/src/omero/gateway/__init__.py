@@ -9032,13 +9032,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         self._pd.region = regionDef
         try:
             if level is not None:
-                if self._re.requiresPixelsPyramid():
-                    self._re.setResolutionLevel(level)
-                else:
-                    if level != 0:
-                        logger.warn('On renderJpegRegion')
-                        logger.warn('Cannot set resolution %s' % level)
-                        return None
+                self._re.setResolutionLevel(level)
             if compression is not None:
                 try:
                     self._re.setCompressionLevel(float(compression))
@@ -9049,6 +9043,11 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     return self.renderJpeg(z, t, None)
             rv = self._re.renderCompressed(self._pd, self._conn.SERVICE_OPTS)
             return rv
+        except omero.ApiUsageException:
+            logger.debug('On renderJpegRegion')
+            logger.debug('Cannot set resolution %s' % level)
+            logger.debug(traceback.format_exc())
+            return None
         except omero.InternalException:  # pragma: no cover
             logger.debug('On renderJpegRegion')
             logger.debug(traceback.format_exc())
