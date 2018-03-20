@@ -930,7 +930,17 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
                 )
                 return HttpResponseBadRequest('Invalid resolution')
 
-            level = levels-v
+            if levels == 0: #  non pyramid file
+                if v > 0:
+                    logger.debug(
+                        "render_image_region: invalid level %s" % v,
+                        exc_info=True
+                    )
+                    return HttpResponseBadRequest('Invalid resolution')
+                else:
+                    level = None
+            else:
+                level = levels-v
             x = int(zxyt[1])*w
             y = int(zxyt[2])*h
         except:
