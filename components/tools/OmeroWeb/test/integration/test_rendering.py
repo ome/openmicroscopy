@@ -449,7 +449,7 @@ class TestRenderImageRegion(IWebTest):
         data = {}
         try:
             data['tile'] = '1,0,0,200,200'
-            get(django_client, request_url, data, status_code=404)
+            get(django_client, request_url, data, status_code=400)
         finally:
             self.assert_no_leaked_rendering_engines()
 
