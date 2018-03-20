@@ -1,7 +1,5 @@
 /*
- * ome.io.nio.PixelsService
- *
- *   Copyright 2006-2017 University of Dundee. All rights reserved.
+ *   Copyright 2006-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -50,7 +48,6 @@ import org.springframework.context.ApplicationEventPublisherAware;
  * @author <br>
  *         Chris Allan&nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OMERO-Beta1.0
  */
 public class PixelsService extends AbstractFileSystemService
@@ -726,11 +723,13 @@ public class PixelsService extends AbstractFileSystemService
             }
         }
         long pixelsId = pixels.getId();
+        if (!isReadOnlyRepo) {
         MissingStatsInfoMessage m = new MissingStatsInfoMessage(this, pixelsId);
         pub.publishEvent(m);
         if (m.isRetry()) {
             log.debug("Retrying stats info for Pixels:" + pixelsId);
             return;
+        }
         }
         String msg = "Missing stats info for Pixels:" + pixelsId;
         log.info(msg);
@@ -748,12 +747,14 @@ public class PixelsService extends AbstractFileSystemService
 	 */
     protected void handleMissingPyramid(Pixels pixels,
             final String pixelsPyramidFilePath) {
+        if (!isReadOnlyRepo) {
         MissingPyramidMessage mpm = new MissingPyramidMessage(this,
                 pixels.getId());
         pub.publishEvent(mpm);
         if (mpm.isRetry()) {
             log.debug("Retrying pyramid:" + pixelsPyramidFilePath);
             return;
+        }
         }
         String msg = "Missing pyramid:" + pixelsPyramidFilePath;
         log.info(msg);
