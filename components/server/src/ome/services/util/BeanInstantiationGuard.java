@@ -33,9 +33,9 @@ public class BeanInstantiationGuard implements BeanFactoryPostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BeanInstantiationGuard.class);
 
-    private final ReadOnlyStatus readOnly;
+    protected final String targetName;
 
-    private final String targetName;
+    private final ReadOnlyStatus readOnly;
 
     private boolean isWriteDb = false;
 
@@ -65,12 +65,27 @@ public class BeanInstantiationGuard implements BeanFactoryPostProcessor {
         this.isWriteRepo = isWriteRepo;
     }
 
+    /**
+     * @return if the changes for read-only should be made
+     */
+    private boolean isTriggerConditionMet() {
+        return isWriteDb && readOnly.isReadOnlyDb() ||
+               isWriteRepo && readOnly.isReadOnlyRepo();
+    }
+
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory factory) {
-        if (isWriteDb && readOnly.isReadOnlyDb() ||
-            isWriteRepo && readOnly.isReadOnlyRepo()) {
-            LOGGER.info("in read-only state so removing Spring bean named {}", targetName);
-            ((BeanDefinitionRegistry) factory).removeBeanDefinition(targetName);
+        if (isTriggerConditionMet()) {
+            setBeanDefinitionForReadOnly((BeanDefinitionRegistry) factory);
         }
+    }
+
+    /**
+     * Act on the bean definition registry to make the target bean suitable for read-only mode.
+     * @param registry the bean definition registry
+     */
+    protected void setBeanDefinitionForReadOnly(BeanDefinitionRegistry registry) {
+        LOGGER.info("in read-only state so removing Spring bean named {}", targetName);
+        registry.removeBeanDefinition(targetName);
     }
 }
