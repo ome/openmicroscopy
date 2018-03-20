@@ -3,9 +3,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# $Id$
-# 
-# Copyright 2006 University of Dundee. All rights reserved.
+# Copyright 2006-2018 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,5 +37,13 @@
     <property name="proxyInterfaces" value="ome.api.RawPixelsStore"/>
     <property name="target" ref="internal-ome.api.RawPixelsStore"/>
   </bean>
-  
+
+  <bean id="internal-ome.api.RawPixelsStoreSubstituter" class="ome.services.util.BeanInstantiationSubstituter">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg value="internal-ome.api.RawPixelsStore"/>
+    <constructor-arg value="ome.services.RawPixelsBeanReadOnly"/>
+    <property name="isWriteDb" value="true"/>
+    <property name="isWriteRepo" value="true"/>
+  </bean>
+
 </beans>
