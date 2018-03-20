@@ -184,7 +184,7 @@ public class ThumbnailCtx
     }
 
     /**
-     * Bulk loads a set of rendering settings for a  group of pixels sets and
+     * Bulk loads a set of rendering settings for a group of pixels sets and
      * prepares our internal data structures.
      * @param pixelsIds Set of Pixels IDs to prepare rendering settings for.
      */
@@ -194,7 +194,7 @@ public class ThumbnailCtx
     }
 
     /**
-     * Bulk loads a set of rendering settings for a  group of pixels sets and
+     * Bulk loads a set of rendering settings for a group of pixels sets and
      * prepares our internal data structures.
      * @param ids Set of IDs to prepare rendering settings for.
      * @param klass Either <code>Image</code> or <code>Pixels</code> qualifying
