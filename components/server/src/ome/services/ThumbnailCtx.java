@@ -53,6 +53,8 @@ public class ThumbnailCtx
      */
     public static class NoThumbnail extends Exception {
 
+        private static final long serialVersionUID = 8383673110828921831L;
+
         public NoThumbnail(String message) {
             super(message);
         }
