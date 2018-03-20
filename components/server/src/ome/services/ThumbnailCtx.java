@@ -1,5 +1,5 @@
 /*
- *   Copyright 2010-2017 University of Dundee. All rights reserved.
+ *   Copyright 2010-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -251,7 +251,7 @@ public class ThumbnailCtx
         // Now check to see if we're in a state where missing settings requires
         // us to use the owner's settings (we're "graph critical") and load
         // them if possible.
-        new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId()) {
+        new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentGroupId()) {
             @Override
             protected void actOnOneGroup(Set<Long> pixelsIds) {
                 if (isExtendedGraphCritical(pixelsIds)) {
@@ -396,7 +396,7 @@ public class ThumbnailCtx
         if (count > 0) {
             log.info(count + " pixels without settings");
             final List<Long> allImageIds = new ArrayList<>(count);
-            new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId()) {
+            new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentGroupId()) {
                 @Override
                 protected void actOnOneGroup(Set<Long> pixelsIds) {
                     if (isExtendedGraphCritical(pixelsIds)) {
@@ -525,7 +525,7 @@ public class ThumbnailCtx
         private boolean isCritical;
 
         private ExtendedGraphCriticalCheck(long pixelsId) {
-            super(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId());
+            super(applicationContext, queryService, securitySystem.getEventContext().getCurrentGroupId());
             if (securitySystem.getEventContext().getCurrentShareId() == null) {
                 actOnByGroup(Collections.singleton(pixelsId));
             } else {
@@ -996,7 +996,7 @@ public class ThumbnailCtx
             // Now check to see if we're in a state where missing metadata
             // requires us to use the owner's metadata (we're "graph critical")
             // and load them if possible.
-            new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId()) {
+            new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentGroupId()) {
                 @Override
                 protected void actOnOneGroup(Set<Long> pixelsIds) {
                     if (isExtendedGraphCritical(pixelsIds)) {
@@ -1090,7 +1090,7 @@ public class ThumbnailCtx
                 "omero.createMissingThumbnailMetadata");
         Set<Long> pixelsIdsWithoutMetadata =
             getPixelsIdsWithoutMetadata(pixelsIdPixelsMap.keySet());
-        new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentEventId()) {
+        new PerGroupActor(applicationContext, queryService, securitySystem.getEventContext().getCurrentGroupId()) {
             @Override
             protected void actOnOneGroup(Set<Long> pixelsIds) {
                 final List<Thumbnail> toSave = new ArrayList<Thumbnail>();
