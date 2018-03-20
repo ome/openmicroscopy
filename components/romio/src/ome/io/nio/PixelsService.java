@@ -81,6 +81,9 @@ public class PixelsService extends AbstractFileSystemService
 	/** TileSizes implementation for default values */
 	protected final TileSizes sizes;
 
+    /* if the repository is read-only */
+    private final boolean isReadOnlyRepo;
+
 	/**
 	 * Location where cached data from the {@link Memoizer} should be stored.
 	 */
@@ -188,6 +191,7 @@ public class PixelsService extends AbstractFileSystemService
         this.resolver = resolver;
         this.backOff = backOff;
         this.sizes = sizes;
+        this.isReadOnlyRepo = isReadOnlyRepo;
         this.memoizerDirectory = memoizerDirectory;
         this.memoizerWait = memoizerWait;
         if (!this.memoizerDirectory.exists())
