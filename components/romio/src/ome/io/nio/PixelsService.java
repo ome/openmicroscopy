@@ -724,12 +724,12 @@ public class PixelsService extends AbstractFileSystemService
         }
         long pixelsId = pixels.getId();
         if (!isReadOnlyRepo) {
-        MissingStatsInfoMessage m = new MissingStatsInfoMessage(this, pixelsId);
-        pub.publishEvent(m);
-        if (m.isRetry()) {
-            log.debug("Retrying stats info for Pixels:" + pixelsId);
-            return;
-        }
+            final MissingStatsInfoMessage m = new MissingStatsInfoMessage(this, pixelsId);
+            pub.publishEvent(m);
+            if (m.isRetry()) {
+                log.debug("Retrying stats info for Pixels:" + pixelsId);
+                return;
+            }
         }
         String msg = "Missing stats info for Pixels:" + pixelsId;
         log.info(msg);
@@ -745,16 +745,14 @@ public class PixelsService extends AbstractFileSystemService
 	 * @param pixelsPyramidFilePath
 	 * @throws MissingPyramidException
 	 */
-    protected void handleMissingPyramid(Pixels pixels,
-            final String pixelsPyramidFilePath) {
+    protected void handleMissingPyramid(Pixels pixels, String pixelsPyramidFilePath) {
         if (!isReadOnlyRepo) {
-        MissingPyramidMessage mpm = new MissingPyramidMessage(this,
-                pixels.getId());
-        pub.publishEvent(mpm);
-        if (mpm.isRetry()) {
-            log.debug("Retrying pyramid:" + pixelsPyramidFilePath);
-            return;
-        }
+            final MissingPyramidMessage mpm = new MissingPyramidMessage(this, pixels.getId());
+            pub.publishEvent(mpm);
+            if (mpm.isRetry()) {
+                log.debug("Retrying pyramid:" + pixelsPyramidFilePath);
+                return;
+            }
         }
         String msg = "Missing pyramid:" + pixelsPyramidFilePath;
         log.info(msg);
