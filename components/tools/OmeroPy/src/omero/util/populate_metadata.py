@@ -134,7 +134,7 @@ class HeaderResolver(object):
     }
 
     project_keys = {
-        'dataset': DatasetColumn,
+        'dataset': StringColumn,
         'dataset_name': StringColumn,
         'image': ImageColumn,
         'image_name': StringColumn,
@@ -242,11 +242,18 @@ class HeaderResolver(object):
             else:
                 try:
                     keys = getattr(self, "%s_keys" % klass)
-                    column = keys[header_as_lower](
-                        name, description, list())
+                    log.debug("Adding keys %r" % keys)
+                    if keys[header_as_lower] is StringColumn:
+                        column = keys[header_as_lower](
+                            name, description, self.DEFAULT_COLUMN_SIZE, list())
+                    else:
+                        column = keys[header_as_lower](
+                            name, description, list())
                 except KeyError:
+                    log.debug("Adding string column %r" % name)
                     column = StringColumn(
                         name, description, self.DEFAULT_COLUMN_SIZE, list())
+            log.debug("New column %r" % column)
             columns.append(column)
         append = []
         for column in columns:
