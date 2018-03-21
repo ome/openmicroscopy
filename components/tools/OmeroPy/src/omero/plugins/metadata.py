@@ -24,7 +24,7 @@ from omero.util import populate_metadata, populate_roi, pydict_text_io
 from omero.util.metadata_utils import NSBULKANNOTATIONSCONFIG
 from omero.util.metadata_utils import NSBULKANNOTATIONSRAW
 from omero.grid import LongColumn
-
+from omero.model.enums import UnitsLength
 
 HELP = """Metadata utilities
 
@@ -148,6 +148,7 @@ class MetadataControl(BaseControl):
         rois = parser.add(sub, self.rois)
         populate = parser.add(sub, self.populate)
         populateroi = parser.add(sub, self.populateroi)
+        pixelsize = parser.add(sub, self.pixelsize)
 
         populate.add_argument("--batch",
                               type=long,
@@ -156,7 +157,7 @@ class MetadataControl(BaseControl):
         self._add_wait(populate)
 
         for x in (summary, original, bulkanns, measures, mapanns, allanns,
-                  rois, populate, populateroi):
+                  rois, populate, populateroi, pixelsize):
             x.add_argument("obj",
                            type=ProxyStringType(),
                            help="Object in Class:ID format")
@@ -210,6 +211,16 @@ class MetadataControl(BaseControl):
         populateroi.add_argument(
             "--measurement", type=int, default=None,
             help="Index of the measurement to populate. By default, all")
+
+        pixelsize.add_argument(
+            "--x", type=float, default=None, help="Physical pixel size X")
+        pixelsize.add_argument(
+            "--y", type=float, default=None, help="Physical pixel size Y")
+        pixelsize.add_argument(
+            "--z", type=float, default=None, help="Physical pixel size Z")
+        pixelsize.add_argument(
+            "--unit", default="um", help="Unit (e.g. nm, um, mm, ...) "
+                                         "(default: um)")
 
     def _clientconn(self, args):
         client = self.ctx.conn(args)
@@ -553,6 +564,87 @@ class MetadataControl(BaseControl):
                         continue
                 meas = ctx.get_measurement_ctx(i)
                 meas.parse_and_populate()
+
+    def pixelsize(self, args):
+        "Set physical pixel size"
+        md = self._load(args)
+        client, conn = self._clientconn(args)
+
+        units = {
+            'nm': UnitsLength.NANOMETER,
+            'um': UnitsLength.MICROMETER,
+            'mm': UnitsLength.MILLIMETER,
+            'cm': UnitsLength.CENTIMETER,
+            'm': UnitsLength.METER,
+            'km': UnitsLength.KILOMETER
+        }
+
+        if args.unit not in units:
+            self.ctx.die(100, "%s not recognized as valid unit." % args.unit)
+
+        if not args.x and not args.y and not args.z:
+            self.ctx.die(100, "No pixel sizes specified.")
+
+        if md.get_type() == "Screen":
+            q = """SELECT pix FROM Pixels pix, WellSample ws, Plate p,
+                   ScreenPlateLink spl WHERE
+                   spl.child=p AND pix.image=ws.image AND ws.well.plate=p AND
+                   spl.parent.id=:id"""
+        elif md.get_type() == "Plate":
+            q = """SELECT pix FROM Pixels pix, WellSample ws WHERE
+                   pix.image=ws.image AND ws.well.plate.id=:id"""
+        elif md.get_type() == "PlateAcquisition":
+            q = """SELECT pix FROM Pixels pix, WellSample ws WHERE
+                   pix.image=ws.image AND ws.plateAcquisition.id=:id"""
+        elif md.get_type() == "Well":
+            q = """SELECT pix FROM Pixels pix, WellSample ws WHERE
+                   pix.image=ws.image AND ws.well.id=:id"""
+        elif md.get_type() == "Project":
+            q = """SELECT pix FROM Pixels pix, DatasetImageLink dil,
+                   ProjectDatasetLink pdl WHERE dil.child=pix.image AND
+                   dil.parent=pdl.child AND pdl.parent.id=:id"""
+        elif md.get_type() == "Dataset":
+            q = """SELECT pix FROM Pixels pix, DatasetImageLink dil WHERE
+                   dil.child=pix.image AND dil.parent.id=:id"""
+        elif md.get_type() == "Image":
+            q = """SELECT pix FROM Pixels pix WHERE pix.image.id=:id"""
+        else:
+            raise Exception("Not implemented for type %s" % md.get_type())
+
+        params = omero.sys.ParametersI()
+        params.addId(md.get_id())
+        pixels = client.getSession().getQueryService()\
+                                    .findAllByQuery(q, params)
+        for pixel in pixels:
+            if args.x:
+                pixSize = pixel.getPhysicalSizeX()
+                if not pixSize:
+                    pixSize = omero.model.LengthI(args.x, units[args.unit])
+                    pixel.setPhysicalSizeX(pixSize)
+                else:
+                    pixSize.setValue(args.x)
+                    pixSize.setUnit(units[args.unit])
+
+            if args.y:
+                pixSize = pixel.getPhysicalSizeY()
+                if not pixSize:
+                    pixSize = omero.model.LengthI(args.y, units[args.unit])
+                    pixel.setPhysicalSizeY(pixSize)
+                else:
+                    pixSize.setValue(args.y)
+                    pixSize.setUnit(units[args.unit])
+
+            if args.z:
+                pixSize = pixel.getPhysicalSizeZ()
+                if not pixSize:
+                    pixSize = omero.model.LengthI(args.z, units[args.unit])
+                    pixel.setPhysicalSizeZ(pixSize)
+                else:
+                    pixSize.setValue(args.z)
+                    pixSize.setUnit(units[args.unit])
+
+            client.getSession().getUpdateService().saveAndReturnObject(pixel)
+
 
 try:
     if "OMERO_DEV_PLUGINS" in os.environ:
