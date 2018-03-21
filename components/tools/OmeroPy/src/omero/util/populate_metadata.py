@@ -355,7 +355,7 @@ class ValueResolver(object):
                             self.wrapper.plates_by_name[column_value].id.val
                         )
                         break
-                    elif column.name.lower() == "dataset":
+                    elif column.name.lower() == "dataset name":
                         # DatasetColumn unimplemented at the momnet
                         # We can still access column names though
                         images_by_id = self.wrapper.images_by_id[
@@ -364,6 +364,17 @@ class ValueResolver(object):
                         log.debug(
                             "Got dataset %i",
                             self.wrapper.datasets_by_name[column_value].id.val
+                        )
+                        break
+                    elif column.name.lower() == "dataset":
+                        # DatasetColumn unimplemented at the momnet
+                        # We can still access column names though
+                        images_by_id = self.wrapper.images_by_id[
+                            self.wrapper.datasets_by_id[int(column_value)].id.val
+                        ]
+                        log.debug(
+                            "Got dataset %i",
+                            self.wrapper.datasets_by_id[int(column_value)].id.val
                         )
                         break
             if images_by_id is None:
@@ -1002,12 +1013,14 @@ class ParsingContext(object):
                 iname = ""
                 try:
                     log.debug(image_name_column)
-                    log.debug(image_name_column.values)
                     iid = image_column.values[i]
                     did = self.target_object.id.val
-                    if "dataset" in columns_by_name:
-                        dname = columns_by_name["dataset"].values[i]
-                        did = self.value_resolver.wrapper.datasets_by_name[dname].id.val
+                    if "dataset name" in columns_by_name:
+                        dname = columns_by_name["dataset name"].values[i]
+                        did = self.value_resolver.wrapper.datasets_by_name[
+                            dname].id.val
+                    elif "dataset" in columns_by_name:
+                        did = int(columns_by_name["dataset"].values[i])
                     log.debug("Using Dataset:%d" % did)
                     iname = self.value_resolver.get_image_name_by_id(
                         iid, did)
@@ -1025,12 +1038,14 @@ class ParsingContext(object):
                 iid = -1
                 try:
                     log.debug(image_column)
-                    log.debug(image_column.values)
                     iname = image_name_column.values[i]
                     did = self.target_object.id.val
-                    if "dataset" in columns_by_name:
-                        dname = columns_by_name["dataset"].values[i]
-                        did = self.value_resolver.wrapper.datasets_by_name[dname].id.val
+                    if "dataset name" in columns_by_name:
+                        dname = columns_by_name["dataset name"].values[i]
+                        did = self.value_resolver.wrapper.datasets_by_name[
+                            dname].id.val
+                    elif "dataset" in columns_by_name:
+                        did = int(columns_by_name["dataset"].values[i])
                     log.debug("Using Dataset:%d" % did)
                     iid = self.value_resolver.get_image_id_by_name(
                         iname, did)
