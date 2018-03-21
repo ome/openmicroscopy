@@ -943,6 +943,8 @@ class ParsingContext(object):
         plate_name_column = None
         image_column = None
         image_name_column = None
+        resolve_image_names = False
+        resolve_image_ids = False
         for column in self.columns:
             columns_by_name[column.name.lower()] = column
             if column.__class__ is PlateColumn:
@@ -955,9 +957,18 @@ class ParsingContext(object):
                 plate_name_column = column
             elif column.name == IMAGE_NAME_COLUMN:
                 image_name_column = column
+                log.debug("Image name column len:%d" % len(column.values))
+                if len(column.values) > 0:
+                    resolve_image_ids = True
+                    log.debug("Resolving Image Ids")
             elif column.__class__ is ImageColumn:
                 image_column = column
+                log.debug("Image column len:%d" % len(column.values))
+                if len(column.values) > 0:
+                    resolve_image_names = True
+                    log.debug("Resolving Image Ids")
 
+        log.debug("Column by name:%r" % columns_by_name)
         if well_name_column is None and plate_name_column is None \
                 and image_name_column is None:
             log.info('Nothing to do during post processing.')
@@ -986,7 +997,8 @@ class ParsingContext(object):
 
             if image_name_column is not None and (
                     DatasetI is target_class or
-                    ProjectI is target_class):
+                    ProjectI is target_class) and \
+                    resolve_image_names and not resolve_image_ids:
                 iname = ""
                 try:
                     log.debug(image_name_column)
@@ -1006,6 +1018,27 @@ class ParsingContext(object):
                 image_name_column.values.append(iname)
                 image_name_column.size = max(
                     image_name_column.size, len(iname))
+            elif image_name_column is not None and (
+                    DatasetI is target_class or
+                    ProjectI is target_class) and \
+                    resolve_image_ids and not resolve_image_names:
+                iid = -1
+                try:
+                    log.debug(image_column)
+                    log.debug(image_column.values)
+                    iname = image_name_column.values[i]
+                    did = self.target_object.id.val
+                    if "dataset" in columns_by_name:
+                        dname = columns_by_name["dataset"].values[i]
+                        did = self.value_resolver.wrapper.datasets_by_name[dname].id.val
+                    log.debug("Using Dataset:%d" % did)
+                    iid = self.value_resolver.get_image_id_by_name(
+                        iname, did)
+                except KeyError:
+                    log.warn(
+                        "%d not found in image ids" % iid)
+                assert i == len(image_column.values)
+                image_column.values.append(iid)
             elif image_name_column is not None and (
                     ScreenI is target_class or
                     PlateI is target_class):
