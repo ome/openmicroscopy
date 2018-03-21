@@ -616,34 +616,20 @@ class MetadataControl(BaseControl):
         pixels = client.getSession().getQueryService()\
                                     .findAllByQuery(q, params)
         for pixel in pixels:
-            if args.x:
-                pixSize = pixel.getPhysicalSizeX()
-                if not pixSize:
-                    pixSize = omero.model.LengthI(args.x, units[args.unit])
-                    pixel.setPhysicalSizeX(pixSize)
-                else:
-                    pixSize.setValue(args.x)
-                    pixSize.setUnit(units[args.unit])
+            self._setPixelsize(pixel, args.x, units[args.unit], 'x')
+            self._setPixelsize(pixel, args.y, units[args.unit], 'y')
+            self._setPixelsize(pixel, args.z, units[args.unit], 'z')
 
-            if args.y:
-                pixSize = pixel.getPhysicalSizeY()
-                if not pixSize:
-                    pixSize = omero.model.LengthI(args.y, units[args.unit])
-                    pixel.setPhysicalSizeY(pixSize)
-                else:
-                    pixSize.setValue(args.y)
-                    pixSize.setUnit(units[args.unit])
+        client.getSession().getUpdateService().saveCollection(pixels)
 
-            if args.z:
-                pixSize = pixel.getPhysicalSizeZ()
-                if not pixSize:
-                    pixSize = omero.model.LengthI(args.z, units[args.unit])
-                    pixel.setPhysicalSizeZ(pixSize)
-                else:
-                    pixSize.setValue(args.z)
-                    pixSize.setUnit(units[args.unit])
-
-            client.getSession().getUpdateService().saveAndReturnObject(pixel)
+    def _setPixelsize(self, pixel, size, unit, dim):
+        if size:
+            if dim == 'x':
+                pixel.setPhysicalSizeX(omero.model.LengthI(size, unit))
+            elif dim == 'y':
+                pixel.setPhysicalSizeY(omero.model.LengthI(size, unit))
+            elif dim == 'z':
+                pixel.setPhysicalSizeZ(omero.model.LengthI(size, unit))
 
 
 try:
