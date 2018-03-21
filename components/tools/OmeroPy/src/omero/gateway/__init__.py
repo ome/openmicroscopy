@@ -7190,14 +7190,14 @@ class _PixelsWrapper (BlitzObjectWrapper):
                       PixelsTypeuint32: ['I', numpy.uint32],
                       PixelsTypefloat: ['f', numpy.float32],
                       PixelsTypedouble: ['d', numpy.float64]}
-
-        rawPixelsStore = self._prepareRawPixelsStore()
+        rawPixelsStore = None
         sizeX = self.sizeX
         sizeY = self.sizeY
         pixelType = self.getPixelsType().value
         numpyType = pixelTypes[pixelType][1]
         exc = None
         try:
+            rawPixelsStore = self._prepareRawPixelsStore()
             for zctTile in zctTileList:
                 z, c, t, tile = zctTile
                 if tile is None:
@@ -7223,7 +7223,8 @@ class _PixelsWrapper (BlitzObjectWrapper):
                 exc_info=True)
             exc = e
         try:
-            rawPixelsStore.close()
+            if rawPixelsStore is not None:
+               rawPixelsStore.close()
         except Exception, e:
             logger.error("Failed to close rawPixelsStore", exc_info=True)
             if exc is None:
