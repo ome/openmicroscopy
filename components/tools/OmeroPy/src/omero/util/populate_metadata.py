@@ -937,7 +937,7 @@ class ParsingContext(object):
         image_column = None
         image_name_column = None
         for column in self.columns:
-            columns_by_name[column.name] = column
+            columns_by_name[column.name.lower()] = column
             if column.__class__ is PlateColumn:
                 log.warn("PlateColumn is unimplemented")
             elif column.__class__ is WellColumn:
@@ -964,8 +964,8 @@ class ParsingContext(object):
                 try:
                     well_id = well_column.values[i]
                     plate = None
-                    if "Plate" in columns_by_name:  # FIXME
-                        plate = columns_by_name["Plate"].values[i]
+                    if "plate" in columns_by_name:  # FIXME
+                        plate = columns_by_name["plate"].values[i]
                     v = self.value_resolver.get_well_name(well_id, plate)
                 except KeyError:
                     log.warn(
@@ -986,8 +986,9 @@ class ParsingContext(object):
                     log.debug(image_name_column.values)
                     iid = image_column.values[i]
                     did = self.target_object.id.val
-                    if "Dataset" in columns_by_name:
-                        did = columns_by_name["Dataset"].values[i]
+                    if "dataset" in columns_by_name:
+                        dname = columns_by_name["dataset"].values[i]
+                        did = self.value_resolver.wrapper.datasets_by_name[dname].id.val
                     log.debug("Using Dataset:%d" % did)
                     iname = self.value_resolver.get_image_name_by_id(
                         iid, did)
@@ -1004,8 +1005,8 @@ class ParsingContext(object):
                 iid = image_column.values[i]
                 log.info("Checking image %s", iid)
                 pid = None
-                if 'Plate' in columns_by_name:
-                    pid = columns_by_name['Plate'].values[i]
+                if 'plate' in columns_by_name:
+                    pid = columns_by_name['plate'].values[i]
                 iname = self.value_resolver.get_image_name_by_id(iid, pid)
                 image_name_column.values.append(iname)
                 image_name_column.size = max(
@@ -1015,7 +1016,7 @@ class ParsingContext(object):
                 log.info('Missing image name column, skipping.')
 
             if plate_name_column is not None:
-                plate = columns_by_name['Plate'].values[i]   # FIXME
+                plate = columns_by_name['plate'].values[i]   # FIXME
                 v = self.value_resolver.get_plate_name_by_id(plate)
                 plate_name_column.size = max(plate_name_column.size, len(v))
                 plate_name_column.values.append(v)
