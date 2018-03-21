@@ -7224,7 +7224,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
             exc = e
         try:
             if rawPixelsStore is not None:
-               rawPixelsStore.close()
+                rawPixelsStore.close()
         except Exception, e:
             logger.error("Failed to close rawPixelsStore", exc_info=True)
             if exc is None:
