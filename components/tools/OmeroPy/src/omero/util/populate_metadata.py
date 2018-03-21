@@ -134,7 +134,7 @@ class HeaderResolver(object):
     }
 
     project_keys = {
-        'dataset': StringColumn,
+        'dataset': StringColumn, # DatasetColumn
         'dataset_name': StringColumn,
         'image': ImageColumn,
         'image_name': StringColumn,
