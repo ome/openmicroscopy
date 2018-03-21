@@ -5209,19 +5209,21 @@ class _OriginalFileWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
 
         store = self._conn.createRawFileStore()
-        store.setFileId(self._obj.id.val, self._conn.SERVICE_OPTS)
-        size = self._obj.size.val
-        if size <= buf:
-            yield store.read(0, long(size))
-        else:
-            for pos in range(0, long(size), buf):
-                data = None
-                if size-pos < buf:
-                    data = store.read(pos, size-pos)
-                else:
-                    data = store.read(pos, buf)
-                yield data
-        store.close()
+        try:
+            store.setFileId(self._obj.id.val, self._conn.SERVICE_OPTS)
+            size = self._obj.size.val
+            if size <= buf:
+                yield store.read(0, long(size))
+            else:
+                for pos in range(0, long(size), buf):
+                    data = None
+                    if size-pos < buf:
+                        data = store.read(pos, size-pos)
+                    else:
+                        data = store.read(pos, buf)
+                    yield data
+        finally:
+            store.close()
 
 
 OriginalFileWrapper = _OriginalFileWrapper
