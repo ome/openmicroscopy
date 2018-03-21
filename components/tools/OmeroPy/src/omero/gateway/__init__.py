@@ -3945,8 +3945,6 @@ class _BlitzGateway (object):
                 DeprecationWarning)
 
         updateService = self.getUpdateService()
-        rawFileStore = self.createRawFileStore()
-
         # create original file, set name, path, mimetype
         originalFile = omero.model.OriginalFileI()
         originalFile.setName(rstring(name))
@@ -3971,6 +3969,7 @@ class _BlitzGateway (object):
 
         # upload file
         fo.seek(0)
+        rawFileStore = self.createRawFileStore()
         try:
             rawFileStore.setFileId(
                 originalFile.getId().getValue(), self.SERVICE_OPTS)
