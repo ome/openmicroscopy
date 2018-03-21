@@ -268,7 +268,7 @@ class HeaderResolver(object):
                               self.DEFAULT_COLUMN_SIZE, list()))
             # Currently hard-coded, but "if image name, then add image id"
             if column.name == IMAGE_NAME_COLUMN:
-                append.append(ImageColumn("image", '', list()))
+                append.append(ImageColumn("Image", '', list()))
         columns.extend(append)
         self.columns_sanity_check(columns)
         return columns
