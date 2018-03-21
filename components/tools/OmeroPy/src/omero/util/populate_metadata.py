@@ -793,7 +793,7 @@ class ProjectWrapper(PDIWrapper):
                 seen[ikey] = iid
 
             self.images_by_id[did][iid] = image
-            self.images_by_name[dname][iname] = image
+            self.images_by_name[did][iname] = image
             self.datasets_by_id[did] = dataset
             self.datasets_by_name[dname] = dataset
         log.debug('Completed parsing project: %s' % self.target_object.id.val)
