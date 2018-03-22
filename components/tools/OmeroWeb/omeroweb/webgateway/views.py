@@ -946,10 +946,9 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             x = int(zxyt[1])*w
             y = int(zxyt[2])*h
         except:
-            logger.debug(
-                "render_image_region: tile=%s" % tile, exc_info=True
-            )
-            return HttpResponseBadRequest('malformed tile argument')
+            msg = "malformed tile argument, tile=%s" % tile
+            logger.debug(msg, exc_info=True)
+            return HttpResponseBadRequest(msg)
     elif region:
         try:
             xywh = region.split(",")
@@ -959,10 +958,9 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             w = int(xywh[2])
             h = int(xywh[3])
         except:
-            logger.debug(
-                "render_image_region: region=%s" % region, exc_info=True
-            )
-            return HttpResponseBadRequest('malformed region argument')
+            msg = "malformed region argument, region=%s" % region
+            logger.debug(msg, exc_info=True)
+            return HttpResponseBadRequest(msg)
     else:
         return HttpResponseBadRequest('tile or region argument required')
 
