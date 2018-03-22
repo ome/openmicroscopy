@@ -38,6 +38,7 @@ import ome.model.stats.StatsInfo;
 import ome.util.PixelData;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.FatalBeanException;
@@ -85,6 +86,11 @@ public class PixelsService extends AbstractFileSystemService
 	 * Location where cached data from the {@link Memoizer} should be stored.
 	 */
 	protected final File memoizerDirectory;
+
+    /**
+     * For read-only servers, this directory is a local read-write directory for storing memo files. May be {@code null}.
+     */
+    protected File memoizerDirectoryLocalRW;
 
 	/**
 	 * Time in ms. which setId must take before a file is memoized
@@ -231,6 +237,15 @@ public class PixelsService extends AbstractFileSystemService
     public void setFilePathResolver(FilePathResolver resolver)
     {
         this.resolver = resolver;
+    }
+
+    /* n.b.: This property is an expedient approach that may be rethought in concert with larger changes to Memoizer. */
+    public void setMemoizerDirectoryLocal(String path) {
+        if (isReadOnlyRepo && StringUtils.isNotBlank(path)) {
+            memoizerDirectoryLocalRW = new File(path);
+            memoizerDirectoryLocalRW.mkdirs();
+            log.info("adopted additional local directory for Bio-Formats memo files: " + memoizerDirectoryLocalRW);
+        }
     }
 
 	/**
