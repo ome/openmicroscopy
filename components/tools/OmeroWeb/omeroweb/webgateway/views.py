@@ -925,28 +925,24 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
                 w, h = tile_size
             v = int(zxyt[0])
             if v < 0:
-                logger.debug(
-                    "render_image_region: invalid level %s" % v, exc_info=True
-                )
-                return HttpResponseBadRequest('Invalid resolution')
+                msg = "Invalid resolution level %s < 0" % v
+                logger.debug(msg, exc_info=True)
+                return HttpResponseBadRequest(msg)
 
             if levels == 0:  # non pyramid file
                 if v > 0:
-                    logger.debug(
-                        "render_image_region: invalid level %s" % v,
-                        exc_info=True
-                    )
-                    return HttpResponseBadRequest('Invalid resolution')
+                    msg = "Invalid resolution level %s, non pyramid file" % v
+                    logger.debug(msg, exc_info=True)
+                    return HttpResponseBadRequest(msg)
                 else:
                     level = None
             else:
                 level = levels-v
                 if level < 0:
-                    logger.debug(
-                        "render_image_region: invalid level %s" % v,
-                        exc_info=True
-                    )
-                    return HttpResponseBadRequest('Invalid resolution')
+                    msg = "Invalid resolution level, \
+                    %s > number of available levels %s " % (v, levels)
+                    logger.debug(msg, exc_info=True)
+                    return HttpResponseBadRequest(msg)
             x = int(zxyt[1])*w
             y = int(zxyt[2])*h
         except:
