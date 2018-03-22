@@ -92,12 +92,9 @@ if __name__ == '__main__':
                                          'Do_Work': True,
                                          'Row_Count': 6,
                                          'Names': ['One', 'Two', 'Three'],
-                                         'Channels': [1,2]
-                                        },
+                                         'Channels': [1, 2]},
                                         {'Names': ['Single'],
-                                         'Channels': ['not_a_number']
-                                        },
-        ])
+                                         'Channels': ['not_a_number']}])
     def test_script_inputs_outputs(self, inputs):
         """Test that inputs and outputs are passed to and from script."""
         script_id = self.upload_script()
