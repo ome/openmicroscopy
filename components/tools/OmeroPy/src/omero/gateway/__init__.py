@@ -1922,6 +1922,7 @@ class _BlitzGateway (object):
                 oldC.__del__()
                 oldC = None
                 self.c = None
+                self._session = None
 
         self._proxies = NoProxies()
         logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
