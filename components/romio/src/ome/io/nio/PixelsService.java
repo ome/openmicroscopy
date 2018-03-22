@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,6 +28,8 @@ import ome.conditions.MissingPyramidException;
 import ome.conditions.ResourceError;
 import ome.io.bioformats.BfPixelBuffer;
 import ome.io.bioformats.BfPyramidPixelBuffer;
+import ome.io.bioformats.MemoizerFallback;
+import ome.io.bioformats.MemoizerReadOnly;
 import ome.io.messages.MissingPyramidMessage;
 import ome.io.messages.MissingStatsInfoMessage;
 import ome.io.nio.Utils.FailedTileLoopException;
@@ -831,7 +834,12 @@ public class PixelsService extends AbstractFileSystemService
         IFormatReader reader = new ImageReader();
         reader = new ChannelFiller(reader);
         reader = new ChannelSeparator(reader);
-        reader = new Memoizer(reader, getMemoizerWait(), getMemoizerDirectory());
+        if (memoizerDirectoryLocalRW == null) {
+            reader = new Memoizer(reader, getMemoizerWait(), getMemoizerDirectory());
+        } else {
+            reader = new MemoizerFallback(reader, getMemoizerWait(), memoizerDirectoryLocalRW, Collections.singleton(
+                     new MemoizerReadOnly(reader, getMemoizerWait(), getMemoizerDirectory())));
+        }
         reader.setFlattenedResolutions(false);
         reader.setMetadataFiltered(true);
         return reader;
