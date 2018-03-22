@@ -87,6 +87,7 @@ Examples:
 Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
     sys.exit(2)
 
+
 # Global thread pool for use by workers
 thread_pool = None
 
@@ -134,7 +135,7 @@ class HeaderResolver(object):
     }
 
     project_keys = {
-        'dataset': StringColumn, # DatasetColumn
+        'dataset': StringColumn,  # DatasetColumn
         'dataset_name': StringColumn,
         'image': ImageColumn,
         'image_name': StringColumn,
@@ -245,7 +246,8 @@ class HeaderResolver(object):
                     log.debug("Adding keys %r" % keys)
                     if keys[header_as_lower] is StringColumn:
                         column = keys[header_as_lower](
-                            name, description, self.DEFAULT_COLUMN_SIZE, list())
+                            name, description,
+                            self.DEFAULT_COLUMN_SIZE, list())
                     else:
                         column = keys[header_as_lower](
                             name, description, list())
@@ -370,11 +372,13 @@ class ValueResolver(object):
                         # DatasetColumn unimplemented at the momnet
                         # We can still access column names though
                         images_by_id = self.wrapper.images_by_id[
-                            self.wrapper.datasets_by_id[int(column_value)].id.val
+                            self.wrapper.datasets_by_id[
+                                int(column_value)].id.val
                         ]
                         log.debug(
                             "Got dataset %i",
-                            self.wrapper.datasets_by_id[int(column_value)].id.val
+                            self.wrapper.datasets_by_id[
+                                int(column_value)].id.val
                         )
                         break
             if images_by_id is None:
