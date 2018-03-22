@@ -7749,9 +7749,6 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     PARENT_WRAPPER_CLASS = ['DatasetWrapper', 'WellSampleWrapper']
     _thumbInProgress = False
 
-    def __del__(self):
-        self._re and self._re.untaint()
-
     def __loadedHotSwap__(self):
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.getDetails().group.id.val)
