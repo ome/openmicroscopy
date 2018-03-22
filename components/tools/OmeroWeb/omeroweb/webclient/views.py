@@ -3371,7 +3371,7 @@ def activities(request, conn=None, **kwargs):
                                         obj_data['name'] = name
                                 rMap[key] = obj_data
                             else:
-                                rMap[key] = v
+                                rMap[key] = unwrap(v)
                     update_callback(request, cbString, results=rMap)
                 else:
                     in_progress += 1
