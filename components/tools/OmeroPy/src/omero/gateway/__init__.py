@@ -4789,13 +4789,14 @@ class ProxyObjectWrapper (object):
         """
 
         self._conn = conn
-        self._sf = conn.c.sf
 
         def cf():
             if self._func_str is None:
-                return self._cast_to(self._sf.getByName(self._service_name))
+                return self._cast_to(
+                    self._conn.c.sf.getByName(self._service_name)
+                )
             else:
-                obj = getattr(self._sf, self._func_str)()
+                obj = getattr(self._conn.c.sf, self._func_str)()
                 if isinstance(obj, omero.api.StatefulServiceInterfacePrx):
                     conn._register_service(str(obj), traceback.extract_stack())
                 return obj
@@ -4839,7 +4840,7 @@ class ProxyObjectWrapper (object):
         """
 
         try:
-            if not self._sf.keepAlive(self._obj):
+            if not self._conn.c.sf.keepAlive(self._obj):
                 logger.debug("... died, recreating ...")
                 self._obj = self._create_func()
         except Ice.ObjectNotExistException:
