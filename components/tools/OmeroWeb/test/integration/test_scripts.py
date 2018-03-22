@@ -31,6 +31,15 @@ from django.core.urlresolvers import reverse
 class TestScripts(IWebTest):
     """Test OMERO.scripts usage in the webclient."""
 
+    # Values that are included in the script below
+    default_param_values = {
+        'Greeting': 'Hello',
+        'Do_Work': False,
+        'Row_Count': 12,
+        'Names': ['A', 'B'],
+        'Channels': [1, 2, 3, 4]
+    }
+
     def upload_script(self):
         """Upload script and return script ID."""
         root_client = self.new_client(system=True)
@@ -62,16 +71,21 @@ if __name__ == '__main__':
         assert script_id is not None
         return script_id
 
-
-    def test_script_ui(self):
-        """Test script UI html page."""
+    def test_script_ui_defaults(self):
+        """Test script UI html page includes default values."""
         script_id = self.upload_script()
         script_ui_url = reverse('script_ui', kwargs={'scriptId': script_id})
         rsp = get(self.django_client, script_ui_url)
-        print rsp
         html = rsp.content
-        assert 'value="1,2,3,4"' in html
-
+        defaults = self.default_param_values
+        expected_values = [
+            defaults['Greeting'],
+            str(defaults['Row_Count']),
+            ','.join([str(c) for c in defaults['Channels']]),
+            ','.join(defaults['Names'])
+        ]
+        for v in expected_values:
+            assert ('value="%s"' % v) in html
 
     @pytest.mark.parametrize("inputs", [{},
                                         {'Greeting': 'Hello World',
@@ -98,13 +112,7 @@ if __name__ == '__main__':
         rsp = json.loads(rsp.content)
         job_id = rsp['jobId']
 
-        defaults = {
-            'Greeting': 'Hello',
-            'Do_Work': False,
-            'Row_Count': 12,
-            'Names': ['A', 'B'],
-            'Channels': [1, 2, 3, 4]
-        }
+        defaults = self.default_param_values.copy()
 
         # Any inputs we have will replace default values
         defaults.update(inputs)
