@@ -1903,16 +1903,21 @@ class _BlitzGateway (object):
         self._proxies = NoProxies()
         logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
 
-    def close(self):  # pragma: no cover
+    def close(self, hard=True):  # pragma: no cover
         """
-        Terminates connection with killSession(). The session is terminated
-        regardless of its connection refcount.
+        Terminates connection with killSession(), where the session is
+        terminated regardless of its connection refcount, or closeSession().
+
+        :param hard: If True, use killSession(), otherwise closeSession()
         """
         self._connected = False
         oldC = self.c
+        for proxy in self._proxies.values():
+            proxy.close()
         if oldC is not None:
             try:
-                self._closeSession()
+                if hard:
+                    self._closeSession()
             finally:
                 oldC.__del__()
                 oldC = None
