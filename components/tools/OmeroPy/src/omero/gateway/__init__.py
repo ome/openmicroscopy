@@ -3945,8 +3945,6 @@ class _BlitzGateway (object):
                 DeprecationWarning)
 
         updateService = self.getUpdateService()
-        rawFileStore = self.createRawFileStore()
-
         # create original file, set name, path, mimetype
         originalFile = omero.model.OriginalFileI()
         originalFile.setName(rstring(name))
@@ -3971,6 +3969,7 @@ class _BlitzGateway (object):
 
         # upload file
         fo.seek(0)
+        rawFileStore = self.createRawFileStore()
         try:
             rawFileStore.setFileId(
                 originalFile.getId().getValue(), self.SERVICE_OPTS)
@@ -5210,19 +5209,21 @@ class _OriginalFileWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
 
         store = self._conn.createRawFileStore()
-        store.setFileId(self._obj.id.val, self._conn.SERVICE_OPTS)
-        size = self._obj.size.val
-        if size <= buf:
-            yield store.read(0, long(size))
-        else:
-            for pos in range(0, long(size), buf):
-                data = None
-                if size-pos < buf:
-                    data = store.read(pos, size-pos)
-                else:
-                    data = store.read(pos, buf)
-                yield data
-        store.close()
+        try:
+            store.setFileId(self._obj.id.val, self._conn.SERVICE_OPTS)
+            size = self._obj.size.val
+            if size <= buf:
+                yield store.read(0, long(size))
+            else:
+                for pos in range(0, long(size), buf):
+                    data = None
+                    if size-pos < buf:
+                        data = store.read(pos, size-pos)
+                    else:
+                        data = store.read(pos, buf)
+                    yield data
+        finally:
+            store.close()
 
 
 OriginalFileWrapper = _OriginalFileWrapper
@@ -7189,14 +7190,14 @@ class _PixelsWrapper (BlitzObjectWrapper):
                       PixelsTypeuint32: ['I', numpy.uint32],
                       PixelsTypefloat: ['f', numpy.float32],
                       PixelsTypedouble: ['d', numpy.float64]}
-
-        rawPixelsStore = self._prepareRawPixelsStore()
+        rawPixelsStore = None
         sizeX = self.sizeX
         sizeY = self.sizeY
         pixelType = self.getPixelsType().value
         numpyType = pixelTypes[pixelType][1]
         exc = None
         try:
+            rawPixelsStore = self._prepareRawPixelsStore()
             for zctTile in zctTileList:
                 z, c, t, tile = zctTile
                 if tile is None:
@@ -7222,7 +7223,8 @@ class _PixelsWrapper (BlitzObjectWrapper):
                 exc_info=True)
             exc = e
         try:
-            rawPixelsStore.close()
+            if rawPixelsStore is not None:
+                rawPixelsStore.close()
         except Exception, e:
             logger.error("Failed to close rawPixelsStore", exc_info=True)
             if exc is None:
