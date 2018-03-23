@@ -1,17 +1,33 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-# From http://www.openmicroscopy.org/community/viewtopic.php?f=6&t=8407
-# Uses code from https://github.com/openmicroscopy/openmicroscopy/blob/develop/components/tools/OmeroPy/src/omero/testlib/__init__.py
+# Copyright (C) 2018 University of Dundee
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+"""Import library."""
 
 import omero
 import platform
-import os
 from omero.model import ChecksumAlgorithmI
 # from omero.model import NamedValue
 from omero.model.enums import ChecksumAlgorithmSHA1160
 from omero.rtypes import rstring, rbool
-from omero_version import omero_version
+# from omero_version import omero_version
 from omero.callbacks import CmdCallbackI
-from omero.gateway import BlitzGateway
 
 try:
     import hashlib
@@ -22,13 +38,15 @@ except:
 
 
 class ImportLibrary(object):
+    """Main Import Class."""
 
     def __init__(self, client):
-
+        """Constructor takes the omero client."""
         self.client = client
         self.mrepo = client.getManagedRepository()
 
     def create_settings(self):
+        """Create omero.grid.ImportSettings."""
         settings = omero.grid.ImportSettings()
         settings.doThumbnails = rbool(True)
         settings.noStatsInfo = rbool(False)
@@ -43,8 +61,8 @@ class ImportLibrary(object):
         return settings
 
     def create_fileset(self, client_path_gen):
+        """Create new Fileset and populates with client paths."""
         fileset = omero.model.FilesetI()
-        # for f in folder.files():
         for abspath in client_path_gen:
             entry = omero.model.FilesetEntryI()
             entry.setClientPath(rstring(abspath))
@@ -71,6 +89,7 @@ class ImportLibrary(object):
         return fileset
 
     def upload_folder(self, proc, folder_gen):
+        """Iterate through folder_gen, uploading files in chunks."""
         ret_val = []
         i = 0
         for chunk_gen in folder_gen:
@@ -91,6 +110,7 @@ class ImportLibrary(object):
         return ret_val
 
     def assert_passes(self, cb, loops=10, wait=500):
+        """Wait on callback and check it completes without error."""
         cb.loop(loops, wait)
         rsp = cb.getResponse()
         if isinstance(rsp, omero.cmd.ERR):
@@ -98,6 +118,7 @@ class ImportLibrary(object):
         return rsp
 
     def createImport(self, client_path_gen):
+        """Create Fileset and import it to managed repository."""
         settings = self.create_settings()
         fileset = self.create_fileset(client_path_gen)
         return self.mrepo.importFileset(fileset, settings)
