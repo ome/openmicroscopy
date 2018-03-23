@@ -19,6 +19,7 @@ Improvements include:
 -  increased OMERO.web log size
 -  fixed CLI config list subcommand
 -  fixed leaking services in OMERO.py
+-  improved rendering of large images (non tiled) using OMERO.py and webgateway
 
 
 5.4.4 (March 2018)
