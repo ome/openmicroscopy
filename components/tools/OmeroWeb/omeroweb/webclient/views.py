@@ -4389,3 +4389,55 @@ def ome_tiff_info(request, imageId, conn=None, **kwargs):
         rv = {"created": str(created), "ago": ago(created), "id": annId,
               "download": download}
     return rv       # will get returned as json by default
+
+
+
+
+@login_required()
+@render_response()
+def import_index(request, conn=None, **kwargs):
+
+    # form_file = FilesAnnotationForm(initial={'files': []})
+    dataset = request.GET.get('dataset')
+
+    context = {'template': 'webclient/import/index.html',
+               'dataset': dataset}
+    return context
+
+
+from omero.util.import_library import ImportLibrary
+@login_required()
+@render_response()
+def submit_import(request, conn=None, **kwargs):
+
+    def chunks_gen(open_file):
+        for chunk in open_file.chunks():
+            yield chunk
+
+    def file_gen():
+        for f in request.FILES.getlist('images'):
+            yield chunks_gen(f)
+
+    def file_names():
+        for f in request.FILES.getlist('images'):
+            yield f.name
+
+    client_path_gen = file_names()
+    folder_gen = file_gen()
+
+    import_lib = ImportLibrary(conn.c)
+    rsp = import_lib.importImage(client_path_gen, folder_gen)
+
+    dataset_id = request.POST.get('dataset', None)
+    # Put the images into a Dataset
+    if dataset_id is not None:
+        links = []
+        for p in rsp.pixels:
+            link = omero.model.DatasetImageLinkI()
+            link.parent = omero.model.DatasetI(dataset_id, False)
+            link.child = omero.model.ImageI(p.image.id.val, False)
+            links.append(link)
+        conn.getUpdateService().saveArray(links)
+
+    iids = [str(p.image.id.val) for p in rsp.pixels]
+    return HttpResponse("Imported %s" % ",".join(iids))
