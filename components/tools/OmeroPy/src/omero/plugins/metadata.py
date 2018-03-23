@@ -219,8 +219,8 @@ class MetadataControl(BaseControl):
         pixelsize.add_argument(
             "--z", type=float, default=None, help="Physical pixel size Z")
         pixelsize.add_argument(
-            "--unit", default="um", help="Unit (e.g. nm, um, mm, ...) "
-                                         "(default: um)")
+            "--unit", default="micrometer",
+            help="Unit (nanometer, micrometer, etc.) (default: micrometer)")
 
     def _clientconn(self, args):
         client = self.ctx.conn(args)
@@ -567,23 +567,16 @@ class MetadataControl(BaseControl):
 
     def pixelsize(self, args):
         "Set physical pixel size"
-        md = self._load(args)
-        client, conn = self._clientconn(args)
-
-        units = {
-            'nm': UnitsLength.NANOMETER,
-            'um': UnitsLength.MICROMETER,
-            'mm': UnitsLength.MILLIMETER,
-            'cm': UnitsLength.CENTIMETER,
-            'm': UnitsLength.METER,
-            'km': UnitsLength.KILOMETER
-        }
-
-        if args.unit not in units:
-            self.ctx.die(100, "%s not recognized as valid unit." % args.unit)
-
         if not args.x and not args.y and not args.z:
             self.ctx.die(100, "No pixel sizes specified.")
+
+        unit = getattr(UnitsLength, args.unit.upper())
+        if not unit:
+            self.ctx.die(100, "%s is not recognized as valid unit."
+                              % args.unit)
+
+        md = self._load(args)
+        client, conn = self._clientconn(args)
 
         if md.get_type() == "Screen":
             q = """SELECT pix FROM Pixels pix, WellSample ws, Plate p,
@@ -615,21 +608,16 @@ class MetadataControl(BaseControl):
         params.addId(md.get_id())
         pixels = client.getSession().getQueryService()\
                                     .findAllByQuery(q, params)
+
         for pixel in pixels:
-            self._setPixelsize(pixel, args.x, units[args.unit], 'x')
-            self._setPixelsize(pixel, args.y, units[args.unit], 'y')
-            self._setPixelsize(pixel, args.z, units[args.unit], 'z')
+            if args.x:
+                pixel.setPhysicalSizeX(omero.model.LengthI(args.x, unit))
+            if args.y:
+                pixel.setPhysicalSizeY(omero.model.LengthI(args.y, unit))
+            if args.z:
+                pixel.setPhysicalSizeZ(omero.model.LengthI(args.z, unit))
 
         client.getSession().getUpdateService().saveCollection(pixels)
-
-    def _setPixelsize(self, pixel, size, unit, dim):
-        if size:
-            if dim == 'x':
-                pixel.setPhysicalSizeX(omero.model.LengthI(size, unit))
-            elif dim == 'y':
-                pixel.setPhysicalSizeY(omero.model.LengthI(size, unit))
-            elif dim == 'z':
-                pixel.setPhysicalSizeZ(omero.model.LengthI(size, unit))
 
 
 try:
