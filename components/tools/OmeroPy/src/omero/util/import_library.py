@@ -13,6 +13,13 @@ from omero_version import omero_version
 from omero.callbacks import CmdCallbackI
 from omero.gateway import BlitzGateway
 
+try:
+    import hashlib
+    hash_sha1 = hashlib.sha1
+except:
+    import sha
+    hash_sha1 = sha.new
+
 
 class ImportLibrary(object):
 
@@ -63,7 +70,7 @@ class ImportLibrary(object):
         fileset.linkJob(upload)
         return fileset
 
-    def upload_folder(self, proc, folder_gen, sha1_gen):
+    def upload_folder(self, proc, folder_gen):
         ret_val = []
         i = 0
         for chunk_gen in folder_gen:
@@ -73,10 +80,12 @@ class ImportLibrary(object):
                 offset = 0
                 block = []
                 rfs.write(block, offset, len(block))  # Touch
+                hash = hash_sha1()
                 for chunk in chunk_gen:
                     rfs.write(chunk, offset, len(chunk))
                     offset += len(chunk)
-                ret_val.append(sha1_gen.next())
+                    hash.update(chunk)
+                ret_val.append(hash.hexdigest())
             finally:
                 rfs.close()
         return ret_val
@@ -93,11 +102,11 @@ class ImportLibrary(object):
         fileset = self.create_fileset(client_path_gen)
         return self.mrepo.importFileset(fileset, settings)
 
-    def importImage(self, client_path_gen, folder_gen, sha1s):
+    def importImage(self, client_path_gen, folder_gen):
         """Entry point to perform full import of fileset."""
         proc = self.createImport(client_path_gen)
         try:
-            hashes = self.upload_folder(proc, folder_gen, sha1s)
+            hashes = self.upload_folder(proc, folder_gen)
             handle = proc.verifyUpload(hashes)
             cb = CmdCallbackI(self.client, handle)
             rsp = self.assert_passes(cb)
