@@ -9043,9 +9043,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     return self.renderJpeg(z, t, None)
             rv = self._re.renderCompressed(self._pd, self._conn.SERVICE_OPTS)
             return rv
-        except omero.InternalException:  # pragma: no cover
-            logger.debug('On renderJpegRegion')
-            logger.debug(traceback.format_exc())
+        except (omero.ApiUsageException, omero.InternalException):
+            logger.debug('On renderJpegRegion', exc_info=True)
             return None
         except Ice.MemoryLimitException:  # pragma: no cover
             # Make sure renderCompressed isn't called again on this re,

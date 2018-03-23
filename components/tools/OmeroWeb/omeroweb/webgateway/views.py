@@ -923,14 +923,32 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
                     if tile_length > max_tile_length:
                         tile_size[i] = max_tile_length
                 w, h = tile_size
-            level = levels-int(zxyt[0])
+            v = int(zxyt[0])
+            if v < 0:
+                msg = "Invalid resolution level %s < 0" % v
+                logger.debug(msg, exc_info=True)
+                return HttpResponseBadRequest(msg)
+
+            if levels == 0:  # non pyramid file
+                if v > 0:
+                    msg = "Invalid resolution level %s, non pyramid file" % v
+                    logger.debug(msg, exc_info=True)
+                    return HttpResponseBadRequest(msg)
+                else:
+                    level = None
+            else:
+                level = levels-v
+                if level < 0:
+                    msg = "Invalid resolution level, \
+                    %s > number of available levels %s " % (v, levels)
+                    logger.debug(msg, exc_info=True)
+                    return HttpResponseBadRequest(msg)
             x = int(zxyt[1])*w
             y = int(zxyt[2])*h
         except:
-            logger.debug(
-                "render_image_region: tile=%s" % tile, exc_info=True
-            )
-            return HttpResponseBadRequest('malformed tile argument')
+            msg = "malformed tile argument, tile=%s" % tile
+            logger.debug(msg, exc_info=True)
+            return HttpResponseBadRequest(msg)
     elif region:
         try:
             xywh = region.split(",")
@@ -940,10 +958,9 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             w = int(xywh[2])
             h = int(xywh[3])
         except:
-            logger.debug(
-                "render_image_region: region=%s" % region, exc_info=True
-            )
-            return HttpResponseBadRequest('malformed region argument')
+            msg = "malformed region argument, region=%s" % region
+            logger.debug(msg, exc_info=True)
+            return HttpResponseBadRequest(msg)
     else:
         return HttpResponseBadRequest('tile or region argument required')
 

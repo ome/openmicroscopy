@@ -379,3 +379,50 @@ class TestImage (object):
         finally:
             gatewaywrapper.loginAsAdmin()
             admin = gatewaywrapper.gateway.getAdminService()
+
+    def testRenderJpegRegion(self, gatewaywrapper):
+        width = 10
+        height = 10
+        img = self.image.renderJpegRegion(0, 0, 0, 0, width, height)
+        ifile = StringIO(img)
+        img_file = Image.open(ifile)  # Raises if invalid
+        img_file.verify()  # Raises if invalid
+        assert img_file.format == 'JPEG'
+        assert img_file.size == (width, height)
+        assert self.image._re.getResolutionLevel() == 0
+
+    def testRenderJpegRegion_resolution(self, gatewaywrapper):
+        width = 10
+        height = 10
+        img = self.image.renderJpegRegion(0, 0, 0, 0, width, height, level=0)
+        ifile = StringIO(img)
+        img_file = Image.open(ifile)  # Raises if invalid
+        img_file.verify()  # Raises if invalid
+        assert img_file.format == 'JPEG'
+        assert img_file.size == (width, height)
+        assert self.image._re.getResolutionLevel() == 0
+
+    def testRenderJpegRegion_invalid_resolution(self, gatewaywrapper):
+        width = 10
+        height = 10
+        img = self.image.renderJpegRegion(0, 0, 0, 0, width, height, level=1)
+        assert img is None
+
+    def testRenderBirdsEyeView(self, gatewaywrapper):
+        img = self.image.renderBirdsEyeView(None)
+        ifile = StringIO(img)
+        img_file = Image.open(ifile)  # Raises if invalid
+        img_file.verify()  # Raises if invalid
+        assert img_file.format == 'JPEG'
+        assert img_file.size == (self.image.getSizeX(), self.image.getSizeY())
+        assert self.image._re.getResolutionLevel() == 0
+
+    def testRenderBirdsEyeView_Size(self, gatewaywrapper):
+        size = 10
+        img = self.image.renderBirdsEyeView(size)
+        ifile = StringIO(img)
+        img_file = Image.open(ifile)  # Raises if invalid
+        img_file.verify()  # Raises if invalid
+        assert img_file.format == 'JPEG'
+        assert img_file.size == (size, size)
+        assert self.image._re.getResolutionLevel() == 0
