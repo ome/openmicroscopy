@@ -35,15 +35,12 @@ class ImportLibrary(object):
         settings.checksumAlgorithm.value = s
         return settings
 
-    def create_fileset(self, folder_path):
+    def create_fileset(self, client_path_gen):
         fileset = omero.model.FilesetI()
         # for f in folder.files():
-        for f in os.listdir(folder_path):
-            if f.startswith('.'):
-                continue
+        for abspath in client_path_gen:
             entry = omero.model.FilesetEntryI()
-            # entry.setClientPath(rstring(str(f.abspath())))
-            entry.setClientPath(rstring(os.path.join(folder_path, f)))
+            entry.setClientPath(rstring(abspath))
             fileset.addFilesetEntry(entry)
 
         # Fill version info
@@ -66,32 +63,20 @@ class ImportLibrary(object):
         fileset.linkJob(upload)
         return fileset
 
-    def upload_folder(self, proc, folder_path):
+    def upload_folder(self, proc, folder_gen, sha1_gen):
         ret_val = []
-        # for i, fobj in enumerate(folder.files()):  # Assuming same order
         i = 0
-        for f in os.listdir(folder_path):
-            if f.startswith('.'):
-                continue
+        for chunk_gen in folder_gen:
             rfs = proc.getUploader(i)
             i += 1
             try:
-                # f = fobj.open()
-                abspath = os.path.join(folder_path, f)
-                f = open(abspath)
-                try:
-                    offset = 0
-                    block = []
-                    rfs.write(block, offset, len(block))  # Touch
-                    while True:
-                        block = f.read(1000 * 1000)
-                        if not block:
-                            break
-                        rfs.write(block, offset, len(block))
-                        offset += len(block)
-                    ret_val.append(self.client.sha1(abspath))
-                finally:
-                    f.close()
+                offset = 0
+                block = []
+                rfs.write(block, offset, len(block))  # Touch
+                for chunk in chunk_gen:
+                    rfs.write(chunk, offset, len(chunk))
+                    offset += len(chunk)
+                ret_val.append(sha1_gen.next())
             finally:
                 rfs.close()
         return ret_val
@@ -103,17 +88,16 @@ class ImportLibrary(object):
             raise Exception(rsp)
         return rsp
 
-    def createImport(self, folder_path):
+    def createImport(self, client_path_gen):
         settings = self.create_settings()
-        fileset = self.create_fileset(folder_path)
+        fileset = self.create_fileset(client_path_gen)
         return self.mrepo.importFileset(fileset, settings)
 
-    def importImage(self, folder_path):
-
-        proc = self.createImport(folder_path)
-
+    def importImage(self, client_path_gen, folder_gen, sha1s):
+        """Entry point to perform full import of fileset."""
+        proc = self.createImport(client_path_gen)
         try:
-            hashes = self.upload_folder(proc, folder_path)
+            hashes = self.upload_folder(proc, folder_gen, sha1s)
             handle = proc.verifyUpload(hashes)
             cb = CmdCallbackI(self.client, handle)
             rsp = self.assert_passes(cb)
