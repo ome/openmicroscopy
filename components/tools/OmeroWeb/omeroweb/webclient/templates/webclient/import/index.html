@@ -1,0 +1,51 @@
+{% extends "webgateway/base/base_main.html" %}
+
+{% block body %}
+
+Import...
+
+<form enctype="multipart/form-data" action="{% url 'submit_import' %}" method="post">
+    {% csrf_token %}
+    <!-- Select images: <input type="file" name="images" multiple> -->
+
+
+    <input id="fileupload" type="file" name="files[]" data-url="{% url 'submit_import' %}" multiple>
+<!--     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+    <script src="{% static '3rdparty/jquery.fileupload-9.21.0/vendor/jquery.ui.widget.js' %}"></script>
+    <script src="{% static '3rdparty/jquery.fileupload-9.21.0/jquery.iframe-transport.js' %}"></script>
+    <script src="{% static '3rdparty/jquery.fileupload-9.21.0/jquery.fileupload.js' %}"></script>
+    <script>
+    $(function () {
+
+        $('#fileupload').fileupload({
+            singleFileUploads: false,
+            add: function (e, data) {
+                console.log(e, data);
+
+                var html = data.files.map(f => "<li>" + f.name + "</li>").join("");
+                $("#selected_files").html(html);
+
+                data.submit();
+            },
+            dataType: 'json',
+            done: function (e, data) {
+                console.log('done', e, data);
+                $.each(data.result.files, function (index, file) {
+                    $('<p/>').text(file.name).appendTo(document.body);
+                });
+            }
+        });
+    });
+    </script>
+
+    Dataset: <input type="number" name="dataset" value="{{ dataset }}">
+
+    <input type="submit">
+</form>
+
+<ul id="selected_files">
+
+</ul>
+
+{% endblock %}
+

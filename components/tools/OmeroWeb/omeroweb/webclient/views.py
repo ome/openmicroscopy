@@ -4415,11 +4415,11 @@ def submit_import(request, conn=None, **kwargs):
             yield chunk
 
     def file_gen():
-        for f in request.FILES.getlist('images'):
+        for f in request.FILES.getlist('files[]'):
             yield chunks_gen(f)
 
     def file_names():
-        for f in request.FILES.getlist('images'):
+        for f in request.FILES.getlist('files[]'):
             yield f.name
 
     client_path_gen = file_names()
