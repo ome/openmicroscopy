@@ -209,7 +209,6 @@
             // handlers using jQuery's Deferred callbacks:
             // data.submit().done(func).fail(func).always(func);
             add: function (e, data) {
-                console.log("add... e.isDefaultPrevented()", e.isDefaultPrevented());
                 if (e.isDefaultPrevented()) {
                     return false;
                 }

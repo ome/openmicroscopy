@@ -4439,5 +4439,16 @@ def submit_import(request, conn=None, **kwargs):
             links.append(link)
         conn.getUpdateService().saveArray(links)
 
-    iids = [str(p.image.id.val) for p in rsp.pixels]
-    return HttpResponse("Imported %s" % ",".join(iids))
+    upload_files = []
+    for f in request.FILES.getlist('files[]'):
+        upload_files.append({'name': f.name})
+
+    images = []
+    for p in rsp.pixels:
+        images.append({'name': p.image.name.val,
+                       'id': p.image.id.val})
+
+    return JsonResponse(
+        {"files": upload_files,
+         "images": images}
+    )
