@@ -49,6 +49,11 @@
 
     <script type="text/javascript" src="{% static 'webclient/javascript/ome.chgrp.js'|add:url_suffix %}"></script>
 
+    <!-- Drag-n-drop to import -->
+    <script src="{% static '3rdparty/jquery.fileupload-9.21.0/jquery.iframe-transport.js' %}"></script>
+    <script src="{% static '3rdparty/jquery.fileupload-9.21.0/jquery.fileupload.js' %}"></script>
+    <script src="{% static 'webgateway/js/ome.import_fileupload.js' %}"></script>
+
     <!-- Main jsTree code is here -->
     <script src="{% static 'webclient/javascript/ome.tree.js'|add:url_suffix %}"></script>
 
@@ -918,6 +923,24 @@
 <!-- hidden form for chgrp -->
 <form id="chgrp-form" title="Move to Group" action="{% url 'chgrp' %}" style="display:none" method="POST">{% csrf_token %}
 </form>
+
+
+<!-- hidden form for import - Started via drag-n-drop. -->
+<!-- See ome.import_fileupload.js -->
+<form enctype="multipart/form-data" action="{% url 'submit_import' %}" method="post" style="display:none">
+    {% csrf_token %}
+    <input id="fileupload" type="file" name="files[]" data-url="{% url 'submit_import' %}" multiple>
+    <!-- This is updated to the current Dataset -->
+    Dataset: <input id="import_target_dataset" type="number" name="dataset">
+    <input type="submit">
+</form>
+<script>
+    $("#dataTree").on('select_node.jstree', function(event, data){
+        if (data.node.type === 'dataset') {
+            $("#import_target_dataset").val(data.node.data.id);
+        }
+    });
+</script>
 
 
 {% endblock %}

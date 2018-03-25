@@ -4430,7 +4430,7 @@ def submit_import(request, conn=None, **kwargs):
 
     dataset_id = request.POST.get('dataset', None)
     # Put the images into a Dataset
-    if dataset_id is not None:
+    if dataset_id is not None and len(dataset_id) > 0:
         links = []
         for p in rsp.pixels:
             link = omero.model.DatasetImageLinkI()
