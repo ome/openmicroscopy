@@ -4426,29 +4426,74 @@ def submit_import(request, conn=None, **kwargs):
     folder_gen = file_gen()
 
     import_lib = ImportLibrary(conn.c)
-    rsp = import_lib.importImage(client_path_gen, folder_gen)
+    handle = import_lib.importImage(client_path_gen, folder_gen)
 
+    print 'handle', handle
     dataset_id = request.POST.get('dataset', None)
-    # Put the images into a Dataset
-    if dataset_id is not None and len(dataset_id) > 0:
-        links = []
-        for p in rsp.pixels:
-            link = omero.model.DatasetImageLinkI()
-            link.parent = omero.model.DatasetI(dataset_id, False)
-            link.child = omero.model.ImageI(p.image.id.val, False)
-            links.append(link)
-        conn.getUpdateService().saveArray(links)
 
-    upload_files = []
-    for f in request.FILES.getlist('files[]'):
-        upload_files.append({'name': f.name})
+    jobId = str(handle)
 
-    images = []
-    for p in rsp.pixels:
-        images.append({'name': p.image.name.val,
-                       'id': p.image.id.val})
+    if request.session.get('import', None) is None:
+        request.session['import'] = {}
 
-    return JsonResponse(
-        {"files": upload_files,
-         "images": images}
-    )
+    request.session['import'][jobId] = {'status': 'in progress',
+                                        'dataset': dataset_id}
+    request.session.modified = True
+    return {'jobId': jobId}
+
+
+@login_required()
+@render_response()
+def import_progress(request, conn=None, **kwargs):
+
+    request.session.modified = True
+    for cbString, data in request.session.get('import').items():
+        dataset_id = data['dataset']
+        print cbString, data, data['status'] != 'in progress'
+        if data['status'] != 'in progress':
+            continue
+        print 'Dataset', dataset_id
+        try:
+            handle = omero.cmd.HandlePrx.checkedCast(
+                conn.c.ic.stringToProxy(cbString))
+            cb = omero.callbacks.CmdCallbackI(
+                conn.c, handle, foreground_poll=True)
+            rsp = cb.getResponse()
+            close_handle = False
+            try:
+                if not rsp:  # Response not available
+                    print "Still Importing..."
+                else:  # Response available
+                    close_handle = True
+                    err = isinstance(rsp, omero.cmd.ERR)
+                    if err:
+                        request.session['import'][cbString]['status'] = 'error'
+                    else:
+                        # Put the images into a Dataset
+                        request.session['import'][cbString]['status'] = 'finished'
+                        if dataset_id is not None and len(dataset_id) > 0:
+                            links = []
+                            for p in rsp.pixels:
+                                link = omero.model.DatasetImageLinkI()
+                                link.parent = omero.model.DatasetI(dataset_id, False)
+                                link.child = omero.model.ImageI(p.image.id.val, False)
+                                links.append(link)
+                            conn.getUpdateService().saveArray(links)
+
+                        images = []
+                        for p in rsp.pixels:
+                            images.append({'name': p.image.name.val,
+                                           'id': p.image.id.val})
+
+                        return JsonResponse({"images": images})
+            finally:
+                cb.close(close_handle)
+        except Ice.ObjectNotExistException:
+            print 'ObjectNotExistException'
+            request.session['import'][cbString]['status'] = 'error'
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            logger.error("Import job '%s'error:" % cbString)
+            request.session['import'][cbString]['status'] = 'error'
+
+    return JsonResponse({"status": "be patient!"})

@@ -43,16 +43,16 @@ $(function () {
         done: function (e, data) {
             console.log('done', e, data);
             $("#import_spinner").remove();
-            var html = data.result.images.map(
-                function(i){
-                    return ("<li class='row' data-id='" + i.id + "' data-type='image'>" +
-                        "<div class='image'>" +
-                        "<a href='" + WEBCLIENT.URLS.webindex + "img_detail/" + i.id + "/'>" +
-                        "<img width='65px' height='65px' src='"+ WEBCLIENT.URLS.webindex + "render_thumbnail/" + i.id + "/'>" +
-                        "</a></div></li>");
+            // var html = data.result.images.map(
+            //     function(i){
+            //         return ("<li class='row' data-id='" + i.id + "' data-type='image'>" +
+            //             "<div class='image'>" +
+            //             "<a href='" + WEBCLIENT.URLS.webindex + "img_detail/" + i.id + "/'>" +
+            //             "<img width='65px' height='65px' src='"+ WEBCLIENT.URLS.webindex + "render_thumbnail/" + i.id + "/'>" +
+            //             "</a></div></li>");
 
-                }).join("");
-            $("#dataIcons").append(html);
+            //     }).join("");
+            // $("#dataIcons").append(html);
 
             $("#import_info").hide();
         }

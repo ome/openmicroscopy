@@ -325,4 +325,6 @@ urlpatterns = patterns(
     url(r'^import/$', views.import_index),
 
     url(r'^submit_import/$', views.submit_import, name="submit_import"),
+
+    url(r'^import_progress/$', views.import_progress, name="import_progress"),
 )
