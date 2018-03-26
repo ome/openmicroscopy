@@ -123,15 +123,18 @@ class ImportLibrary(object):
         fileset = self.create_fileset(client_path_gen)
         return self.mrepo.importFileset(fileset, settings)
 
-    def importImage(self, client_path_gen, folder_gen):
+    def importImage(self, client_path_gen, folder_gen, wait=False):
         """Entry point to perform full import of fileset."""
         proc = self.createImport(client_path_gen)
         try:
             hashes = self.upload_folder(proc, folder_gen)
             handle = proc.verifyUpload(hashes)
-            cb = CmdCallbackI(self.client, handle)
-            rsp = self.assert_passes(cb)
-            assert len(rsp.pixels) > 0
-            return rsp
+            if wait:
+                cb = CmdCallbackI(self.client, handle)
+                rsp = self.assert_passes(cb)
+                assert len(rsp.pixels) > 0
+                return rsp
+            else:
+                return handle
         finally:
             proc.close()
