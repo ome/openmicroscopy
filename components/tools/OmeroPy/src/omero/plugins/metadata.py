@@ -604,20 +604,22 @@ class MetadataControl(BaseControl):
         else:
             raise Exception("Not implemented for type %s" % md.get_type())
 
+        ctx = {'omero.group': '-1'}
+
         params = omero.sys.ParametersI()
         params.addId(md.get_id())
-        pixels = client.getSession().getQueryService()\
+        pixels = client.getSession().getQueryService(ctx)\
                                     .findAllByQuery(q, params)
 
         for pixel in pixels:
             if args.x:
-                pixel.setPhysicalSizeX(omero.model.LengthI(args.x, unit))
+                pixel.setPhysicalSizeX(omero.model.LengthI(args.x, unit), ctx)
             if args.y:
-                pixel.setPhysicalSizeY(omero.model.LengthI(args.y, unit))
+                pixel.setPhysicalSizeY(omero.model.LengthI(args.y, unit), ctx)
             if args.z:
-                pixel.setPhysicalSizeZ(omero.model.LengthI(args.z, unit))
+                pixel.setPhysicalSizeZ(omero.model.LengthI(args.z, unit), ctx)
 
-        client.getSession().getUpdateService().saveCollection(pixels)
+        client.getSession().getUpdateService(ctx).saveCollection(pixels)
 
 
 try:
