@@ -34,7 +34,6 @@ import omero.cmd.IRequest;
 import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.Status;
-import omero.cmd.graphs.GraphUtil;
 
 /**
  * Permits performing multiple operations
