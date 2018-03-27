@@ -280,7 +280,10 @@ $(document).ready(function() {
 
         var childCount = parentNode.data.obj.childCount;
         if (PAGE_SIZE < childCount) {
-            json.pageCount = parseInt(childCount / PAGE_SIZE, 10) + 1;
+            json.pageCount = parseInt(childCount / PAGE_SIZE, 10);
+            if ((childCount % PAGE_SIZE) > 0) {
+                json.pageCount += 1;
+            }
             json.paging = true;
             json.page = inst.get_page(parentNode);
         }
