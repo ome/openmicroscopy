@@ -313,6 +313,7 @@
   <bean id="::omero::cmd::Handle" class="omero.cmd._HandleTie" singleton="false">
     <constructor-arg>
         <bean class="omero.cmd.HandleI" singleton="false">
+            <constructor-arg ref="readOnlyStatus"/>
             <constructor-arg value="${omero.threads.cancel_timeout}"/>
         </bean>
     </constructor-arg>

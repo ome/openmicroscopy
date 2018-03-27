@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -16,6 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import ome.conditions.InternalException;
 import ome.services.util.Executor;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
@@ -25,6 +24,7 @@ import omero.ServerError;
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.MapMaker;
@@ -62,6 +62,8 @@ public class HandleI implements _HandleOperations, IHandle,
     private static final long serialVersionUID = 15920349984928755L;
 
     private static final MapMaker mapMaker = new MapMaker();
+
+    private final ReadOnlyStatus readOnly;
 
     /**
      * Timeout in seconds that cancellation should wait.
@@ -131,12 +133,20 @@ public class HandleI implements _HandleOperations, IHandle,
     // INTIALIZATION
     //
 
+    @Deprecated
+    public HandleI(int cancelTimeoutMs) {
+        this(new ReadOnlyStatus(false, false), cancelTimeoutMs);
+        LoggerFactory.getLogger(getClass()).info("assuming read-write repository");
+    }
+
     /**
      * Create a {@link HandleI} (at {@code CREATED} in the state diagram)
      * with the given cancel timeout in milliseconds.
+     * @param readOnly the read-only status
      * @param cancelTimeoutMs the cancel timeout (in milliseconds)
      */
-    public HandleI(int cancelTimeoutMs) {
+    public HandleI(ReadOnlyStatus readOnly, int cancelTimeoutMs) {
+        this.readOnly = readOnly;
         this.cancelTimeoutMs = cancelTimeoutMs;
         this.state.set(State.CREATED);
     }
