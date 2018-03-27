@@ -165,9 +165,10 @@ class Connector(object):
     def create_connection(self, useragent, username, password,
                           is_public=False, userip=None):
         self.is_public = is_public
+        connection = self.create_gateway(
+            useragent, username, password, userip
+        )
         try:
-            connection = self.create_gateway(
-                useragent, username, password, userip)
             if connection.connect():
                 logger.debug('Successfully created connection for: %s'
                              % username)
@@ -175,6 +176,7 @@ class Connector(object):
                 return connection
         except:
             logger.debug('Cannot create a new connection.', exc_info=True)
+        connection.close()
         return None
 
     def create_guest_connection(self, useragent, is_public=False):
