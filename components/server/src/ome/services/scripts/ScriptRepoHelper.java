@@ -492,6 +492,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     }
 
     /**
+     * Base class for loading the scripts in {@link ScriptRepoHelper#loadAllScripts(boolean, String, Principal)}.
      * Perhaps could be refactored away in Java 8.
      * @author m.t.b.carroll@dundee.ac.uk
      */
