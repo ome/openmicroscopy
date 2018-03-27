@@ -495,9 +495,9 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * Perhaps could be refactored away in Java 8.
      * @author m.t.b.carroll@dundee.ac.uk
      */
-    public abstract class LoadScripts extends Executor.SimpleWork {
+    private abstract class LoadScripts extends Executor.SimpleWork {
 
-        public LoadScripts(Object object, String action) {
+        private LoadScripts(Object object, String action) {
             super(object, action);
         }
 

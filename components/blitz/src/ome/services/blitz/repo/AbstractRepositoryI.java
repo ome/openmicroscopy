@@ -347,17 +347,17 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
      * Instead it simple returns an {@link Exception} ("failure") or null
      * ("success").
      */
-    abstract class GetOrCreateRepo extends Executor.SimpleWork {
+    private abstract class GetOrCreateRepo extends Executor.SimpleWork {
 
         private ServiceFactory sf;
 
         RepositoryPrx publicPrx;
 
-        public GetOrCreateRepo(Object object, String method) {
+        private GetOrCreateRepo(Object object, String method) {
             super(object, method);
         }
 
-        public Object innerWork(ServiceFactory sf) {
+        protected Object innerWork(ServiceFactory sf) {
             try {
                 this.sf = sf;
                 final String line = handleFileMaker();
