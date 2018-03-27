@@ -368,20 +368,11 @@ public class HandleI implements _HandleOperations, IHandle,
 
             @SuppressWarnings("unchecked")
             List<Object> rv = (List<Object>) executor.execute(merged, principal,
-                    new Executor.SimpleWork(this, "run",
+                    new RunSteps(this, "run",
                     Ice.Util.identityToString(id), req) {
                 @Transactional(readOnly = false)
                 public List<Object> doWork(Session session, ServiceFactory sf) {
-                    try {
-                        List<Object> rv = steps(getSqlAction(), session, sf);
-                        state.set(State.FINISHED); // Regardless of current
-                        return rv;
-                    } catch (Cancel c) {
-                        // TODO: Perhaps remove local State enum and use solely
-                        // the slice defined one.
-                        state.set(State.CANCELLED);
-                        throw c; // Exception intended to rollback transaction
-                    }
+                    return innerWork(session, sf);
                 }
             });
 
@@ -490,6 +481,31 @@ public class HandleI implements _HandleOperations, IHandle,
             status.stopTime = swWhole.getStartTime() + swWhole.getElapsedTime();
         }
 
+    }
+
+    /**
+     * Base class for the workers of {@link HandleI#run()} that run the steps of a request.
+     * Perhaps could be refactored away in Java 8.
+     * @author m.t.b.carroll@dundee.ac.uk
+     */
+    private abstract class RunSteps extends Executor.SimpleWork {
+
+        private RunSteps(Object string, String action, Object... params) {
+            super(string, action, params);
+        }
+
+        protected List<Object> innerWork(Session session, ServiceFactory sf) {
+            try {
+                final List<Object> rv = steps(getSqlAction(), session, sf);
+                state.set(State.FINISHED); // Regardless of current
+                return rv;
+            } catch (Cancel c) {
+                // TODO: Perhaps remove local State enum and use solely
+                // the slice-defined one.
+                state.set(State.CANCELLED);
+                throw c; // Exception intended to rollback transaction
+            }
+        }
     }
 
     /**
