@@ -354,6 +354,7 @@ public class HandleI implements _HandleOperations, IHandle,
      *
      * NB: Executes only if at {@code CREATED} in the state diagram.
      */
+    @SuppressWarnings("unchecked")
     public void run() {
 
         // If we're not in the created state, then do nothing
@@ -365,16 +366,24 @@ public class HandleI implements _HandleOperations, IHandle,
         StopWatch sw = new Slf4JStopWatch();
         try {
             Map<String, String> merged = mergeContexts();
-
-            @SuppressWarnings("unchecked")
-            List<Object> rv = (List<Object>) executor.execute(merged, principal,
-                    new RunSteps(this, "run",
-                    Ice.Util.identityToString(id), req) {
-                @Transactional(readOnly = false)
-                public List<Object> doWork(Session session, ServiceFactory sf) {
-                    return innerWork(session, sf);
-                }
-            });
+            final List<Object> rv;
+            if (req instanceof ReadOnlyStatus.IsAware && ((ReadOnlyStatus.IsAware) req).isReadOnly(readOnly)) {
+                rv = (List<Object>) executor.execute(merged, principal,
+                        new RunSteps(this, "run (ro)", Ice.Util.identityToString(id), req) {
+                    @Transactional(readOnly = true)
+                    public List<Object> doWork(Session session, ServiceFactory sf) {
+                        return innerWork(session, sf);
+                    }
+                });
+            } else {
+                rv = (List<Object>) executor.execute(merged, principal,
+                        new RunSteps(this, "run (rw)", Ice.Util.identityToString(id), req) {
+                    @Transactional(readOnly = false)
+                    public List<Object> doWork(Session session, ServiceFactory sf) {
+                        return innerWork(session, sf);
+                    }
+                });
+            }
 
             // Post-process
             for (int step = 0; step < status.steps; step++) {
