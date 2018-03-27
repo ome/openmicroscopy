@@ -216,19 +216,22 @@ class Connector(object):
 
     def check_version(self, useragent):
         connection = self.create_guest_connection(useragent)
-        if connection is None:
-            return False
         try:
-            server_version = connection.getServerVersion()
-            server_version = self.SERVER_VERSION_RE.match(server_version)
-            server_version = server_version.group(1).split('.')
+            if connection is None:
+                return False
+            try:
+                server_version = connection.getServerVersion()
+                server_version = self.SERVER_VERSION_RE.match(server_version)
+                server_version = server_version.group(1).split('.')
 
-            client_version = self.SERVER_VERSION_RE.match(omero_version)
-            client_version = client_version.group(1).split('.')
-            logger.info("Client version: '%s'; Server version: '%s'"
-                        % (client_version, server_version))
-            return server_version == client_version
-        except:
-            logger.error('Cannot compare server to client version.',
-                         exc_info=True)
-        return False
+                client_version = self.SERVER_VERSION_RE.match(omero_version)
+                client_version = client_version.group(1).split('.')
+                logger.info("Client version: '%s'; Server version: '%s'"
+                            % (client_version, server_version))
+                return server_version == client_version
+            except:
+                logger.error('Cannot compare server to client version.',
+                             exc_info=True)
+            return False
+        finally:
+            connection.close()
