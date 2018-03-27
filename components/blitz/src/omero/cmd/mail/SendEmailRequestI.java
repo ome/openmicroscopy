@@ -1,6 +1,4 @@
 /*
- *  $Id$
- *  
  *   Copyright 2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -23,6 +21,7 @@ import ome.api.IQuery;
 import ome.api.local.LocalAdmin;
 import ome.parameters.Parameters;
 import ome.services.mail.MailUtil;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
@@ -41,7 +40,7 @@ import ome.model.meta.Experimenter;
  * @since 5.1.0
  */
 
-public class SendEmailRequestI extends SendEmailRequest implements IRequest {
+public class SendEmailRequestI extends SendEmailRequest implements IRequest, ReadOnlyStatus.IsAware {
 
     private final static Logger log = LoggerFactory
             .getLogger(SendEmailRequestI.class);
@@ -231,6 +230,9 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
         }
         return new ArrayList<String>(extraRecipients);
     }
- 
 
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return true;
+    }
 }

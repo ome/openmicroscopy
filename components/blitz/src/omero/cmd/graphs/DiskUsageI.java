@@ -48,6 +48,7 @@ import ome.io.nio.ThumbnailService;
 import ome.model.IObject;
 import ome.parameters.Parameters;
 import ome.services.graphs.GraphPathBean;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Login;
 import omero.api.LongPair;
 import omero.cmd.DiskUsage;
@@ -67,7 +68,7 @@ import omero.model.OriginalFile;
  */
 @Deprecated
 @SuppressWarnings("serial")
-public class DiskUsageI extends DiskUsage implements IRequest {
+public class DiskUsageI extends DiskUsage implements IRequest, ReadOnlyStatus.IsAware {
     /* TODO: This class can be substantially refactored and simplified by using the graph traversal reimplementation. */
 
     /* FIELDS AND CONSTRUCTORS */
@@ -640,5 +641,10 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         }
 
         return usage.getDiskUsageResponse();
+    }
+
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return true;
     }
 }

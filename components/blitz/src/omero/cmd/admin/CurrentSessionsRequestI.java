@@ -28,6 +28,7 @@ import java.util.Map;
 import ome.parameters.Parameters;
 import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionManager;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
 import ome.system.SimpleEventContext;
 import omero.RType;
@@ -50,7 +51,7 @@ import com.google.common.collect.ImmutableMap;
 
 @SuppressWarnings("serial")
 public class CurrentSessionsRequestI extends CurrentSessionsRequest
-    implements IRequest {
+    implements IRequest, ReadOnlyStatus.IsAware {
 
     private final Logger log = LoggerFactory.getLogger(CurrentSessionsRequestI.class);
 
@@ -198,4 +199,8 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
         return helper.getResponse();
     }
 
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return true;
+    }
 }
