@@ -36,6 +36,7 @@ import ome.model.IObject;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
+import ome.services.util.ReadOnlyStatus;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -52,7 +53,7 @@ import omero.cmd.Status;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
-public class SkipHeadI extends SkipHead implements IRequest {
+public class SkipHeadI extends SkipHead implements IRequest, ReadOnlyStatus.IsAware {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SkipHeadI.class);
 
@@ -260,5 +261,14 @@ public class SkipHeadI extends SkipHead implements IRequest {
     @Override
     public Response getResponse() {
         return helper.getResponse();
+    }
+
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        if (request instanceof ReadOnlyStatus.IsAware) {
+            return ((ReadOnlyStatus.IsAware) request).isReadOnly(readOnly);
+        } else {
+            return false;
+        }
     }
 }
