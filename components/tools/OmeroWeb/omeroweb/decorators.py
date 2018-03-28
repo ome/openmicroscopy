@@ -324,8 +324,10 @@ class login_required(object):
                 userip=get_client_ip(request))
             request.session['connector'] = connector
             # Clear any previous context so we don't try to access this
-            del request.session['active_group']
-            del request.session['user_id']
+            if 'active_group' in request.session:
+                del request.session['active_group']
+            if 'user_id' in request.session:
+                del request.session['user_id']
             request.session.modified = True
             self.set_public_user_connector(connector)
         elif connection is not None:
