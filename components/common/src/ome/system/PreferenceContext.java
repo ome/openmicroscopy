@@ -164,6 +164,8 @@ public class PreferenceContext extends PropertyPlaceholderConfigurer {
             return true;
         case admin:
             return ec.isCurrentUserAdmin();
+        case user:
+            /* TODO */
         case hidden:
         default:
             return false;
