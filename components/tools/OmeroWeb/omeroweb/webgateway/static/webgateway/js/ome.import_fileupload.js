@@ -26,35 +26,51 @@ $(function () {
             data.submit();
 
             $("#import_info").show();
-            $('#import_progress').css('width', progress + '%');
+            $('#import_progress').css('width', '0');
             $('#import_status').text("Uploading...");
         },
         dataType: 'json',
         progressall: function (e, data) {
+            // Progress of file upload....
             var progress = parseInt(data.loaded / data.total * 100, 10);
             console.log('progress', progress);
             $('#import_progress').css('width', progress + '%');
-
-            if (progress === 100) {
-                $('#import_status').text("Importing...");
-            }
         },
 
         done: function (e, data) {
             console.log('done', e, data);
-            $("#import_spinner").remove();
-            // var html = data.result.images.map(
-            //     function(i){
-            //         return ("<li class='row' data-id='" + i.id + "' data-type='image'>" +
-            //             "<div class='image'>" +
-            //             "<a href='" + WEBCLIENT.URLS.webindex + "img_detail/" + i.id + "/'>" +
-            //             "<img width='65px' height='65px' src='"+ WEBCLIENT.URLS.webindex + "render_thumbnail/" + i.id + "/'>" +
-            //             "</a></div></li>");
+            // Upload is done...
+            $('#import_status').text("Importing...");
 
-            //     }).join("");
-            // $("#dataIcons").append(html);
+            // Start pinging for import progress
+            function importProgress() {
+                console.log('importProgress...')
+                $.getJSON(WEBCLIENT.URLS.webindex + 'import_progress/',
+                    function(data){
+                        console.log('data', data);
+                        if (data.status == "in progress") {
+                            setTimeout(importProgress, 500);
+                        } else {
+                            $("#import_spinner").remove();
+                            $("#import_info").hide();
 
-            $("#import_info").hide();
+                            if (data.images) {
+                                var html = data.images.map(
+                                    function(i){
+                                        return ("<li class='row' data-id='" + i.id + "' data-type='image'>" +
+                                            "<div class='image'>" +
+                                            "<a href='" + WEBCLIENT.URLS.webindex + "img_detail/" + i.id + "/'>" +
+                                            "<img width='65px' height='65px' src='"+ WEBCLIENT.URLS.webindex + "render_thumbnail/" + i.id + "/'>" +
+                                            "</a></div></li>");
+
+                                    }).join("");
+                                $("#dataIcons").append(html);
+                            }
+                        }
+                    }
+                );
+            }
+            importProgress();
         }
     });
 });

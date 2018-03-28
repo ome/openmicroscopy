@@ -4496,4 +4496,4 @@ def import_progress(request, conn=None, **kwargs):
             logger.error("Import job '%s'error:" % cbString)
             request.session['import'][cbString]['status'] = 'error'
 
-    return JsonResponse({"status": "be patient!"})
+    return JsonResponse({"status": "in progress"})
