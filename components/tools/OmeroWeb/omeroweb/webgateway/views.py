@@ -2896,8 +2896,8 @@ class LoginView(View):
                 conn = connector.create_connection(
                     self.useragent, username, password,
                     userip=get_client_ip(request))
-                try:
-                    if conn is not None:
+                if conn is not None:
+                    try:
                         request.session['connector'] = connector
                         # UpgradeCheck URL should be loaded from the server or
                         # loaded omero.web.upgrades.url allows to customize web
@@ -2908,8 +2908,8 @@ class LoginView(View):
                             upgrades_url = conn.getUpgradesUrl()
                         upgradeCheck(url=upgrades_url)
                         return self.handle_logged_in(request, conn, connector)
-                finally:
-                    conn.close(hard=False)
+                    finally:
+                        conn.close(hard=False)
             # Once here, we are not logged in...
             # Need correct error message
             if not connector.is_server_up(self.useragent):
