@@ -23,8 +23,6 @@ from omero.gateway import BlitzGateway
 from omero.util import populate_metadata, populate_roi, pydict_text_io
 from omero.util.metadata_utils import NSBULKANNOTATIONSCONFIG
 from omero.util.metadata_utils import NSBULKANNOTATIONSRAW
-
-from omero.grid import LongColumn
 from omero.model.enums import UnitsLength
 
 HELP = """Metadata utilities
