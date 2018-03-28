@@ -27,6 +27,7 @@ import omero.cmd.admin.ResetPasswordRequestI;
 import omero.cmd.basic.DoAllI;
 import omero.cmd.basic.ListRequestsI;
 import omero.cmd.basic.TimingI;
+import omero.cmd.fs.FindPyramidsI;
 import omero.cmd.fs.ManageImageBinariesI;
 import omero.cmd.fs.OriginalMetadataRequestI;
 import omero.cmd.fs.UsedFilesRequestI;
@@ -197,6 +198,13 @@ public class RequestObjectFactoryRegistry extends
                     @Override
                     public Ice.Object create(String name) {
                         return new ManageImageBinariesI(pixelsService, voter);
+                    }
+                });
+        factories.put(FindPyramidsI.ice_staticId(),
+                new ObjectFactory(FindPyramidsI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return new FindPyramidsI(pixelsService);
                     }
                 });
         factories.put(DiskUsageI.ice_staticId(),

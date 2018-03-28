@@ -33,11 +33,14 @@ import omero
 import sys
 import os
 import getpass
+import Ice
 
 from Glacier2 import PermissionDeniedException
 from getopt import getopt, GetoptError
 from omero.util import get_user
+from math import ceil
 from stat import ST_SIZE
+
 
 # The directories underneath an OMERO data directory to search for "dangling"
 # files and reconcile with the database. Directory name key and corresponding
@@ -329,6 +332,71 @@ def fixpyramids(data_dir, query_service,
                         os.remove(pixels_file)
 
 
+def removepyramids(client, little_endian=None, dry_run=False,
+                   imported_after=None, wait=25, limit=500):
+    client.getImplicitContext().put(omero.constants.GROUP, '-1')
+    admin_service = client.sf.getAdminService()
+    config_service = client.sf.getConfigService()
+
+    initial_check(config_service, admin_service)
+    value = long(limit)
+    # If the default limit is changed, please update the help
+    # in admin.py
+    if value > 500 or value <= 0:
+        value = long(500)
+    print "No more than %s pyramids will be removed" % value
+    # look for any pyramid files with the specified endianness
+    # the pyramid file will be removed
+    request = omero.cmd.FindPyramids()
+    request.littleEndian = little_endian
+    request.importedAfter = imported_after
+    request.limit = value
+
+    cb = None
+    ms = 500
+    loops = ceil(wait * 1000.0 / ms)
+
+    try:
+        cb = client.submit(request, loops=loops, ms=ms,
+                           failonerror=True,
+                           failontimeout=True)
+        rsp = cb.getResponse()
+    except omero.CmdError, ce:
+        print "Failed to load pyramids: %s" % ce.err.name
+        return
+    finally:
+        if cb:
+            cb.close(True)
+
+    if len(rsp.pyramidFiles) == 0:
+        print "No pyramids to remove"
+        return
+
+    for j in range(len(rsp.pyramidFiles)):
+        image_id = rsp.pyramidFiles[j]
+        if dry_run:
+            print "Would remove pyramid for image %s" % image_id
+        else:
+            req = omero.cmd.ManageImageBinaries()
+            req.imageId = image_id
+            req.deletePyramid = True
+            req.deleteThumbnails = True
+            try:
+                cb = client.submit(req, loops=loops, ms=ms,
+                                   failonerror=True,
+                                   failontimeout=True)
+                print "Pyramid removed for image %s" % image_id
+            except omero.CmdError, ce:
+                print "Failed to remove for image %s: %s" % (
+                    image_id, ce.err.name)
+            finally:
+                if cb:
+                    try:
+                        cb.close(True)
+                    except Ice.NotRegisteredException:
+                        print "Error closing callback for %s" % image_id
+
+
 def main():
     """
     Default main() that performs OMERO data directory cleansing.
@@ -378,6 +446,7 @@ def main():
     finally:
         if session_key is None:
             client.closeSession()
+
 
 if __name__ == '__main__':
     main()

@@ -5,8 +5,7 @@ Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
-Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
-Suite Teardown      Close all browsers
+Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
 
 *** Test Cases ***
 
@@ -34,7 +33,7 @@ Test Script Run
     # If extra /omero/ script level, click() it. Will fail silently if not needed
     Execute Javascript                          $("#scriptList>ul>li>a:contains('omero')").click()
     Click Link                                  export_scripts
-    ${script_url}=                              Get Element Attribute       xpath=//a[contains(text(),'Batch Image Export...')]@href
+    ${script_url}=                              Get Element Attribute       xpath=//a[contains(text(),'Batch Image Export...')]    attribute=href
     Go To                                       ${script_url}?Image=${imageId}
     Wait Until Page Contains Element            id=script_form
     Submit Form                                 id=script_form
@@ -42,7 +41,6 @@ Test Script Run
     Go To                                       ${WELCOME URL}
     Click Element                               id=launch_activities
     Wait Until Page Contains                    Batch Image Export
-
 
 Test Channel Rename
     [Documentation]     Select User, Project, Dataset, Image and checks
@@ -58,7 +56,6 @@ Test Channel Rename
     Submit Form                                 channel_names_edit
     Wait Until Keyword Succeeds                 ${TIMEOUT}  ${INTERVAL}   Element Should Not Be Visible     channel0
     Wait Until Page Contains Element            xpath=//div[@id='channel_names_display']/span[contains(text(), "ch${chName}")]      ${WAIT}
-
 
 Test Share
     [Documentation]     Tests creating and editing share
@@ -97,7 +94,6 @@ Test Share
     Submit Form                                 add_share_comment_form
     Wait Until Element Is Visible               xpath=//div[contains(@class, "commentText")][contains(text(), "New Discussion Comment")]    ${WAIT}
 
-
 Test Annotate
     [Documentation]     Test Annotation of a Project that we create
 
@@ -111,19 +107,6 @@ Test Annotate
     Submit Form                                 add_comment_form
     Wait Until Page Contains                    test add comment
 
-    # Tags
-    Click Element                               xpath=//h1[@data-name='tags']
-    Click Element                               launch_tags_form
-    # Wait for tag panel being loded
-    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
-    Wait Until Keyword Succeeds                 ${TIMEOUT}  ${INTERVAL}   Page Should Not Contain Element     xpath=//div[@class='progress-label']
-    Page Should Contain Element                 id_tag
-
-    Input Text                                  id_tag     testSeleniumTag${pid}
-    Click Element                               id_add_new_tag
-    Click Dialog Button                         Save
-    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]    ${WAIT}
-
     # Files
     Click Element                               xpath=//h1[@data-name='attachments']
     Click Element                               choose_file_anns
@@ -131,7 +114,6 @@ Test Annotate
     Click Element                               xpath=//select[@id='id_files']/option    # just pick first file
     Submit Form                                 choose_attachments_form
     Wait Until Page Contains Element            xpath=//li[@class='file_ann_wrapper']   # check for any file annotation
-
 
 Test Batch Annotate
     [Documentation]     Test Batch Annotation of 2 Projects that we create
@@ -150,19 +132,6 @@ Test Batch Annotate
     Submit Form                                 add_comment_form
     Wait Until Page Contains                    test add comment
 
-    # Tags
-    Click Element                               xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Tags')]
-    Wait Until Element Is Visible               id=launch_tags_form
-    Click Element                               launch_tags_form
-    Wait Until Page Contains Element            id_tag
-    # Wait for tag panel being loded
-    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
-    Wait Until Keyword Succeeds                 ${TIMEOUT}  ${INTERVAL}   Page Should Not Contain Element     xpath=//div[@class='progress-label']
-    Input Text                                  id_tag     testSeleniumTag${pid}
-    Click Element                               id_add_new_tag
-    Click Dialog Button                         Save
-    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]    ${WAIT}
-
     # Files
     Click Element                               xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Attachments')]
     Wait Until Element Is Visible               id=choose_file_anns
@@ -172,22 +141,22 @@ Test Batch Annotate
     Submit Form                                 choose_attachments_form
     Wait Until Page Contains Element            xpath=//li[@class='file_ann_wrapper']   # check for any file annotation
 
-
-
 Test Search
     [Documentation]     Test basic search submission from header field or search page
-    [Documentation]     Searching E.g. for the Projects we just created above
+    ...                 Searching e.g. for the Projects we just created above
 
     Go To                                   ${WELCOME URL}
     Input Text                              id_search_query     test
     Submit Form                             id=search
 
+    Wait Until Page Contains Element        dataTable       ${WAIT}
     # We don't care about results, just check we get *some* results in dataTable
     Location Should Be                      ${WELCOME URL}search/?search_query=test
-    Wait Until Page Contains Element        dataTable       ${WAIT}
     # Repeat search
     Submit Form                             searching_form
     Wait Until Page Contains                Loading data...
     Wait Until Page Contains Element        dataTable       ${WAIT}
     ${rows}=    Get Matching XPath Count    xpath=//table[@id="DataTable"]/tr
     Wait Until Page Contains Element        xpath=//table[@id="dataTable"][@data-result-count!='${rows}']       ${WAIT}
+
+[Teardown]    Close Browser

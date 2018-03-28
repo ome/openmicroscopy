@@ -3,7 +3,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# Copyright 2013 University of Dundee. All rights reserved.
+# Copyright 2013-2018 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,6 +50,19 @@
         </sequential>
     </macrodef>
 
+    <!-- run pabot with various arguments. Used to run web tests.-->
+    <macrodef name="run_pabot">
+        <attribute name="failonerror" default="true"/>
+        <attribute name="output"/>
+        <element name="args" implicit="true"/>
+        <sequential>
+            <exec executable="pabot" failonerror="@{failonerror}" dir="${output}">
+                <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>
+                 <args/>
+            </exec>
+        </sequential>
+    </macrodef>
+
     <!-- point the build file used to generate the ui libraries -->
     <macrodef name="librarybuild">
         <attribute name="target"/>
@@ -59,6 +72,11 @@
         </sequential>
     </macrodef>
 
+    <!-- The number of processes if run using pabot. -->
+    <property name="pabot.processes" value="3"/>
+
+    <!-- The name of the rerun file. -->
+    <property name="reports.rerun" value="rerun.xml"/>
 
     <!-- The name of the output file. -->
     <property name="reports.output" value="output.xml"/>
@@ -87,7 +105,7 @@
 
     <property name="insight.dir" value="${basedir}/../../insight/OUT"/>
 
-    <!-- file created while running the web-chrome target -->
+    <!-- file created while running the web-browser -DBROWSER=chrome target -->
     <property name="google.log" value="${basedir}/libpeerconnection.log"/>
 
     <import file="${import.dir}/global.xml"/>
@@ -95,6 +113,7 @@
 
     <!-- set up the directory for insight reports. -->
     <target name="setup-dir">
+        <echo message="deprecated. insight tests are no longer run"/>
         <mkdir dir="${reports.insight}" />
         <!-- copy the config folder. This should be modified later -->
         <mkdir dir="${reports.insight}/config"/>
@@ -105,6 +124,7 @@
 
     <!--  run the web, insight and CLI tests -->
     <target name="test-all" unless="env.NOPYTHON">
+        <echo message="deprecated. Use ui-test-web instead"/>
         <antcall target="ui-test-insight" inheritRefs="true" inheritAll="true"/>
         <antcall target="ui-test-web" inheritRefs="true" inheritAll="true"/>
         <antcall target="test-cli" inheritRefs="true" inheritAll="true"/>
@@ -128,6 +148,52 @@
         </if>
     </target>
 
+    <!-- merge the results to publish them -->
+    <target name="merge-results">
+        <delete file="${reports}/${reports.output}" failonerror="false"/>
+        <if>
+            <available file="${reports}" type="dir"/>
+            <then>
+                <apply executable="rebot" dir="${reports}" parallel="true">
+                    <arg value="--output"/>
+                    <arg value="${reports.output}"/>
+                    <srcfile/>
+                    <arg value="--merge"/>
+                    <fileset id="reports.files" dir="${reports}/">
+                       <include name="**/${reports.output}"/>
+                    </fileset>
+                </apply>
+            </then>
+        </if>
+    </target>
+
+    <!-- merge the results of test reruns to publish them -->
+    <target name="merge-results-rerun">
+        <delete file="${reports}/${reports.output}" failonerror="false"/>
+        <var name="browser" value="firefox/"/>
+        <if><isset property="BROWSER"/>
+            <then>
+                <var name="browser" value="${BROWSER}"/>
+            </then>
+        </if>
+        <var name="output" value="${reports.web}/${browser}"/>
+        <if>
+            <available file="${reports}" type="dir"/>
+            <then>
+                <apply executable="rebot" dir="${reports}" parallel="true">
+                    <arg value="--output"/>
+                    <arg value="${reports.output}"/>
+                    <arg value="--merge"/>
+                    <srcfile/>
+                    <fileset id="reports.files" dir="${output}/">
+                       <include name="${reports.output}"/>
+                       <include name="${reports.rerun}"/>
+                    </fileset>
+                </apply>
+            </then>
+        </if>
+    </target>
+
 	<target name="check-config-file">
 	    <property file="${basedir}/resources/config.txt" />
 	    <available file="${basedir}/resources/config.txt" property="hasconfig" />
@@ -136,6 +202,7 @@
 
     <!-- run the cli tests. -->
     <target name="test-cli" depends="check-config-file">
+        <echo message="deprecated. The insight tests are no longer run"/>
         <mkdir dir="${reports.cli}" />
         <!--<touch file="${reports.cli}/error.log"/>-->
         <var name="target" value="cli/"/>
@@ -156,6 +223,7 @@
     </target>
     <!-- run all the tests for insight -->
     <target name="run_all_insight" depends="setup-dir">
+        <echo message="deprecated. The insight tests are no longer run"/>
         <!-- execute sub-directory per sub-directory -->
         <for param="file">
             <path>
@@ -173,6 +241,7 @@
 
     <!-- run the tests in the specified folder or run the speficied test. -->
     <target name="run_folder_insight" depends="setup-dir">
+        <echo message="deprecated. The insight tests are no longer run"/>
         <var name="filename" value="${TEST}"/>
         <if>
             <available file="${basedir}/testcases/insight/${filename}" type="dir"/>
@@ -189,6 +258,7 @@
 
     <!-- run the specified test -->
     <target name="run_single_insight" depends="setup-dir">
+        <echo message="deprecated. The insight tests are no longer run"/>
         <var name="filename" value="${TEST}"/>
         <dirname file="${filename}" property="filename.parent" />
         <basename property="parent" file="${filename.parent}"/>
@@ -199,6 +269,7 @@
 
     <!--  run the insight tests -->
     <target name="ui-test-insight" depends="check-config-file">
+        <echo message="deprecated. The insight tests are no longer run"/>
         <if><isset property="TEST"/><then>
             <antcall target="run_folder_insight" inheritRefs="true" inheritAll="true"/></then>
             <else>
@@ -209,37 +280,45 @@
 
     <!--  run all the web tests -->
     <target name="ui-test-web">
-        <antcall target="web-firefox" inheritRefs="true" inheritAll="true"/>
-        <antcall target="web-chrome" inheritRefs="true" inheritAll="true"/>
+        <antcall target="web-browser" inheritRefs="true" inheritAll="true"/>
+        <antcall target="web-browser" inheritRefs="true" inheritAll="true">
+            <param name="BROWSER" value="chrome"/>
+        </antcall>
     </target>
 
-   <!-- test with firefox -->
+    <!--  run all the web tests with pabot-->
+    <target name="ui-test-web-pabot">
+        <antcall target="web-browser-pabot" inheritRefs="true" inheritAll="true"/>
+        <antcall target="web-browser-pabot" inheritRefs="true" inheritAll="true">
+            <param name="BROWSER" value="chrome"/>
+        </antcall>
+    </target>
+
+    <!-- test with firefox -->
+    <!-- deprecated use web-browser instead -->
     <target name="web-firefox" depends="check-config-file">
-        <var name="output" value="${reports.web}/firefox"/>
-        <mkdir dir="${output}"/>
-        <var name="target" value="web/"/>
-        <if><isset property="TEST"/>
-            <then>
-                <var name="target" value="web/${TEST}"/>
-            </then>
-        </if>
-        
-        <run_pybot failonerror="${test.with.fail}" output="${output}">
-            <arg value="-d"/>
-            <arg value="${output}"/>
-            <arg value="-v"/>
-            <arg value="browser:firefox"/>
-            <arg value="-v"/>
-            <arg value="DELAY:0.2"/>
-            <arg value="--loglevel"/>
-            <arg value="debug"/>
-            <arg value="${basedir}/testcases/${target}"/>
-        </run_pybot>
+        <echo message="deprecated use web-browser instead"/>
+        <antcall target="web-browser" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <!-- test with chrome This requires the chrome driver to be installed-->
+    <!-- test with chrome. The chrome driver has to be installed -->
+    <!-- deprecated use web-browser -DBROWSER=chrome instead -->
     <target name="web-chrome" depends="check-config-file">
-        <var name="output" value="${reports.web}/chrome"/>
+        <echo message="deprecated use web-browser -DBROWSER=chrome instead"/>
+        <antcall target="web-browser" inheritRefs="true" inheritAll="true">
+            <param name="BROWSER" value="chrome"/>
+        </antcall>
+    </target>
+
+    <!-- test with a given browser. If chrome is used, the chrome driver has to be installed -->
+    <target name="web-browser" depends="check-config-file">
+        <var name="browser" value="firefox"/>
+        <if><isset property="BROWSER"/>
+            <then>
+                <var name="browser" value="${BROWSER}"/>
+            </then>
+        </if>
+        <var name="output" value="${reports.web}/${browser}"/>
         <mkdir dir="${output}"/>
         <var name="target" value="web/"/>
         <if><isset property="TEST"/>
@@ -251,7 +330,7 @@
             <arg value="-d"/>
             <arg value="${output}"/>
             <arg value="-v"/>
-            <arg value="browser:chrome"/>
+            <arg value="browser:${browser}"/>
             <arg value="-v"/>
             <arg value="DELAY:0.2"/>
             <arg value="--loglevel"/>
@@ -261,10 +340,143 @@
         <if>
             <available file="${google.log}"/>
             <then>
-                <move file="${google.log}" todir="${reports.web}/chrome"/>
+                <move file="${google.log}" todir="${reports.web}/${browser}"/>
             </then>
         </if>
-        
+    </target>
+
+    <!-- Rerun the tests that failed. It is possible to retest in the same or another browser
+    either the test failures or the full tests suite. the chrome driver has to be installed -->
+    <target name="web-browser-rerun" depends="check-config-file">
+        <var name="browser" value="firefox/"/>
+        <if><isset property="BROWSER"/>
+            <then>
+                <var name="browser" value="${BROWSER}"/>
+            </then>
+        </if>
+        <var name="output" value="${reports.web}/${browser}"/>
+        <var name="target" value="web/"/>
+        <var name="run" value="--rerunfailed"/>
+        <var name="targetbrowser" value="chrome"/>
+        <if><isset property="TARGETBROWSER"/>
+            <then>
+                <var name="targetbrowser" value="${TARGETBROWSER}"/>
+            </then>
+        </if>
+        <if><isset property="TEST"/>
+            <then>
+                <var name="target" value="web/${TEST}"/>
+            </then>
+        </if>
+        <if><isset property="SUITE"/>
+            <then>
+                <var name="run" value="--rerunfailedsuites"/>
+            </then>
+        </if>
+        <run_pybot failonerror="${test.with.fail}" output="${output}">
+            <arg value="--nostatusrc"/>
+            <arg value="${run}"/>
+            <arg value="${output}/${reports.output}"/>
+            <arg value="--output"/>
+            <arg value="${output}/${reports.rerun}"/>
+            <arg value="-v"/>
+            <arg value="browser:${targetbrowser}"/>
+            <arg value="-v"/>
+            <arg value="DELAY:0.2"/>
+            <arg value="--loglevel"/>
+            <arg value="debug"/>
+            <arg value="${basedir}/testcases/${target}"/>
+        </run_pybot>
+        <if>
+            <available file="${google.log}"/>
+            <then>
+                <move file="${google.log}" todir="${reports.web}/${browser}"/>
+            </then>
+        </if>
+    </target>
+
+    <!-- Rerun the tests that failed in parallel. It is possible to retest in the same or another browser
+    either the test failures or the full tests suite. the chrome driver has to be installed -->
+    <target name="web-browser-rerun-pabot" depends="check-config-file">
+        <var name="browser" value="firefox/"/>
+        <if><isset property="BROWSER"/>
+            <then>
+                <var name="browser" value="${BROWSER}"/>
+            </then>
+        </if>
+        <var name="output" value="${reports.web}/${browser}"/>
+        <var name="target" value="web/"/>
+        <var name="run" value="--rerunfailed"/>
+        <var name="targetbrowser" value="chrome"/>
+        <if><isset property="TARGETBROWSER"/>
+            <then>
+                <var name="targetbrowser" value="${TARGETBROWSER}"/>
+            </then>
+        </if>
+        <if><isset property="SUITE"/>
+            <then>
+                <var name="run" value="--rerunfailedsuites"/>
+            </then>
+        </if>
+        <run_pabot failonerror="${test.with.fail}" output="${output}">
+            <arg value="--processes"/>
+            <arg value="${pabot.processes}"/>
+            <arg value="--nostatusrc"/>
+            <arg value="${run}"/>
+            <arg value="${output}/${reports.output}"/>
+            <arg value="--output"/>
+            <arg value="${output}/${reports.rerun}"/>
+            <arg value="-v"/>
+            <arg value="browser:${targetbrowser}"/>
+            <arg value="-v"/>
+            <arg value="DELAY:0.2"/>
+            <arg value="--loglevel"/>
+            <arg value="debug"/>
+            <arg value="${basedir}/testcases/${target}"/>
+        </run_pabot>
+        <if>
+            <available file="${google.log}"/>
+            <then>
+                <move file="${google.log}" todir="${reports.web}/${browser}"/>
+            </then>
+        </if>
+    </target>
+
+    <!-- test with a given brower. If chrome is used, the chrome driver has to be installed -->
+    <target name="web-browser-pabot" depends="check-config-file">
+        <var name="browser" value="firefox"/>
+        <if><isset property="BROWSER"/>
+            <then>
+                <var name="browser" value="${BROWSER}"/>
+            </then>
+        </if>
+        <var name="output" value="${reports.web}/${browser}"/>
+        <mkdir dir="${output}"/>
+        <var name="target" value="web/"/>
+        <if><isset property="TEST"/>
+            <then>
+                <var name="target" value="web/${TEST}"/>
+            </then>
+        </if>
+        <run_pabot failonerror="${test.with.fail}" output="${output}">
+            <arg value="--processes"/>
+            <arg value="${pabot.processes}"/>
+            <arg value="--outputdir"/>
+            <arg value="${output}"/>
+            <arg value="-v"/>
+            <arg value="browser:${browser}"/>
+            <arg value="-v"/>
+            <arg value="DELAY:0.2"/>
+            <arg value="--loglevel"/>
+            <arg value="debug"/>
+            <arg value="${basedir}/testcases/${target}"/>
+        </run_pabot>
+        <if>
+            <available file="${google.log}"/>
+            <then>
+                <move file="${google.log}" todir="${reports.web}/${browser}"/>
+            </then>
+        </if>
     </target>
 
     <target name="tests-dist">
@@ -281,7 +493,7 @@
     <librarybuild target="clean"/>
     </target>
 
-       <!-- compile the unit tests under library/java/test -->
+    <!-- compile the unit tests under library/java/test -->
     <target name="test-compile" description=""/>
 
     <!-- no-operation -->

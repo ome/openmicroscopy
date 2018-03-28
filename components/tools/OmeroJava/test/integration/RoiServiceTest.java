@@ -39,6 +39,8 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Line;
 import omero.model.LineI;
+import omero.model.Mask;
+import omero.model.MaskI;
 import omero.model.OriginalFile;
 import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
@@ -465,10 +467,10 @@ public class RoiServiceTest extends AbstractServerTest {
             Assert.assertEquals(shapes.size(), 3);
         }
     }
-    
+
     /**
      * Tests that shape fill and stroke color is stored as RGBA integer.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -506,10 +508,10 @@ public class RoiServiceTest extends AbstractServerTest {
         Assert.assertEquals(shape.getShapeSettings().getStroke(), c);
         Assert.assertEquals(shape.getShapeSettings().getFill(), c);
     }
-    
+
     /**
      * Creates an ROI with 3 rectangluar shapes on the specified plane
-     * 
+     *
      * @param img
      *            The Image the ROI will be linked to
      * @param z
@@ -641,6 +643,17 @@ public class RoiServiceTest extends AbstractServerTest {
         t2.setA12(omero.rtypes.rdouble(0));
         polygon.setTransform(t2);
         roi.addShape(polygon);
+
+        // a mask fully in the FF quandrant
+        final Mask mask = new MaskI();
+        mask.setX(omero.rtypes.rdouble(5));
+        mask.setY(omero.rtypes.rdouble(0));
+        mask.setWidth(omero.rtypes.rdouble(4));
+        mask.setHeight(omero.rtypes.rdouble(4));
+        mask.setTheC(omero.rtypes.rint(0));
+        mask.setTheZ(omero.rtypes.rint(0));
+        mask.setTheT(omero.rtypes.rint(0));
+        roi.addShape(mask);
         roi = (RoiI) iUpdate.saveAndReturnObject(roi);
 
         // add all shape ids to the list to be queried
@@ -689,7 +702,14 @@ public class RoiServiceTest extends AbstractServerTest {
                 new double[] {Byte.MAX_VALUE},
                 new double[] {50*Byte.MAX_VALUE},
                 new double[] {((double) 50*Byte.MAX_VALUE)/100},
-                new double[1])
+                new double[1]),
+            new ShapeStats( // mask in FF
+                    0, new long[] {0}, new long[] {16},
+                    new double[] {Byte.MAX_VALUE},
+                    new double[] {Byte.MAX_VALUE},
+                    new double[] {16*Byte.MAX_VALUE},
+                    new double[] {(double)Byte.MAX_VALUE},
+                    new double[1])
         };
         for (int i=0; i<roi.sizeOfShapes();i++) {
             shapeList.put(

@@ -10,31 +10,39 @@ package omero.model;
 import static omero.rtypes.rdouble;
 
 import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.Random;
 
 public class SmartMaskI extends omero.model.MaskI implements SmartShape {
 
     public void areaPoints(PointCallback cb) {
-        throw new UnsupportedOperationException();
+        Shape s = asAwtShape();
+        if (s == null) {
+            return;
+        }
+        if (transform != null) s = Util.transformAwtShape(s, transform);
+        Rectangle2D r = s.getBounds2D();
+        Util.pointsByBoundingBox(s, r, cb);
     }
-    
+
     public Shape asAwtShape() {
-        throw new UnsupportedOperationException();
+        double[] d = data();
+        if (d == null || d.length != 4) {
+            return null;
+        }
+        Rectangle2D.Double rect = new Rectangle2D.Double(d[0], d[1], d[2], d[3]);
+        return rect;
     }
 
     public List<Point> asPoints() {
-        try {
-            double x = getX().getValue();
-            double y = getY().getValue();
-            double w = getWidth().getValue();
-            double h = getHeight().getValue();
-            List<Point> points = Util.points(x, y, w, h);
-            assert Util.checkNonNull(points) : "Null points in " + this;
-            return points;
-        } catch (NullPointerException npe) {
+        double[] d = data();
+        if (d == null || d.length != 4) {
             return null;
         }
+        List<Point> points = Util.points(d[0], d[1], d[2], d[3]);
+        assert Util.checkNonNull(points) : "Null points in " + this;
+        return points;
     }
 
     public void randomize(Random random) {
@@ -49,4 +57,15 @@ public class SmartMaskI extends omero.model.MaskI implements SmartShape {
         }
     }
 
+    private double[] data() {
+        try {
+            double x = getX().getValue();
+            double y = getY().getValue();
+            double w = getWidth().getValue();
+            double h = getHeight().getValue();
+            return new double[] { x, y, w, h };
+        } catch (NullPointerException npe) {
+            return null;
+        }
+    }
 }

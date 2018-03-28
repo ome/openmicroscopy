@@ -1633,11 +1633,20 @@ public class Gateway implements AutoCloseable {
         Connector c = null;
         try {
             ctx.setServerInformation(login.getServer());
-            // client will be cleaned up by connector
-            client client = new client(login.getServer().getHostname(), login
-                    .getServer().getPort());
-            ServiceFactoryPrx prx = client.createSession(login.getUser()
-                    .getUsername(), login.getUser().getPassword());
+
+            client client;
+            ServiceFactoryPrx prx;
+            if (login.getArguments() != null) {
+                List<String> args = login.getArguments();
+                client = new client(
+                        args.toArray(new String[args.size()]));
+                prx = client.createSession();
+            } else {
+                client = new client(login.getServer().getHostname(),
+                        login.getServer().getPort());
+                prx = client.createSession(login.getUser().getUsername(), login
+                        .getUser().getPassword());
+            }
 
             if (ctx.getGroupID() >= 0)
                 prx.setSecurityContext(new ExperimenterGroupI(ctx.getGroupID(),

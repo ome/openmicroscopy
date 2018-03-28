@@ -26,7 +26,7 @@
 	  <constructor-arg ref="executor"/>
 	  <constructor-arg ref="internal-ome.api.LocalCompress"/>
 	  <constructor-arg ref="securitySystem"/>
-	  <constructor-arg ref="scriptRepoHelper"/>
+	  <constructor-arg ref="internal-ome.api.LutProvider"/>
   </bean>
   
   <bean id="managed-omeis.providers.re.RenderingEngine" parent="selfManagingService" singleton="false">

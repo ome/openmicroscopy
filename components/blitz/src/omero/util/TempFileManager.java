@@ -203,7 +203,7 @@ public class TempFileManager {
      * <li>inability to lock</li>
      * </ul>
      *
-     * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/1653">ticket:1653</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/1653">ticket:1653</a>
      */
     protected File tmpdir() {
 

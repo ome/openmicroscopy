@@ -33,6 +33,7 @@ import omero.api.ITypesPrx;
 import omero.api.RenderingEnginePrx;
 import omero.cmd.Chgrp2;
 import omero.cmd.Delete2;
+import omero.constants.projection.ProjectionType;
 import omero.gateway.util.Requests;
 import omero.model.Channel;
 import omero.model.ChannelBinding;
@@ -4065,6 +4066,191 @@ public class RenderingEngineTest extends AbstractServerTest {
                 Assert.assertEquals(codomains.size(), cb.sizeOfSpatialDomainEnhancement());
             }
         }
+    }
+
+    /**
+     * Tests to render a projected stack using 
+     * <code>renderProjectedCompressed</code> method.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testRenderProjectedCompressed() throws Exception {
+        File f = File.createTempFile("testRenderProjectedCompressed", "."
+                + OME_FORMAT);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import image", e);
+        }
+        Pixels p = pixels.get(0);
+        long id = p.getId().getValue();
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        int sizeZ = p.getSizeZ().getValue();
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        byte[] projection = re.renderProjectedCompressed(
+                ProjectionType.MAXIMUMINTENSITY, 0, 1, 0, sizeZ-1);
+        Assert.assertNotNull(projection);
+        Assert.assertTrue(projection.length > 0);
+        f.delete();
+        re.close();
+    }
+
+    /**
+     * Tests to render a projected stack using 
+     * <code>renderProjectedAsPackedInt</code> method.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testRenderProjectedUnCompressed() throws Exception {
+        File f = File.createTempFile("testRenderProjectedCompressed", "."
+                + OME_FORMAT);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import image", e);
+        }
+        Pixels p = pixels.get(0);
+        long id = p.getId().getValue();
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        int sizeZ = p.getSizeZ().getValue();
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        int[] projection = re.renderProjectedAsPackedInt(
+                ProjectionType.MAXIMUMINTENSITY, 0, 1, 0, sizeZ-1);
+        Assert.assertNotNull(projection);
+        Assert.assertTrue(projection.length > 0);
+        f.delete();
+        re.close();
+    }
+
+    /**
+     * Tests to render a projected stack using
+     * <code>renderProjectedCompressed</code> method. All channels are turned
+     * off.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testRenderProjectedCompressedNoChannels() throws Exception {
+        File f = File.createTempFile("testRenderProjectedCompressedNoChannels",
+                "." + OME_FORMAT);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import image", e);
+        }
+        Pixels p = pixels.get(0);
+        long id = p.getId().getValue();
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        for (int i = 0; i < p.getSizeC().getValue(); i++) {
+            re.setActive(i, false);
+        }
+        int sizeZ = p.getSizeZ().getValue();
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        byte[] projection = re.renderProjectedCompressed(
+                ProjectionType.MAXIMUMINTENSITY, 0, 1, 0, sizeZ-1);
+        Assert.assertNotNull(projection);
+        Assert.assertTrue(projection.length > 0);
+        f.delete();
+        re.close();
+    }
+
+    /**
+     * Tests to render a projected stack using
+     * <code>renderProjectedAsPackedInt</code> method. All channels are turned
+     * off.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testRenderProjectedUnCompressedNoChannels() throws Exception {
+        File f = File.createTempFile("testRenderProjectedUnCompressedNoChannels",
+                "."  + OME_FORMAT);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import image", e);
+        }
+        Pixels p = pixels.get(0);
+        long id = p.getId().getValue();
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        for (int i = 0; i < p.getSizeC().getValue(); i++) {
+            re.setActive(i, false);
+        }
+        int sizeZ = p.getSizeZ().getValue();
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        int[] projection = re.renderProjectedAsPackedInt(
+                ProjectionType.MAXIMUMINTENSITY, 0, 1, 0, sizeZ-1);
+        Assert.assertNotNull(projection);
+        Assert.assertTrue(projection.length > 0);
+        int first = projection[0];
+        int total = 1;
+        for (int i = 1; i < projection.length; i++) {
+            if (projection[i] != first) {
+                break;
+            }
+            total++;
+        }
+        Assert.assertEquals(total, projection.length);
+        f.delete();
+        re.close();
     }
 
     //Inner class used to store rnd settings for channels

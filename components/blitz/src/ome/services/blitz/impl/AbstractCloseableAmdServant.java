@@ -75,7 +75,7 @@ public abstract class AbstractCloseableAmdServant extends AbstractAmdServant
      * it is possible to raise the message and have the servant
      * cleaned up.
      * 
-     * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/1855">ticket:1855</a>
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/1855">ticket:1855</a>
      */
     public final void close_async(AMD_StatefulServiceInterface_close __cb,
             Ice.Current __current) {

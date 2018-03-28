@@ -31,6 +31,12 @@ from omeroweb.testlib import post, get
 
 from django.core.urlresolvers import reverse
 
+from cStringIO import StringIO
+try:
+    from PIL import Image
+except ImportError:
+    import Image
+
 
 class TestRendering(IWebTest):
     """
@@ -48,6 +54,7 @@ class TestRendering(IWebTest):
         image1 = conn.getObject("Image", iid1)
         image1.resetDefaults()
         image1.setColorRenderingModel()
+        image1.setQuantizationMap(0, "logarithmic", 0.5)
         image1.saveDefaults()
         image1 = conn.getObject("Image", iid1)
 
@@ -59,6 +66,13 @@ class TestRendering(IWebTest):
 
         assert image1.isGreyscaleRenderingModel() is False
         assert image2.isGreyscaleRenderingModel() is True
+
+        img1_chan = image1.getChannels()[0]
+        assert img1_chan.getFamily().getValue() == 'logarithmic'
+        assert img1_chan.getCoefficient() == 0.5
+        img2_chan = image2.getChannels()[0]
+        assert img2_chan.getFamily().getValue() == 'linear'
+        assert img2_chan.getCoefficient() == 1.0
 
         # copy rendering settings from image1 via ID
         request_url = reverse('webgateway.views.copy_image_rdef_json')
@@ -76,6 +90,9 @@ class TestRendering(IWebTest):
 
         image2 = conn.getObject("Image", iid2)
         assert image2.isGreyscaleRenderingModel() is False
+        img2_chan = image2.getChannels()[0]
+        assert img2_chan.getFamily().getValue() == 'logarithmic'
+        assert img2_chan.getCoefficient() == 0.5
 
     def test_copy_past_rendering_settings_from_url(self):
         # Create 2 images with 2 channels each
@@ -90,6 +107,7 @@ class TestRendering(IWebTest):
         image1.setColorRenderingModel()
         image1.setActiveChannels([1, 2], [[20, 300], [50, 100]],
                                  ['00FF00', 'FF0000'], [True, False])
+        image1.setQuantizationMap(0, "exponential", 0.8)
         image1.saveDefaults()
         image1 = conn.getObject("Image", iid1)
 
@@ -104,20 +122,30 @@ class TestRendering(IWebTest):
 
         def buildParamC(im):
             chs = []
+            maps = []
             for i, ch in enumerate(im.getChannels()):
                 act = "" if ch.isActive() else "-"
                 start = int(ch.getWindowStart())
                 end = int(ch.getWindowEnd())
                 rev = 'r' if ch.isInverted() else '-r'
                 color = ch.getColor().getHtml()
+                map = '{"quantization":' \
+                    '{"family":"%s","coefficient":%s}}' % \
+                    (ch.getFamily().getValue(),
+                        str(ch.getCoefficient()))
+                maps.append(map)
                 chs.append("%s%s|%s:%s%s$%s" % (act, i+1, start, end,
                                                 rev, color))
-            return ",".join(chs)
+            return ",".join(chs) + "&maps=[" + ",".join(maps) + "]"
 
         # build channel parameter e.g. 1|0:15$FF0000...
         old_c1 = buildParamC(image1)
         # Check it is what we expect
-        assert old_c1 == "1|20:300r$00FF00,2|50:100-r$FF0000"
+        exp_map1 = '{"quantization":' \
+            '{"family":"exponential","coefficient":0.8}}'
+        exp_map2 = '{"quantization":{"family":"linear","coefficient":1.0}}'
+        assert old_c1 == '1|20:300r$00FF00,2|50:100-r$FF0000' \
+            '&maps=[' + exp_map1 + ',' + exp_map2 + ']'
 
         # copy rendering settings from image1 via URL
         request_url = reverse('webgateway.views.copy_image_rdef_json')
@@ -157,6 +185,9 @@ class TestRendering(IWebTest):
         assert old_c1 == new_c2
         # check if image2 rendering model changed from greyscale to color
         assert image2.isGreyscaleRenderingModel() is False
+        newChan = image2.getChannels()[0]
+        assert newChan.getFamily().getValue() == 'exponential'
+        assert newChan.getCoefficient() == 0.8
 
     """
     Tests retrieving all rendering defs for an image (given id)
@@ -171,6 +202,8 @@ class TestRendering(IWebTest):
         image.resetDefaults()
         image.setColorRenderingModel()
         image.setChannelInverted(0, True)
+        image.setQuantizationMap(0, "logarithmic", 0.45)
+        image.setQuantizationMap(1, "exponential", 0.9)
         image.saveDefaults()
         image = conn.getObject("Image", iid)
 
@@ -198,13 +231,16 @@ class TestRendering(IWebTest):
         # channel info is supposed to match
         expChannels = image.getChannels()
         inverted = [True, False, False]    # expected reverse intensity flags
+        expFamilies = ['logarithmic', 'exponential', 'linear']
+        expCoefficients = [0.45, 0.9, 1.0]
         for i, c in enumerate(channels):
             assert c['active'] == expChannels[i].isActive()
             assert c['start'] == expChannels[i].getWindowStart()
             assert c['end'] == expChannels[i].getWindowEnd()
             assert c['color'] == expChannels[i].getColor().getHtml()
             assert c['reverseIntensity'] == inverted[i]
-            assert c['inverted'] == inverted[i]
+            assert c['family'] == expFamilies[i]
+            assert c['coefficient'] == expCoefficients[i]
 
         # id and owner check
         assert rdefs[0].get("id") is not None
@@ -293,6 +329,258 @@ class TestRenderImageRegion(IWebTest):
             self.client.getSessionId()
         )
         try:
+            get(django_client, request_url, data, status_code=400)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_image_region_tile_params(self):
+        """
+        Tests whether the handed in tile parameter is respected
+        by checking the following cases:
+        1. don't hand in tile dimension => use default tile size
+        2. hand in tile dimension => use given tile size
+        3. exceed tile dimension max values => use default tile size
+        """
+        image = self.import_fake_file(name='fake')[0]
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
+        image = conn.getObject("Image", image.id.val)
+        image._prepareRenderingEngine()
+        expTileSize = image._re.getTileSize()
+        image._re.close()
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image.getId()), 'z': '0', 't': '0'}
+        )
+        data = {'tile': '0,0,0'}
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+
+        try:
+            # case 1
+            response = get(django_client, request_url, data)
+            tile = Image.open(StringIO(response.content))
+            assert tile.size == tuple(expTileSize)
+            # case 2
+            data['tile'] = '0,0,0,10,10'
+            response = get(django_client, request_url, data)
+            tile = Image.open(StringIO(response.content))
+            assert tile.size == (10, 10)
+            # case 3
+            data['tile'] = '0,0,0,0,10000'
+            response = get(django_client, request_url, data)
+            tile = Image.open(StringIO(response.content))
+            assert tile.size == tuple(expTileSize)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_image_region_tile_params_large_image(self):
+        """
+        Tests the retrieval of large non pyramid image.
+        """
+        image_id = self.create_test_image(size_x=3000, size_y=3000,
+                                          session=self.sf).id.val
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
+        image = conn.getObject("Image", image_id)
+        image._prepareRenderingEngine()
+        image._re.close()
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image.getId()), 'z': '0', 't': '0'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        data = {}
+        try:
+            data['tile'] = '0,0,0,512,512'
+            response = get(django_client, request_url, data)
+            tile_content = response.content
+            tile = Image.open(StringIO(tile_content))
+            assert tile.size == (512, 512)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_image_region_tile_params_negative_resolution(self):
+        """
+        Tests the retrieval of image at a negative resolution.
+        """
+        image_id = self.create_test_image(size_x=512, size_y=512,
+                                          session=self.sf).id.val
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
+        image = conn.getObject("Image", image_id)
+        image._prepareRenderingEngine()
+        image._re.close()
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image.getId()), 'z': '0', 't': '0'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        data = {}
+        try:
+            data['tile'] = '-1,0,0,200,200'
+            get(django_client, request_url, data, status_code=400)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_image_region_tile_params_invalid_resolution(self):
+        """
+        Tests the retrieval of image at an invalid resolution.
+        """
+        image_id = self.create_test_image(size_x=512, size_y=512,
+                                          session=self.sf).id.val
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
+        image = conn.getObject("Image", image_id)
+        image._prepareRenderingEngine()
+        image._re.close()
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image.getId()), 'z': '0', 't': '0'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        data = {}
+        try:
+            data['tile'] = '1,0,0,200,200'
+            get(django_client, request_url, data, status_code=400)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_image_region_tile_params_big_image(self, tmpdir):
+        """
+        Tests the retrieval of pyramid image at different
+        resolution. Resolution changes is supported in that case.
+        """
+        image_id = self.import_pyramid(tmpdir, client=self.client)
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        data = {}
+        try:
+            data['tile'] = '0,0,0,512,512'
+            response = get(django_client, request_url, data)
+            tile_content = response.content
+            tile = Image.open(StringIO(tile_content))
+            assert tile.size == (512, 512)
+            digest = self.calculate_sha1(tile_content)
+            # request another resolution. It should default to 0
+            data['tile'] = '1,0,0,512,512'
+            response = get(django_client, request_url, data)
+            tile_res_content = response.content
+            tile = Image.open(StringIO(tile_res_content))
+            assert tile.size == (512, 512)
+            digest_res = self.calculate_sha1(tile_res_content)
+            assert digest != digest_res
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_image_region_region_params(self):
+        """
+        Tests the retrieval of the image using the region parameter
+        """
+        image = self.import_fake_file(name='fake')[0]
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
+        image = conn.getObject("Image", image.id.val)
+        image._prepareRenderingEngine()
+        image._re.close()
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image.getId()), 'z': '0', 't': '0'}
+        )
+        data = {'region': '0,0,10,10'}
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+
+        try:
+            response = get(django_client, request_url, data)
+            tile = Image.open(StringIO(response.content))
+            assert tile.size == (10, 10)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_image_region_region_params_big_image(self, tmpdir):
+        """
+        Tests the retrieval of pyramid image at different
+        resolution. Resolution changes is supported in that case.
+        """
+        image_id = self.import_pyramid(tmpdir, client=self.client)
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        data = {}
+        try:
+            data['region'] = '0,0,512,512'
+            response = get(django_client, request_url, data)
+            region = Image.open(StringIO(response.content))
+            assert region.size == (512, 512)
+            data['region'] = '0,0,2000,2000'
+            response = get(django_client, request_url, data)
+            region = Image.open(StringIO(response.content))
+            assert region.size == (2000, 2000)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_birds_eye_view_big_image(self, tmpdir):
+        """
+        Tests the retrieval of pyramid image at different
+        resolution. Resolution changes is supported in that case.
+        """
+        image_id = self.import_pyramid(tmpdir, client=self.client)
+        request_url = reverse(
+            'webgateway.views.render_birds_eye_view',
+            kwargs={'iid': str(image_id), 'size': '100'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            response = get(django_client, request_url)
+            region = Image.open(StringIO(response.content))
+            assert region.size == (100, 100)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_image_region_big_image_resolution(self, tmpdir):
+        """
+        Tests the retrieval of pyramid image at different
+        resolution. Resolution changes is supported in that case.
+        """
+        image_id = self.import_pyramid(tmpdir, client=self.client)
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
+        image = conn.getObject("Image", image_id)
+        image._prepareRenderingEngine()
+        levels = image._re.getResolutionLevels()
+        image._re.close()
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
+        )
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        data = {}
+        try:
+            data['tile'] = '%s,0,0,512,512' % levels
             get(django_client, request_url, data, status_code=400)
         finally:
             self.assert_no_leaked_rendering_engines()

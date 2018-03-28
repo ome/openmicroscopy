@@ -49,6 +49,7 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
+import ome.services.graphs.GroupPredicate;
 import ome.system.EventContext;
 import ome.system.Login;
 import ome.system.Roles;
@@ -74,6 +75,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.OWN);
 
     private final ACLVoter aclVoter;
+    private final Roles securityRoles;
     private final GraphPathBean graphPathBean;
     private final LightAdminPrivileges adminPrivileges;
     private final Deletion deletionInstance;
@@ -110,6 +112,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
             Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
             SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
         this.aclVoter = aclVoter;
+        this.securityRoles = securityRoles;
         this.graphPathBean = graphPathBean;
         this.adminPrivileges = adminPrivileges;
         this.deletionInstance = deletionInstance;
@@ -161,6 +164,8 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
         } else {
             requiredAbilities = REQUIRED_ABILITIES;
         }
+
+        graphPolicy.registerPredicate(new GroupPredicate(securityRoles));
 
         graphTraversal = graphHelper.prepareGraphTraversal(childOptions, requiredAbilities, graphPolicy, graphPolicyAdjusters,
                 aclVoter, graphPathBean, unnullable, new InternalProcessor(requiredAbilities), dryRun);

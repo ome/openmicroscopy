@@ -127,7 +127,7 @@ class TempFileManager(object):
          * non-existence
          * inability to lock
 
-        See: https://trac.openmicroscopy.org.uk/ome/ticket/1653
+        See: https://trac.openmicroscopy.org/ome/ticket/1653
         """
         locktest = None
 
@@ -153,7 +153,7 @@ class TempFileManager(object):
         targets.append(path(tempfile.gettempdir()) / "omero" / "tmp")
 
         # Handles existing files named tmp
-        # See https://trac.openmicroscopy.org.uk/ome/ticket/2805
+        # See https://trac.openmicroscopy.org/ome/ticket/2805
         for target in targets:
             if target.exists() and not target.isdir():
                 self.logger.debug("%s exists and is not a directory" % target)

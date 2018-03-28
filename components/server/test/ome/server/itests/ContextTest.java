@@ -28,7 +28,7 @@ public class ContextTest extends TestCase {
     static class TB extends ThumbnailBean {
         
         TB(){
-            super(false, null);
+            super(false);
         }
         /**
          * 

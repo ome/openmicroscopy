@@ -22,6 +22,7 @@ import static omero.rtypes.rlong;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -114,7 +115,7 @@ public class ManageImageBinariesI extends ManageImageBinaries implements
 
     public void init(Helper helper) {
         this.helper = helper;
-        this.helper.setSteps(6);
+        this.helper.setSteps(7);
     }
 
     public Object step(int step) {
@@ -126,6 +127,7 @@ public class ManageImageBinariesI extends ManageImageBinaries implements
         case 3: findFileset(); break;
         case 4: togglePixels(); break;
         case 5: deletePyramid(); break;
+        case 6: deleteThumbnails(); break;
         default:
             throw helper.cancel(new ERR(), null, "unknown-step", "step" , ""+step);
         }
@@ -240,6 +242,15 @@ public class ManageImageBinariesI extends ManageImageBinaries implements
             requireFileset("pyramid");
             processFile("pyramid", files.pyramid, null);
             files.update(rsp);
+        }
+    }
+
+    private void deleteThumbnails() {
+        if (deleteThumbnails) {
+            Iterator<File> i = thumbnailFiles.iterator();
+            while (i.hasNext()) {
+                processFile("thumbnail", i.next(), null);
+            }
         }
     }
 

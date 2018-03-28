@@ -1,10 +1,19 @@
 
-<div style="position:absolute; top:0px; left:0px; right:0px; height: 29px; border-right:0px" class="toolbar">
+<div class="toolbar">
     <div id="layout_chooser">
         <button id="icon_layout" title="View as Thumbnails" class="<% if (layout === 'icon') print('checked') %>" /><button id="table_layout" title="View as List" class="<% if (layout === 'table') print('checked') %>" />
     </div>
-    <div class="search filtersearch" id="filtersearch" style="top:8px; width:90%">
-        <div style="float:left; font-size: 16px">Filter:</div>
+    <div class="search filtersearch" id="filtersearch">
+        <select id="choosefilter">
+            <option value="addfilter">Add filter</option>
+            <option value="rating">By Rating</option>
+            <option value="unrated">Unrated</option>
+            <option value="name">Name</option>
+            <option value="tag">Tag</option>
+            <option disabled>──────────</option>
+            <option value="removeAll">Remove all filters</option>
+        </select>
+
         <div id="filtersContainer" style="float:left">
             <div id="filterrating" class="imagefilter">
                 <img title="Filter by rating (exact match)" src="<%= staticUrl %>image/rating0.png">
@@ -16,27 +25,28 @@
                 <span title="Remove filter" class="removefilter" style="vertical-align:top">X</span>
             </div>
 
-            <div id="filtername" class="imagefilter" style="position: relative; width: 180px; height:30px; top: -4px">
+            <div id="filtername" class="imagefilter">
                 <label for="id_search"> Filter by name </label>
                 <input id="id_search" type="text" size="25">
             </div>
             <span class="loading" style="display: none;"></span>
         </div>
+    </div>
 
-        <select id="choosefilter" style="margin-top: -1px;">
-            <option value="addfilter">Add filter</option>
-            <option value="rating">By Rating</option>
-            <option value="unrated">Unrated</option>
-            <option value="name">Name</option>
-            <option disabled>──────────</option>
-            <option value="removeAll">Remove all filters</option>
+    <div id="filtertag" class="imagefilter filtersearch">
+        <select id="filter_by_tag">
+            <!-- Tags loaded here... -->
         </select>
+        <span title="Remove all Tag filters" class="removefilter" style="float:left">X</span>
+        <div id="currentFilterTags">
+            <!-- Current tags here -->
+        </div>
     </div>
 </div>
-<div style="position:absolute; bottom:0px; left:0px; right:0px; height: 25px; border-right:0px" class="toolbar">
+<div id="icon_table"></div>
+<div style="height:25px" class="toolbar">
     <div style="position: absolute; right: 10px; bottom: 0; width: 200px; height: 25px">
         <span class="zoomLabel">Zoom:</span>
         <div id="thumb_size_slider" class="thumb_size_slider" title="Zoom Thumbnails"></div>
     </div>
 </div>
-<div id="icon_table" style="position:absolute; bottom:25px; left:0px; top:29px; overflow:auto; margin-top:0px; right:0px"></div>

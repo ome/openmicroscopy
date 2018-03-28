@@ -64,6 +64,7 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
+import ome.services.graphs.GroupPredicate;
 import ome.services.graphs.PermissionsPredicate;
 import ome.system.EventContext;
 import ome.system.Login;
@@ -91,6 +92,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.DELETE);
 
     private final ACLVoter aclVoter;
+    private final Roles securityRoles;
     private final GraphPathBean graphPathBean;
     private final LightAdminPrivileges adminPrivileges;
     private final Deletion deletionInstance;
@@ -129,6 +131,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             Deletion deletionInstance, Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy,
             SetMultimap<String, String> unnullable, ApplicationContext applicationContext) {
         this.aclVoter = aclVoter;
+        this.securityRoles = securityRoles;
         this.graphPathBean = graphPathBean;
         this.adminPrivileges = adminPrivileges;
         this.deletionInstance = deletionInstance;
@@ -186,14 +189,15 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             }
         }
 
-        graphPolicy.registerPredicate(new PermissionsPredicate());
-
         final Set<GraphPolicy.Ability> requiredAbilities;
         if (isChownPrivilege) {
             requiredAbilities = Collections.<GraphPolicy.Ability>emptySet();
         } else {
             requiredAbilities = REQUIRED_ABILITIES;
         }
+
+        graphPolicy.registerPredicate(new GroupPredicate(securityRoles));
+        graphPolicy.registerPredicate(new PermissionsPredicate());
 
         graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
                 aclVoter, graphPathBean, unnullable, new InternalProcessor(requiredAbilities), dryRun);
@@ -299,9 +303,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             switch (step) {
             case 0:
                 if (CollectionUtils.isNotEmpty(targetUsers)) {
-                    // targetAllUsersObjects();
-                    final Exception e = new IllegalArgumentException("targetUsers is temporarily disabled");
-                    throw helper.cancel(new ERR(), e, "feature-disabled");
+                    targetAllUsersObjects();
                 }
                 return null;
             case 1:

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -112,6 +112,15 @@ public class Plane2D
     }
 
     /**
+     * Returns the pixels values
+     * 
+     * @return See above.
+     */
+    public double[][] getPixelValues() {
+        return copyArray(mappedData);
+    }
+
+    /**
      * Returns the raw data value at the given offset
      *
      * @param offset The offset
@@ -120,5 +129,21 @@ public class Plane2D
     public byte getRawValue(int offset)
     {
         return data.get(offset);
+    }
+    
+    /**
+     * Simply copies a 2-dimensional double array
+     * 
+     * @param src
+     *            The array to copy
+     * @return A copy of the array
+     */
+    private double[][] copyArray(double[][] src) {
+        int length = src.length;
+        double[][] target = new double[length][src[0].length];
+        for (int i = 0; i < length; i++) {
+            System.arraycopy(src[i], 0, target[i], 0, src[i].length);
+        }
+        return target;
     }
 }

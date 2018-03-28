@@ -915,6 +915,13 @@ public interface ImViewer
      */
     public List getActiveChannelsInGrid();
 
+    /**
+     * Returns the list of channels turned on in the <code>ProjectionView</code>.
+     * 
+     * @return See above.
+     */
+    public List getActiveChannelsInProjection();
+
     /** Brings up the preferences widget. */
 	public void showPreferences();
 

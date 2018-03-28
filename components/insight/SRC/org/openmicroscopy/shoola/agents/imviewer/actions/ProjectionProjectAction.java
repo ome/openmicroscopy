@@ -63,7 +63,8 @@ public class ProjectionProjectAction
     	if (model.getState() == ImViewer.READY && !model.isBigImage()) {
     		if (model.getSelectedIndex() != ImViewer.PROJECTION_INDEX)
     			setEnabled(false);
-    		else setEnabled(model.canEdit());
+    		else setEnabled(model.canEdit() &&
+    		        model.getActiveChannelsInProjection().size() > 0);
     	} else setEnabled(false);
     }
 

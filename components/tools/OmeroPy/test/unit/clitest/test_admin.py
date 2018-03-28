@@ -87,7 +87,7 @@ class TestAdmin(object):
     #
 
     def XtestStartAsync(self):
-        # DISABLED: https://trac.openmicroscopy.org.uk/ome/ticket/10584
+        # DISABLED: https://trac.openmicroscopy.org/ome/ticket/10584
         self.cli.addCall(0)
         self.cli.checksIceVersion()
         self.cli.checksStatus(1)  # I.e. not running

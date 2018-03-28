@@ -352,7 +352,7 @@ public class JTreeLibrary
 
     /**
      * Test if the tree node popup menu item is enabled.
-     * (For motivation, see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/11326">trac #11326</a>.)
+     * (For motivation, see <a href="https://trac.openmicroscopy.org/ome/ticket/11326">trac #11326</a>.)
      * This initial version detects only first-level menu items, not paths to submenus.
      * @param menuItemPath the path of the menu item
      * @param treePath the path to the node whose popup is to be queried

@@ -566,7 +566,7 @@ public class FileChooser
      * Adds the passed button to add to the control.
      * 
      * @param button The button to add.
-     * @param location he location of the button.
+     * @param location The location of the button.
      */
     public void addControlButton(JButton button, int location)
     {

@@ -106,11 +106,7 @@ class TestPrefs(object):
             "omero.Z.mypassword": "",
             "omero.Z.pass": "",
             "omero.Z.password": ""}
-
-        for k, v in config.iteritems():
-            self.cli.invoke(self.args + ["set", k, v], strict=True)
-        self.invoke("get")
-        self.assertStdoutStderr(capsys, out=(
+        output_hidden_password = (
             'omero.X.mypassword=********\n'
             'omero.X.pass=********\n'
             'omero.X.password=********\n'
@@ -120,9 +116,8 @@ class TestPrefs(object):
             'omero.Y.Password=********\n'
             'omero.Z.mypassword=\n'
             'omero.Z.pass=\n'
-            'omero.Z.password='))
-        self.invoke("get --show-password")
-        self.assertStdoutStderr(capsys, out=(
+            'omero.Z.password=')
+        output_with_password = (
             'omero.X.mypassword=long_password\n'
             'omero.X.pass=shortpass\n'
             'omero.X.password=medium_password\n'
@@ -132,7 +127,18 @@ class TestPrefs(object):
             'omero.Y.Password=medium_password\n'
             'omero.Z.mypassword=\n'
             'omero.Z.pass=\n'
-            'omero.Z.password='))
+            'omero.Z.password=')
+
+        for k, v in config.iteritems():
+            self.cli.invoke(self.args + ["set", k, v], strict=True)
+        self.invoke("get")
+        self.assertStdoutStderr(capsys, out=output_hidden_password)
+        self.invoke("get --show-password")
+        self.assertStdoutStderr(capsys, out=output_with_password)
+        self.invoke("list")
+        self.assertStdoutStderr(capsys, out=output_hidden_password)
+        self.invoke("list --show-password")
+        self.assertStdoutStderr(capsys, out=output_with_password)
 
     @pytest.mark.parametrize('argument', ['A=B', 'A= B'])
     def testSetFails(self, capsys, argument):

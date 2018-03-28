@@ -8,16 +8,15 @@ package ome.services;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +40,6 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
 import ome.logic.AbstractLevel2Service;
-import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
@@ -50,13 +48,13 @@ import ome.model.enums.RenderingModel;
 import ome.parameters.Parameters;
 import ome.services.ThumbnailCtx.NoThumbnail;
 import ome.services.messages.ContextMessage;
-import ome.services.scripts.ScriptRepoHelper;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.SimpleEventContext;
 import ome.util.ImageUtil;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.lut.LutProvider;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 
@@ -159,9 +157,6 @@ public class ThumbnailBean extends AbstractLevel2Service
     /** The in-progress image resource we'll use for in progress images. */
     private Resource inProgressImageResource;
 
-    /** The list of all luts used by the {@link Renderer}. */
-    private transient List<File> luts;
-
     /** The default X-width for a thumbnail. */
     public static final int DEFAULT_X_WIDTH = 48;
 
@@ -185,7 +180,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /** Notification that the bean has just returned from passivation. */
     private transient boolean wasPassivated = false;
 
-    private final ScriptRepoHelper helper;
+    private LutProvider lutProvider;
 
     private OmeroContext applicationContext = null;
 
@@ -193,9 +188,8 @@ public class ThumbnailBean extends AbstractLevel2Service
      * overridden to allow Spring to set boolean
      * @param checking
      */
-    public ThumbnailBean(boolean checking, ScriptRepoHelper helper) {
+    public ThumbnailBean(boolean checking) {
         this.diskSpaceChecking = checking;
-        this.helper = helper;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -327,35 +321,6 @@ public class ThumbnailBean extends AbstractLevel2Service
     }
 
     /**
-     * Returns the luts supported.
-     * @return See above.
-     */
-    private List<File> getLuts()
-    {
-        if (luts == null) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("from OriginalFile as f ");
-            sb.append("where f.mimetype =:type");
-            Parameters p = new Parameters();
-            p.addString("type", "text/x-lut");
-            List<OriginalFile> files = iQuery.findAllByQuery(sb.toString(), p);
-            Iterator<OriginalFile> i = files.iterator();
-            File dir = new File(ScriptRepoHelper.getDefaultScriptDir());
-            luts = new ArrayList<File>(files.size());
-            while (i.hasNext()) {
-                OriginalFile f = i.next();
-                String path = (new File(f.getPath(), f.getName())).getPath();
-                File ff = new File(dir, path);
-                if (ff.exists()) {
-                    luts.add(ff);
-                }
-            }
-            iQuery.clear();
-        }
-        return luts;
-    }
-
-    /**
      * Retrieves a list of the rendering models supported by the
      * {@link Renderer} either from instance variable cache or the database.
      * @return See above.
@@ -388,7 +353,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         // Loading last to try to ensure that the buffer will get closed.
         PixelBuffer buffer = pixelDataService.getPixelBuffer(pixels, false);
         renderer = new Renderer(quantumFactory, renderingModels, pixels,
-                settings, buffer, getLuts());
+                settings, buffer, lutProvider);
         dirty = false;
     }
 
@@ -405,6 +370,16 @@ public class ThumbnailBean extends AbstractLevel2Service
         // retrieval of thumbnail metadata is done based on the owner of the
         // settings not the owner of the session. (#2274 Part I)
         ctx.setUserId(settings.getDetails().getOwner().getId());
+    }
+
+    /**
+     * Lookup table provider Bean injector.
+     * @param lutProvider The lookup table provider we'll be providing to
+     * the renderer.
+     */
+    public void setLutProvider(LutProvider lutProvider) {
+        getBeanHelper().throwIfAlreadySet(this.lutProvider, lutProvider);
+        this.lutProvider = lutProvider;
     }
 
     /**
@@ -1040,7 +1015,7 @@ public class ThumbnailBean extends AbstractLevel2Service
                             // that we want to use, but retrieveThumbnail likes to
                             // re-generate. For the moment, we're saving and restoring
                             // that value to prevent creating a new one.
-                            final byte[] thumbnail = retrieveThumbnail(false);
+                            final byte[] thumbnail = retrieveThumbnailAndUpdateMetadata(false);
                             toReturn.put(pixelsId, thumbnail);
                             if (dirtyMetadata) {
                                 toSave.add(thumbnailMetadata);
@@ -1154,6 +1129,27 @@ public class ThumbnailBean extends AbstractLevel2Service
                 _createThumbnail();
             }
             byte[] thumbnail = ioService.getThumbnail(thumbnailMetadata);
+            //Thumbnails are always saved to disk and then retrieved when the
+            //call stack includes retrieveThumbnail(). This includes the "clock".
+            //inProgress is not set early enough for retrieveThumbnailDirect()
+            //to be called.
+            //
+            //The current implementation assumes that if an image has valid
+            //rendering settings for the current user then it will have a valid
+            //pyramid. When existing pyramids, thumbnail metadata, and cached
+            //thumbnails are deleted from disk using a method like
+            //removepyramids it invalidates this assumption.
+            //The "clock" will first be saved to disk. inProgress will then be
+            //checked and the "clock" deleted from disk after creation.
+            //The "clock" will have to be created, saved to disk, and then
+            //retrieved every time the thumbnail is requested until pyramid
+            //creation completes and the correct thumbnail can be created.
+            //Otherwise the "clock" would stay as the cached thumbnail until
+            //the valid rendering settings for the current user are modified.
+            if (inProgress) {
+                ioService.removeThumbnails(
+                        Arrays.asList(new Long[] { thumbnailMetadata.getId() }));
+            }
             return thumbnail;
         }
         catch (IOException e)

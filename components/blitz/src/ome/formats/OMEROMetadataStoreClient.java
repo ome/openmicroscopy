@@ -698,10 +698,17 @@ public class OMEROMetadataStoreClient
     {
         secure(server, port);
         serviceFactory = c.joinSession(sessionKey);
-    if (!isSecure)
-    {
-            unsecure();
-    }
+        if (!isSecure)
+        {
+            try
+            {
+                unsecure();
+            } catch (Ice.ConnectionRefusedException cre)
+            {
+                log.warn("Cannot fallback. Using secure connection", cre);
+            }
+        }
+
         initializeServices(true);
     }
 

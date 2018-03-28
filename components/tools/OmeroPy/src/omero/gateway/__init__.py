@@ -116,11 +116,13 @@ def fileread(fin, fsize, bufsize):
     # Read it all in one go
     p = 0
     rv = ''
-    while p < fsize:
-        s = min(bufsize, fsize-p)
-        rv += fin.read(p, s)
-        p += s
-    fin.close()
+    try:
+        while p < fsize:
+            s = min(bufsize, fsize-p)
+            rv += fin.read(p, s)
+            p += s
+    finally:
+        fin.close()
     return rv
 
 
@@ -138,11 +140,13 @@ def fileread_gen(fin, fsize, bufsize):
     :return: generator of string buffers of size up to bufsize read from fin
     """
     p = 0
-    while p < fsize:
-        s = min(bufsize, fsize-p)
-        yield fin.read(p, s)
-        p += s
-    fin.close()
+    try:
+        while p < fsize:
+            s = min(bufsize, fsize-p)
+            yield fin.read(p, s)
+            p += s
+    finally:
+        fin.close()
 
 
 def getAnnotationLinkTableName(objecttype):
@@ -3941,8 +3945,6 @@ class _BlitzGateway (object):
                 DeprecationWarning)
 
         updateService = self.getUpdateService()
-        rawFileStore = self.createRawFileStore()
-
         # create original file, set name, path, mimetype
         originalFile = omero.model.OriginalFileI()
         originalFile.setName(rstring(name))
@@ -3967,6 +3969,7 @@ class _BlitzGateway (object):
 
         # upload file
         fo.seek(0)
+        rawFileStore = self.createRawFileStore()
         try:
             rawFileStore.setFileId(
                 originalFile.getId().getValue(), self.SERVICE_OPTS)
@@ -5206,19 +5209,21 @@ class _OriginalFileWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
 
         store = self._conn.createRawFileStore()
-        store.setFileId(self._obj.id.val, self._conn.SERVICE_OPTS)
-        size = self._obj.size.val
-        if size <= buf:
-            yield store.read(0, long(size))
-        else:
-            for pos in range(0, long(size), buf):
-                data = None
-                if size-pos < buf:
-                    data = store.read(pos, size-pos)
-                else:
-                    data = store.read(pos, buf)
-                yield data
-        store.close()
+        try:
+            store.setFileId(self._obj.id.val, self._conn.SERVICE_OPTS)
+            size = self._obj.size.val
+            if size <= buf:
+                yield store.read(0, long(size))
+            else:
+                for pos in range(0, long(size), buf):
+                    data = None
+                    if size-pos < buf:
+                        data = store.read(pos, size-pos)
+                    else:
+                        data = store.read(pos, buf)
+                    yield data
+        finally:
+            store.close()
 
 
 OriginalFileWrapper = _OriginalFileWrapper
@@ -7185,14 +7190,14 @@ class _PixelsWrapper (BlitzObjectWrapper):
                       PixelsTypeuint32: ['I', numpy.uint32],
                       PixelsTypefloat: ['f', numpy.float32],
                       PixelsTypedouble: ['d', numpy.float64]}
-
-        rawPixelsStore = self._prepareRawPixelsStore()
+        rawPixelsStore = None
         sizeX = self.sizeX
         sizeY = self.sizeY
         pixelType = self.getPixelsType().value
         numpyType = pixelTypes[pixelType][1]
         exc = None
         try:
+            rawPixelsStore = self._prepareRawPixelsStore()
             for zctTile in zctTileList:
                 z, c, t, tile = zctTile
                 if tile is None:
@@ -7218,7 +7223,8 @@ class _PixelsWrapper (BlitzObjectWrapper):
                 exc_info=True)
             exc = e
         try:
-            rawPixelsStore.close()
+            if rawPixelsStore is not None:
+                rawPixelsStore.close()
         except Exception, e:
             logger.error("Failed to close rawPixelsStore", exc_info=True)
             if exc is None:
@@ -8308,13 +8314,13 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             args += [ctx]
             rv = thumb(*args)
             self._thumbInProgress = tb.isInProgress()
-            tb.close()      # close every time to prevent stale state
             return rv
         except Exception:  # pragma: no cover
             logger.error(traceback.format_exc())
+            return None
+        finally:
             if tb is not None:
                 tb.close()
-            return None
 
     @assert_pixels
     def getPixelRange(self):
@@ -8934,6 +8940,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     # 'reverseIntensity' is deprecated. Use 'inverted'
                     'inverted': reverse,
                     'reverseIntensity': reverse,
+                    'family': unwrap(w.getFamily().getValue()),
+                    'coefficient': unwrap(w.getCoefficient()),
                     'rgb': {'red': w.getRed().val,
                             'green': w.getGreen().val,
                             'blue': w.getBlue().val}
@@ -9037,9 +9045,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     return self.renderJpeg(z, t, None)
             rv = self._re.renderCompressed(self._pd, self._conn.SERVICE_OPTS)
             return rv
-        except omero.InternalException:  # pragma: no cover
-            logger.debug('On renderJpegRegion')
-            logger.debug(traceback.format_exc())
+        except (omero.ApiUsageException, omero.InternalException):
+            logger.debug('On renderJpegRegion', exc_info=True)
             return None
         except Ice.MemoryLimitException:  # pragma: no cover
             # Make sure renderCompressed isn't called again on this re,
@@ -9128,6 +9135,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :rtype:         String or (size, data generator)
         """
 
+        # the exporter is closed in the fileread* methods
         e = self._conn.createExporter()
         e.addImage(self.getId())
         size = e.generateTiff(self._conn.SERVICE_OPTS)

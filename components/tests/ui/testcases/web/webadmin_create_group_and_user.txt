@@ -10,8 +10,6 @@ Resource            ../../resources/web/tree.txt
 Resource            ../../resources/config.txt
 
 Suite Setup         Open Browser To Webadmin And Log In As Root
-Suite Teardown      Logout and Teardown
-
 
 *** Test Cases ***
 
@@ -124,7 +122,7 @@ Create Edit User
     Click Element           xpath=//table[@id="experimenterTable"]/tbody/tr[descendant::td[contains(text(), '${user_name}')]]//a[contains(@class, "btn_edit")]
 
     Wait Until Page Contains Element    id=id_first_name    ${WAIT}
-    ${createdName}=                     Get Element Attribute   xpath=//input[@id='id_first_name']@value
+    ${createdName}=                     Get Element Attribute   xpath=//input[@id='id_first_name']    attribute=value
     Should Be Equal                     "${user_name}"    "${createdName}"
 
     # Edit Password
@@ -154,3 +152,5 @@ Check Admin Edit Self
 
     Element Should Not Be Visible     xpath=//div[@id="id_other_groups_chosen"]//li[descendant::span[contains(text(), "system")]]/a
     Element Should Be Visible         xpath=//div[@id="id_other_groups_chosen"]//li[descendant::span[contains(text(), "test_group")]]/a
+
+[Teardown]    Close Browser

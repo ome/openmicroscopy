@@ -105,7 +105,7 @@ class Popen(subprocess.Popen):
         def _execute_child(self, *args_tuple):
             # The arguments to this internal Python function changed on
             # Windows in 2.7.6
-            # - https://trac.openmicroscopy.org.uk/ome/ticket/12320
+            # - https://trac.openmicroscopy.org/ome/ticket/12320
             # Upstream bug and fix:
             # - https://bugzilla.mozilla.org/show_bug.cgi?id=958609
             # - https://github.com/mozilla/addon-sdk/pull/1379

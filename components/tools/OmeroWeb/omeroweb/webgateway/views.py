@@ -904,18 +904,51 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             levels = img._re.getResolutionLevels()-1
 
             zxyt = tile.split(",")
+            # if tile size is given respect it
+            if len(zxyt) > 4:
+                tile_size = [int(zxyt[3]), int(zxyt[4])]
+                tile_defaults = [w, h]
+                max_tile_length = 1024
+                try:
+                    max_tile_length = int(
+                        conn.getConfigService().getConfigValue(
+                            "omero.pixeldata.max_tile_length"))
+                except:
+                    pass
+                for i, tile_length in enumerate(tile_size):
+                    # use default tile size if <= 0
+                    if tile_length <= 0:
+                        tile_size[i] = tile_defaults[i]
+                    # allow no bigger than max_tile_length
+                    if tile_length > max_tile_length:
+                        tile_size[i] = max_tile_length
+                w, h = tile_size
+            v = int(zxyt[0])
+            if v < 0:
+                msg = "Invalid resolution level %s < 0" % v
+                logger.debug(msg, exc_info=True)
+                return HttpResponseBadRequest(msg)
 
-            # w = int(zxyt[3])
-            # h = int(zxyt[4])
-            level = levels-int(zxyt[0])
-
+            if levels == 0:  # non pyramid file
+                if v > 0:
+                    msg = "Invalid resolution level %s, non pyramid file" % v
+                    logger.debug(msg, exc_info=True)
+                    return HttpResponseBadRequest(msg)
+                else:
+                    level = None
+            else:
+                level = levels-v
+                if level < 0:
+                    msg = "Invalid resolution level, \
+                    %s > number of available levels %s " % (v, levels)
+                    logger.debug(msg, exc_info=True)
+                    return HttpResponseBadRequest(msg)
             x = int(zxyt[1])*w
             y = int(zxyt[2])*h
         except:
-            logger.debug(
-                "render_image_region: tile=%s" % tile, exc_info=True
-            )
-            return HttpResponseBadRequest('malformed tile argument')
+            msg = "malformed tile argument, tile=%s" % tile
+            logger.debug(msg, exc_info=True)
+            return HttpResponseBadRequest(msg)
     elif region:
         try:
             xywh = region.split(",")
@@ -925,10 +958,9 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             w = int(xywh[2])
             h = int(xywh[3])
         except:
-            logger.debug(
-                "render_image_region: region=%s" % region, exc_info=True
-            )
-            return HttpResponseBadRequest('malformed region argument')
+            msg = "malformed region argument, region=%s" % region
+            logger.debug(msg, exc_info=True)
+            return HttpResponseBadRequest(msg)
     else:
         return HttpResponseBadRequest('tile or region argument required')
 
@@ -1216,7 +1248,7 @@ def render_movie(request, iid, axis, pos, conn=None, **kwargs):
                                              img.getSizeT()-1, opts)
         if dext is None and mimetype is None:
             # createMovie is currently only available on 4.1_custom
-            # https://trac.openmicroscopy.org.uk/ome/ticket/3857
+            # https://trac.openmicroscopy.org/ome/ticket/3857
             raise Http404
         if fpath is None:
             movie = open(fn).read()
@@ -2189,7 +2221,11 @@ def get_image_rdef_json(request, conn=None, **kwargs):
                 color = ch.get('lut') or ch['color']
                 chs.append("%s|%s:%s$%s" % (act, ch['window']['start'],
                                             ch['window']['end'], color))
-                maps.append({'inverted': {'enabled': ch['inverted']}})
+                maps.append({
+                    'inverted': {'enabled': ch['inverted']},
+                    'quantization': {
+                        'coefficient': ch['coefficient'],
+                        'family': ch['family']}})
             rdef = {'c': (",".join(chs)),
                     'm': rv['rdefs']['model'],
                     'pixel_range': "%s:%s" % (rv['pixel_range'][0],

@@ -49,7 +49,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
- * @see <a href="https://trac.openmicroscopy.org.uk/ome/ticket/894">ticket:894</a>
+ * @see <a href="https://trac.openmicroscopy.org/ome/ticket/894">ticket:894</a>
  */
 public class ApiConsistencyCheck implements BeanPostProcessor {
 
