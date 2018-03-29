@@ -360,6 +360,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         return checkPath(path, null, __current).mustExist().getMimetype();
     }
 
+    @Deprecated
     public RawPixelsStorePrx pixels(String path, Current __current) throws ServerError {
         final CheckedPath checked = checkPath(path, null, __current);
 
