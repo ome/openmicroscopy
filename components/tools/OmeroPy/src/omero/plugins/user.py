@@ -42,7 +42,7 @@ class UserControl(UserGroupControl):
         add.add_argument("username", help="User's login name")
         add.add_argument("firstname", help="User's given name")
         add.add_argument("lastname", help="User's surname name")
-        self.add_group_arguments(add, " to join")
+        self.add_group_arguments(add, " to join", mandatory=True)
 
         password_group = add.add_mutually_exclusive_group()
         password_group.add_argument(
