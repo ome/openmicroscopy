@@ -34,7 +34,7 @@ import org.springframework.transaction.interceptor.TransactionAttributeSource;
 /**
  * method interceptor responsible for login and creation of Events. Calls are
  * made to the {@link BasicSecuritySystem} provided in the
- * {@link EventHandler#EventHandler(SqlAction, BasicSecuritySystem, SessionFactory, TransactionAttributeSource, boolean)
+ * {@link EventHandler#EventHandler(SqlAction, BasicSecuritySystem, SessionFactory, TransactionAttributeSource, ReadOnlyStatus)
  * constructor}.
  * 
  * After the method is {@link MethodInterceptor#invoke(MethodInvocation)

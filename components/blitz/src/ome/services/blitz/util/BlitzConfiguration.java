@@ -80,7 +80,7 @@ public class BlitzConfiguration {
 
     /**
      * Like
-     * {@link #BlitzConfiguration(Ring, ome.services.sessions.SessionManager, SecuritySystem, Executor, int)}
+     * {@link #BlitzConfiguration(Ring, ome.services.sessions.SessionManager, SessionProvider, SecuritySystem, Executor, int)}
      * but allows properties to be specified via an
      * {@link Ice.InitializationData} instance.
      * 
