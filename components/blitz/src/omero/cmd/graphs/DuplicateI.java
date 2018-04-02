@@ -61,6 +61,7 @@ import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
 import ome.services.graphs.PermissionsPredicate;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Roles;
 import omero.cmd.Duplicate;
 import omero.cmd.DuplicateResponse;
@@ -75,7 +76,7 @@ import omero.cmd.Response;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.2.1
  */
-public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<Duplicate> {
+public class DuplicateI extends Duplicate implements IRequest, ReadOnlyStatus.IsAware, WrappableRequest<Duplicate> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DuplicateI.class);
 
@@ -787,6 +788,11 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
     @Override
     public Map<String, List<Long>> getStartFrom(Response response) {
         return ((DuplicateResponse) response).duplicates;
+    }
+
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return dryRun;
     }
 
     /**
