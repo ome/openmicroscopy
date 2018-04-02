@@ -370,8 +370,7 @@ public class DoAllI extends DoAll implements IRequest, ReadOnlyStatus.IsAware {
 
     @Override
     public boolean isReadOnly(ReadOnlyStatus readOnly) {
-        for (final X substep : substeps) {
-            final IRequest request = substep.r;
+        for (final Request request : requests) {
             if (!(request instanceof ReadOnlyStatus.IsAware && ((ReadOnlyStatus.IsAware) request).isReadOnly(readOnly))) {
                 return false;
             }
