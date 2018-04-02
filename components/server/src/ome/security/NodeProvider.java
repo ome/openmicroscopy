@@ -29,9 +29,9 @@ import ome.util.SqlAction;
 /**
  * Provider for {@link Node} objects which is responsible for persisting and
  * populating such entities.
+ * Used by Blitz's {@code ome.services.blitz.fire.Ring}.
  * 
  * @author Chris Allan <callan@glencoesoftware.com>
- * @see ome.services.blitz.fire.Ring
  * @since 5.3.0
  */
 public interface NodeProvider {
