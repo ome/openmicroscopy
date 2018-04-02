@@ -608,8 +608,7 @@ class MetadataControl(BaseControl):
 
         params = omero.sys.ParametersI()
         params.addId(md.get_id())
-        pixels = client.getSession().getQueryService()\
-                                    .findAllByQuery(q, params, ctx)
+        pixels = conn.getQueryService().findAllByQuery(q, params, ctx)
 
         if not pixels:
             self.ctx.die(100, "Failed to get Pixel object(s)")
@@ -622,7 +621,9 @@ class MetadataControl(BaseControl):
             if args.z:
                 pixel.setPhysicalSizeZ(omero.model.LengthI(args.z, unit))
 
-        client.getSession().getUpdateService(ctx).saveCollection(pixels)
+        groupId = pixels[0].getDetails().getGroup().getId().getValue()
+        ctx = {'omero.group': str(groupId)}
+        conn.getUpdateService().saveArray(pixels, ctx)
 
 
 try:
