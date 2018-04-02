@@ -589,8 +589,15 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
                 <link href="http://docs.oracle.com/javase/8/docs/api/"/>
                 <link href="http://docs.spring.io/spring/docs/${versions.spring}/api/"/>
                 <link href="http://aopalliance.sourceforge.net/doc/"/>
-                <link href="http://downloads.openmicroscopy.org/bio-formats/${versions.bioformats}/api/"/>
-
+                <if>
+                    <contains string="${versions.bioformats}" substring="SNAPSHOT"/>
+                    <then> 
+                        <link href="http://artifacts.openmicroscopy.org/artifactory/simple/ome.snapshots/ome/formats-gpl/${versions.bioformats}/"/>
+                    </then>
+                    <else>
+                        <link href="http://downloads.openmicroscopy.org/bio-formats/${versions.bioformats}/api/"/>
+                    </else>
+                </if>
             </javadoc>
         </presetdef>
 
