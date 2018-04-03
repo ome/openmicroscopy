@@ -2882,7 +2882,7 @@ def get_original_file(request, fileId, download=False, conn=None, **kwargs):
         orig_file.getFileInChunks(buf=settings.CHUNK_SIZE))
     rsp.conn = conn
     mimetype = orig_file.mimetype
-    if mimetype == "text/x-python":
+    if mimetype in ("text/x-python", "application/omero-log-file"):
         mimetype = "text/plain"  # allows display in browser
     rsp['Content-Type'] = mimetype
     rsp['Content-Length'] = orig_file.getSize()
