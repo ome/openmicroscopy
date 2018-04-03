@@ -88,7 +88,7 @@ urlpatterns = patterns(
     # load history
     url(r'^load_calendar/(?:(\d{4})/(\d{1,2})/)?$', views.load_calendar,
         name="load_calendar"),
-    url(r'^load_history/(\d{4})/(\d{1,2})/(\d{1,2})/$',
+    url(r'^load_history/(?:(\d{4})/(\d{1,2})/(\d{1,2})/)?$',
         views.load_history, name="load_history"),
 
     # load search
