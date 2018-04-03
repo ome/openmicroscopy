@@ -75,7 +75,7 @@ class DatabaseControl(BaseControl):
         pw_spec.add_argument("password", nargs="?")
         pw_spec.add_argument("--empty", action="store_true",
                              help=("Remove the password, "
-                                   "allowing any for login."))
+                                   "allowing any for login when guest."))
         pw.add_argument("--user-id",
                         help="User ID to salt into the password. "
                         "Defaults to '0', i.e. 'root'",
