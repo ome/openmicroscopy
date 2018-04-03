@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2018 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,7 @@ import java.util.Map;
 import ome.parameters.Parameters;
 import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.SessionProvider;
 import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
 import ome.system.SimpleEventContext;
@@ -58,12 +59,12 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
     public static class Factory extends ObjectFactoryRegistry {
         private final ObjectFactory factory;
         public Factory(final CurrentDetails current,
-                final SessionManager sessionManager) {
+                final SessionManager sessionManager, final SessionProvider sessionProvider) {
             factory = new ObjectFactory(ice_staticId()) {
                 @Override
                 public Ice.Object create(String name) {
                     return new CurrentSessionsRequestI(
-                            current, sessionManager);
+                            current, sessionManager, sessionProvider);
                 }};
             }
 
@@ -80,12 +81,15 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
 
     protected final SessionManager manager;
 
+    protected final SessionProvider provider;
+
     protected Map<String, Map<String, Object>> contexts;
 
     public CurrentSessionsRequestI(CurrentDetails current,
-            SessionManager manager) {
+            SessionManager manager, SessionProvider provider) {
         this.current = current;
         this.manager = manager;
+        this.provider = provider;
     }
 
     private boolean isCurrentUserGuest = false;

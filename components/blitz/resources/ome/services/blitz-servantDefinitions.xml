@@ -404,6 +404,7 @@
   <bean class="omero.cmd.admin.CurrentSessionsRequestI$Factory" lazy-init="false">
       <constructor-arg ref="currentDetails"/>
       <constructor-arg ref="sessionManager"/>
+      <constructor-arg ref="sessionProvider"/>
      <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 
