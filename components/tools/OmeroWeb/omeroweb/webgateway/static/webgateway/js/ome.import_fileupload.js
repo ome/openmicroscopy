@@ -29,7 +29,8 @@ $(function () {
             var pathNames = data.files.map(f => f.relativePath + f.name);
             console.log(pathNames);
 
-            var formData = new FormData();
+            // Add pathNames to FormData based on import_form
+            var formData = new FormData(document.getElementById("import_form"));
             for (var i=0; i<pathNames.length; i++){
                 console.log(pathNames[i]);
                 formData.append('pathNames', pathNames[i]);

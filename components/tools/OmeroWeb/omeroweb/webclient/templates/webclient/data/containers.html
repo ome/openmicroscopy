@@ -927,7 +927,7 @@
 
 <!-- hidden form for import - Started via drag-n-drop. -->
 <!-- See ome.import_fileupload.js -->
-<form enctype="multipart/form-data" action="{% url 'submit_import' %}" method="post" style="display:none">
+<form id="import_form" enctype="multipart/form-data" action="{% url 'submit_import' %}" method="post" style="display:none">
     {% csrf_token %}
     <input id="fileupload" type="file" name="files[]" data-url="{% url 'submit_import' %}" multiple>
     <!-- This is updated to the current Dataset -->
