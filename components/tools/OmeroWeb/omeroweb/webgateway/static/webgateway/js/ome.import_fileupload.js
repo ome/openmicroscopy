@@ -21,9 +21,6 @@ $(function () {
     $('#fileupload').fileupload({
         singleFileUploads: false,
         add: function (e, data) {
-            var html = "<li id='import_spinner' class='row'><div class='image'><img width='65px' height='65px' src='"+ WEBCLIENT.URLS.static_webgateway + "img/spinner.gif'></div></li>";
-            $("#dataIcons").append(html);
-
             console.log("add", data);
 
             var pathNames = data.files.map(f => f.relativePath + f.name);
@@ -54,37 +51,8 @@ $(function () {
         done: function (e, data) {
             console.log('done', e, data);
             // Upload is done...
-            $('#import_status').text("Importing...");
-
-            // Start pinging for import progress
-            function importProgress() {
-                console.log('importProgress...')
-                $.getJSON(WEBCLIENT.URLS.webindex + 'import_progress/',
-                    function(data){
-                        console.log('data', data);
-                        if (data.status == "in progress") {
-                            setTimeout(importProgress, 500);
-                        } else {
-                            $("#import_spinner").remove();
-                            $("#import_info").hide();
-
-                            if (data.images) {
-                                var html = data.images.map(
-                                    function(i){
-                                        return ("<li class='row' data-id='" + i.id + "' data-type='image'>" +
-                                            "<div class='image'>" +
-                                            "<a href='" + WEBCLIENT.URLS.webindex + "img_detail/" + i.id + "/'>" +
-                                            "<img width='65px' height='65px' src='"+ WEBCLIENT.URLS.webindex + "render_thumbnail/" + i.id + "/'>" +
-                                            "</a></div></li>");
-
-                                    }).join("");
-                                $("#dataIcons").append(html);
-                            }
-                        }
-                    }
-                );
-            }
-            importProgress();
+            $("#import_info").hide();
+            OME.showActivities();
         }
     });
 });
