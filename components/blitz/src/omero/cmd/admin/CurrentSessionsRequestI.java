@@ -25,12 +25,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ome.parameters.Parameters;
 import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.SessionProvider;
 import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
+import ome.system.ServiceFactory;
 import ome.system.SimpleEventContext;
 import omero.RType;
 import omero.cmd.CurrentSessionsRequest;
@@ -116,10 +116,18 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
         if (contexts.isEmpty()) {
             return Collections.emptyList();
         }
-        return helper.getServiceFactory().getQueryService().
-                findAllByQuery("select s from Session s where s.uuid in (:uuid)",
-                        new Parameters().addList("uuid", new ArrayList<String>(
-                                contexts.keySet())));
+        final ServiceFactory sf = helper.getServiceFactory();
+        final List<ome.model.meta.Session> sessions = new ArrayList<>(contexts.size());
+        for (final String uuid : contexts.keySet()) {
+            final Long sessionId = provider.findSessionIdByUuid(uuid, sf);
+            if (sessionId != null) {
+                final ome.model.meta.Session session = provider.findSessionById(sessionId, sf);
+                if (session != null) {
+                    sessions.add(session);
+                }
+            }
+        }
+        return sessions;
     }
 
     @Override
