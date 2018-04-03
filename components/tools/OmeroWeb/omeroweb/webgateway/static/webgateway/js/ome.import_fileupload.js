@@ -23,6 +23,19 @@ $(function () {
         add: function (e, data) {
             var html = "<li id='import_spinner' class='row'><div class='image'><img width='65px' height='65px' src='"+ WEBCLIENT.URLS.static_webgateway + "img/spinner.gif'></div></li>";
             $("#dataIcons").append(html);
+
+            console.log("add", data);
+
+            var pathNames = data.files.map(f => f.relativePath + f.name);
+            console.log(pathNames);
+
+            var formData = new FormData();
+            for (var i=0; i<pathNames.length; i++){
+                console.log(pathNames[i]);
+                formData.append('pathNames', pathNames[i]);
+            }
+            data.formData = formData;
+
             data.submit();
 
             $("#import_info").show();

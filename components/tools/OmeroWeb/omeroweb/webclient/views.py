@@ -4418,9 +4418,23 @@ def submit_import(request, conn=None, **kwargs):
         for f in request.FILES.getlist('files[]'):
             yield chunks_gen(f)
 
+    # def file_names():
+    #     for f in request.FILES.getlist('files[]'):
+    #         print "importing...", f.name, f.temporary_file_path(), type(f)
+    #         yield f.name
+
+    pathNames = request.POST.getlist('pathNames')
+    print 'pathNames', pathNames
+    print len(pathNames)
+
+
+    for f in request.POST.getlist('pathNames'):
+        print "TEST", f
+
     def file_names():
-        for f in request.FILES.getlist('files[]'):
-            yield f.name
+        for f in request.POST.getlist('pathNames'):
+            print "FILE", f
+            yield f
 
     client_path_gen = file_names()
     folder_gen = file_gen()
@@ -4447,7 +4461,7 @@ def submit_import(request, conn=None, **kwargs):
 def import_progress(request, conn=None, **kwargs):
 
     request.session.modified = True
-    for cbString, data in request.session.get('import').items():
+    for cbString, data in request.session.get('import', {}).items():
         dataset_id = data['dataset']
         print cbString, data, data['status'] != 'in progress'
         if data['status'] != 'in progress':
@@ -4461,9 +4475,10 @@ def import_progress(request, conn=None, **kwargs):
             rsp = cb.getResponse()
             close_handle = False
             try:
-                if not rsp:  # Response not available
+                if rsp is None:  # Response not available
                     print "Still Importing..."
                 else:  # Response available
+                    print 'rsp', rsp
                     close_handle = True
                     err = isinstance(rsp, omero.cmd.ERR)
                     if err:
@@ -4492,6 +4507,7 @@ def import_progress(request, conn=None, **kwargs):
             print 'ObjectNotExistException'
             request.session['import'][cbString]['status'] = 'error'
         except Exception, x:
+            print 'Exception', traceback.format_exc()
             logger.error(traceback.format_exc())
             logger.error("Import job '%s'error:" % cbString)
             request.session['import'][cbString]['status'] = 'error'
