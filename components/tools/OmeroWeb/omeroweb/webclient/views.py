@@ -4473,12 +4473,13 @@ def import_progress(request, conn=None, **kwargs):
             cb = omero.callbacks.CmdCallbackI(
                 conn.c, handle, foreground_poll=True)
             rsp = cb.getResponse()
+            req = handle.getRequest()
+            print "LogFile", req.logFile.id.val
             close_handle = False
             try:
                 if rsp is None:  # Response not available
                     print "Still Importing..."
                 else:  # Response available
-                    print 'rsp', rsp
                     close_handle = True
                     err = isinstance(rsp, omero.cmd.ERR)
                     if err:
