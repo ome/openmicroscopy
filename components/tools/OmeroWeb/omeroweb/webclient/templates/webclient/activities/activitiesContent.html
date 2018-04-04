@@ -395,6 +395,12 @@
                             <span class="activity_title">
                                 Import
                             </span>
+
+                            <span class="message">
+                                {% ifequal j.status "in progress" %}
+                                    Importing {{ j.file_count }} files...
+                                {% endifequal %}
+                            </span>
                         </td>
                     </tr>
                 {% endifequal %}

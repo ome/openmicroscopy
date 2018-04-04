@@ -3387,13 +3387,11 @@ def activities(request, conn=None, **kwargs):
                 cb = omero.callbacks.CmdCallbackI(
                     conn.c, handle, foreground_poll=True)
                 rsp = cb.getResponse()
-                req = handle.getRequest()
-                print "LogFile", req.logFile.id.val
                 close_handle = False
                 try:
                     if rsp is None:  # Response not available
                         in_progress += 1
-                        print "Still Importing..."
+                        logger.debug("Still Importing...")
                     else:  # Response available
                         close_handle = True
                         err = isinstance(rsp, omero.cmd.ERR)
@@ -3406,13 +3404,18 @@ def activities(request, conn=None, **kwargs):
                             failure += 1
                         else:
                             # Put the images into a Dataset
+                            logger.debug("Imported %s images" % len(rsp.pixels))
                             dataset_id = callbackDict.get('dataset')
                             if dataset_id is not None and len(dataset_id) > 0:
                                 links = []
                                 for p in rsp.pixels:
+                                    logger.debug("Add Image %s to Dataset %s"
+                                        % (p.image.id.val, dataset_id))
                                     link = omero.model.DatasetImageLinkI()
-                                    link.parent = omero.model.DatasetI(dataset_id, False)
-                                    link.child = omero.model.ImageI(p.image.id.val, False)
+                                    link.parent = omero.model.DatasetI(
+                                            dataset_id, False)
+                                    link.child = omero.model.ImageI(
+                                            p.image.id.val, False)
                                     links.append(link)
                                 conn.getUpdateService().saveArray(links)
 
@@ -3428,7 +3431,6 @@ def activities(request, conn=None, **kwargs):
                 finally:
                     cb.close(close_handle)
             except Exception, x:
-                print 'Exception', traceback.format_exc()
                 logger.error(traceback.format_exc())
                 logger.error("Import job '%s'error:" % cbString)
                 failure += 1
@@ -4453,20 +4455,6 @@ def ome_tiff_info(request, imageId, conn=None, **kwargs):
     return rv       # will get returned as json by default
 
 
-
-
-@login_required()
-@render_response()
-def import_index(request, conn=None, **kwargs):
-
-    # form_file = FilesAnnotationForm(initial={'files': []})
-    dataset = request.GET.get('dataset')
-
-    context = {'template': 'webclient/import/index.html',
-               'dataset': dataset}
-    return context
-
-
 from omero.util.import_library import ImportLibrary
 @login_required()
 @render_response()
@@ -4486,12 +4474,7 @@ def submit_import(request, conn=None, **kwargs):
     #         yield f.name
 
     pathNames = request.POST.getlist('pathNames')
-    print 'pathNames', pathNames
-    print len(pathNames)
-
-
-    for f in request.POST.getlist('pathNames'):
-        print "TEST", f
+    logger.debug("Importing files: %s" % pathNames)
 
     def file_names():
         for f in request.POST.getlist('pathNames'):
@@ -4517,6 +4500,7 @@ def submit_import(request, conn=None, **kwargs):
 
     import_data = {'status': 'in progress',
                    'job_type': 'import',
+                   'file_count': len(pathNames),
                    'start_time': datetime.datetime.now(),
                    'import_log_file': log_file_id,
                    'dataset': dataset_id}
