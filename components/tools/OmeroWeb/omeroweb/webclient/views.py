@@ -88,6 +88,7 @@ from omeroweb.webclient.show import Show, IncorrectMenuError, \
     paths_to_object, paths_to_tag
 from omeroweb.decorators import ConnCleaningHttpResponse, parse_url
 from omeroweb.webgateway.util import getIntOrDefault
+from omero.util.import_library import ImportLibrary
 
 from omero.model import ProjectI, DatasetI, ImageI, \
     ScreenI, PlateI, \
@@ -3404,14 +3405,14 @@ def activities(request, conn=None, **kwargs):
                             failure += 1
                         else:
                             # Put the images into a Dataset
-                            logger.debug("Imported %s images"
-                                    % len(rsp.pixels))
+                            logger.debug(
+                                "Imported %s images" % len(rsp.pixels))
                             dataset_id = callbackDict.get('dataset')
                             if dataset_id is not None and len(dataset_id) > 0:
                                 links = []
                                 for p in rsp.pixels:
-                                    logger.debug("Add Image %s to Dataset %s"
-                                            % (p.image.id.val, dataset_id))
+                                    logger.debug("Add Image %s to Dataset %s" %
+                                                 (p.image.id.val, dataset_id))
                                     link = omero.model.DatasetImageLinkI()
                                     link.parent = DatasetI(dataset_id, False)
                                     link.child = ImageI(p.image.id.val, False)
@@ -4453,7 +4454,6 @@ def ome_tiff_info(request, imageId, conn=None, **kwargs):
     return rv       # will get returned as json by default
 
 
-from omero.util.import_library import ImportLibrary
 @login_required()
 @render_response()
 def submit_import(request, conn=None, **kwargs):
