@@ -3404,18 +3404,17 @@ def activities(request, conn=None, **kwargs):
                             failure += 1
                         else:
                             # Put the images into a Dataset
-                            logger.debug("Imported %s images" % len(rsp.pixels))
+                            logger.debug("Imported %s images"
+                                    % len(rsp.pixels))
                             dataset_id = callbackDict.get('dataset')
                             if dataset_id is not None and len(dataset_id) > 0:
                                 links = []
                                 for p in rsp.pixels:
                                     logger.debug("Add Image %s to Dataset %s"
-                                        % (p.image.id.val, dataset_id))
+                                            % (p.image.id.val, dataset_id))
                                     link = omero.model.DatasetImageLinkI()
-                                    link.parent = omero.model.DatasetI(
-                                            dataset_id, False)
-                                    link.child = omero.model.ImageI(
-                                            p.image.id.val, False)
+                                    link.parent = DatasetI(dataset_id, False)
+                                    link.child = ImageI(p.image.id.val, False)
                                     links.append(link)
                                 conn.getUpdateService().saveArray(links)
 
@@ -3434,11 +3433,10 @@ def activities(request, conn=None, **kwargs):
                 logger.error(traceback.format_exc())
                 logger.error("Import job '%s'error:" % cbString)
                 failure += 1
-                update_callback(
-                        request, cbString,
-                        error=1,
-                        status="failed",
-                        dreport=str(x))
+                update_callback(request, cbString,
+                                error=1,
+                                status="failed",
+                                dreport=str(x))
 
     # having updated the request.session, we can now prepare the data for http
     # response

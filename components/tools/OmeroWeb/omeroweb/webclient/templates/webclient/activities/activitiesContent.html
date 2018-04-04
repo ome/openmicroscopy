@@ -384,6 +384,21 @@
 
                             <div>
                                 <ul class="menu_btns silver">
+
+
+                                    {% if j.images %}
+                                        <!-- View Image -->
+                                        <li class="btn_view">
+                                            <a href="#" onClick="return window.open('{% url 'web_image_viewer' j.images.0.id %}', '_blank');"
+                                            title="Open Image{{ j.images|length|pluralize }} in Viewer">View Image</a>
+                                        </li>
+                                        <!-- Browse to Image -->
+                                        <li class="btn_folder">
+                                            <a href='{{ webindex }}?show={% for i in j.images %}image-{{ i.id }}|{% endfor %}'
+                                               class='browse' title="Navigate to Image{{ j.images|length|pluralize }} in the main window"> </a>
+                                        </li>
+                                    {% endif %}
+
                                     <li class="btn_info">
                                         {% if j.import_log_file %}<a href="#" onClick="return OME.openPopup('{% url 'get_original_file' j.import_log_file %}');"
                                             title="Import Log File">Info</a>
@@ -398,8 +413,12 @@
 
                             <span class="message">
                                 {% ifequal j.status "in progress" %}
-                                    Importing {{ j.file_count }} files...
+                                    Importing {{ j.file_count }} file{{ j.file_count|pluralize }}...
                                 {% endifequal %}
+
+                                {% if j.images %}
+                                    Imported {{ j.images|length }} image{{ j.images|length|pluralize }}
+                                {% endif %}
                             </span>
                         </td>
                     </tr>
