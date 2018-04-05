@@ -180,17 +180,18 @@ class Connector(object):
         return None
 
     def create_guest_connection(self, useragent, is_public=False):
-        connection = None
         guest = 'guest'
+        connection = self.create_gateway(useragent, guest, guest, None)
         try:
-            connection = self.create_gateway(useragent, guest, guest, None)
             if connection.connect():
                 logger.debug('Successfully created a guest connection.')
+                return connection
             else:
                 logger.warn('Cannot create a guest connection.')
         except:
             logger.error('Cannot create a guest connection.', exc_info=True)
-        return connection
+        connection.close()
+        return None
 
     def join_connection(self, useragent, userip=None):
         try:
