@@ -194,8 +194,8 @@ class Connector(object):
         return None
 
     def join_connection(self, useragent, userip=None):
+        connection = self.create_gateway(useragent, userip=userip)
         try:
-            connection = self.create_gateway(useragent, userip=userip)
             if connection.connect(sUuid=self.omero_session_key):
                 logger.debug('Successfully joined connection: %s'
                              % self.omero_session_key)
@@ -204,6 +204,7 @@ class Connector(object):
                 return connection
         except:
             logger.debug('Cannot create a new connection.', exc_info=True)
+        connection.close()
         return None
 
     def is_server_up(self, useragent):
