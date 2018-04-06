@@ -3056,6 +3056,9 @@ def load_calendar(request, year=None, month=None, conn=None, **kwargs):
 def load_history(request, year, month, day, conn=None, **kwargs):
     """ The data for a particular date that is loaded into the center panel """
 
+    if year is None or month is None or day is None:
+        raise Http404('Year, month, and day are required')
+
     template = "webclient/history/history_details.html"
 
     # get page
