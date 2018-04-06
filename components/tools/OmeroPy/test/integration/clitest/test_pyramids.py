@@ -30,7 +30,6 @@ from omero.sys import ParametersI
 import os
 import omero.plugins.admin
 import pytest
-import time
 import datetime
 import hashlib
 
