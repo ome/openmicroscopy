@@ -94,41 +94,6 @@ class TestRemovePyramidsFullAdmin(CLITest):
         h.update(data)
         return h.hexdigest()
 
-    def wait_for_pyramid(self, id):
-        store = self.client.sf.createRawPixelsStore()
-        not_ready = True
-        count = 0
-        elapse_time = 1  # time in seconds
-        try:
-            # Do not wait more than 60 seconds
-            while not_ready and count < 60:
-                try:
-                    store.setPixelsId(id, True)
-                    # No exception. The pyramid is now ready
-                    not_ready = False
-                except Exception:
-                    # try again in elapse_time
-                    time.sleep(elapse_time)
-                    count = count + elapse_time
-        finally:
-            store.close()
-
-    def import_pyramid(self, tmpdir, name=None, thumb=False):
-        if name is None:
-            name = "test&sizeX=4000&sizeY=4000.fake"
-        fakefile = tmpdir.join(name)
-        fakefile.write('')
-        pixels = self.import_image(filename=str(fakefile), skip="checksum")[0]
-        id = long(float(pixels))
-        assert id >= 0
-        # wait for the pyramid to be generated
-        self.wait_for_pyramid(id)
-        query_service = self.client.sf.getQueryService()
-        pix = query_service.findByQuery(
-            "select p from Pixels p where p.id = :id",
-            ParametersI().addId(id))
-        return pix.image.id.val
-
     def import_pyramid_pre_fs(self, tmpdir):
         name = "test&sizeX=4000&sizeY=4000.fake"
         fakefile = tmpdir.join(name)
@@ -197,7 +162,7 @@ class TestRemovePyramidsFullAdmin(CLITest):
 
     def test_remove_pyramids_limit(self, tmpdir, capsys):
         """Test removepyramids with date in future"""
-        self.import_pyramid(tmpdir)
+        self.import_pyramid(tmpdir, skip=None)
         self.args += ["--endian=little"]
         self.args += ["--limit", "1"]
         self.cli.invoke(self.args, strict=True)
@@ -207,7 +172,7 @@ class TestRemovePyramidsFullAdmin(CLITest):
 
     def test_remove_pyramids_not_valid_limit(self, tmpdir, capsys):
         """Test removepyramids with date in future"""
-        self.import_pyramid(tmpdir)
+        self.import_pyramid(tmpdir, skip=None)
         self.args += ["--endian=little"]
         self.args += ["--limit", "0"]
         self.cli.invoke(self.args, strict=True)
@@ -244,7 +209,7 @@ class TestRemovePyramidsFullAdmin(CLITest):
     def test_remove_pyramids_big_endian(self, tmpdir, capsys):
         """Test removepyramids with litlle endian true"""
         name = "big&sizeX=3500&sizeY=3500&little=false.fake"
-        img_id = self.import_pyramid(tmpdir, name)
+        img_id = self.import_pyramid(tmpdir, name=name, skip=None)
         self.args += ["--endian=big"]
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
@@ -254,9 +219,9 @@ class TestRemovePyramidsFullAdmin(CLITest):
     def test_remove_pyramids(self, tmpdir, capsys):
         """Test removepyramids with litlle endian true"""
         name = "big&sizeX=3500&sizeY=3500&little=false.fake"
-        big_id = self.import_pyramid(tmpdir, name)
+        big_id = self.import_pyramid(tmpdir, name=name, skip=None)
         name = "little&sizeX=3500&sizeY=3500&little=true.fake"
-        little_id = self.import_pyramid(tmpdir, name)
+        little_id = self.import_pyramid(tmpdir, name=name, skip=None)
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
         output_start = "Pyramid removed for image %s" % big_id
@@ -267,7 +232,7 @@ class TestRemovePyramidsFullAdmin(CLITest):
     def test_remove_pyramids_check_thumbnails(self, tmpdir, capsys):
         """Test check that the thumbnail is correctly created"""
         name = "big&sizeX=3500&sizeY=3500&little=false.fake"
-        img_id = self.import_pyramid(tmpdir, name)
+        img_id = self.import_pyramid(tmpdir, name=name, skip=None)
         query_service = self.client.sf.getQueryService()
         pix = query_service.findByQuery(
             "select p from Pixels p where p.image.id = :id",
