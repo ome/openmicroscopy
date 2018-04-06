@@ -185,7 +185,7 @@ public class OmeroReader extends FormatReader {
         try {
             store = serviceFactory.createRawPixelsStore();
             store.setPixelsId(pix.getId().getValue(), false);
-            plane = store.getPlane(zct[0], zct[1], zct[2]);
+            plane = store.getTile(zct[0], zct[1], zct[2], x, y, w, h);
         }
         catch (ServerError e) {
             throw new FormatException(e);
@@ -201,10 +201,7 @@ public class OmeroReader extends FormatReader {
             }
         }
 
-        try (RandomAccessInputStream s = new RandomAccessInputStream(plane)) {
-            readPlane(s, x, y, w, h, buf);
-        }
-
+        System.arraycopy(plane, 0, buf, 0, plane.length);
         return buf;
     }
 
