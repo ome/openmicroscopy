@@ -36,6 +36,7 @@ import ome.util.SqlAction;
 /**
  * A node provider that offers a unified view of multiple underlying node providers.
  * @author m.t.b.carroll@dundee.ac.uk
+ * @since 5.4.6
  * @param <P> node providers that adjust according to read-only status
  */
 public class NodeProviderWrapper<P extends NodeProvider & ReadOnlyStatus.IsAware> implements NodeProvider {

@@ -25,6 +25,7 @@ import org.springframework.dao.InvalidDataAccessResourceUsageException;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @author m.t.b.carroll@dundee.ac.uk
+ * @since 5.4.6
  */
 public class ReadOnlyStatus {
 
@@ -80,6 +81,7 @@ public class ReadOnlyStatus {
     /**
      * Implemented by classes that can report if a given read-only status would cause them to be in read-only mode.
      * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.4.6
      */
     public interface IsAware {
 

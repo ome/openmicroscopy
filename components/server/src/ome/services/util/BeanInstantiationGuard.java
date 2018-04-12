@@ -28,6 +28,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 /**
  * Prevents creation of Spring beans based on read-only status.
  * @author m.t.b.carroll@dundee.ac.uk
+ * @since 5.4.6
  */
 public class BeanInstantiationGuard implements BeanFactoryPostProcessor {
 

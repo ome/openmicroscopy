@@ -137,6 +137,7 @@ public class EnsureEnum {
      * Base class for workers that ensure that enumeration values exist.
      * Perhaps could be refactored away in Java 8.
      * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.4.6
      */
     private static abstract class FetchEnums<E extends IEnum & IGlobal> implements Executor.Work<List<Long>> {
 

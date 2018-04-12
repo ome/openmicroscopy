@@ -31,6 +31,7 @@ import ome.system.ServiceFactory;
 /**
  * A session provider that offers a unified view of multiple underlying session providers.
  * @author m.t.b.carroll@dundee.ac.uk
+ * @since 5.4.6
  * @param <P> session providers that adjust according to read-only status
  */
 public class SessionProviderWrapper<P extends SessionProvider & ReadOnlyStatus.IsAware> implements SessionProvider {

@@ -25,6 +25,7 @@ import ome.api.IConfig;
  * Propagate the server's read-only status into corresponding keys in the configuration service.
  * This makes the server's runtime state available for query by clients.
  * @author m.t.b.carroll@dundee.ac.uk
+ * @since 5.4.6
  */
 public class ReadOnlyConfigInit {
 

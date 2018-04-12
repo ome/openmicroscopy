@@ -31,6 +31,7 @@ import ome.services.util.ReadOnlyStatus;
 /**
  * An event provider that offers a unified view of multiple underlying event providers.
  * @author m.t.b.carroll@dundee.ac.uk
+ * @since 5.4.6
  * @param <P> event providers that adjust according to read-only status
  */
 public class EventProviderWrapper<P extends EventProvider & ReadOnlyStatus.IsAware> implements EventProvider {
