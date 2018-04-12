@@ -496,6 +496,7 @@ public class HandleI implements _HandleOperations, IHandle,
      * Base class for the workers of {@link HandleI#run()} that run the steps of a request.
      * Perhaps could be refactored away in Java 8.
      * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.4.6
      */
     private abstract class RunSteps extends Executor.SimpleWork {
 
