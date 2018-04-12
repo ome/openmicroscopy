@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * If this instance's memoizer does not already have a memo file available on {@link #setId(String)}
  * then a copy is first taken from one of the other memoizers, preferring the earlier.
  * @author m.t.b.carroll@dundee.ac.uk
+ * @since 5.4.6
  */
 public class MemoizerFallback extends Memoizer {
 

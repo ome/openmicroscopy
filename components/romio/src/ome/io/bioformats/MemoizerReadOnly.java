@@ -27,6 +27,7 @@ import loci.formats.Memoizer;
 /**
  * Adapts {@link Memoizer} to tolerate cache directories that it may not write.
  * @author m.t.b.carroll@dundee.ac.uk
+ * @since 5.4.6
  */
 public class MemoizerReadOnly extends Memoizer {
 
