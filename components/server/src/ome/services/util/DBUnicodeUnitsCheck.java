@@ -37,8 +37,8 @@ public class DBUnicodeUnitsCheck extends BaseDBCheck {
 
     public final static Logger LOGGER = LoggerFactory.getLogger(DBUnicodeUnitsCheck.class);
 
-    protected DBUnicodeUnitsCheck(Executor executor, PreferenceContext preferences) {
-        super(executor, preferences);
+    protected DBUnicodeUnitsCheck(Executor executor, PreferenceContext preferences, ReadOnlyStatus readOnly) {
+        super(executor, preferences, readOnly);
     }
 
     @Override

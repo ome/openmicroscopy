@@ -42,6 +42,7 @@ import com.google.common.collect.Sets;
 import ome.io.nio.PixelsService;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Login;
 import ome.util.SqlAction;
 import omero.cmd.ERR;
@@ -60,7 +61,7 @@ import omero.constants.namespaces.NSCOMPANIONFILE;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
-public class UsedFilesRequestI extends UsedFilesRequest implements IRequest {
+public class UsedFilesRequestI extends UsedFilesRequest implements IRequest, ReadOnlyStatus.IsAware {
 
     private static final long serialVersionUID = -1572148877023558009L;
 
@@ -393,5 +394,10 @@ public class UsedFilesRequestI extends UsedFilesRequest implements IRequest {
             output.add(mapping.get(item));
         }
         return output;
+    }
+
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return true;
     }
 }

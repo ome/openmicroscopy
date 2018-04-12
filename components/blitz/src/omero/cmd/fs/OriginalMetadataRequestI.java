@@ -40,6 +40,7 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.fs.Fileset;
 import ome.parameters.Parameters;
+import ome.services.util.ReadOnlyStatus;
 import omero.RType;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -62,7 +63,7 @@ import com.google.common.collect.Maps;
  * @since 5.0.0
  */
 public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
-		IRequest {
+		IRequest, ReadOnlyStatus.IsAware {
 
 	private static final long serialVersionUID = -1L;
 
@@ -326,4 +327,9 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 			System.out.print("\n");
 		}
 	}
+
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return true;
+    }
 }

@@ -1,7 +1,5 @@
 /*
- * ome.io.nio.PixelsService
- *
- *   Copyright 2006-2017 University of Dundee. All rights reserved.
+ *   Copyright 2006-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -12,6 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -29,6 +28,8 @@ import ome.conditions.MissingPyramidException;
 import ome.conditions.ResourceError;
 import ome.io.bioformats.BfPixelBuffer;
 import ome.io.bioformats.BfPyramidPixelBuffer;
+import ome.io.bioformats.MemoizerFallback;
+import ome.io.bioformats.MemoizerReadOnly;
 import ome.io.messages.MissingPyramidMessage;
 import ome.io.messages.MissingStatsInfoMessage;
 import ome.io.nio.Utils.FailedTileLoopException;
@@ -40,6 +41,7 @@ import ome.model.stats.StatsInfo;
 import ome.util.PixelData;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.FatalBeanException;
@@ -50,7 +52,6 @@ import org.springframework.context.ApplicationEventPublisherAware;
  * @author <br>
  *         Chris Allan&nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OMERO-Beta1.0
  */
 public class PixelsService extends AbstractFileSystemService
@@ -81,10 +82,18 @@ public class PixelsService extends AbstractFileSystemService
 	/** TileSizes implementation for default values */
 	protected final TileSizes sizes;
 
+    /* if the repository is read-only */
+    private final boolean isReadOnlyRepo;
+
 	/**
 	 * Location where cached data from the {@link Memoizer} should be stored.
 	 */
 	protected final File memoizerDirectory;
+
+    /**
+     * For read-only servers, this directory is a local read-write directory for storing memo files. May be {@code null}.
+     */
+    protected File memoizerDirectoryLocalRW;
 
 	/**
 	 * Time in ms. which setId must take before a file is memoized
@@ -122,6 +131,7 @@ public class PixelsService extends AbstractFileSystemService
      * @param path The root of the ROMIO proprietary pixels store. (usually
      * <code>/OMERO/Pixels</code>).
      */
+    @Deprecated
     public PixelsService(String path, FilePathResolver resolver)
     {
         this(path, resolver, new SimpleBackOff(), new ConfiguredTileSizes(), null);
@@ -143,6 +153,7 @@ public class PixelsService extends AbstractFileSystemService
      * Call {@link #PixelsService(String, File, long, FilePathResolver, BackOff, TileSizes, IQuery)}
      * with {@link #MEMOIZER_WAIT}.
      */
+    @Deprecated
     public PixelsService(String path, long memoizerWait,
             FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery) {
         this(path, new File(new File(path), "BioFormatsCache"),
@@ -153,18 +164,40 @@ public class PixelsService extends AbstractFileSystemService
      * Call {@link #PixelsService(String, File, long, FilePathResolver, BackOff, TileSizes, IQuery)}
      * with {@link #MEMOIZER_WAIT}.
      */
-    public PixelsService(String path, File memoizerDirectory,
+    @Deprecated
+    public PixelsService(String path, boolean isReadOnlyRepo, long memoizerWait,
             FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery) {
-        this(path, memoizerDirectory, MEMOIZER_WAIT, resolver, backOff, sizes, iQuery);
+        this(path, isReadOnlyRepo, new File(new File(path), "BioFormatsCache"),
+                memoizerWait, resolver, backOff, sizes, iQuery);
     }
 
+    /**
+     * Call {@link #PixelsService(String, boolean, File, long, FilePathResolver, BackOff, TileSizes, IQuery)}
+     * with {@link #MEMOIZER_WAIT}.
+     */
+    public PixelsService(String path, File memoizerDirectory,
+            FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery) {
+        this(path, false, memoizerDirectory, MEMOIZER_WAIT, resolver, backOff, sizes, iQuery);
+        /* easiest not to use superclass' warning message due to Java's restrictions on constructors */
+        log.info("assuming read-write repository at " + path);
+    }
+
+    @Deprecated
     public PixelsService(String path, File memoizerDirectory, long memoizerWait,
+            FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery) {
+        this(path, false, memoizerDirectory, memoizerWait, resolver, backOff, sizes, iQuery);
+        /* easiest not to use superclass' warning message due to Java's restrictions on constructors */
+        log.info("assuming read-write repository at " + path);
+    }
+
+    public PixelsService(String path, boolean isReadOnlyRepo, File memoizerDirectory, long memoizerWait,
             FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery)
     {
-        super(path);
+        super(path, isReadOnlyRepo);
         this.resolver = resolver;
         this.backOff = backOff;
         this.sizes = sizes;
+        this.isReadOnlyRepo = isReadOnlyRepo;
         this.memoizerDirectory = memoizerDirectory;
         this.memoizerWait = memoizerWait;
         if (!this.memoizerDirectory.exists())
@@ -207,6 +240,15 @@ public class PixelsService extends AbstractFileSystemService
     public void setFilePathResolver(FilePathResolver resolver)
     {
         this.resolver = resolver;
+    }
+
+    /* n.b.: This property is an expedient approach that may be rethought in concert with larger changes to Memoizer. */
+    public void setMemoizerDirectoryLocal(String path) {
+        if (isReadOnlyRepo && StringUtils.isNotBlank(path)) {
+            memoizerDirectoryLocalRW = new File(path);
+            memoizerDirectoryLocalRW.mkdirs();
+            log.info("adopted additional local directory for Bio-Formats memo files: " + memoizerDirectoryLocalRW);
+        }
     }
 
 	/**
@@ -699,11 +741,13 @@ public class PixelsService extends AbstractFileSystemService
             }
         }
         long pixelsId = pixels.getId();
-        MissingStatsInfoMessage m = new MissingStatsInfoMessage(this, pixelsId);
-        pub.publishEvent(m);
-        if (m.isRetry()) {
-            log.debug("Retrying stats info for Pixels:" + pixelsId);
-            return;
+        if (!isReadOnlyRepo) {
+            final MissingStatsInfoMessage m = new MissingStatsInfoMessage(this, pixelsId);
+            pub.publishEvent(m);
+            if (m.isRetry()) {
+                log.debug("Retrying stats info for Pixels:" + pixelsId);
+                return;
+            }
         }
         String msg = "Missing stats info for Pixels:" + pixelsId;
         log.info(msg);
@@ -719,14 +763,14 @@ public class PixelsService extends AbstractFileSystemService
 	 * @param pixelsPyramidFilePath
 	 * @throws MissingPyramidException
 	 */
-    protected void handleMissingPyramid(Pixels pixels,
-            final String pixelsPyramidFilePath) {
-        MissingPyramidMessage mpm = new MissingPyramidMessage(this,
-                pixels.getId());
-        pub.publishEvent(mpm);
-        if (mpm.isRetry()) {
-            log.debug("Retrying pyramid:" + pixelsPyramidFilePath);
-            return;
+    protected void handleMissingPyramid(Pixels pixels, String pixelsPyramidFilePath) {
+        if (!isReadOnlyRepo) {
+            final MissingPyramidMessage mpm = new MissingPyramidMessage(this, pixels.getId());
+            pub.publishEvent(mpm);
+            if (mpm.isRetry()) {
+                log.debug("Retrying pyramid:" + pixelsPyramidFilePath);
+                return;
+            }
         }
         String msg = "Missing pyramid:" + pixelsPyramidFilePath;
         log.info(msg);
@@ -790,7 +834,12 @@ public class PixelsService extends AbstractFileSystemService
         IFormatReader reader = new ImageReader();
         reader = new ChannelFiller(reader);
         reader = new ChannelSeparator(reader);
-        reader = new Memoizer(reader, getMemoizerWait(), getMemoizerDirectory());
+        if (memoizerDirectoryLocalRW == null) {
+            reader = new Memoizer(reader, getMemoizerWait(), getMemoizerDirectory());
+        } else {
+            reader = new MemoizerFallback(reader, getMemoizerWait(), memoizerDirectoryLocalRW, Collections.singleton(
+                     new MemoizerReadOnly(reader, getMemoizerWait(), getMemoizerDirectory())));
+        }
         reader.setFlattenedResolutions(false);
         reader.setMetadataFiltered(true);
         return reader;

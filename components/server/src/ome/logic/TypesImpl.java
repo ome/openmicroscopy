@@ -1,7 +1,5 @@
 /*
- * ome.logic.TypesImpl
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -56,7 +54,7 @@ import org.springframework.util.ResourceUtils;
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @since OMERO 3.0
  */
-@Transactional
+@Transactional(readOnly = true)
 public class TypesImpl extends AbstractLevel2Service implements ITypes {
 
     protected transient SessionFactory sf;
@@ -77,6 +75,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
     // =========================================================================
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public <T extends IEnum> T createEnumeration(T newEnum) {
         final LocalUpdate up = iUpdate;
 
@@ -92,11 +91,13 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
     }
 
     @RolesAllowed("system")
+    @Transactional(readOnly = false)
     public <T extends IEnum> T updateEnumeration(T oEnum) {
         return iUpdate.saveAndReturnObject(oEnum);
     }
 
     @RolesAllowed("system")
+    @Transactional(readOnly = false)
     public <T extends IEnum> void updateEnumerations(List<T> listEnum) {
         // should be changed to saveAndReturnCollection(Collection graph)
         // when method is implemented
@@ -110,6 +111,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
     }
 
     @RolesAllowed("system")
+    @Transactional(readOnly = false)
     public <T extends IEnum> void deleteEnumeration(T oEnum) {
         iUpdate.deleteObject(oEnum);
     }
@@ -222,6 +224,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
     }
 
     @RolesAllowed("system")
+    @Transactional(readOnly = false)
     public <T extends IEnum> void resetEnumerations(Class<T> klass) {
         InputStream in = null;
         try {

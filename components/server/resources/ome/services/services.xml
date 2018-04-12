@@ -3,9 +3,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
-# Copyright 2006-2014 University of Dundee. All rights reserved.
+# Copyright 2006-2018 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -117,6 +115,7 @@
     <property name="queryService"	ref="internal-ome.api.IQuery"/>
     <property name="extendedMetadata" ref="extendedMetadata"/>
     <property name="securitySystem" ref="securitySystem"/>
+    <property name="readOnlyStatus" ref="readOnlyStatus"/>
   </bean>
 
   <bean id="level3" abstract="true">
@@ -136,8 +135,11 @@
     <property name="pixelsData"     ref="/OMERO/Pixels"/>
   </bean>
 
-  <bean name="filesystem"  abstract="true">
-    <constructor-arg index="0" value="${omero.data.dir}"/>
+  <bean name="filesystem" abstract="true">
+    <constructor-arg value="${omero.data.dir}"/>
+    <constructor-arg>
+      <bean factory-bean="readOnlyStatus" factory-method="isReadOnlyRepo"/>
+    </constructor-arg>
   </bean>
 
 <!--

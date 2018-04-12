@@ -66,6 +66,7 @@ import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
 import ome.services.graphs.GroupPredicate;
 import ome.services.graphs.PermissionsPredicate;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
 import ome.system.Login;
 import ome.system.Roles;
@@ -83,7 +84,7 @@ import omero.cmd.Response;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
-public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2> {
+public class Chown2I extends Chown2 implements IRequest, ReadOnlyStatus.IsAware, WrappableRequest<Chown2> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Chown2I.class);
 
@@ -412,6 +413,11 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     @Override
     public Map<String, List<Long>> getStartFrom(Response response) {
         return ((Chown2Response) response).includedObjects;
+    }
+
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return dryRun;
     }
 
     /**

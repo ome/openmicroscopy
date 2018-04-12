@@ -3,9 +3,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# $Id$
-# 
-# Copyright 2006 University of Dundee. All rights reserved.
+# Copyright 2006-2018 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -31,13 +29,14 @@
 
   <bean name="/OMERO/Pixels" class="ome.io.nio.PixelsService"
         parent="filesystem">
-    <!-- index=0 "path" comes from parent -->
-    <constructor-arg index="1" ref="MemoizerWait"/>
+    <!-- note constructor-args from parent bean -->
+    <constructor-arg ref="MemoizerWait"/>
     <constructor-arg ref="omeroFilePathResolver"/>
     <constructor-arg ref="backOff"/>
     <constructor-arg ref="tileSizes"/>
     <constructor-arg ref="internal-ome.api.IQuery"/>
     <property name="metrics" ref="metrics"/>
+    <property name="memoizerDirectoryLocal" value="${omero.pixeldata.memoizer.dir.local}"/>
   </bean>
 
   <bean id="backOff" class="${omero.pixeldata.backoff}">

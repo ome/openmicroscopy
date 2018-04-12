@@ -46,12 +46,14 @@ public class DBUserCheck {
     final private PreferenceContext prefs;
     final private Roles roles;
 
-    public DBUserCheck(SqlAction sql, PreferenceContext prefs) throws Exception {
+    public DBUserCheck(SqlAction sql, PreferenceContext prefs, ReadOnlyStatus readOnly) throws Exception {
         this.sql = sql;
         this.prefs = prefs;
         this.roles = load();
-        sql.setRoles(roles.getRootId(), roles.getGuestId(),
-                roles.getSystemGroupId(), roles.getUserGroupId(), roles.getGuestGroupId());
+        if (!readOnly.isReadOnlyDb()) {
+            sql.setRoles(roles.getRootId(), roles.getGuestId(),
+                    roles.getSystemGroupId(), roles.getUserGroupId(), roles.getGuestGroupId());
+        }
     }
 
     private String getRoleName(String which, String defaultValue) {

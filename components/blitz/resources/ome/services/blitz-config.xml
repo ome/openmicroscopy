@@ -3,8 +3,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2008 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -27,6 +25,7 @@
     in Spring. All created instances are available via getters.
     </description>
     <constructor-arg ref="sessionManager"/>
+    <constructor-arg ref="sessionProvider"/>
     <constructor-arg ref="securitySystem"/>
     <constructor-arg ref="executor"/>
     <constructor-arg ref="ring"/>
@@ -38,6 +37,7 @@
     <constructor-arg ref="executor"/>
     <constructor-arg ref="redirector"/>
     <constructor-arg ref="scriptRepoHelper"/>
+    <constructor-arg ref="nodeProvider"/>
   </bean>
 
   <!-- Redirector configuration -->
@@ -73,11 +73,16 @@
     <property name="jobDetail" ref="clusterCheckRun"/>
   </bean>
 
-  <bean class="ome.services.blitz.util.CheckAllJobs" lazy-init="false">
+  <bean id="checkAllJobsThread" class="ome.services.blitz.util.CheckAllJobs" lazy-init="false">
     <constructor-arg ref="executor"/>
     <constructor-arg ref="BlitzAdapter"/>
     <constructor-arg ref="TopicManager"/>
     <constructor-arg value="120000"/> <!-- ms.; Give processor time to recover -->
+  </bean>
+  <bean id="checkAllJobsThreadGuard" class="ome.services.util.BeanInstantiationGuard">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg value="checkAllJobsThread"/>
+    <property name="isWriteDb" value="true"/>
   </bean>
 
   <!-- Lookups -->
