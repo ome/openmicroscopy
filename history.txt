@@ -8,20 +8,20 @@ OMERO version history
 5.4.6-rc1 (April 2018)
 ----------------------
 
-This is a bug-fix release which also introduces a significant
-new subsystem for read-only operation with which servers can be
-configured to not make changes to the database, the file-system,
-or both. This can be used for scaling up your OMERO installation.
+This introduces a significant new subsystem for read-only operation
+with which servers can be configured not to make changes to the database,
+the filesystem, or both. The goal is to permit the horizontal scaling
+of your OMERO installations.
 
 Further improvements include:
 
-- enabled big image support in ImageJ/Fiji
-- fixed the handling of script params in the web
-- fixed bug in the web History tab
-- fixed CLI login's behavior regarding previous ports
+-  enabled big image support in ImageJ/Fiji
+-  fixed the handling of script params in OMERO.web
+-  fixed bug in the History tab of OMERO.web
+-  fixed the chosen login ports for OMERO.cli
 
-This release upgrades the version of Bio-Formats which OMERO uses
-to 5.8.2-rc1. **Note:** this is a significant upgrade and will
+This release also upgrades the version of Bio-Formats which OMERO
+uses to 5.8.2-rc1. **Note:** this is a significant upgrade and will
 invalidate the Bio-Formats Memoizer cache. Please see the upgrade
 guide for further information.
 
