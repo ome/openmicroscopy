@@ -313,6 +313,7 @@
   <bean id="::omero::cmd::Handle" class="omero.cmd._HandleTie" singleton="false">
     <constructor-arg>
         <bean class="omero.cmd.HandleI" singleton="false">
+            <constructor-arg ref="readOnlyStatus"/>
             <constructor-arg value="${omero.threads.cancel_timeout}"/>
         </bean>
     </constructor-arg>
@@ -403,6 +404,7 @@
   <bean class="omero.cmd.admin.CurrentSessionsRequestI$Factory" lazy-init="false">
       <constructor-arg ref="currentDetails"/>
       <constructor-arg ref="sessionManager"/>
+      <constructor-arg ref="sessionProvider"/>
      <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 

@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -15,6 +13,7 @@ import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
 import ome.model.meta.Experimenter;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.SessionProvider;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -41,13 +40,16 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
 
     private final SessionManager manager;
 
+    private final SessionProvider sessionProvider;
+
     private final Executor ex;
 
     private final Principal p;
 
-    public PermissionsVerifierI(Ring ring, SessionManager manager, Executor ex, String uuid) {
+    public PermissionsVerifierI(Ring ring, SessionManager manager, SessionProvider sessionProvider, Executor ex, String uuid) {
         this.ring = ring;
         this.manager = manager;
+        this.sessionProvider = sessionProvider;
         this.ex = ex;
         this.p = new Principal(uuid);
     }
@@ -136,13 +138,16 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
                 ex.execute(p, new Executor.SimpleWork("failedPassword", userId) {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
+                        final Long sessionId = sessionProvider.findSessionIdByUuid(userId, sf);
+                        final ome.model.meta.Session s =
+                                sessionId == null ? null : sessionProvider.findSessionById(sessionId, sf);
                         IQuery q = sf.getQueryService();
-                        ome.model.meta.Session s = q.findByString(
-                                ome.model.meta.Session.class, "uuid", userId);
-
                         Experimenter e = null;
                         if (s != null) {
                             e = s.getOwner();
+                            if (!e.isLoaded()) {
+                                e = q.get(Experimenter.class, e.getId());
+                            }
                             data.add(String.format("user=%s", e.getOmeName()));
                         } else {
                             e = q.findByString(Experimenter.class,

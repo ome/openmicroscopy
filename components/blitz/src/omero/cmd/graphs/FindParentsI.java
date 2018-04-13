@@ -48,6 +48,7 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Login;
 import ome.system.Roles;
 import omero.cmd.FindParents;
@@ -63,7 +64,7 @@ import omero.cmd.Response;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.3.0
  */
-public class FindParentsI extends FindParents implements IRequest {
+public class FindParentsI extends FindParents implements IRequest, ReadOnlyStatus.IsAware {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FindParentsI.class);
 
@@ -234,5 +235,10 @@ public class FindParentsI extends FindParents implements IRequest {
     @Override
     public Response getResponse() {
         return helper.getResponse();
+    }
+
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return true;
     }
 }

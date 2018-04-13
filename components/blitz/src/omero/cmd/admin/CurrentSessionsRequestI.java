@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2018 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,10 +25,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ome.parameters.Parameters;
 import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.SessionProvider;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
+import ome.system.ServiceFactory;
 import ome.system.SimpleEventContext;
 import omero.RType;
 import omero.cmd.CurrentSessionsRequest;
@@ -50,19 +52,19 @@ import com.google.common.collect.ImmutableMap;
 
 @SuppressWarnings("serial")
 public class CurrentSessionsRequestI extends CurrentSessionsRequest
-    implements IRequest {
+    implements IRequest, ReadOnlyStatus.IsAware {
 
     private final Logger log = LoggerFactory.getLogger(CurrentSessionsRequestI.class);
 
     public static class Factory extends ObjectFactoryRegistry {
         private final ObjectFactory factory;
         public Factory(final CurrentDetails current,
-                final SessionManager sessionManager) {
+                final SessionManager sessionManager, final SessionProvider sessionProvider) {
             factory = new ObjectFactory(ice_staticId()) {
                 @Override
                 public Ice.Object create(String name) {
                     return new CurrentSessionsRequestI(
-                            current, sessionManager);
+                            current, sessionManager, sessionProvider);
                 }};
             }
 
@@ -79,12 +81,15 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
 
     protected final SessionManager manager;
 
+    protected final SessionProvider provider;
+
     protected Map<String, Map<String, Object>> contexts;
 
     public CurrentSessionsRequestI(CurrentDetails current,
-            SessionManager manager) {
+            SessionManager manager, SessionProvider provider) {
         this.current = current;
         this.manager = manager;
+        this.provider = provider;
     }
 
     private boolean isCurrentUserGuest = false;
@@ -111,10 +116,18 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
         if (contexts.isEmpty()) {
             return Collections.emptyList();
         }
-        return helper.getServiceFactory().getQueryService().
-                findAllByQuery("select s from Session s where s.uuid in (:uuid)",
-                        new Parameters().addList("uuid", new ArrayList<String>(
-                                contexts.keySet())));
+        final ServiceFactory sf = helper.getServiceFactory();
+        final List<ome.model.meta.Session> sessions = new ArrayList<>(contexts.size());
+        for (final String uuid : contexts.keySet()) {
+            final Long sessionId = provider.findSessionIdByUuid(uuid, sf);
+            if (sessionId != null) {
+                final ome.model.meta.Session session = provider.findSessionById(sessionId, sf);
+                if (session != null) {
+                    sessions.add(session);
+                }
+            }
+        }
+        return sessions;
     }
 
     @Override
@@ -198,4 +211,8 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
         return helper.getResponse();
     }
 
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return true;
+    }
 }

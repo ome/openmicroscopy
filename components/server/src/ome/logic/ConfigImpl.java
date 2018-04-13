@@ -72,15 +72,16 @@ import org.springframework.transaction.annotation.Transactional;
 // =============================================================================
 /*
  * Source: Spring Purpose: Used by EventHandler#checkReadyOnly(MethodInvocation)
- * to deteremine if a method is read-only. No annotation implies ready-only, so
+ * to determine if a method is read-only. No annotation implies read-only, so
  * it is essential to have this annotation on all write methods.
  */
-@Transactional
+@Transactional(readOnly = true)
+
 /*
  * Stateless. This class implements ServiceInterface but not
  * StatefulServiceInterface making it stateless. This means that the entire
  * server will most likely only contain one of these instances. No mutable
- * fields should be present unlessvery carefully synchronized.
+ * fields should be present unless very carefully synchronized.
  * 
  * Local configurations are not exposed to clients, and are typically only used
  * within a server instance.
@@ -306,6 +307,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
      * see {@link IConfig#setConfigValue(String, String)}
      */
     @RolesAllowed("system")
+    @Transactional(readOnly = false)
     // see above
     public void setConfigValue(String key, String value) {
 
@@ -347,6 +349,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
      * see {@link IConfig#setConfigValueIfEquals(String, String, String)}
      */
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     // see above
     public boolean setConfigValueIfEquals(String key, String value, String test)
             throws ApiUsageException, SecurityViolation {

@@ -19,6 +19,7 @@ import ome.api.local.LocalUpdate;
 import ome.security.SecuritySystem;
 import ome.services.query.QueryFactory;
 import ome.services.util.BeanHelper;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.SelfConfigurableService;
 import ome.tools.hibernate.ExtendedMetadata;
 
@@ -42,6 +43,8 @@ public abstract class AbstractLevel2Service implements SelfConfigurableService {
     protected transient SecuritySystem sec;
 
     protected transient ExtendedMetadata metadata;
+
+    protected transient ReadOnlyStatus readOnlyStatus;
 
     // ~ Selfconfiguration (injection) for Non-JavaEE
     // =========================================================================
@@ -85,6 +88,11 @@ public abstract class AbstractLevel2Service implements SelfConfigurableService {
     public final void setExtendedMetadata(ExtendedMetadata em) {
         getBeanHelper().throwIfAlreadySet(this.metadata, em);
         this.metadata = em;
+    }
+
+    public final void setReadOnlyStatus(ReadOnlyStatus readOnlyStatus) {
+        getBeanHelper().throwIfAlreadySet(this.readOnlyStatus, readOnlyStatus);
+        this.readOnlyStatus = readOnlyStatus;
     }
 
     public final QueryFactory getQueryFactory() {

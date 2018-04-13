@@ -20,6 +20,7 @@ import ome.security.SecuritySystem;
 import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordUtil;
 import ome.services.mail.MailUtil;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import omero.RType;
@@ -82,7 +83,7 @@ public class AbstractGraphTest extends AbstractServantTest {
 
     protected _HandleTie submit(IRequest req, Map<String, String> callContext) throws Exception {
         Ice.Identity id = new Ice.Identity("handle", req.toString());
-        HandleI handle = new HandleI(1000);
+        final HandleI handle = new HandleI(new ReadOnlyStatus(false, false), 1000);
         handle.setSession(user.sf);
         handle.initialize(id, req, callContext);
         handle.run();

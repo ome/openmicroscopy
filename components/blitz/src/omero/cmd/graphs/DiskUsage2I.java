@@ -48,6 +48,7 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Login;
 import ome.system.Roles;
 import omero.api.LongPair;
@@ -65,7 +66,7 @@ import omero.cmd.Response;
  * @since 5.1.0
  */
 @SuppressWarnings("serial")
-public class DiskUsage2I extends DiskUsage2 implements IRequest {
+public class DiskUsage2I extends DiskUsage2 implements IRequest, ReadOnlyStatus.IsAware {
 
     /* FIELDS AND CONSTRUCTORS */
 
@@ -480,5 +481,10 @@ public class DiskUsage2I extends DiskUsage2 implements IRequest {
         public Set<GraphPolicy.Ability> getRequiredPermissions() {
             return REQUIRED_ABILITIES;
         }
+    }
+
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return true;
     }
 }

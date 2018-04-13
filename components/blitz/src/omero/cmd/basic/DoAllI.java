@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import ome.services.messages.ContextMessage;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.OmeroContext;
 
 import omero.cmd.DoAll;
@@ -34,7 +35,6 @@ import omero.cmd.IRequest;
 import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.Status;
-import omero.cmd.graphs.GraphUtil;
 
 /**
  * Permits performing multiple operations
@@ -42,7 +42,7 @@ import omero.cmd.graphs.GraphUtil;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.4.0
  */
-public class DoAllI extends DoAll implements IRequest {
+public class DoAllI extends DoAll implements IRequest, ReadOnlyStatus.IsAware {
 
     private static final long serialVersionUID = -323423435135556L;
 
@@ -368,4 +368,13 @@ public class DoAllI extends DoAll implements IRequest {
         throw c;
     }
 
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        for (final Request request : requests) {
+            if (!(request instanceof ReadOnlyStatus.IsAware && ((ReadOnlyStatus.IsAware) request).isReadOnly(readOnly))) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

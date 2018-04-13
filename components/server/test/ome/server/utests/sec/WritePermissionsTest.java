@@ -59,7 +59,7 @@ public class WritePermissionsTest extends MockObjectTestCase {
     final CurrentDetails cd = new CurrentDetails(cache);
 
     final BasicACLVoter voter = new BasicACLVoter(cd, new SystemTypes(),
-            new TokenHolder(), null, new DefaultPolicyService());
+            new TokenHolder(), null, new DefaultPolicyService(), new Roles());
 
     final Set<AdminPrivilege> allAdminPrivileges = new LightAdminPrivileges(new Roles()).getAllPrivileges();
 

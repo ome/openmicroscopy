@@ -2200,7 +2200,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     private PixelBuffer getPixelBuffer() {
         return (PixelBuffer) ex.execute(null, new Executor.SimpleWork(this, "getPixelBuffer") {
-            @Transactional(readOnly = false) // ticket:5232
+            @Transactional(readOnly = true) // ticket:5232
             public Object doWork(Session session, ServiceFactory sf) {
                 return pixDataSrv.getPixelBuffer(pixelsObj, false);
             }

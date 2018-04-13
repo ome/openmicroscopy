@@ -3,9 +3,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# $Id$
-# 
-# Copyright 2006 University of Dundee. All rights reserved.
+# Copyright 2006-2018 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -37,6 +35,14 @@
   <bean id="managed-ome.api.ThumbnailStore" parent="managedStatefulService" singleton="false">
     <property name="proxyInterfaces" value="ome.api.ThumbnailStore"/>
     <property name="target" ref="internal-ome.api.ThumbnailStore"/>    
+  </bean>
+
+  <bean id="internal-ome.api.ThumbnailStoreSubstituter" class="ome.services.util.BeanInstantiationSubstituter">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg value="internal-ome.api.ThumbnailStore"/>
+    <constructor-arg value="ome.services.ThumbnailBeanReadOnly"/>
+    <property name="isWriteDb" value="true"/>
+    <property name="isWriteRepo" value="true"/>
   </bean>
 
 </beans>

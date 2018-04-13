@@ -3,8 +3,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2009 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -27,11 +25,13 @@
   </bean>
 
   <bean id="internalRepository" class="ome.services.blitz.repo.InternalRepositoryI">
-    <constructor-arg index="0" ref="Ice.ObjectAdapter"/>
-    <constructor-arg index="1" ref="Ice.Registry"/>
-    <constructor-arg index="2" ref="executor"/>
-    <constructor-arg index="3" ref="uuid"/>
-    <constructor-arg index="4" value="${omero.repo.dir}"/>
+    <constructor-arg ref="Ice.ObjectAdapter"/>
+    <constructor-arg ref="Ice.Registry"/>
+    <constructor-arg ref="executor"/>
+    <constructor-arg ref="uuid"/>
+    <constructor-arg value="${omero.repo.dir}"/>
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg><null/></constructor-arg>  <!-- TODO: servant? -->
   </bean>
 
   <bean id="executor" class="ome.services.util.Executor$Impl">

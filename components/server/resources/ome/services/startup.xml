@@ -3,8 +3,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2009 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -34,11 +32,22 @@
      class="ome.services.util.DBUserCheck" lazy-init="false">
      <constructor-arg ref="simpleSqlAction"/>
      <constructor-arg ref="preferenceContext"/>
+     <constructor-arg ref="readOnlyStatus"/>
   </bean>
 
   <bean id="jvmSettingsCheck"
      class="ome.services.util.JvmSettingsCheck"
      lazy-init="false">
+  </bean>
+
+  <bean id="readOnlyStatus"
+      class="ome.services.util.ReadOnlyStatus">
+     <constructor-arg value="${omero.cluster.read_only}"/>
+     <constructor-arg value="${omero.cluster.read_only.db}"/>
+     <constructor-arg value="${omero.cluster.read_only.repo}"/>
+     <constructor-arg ref="sqlActionWrapper"/>
+     <constructor-arg value="${omero.data.dir}"/>
+     <constructor-arg value="${omero.managed.dir}"/>
   </bean>
 
   <bean id="dbFormatEnumerationCheck"
@@ -47,6 +56,7 @@
      <constructor-arg ref="executor"/>
      <constructor-arg ref="preferenceContext"/>
      <constructor-arg ref="ensureEnum"/>
+     <constructor-arg ref="readOnlyStatus"/>
   </bean>
 
   <bean id="dbMappedEnumerationCheck"
@@ -55,6 +65,7 @@
      <constructor-arg ref="executor"/>
      <constructor-arg ref="preferenceContext"/>
      <constructor-arg ref="ensureEnum"/>
+     <constructor-arg ref="readOnlyStatus"/>
   </bean>
 
   <bean id="ensureEnum"
@@ -62,6 +73,7 @@
      <constructor-arg ref="executor"/>
      <constructor-arg ref="uuid"/>
      <constructor-arg ref="roles"/>
+     <constructor-arg ref="readOnlyStatus"/>
   </bean>
 
   <bean id="dbUnicodeUnitsCheck" depends-on="dbPatchCheck"
@@ -69,12 +81,15 @@
      init-method="start" lazy-init="false">
      <constructor-arg ref="executor"/>
      <constructor-arg ref="preferenceContext"/>
+     <constructor-arg ref="readOnlyStatus"/>
   </bean>
 
   <bean id="serverDirectoryCheck"
      class="ome.services.util.ServerDirectoryCheck"
      init-method="run" lazy-init="false">
      <constructor-arg value="${omero.data.dir}"/>
+     <constructor-arg value="${omero.managed.dir}"/>
+     <constructor-arg ref="readOnlyStatus"/>
   </bean>
 
   <bean id="serverVersionCheck"
@@ -102,6 +117,5 @@
   <bean class="ome.services.util.SleepTimer"
         lazy-init="false"
         destroy-method="destroy"/>
-
 
 </beans>

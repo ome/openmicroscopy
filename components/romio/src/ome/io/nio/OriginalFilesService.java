@@ -35,8 +35,13 @@ public class OriginalFilesService extends AbstractFileSystemService {
      * Constructor
      * @param path
      */
+	@Deprecated
     public OriginalFilesService(String path) {
         super(path);
+    }
+
+    public OriginalFilesService(String path, boolean isReadOnlyRepo) {
+        super(path, isReadOnlyRepo);
     }
 
     /**

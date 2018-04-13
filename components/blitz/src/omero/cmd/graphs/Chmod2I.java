@@ -53,6 +53,7 @@ import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
 import ome.services.graphs.GroupPredicate;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
 import ome.system.Login;
 import ome.system.Roles;
@@ -70,7 +71,7 @@ import omero.cmd.Response;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.2
  */
-public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2> {
+public class Chmod2I extends Chmod2 implements IRequest, ReadOnlyStatus.IsAware, WrappableRequest<Chmod2> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Chmod2I.class);
 
@@ -313,6 +314,11 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
     @Override
     public Map<String, List<Long>> getStartFrom(Response response) {
         return ((Chmod2Response) response).includedObjects;
+    }
+
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return dryRun;
     }
 
     /**

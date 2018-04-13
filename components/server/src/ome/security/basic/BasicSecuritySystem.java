@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2017 University of Dundee. All rights reserved.
+ *   Copyright 2006-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -14,7 +14,6 @@ import java.util.Set;
 
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
-import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
@@ -33,10 +32,9 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
-import ome.model.meta.Share;
-import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.AdminAction;
+import ome.security.EventProvider;
 import ome.security.SecureAction;
 import ome.security.SecurityFilter;
 import ome.security.SecurityFilterHolder;
@@ -47,10 +45,13 @@ import ome.security.policy.PolicyService;
 import ome.services.messages.EventLogMessage;
 import ome.services.messages.EventLogsMessage;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.SessionProvider;
+import ome.services.sessions.SessionProviderInMemory;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.PerSessionStats;
 import ome.services.sharing.ShareStore;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -102,6 +103,10 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     protected final SessionManager sessionManager;
 
+    protected final SessionProvider sessionProvider;
+
+    protected final EventProvider eventProvider;
+
     protected final ServiceFactory sf;
 
     protected final List<SecurityFilter> filters;
@@ -128,6 +133,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         SystemTypes st = new SystemTypes();
         TokenHolder th = new TokenHolder();
         Roles roles = new Roles();
+        final SessionProvider sessionProvider = new SessionProviderInMemory(roles, new NodeProviderInMemory(""), null);
         final OmeroInterceptor oi = new OmeroInterceptor(roles,
                 st, new ExtendedMetadata.Impl(),
                 cd, th, new PerSessionStats(cd),
@@ -136,9 +142,9 @@ public class BasicSecuritySystem implements SecuritySystem,
                 cd, new OneGroupSecurityFilter(roles),
                 new AllGroupsSecurityFilter(null, roles),
                 new SharingSecurityFilter(roles, null));
-        BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm,
+        BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm, sessionProvider, new EventProviderInMemory(),
                 roles, sf, new TokenHolder(), Collections.<SecurityFilter>singletonList(holder), new DefaultPolicyService(),
-                new BasicACLVoter(cd, st, th, holder));
+                new BasicACLVoter(cd, st, th, holder, sessionProvider, new ReadOnlyStatus(false, false)));
         return sec;
     }
 
@@ -148,6 +154,8 @@ public class BasicSecuritySystem implements SecuritySystem,
      * @param sysTypes the system types
      * @param cd the current details
      * @param sessionManager the session manager
+     * @param sessionProvider a session provider
+     * @param eventProvider an event provider
      * @param roles the OMERO roles
      * @param sf the session factory
      * @param tokenHolder the token holder
@@ -157,10 +165,13 @@ public class BasicSecuritySystem implements SecuritySystem,
      */
     public BasicSecuritySystem(OmeroInterceptor interceptor,
             SystemTypes sysTypes, CurrentDetails cd,
-            SessionManager sessionManager, Roles roles, ServiceFactory sf,
+            SessionManager sessionManager, SessionProvider sessionProvider, EventProvider eventProvider,
+            Roles roles, ServiceFactory sf,
             TokenHolder tokenHolder, List<SecurityFilter> filters,
             PolicyService policyService, ACLVoter aclVoter) {
         this.sessionManager = sessionManager;
+        this.sessionProvider = sessionProvider;
+        this.eventProvider = eventProvider;
         this.policyService = policyService;
         this.tokenHolder = tokenHolder;
         this.interceptor = interceptor;
@@ -340,7 +351,6 @@ public class BasicSecuritySystem implements SecuritySystem,
     public void loadEventContext(boolean isReadOnly, boolean isClose) {
 
         final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-        final LocalUpdate update = (LocalUpdate) sf.getUpdateService();
 
         // Call to session manager throws an exception on failure
         final Principal p = clearAndCheckPrincipal();
@@ -449,11 +459,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         if (isReadOnly) {
             sess = new ome.model.meta.Session(sessionId, false);
         } else {
-            final LocalQuery iQuery = (LocalQuery) sf.getQueryService();
-            final String sessionClass = iQuery.find(Share.class, sessionId) == null ? "Session" : "Share";
-            final String hql = "FROM " + sessionClass + " s LEFT OUTER JOIN FETCH s.sudoer WHERE s.id = :id";
-            final Parameters params = new Parameters().addId(sessionId).cache();
-            sess = iQuery.findByQuery(hql, params);
+            sess = sessionProvider.findSessionById(sessionId, sf);
         }
 
         tokenHolder.setToken(callGroup.getGraphHolder());
@@ -478,7 +484,7 @@ public class BasicSecuritySystem implements SecuritySystem,
             if (event.getExperimenterGroup().getId() < 0) {
                 event.setExperimenterGroup(eventGroup);
             }
-            cd.updateEvent(update.saveAndReturnObject(event)); // TODO use merge
+            cd.updateEvent(eventProvider.updateEvent(event)); // TODO use merge
         }
     }
 
