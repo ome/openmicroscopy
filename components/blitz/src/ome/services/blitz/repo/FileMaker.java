@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -9,6 +7,7 @@ package ome.services.blitz.repo;
 
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
@@ -36,6 +35,8 @@ public class FileMaker {
 
     private/* final */String dbUuid;
 
+    private boolean isReadOnlyRepo;
+
     private File repoUuidFile, dotLockFile;
 
     private RandomAccessFile repoUuidRaf, dotLockRaf;
@@ -61,6 +62,10 @@ public class FileMaker {
      * @throws Exception
      */
     public void init(String dbUuid) throws Exception {
+        init(dbUuid, false);
+    }
+
+    public void init(String dbUuid, boolean isReadOnlyRepo) throws Exception {
         synchronized (mutex) {
 
             if (this.dbUuid != null) {
@@ -68,6 +73,7 @@ public class FileMaker {
             }
 
             this.dbUuid = dbUuid;
+            this.isReadOnlyRepo = isReadOnlyRepo;
             File mountDir = new File(repoDir);
             File omeroDir = new File(mountDir, ".omero");
             File repoCfg = new File(omeroDir, "repository");
@@ -79,9 +85,18 @@ public class FileMaker {
 
             repoUuidFile = new File(uuidDir, "repo_uuid");
             dotLockFile = new File(uuidDir, ".lock");
-            repoUuidRaf = new RandomAccessFile(repoUuidFile, "rw");
-            dotLockRaf = new RandomAccessFile(dotLockFile, "rw");
 
+            if (isReadOnlyRepo) {
+                try {
+                    repoUuidRaf = new RandomAccessFile(repoUuidFile, "r");
+                } catch (FileNotFoundException fnfe) {
+                    repoUuidRaf = null;
+                }
+                dotLockRaf = null;
+            } else {
+                repoUuidRaf = new RandomAccessFile(repoUuidFile, "rw");
+                dotLockRaf = new RandomAccessFile(dotLockFile, "rw");
+            }
         }
     }
 
@@ -92,9 +107,15 @@ public class FileMaker {
                 throw new InternalException("Not initialized");
             }
 
-            lock = dotLockRaf.getChannel().lock();
-            dotLockRaf.seek(0);
-            dotLockRaf.writeUTF(new Date().toString());
+            if (repoUuidRaf == null) {
+                return null;
+            }
+
+            if (!isReadOnlyRepo) {
+                lock = dotLockRaf.getChannel().lock();
+                dotLockRaf.seek(0);
+                dotLockRaf.writeUTF(new Date().toString());
+            }
 
             String line = null;
             try {
@@ -154,7 +175,7 @@ public class FileMaker {
 
             dbUuid = null;
             repoUuidFile = null;
-            if (!dotLockFile.delete()) {
+            if (!(isReadOnlyRepo || dotLockFile.delete())) {
                 log.warn("Failed to delete lock file: "
                         + dotLockFile.getAbsolutePath());
             }

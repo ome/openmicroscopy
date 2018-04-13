@@ -44,6 +44,7 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Login;
 import ome.system.Roles;
 import omero.cmd.Delete2;
@@ -59,7 +60,7 @@ import omero.cmd.Response;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
-public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Delete2> {
+public class Delete2I extends Delete2 implements IRequest, ReadOnlyStatus.IsAware, WrappableRequest<Delete2> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Delete2I.class);
 
@@ -248,6 +249,11 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
     @Override
     public Map<String, List<Long>> getStartFrom(Response response) {
         return ((Delete2Response) response).deletedObjects;
+    }
+
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return dryRun;
     }
 
     /**

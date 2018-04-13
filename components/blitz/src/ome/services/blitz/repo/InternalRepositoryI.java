@@ -7,6 +7,7 @@ package ome.services.blitz.repo;
 
 import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Principal;
 import omero.ServerError;
 import omero.model.OriginalFile;
@@ -27,9 +28,16 @@ public class InternalRepositoryI extends AbstractRepositoryI {
 
     private final static Logger log = LoggerFactory.getLogger(InternalRepositoryI.class);
 
+    @Deprecated
     public InternalRepositoryI(ObjectAdapter oa, Registry reg, Executor ex,
             Principal p, String repoDir, PublicRepositoryI servant) {
-        super(oa, reg, ex, p, repoDir, servant);
+        this(oa, reg, ex, p, repoDir, new ReadOnlyStatus(false, false), servant);
+        log.info("assuming read-write repository");
+    }
+
+    public InternalRepositoryI(ObjectAdapter oa, Registry reg, Executor ex,
+            Principal p, String repoDir, ReadOnlyStatus readOnly, PublicRepositoryI servant) {
+        super(oa, reg, ex, p, repoDir, readOnly, servant);
     }
 
     //TODO CACHING

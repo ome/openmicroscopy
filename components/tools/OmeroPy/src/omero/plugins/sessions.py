@@ -950,7 +950,7 @@ class SessionsControl(UserGroupControl):
     def _get_server(self, store, name, port):
         defserver = store.last_host()
         if not port:
-            port = str(omero.constants.GLACIER2PORT)
+            port = store.last_port()
         self._require_tty("cannot request server")
         rv = self.ctx.input("Server: [%s:%s]" % (defserver, port))
         if not rv:

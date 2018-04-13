@@ -122,6 +122,10 @@ class mocked_config_service(object):
         return self.db_uuid
 
     def getConfigValue(self, str):
+        # Not testing read-only yet.
+        # Server sets these runtime properties at startup.
+        if str.startswith("omero.cluster.read_only.runtime."):
+            return "false"
         rv = self.return_values.pop(0)
         if isinstance(rv, omero.ServerError):
             raise rv

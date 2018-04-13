@@ -734,7 +734,7 @@ present, the user will enter a console""")
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
-        self.check_access(config=config)
+        self.check_access(mask=os.R_OK, config=config)
         self.checkice()
         self.check_node(args)
 
@@ -1537,7 +1537,7 @@ present, the user will enter a console""")
 
         if config is not None:
             omero_data_dir = self._get_data_dir(config)
-            self.can_access(omero_data_dir)
+            self.can_access(omero_data_dir, mask)
 
         for p in os.listdir(var):
             subpath = os.path.join(var, p)

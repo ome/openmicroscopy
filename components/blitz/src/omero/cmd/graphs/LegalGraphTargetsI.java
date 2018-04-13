@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import ome.model.IObject;
+import ome.services.util.ReadOnlyStatus;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -37,7 +38,7 @@ import omero.cmd.Response;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.4
  */
-public class LegalGraphTargetsI extends LegalGraphTargets implements IRequest {
+public class LegalGraphTargetsI extends LegalGraphTargets implements IRequest, ReadOnlyStatus.IsAware {
 
     private final GraphRequestFactory graphRequestFactory;
     private Helper helper;
@@ -96,5 +97,10 @@ public class LegalGraphTargetsI extends LegalGraphTargets implements IRequest {
     @Override
     public Response getResponse() {
         return helper.getResponse();
+    }
+
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return true;
     }
 }

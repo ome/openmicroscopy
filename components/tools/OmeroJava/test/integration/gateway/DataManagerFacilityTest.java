@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -93,12 +93,6 @@ public class DataManagerFacilityTest extends GatewayTest {
 
     /** File size of an attachment */
     final int fileSizeInMb = 25;
-
-    /**
-     * The amount a parallel attachment upload is allowed to be slower than a
-     * single upload
-     */
-    final double multipleAttachmentUploadThreshold = 1.5;
 
     ProjectData proj;
     DatasetData ds;
@@ -311,58 +305,6 @@ public class DataManagerFacilityTest extends GatewayTest {
 
         Assert.assertTrue(fa.getFileName().startsWith("attachedFile"));
         tmp.delete();
-    }
-    
-    /**
-     * Checks the performance of multiple parallel file attachment uploads.
-     * Should not be slower than 1.5x of single file attachment uploads.
-     * 
-     * @throws Exception
-     */
-    //@Test(groups = "broken") // marked as 'broken', works fine locally, but flaky on CI
-    @Test(dependsOnMethods = { "testSaveAndReturnObject" })
-    public void testPerformanceAttachFile() throws Exception {
-        long start = System.currentTimeMillis();
-
-        for (File file : attachments) {
-            Future<FileAnnotationData> f = datamanagerFacility
-                    .attachFile(rootCtx, file, "application/octet-stream",
-                            "test", null, ds);
-            f.get();
-        }
-        long duration = System.currentTimeMillis() - start;
-        long avgSingleUploadDuration = duration / attachments.length;
-
-        start = System.currentTimeMillis();
-        Future<FileAnnotationData>[] futures = new Future[attachments.length];
-        for (int i = 0; i < attachments.length; i++) {
-            futures[i] = datamanagerFacility.attachFile(rootCtx,
-                    attachments[i], "application/octet-stream", "test", null,
-                    ds);
-        }
-
-        boolean finished = false;
-        while (!finished) {
-            finished = true;
-            for (int i = 0; i < futures.length; i++) {
-                if (!futures[i].isDone()) {
-                    finished = false;
-                    break;
-                }
-            }
-            if (finished)
-                break;
-            Thread.sleep(100);
-        }
-        duration = System.currentTimeMillis() - start;
-        long avgParallelUploadDurationPerFile = duration / attachments.length;
-
-        Assert.assertTrue(
-                avgParallelUploadDurationPerFile < avgSingleUploadDuration
-                        * multipleAttachmentUploadThreshold,
-                "Parallel file attachment upload is significantly slower than single upload ("
-                        + avgParallelUploadDurationPerFile + " vs "
-                        + avgSingleUploadDuration + " ms per file)");
     }
     
     @Test

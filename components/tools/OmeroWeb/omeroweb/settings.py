@@ -512,8 +512,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["PUBLIC_URL_FILTER",
          r'(?#This regular expression matches nothing)a^',
          re.compile,
-         ("Set a regular expression that matches URLs the public user is"
-          "allowed to access. If this is not set, no URLS will be"
+         ("Set a regular expression that matches URLs the public user is "
+          "allowed to access. If this is not set, no URLs will be "
           "publicly available.")],
     "omero.web.public.get_only":
         ["PUBLIC_GET_ONLY",

@@ -1,7 +1,8 @@
 /*
- *   Copyright 2006-2016 University of Dundee. All rights reserved.
+ *   Copyright 2006-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.io.nio;
 
 import java.io.File;
@@ -31,10 +32,16 @@ public class AbstractFileSystemService {
 
     private final String root;
 
+    @Deprecated
     public AbstractFileSystemService(String path) {
+        this(path, false);
+        log.info("assuming read-write repository at " + path);
+    }
+
+    public AbstractFileSystemService(String path, boolean isReadOnlyRepo) {
         File rootDirectory = new File(path);
         if (!rootDirectory.isDirectory() || !rootDirectory.canRead()
-                || !rootDirectory.canWrite()) {
+                || !(isReadOnlyRepo || rootDirectory.canWrite())) {
             throw new IllegalArgumentException(
                     "Invalid directory specified for file system service."
 		    + rootDirectory);

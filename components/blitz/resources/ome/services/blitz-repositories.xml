@@ -21,12 +21,13 @@
   </bean>
 
   <bean id="legacyRepository" class="ome.services.blitz.repo.LegacyRepositoryI" destroy-method="close">
-      <constructor-arg index="0" ref="BlitzAdapter"/>
-      <constructor-arg index="1" ref="Registry"/>
-      <constructor-arg index="2" ref="executor"/>
-      <constructor-arg index="3" ref="repoPrincipal"/>
-      <constructor-arg index="4" value="${omero.data.dir}"/>
-      <constructor-arg index="5">
+      <constructor-arg ref="BlitzAdapter"/>
+      <constructor-arg ref="Registry"/>
+      <constructor-arg ref="executor"/>
+      <constructor-arg ref="repoPrincipal"/>
+      <constructor-arg value="${omero.data.dir}"/>
+      <constructor-arg ref="readOnlyStatus"/>
+      <constructor-arg>
           <bean class="ome.services.blitz.repo.PublicRepositoryI">
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="checksumProviderFactory"/>
@@ -52,12 +53,13 @@
   </bean>
 
   <bean id="managedRepository" class="ome.services.blitz.repo.LegacyRepositoryI" destroy-method="close">
-      <constructor-arg index="0" ref="BlitzAdapter"/>
-      <constructor-arg index="1" ref="Registry"/>
-      <constructor-arg index="2" ref="executor"/>
-      <constructor-arg index="3" ref="repoPrincipal"/>
-      <constructor-arg index="4" value="${omero.managed.dir}"/>
-      <constructor-arg index="5">
+      <constructor-arg ref="BlitzAdapter"/>
+      <constructor-arg ref="Registry"/>
+      <constructor-arg ref="executor"/>
+      <constructor-arg ref="repoPrincipal"/>
+      <constructor-arg value="${omero.managed.dir}"/>
+      <constructor-arg ref="readOnlyStatus"/>
+      <constructor-arg>
           <bean class="ome.services.blitz.repo.ManagedRepositoryI">
               <constructor-arg value="${omero.fs.repo.path}"/>
               <constructor-arg ref="repositoryDao"/>
@@ -92,12 +94,13 @@
         Script repository which makes the contents of lib/scripts available
         for processing.
       </description>
-      <constructor-arg index="0" ref="BlitzAdapter"/>
-      <constructor-arg index="1" ref="Registry"/>
-      <constructor-arg index="2" ref="executor"/>
-      <constructor-arg index="3" ref="repoPrincipal"/>
-      <constructor-arg index="4" ref="scriptRepoHelper"/>
-      <constructor-arg index="5">
+      <constructor-arg ref="BlitzAdapter"/>
+      <constructor-arg ref="Registry"/>
+      <constructor-arg ref="executor"/>
+      <constructor-arg ref="repoPrincipal"/>
+      <constructor-arg ref="scriptRepoHelper"/>
+      <constructor-arg ref="readOnlyStatus"/>
+      <constructor-arg>
           <bean class="ome.services.blitz.repo.PublicRepositoryI">
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="checksumProviderFactory"/>
@@ -133,6 +136,12 @@
     <property name="cronExpression" value="${omero.scripts.cache.cron}"/>
     <property name="jobDetail" ref="paramsCacheRun"/>
   </bean>
+  <bean id="paramsCacheTriggerGuard" class="ome.services.util.BeanInstantiationGuard">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg value="paramsCacheTrigger"/>
+    <property name="isWriteDb" value="true"/>
+    <property name="isWriteRepo" value="true"/>
+  </bean>
   <bean id="paramsCacheStartupRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="paramsCache" />
     <property name="targetMethod" value="lookupAll" />
@@ -142,6 +151,12 @@
     <property name="repeatCount" value="0"/>
     <property name="repeatInterval" value="86400000"/><!-- 1 day just in case -->
     <property name="jobDetail" ref="paramsCacheStartupRun"/>
+  </bean>
+  <bean id="paramsCacheStartupTriggerGuard" class="ome.services.util.BeanInstantiationGuard">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg value="paramsCacheStartupTrigger"/>
+    <property name="isWriteDb" value="true"/>
+    <property name="isWriteRepo" value="true"/>
   </bean>
 
 </beans>

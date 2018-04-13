@@ -39,6 +39,7 @@ import ome.io.nio.PixelsService;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.parameters.Parameters;
+import ome.services.util.ReadOnlyStatus;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -53,7 +54,7 @@ import omero.cmd.Response;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 5.4
  */
-public class FindPyramidsI extends FindPyramids implements IRequest{
+public class FindPyramidsI extends FindPyramids implements IRequest, ReadOnlyStatus.IsAware {
 
     private static final long serialVersionUID = -1L;
 
@@ -232,5 +233,10 @@ public class FindPyramidsI extends FindPyramids implements IRequest{
             log.debug("Error instantiating pixel buffer", e);
         }
         return false;
+    }
+
+    @Override
+    public boolean isReadOnly(ReadOnlyStatus readOnly) {
+        return true;
     }
 }

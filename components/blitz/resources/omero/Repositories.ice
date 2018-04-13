@@ -113,6 +113,7 @@ module omero {
              **/
             omero::api::RawFileStore* file(string path, string mode) throws ServerError;
 
+            ["deprecate:may be wholly removed in next major version"]
             omero::api::RawPixelsStore*  pixels(string path) throws ServerError;
 
             omero::api::RawFileStore* fileById(long id) throws ServerError;

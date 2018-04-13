@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.test.mock;
 
 import java.io.File;
@@ -14,6 +13,7 @@ import ome.services.blitz.repo.PublicRepositoryI;
 import ome.services.blitz.repo.RepositoryDaoImpl;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.util.Executor;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -54,7 +54,7 @@ public class StandaloneRepositoryTest extends MockObjectTestCase {
     public void testSimple() throws Exception {
         Principal p = new Principal("mock-uuid");
         InternalRepositoryI repo = new InternalRepositoryI(oa, reg, ex,
-                p, dir.getAbsolutePath(),
+                p, dir.getAbsolutePath(), new ReadOnlyStatus(false, false),
                 new PublicRepositoryI(new RepositoryDaoImpl(p, ex), cpf, null,
                         FilePathRestrictionInstance.UNIX_REQUIRED.name));
     }

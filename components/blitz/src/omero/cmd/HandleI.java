@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -16,6 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import ome.conditions.InternalException;
 import ome.services.util.Executor;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
@@ -25,6 +24,7 @@ import omero.ServerError;
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.MapMaker;
@@ -62,6 +62,8 @@ public class HandleI implements _HandleOperations, IHandle,
     private static final long serialVersionUID = 15920349984928755L;
 
     private static final MapMaker mapMaker = new MapMaker();
+
+    private final ReadOnlyStatus readOnly;
 
     /**
      * Timeout in seconds that cancellation should wait.
@@ -131,12 +133,20 @@ public class HandleI implements _HandleOperations, IHandle,
     // INTIALIZATION
     //
 
+    @Deprecated
+    public HandleI(int cancelTimeoutMs) {
+        this(new ReadOnlyStatus(false, false), cancelTimeoutMs);
+        LoggerFactory.getLogger(getClass()).info("assuming read-write repository");
+    }
+
     /**
      * Create a {@link HandleI} (at {@code CREATED} in the state diagram)
      * with the given cancel timeout in milliseconds.
+     * @param readOnly the read-only status
      * @param cancelTimeoutMs the cancel timeout (in milliseconds)
      */
-    public HandleI(int cancelTimeoutMs) {
+    public HandleI(ReadOnlyStatus readOnly, int cancelTimeoutMs) {
+        this.readOnly = readOnly;
         this.cancelTimeoutMs = cancelTimeoutMs;
         this.state.set(State.CREATED);
     }
@@ -344,6 +354,7 @@ public class HandleI implements _HandleOperations, IHandle,
      *
      * NB: Executes only if at {@code CREATED} in the state diagram.
      */
+    @SuppressWarnings("unchecked")
     public void run() {
 
         // If we're not in the created state, then do nothing
@@ -355,25 +366,24 @@ public class HandleI implements _HandleOperations, IHandle,
         StopWatch sw = new Slf4JStopWatch();
         try {
             Map<String, String> merged = mergeContexts();
-
-            @SuppressWarnings("unchecked")
-            List<Object> rv = (List<Object>) executor.execute(merged, principal,
-                    new Executor.SimpleWork(this, "run",
-                    Ice.Util.identityToString(id), req) {
-                @Transactional(readOnly = false)
-                public List<Object> doWork(Session session, ServiceFactory sf) {
-                    try {
-                        List<Object> rv = steps(getSqlAction(), session, sf);
-                        state.set(State.FINISHED); // Regardless of current
-                        return rv;
-                    } catch (Cancel c) {
-                        // TODO: Perhaps remove local State enum and use solely
-                        // the slice defined one.
-                        state.set(State.CANCELLED);
-                        throw c; // Exception intended to rollback transaction
+            final List<Object> rv;
+            if (req instanceof ReadOnlyStatus.IsAware && ((ReadOnlyStatus.IsAware) req).isReadOnly(readOnly)) {
+                rv = (List<Object>) executor.execute(merged, principal,
+                        new RunSteps(this, "run (ro)", Ice.Util.identityToString(id), req) {
+                    @Transactional(readOnly = true)
+                    public List<Object> doWork(Session session, ServiceFactory sf) {
+                        return innerWork(session, sf);
                     }
-                }
-            });
+                });
+            } else {
+                rv = (List<Object>) executor.execute(merged, principal,
+                        new RunSteps(this, "run (rw)", Ice.Util.identityToString(id), req) {
+                    @Transactional(readOnly = false)
+                    public List<Object> doWork(Session session, ServiceFactory sf) {
+                        return innerWork(session, sf);
+                    }
+                });
+            }
 
             // Post-process
             for (int step = 0; step < status.steps; step++) {
@@ -480,6 +490,32 @@ public class HandleI implements _HandleOperations, IHandle,
             status.stopTime = swWhole.getStartTime() + swWhole.getElapsedTime();
         }
 
+    }
+
+    /**
+     * Base class for the workers of {@link HandleI#run()} that run the steps of a request.
+     * Perhaps could be refactored away in Java 8.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.4.6
+     */
+    private abstract class RunSteps extends Executor.SimpleWork {
+
+        private RunSteps(Object string, String action, Object... params) {
+            super(string, action, params);
+        }
+
+        protected List<Object> innerWork(Session session, ServiceFactory sf) {
+            try {
+                final List<Object> rv = steps(getSqlAction(), session, sf);
+                state.set(State.FINISHED); // Regardless of current
+                return rv;
+            } catch (Cancel c) {
+                // TODO: Perhaps remove local State enum and use solely
+                // the slice-defined one.
+                state.set(State.CANCELLED);
+                throw c; // Exception intended to rollback transaction
+            }
+        }
     }
 
     /**

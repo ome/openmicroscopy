@@ -39,6 +39,8 @@
     <constructor-arg ref="systemTypes"/>
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="sessionManager"/>
+    <constructor-arg ref="sessionProvider"/>
+    <constructor-arg ref="eventProvider"/>
     <constructor-arg ref="roles"/>
     <constructor-arg ref="internalServiceFactory"/>
     <constructor-arg ref="tokenHolder"/>
@@ -66,7 +68,7 @@
     <constructor-arg ref="basicSecuritySystem"/>
     <constructor-arg ref="omeroSessionFactory"/>
     <constructor-arg ref="transactionAttributeSource"/>
-    <constructor-arg value="${omero.cluster.read_only}"/>
+    <constructor-arg ref="readOnlyStatus"/>
   </bean>
 
   <!-- These might should be moved to a third security tier -->
@@ -112,6 +114,12 @@
     <property name="targetObject" ref="adminPrivilegesCleanup"/>
     <property name="targetMethod" value="run"/>
     <property name="concurrent" value="false"/>
+  </bean>
+
+  <bean id="adminPrivilegesCleanupTriggerGuard" class="ome.services.util.BeanInstantiationGuard">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg value="adminPrivilegesCleanupTrigger"/>
+    <property name="isWriteDb" value="true"/>
   </bean>
 
 </beans>

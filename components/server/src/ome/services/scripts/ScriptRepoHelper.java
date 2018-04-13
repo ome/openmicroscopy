@@ -26,6 +26,7 @@ import ome.model.enums.ChecksumAlgorithm;
 import ome.model.meta.ExperimenterGroup;
 import ome.services.delete.Deletion;
 import ome.services.util.Executor;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -104,6 +105,8 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
 
     private final Roles roles;
 
+    private final ReadOnlyStatus readOnly;
+
     private final String fileRepoSecretKey;
 
     /**
@@ -116,16 +119,43 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     /**
      * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
      */
+    @Deprecated
     public ScriptRepoHelper(Executor ex, String sessionUuid, Roles roles) {
-        this(new File(getDefaultScriptDir()), ex, sessionUuid, new Principal(sessionUuid),
-                roles);
+        this(ex, sessionUuid, roles, new ReadOnlyStatus(false, false));
+        log.info("assuming read-write repository");
     }
 
     /**
      * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
      */
+    public ScriptRepoHelper(Executor ex, String sessionUuid, Roles roles, ReadOnlyStatus readOnly) {
+        this(SCRIPT_REPO, new File(getDefaultScriptDir()), ex, sessionUuid, new Principal(sessionUuid),
+                roles, readOnly);
+    }
+
+    /**
+     * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
+     */
+    @Deprecated
     public ScriptRepoHelper(File dir, Executor ex, String sessionUuid, Principal p, Roles roles) {
         this(SCRIPT_REPO, dir, ex, sessionUuid, p, roles);
+    }
+
+    /**
+     * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
+     */
+    @Deprecated
+    public ScriptRepoHelper(String uuid, File dir, Executor ex, String sessionUuid, Principal p, Roles roles) {
+        this(uuid, dir, ex, sessionUuid, p, roles, new ReadOnlyStatus(false, false));
+        log.info("assuming read-write repository");
+    }
+
+    /**
+     * @see #ScriptRepoHelper(String, File, Executor, String, Principal, Roles)
+     */
+    @Deprecated
+    public ScriptRepoHelper(File dir, Executor ex, String sessionUuid, Principal p, Roles roles, ReadOnlyStatus readOnly) {
+        this(SCRIPT_REPO, dir, ex, sessionUuid, p, roles, readOnly);
     }
 
     /**
@@ -141,13 +171,14 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * @param p
      */
     public ScriptRepoHelper(String uuid, File dir, Executor ex, String sessionUuid, Principal p,
-            Roles roles) {
+            Roles roles, ReadOnlyStatus readOnly) {
         this.roles = roles;
         this.uuid = uuid;
         this.dir = sanityCheck(log, dir);
         this.ex = ex;
         this.fileRepoSecretKey = sessionUuid;
         this.p = p;
+        this.readOnly = readOnly;
     }
 
     /**
@@ -460,59 +491,89 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
         return FileUtils.iterateFiles(dir, scriptFilter, TrueFileFilter.TRUE);
     }
 
-    @SuppressWarnings("unchecked")
-    private List<OriginalFile> loadAllScripts(final boolean modificationCheck,
-            final String mimetype, final Principal pp) {
-        final Iterator<File> it = iterate();
-        final List<OriginalFile> rv = new ArrayList<OriginalFile>();
-        return (List<OriginalFile>) ex.execute(pp, new Executor.SimpleWork(this,
-                "loadAll", modificationCheck) {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
+    /**
+     * Base class for loading the scripts in {@link ScriptRepoHelper#loadAllScripts(boolean, String, Principal)}.
+     * Perhaps could be refactored away in Java 8.
+     * @since 5.4.6
+     * @author m.t.b.carroll@dundee.ac.uk
+     */
+    private abstract class LoadScripts extends Executor.SimpleWork {
 
-                SqlAction sqlAction = getSqlAction();
-                List<OriginalFile> list = new ArrayList<OriginalFile>();
-                File f = null;
-                RepoFile file = null;
-                //only retrieve the non-inert mimetypes
-                Set<String> types = new HashSet<String>();
-                if (StringUtils.isBlank(mimetype)) {
-                    types.addAll(mimetypes);
-                    types.removeAll(inertMimetypes);
+        private LoadScripts(Object object, String action) {
+            super(object, action);
+        }
+
+        protected List<OriginalFile> innerWork(Session session, ServiceFactory sf,
+                boolean modificationCheck, String mimetype) {
+            final Iterator<File> it = iterate();
+            final List<OriginalFile> rv = new ArrayList<OriginalFile>();
+            SqlAction sqlAction = getSqlAction();
+            List<OriginalFile> list = new ArrayList<OriginalFile>();
+            File f = null;
+            RepoFile file = null;
+            //only retrieve the non-inert mimetypes
+            Set<String> types = new HashSet<String>();
+            if (StringUtils.isBlank(mimetype)) {
+                types.addAll(mimetypes);
+                types.removeAll(inertMimetypes);
+            } else {
+                types.add(mimetype);
+            }
+            while (it.hasNext()) {
+                f = it.next();
+                file = new RepoFile(dir, f);
+                Long id = findInDb(sqlAction, file, false); // non-scripts count
+                String hash = null;
+                OriginalFile ofile = null;
+                if (id == null) {
+                    ofile = addOrReplace(session, sqlAction, sf, file, null);
                 } else {
-                    types.add(mimetype);
-                }
-                while (it.hasNext()) {
-                    f = it.next();
-                    file = new RepoFile(dir, f);
-                    Long id = findInDb(sqlAction, file, false); // non-scripts count
-                    String hash = null;
-                    OriginalFile ofile = null;
-                    if (id == null) {
-                        ofile = addOrReplace(session, sqlAction, sf, file, null);
-                    } else {
-                        ofile = load(id, session, getSqlAction(), true); // checks for type & repo
-                        if (ofile == null) {
-                            continue; // wrong type or similar
-                        }
+                    ofile = load(id, session, sqlAction, true); // checks for type & repo
+                    if (ofile == null) {
+                        continue; // wrong type or similar
+                    }
 
-                        if (modificationCheck) {
-                            hash = file.hash();
-                            if (!hash.equals(ofile.getHash())) {
+                    if (modificationCheck) {
+                        hash = file.hash();
+                        if (!hash.equals(ofile.getHash())) {
+                            if (readOnly.isReadOnlyDb()) {
+                                log.info("read-only database so ignoring modification of script ID {}", id);
+                            } else {
                                 ofile = addOrReplace(session, sqlAction, sf, file, id);
                             }
                         }
                     }
-                    if (types.contains(ofile.getMimetype())) {
-                        rv.add(ofile);
-                    } else {
-                        list.add(ofile);
-                    }
                 }
-                list.addAll(rv);
-                removeMissingFilesFromDb(sqlAction, session, list);
-                return rv;
-            }});
+                if (types.contains(ofile.getMimetype())) {
+                    rv.add(ofile);
+                } else {
+                    list.add(ofile);
+                }
+            }
+            list.addAll(rv);
+            removeMissingFilesFromDb(sqlAction, session, list);
+            return rv;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<OriginalFile> loadAllScripts(final boolean modificationCheck,
+            final String mimetype, final Principal pp) {
+        if (readOnly.isReadOnlyDb()) {
+            return (List<OriginalFile>) ex.execute(pp, new LoadScripts(this, "LoadScripts (ro)") {
+                @Override
+                @Transactional(readOnly = true)
+                public List<OriginalFile> doWork(Session session, ServiceFactory sf) {
+                    return innerWork(session, sf, modificationCheck, mimetype);
+                }});
+        } else {
+            return (List<OriginalFile>) ex.execute(pp, new LoadScripts(this, "LoadScripts (rw)") {
+                @Override
+                @Transactional(readOnly = false)
+                public List<OriginalFile> doWork(Session session, ServiceFactory sf) {
+                    return innerWork(session, sf, modificationCheck, mimetype);
+                }});
+        }
     }
 
     /**
@@ -527,7 +588,6 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * @param mimetype the mimetype of the scripts or <code>null</code>.
      * @return See above.
      */
-    @SuppressWarnings("unchecked")
     public List<OriginalFile> loadAll(final boolean modificationCheck, final
             String mimetype) {
         return loadAllScripts(modificationCheck, mimetype, p);
@@ -549,7 +609,6 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * @param modificationCheck
      * @return See above.
      */
-    @SuppressWarnings("unchecked")
     public List<OriginalFile> loadAll(final boolean modificationCheck) {
         return loadAll(modificationCheck, null);
     }
@@ -606,7 +665,11 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
         setInDb.removeAll(setOnDisk);
 
         for (Long l : setInDb) {
-            unregister(l, sqlAction);
+            if (readOnly.isReadOnlyDb()) {
+                log.info("read-only database so ignoring missing script ID {}", l);
+            } else {
+                unregister(l, sqlAction);
+            }
         }
 
         return setInDb.size();
@@ -722,8 +785,8 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * Unlike {@link #delete(long)} this method simply performs the DB delete
      * on the given original file id.
      *
-     * @param context 
-     *                  Call context which affecets which group the current user is in. 
+     * @param context
+     *                  Call context which affects which group the current user is in.
      *                  Can be null to pass no call context.
      * @param executor
      * @param p

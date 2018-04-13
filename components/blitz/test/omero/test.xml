@@ -74,7 +74,6 @@
 
   <bean name="/OMERO/Pixels" class="ome.io.nio.PixelsService"
         parent="filesystem">
-    <constructor-arg><null/></constructor-arg>
   </bean>
  <bean id="shareStore" class="ome.services.sharing.BlobShareStore"/>
 

@@ -3056,6 +3056,9 @@ def load_calendar(request, year=None, month=None, conn=None, **kwargs):
 def load_history(request, year, month, day, conn=None, **kwargs):
     """ The data for a particular date that is loaded into the center panel """
 
+    if year is None or month is None or day is None:
+        raise Http404('Year, month, and day are required')
+
     template = "webclient/history/history_details.html"
 
     # get page
@@ -3371,7 +3374,7 @@ def activities(request, conn=None, **kwargs):
                                         obj_data['name'] = name
                                 rMap[key] = obj_data
                             else:
-                                rMap[key] = v
+                                rMap[key] = unwrap(v)
                     update_callback(request, cbString, results=rMap)
                 else:
                     in_progress += 1
@@ -3592,7 +3595,7 @@ def script_ui(request, scriptId, conn=None, **kwargs):
         elif pt.__class__.__name__ == 'list':
             i["list"] = True
             if "default" in i:
-                i["default"] = i["default"][0]
+                i["default"] = ",".join([str(d) for d in i["default"]])
         elif isinstance(pt, bool):
             i["boolean"] = True
         elif isinstance(pt, int) or isinstance(pt, long):

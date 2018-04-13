@@ -130,6 +130,8 @@
     <constructor-arg ref="policyService"/>
     <constructor-arg ref="roles"/>
     <constructor-arg ref="adminPrivileges"/>
+    <constructor-arg ref="sessionProviderBare"/>
+    <constructor-arg ref="readOnlyStatus"/>
     <constructor-arg ref="managedRepoUuids"/>
     <constructor-arg ref="scriptRepoUuids"/>
     <constructor-arg ref="uuid"/>  <!-- allows setting OriginalFile.repo -->
@@ -151,8 +153,78 @@
     <property name="executor"        ref="executor"/>
     <property name="defaultTimeToIdle" value="${omero.sessions.timeout}"/>
     <property name="defaultTimeToLive" value="${omero.sessions.maximum}"/>
-    <property name="counterFactory" ref="sessionCounterFactory"/>
-    <property name="readOnly"       value="${omero.cluster.read_only}"/>
+    <property name="counterFactory"  ref="sessionCounterFactory"/>
+    <property name="readOnly"        ref="readOnlyStatus"/>
+    <property name="sessionProvider" ref="sessionProvider"/>
+  </bean>
+
+  <bean id="eventProvider" class="ome.security.basic.EventProviderWrapper">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg>
+      <!-- Providers are listed in descending order of preference. -->
+      <list>
+        <bean class="ome.security.basic.EventProviderInDb">
+          <constructor-arg ref="internalServiceFactory"/>
+        </bean>
+        <bean class="ome.security.basic.EventProviderInMemory">
+        </bean>
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="nodeProvider" class="ome.security.basic.NodeProviderWrapper">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg>
+      <!-- Providers are listed in descending order of preference. -->
+      <list>
+        <bean class="ome.security.basic.NodeProviderInDb">
+          <constructor-arg ref="uuid"/>
+          <constructor-arg ref="executor"/>
+        </bean>
+        <bean class="ome.security.basic.NodeProviderInMemory">
+          <constructor-arg ref="uuid"/>
+        </bean>
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="sessionProvider" class="ome.services.sessions.SessionProviderWrapper">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg>
+      <!-- Providers are listed in descending order of preference. -->
+      <list>
+        <bean class="ome.services.sessions.SessionProviderInDb">
+          <constructor-arg ref="roles"/>
+          <constructor-arg ref="nodeProvider"/>
+          <constructor-arg ref="executor"/>
+        </bean>
+        <bean class="ome.services.sessions.SessionProviderInMemory">
+          <constructor-arg ref="roles"/>
+          <constructor-arg ref="nodeProvider"/>
+          <constructor-arg ref="executor"/>
+        </bean>
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <!-- avoids dependency on executor bean -->
+  <bean id="sessionProviderBare" class="ome.services.sessions.SessionProviderWrapper">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg>
+      <!-- Providers are listed in descending order of preference. -->
+      <list>
+        <bean class="ome.services.sessions.SessionProviderInDb">
+          <constructor-arg ref="roles"/>
+          <constructor-arg><null/></constructor-arg>
+          <constructor-arg><null/></constructor-arg>
+        </bean>
+        <bean class="ome.services.sessions.SessionProviderInMemory">
+          <constructor-arg ref="roles"/>
+          <constructor-arg><null/></constructor-arg>
+          <constructor-arg><null/></constructor-arg>
+        </bean>
+      </list>
+    </constructor-arg>
   </bean>
 
   <bean id="methodSecurity" class="ome.security.basic.BasicMethodSecurity">
