@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 /*
- *   $Id$
- *
  *   Copyright 2008-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -51,10 +49,14 @@ class TestModel(object):
         # RBool
         true1 = rbool(True)
         true2 = rbool(True)
+        true3 = rbool('True')
         false1 = rbool(False)
         false2 = rbool(False)
+        false3 = rbool('False')
         assert true1 == true2
+        assert true1 == true3
         assert false1 == false2
+        assert false1 == false3
         assert true1.getValue()
         assert not false1.getValue()
         assert true1 == true2

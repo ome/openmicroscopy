@@ -3,8 +3,6 @@
 """
 ::
     /*
-     *   $Id$
-     *
      *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
      *   Use is subject to license terms supplied in LICENSE.txt
      *
@@ -171,6 +169,8 @@ def rbool(val):
     """
     if val is None or isinstance(val, omero.RBool):
         return val
+    elif isinstance(val, basestring):
+        return rbool(val.lower() == 'true')
     elif val:
         return rtrue
     else:
