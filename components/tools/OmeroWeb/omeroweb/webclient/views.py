@@ -199,6 +199,7 @@ class WebclientLoginView(LoginView):
         # webclient has various state that needs cleaning up...
         # if 'active_group' remains in session from previous
         # login, check it's valid for this user
+        # NB: we do this for public users in @login_required.get_connection()
         if request.session.get('active_group'):
             if (request.session.get('active_group') not in
                     conn.getEventContext().memberOfGroups):
