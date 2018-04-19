@@ -323,6 +323,13 @@ class login_required(object):
                 self.useragent, username, password, is_public=True,
                 userip=get_client_ip(request))
             request.session['connector'] = connector
+            # Clear any previous context so we don't try to access this
+            # NB: we also do this in WebclientLoginView.handle_logged_in()
+            if 'active_group' in request.session:
+                del request.session['active_group']
+            if 'user_id' in request.session:
+                del request.session['user_id']
+            request.session.modified = True
             self.set_public_user_connector(connector)
         elif connection is not None:
             is_anonymous = connection.isAnonymous()
