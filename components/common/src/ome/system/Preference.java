@@ -26,6 +26,7 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 public class Preference implements BeanNameAware {
 
     public enum Visibility {
+        /* Warning: "user" currently treated like "hidden". */
         hidden, all, admin, user;
     }
 
