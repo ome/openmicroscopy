@@ -17,12 +17,16 @@ Further improvements include:
 
 -  enabled big image support in ImageJ/Fiji
 -  reduced the number of threads used by OMERO.web
--  fixed bugs in OMERO.web including:
-   - History tab
+-  fixed other bugs in OMERO.web including:
+   - broken History tab
    - handling of script params
    - pagination calculations
    - public user login
 -  fixed the chosen login ports for OMERO.cli
+
+Developer updates include:
+
+-  a new command to set custom physical pixel size using OMERO.cli
 -  deprecated Repository::pixels and TinyImportFixture
 
 This release also upgrades the version of Bio-Formats which OMERO
