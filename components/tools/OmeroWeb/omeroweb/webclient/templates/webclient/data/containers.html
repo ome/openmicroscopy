@@ -49,6 +49,11 @@
 
     <script type="text/javascript" src="{% static 'webclient/javascript/ome.chgrp.js'|add:url_suffix %}"></script>
 
+    <!-- Drag-n-drop to import -->
+    <script src="{% static '3rdparty/jquery.fileupload-9.21.0/jquery.iframe-transport.js' %}"></script>
+    <script src="{% static '3rdparty/jquery.fileupload-9.21.0/jquery.fileupload.js' %}"></script>
+    <script src="{% static 'webgateway/js/ome.import_fileupload.js' %}"></script>
+
     <!-- Main jsTree code is here -->
     <script src="{% static 'webclient/javascript/ome.tree.js'|add:url_suffix %}"></script>
 
@@ -918,6 +923,32 @@
 <!-- hidden form for chgrp -->
 <form id="chgrp-form" title="Move to Group" action="{% url 'chgrp' %}" style="display:none" method="POST">{% csrf_token %}
 </form>
+
+
+<!-- hidden form for import - Started via drag-n-drop. -->
+<!-- See ome.import_fileupload.js -->
+<form id="import_form" enctype="multipart/form-data" action="{% url 'submit_import' %}" method="post" style="display:none">
+    {% csrf_token %}
+    <input id="fileupload" type="file" name="files[]" data-url="{% url 'submit_import' %}" multiple>
+    <!-- This is updated to the current Dataset -->
+    Dataset: <input id="import_target_dataset" type="number" name="dataset">
+    <input type="submit">
+</form>
+<script>
+    $("#dataTree").on('select_node.jstree', function(event, data){
+        if (data.node.type === 'dataset') {
+            $("#import_target_dataset").val(data.node.data.id);
+        }
+    });
+</script>
+<div id="import_info" style="display: none; position:fixed; width: 400px; height:30px; left:50%; bottom: 100px; border: solid #bbb 1px; 
+    z-index: 100; margin-left: -200px;">
+    <div id="import_progress" style="top: 0; position: absolute; height: 100%; width:50%; background: linear-gradient(hsl(212,8%,49%),hsl(212,8%,34%));"></div>
+    <div id="import_status" style="top: 0; position: absolute; height: 100%; width:100%; text-align: center;
+        padding: 5px; font-size: 18px; color: #aaa;">
+        Uploading...
+    </div>
+</div>
 
 
 {% endblock %}

@@ -358,6 +358,71 @@
 						<!-- Time -->
                     </tr>
                 {% endifequal %}
+
+
+                <!-- Import jobs -->
+                {% ifequal j.job_type "import" %}
+                    <tr id="{{ j.id }}" class="{% if j.new %}new_result{% endif %}{% ifequal j.status 'in progress' %} in_progress{% endifequal %}">
+                        <td class="activities_state">
+                            {% ifequal j.status "in progress" %}
+                                <img alt="Importing" src="{% static "webgateway/img/spinner.gif" %}" />
+                            {% else %}
+                                {% if j.error %}
+                                    <div class='script_error' title="{{ j.error }}">
+                                        <img src="{% static "webgateway/img/failed.png" %}" />
+                                    </div>
+                                {% else %}
+                                    <img alt="Success" src="{% static "webgateway/img/success.png" %}" />
+                                {% endif %}
+                            {% endifequal %}
+                        </td>
+                        <td class="script_description">
+                            
+<!--                             <div class="results">
+                                {% if j.dreport %}Error: ({{ j.dreport }}){% endif %}
+                            </div> -->
+
+                            <div>
+                                <ul class="menu_btns silver">
+
+
+                                    {% if j.images %}
+                                        <!-- View Image -->
+                                        <li class="btn_view">
+                                            <a href="#" onClick="return window.open('{% url 'web_image_viewer' j.images.0.id %}', '_blank');"
+                                            title="Open Image{{ j.images|length|pluralize }} in Viewer">View Image</a>
+                                        </li>
+                                        <!-- Browse to Image -->
+                                        <li class="btn_folder">
+                                            <a href='{{ webindex }}?show={% for i in j.images %}image-{{ i.id }}|{% endfor %}'
+                                               class='browse' title="Navigate to Image{{ j.images|length|pluralize }} in the main window"> </a>
+                                        </li>
+                                    {% endif %}
+
+                                    <li class="btn_info">
+                                        {% if j.import_log_file %}<a href="#" onClick="return OME.openPopup('{% url 'get_original_file' j.import_log_file %}');"
+                                            title="Import Log File">Info</a>
+                                        {% endif %}
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <span class="activity_title">
+                                Import
+                            </span>
+
+                            <span class="message">
+                                {% ifequal j.status "in progress" %}
+                                    Importing {{ j.file_count }} file{{ j.file_count|pluralize }}...
+                                {% endifequal %}
+
+                                {% if j.images %}
+                                    Imported {{ j.images|length }} image{{ j.images|length|pluralize }}
+                                {% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                {% endifequal %}
             {% endfor %}
         </tbody>
     </table>

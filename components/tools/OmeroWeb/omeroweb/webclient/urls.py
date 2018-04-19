@@ -321,5 +321,6 @@ urlpatterns = patterns(
 
     url(r'^api/shares/$', views.api_share_list, name='api_shares'),
 
-
+    # POST files to import
+    url(r'^submit_import/$', views.submit_import, name="submit_import"),
 )

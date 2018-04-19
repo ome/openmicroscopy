@@ -88,6 +88,7 @@ from omeroweb.webclient.show import Show, IncorrectMenuError, \
     paths_to_object, paths_to_tag
 from omeroweb.decorators import ConnCleaningHttpResponse, parse_url
 from omeroweb.webgateway.util import getIntOrDefault
+from omero.util.import_library import ImportLibrary
 
 from omero.model import ProjectI, DatasetI, ImageI, \
     ScreenI, PlateI, \
@@ -2882,7 +2883,7 @@ def get_original_file(request, fileId, download=False, conn=None, **kwargs):
         orig_file.getFileInChunks(buf=settings.CHUNK_SIZE))
     rsp.conn = conn
     mimetype = orig_file.mimetype
-    if mimetype == "text/x-python":
+    if mimetype in ("text/x-python", "application/omero-log-file"):
         mimetype = "text/plain"  # allows display in browser
     rsp['Content-Type'] = mimetype
     rsp['Content-Length'] = orig_file.getSize()
@@ -3147,6 +3148,8 @@ def activities(request, conn=None, **kwargs):
     # test each callback for failure, errors, completion, results etc
     for cbString in request.session.get('callback').keys():
         callbackDict = request.session['callback'][cbString]
+
+        print 'callbackDict', callbackDict
         job_type = callbackDict['job_type']
 
         status = callbackDict['status']
@@ -3378,6 +3381,66 @@ def activities(request, conn=None, **kwargs):
                     update_callback(request, cbString, results=rMap)
                 else:
                     in_progress += 1
+
+        elif job_type == 'import':
+            if status != "in progress":
+                continue
+            try:
+                handle = omero.cmd.HandlePrx.checkedCast(
+                    conn.c.ic.stringToProxy(cbString))
+                cb = omero.callbacks.CmdCallbackI(
+                    conn.c, handle, foreground_poll=True)
+                rsp = cb.getResponse()
+                close_handle = False
+                try:
+                    if rsp is None:  # Response not available
+                        in_progress += 1
+                        logger.debug("Still Importing...")
+                    else:  # Response available
+                        close_handle = True
+                        err = isinstance(rsp, omero.cmd.ERR)
+                        if err:
+                            update_callback(
+                                request, cbString,
+                                error=1,
+                                status="failed",
+                                dreport=_formatReport(handle))
+                            failure += 1
+                        else:
+                            # Put the images into a Dataset
+                            logger.debug(
+                                "Imported %s images" % len(rsp.pixels))
+                            dataset_id = callbackDict.get('dataset')
+                            if dataset_id is not None and len(dataset_id) > 0:
+                                links = []
+                                for p in rsp.pixels:
+                                    logger.debug("Add Image %s to Dataset %s" %
+                                                 (p.image.id.val, dataset_id))
+                                    link = omero.model.DatasetImageLinkI()
+                                    link.parent = DatasetI(dataset_id, False)
+                                    link.child = ImageI(p.image.id.val, False)
+                                    links.append(link)
+                                conn.getUpdateService().saveArray(links)
+
+                            images = []
+                            for p in rsp.pixels:
+                                images.append({'name': p.image.name.val,
+                                               'id': p.image.id.val})
+
+                            update_callback(
+                                request, cbString,
+                                status="finished",
+                                images=images)
+                finally:
+                    cb.close(close_handle)
+            except Exception, x:
+                logger.error(traceback.format_exc())
+                logger.error("Import job '%s'error:" % cbString)
+                failure += 1
+                update_callback(request, cbString,
+                                error=1,
+                                status="failed",
+                                dreport=str(x))
 
     # having updated the request.session, we can now prepare the data for http
     # response
@@ -4392,3 +4455,56 @@ def ome_tiff_info(request, imageId, conn=None, **kwargs):
         rv = {"created": str(created), "ago": ago(created), "id": annId,
               "download": download}
     return rv       # will get returned as json by default
+
+
+@login_required()
+@render_response()
+def submit_import(request, conn=None, **kwargs):
+
+    def chunks_gen(open_file):
+        for chunk in open_file.chunks():
+            yield chunk
+
+    def file_gen():
+        for f in request.FILES.getlist('files[]'):
+            yield chunks_gen(f)
+
+    # def file_names():
+    #     for f in request.FILES.getlist('files[]'):
+    #         print "importing...", f.name, f.temporary_file_path(), type(f)
+    #         yield f.name
+
+    pathNames = request.POST.getlist('pathNames')
+    logger.debug("Importing files: %s" % pathNames)
+
+    def file_names():
+        for f in request.POST.getlist('pathNames'):
+            print "FILE", f
+            yield f
+
+    client_path_gen = file_names()
+    folder_gen = file_gen()
+
+    import_lib = ImportLibrary(conn.c)
+    handle = import_lib.importImage(client_path_gen, folder_gen)
+
+    print 'handle', handle
+    req = handle.getRequest()
+    log_file_id = req.logFile.id.val
+
+    dataset_id = request.POST.get('dataset', None)
+
+    job_id = str(handle)
+
+    if request.session.get('import', None) is None:
+        request.session['import'] = {}
+
+    import_data = {'status': 'in progress',
+                   'job_type': 'import',
+                   'file_count': len(pathNames),
+                   'start_time': datetime.datetime.now(),
+                   'import_log_file': log_file_id,
+                   'dataset': dataset_id}
+    request.session['callback'][job_id] = import_data
+    request.session.modified = True
+    return import_data
