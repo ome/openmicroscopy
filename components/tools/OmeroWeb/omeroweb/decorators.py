@@ -481,9 +481,7 @@ class login_required(object):
                         'Doing connection cleanup? %s' % doConnectionCleanup)
                     if doConnectionCleanup:
                         if conn is not None and conn.c is not None:
-                            for v in conn._proxies.values():
-                                v.close()
-                            conn.c.closeSession()
+                            conn.close(hard=False)
                 except:
                     logger.warn('Failed to clean up connection', exc_info=True)
             return retval

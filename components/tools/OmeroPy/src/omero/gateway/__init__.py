@@ -1907,20 +1907,26 @@ class _BlitzGateway (object):
         self._proxies = NoProxies()
         logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
 
-    def close(self):  # pragma: no cover
+    def close(self, hard=True):  # pragma: no cover
         """
-        Terminates connection with killSession(). The session is terminated
-        regardless of its connection refcount.
+        Terminates connection with killSession(), where the session is
+        terminated regardless of its connection refcount, or closeSession().
+
+        :param hard: If True, use killSession(), otherwise closeSession()
         """
         self._connected = False
         oldC = self.c
+        for proxy in self._proxies.values():
+            proxy.close()
         if oldC is not None:
             try:
-                self._closeSession()
+                if hard:
+                    self._closeSession()
             finally:
                 oldC.__del__()
                 oldC = None
                 self.c = None
+                self._session = None
 
         self._proxies = NoProxies()
         logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
@@ -4787,13 +4793,14 @@ class ProxyObjectWrapper (object):
         """
 
         self._conn = conn
-        self._sf = conn.c.sf
 
         def cf():
             if self._func_str is None:
-                return self._cast_to(self._sf.getByName(self._service_name))
+                return self._cast_to(
+                    self._conn.c.sf.getByName(self._service_name)
+                )
             else:
-                obj = getattr(self._sf, self._func_str)()
+                obj = getattr(self._conn.c.sf, self._func_str)()
                 if isinstance(obj, omero.api.StatefulServiceInterfacePrx):
                     conn._register_service(str(obj), traceback.extract_stack())
                 return obj
@@ -4837,7 +4844,7 @@ class ProxyObjectWrapper (object):
         """
 
         try:
-            if not self._sf.keepAlive(self._obj):
+            if not self._conn.c.sf.keepAlive(self._obj):
                 logger.debug("... died, recreating ...")
                 self._obj = self._create_func()
         except Ice.ObjectNotExistException:
@@ -7748,9 +7755,6 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     CHILD_WRAPPER_CLASS = None
     PARENT_WRAPPER_CLASS = ['DatasetWrapper', 'WellSampleWrapper']
     _thumbInProgress = False
-
-    def __del__(self):
-        self._re and self._re.untaint()
 
     def __loadedHotSwap__(self):
         ctx = self._conn.SERVICE_OPTS.copy()
