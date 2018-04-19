@@ -165,9 +165,10 @@ class Connector(object):
     def create_connection(self, useragent, username, password,
                           is_public=False, userip=None):
         self.is_public = is_public
+        connection = self.create_gateway(
+            useragent, username, password, userip
+        )
         try:
-            connection = self.create_gateway(
-                useragent, username, password, userip)
             if connection.connect():
                 logger.debug('Successfully created connection for: %s'
                              % username)
@@ -175,24 +176,26 @@ class Connector(object):
                 return connection
         except:
             logger.debug('Cannot create a new connection.', exc_info=True)
+        connection.close()
         return None
 
     def create_guest_connection(self, useragent, is_public=False):
-        connection = None
         guest = 'guest'
+        connection = self.create_gateway(useragent, guest, guest, None)
         try:
-            connection = self.create_gateway(useragent, guest, guest, None)
             if connection.connect():
                 logger.debug('Successfully created a guest connection.')
+                return connection
             else:
                 logger.warn('Cannot create a guest connection.')
         except:
             logger.error('Cannot create a guest connection.', exc_info=True)
-        return connection
+        connection.close()
+        return None
 
     def join_connection(self, useragent, userip=None):
+        connection = self.create_gateway(useragent, userip=userip)
         try:
-            connection = self.create_gateway(useragent, userip=userip)
             if connection.connect(sUuid=self.omero_session_key):
                 logger.debug('Successfully joined connection: %s'
                              % self.omero_session_key)
@@ -201,34 +204,41 @@ class Connector(object):
                 return connection
         except:
             logger.debug('Cannot create a new connection.', exc_info=True)
+        connection.close()
         return None
 
     def is_server_up(self, useragent):
         connection = self.create_guest_connection(useragent)
-        if connection is None:
-            return False
         try:
-            connection.getServerVersion()
-            return True
-        except:
-            logger.error('Cannot request server version.', exc_info=True)
-        return False
+            if connection is None:
+                return False
+            try:
+                connection.getServerVersion()
+                return True
+            except:
+                logger.error('Cannot request server version.', exc_info=True)
+            return False
+        finally:
+            connection.close()
 
     def check_version(self, useragent):
         connection = self.create_guest_connection(useragent)
-        if connection is None:
-            return False
         try:
-            server_version = connection.getServerVersion()
-            server_version = self.SERVER_VERSION_RE.match(server_version)
-            server_version = server_version.group(1).split('.')
+            if connection is None:
+                return False
+            try:
+                server_version = connection.getServerVersion()
+                server_version = self.SERVER_VERSION_RE.match(server_version)
+                server_version = server_version.group(1).split('.')
 
-            client_version = self.SERVER_VERSION_RE.match(omero_version)
-            client_version = client_version.group(1).split('.')
-            logger.info("Client version: '%s'; Server version: '%s'"
-                        % (client_version, server_version))
-            return server_version == client_version
-        except:
-            logger.error('Cannot compare server to client version.',
-                         exc_info=True)
-        return False
+                client_version = self.SERVER_VERSION_RE.match(omero_version)
+                client_version = client_version.group(1).split('.')
+                logger.info("Client version: '%s'; Server version: '%s'"
+                            % (client_version, server_version))
+                return server_version == client_version
+            except:
+                logger.error('Cannot compare server to client version.',
+                             exc_info=True)
+            return False
+        finally:
+            connection.close()

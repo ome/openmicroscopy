@@ -26,6 +26,7 @@ import org.springframework.util.ResourceUtils;
  * @see ome.formats.OMEROMetadataStore
  * @since 3.0-M3
  */
+@Deprecated
 public class TinyImportFixture
 {
 

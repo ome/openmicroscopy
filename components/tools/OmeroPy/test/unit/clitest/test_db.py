@@ -202,7 +202,7 @@ class TestDatabase(object):
 
     def password_output(self, user_id, no_salt):
         update_msg = "UPDATE password SET hash = \'%s\'" \
-            " WHERE experimenter_id  = %s;"
+            " WHERE experimenter_id = %s;"
         if not user_id:
             user_id = "0"
         return update_msg % (hash_map[(user_id, no_salt)], user_id)

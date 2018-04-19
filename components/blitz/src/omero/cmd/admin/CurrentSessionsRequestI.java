@@ -143,7 +143,9 @@ public class CurrentSessionsRequestI extends CurrentSessionsRequest
         Map<String, Session> objects = new HashMap<String, Session>();
         IceMapper mapper = new IceMapper();
         for (ome.model.meta.Session obj : rv) {
-            objects.put(obj.getUuid(), (Session) mapper.map(obj));
+            if (obj.isLoaded()) {
+                objects.put(obj.getUuid(), (Session) mapper.map(obj));
+            }
         }
 
         if (helper.isLast(step)) {

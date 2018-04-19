@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2017-2018 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -78,7 +78,7 @@ abstract class PerGroupActor {
         }
         for (final Map.Entry<Long, Collection<Long>> pixelsOneGroup : pixelsByGroup.asMap().entrySet()) {
             final Long groupId = pixelsOneGroup.getKey();
-            if (groupId == currentGroupId) {
+            if (groupId.equals(currentGroupId)) {
                 actOnOneGroup((Set<Long>) pixelsOneGroup.getValue());
             } else {
                 final Map<String, String> groupContext = new HashMap<>();
