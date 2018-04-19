@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,6 +18,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package omero.gateway;
 
 import java.beans.PropertyChangeListener;
@@ -89,6 +90,8 @@ import Glacier2.PermissionDeniedException;
 import Ice.DNSException;
 import Ice.SocketException;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
@@ -1665,6 +1668,46 @@ public class Gateway implements AutoCloseable {
             }
         }
         return c;
+    }
+
+    /**
+     * Get the read-only status of the server.
+     * @param ctx the {@link SecurityContext} to use for the query
+     * @return a map of server subsystems each of whose value indicates if it is read-only
+     * @throws DSOutOfServiceException if the status query failed
+     */
+    public Map<String, Boolean> getReadOnlyStatus(SecurityContext ctx) throws DSOutOfServiceException {
+        final String keyPrefix = "omero.cluster.read_only.runtime.";
+        final String keyRegex = "^" + keyPrefix.replace(".", "\\.");
+        final IConfigPrx iConfig = getConfigService(ctx);
+        final Map<String, String> properties;
+        try {
+            properties = iConfig.getConfigValues(keyRegex);
+        } catch (ServerError se) {
+            throw new DSOutOfServiceException("failed to query read-only configuration values", se);
+        }
+        final ImmutableMap.Builder<String, Boolean> rv = ImmutableMap.builder();
+        for (final Map.Entry<String, String> property : properties.entrySet()) {
+            rv.put(property.getKey().substring(keyPrefix.length()), Boolean.valueOf(property.getValue()));
+        }
+        return rv.build();
+    }
+
+    /**
+     * Check specific aspects of the read-only status of the server.
+     * @param ctx the {@link SecurityContext} to use for the query
+     * @param subsystems the server subsystems whose status is to be checked
+     * @return if any of the given subsystems are read-only
+     * @throws DSOutOfServiceException if the status query failed
+     */
+    public boolean isAnyReadOnly(SecurityContext ctx, String... subsystems) throws DSOutOfServiceException {
+        final Set<String> subsystemSet = ImmutableSet.copyOf(subsystems);
+        for (final Map.Entry<String, Boolean> property : getReadOnlyStatus(ctx).entrySet()) {
+            if (property.getValue() && subsystemSet.contains(property.getKey())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
