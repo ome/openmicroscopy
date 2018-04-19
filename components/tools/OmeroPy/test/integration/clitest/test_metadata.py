@@ -28,6 +28,7 @@ from omero.gateway import BlitzGateway
 from omero.plugins.metadata import Metadata, MetadataControl
 from omero.rtypes import rdouble, unwrap
 from omero.testlib.cli import CLITest
+from omero.model.enums import UnitsLength
 
 
 class MetadataTestBase(CLITest):
@@ -307,3 +308,29 @@ class TestMetadataControl(MetadataTestBase):
     # def test_rois(self, capfd):
 
     # def test_populateroi(self, capfd):
+
+    def test_pixelsize(self, capfd):
+        prx = "Image:%s" % self.imageid
+        self.args += ["pixelsize", prx]
+        self.args += ["--x", "3"]
+        self.args += ["--y", "4"]
+        self.args += ["--z", "5"]
+        self.args += ["--unit", "nanometer"]
+        self.invoke(capfd)
+
+        q = """SELECT pix FROM Pixels pix WHERE pix.image.id=:id"""
+        params = omero.sys.ParametersI()
+        params.addId(self.imageid)
+        pixels = self.client.getSession().getQueryService() \
+            .findAllByQuery(q, params)
+        assert len(pixels) == 1
+
+        pixel = pixels[0]
+
+        assert pixel.getPhysicalSizeX().getValue() == 3
+        assert pixel.getPhysicalSizeY().getValue() == 4
+        assert pixel.getPhysicalSizeZ().getValue() == 5
+
+        assert pixel.getPhysicalSizeX().getUnit() == UnitsLength.NANOMETER
+        assert pixel.getPhysicalSizeY().getUnit() == UnitsLength.NANOMETER
+        assert pixel.getPhysicalSizeZ().getUnit() == UnitsLength.NANOMETER
