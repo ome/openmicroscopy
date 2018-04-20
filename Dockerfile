@@ -26,8 +26,9 @@ RUN apt-get update \
       zlib1g-dev python-pillow python-numpy \
       libssl-dev libbz2-dev libmcpp-dev libdb++-dev libdb-dev \
       zeroc-ice-all-dev \
- && pip install --upgrade pip \
+ && pip install --upgrade 'pip<10' setuptools \
  && pip install tables "zeroc-ice>3.5,<3.7"
+# TODO: unpin pip when possible
 RUN adduser omero
 COPY . /src
 RUN chown -R omero /src
