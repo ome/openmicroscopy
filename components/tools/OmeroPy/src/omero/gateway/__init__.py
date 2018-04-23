@@ -8861,8 +8861,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         c = 1.0
         try:
             c = float(coefficient)
-            if c < 0 or c > 1.0:
-                c = 1.0
+            if c < 0:
+                c = 0
         except:
             pass
 
