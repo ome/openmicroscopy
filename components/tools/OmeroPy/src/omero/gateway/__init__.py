@@ -8866,6 +8866,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         except:
             pass
 
+        # Rendering engine should probably handle this...
+        if family.lower() == "linear":
+            c = 1.0
+
         self._re.setQuantizationMap(channelIndex, f._obj, c, False)
 
     @assert_re()
