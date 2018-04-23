@@ -2702,6 +2702,35 @@ class _BlitzGateway (object):
         """
         return ProxyObjectWrapper(self, 'createExporter')
 
+    ####################
+    # Read-only status #
+
+    def getReadOnlyStatus(self):
+        """
+        Get the read-only status of the server.
+
+        :return:  a map of server subsystems each of whose value indicates if
+                  it is read-only
+        """
+        key_prefix = 'omero.cluster.read_only.runtime.'
+        key_regex = '^' + key_prefix.replace('.', '\.')
+        properties = self.getConfigService().getConfigValues(key_regex)
+        return {key[len(key_prefix):]: value.lower() == 'true'
+                for key, value in properties.items()}
+
+    def isAnyReadOnly(self, *subsystems):
+        """
+        Check specific aspects of the read-only status of the server.
+
+        :param subsystems:  the server subsystems whose status is to be checked
+        :return:            if any of the given subsystems are read-only
+        """
+        subsystems = set(subsystems)
+        for key, value in self.getReadOnlyStatus().items():
+            if value and key in subsystems:
+                return True
+        return False
+
     #############################
     # Top level object fetchers #
 
