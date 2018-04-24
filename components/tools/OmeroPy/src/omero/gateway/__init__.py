@@ -2715,8 +2715,8 @@ class _BlitzGateway (object):
         key_prefix = 'omero.cluster.read_only.runtime.'
         key_regex = '^' + key_prefix.replace('.', '\.')
         properties = self.getConfigService().getConfigValues(key_regex)
-        return {key[len(key_prefix):]: value.lower() == 'true'
-                for key, value in properties.items()}
+        return dict((key[len(key_prefix):], value.lower() == 'true')
+                    for key, value in properties.items())
 
     def isAnyReadOnly(self, *subsystems):
         """
