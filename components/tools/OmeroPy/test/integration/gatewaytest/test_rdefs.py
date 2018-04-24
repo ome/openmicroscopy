@@ -434,9 +434,12 @@ class TestRDefs (object):
             i = 0
             # change and assert for new value per channel
             for c in channels:
-                self.image.setQuantizationMap(i, fam.getValue(), 0.5)
+                coef = 0.5
+                self.image.setQuantizationMap(i, fam.getValue(), coef)
                 assert c.getFamily().getValue() == fam.getValue()
-                assert c.getCoefficient() == 0.5
+                if fam.getValue() == "linear":
+                    coef = 1
+                assert c.getCoefficient() == coef
                 i += 1
         self.image._closeRE()
         g = gatewaywrapper.gateway
@@ -484,10 +487,9 @@ class TestRDefs (object):
         }
         test_cases = [error_case, correct_case, correct_case]
         self.image.setQuantizationMaps(test_cases)
-        assert settings[0] == {
-            "family": channels[0].getFamily().getValue(),
-            "coefficient": channels[0].getCoefficient()
-        }
+        assert channels[0].getFamily().getValue() == settings[0]["family"]
+        assert channels[0].getCoefficient() == 10000
+
         assert correct_case == {
             "family": channels[1].getFamily().getValue(),
             "coefficient": channels[1].getCoefficient()
