@@ -312,7 +312,7 @@ public abstract class QuantumStrategy {
         this.family = family;
         String value = family.getValue();
         if (value.equals(Family.VALUE_LINEAR)) {
-            //Make sure that linear is always set to one
+            //Make sure that for linear the coefficient is always set to 1
             k = 1.0;
         }
         curveCoefficient = k;

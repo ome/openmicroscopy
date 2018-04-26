@@ -817,7 +817,7 @@ public class Renderer {
         qs.setQuantizationMap(family, coefficient, noiseReduction);
         ChannelBinding[] cb = getChannelBindings();
         cb[w].setFamily(family);
-        cb[w].setCoefficient(coefficient);
+        cb[w].setCoefficient(qs.getCurveCoefficient());
         cb[w].setNoiseReduction(noiseReduction);
     }
 
