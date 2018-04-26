@@ -4253,6 +4253,115 @@ public class RenderingEngineTest extends AbstractServerTest {
         re.close();
     }
 
+    /**
+     * Tests the linear map: linear + k=1 and linear + k != 1 should generate
+     * the same image
+     * @throws Exception
+     */
+    @Test
+    public void testQuantizationMapLinear() throws Exception {
+        //First import an image
+        Image image = createBinaryImage(1, 1, 1, 1, 1);
+        Pixels p = image.getPrimaryPixels();
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        RenderingModel model = re.getModel();
+        List<IObject> models = factory.getTypesService().allEnumerations(
+                RenderingModel.class
+                .getName());
+        Iterator<IObject> j = models.iterator();
+        RenderingModel m;
+        // Change the color model so it is not grey scale.
+        while (j.hasNext()) {
+            m = (RenderingModel) j.next();
+            if (m.getId().getValue() != model.getId().getValue())
+                re.setModel(m);
+        }
+
+        for (int k = 0; k < channels.size(); k++) {
+            Family f = re.getChannelFamily(k);
+            Assert.assertEquals("linear", f.getValue().getValue());
+            Assert.assertEquals(re.getChannelCurveCoefficient(k), 1.0);
+            re.setQuantizationMap(k, f, 1.5, re.getChannelNoiseReduction(k));
+            Assert.assertEquals(re.getChannelCurveCoefficient(k), 1.0);
+        }
+        re.close();
+    }
+
+    /**
+     * Tests the polynomial map
+     * @throws Exception
+     */
+    @Test
+    public void testQuantizationMapPolynomial() throws Exception {
+        //First import an image
+        Image image = createBinaryImage(1, 1, 1, 1, 1);
+        Pixels p = image.getPrimaryPixels();
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        RenderingModel model = re.getModel();
+        List<IObject> models = factory.getTypesService().allEnumerations(
+                RenderingModel.class
+                .getName());
+        Iterator<IObject> j = models.iterator();
+        RenderingModel m;
+        // Change the color model so it is not grey scale.
+        while (j.hasNext()) {
+            m = (RenderingModel) j.next();
+            if (m.getId().getValue() != model.getId().getValue())
+                re.setModel(m);
+        }
+        ITypesPrx svc = factory.getTypesService();
+        List<IObject> families = svc.allEnumerations(Family.class.getName());
+        Family family = null;
+        String name = "polynomial";
+        for (int i = 0; i < families.size(); i++) {
+            family = ((Family) families.get(i));
+            if (family.getValue().getValue().equals(name)) {
+                break;
+            }
+        }
+        for (int k = 0; k < channels.size(); k++) {
+            Family f = re.getChannelFamily(k);
+            Assert.assertNotEquals(f.getValue().getClass(), family.getValue().getValue());
+            Assert.assertEquals(f.getValue().getValue(), "linear");
+            Assert.assertEquals(1.0, re.getChannelCurveCoefficient(k));
+            double coefficient = 0.3;
+            re.setQuantizationMap(k, family, coefficient, re.getChannelNoiseReduction(k));
+            Assert.assertEquals(re.getChannelCurveCoefficient(k), coefficient);
+            Assert.assertEquals(re.getChannelFamily(k).getValue().getValue(), name);
+        }
+        re.close();
+    }
+
     //Inner class used to store rnd settings for channels
     class ChannelBindingPrx {
         Family family;
