@@ -310,6 +310,11 @@ public abstract class QuantumStrategy {
     public void setMapping(Family family, double k, boolean noiseReduction) {
         defineMapper(family);
         this.family = family;
+        String value = family.getValue();
+        if (value.equals(Family.VALUE_LINEAR)) {
+            //Make sure that linear is always set to one
+            k = 1.0;
+        }
         curveCoefficient = k;
         this.noiseReduction = noiseReduction;
     }
