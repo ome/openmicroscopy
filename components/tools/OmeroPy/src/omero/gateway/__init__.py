@@ -2723,7 +2723,7 @@ class _BlitzGateway (object):
         Check specific aspects of the read-only status of the server.
 
         :param subsystems:  the server subsystems whose status is to be checked
-        :return:            if any of the given subsystems are read-only
+        :return:            True if any of the given subsystems are read-only
         """
         subsystems = set(subsystems)
         for key, value in self.getReadOnlyStatus().items():
