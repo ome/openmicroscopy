@@ -8833,9 +8833,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :rtype:     Dict
         """
         if not len(self._qf):
-            for f in [BlitzObjectWrapper(self._conn, f)
-                      for f in self._re.getAvailableFamilies()]:
-                self._qf[f.value.lower()] = f
+            for f in self._conn.getEnumerationEntries('Family'):
+                family = omero.model.FamilyI()
+                family.value = rstring(f.value)
+                self._qf[f] = BlitzObjectWrapper(self._conn, family)
         return self._qf
 
     @assert_re()
