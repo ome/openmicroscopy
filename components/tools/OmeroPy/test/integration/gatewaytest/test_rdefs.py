@@ -416,16 +416,17 @@ class TestRDefs (object):
         g = gatewaywrapper.gateway
         assert not g._assert_unregistered("testQuantizationSettings")
 
-    @pytest.mark.parametrize("settings", ([None, 1],
-                                          ["no_good_family", 1],
-                                          ["polynomial", -0.5]))
-    def testQuantizationSettingsInvalid(self, gatewaywrapper, settings):
+    def testQuantizationSettingsInvalid(self, gatewaywrapper):
         """
         Tests that invalid quantization values throw ApiUsageException
         """
         self.image = gatewaywrapper.getTestImage()
+        with pytest.raises(AttributeError):
+            self.image.setQuantizationMap(0, None, 1)
+        with pytest.raises(AttributeError):
+            self.image.setQuantizationMap(0, "no_good_family", 1)
         with pytest.raises(omero.ApiUsageException):
-            self.image.setQuantizationMap(0, settings[0], settings[1])
+            self.image.setQuantizationMap(0, "polynomial", -0.5)
         self.image._closeRE()
         g = gatewaywrapper.gateway
         assert not g._assert_unregistered("testQuantizationSettings")
