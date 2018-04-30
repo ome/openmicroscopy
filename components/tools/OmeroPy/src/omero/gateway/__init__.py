@@ -8848,29 +8848,9 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :param family:          The family (string)
         :param coefficient:     The coefficient (float)
         """
-        if channelIndex < 0 or channelIndex >= self.getSizeC():
-            return
-
-        families = self.getFamilies()
-        f = families.get("linear")
-        try:
-            f = families.get(family.lower(), f)
-        except:
-            pass
-
-        c = 1.0
-        try:
-            c = float(coefficient)
-            if c < 0:
-                c = 0
-        except:
-            pass
-
-        # Rendering engine should probably handle this...
-        if family and family.lower() == "linear":
-            c = 1.0
-
-        self._re.setQuantizationMap(channelIndex, f._obj, c, False)
+        f = omero.model.FamilyI()
+        f.value = rstring(family)
+        self._re.setQuantizationMap(channelIndex, f, coefficient, False)
 
     @assert_re()
     def setQuantizationMaps(self, maps):
