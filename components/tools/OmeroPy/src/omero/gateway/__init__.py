@@ -8758,9 +8758,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
 
         if not len(self._rm):
-            for m in [BlitzObjectWrapper(self._conn, m)
-                      for m in self._re.getAvailableModels()]:
-                self._rm[m.value.lower()] = m
+            for m in self._conn.getEnumerationEntries('RenderingModel'):
+                mod = omero.model.RenderingModelI()
+                mod.value = rstring(m.value)
+                self._rm[m.value] = BlitzObjectWrapper(self._conn, mod)
         return self._rm.values()
 
     @assert_re()
