@@ -441,7 +441,7 @@ class TestRDefs (object):
         test_cases = [{"family": "exponential",
                        "coefficient": 0.3},
                       {"family": "polynomial",
-                       "coefficient": 0.1},]
+                       "coefficient": 0.1}]
         self.image.setQuantizationMaps(test_cases)
         channels = self.image.getChannels()
         for t, ch in enumerate(test_cases):
