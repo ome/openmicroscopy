@@ -8748,7 +8748,6 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         return self.getPixelLine(z, t, x, 'v', channels, range)
 
-    @assert_re()
     def getRenderingModels(self):
         """
         Gets a list of available rendering models.
@@ -8758,9 +8757,9 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
 
         if not len(self._rm):
+            query_service = self._conn.getQueryService()
             for m in self._conn.getEnumerationEntries('RenderingModel'):
-                mod = omero.model.RenderingModelI()
-                mod.value = rstring(m.value)
+                mod = query_service.get('RenderingModel', m.id)
                 self._rm[m.value] = BlitzObjectWrapper(self._conn, mod)
         return self._rm.values()
 
@@ -8825,7 +8824,6 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         if inverted:
             self._re.addCodomainMapToChannel(r, channelIndex)
 
-    @assert_re()
     def getFamilies(self):
         """
         Gets a dict of available families.
@@ -8834,10 +8832,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :rtype:     Dict
         """
         if not len(self._qf):
+            query_service = self._conn.getQueryService()
             for f in self._conn.getEnumerationEntries('Family'):
-                family = omero.model.FamilyI()
-                family.value = rstring(f.value)
-                self._qf[f] = BlitzObjectWrapper(self._conn, family)
+                family = query_service.get('Family', f.id)
+                self._qf[f.value] = BlitzObjectWrapper(self._conn, family)
         return self._qf
 
     @assert_re()
@@ -8850,9 +8848,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :param family:          The family (string)
         :param coefficient:     The coefficient (float)
         """
-        f = omero.model.FamilyI()
-        f.value = rstring(family)
-        self._re.setQuantizationMap(channelIndex, f, coefficient, False)
+        f = self.getFamilies().get(family)
+        self._re.setQuantizationMap(channelIndex, f._obj, coefficient, False)
 
     @assert_re()
     def setQuantizationMaps(self, maps):
