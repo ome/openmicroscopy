@@ -18,6 +18,7 @@ import pytest
 
 from cStringIO import StringIO
 from PIL import Image, ImageChops
+import omero
 
 
 class TestRDefs (object):
@@ -398,36 +399,6 @@ class TestRDefs (object):
         self.image = gatewaywrapper.getTestImage()
         channels = self.image.getChannels()
 
-        # collect initial values
-        settings = []
-        for chan in channels:
-            settings.append({
-                "family": chan.getFamily().getValue(),
-                "coefficient": chan.getCoefficient()
-            })
-
-        # channel bounds exceeded check
-        self.image.setQuantizationMap(-1, "logarithmic", 0.1)
-        self.image.setQuantizationMap(200, "exponential", 0.5)
-        # input checks for family (checking against initial values)
-        self.image.setQuantizationMap(0, None, 1)
-        assert settings[0] == {
-            "family": channels[0].getFamily().getValue(),
-            "coefficient": channels[0].getCoefficient()
-        }
-        self.image.setQuantizationMap(0, "no_good_family", 1)
-        assert settings[0] == {
-            "family": channels[0].getFamily().getValue(),
-            "coefficient": channels[0].getCoefficient()
-        }
-        # input checks for coefficient (checking against initial values)
-        self.image.setQuantizationMap(1, "linear", "coefficient")
-        self.image.setQuantizationMap(1, "linear", 100)
-        assert settings[1] == {
-            "family": channels[1].getFamily().getValue(),
-            "coefficient": channels[1].getCoefficient()
-        }
-
         # change settings looping over all families
         families = self.image.getFamilies().values()
         for fam in families:
@@ -445,55 +416,38 @@ class TestRDefs (object):
         g = gatewaywrapper.gateway
         assert not g._assert_unregistered("testQuantizationSettings")
 
+    @pytest.mark.parametrize("settings", ([None, 1],
+                                          ["no_good_family", 1],
+                                          ["polynomial", -0.5]))
+    def testQuantizationSettingsInvalid(self, gatewaywrapper, settings):
+        """
+        Tests that invalid quantization values throw ApiUsageException
+        """
+        self.image = gatewaywrapper.getTestImage()
+        with pytest.raises(omero.ApiUsageException):
+            self.image.setQuantizationMap(0, settings[0], settings[1])
+        self.image._closeRE()
+        g = gatewaywrapper.gateway
+        assert not g._assert_unregistered("testQuantizationSettings")
+
     def testQuantizationSettingsBulk(self, gatewaywrapper):
         """
         Tests whether quantization settings are properly applied
         using the 'bulk' method
         """
         self.image = gatewaywrapper.getTestImage()
-        channels = self.image.getChannels()
 
-        # collect initial values
-        settings = []
-        for chan in channels:
-            settings.append({
-                "family": chan.getFamily().getValue(),
-                "coefficient": chan.getCoefficient()
-            })
-
-        # input checks that leave the original values unaffected
-        self.image.setQuantizationMaps(None)
-        for i, chan in enumerate(channels):
-            assert settings[i] == {
-                "family": channels[i].getFamily().getValue(),
-                "coefficient": channels[i].getCoefficient()
-            }
-        self.image.setQuantizationMaps(["nonsense", 8])
-        for i, chan in enumerate(channels):
-            assert settings[i] == {
-                "family": channels[i].getFamily().getValue(),
-                "coefficient": channels[i].getCoefficient()
-            }
-
-        # now try to set 1 more channel than the image has
-        # also: channel 0 setting is invalid, channel 2 correct
-        error_case = {
-            "family": "error",
-            "coefficient": 10000
-        }
-        correct_case = {
-            "family": "logarithmic",
-            "coefficient": 0.3
-        }
-        test_cases = [error_case, correct_case, correct_case]
+        test_cases = [{"family": "exponential",
+                       "coefficient": 0.3},
+                      {"family": "polynomial",
+                       "coefficient": 0.1},]
         self.image.setQuantizationMaps(test_cases)
-        assert channels[0].getFamily().getValue() == settings[0]["family"]
-        assert channels[0].getCoefficient() == 10000
-
-        assert correct_case == {
-            "family": channels[1].getFamily().getValue(),
-            "coefficient": channels[1].getCoefficient()
-        }
+        channels = self.image.getChannels()
+        for t, ch in enumerate(test_cases):
+            assert ch == {
+                "family": channels[t].getFamily().getValue(),
+                "coefficient": channels[t].getCoefficient()
+            }
         self.image._closeRE()
         g = gatewaywrapper.gateway
         assert not g._assert_unregistered("testQuantizationSettingsBulk")
