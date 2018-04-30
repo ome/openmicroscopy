@@ -150,7 +150,7 @@ $(document).ready(function() {
         // Get the current selection
         var selected = inst.get_selected(true);
 
-        if (selected.length === 0) {
+        if (!$("#content_details").is(":visible") || selected.length === 0) {
             $("#content_details").html("");
             parentId = undefined;
             clearThumbnailsPanel();
