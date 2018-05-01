@@ -8759,8 +8759,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         if not len(self._rm):
             query_service = self._conn.getQueryService()
             for m in self._conn.getEnumerationEntries('RenderingModel'):
-                mod = query_service.get('RenderingModel', m.id)
-                self._rm[m.value] = BlitzObjectWrapper(self._conn, mod)
+                self._rm[m.value] = m
         return self._rm.values()
 
     @assert_re()
@@ -8834,8 +8833,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         if not len(self._qf):
             query_service = self._conn.getQueryService()
             for f in self._conn.getEnumerationEntries('Family'):
-                family = query_service.get('Family', f.id)
-                self._qf[f.value] = BlitzObjectWrapper(self._conn, family)
+                self._qf[f.value] = f
         return self._qf
 
     @assert_re()
