@@ -8757,7 +8757,6 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
 
         if not len(self._rm):
-            query_service = self._conn.getQueryService()
             for m in self._conn.getEnumerationEntries('RenderingModel'):
                 self._rm[m.value] = m
         return self._rm.values()
@@ -8831,7 +8830,6 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :rtype:     Dict
         """
         if not len(self._qf):
-            query_service = self._conn.getQueryService()
             for f in self._conn.getEnumerationEntries('Family'):
                 self._qf[f.value] = f
         return self._qf
