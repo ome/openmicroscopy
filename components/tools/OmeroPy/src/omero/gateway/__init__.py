@@ -1905,7 +1905,7 @@ class _BlitzGateway (object):
                 self.c = None
 
         self._proxies = NoProxies()
-        logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
+        logger.info("closed connection (uuid=%s)" % str(self._sessionUuid))
 
     def close(self, hard=True):  # pragma: no cover
         """
@@ -1929,7 +1929,7 @@ class _BlitzGateway (object):
                 self._session = None
 
         self._proxies = NoProxies()
-        logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
+        logger.info("closed connection (uuid=%s)" % str(self._sessionUuid))
 
     def _createProxies(self):
         """
