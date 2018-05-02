@@ -103,15 +103,18 @@ def check_file_annotation(client, file_annotation,
     assert id > 0
 
     conn = BlitzGateway(client_obj=client)
-
     wrapper = conn.getObject("FileAnnotation", id)
+    name = None
+    if file_name is not None:
+        name = wrapper.getFile().getName()
+
     links = sum(1 for i in wrapper.getParentLinks(parent_type))
+    conn.close()
+
     if is_linked:
         assert links == 1
     else:
         assert links == 0
 
     if file_name is not None:
-        name = wrapper.getFile().getName()
         assert name == file_name
-    conn.close()
