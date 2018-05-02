@@ -181,6 +181,14 @@ String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
 
+// IE polyfill from
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function(search, pos) {
+        return this.substr(!pos || pos < 0 ? 0 : +pos, search.length) === search;
+    };
+}
+
 jQuery.fn.alternateRowColors = function() {
     var $rows = $(this).children().children('tr');
     $rows.not('.hidden').filter(':odd').removeClass('even').addClass('odd');
