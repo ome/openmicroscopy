@@ -8772,6 +8772,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         return BlitzObjectWrapper(self._conn, self._re.getModel())
 
+    @assert_re()
     def setGreyscaleRenderingModel(self):
         """
         Sets the Greyscale rendering model on this image's current renderer
@@ -8780,6 +8781,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         rm = self.getRenderingModels()
         self._re.setModel(self._rm.get('greyscale', rm[0])._obj)
 
+    @assert_re()
     def setColorRenderingModel(self):
         """
         Sets the HSB rendering model on this image's current renderer
