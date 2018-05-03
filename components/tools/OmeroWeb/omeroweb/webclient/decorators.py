@@ -135,6 +135,7 @@ class render_response(omeroweb.decorators.render_response):
         context['ome']['active_group'] = request.session.get(
             'active_group', conn.getEventContext().groupId)
         context['global_search_form'] = GlobalSearchForm()
+        context['ome']['can_create'] = request.session.get('can_create', True)
         # UI server preferences
         if request.session.get('server_settings'):
             context['ome']['email'] = request.session.get(

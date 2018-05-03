@@ -247,7 +247,12 @@ class login_required(object):
         return False
 
     def load_server_settings(self, conn, request):
-        """Loads Client preferences from the server."""
+        """Loads Client preferences and Read-Only status from the server."""
+        try:
+            request.session['can_create']
+        except KeyError:
+            request.session.modified = True
+            request.session['can_create'] = conn.canCreate()
         try:
             request.session['server_settings']
         except:
