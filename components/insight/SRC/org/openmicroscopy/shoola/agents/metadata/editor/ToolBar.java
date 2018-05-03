@@ -194,8 +194,8 @@ class ToolBar
         exportAsOmeTiffItem.addActionListener(controller);
         exportAsOmeTiffItem.setActionCommand(
                 ""+EditorControl.EXPORT_AS_OMETIFF);
-        if (model.isMultiSelection()) b = false;
-        else {
+        b = false;
+        if (!model.isMultiSelection() && MetadataViewerAgent.canCreate()) {
             b = model.getRefObject() instanceof ImageData &&
                     !model.isLargeImage();
         }
@@ -596,8 +596,10 @@ class ToolBar
         exportAsOmeTiffButton.setEnabled(false);
         
         if (model.isSingleMode()) {
-            exportAsOmeTiffButton.setEnabled(model.getImage() != null
-                    && !model.isLargeImage());
+            if (MetadataViewerAgent.canCreate()) {
+                exportAsOmeTiffButton.setEnabled(model.getImage() != null
+                        && !model.isLargeImage());
+            }
             viewButton.setEnabled(model.getImage() != null);
             pathButton.setEnabled(model.getImage() != null);
             locationButton.setEnabled((model.getImage() != null || model
