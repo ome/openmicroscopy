@@ -60,6 +60,7 @@ public class RawFileBeanReadOnly extends RawFileBean {
      * @see ome.api.StatefulServiceInterface#close()
      */
     @RolesAllowed("user")
+    @Override
     public synchronized void close() {
         /* omits save() */
         clean();
