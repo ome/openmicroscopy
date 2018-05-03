@@ -22,13 +22,16 @@
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
 import javax.swing.Icon;
 
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import omero.gateway.model.GroupData;
 
 /** 
@@ -106,7 +109,7 @@ public class MoveToAction
 		name = group.getName()+"...";
 		putValue(Action.NAME, name);
 		setPermissions();
-		setEnabled(true);
+		setEnabled(TreeViewerAgent.canCreate());
 	}
 
 	/**

@@ -86,6 +86,10 @@ public class DownloadAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        if (!TreeViewerAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
         if (selectedDisplay == null) {
             setEnabled(false);
             return;

@@ -36,8 +36,10 @@ import javax.swing.JComponent;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -70,7 +72,7 @@ public class RunScriptAction
 	public RunScriptAction(TreeViewer model)
 	{
 		super(model);
-		setEnabled(true);
+		setEnabled(TreeViewerAgent.canCreate());
 		name = NAME;
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));

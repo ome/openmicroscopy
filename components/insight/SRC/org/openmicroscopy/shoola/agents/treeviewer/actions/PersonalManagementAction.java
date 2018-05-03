@@ -119,6 +119,10 @@ public class PersonalManagementAction
      */
     protected void onBrowserStateChange(Browser browser)
     {
+        if (!TreeViewerAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
     	if (browser == null) return;
     	if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
     		setEnabled(false);

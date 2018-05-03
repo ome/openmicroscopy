@@ -205,7 +205,7 @@ public class CreateTopContainerAction
             break;
         default:
             if (browser.getBrowserType() != Browser.ADMIN_EXPLORER)
-                setEnabled(true);
+                setEnabled(TreeViewerAgent.canCreate());
             else onDisplayChange(browser.getLastSelectedDisplay());
         }
     }
@@ -216,6 +216,10 @@ public class CreateTopContainerAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        if (!TreeViewerAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
         setEnabled(false);
         if (nodeType == GROUP) {
             setEnabled(TreeViewerAgent.isEditGroup());

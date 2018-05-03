@@ -606,7 +606,6 @@ public class DataServicesFactory
             msg.println(entry.getKey()+": "+entry.getValue());
         }
         registry.getLogger().info(this, msg);
-
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         registry.bind(LookupNames.IMAGE_QUALITY_LEVEL, 
         		determineImageQuality(uc.getSpeedLevel()));
@@ -634,10 +633,12 @@ public class DataServicesFactory
         Set<GroupData> available;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
         String ldap = null;
+        long gid = exp.getDefaultGroup().getId();
+        SecurityContext ctx = new SecurityContext(gid);
+        boolean canCreate = omeroGateway.canCreate(ctx);
         try {
             GroupData defaultGroup = null;
-            long gid = exp.getDefaultGroup().getId();
-        	SecurityContext ctx = new SecurityContext(gid);
+        	registry.bind(LookupNames.CAN_CREATE, canCreate);
         	groups = omeroGateway.getAvailableGroups(ctx, exp);
         	registry.bind(LookupNames.SYSTEM_ROLES,
                     omeroGateway.getSystemRoles(ctx));
@@ -727,6 +728,7 @@ public class DataServicesFactory
 			agentInfo = (AgentInfo) kk.next();
 			if (agentInfo.isActive()) {
 				reg = agentInfo.getRegistry();
+				reg.bind(LookupNames.CAN_CREATE, canCreate);
 				reg.bind(LookupNames.CURRENT_USER_DETAILS, exp);
 				reg.bind(LookupNames.USER_GROUP_DETAILS, available);
 				reg.bind(LookupNames.USERS_DETAILS, exps);

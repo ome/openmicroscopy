@@ -328,6 +328,8 @@ public class ImporterAgent
         IconManager icons = IconManager.getInstance();
         JButton b = new JButton(icons.getIcon(IconManager.IMPORT));
         b.setToolTipText(description);
+        Boolean value = (Boolean) registry.lookup(LookupNames.CAN_CREATE);
+        b.setEnabled(value.booleanValue());
         ActionListener l = new ActionListener() {
 
             /** Posts an event to start the agent.*/
@@ -357,6 +359,7 @@ public class ImporterAgent
         item.setText("Import...");
         item.setToolTipText(description);
         item.addActionListener(l);
+        item.setEnabled(value.booleanValue());
         tb.addToMenu(TaskBar.FILE_MENU, item);
     }
 

@@ -175,7 +175,7 @@ class ToolBar
         downloadItem.setBackground(UIUtilities.BACKGROUND_COLOR);
         List<DataObject> nodes = model.getSelectedObjects();
         boolean b = false;
-        if (!CollectionUtils.isEmpty(nodes)) {
+        if (!CollectionUtils.isEmpty(nodes) && MetadataViewerAgent.canCreate()) {
             Iterator<DataObject> i = nodes.iterator();
             while (i.hasNext()) {
                 if (PojosUtil.isDownloadable(i.next())) {
@@ -604,8 +604,8 @@ class ToolBar
                     .getRefObject() instanceof DatasetData));
         }
 
-        publishingButton.setEnabled(true);
-        scriptsButton.setEnabled(true);
+        publishingButton.setEnabled(MetadataViewerAgent.canCreate());
+        scriptsButton.setEnabled(MetadataViewerAgent.canCreate());
         if (publishingDialog != null)
             publishingDialog.setRootObject();
         if (analysisDialog != null)
