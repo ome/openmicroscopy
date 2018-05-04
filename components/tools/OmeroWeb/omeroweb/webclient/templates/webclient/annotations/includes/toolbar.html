@@ -333,7 +333,7 @@
 
     <!-- Publishing Options (Figure Scripts) -->
     {% if not share %}
-    {% if not differentGroups %}
+    {% if not differentGroups and ome.can_create %}
     {% include "webclient/annotations/includes/figure_scripts_menu.html" %}
     {% endif %}
     {% endif %}
