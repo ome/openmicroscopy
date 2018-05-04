@@ -175,7 +175,7 @@ class ToolBar
         downloadItem.setBackground(UIUtilities.BACKGROUND_COLOR);
         List<DataObject> nodes = model.getSelectedObjects();
         boolean b = false;
-        if (!CollectionUtils.isEmpty(nodes) && MetadataViewerAgent.canCreate()) {
+        if (!CollectionUtils.isEmpty(nodes)) {
             Iterator<DataObject> i = nodes.iterator();
             while (i.hasNext()) {
                 if (PojosUtil.isDownloadable(i.next())) {
