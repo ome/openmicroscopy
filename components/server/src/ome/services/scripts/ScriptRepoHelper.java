@@ -526,7 +526,11 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                 String hash = null;
                 OriginalFile ofile = null;
                 if (id == null) {
-                    ofile = addOrReplace(session, sqlAction, sf, file, null);
+                    if (readOnly.isReadOnlyDb()) {
+                        log.info("read-only database so ignoring addition of script {}", file.fullname());
+                    } else {
+                        ofile = addOrReplace(session, sqlAction, sf, file, null);
+                    }
                 } else {
                     ofile = load(id, session, sqlAction, true); // checks for type & repo
                     if (ofile == null) {

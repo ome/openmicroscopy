@@ -1127,8 +1127,10 @@ class ITest(object):
 
         self.do_submit(command, client)
 
-    def wait_for_pyramid(self, id):
-        store = self.client.sf.createRawPixelsStore()
+    def wait_for_pyramid(self, id, client=None):
+        if client is None:
+            client = self.client
+        store = client.sf.createRawPixelsStore()
         not_ready = True
         count = 0
         elapse_time = 1  # time in seconds
@@ -1139,8 +1141,9 @@ class ITest(object):
                     store.setPixelsId(id, True)
                     # No exception. The pyramid is now ready
                     not_ready = False
-                except Exception:
+                except Exception, ex:
                     # try again in elapse_time
+                    print count, "Pyramid not ready:", ex.message
                     time.sleep(elapse_time)
                     count = count + elapse_time
         finally:
@@ -1158,7 +1161,7 @@ class ITest(object):
         id = long(float(pixels))
         assert id >= 0
         # wait for the pyramid to be generated
-        self.wait_for_pyramid(id)
+        self.wait_for_pyramid(id, client)
         query_service = client.sf.getQueryService()
         pix = query_service.findByQuery(
             "select p from Pixels p where p.id = :id",

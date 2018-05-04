@@ -280,7 +280,7 @@ class FsControl(CmdControl):
             help="list sets by their in-place import method")
         sets.add_argument(
             "--check", action="store_true",
-            help="checks each fileset for validity (admins only)")
+            help="verify the file checksums for each fileset (admins only)")
 
         ls = parser.add(sub, self.ls)
         ls.add_argument(

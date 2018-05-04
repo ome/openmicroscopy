@@ -70,7 +70,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     private static final long serialVersionUID = -450924529925301925L;
 
     /** The logger for this particular class */
-    private static Logger log = LoggerFactory.getLogger(RawPixelsBean.class);
+    private static Logger log = LoggerFactory.getLogger(RawFileBean.class);
 
     // TODO: Have the code generator give us enumeration values in ome.model,
     // then ChecksumAlgorithmMapper functionality can be made widely enough
