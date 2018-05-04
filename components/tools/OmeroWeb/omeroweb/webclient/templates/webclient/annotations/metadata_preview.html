@@ -405,7 +405,7 @@
             Save
         </button>
 
-        <button id="rdef-save-all" class="button{%if share and not share.share.isOwned %} button-disabled{% endif %}"
+        <button id="rdef-save-all" class="button{%if share and not share.share.isOwned or not ome.can_create%} button-disabled{% endif %}"
             title="Cannot apply settings to other images">
           <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" /><br>
             Save to All
