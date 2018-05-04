@@ -2497,6 +2497,9 @@ class BrowserUI
 	{
 		String name = evt.getPropertyName();
 		if (DnDTree.DRAGGED_PROPERTY.equals(name)) {
+            if (!TreeViewerAgent.canCreate()) {
+                return;
+            }
 			ObjectToTransfer transfer = (ObjectToTransfer) evt.getNewValue();
 			int action = TreeViewer.CUT_AND_PASTE;
 			if (transfer.getDropAction() == DnDConstants.ACTION_COPY)
