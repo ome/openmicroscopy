@@ -89,10 +89,6 @@ OME.handle_tree_selection = function(data, event) {
     // and update_thumbnails_panel, just run them instead
 
     // Check the functions exist, they might not if the central panel has not been loaded
-    if (typeof(syncThumbSelection) === "function") {
-        // safe to use the function
-        syncThumbSelection(data, event);
-    }
     if (typeof(update_thumbnails_panel) === "function") {
         // safe to use the function
         update_thumbnails_panel(event, data);
