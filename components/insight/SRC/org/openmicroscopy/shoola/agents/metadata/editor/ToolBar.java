@@ -623,6 +623,7 @@ class ToolBar
 	 */
 	void launchOptions(Component source, Point p, int index)
 	{
+	    if (!publishingButton.isEnabled()) return;
 		if (p == null) p = new Point(0, 0);
 		switch (index) {
 			case MetadataViewer.PUBLISHING_OPTION:
