@@ -310,7 +310,8 @@
         {% else %}
 
         <label>Password</label>
-            <a class="btn btn_text silver" id="change_password" {% if not can_modify_user %} style="pointer-events: none" {% endif %}>
+            <a class="btn btn_text silver" id="change_password"
+                {% if not can_modify_user or not ome.can_create %} style="pointer-events: none" {% endif %}>
                 <span {% if not can_modify_user %} style="color:Gray" {% endif %}>Change User's Password</span>
             </a>
         <span id="password_change_message"></span>
@@ -351,7 +352,7 @@
         <br />
         
         <input type="submit" 
-            {% if not can_modify_user %}
+            {% if not can_modify_user or not ome.can_create %}
                 disabled title="You don't have permissions to edit Users"
             {% endif %}
             value="{% trans 'Save' %}" />

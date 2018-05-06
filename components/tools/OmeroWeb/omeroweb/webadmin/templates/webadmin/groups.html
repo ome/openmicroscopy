@@ -69,7 +69,7 @@
         </span>
     </form>
 
-    {% if can_modify_group %}
+    {% if can_modify_group and ome.can_create %}
         <div class="btn blue">
             <a href="{% url 'wamanagegroupid' "new" %}">
                 <span>{% trans "Add new Group" %}</span>
