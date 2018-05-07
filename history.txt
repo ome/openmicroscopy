@@ -30,7 +30,7 @@ Developer updates include:
 -  a new command to set custom physical pixel size using OMERO.cli
 -  deprecated Repository::pixels and TinyImportFixture
 -  improved test infrastructure
--  reduced background event in the center panel plugin when not displaying Thumbnails
+-  reduced background events in the center panel plugin when not displaying Thumbnails
 -  added extra controls when specifying map and gamma in the rendering engine
 
 This release also upgrades the version of Bio-Formats which OMERO
