@@ -636,6 +636,13 @@ public class DataServicesFactory
         long gid = exp.getDefaultGroup().getId();
         SecurityContext ctx = new SecurityContext(gid);
         boolean canCreate = omeroGateway.canCreate(ctx);
+
+        if (!canCreate && LookupNames.MASTER_IMPORTER.equals(name)) {
+            registry.getUserNotifier().notifyError("Read-only server",
+                    "Cannot import on a read-only server!");
+            exitApplication(true, true);
+        }
+
         try {
             GroupData defaultGroup = null;
         	registry.bind(LookupNames.CAN_CREATE, canCreate);
