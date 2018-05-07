@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -144,6 +142,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
      * @see ome.api.IRepositoryInfo#getFreeSpaceInKilobytes()
      */
     @RolesAllowed("user")
+    @Transactional(readOnly = true)
     public long getFreeSpaceInKilobytes() {
         long result = 0L;
 
