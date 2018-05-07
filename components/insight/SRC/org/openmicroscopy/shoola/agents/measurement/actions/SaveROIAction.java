@@ -29,6 +29,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.Action;
 
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -59,6 +60,10 @@ public class SaveROIAction
 	 */
 	protected void onStateChange()
 	{
+        if (!MeasurementAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
 		//Depends on the status of the group
 		if (model.getState() == MeasurementViewer.READY)
 			setEnabled(model.canAnnotate());

@@ -25,8 +25,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Iterator;
+
 import javax.swing.Action;
 
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
@@ -222,6 +224,10 @@ public class ManageObjectAction
      */
     protected void onDisplayChange(ImageDisplay node)
     {
+        if (!DataBrowserAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
         if (node == null) {
             setEnabled(false);
             return;

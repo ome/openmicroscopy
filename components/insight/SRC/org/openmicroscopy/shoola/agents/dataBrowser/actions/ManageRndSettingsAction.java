@@ -25,13 +25,16 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Iterator;
+
 import javax.swing.Action;
 
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ImageData;
@@ -177,6 +180,10 @@ public class ManageRndSettingsAction
      */
     protected void onDisplayChange(ImageDisplay node)
     {
+        if (!DataBrowserAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
         Browser browser = model.getBrowser();
         if (node == null || browser == null) {
             setEnabled(false);

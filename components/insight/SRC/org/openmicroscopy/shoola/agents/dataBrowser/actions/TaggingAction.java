@@ -28,6 +28,7 @@ import java.util.List;
 
 import javax.swing.Action;
 
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
@@ -68,6 +69,10 @@ public class TaggingAction
      */
     protected void onDisplayChange(ImageDisplay node)
     {
+        if (!DataBrowserAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
     	if (node == null) {
             setEnabled(false);
             return;

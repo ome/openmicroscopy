@@ -3227,7 +3227,10 @@ class ImViewerComponent
 	 */
 	public boolean canAnnotate()
 	{
-		if (isUserOwner()) return true;
+        if (!ImViewerAgent.canCreate()) {
+            return false;
+        }
+	    if (isUserOwner()) return true;
 		return model.getImage().canAnnotate();
 	}
 
@@ -3237,6 +3240,9 @@ class ImViewerComponent
      */
     public boolean canEdit()
     {
+        if (!ImViewerAgent.canCreate()) {
+            return false;
+        }
         if (isUserOwner()) return true;
         return model.getImage().canEdit();
     }

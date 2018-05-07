@@ -25,6 +25,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
 
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.util.SaveResultsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -64,7 +65,7 @@ public class SaveResultsAction
     public SaveResultsAction(TreeViewer model, int plugin)
     {
         super(model);
-        setEnabled(true);
+        setEnabled(TreeViewerAgent.canCreate());
         this.plugin = plugin;
         saveIndex = -1;
         if (plugin == LookupNames.IMAGE_J) {

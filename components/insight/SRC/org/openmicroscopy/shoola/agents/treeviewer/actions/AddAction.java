@@ -84,6 +84,10 @@ public class AddAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        if (!TreeViewerAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
         putValue(Action.SHORT_DESCRIPTION,
                 UIUtilities.formatToolTipText(DESCRIPTION));
         if (selectedDisplay == null) {

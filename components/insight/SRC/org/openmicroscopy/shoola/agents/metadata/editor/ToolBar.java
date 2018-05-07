@@ -194,8 +194,8 @@ class ToolBar
         exportAsOmeTiffItem.addActionListener(controller);
         exportAsOmeTiffItem.setActionCommand(
                 ""+EditorControl.EXPORT_AS_OMETIFF);
-        if (model.isMultiSelection()) b = false;
-        else {
+        b = false;
+        if (!model.isMultiSelection() && MetadataViewerAgent.canCreate()) {
             b = model.getRefObject() instanceof ImageData &&
                     !model.isLargeImage();
         }
@@ -596,16 +596,18 @@ class ToolBar
         exportAsOmeTiffButton.setEnabled(false);
         
         if (model.isSingleMode()) {
-            exportAsOmeTiffButton.setEnabled(model.getImage() != null
-                    && !model.isLargeImage());
+            if (MetadataViewerAgent.canCreate()) {
+                exportAsOmeTiffButton.setEnabled(model.getImage() != null
+                        && !model.isLargeImage());
+            }
             viewButton.setEnabled(model.getImage() != null);
             pathButton.setEnabled(model.getImage() != null);
             locationButton.setEnabled((model.getImage() != null || model
                     .getRefObject() instanceof DatasetData));
         }
 
-        publishingButton.setEnabled(true);
-        scriptsButton.setEnabled(true);
+        publishingButton.setEnabled(MetadataViewerAgent.canCreate());
+        scriptsButton.setEnabled(MetadataViewerAgent.canCreate());
         if (publishingDialog != null)
             publishingDialog.setRootObject();
         if (analysisDialog != null)
@@ -621,6 +623,7 @@ class ToolBar
 	 */
 	void launchOptions(Component source, Point p, int index)
 	{
+	    if (!publishingButton.isEnabled()) return;
 		if (p == null) p = new Point(0, 0);
 		switch (index) {
 			case MetadataViewer.PUBLISHING_OPTION:

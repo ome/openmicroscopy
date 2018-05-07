@@ -795,6 +795,7 @@ class BrowserModel
 	/** Creates a {@link DeleteCmd} command to execute the action. */
 	void delete()
 	{
+        if (!TreeViewerAgent.canCreate()) return;
 		TreeImageDisplay[] selected = getSelectedDisplays();
     	int count = 0;
     	boolean b = false;

@@ -501,7 +501,10 @@ class EditorModel
 	 */
 	private boolean canRetrieveAll()
 	{
-		if (!canAnnotate()) return false;
+       if (!MetadataViewerAgent.canCreate()) {
+            return false;
+        }
+	    if (!canAnnotate()) return false;
 		//check the group level
 		GroupData group = getGroup(getRefObjectGroupID());
 		if (group == null) return false;
@@ -859,6 +862,9 @@ class EditorModel
 	 */
 	boolean canEdit(Object data)
 	{
+	    if (!MetadataViewerAgent.canCreate()) {
+	        return false;
+	    }
 	    if (!(data instanceof DataObject)) return false;
 	    DataObject d = (DataObject) data;
 	    return d.canEdit();
@@ -881,6 +887,9 @@ class EditorModel
 	 */
 	boolean canLink(Object data)
 	{
+       if (!MetadataViewerAgent.canCreate()) {
+            return false;
+        }
 		switch (getDisplayMode()) {
 			case LookupNames.GROUP_DISPLAY:
 				if (data instanceof DataObject)
@@ -908,7 +917,10 @@ class EditorModel
 	 * @return See above.
 	 */
 	boolean canAnnotate(Object data)
-	{ 
+	{
+       if (!MetadataViewerAgent.canCreate()) {
+            return false;
+        }
 		if (!(data instanceof DataObject)) return false;
 		DataObject d = (DataObject) data;
 		return d.canAnnotate();
@@ -930,7 +942,10 @@ class EditorModel
 	 * @return See above.
 	 */
 	boolean canDelete(Object data)
-	{ 
+	{
+       if (!MetadataViewerAgent.canCreate()) {
+            return false;
+        }
 		if (!(data instanceof DataObject)) return false;
 		DataObject d = (DataObject) data;
 		return d.canDelete();
@@ -945,6 +960,9 @@ class EditorModel
 	 */
 	boolean canDeleteLink(Object data)
 	{
+       if (!MetadataViewerAgent.canCreate()) {
+            return false;
+        }
 		Map<DataObject, StructuredDataResults> 
 		r = parent.getAllStructuredData();
 		if (r == null) return false;
@@ -1042,6 +1060,9 @@ class EditorModel
 	 */
 	boolean canDeleteAnnotationLink()
 	{
+       if (!MetadataViewerAgent.canCreate()) {
+            return false;
+        }
 		Map<DataObject, StructuredDataResults> 
 		r = parent.getAllStructuredData();
 		if (r == null) return false;
@@ -4607,7 +4628,7 @@ class EditorModel
      * @return See above
      */
     boolean isExportable() {
-        if (getPixels() == null)
+        if (!MetadataViewerAgent.canCreate() || getPixels() == null)
             return false;
 
         long imgSize = (long)getPixels().getSizeX() * (long)getPixels().getSizeY();

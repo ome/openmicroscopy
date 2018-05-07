@@ -24,9 +24,11 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
 import javax.swing.Action;
 
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -105,7 +107,7 @@ public class CreateObjectWithChildren
                 break;
             default:
             	if (browser.getBrowserType() != Browser.ADMIN_EXPLORER)
-            		setEnabled(true);
+            		setEnabled(TreeViewerAgent.canCreate());
             	else onDisplayChange(browser.getLastSelectedDisplay());
         }
     }
@@ -116,6 +118,10 @@ public class CreateObjectWithChildren
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        if (!TreeViewerAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
     	Browser browser = model.getSelectedBrowser();
         if (browser == null || selectedDisplay == null) {
             setEnabled(false);

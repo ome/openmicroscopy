@@ -68,7 +68,7 @@ public class AdminAction
 	public AdminAction(TreeViewer model)
 	{
 		super(model);
-		setEnabled(true); //TO BE MODIFIED
+		setEnabled(TreeViewerAgent.canCreate());
 		name = NAME;
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));

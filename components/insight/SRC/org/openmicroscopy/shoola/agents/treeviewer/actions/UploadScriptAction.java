@@ -71,7 +71,7 @@ public class UploadScriptAction
 	public UploadScriptAction(TreeViewer model)
 	{
 		super(model);
-		setEnabled(true);
+		setEnabled(TreeViewerAgent.canCreate());
 		name = NAME;
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
