@@ -144,18 +144,15 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public long getFreeSpaceInKilobytes() {
-        long result = 0L;
+        final long result;
 
         try {
             result = FileSystemUtils.freeSpaceKb(datadir);
-            if (log.isInfoEnabled()) {
-                log.info("Total kilobytes free: " + result);
-            }
         } catch (Throwable t) {
             log.error("Error retrieving usage in KB.", t);
             throw new ResourceError(t.getMessage());
         }
-
+        log.info("Total kilobytes free: {}", result);
         return result;
     }
 
