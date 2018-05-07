@@ -111,6 +111,10 @@ public class ImportAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        if (!TreeViewerAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
     	if (noNode) {
     		setEnabled(true);
     		return;

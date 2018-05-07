@@ -2722,6 +2722,12 @@ class ImViewerModel
             Renderer rnd = metadataViewer.getRenderer();
             if (rnd == null)
                 return;
+            //A second call is some time made to retrieve a better quality thumbnail
+            //when the first one is scaled. Thumbnail generation is not allowed in
+            //read-only. This prevents the generation of a scale thumbnail.
+            if (!ImViewerAgent.canCreate() && state == ImViewer.LOADING_BIRD_EYE_VIEW) {
+                return;
+            }
             int w = tiledImageSizeX;
             int h = tiledImageSizeY;
             BirdEyeLoader loader;

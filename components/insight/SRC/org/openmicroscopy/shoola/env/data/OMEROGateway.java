@@ -7607,4 +7607,22 @@ class OMEROGateway
         }
         return null;
     }
+
+    /**
+     * Returns <code>true</code> if the server allows creation objects,
+     * <code>false</code> otherwise. This will be <code>false</code> if the
+     * server is for example read-only.
+     * @param ctx The security context.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged
+     *                                 in.
+     */
+    boolean canCreate(SecurityContext ctx) 
+            throws DSOutOfServiceException
+    {
+        Boolean value = gw.canCreate(ctx);
+        if (value == null) return false;
+        return value.booleanValue();
+    }
+
 }

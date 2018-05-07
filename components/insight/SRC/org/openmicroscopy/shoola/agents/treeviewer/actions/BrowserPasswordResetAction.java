@@ -79,6 +79,10 @@ public class BrowserPasswordResetAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        if (!TreeViewerAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
     	if (!TreeViewerAgent.isAdministrator() || selectedDisplay == null) {
    		 	setEnabled(false);
             return;

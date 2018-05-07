@@ -109,7 +109,7 @@ public class MoveToAction
 		if (group == null)
 			throw new IllegalArgumentException("No group.");
 		this.group = group;
-		setEnabled(true);
+		setEnabled(DataBrowserAgent.canCreate());
 		putValue(Action.NAME, group.getName()+"...");
 		setPermissions();
 	}

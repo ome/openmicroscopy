@@ -84,6 +84,10 @@ public class PasswordResetAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        if (!TreeViewerAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
     	if (!TreeViewerAgent.isAdministrator()) {
     		 setEnabled(false);
              return;

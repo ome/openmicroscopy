@@ -41,10 +41,13 @@ import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 
@@ -265,7 +268,19 @@ public class DataBrowserAgent
 		}
 		return null;
 	}
-	
+
+    /**
+     * Returns <code>true</code> data objects can be created,
+     * <code>false</code> otherwise. This will be <code>false</code> if the
+     * server is for example read-only.
+     *
+     * @return See above.
+     */
+    public static boolean canCreate() {
+        Boolean b = (Boolean) registry.lookup(LookupNames.CAN_CREATE);
+        return b.booleanValue();
+    }
+
 	/**
      * Handles the {@link RndSettingsCopied} event.
      * 
