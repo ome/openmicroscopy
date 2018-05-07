@@ -28,7 +28,7 @@ Further improvements include:
 Developer updates include:
 
 -  a new command to set custom physical pixel size using OMERO.cli
--  deprecated Repository::pixels and TinyImportFixture
+-  deprecated Repository::pixels, TinyImportFixture and OMEROImportFixture
 -  improved test infrastructure
 -  reduced background events in the center panel plugin when not displaying Thumbnails
 -  added extra controls when specifying map and gamma in the rendering engine
