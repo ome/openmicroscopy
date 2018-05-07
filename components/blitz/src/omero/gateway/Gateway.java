@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,6 +18,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package omero.gateway;
 
 import java.beans.PropertyChangeListener;
@@ -89,6 +90,7 @@ import Glacier2.PermissionDeniedException;
 import Ice.DNSException;
 import Ice.SocketException;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
@@ -1665,6 +1667,33 @@ public class Gateway implements AutoCloseable {
             }
         }
         return c;
+    }
+
+    /**
+     * Get the read-only status of the server.
+     * Warning: This is <em>experimental API</em> that is subject to change.
+     * @param ctx the {@link SecurityContext} to use for the query
+     * @return {@code true} if the server is wholly in read-write mode,
+     *         {@code false} if the server is wholly in read-only mode,
+     *         otherwise {@code null}
+     * @throws DSOutOfServiceException if the status query failed
+     */
+    public Boolean canCreate(SecurityContext ctx) throws DSOutOfServiceException {
+        final Map<String, String> properties;
+        try {
+            final String keyRegex = "^omero\\.cluster\\.read_only\\.runtime\\.";
+            properties = getConfigService(ctx).getConfigValues(keyRegex);
+        } catch (ServerError se) {
+            throw new DSOutOfServiceException("failed to query read-only configuration values", se);
+        }
+        final Set<String> values = ImmutableSet.copyOf(properties.values());
+        if (values.isEmpty()) {
+            return true;
+        } else if (values.size() == 1) {
+            return values.contains("false");
+        } else {
+            return null;
+        }
     }
 
     @Override

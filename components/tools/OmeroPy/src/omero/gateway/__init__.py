@@ -2702,6 +2702,28 @@ class _BlitzGateway (object):
         """
         return ProxyObjectWrapper(self, 'createExporter')
 
+    ####################
+    # Read-only status #
+
+    def canCreate(self):
+        """
+        Get the read-only status of the server.
+        Warning: This is EXPERIMENTAL API that is subject to change.
+
+        :return:  True if the server is wholly in read-write mode,
+                  False if the server is wholly in read-only mode,
+                  otherwise None
+        """
+        key_regex = '^omero\.cluster\.read_only\.runtime\.'
+        properties = self.getConfigService().getConfigValues(key_regex)
+        values = frozenset(properties.values())
+        if not values:
+            return True
+        elif len(values) == 1:
+            return 'false' in values
+        else:
+            return None
+
     #############################
     # Top level object fetchers #
 
