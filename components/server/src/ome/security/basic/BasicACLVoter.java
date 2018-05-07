@@ -645,6 +645,9 @@ public class BasicACLVoter implements ACLVoter {
      * @return the permissions integer, possibly adjusted
      */
     private int addChgrpChownRestrictionBits(Class<? extends IObject> objectClass, Details details, int allow) {
+        if (isReadOnlyDb) {
+            return allow;
+        }
         final EventContext ec = currentUser.getCurrentEventContext();
         final Set<AdminPrivilege> privileges = ec.getCurrentAdminPrivileges();
         final boolean isChgrpPrivilege = privileges.contains(adminPrivileges.getPrivilege(AdminPrivilege.VALUE_CHGRP));
