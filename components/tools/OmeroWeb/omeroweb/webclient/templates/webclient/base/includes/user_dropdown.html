@@ -24,7 +24,11 @@
             <span>{{ ome.user.getFullName }}</span>
         </div>
         <ul class="dropdown">
-            <li id="user_settings"><a href="{% url 'wamyaccount' 'edit' %}" title="User settings"> User settings</a></li>
+            {% if ome.can_create %}
+              <li id="user_settings"><a href="{% url 'wamyaccount' 'edit' %}" title="User settings">
+                User settings
+              </a></li>
+            {% endif %}
 			<!-- Help -->
             <li id="send"><a href="#" onclick="return OME.openPopup('{% url 'csend' %}')">Send Feedback</a></li>
 			<li id="logout">{% include "webclient/base/includes/logout.html" %}</li>

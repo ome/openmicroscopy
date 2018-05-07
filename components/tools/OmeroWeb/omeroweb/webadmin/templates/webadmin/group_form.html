@@ -136,9 +136,9 @@
             
             
             <input type="submit" 
-                {% if not can_modify_group%}{% if not can_add_member %}
+                {% if not can_modify_group and not can_add_member or not ome.can_create %}
                     disabled title="You don't have permissions to edit Groups"
-                {% endif %}{% endif %}
+                {% endif %}
                 value="{% trans 'Save' %}" />
             <div style="clear: both"></div>
         </div>

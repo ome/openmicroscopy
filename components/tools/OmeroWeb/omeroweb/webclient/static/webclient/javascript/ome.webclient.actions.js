@@ -960,6 +960,7 @@ OME.formatScriptName = function(name) {
 OME.showScriptList = function(event) {
     // We're almost always going to be triggered from an anchor
     event.preventDefault();
+    if (!WEBCLIENT.CAN_CREATE) return;
 
     // show menu - load if empty
     // $('#scriptList').css('visibility', 'visible');
