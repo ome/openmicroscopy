@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -247,7 +247,9 @@ public class ROIData
      */
     public List<ShapeData> getShapes(int z, int t)
     {
-        return roiShapes.get(new ROICoordinate(z, t));
+        List<ShapeData> res = roiShapes.get(new ROICoordinate(z, t));
+        res.addAll(roiShapes.get(new ROICoordinate(-1, -1)));
+        return res;
     }
 
     /**
@@ -259,39 +261,6 @@ public class ROIData
     {
         return roiShapes.values().iterator();
     }
-
-    /** 
-     * Return the first plane that the ROI starts on.
-     *
-     * @return See above.
-     */
-    public ROICoordinate firstPlane()
-    {
-        return roiShapes.firstKey();
-    }
-
-    /** 
-     * Returns the last plane that the ROI ends on.
-     *
-     * @return See above.
-     */
-    public ROICoordinate lastPlane()
-    {
-        return roiShapes.lastKey();
-    }
-
-    /**
-     * Returns an iterator of the Shapes in the ROI in the range [start, end].
-     *
-     * @param start The starting plane where the Shapes should reside.
-     * @param end The final plane where the Shapes should reside.
-     * @return See above.
-     */
-    public Iterator<List<ShapeData>> getShapesInRange(ROICoordinate start,
-            ROICoordinate end)
-            {
-        return roiShapes.subMap(start, end).values().iterator();
-            }
 
     /**
      * Returns <code>true</code> if the object a client-side object,
