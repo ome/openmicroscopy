@@ -8,8 +8,13 @@ OMERO version history
 5.4.6 (May 2018)
 ----------------
 
-This introduces a significant new subsystem for read-only operation with which servers can be configured not to make changes to the database, the filesystem, or both. The goal is to permit horizontal scaling of OMERO by running multiple servers in parallel to increase the throughput of data and metadata for large-scale analysis or publishing.
-Additionally, a read-only copy of an existing OMERO can be opened safely to the public for experimentation. For example, this infrastructure supports the public OMERO web and the Jupyter environment of the 
+This introduces a significant new subsystem for read-only operation with which
+servers can be configured not to make changes to the database, the filesystem, or both. 
+The goal is to permit horizontal scaling of OMERO by running multiple servers in parallel
+to increase the throughput of data and metadata for large-scale analysis or publishing.
+Additionally, a read-only copy of an existing OMERO can be opened safely to the public
+for experimentation. For example, this infrastructure supports the public OMERO web
+and the Jupyter environment of the 
 `Image Data Resource <https://idr.openmicroscopy.org/>`_.
 Information on how to configure a read-only server
 is available at :doc:`/developers/Server/Clustering`.
