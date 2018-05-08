@@ -267,7 +267,8 @@ public abstract class ShapeData
     }
 
     /**
-     * Returns the z-section.
+     * Returns the z-section. -1 if the shape applies to all z-sections of
+     * the image.
      *
      * @return See above.
      */
@@ -284,20 +285,25 @@ public abstract class ShapeData
     /**
      * Sets the z-section.
      *
-     * @param z The value to set.
+     * @param z
+     *            The value to set. Pass -1 to remove z value, i. e. shape
+     *            applies to all z-sections of the image.
      */
     public void setZ(int z)
     {
         Shape shape = (Shape) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
-        if (z < 0) z = 0;
-        shape.setTheZ(rtypes.rint(z));
+        if (z < 0)
+            shape.setTheZ(null);
+        else
+            shape.setTheZ(rtypes.rint(z));
         setDirty(true);
     }
 
     /**
-     * Returns the channel.
+     * Returns the channel. -1 if the shape applies to all channels of
+     * the image.
      *
      * @return See above.
      */
@@ -314,21 +320,26 @@ public abstract class ShapeData
     /**
      * Sets the channel.
      *
-     * @param c The value to set.
+     * @param c 
+     *            The value to set. Pass -1 to remove c value, i. e. shape
+     *            applies to all channels of the image.
      */
     public void setC(int c)
     {
         Shape shape = (Shape) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
-        if (c < 0) c = 0;
-        shape.setTheC(rtypes.rint(c));
+        if (c < 0)
+            shape.setTheC(null);
+        else
+            shape.setTheC(rtypes.rint(c));
         setDirty(true);
     }
 
 
     /**
-     * Returns the time-point.
+     * Returns the time-point. -1 if the shape applies to all time-points of
+     * the image.
      *
      * @return See above.
      */
@@ -345,15 +356,19 @@ public abstract class ShapeData
     /**
      * Sets the time-point.
      *
-     * @param t The value to set.
+     * @param t
+     *            The value to set. Pass -1 to remove t value, i. e. shape
+     *            applies to all time-points of the image.
      */
     public void setT(int t)
     {
         Shape shape = (Shape) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
-        if (t < 0) t = 0;
-        shape.setTheT(rtypes.rint(t));
+        if (t < 0)
+            shape.setTheT(null);
+        else
+            shape.setTheT(rtypes.rint(t));
         setDirty(true);
     }
 
@@ -386,7 +401,6 @@ public abstract class ShapeData
             throw new IllegalArgumentException("No shape specified.");
         int z = getZ();
         int t = getT();
-        if (z < 0 || t < 0) return null;
         return new ROICoordinate(z, t);
     }
 
