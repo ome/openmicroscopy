@@ -218,6 +218,9 @@ public class ROIData
      * Returns the number of planes occupied by the ROI.
      *
      * @return See above.
+     * @deprecated Will be removed in future. Does not work as 
+     * expected if the ROI contains shapes which are associated 
+     * with all planes (Z, C, T == -1)
      */
     public int getPlaneCount() { return roiShapes.size(); }
 
@@ -260,6 +263,47 @@ public class ROIData
     public Iterator<List<ShapeData>> getIterator()
     {
         return roiShapes.values().iterator();
+    }
+
+    /**
+     * Return the first plane that the ROI starts on.
+     *
+     * @return See above.
+     * @deprecated Will be removed in future. Does not work as 
+     * expected if the ROI contains shapes which are associated 
+     * with all planes (Z, C, T == -1)
+     */
+    public ROICoordinate firstPlane() {
+        return roiShapes.firstKey();
+    }
+
+    /**
+     * Returns the last plane that the ROI ends on.
+     *
+     * @return See above.
+     * @deprecated Will be removed in future. Does not work as 
+     * expected if the ROI contains shapes which are associated 
+     * with all planes (Z, C, T == -1)
+     */
+    public ROICoordinate lastPlane() {
+        return roiShapes.lastKey();
+    }
+
+    /**
+     * Returns an iterator of the Shapes in the ROI in the range [start, end].
+     *
+     * @param start
+     *            The starting plane where the Shapes should reside.
+     * @param end
+     *            The final plane where the Shapes should reside.
+     * @return See above.
+     */
+    public Iterator<List<ShapeData>> getShapesInRange(ROICoordinate start,
+            ROICoordinate end) {
+        List<List<ShapeData>> res = new ArrayList<List<ShapeData>>();
+        res.addAll(roiShapes.subMap(start, end).values());
+        res.add(roiShapes.get(new ROICoordinate(-1, -1)));
+        return res.iterator();
     }
 
     /**
