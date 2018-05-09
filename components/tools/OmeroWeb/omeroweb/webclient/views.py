@@ -382,7 +382,7 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
     if request.GET.get('show', None) is not None and first_sel is None:
         # and we're logged in as PUBLIC user...
         if (settings.PUBLIC_ENABLED and
-            settings.PUBLIC_USER == conn.getUser().getOmeName()):
+                settings.PUBLIC_USER == conn.getUser().getOmeName()):
             # this is likely a regular user who needs to log in as themselves.
             # Login then redirect to current url
             return HttpResponseRedirect(
