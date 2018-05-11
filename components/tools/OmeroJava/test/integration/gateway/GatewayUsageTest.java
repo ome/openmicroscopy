@@ -241,7 +241,7 @@ public class GatewayUsageTest extends AbstractServerTest
      * Test that queries respond as expected to group context.
      * @throws Exception unexpected
      */
-    @Test(groups = "broken")
+    @Test
     public void testGroupContextForService() throws Exception {
         /* as a normal user create an annotation */
         LongAnnotation annotation = new LongAnnotationI();
@@ -283,10 +283,13 @@ public class GatewayUsageTest extends AbstractServerTest
                     ALL_GROUPS_CONTEXT);
             Assert.assertNotNull(annotation, "should see annotation from query in all-groups context");
 
-            /* set query service to all-groups context */
-            iQuery = gateway.getQueryService(new SecurityContext(-1));
-            annotation = (LongAnnotation) iQuery.find(LongAnnotation.class.getSimpleName(), annotationId);  // TODO: fails!
-            Assert.assertNotNull(annotation, "should see annotation from query service in all-groups context");
+            try {
+                /* set query service to all-groups context */
+                iQuery = gateway.getQueryService(new SecurityContext(-1));
+                Assert.fail("should not be possible without an equivalent of SERVICE_OPTS");
+            } catch (DSOutOfServiceException dsoose) {
+                Assert.assertEquals(dsoose.getCause().getClass(), IllegalArgumentException.class);
+            }
         }
     }
 }
