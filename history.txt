@@ -24,6 +24,7 @@ Further improvements include:
 -  enabled big image support in ImageJ/Fiji
 -  reduced the number of threads used by OMERO.web
 -  fixed other bugs in OMERO.web including:
+
    - broken History tab
    - handling of script params
    - pagination calculations
