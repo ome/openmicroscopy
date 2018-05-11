@@ -4647,7 +4647,12 @@ class OmeroGatewaySafeCallWrapper(object):  # pragma: no cover
 
     def __call__(self, *args, **kwargs):
         try:
-            return self.f(*args, **kwargs)
+            start = time.time()
+            rv = self.f(*args, **kwargs)
+            stop = time.time()
+            logger.info("MARK: %s for %s(%r, %r)",
+                    (stop-start), self.attr, args, kwargs)
+            return rv
         except Exception, e:
             self.debug(e.__class__.__name__, args, kwargs)
             return self.handle_exception(e, *args, **kwargs)
