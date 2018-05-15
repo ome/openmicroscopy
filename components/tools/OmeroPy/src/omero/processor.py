@@ -700,7 +700,7 @@ class MATLABProcessI(ProcessI):
         """
         matlab_cmd = [
             self.interpreter, "-nosplash", "-nodisplay", "-nodesktop",
-            "-r", "try, cd('%s'); script; catch, exit(1); end, exit(0)"
+            "-r", "try, cd('%s'); script; catch e, disp(e.identifier); disp(e.message); exit(1); end, exit(0)"
             % self.dir
         ]
         return matlab_cmd
