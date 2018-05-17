@@ -906,7 +906,7 @@ public class ThumbnailCtx
 
     /**
      * Bulk loads thumbnail metadata.
-     * @param dimensions X-Y dimensions to bulk load metdata for.
+     * @param dimensions X-Y dimensions to bulk load metadata for.
      * @param pixelsIds Pixels IDs to bulk load metadata for.
      * @return List of thumbnail objects with <code>thumbnail.pixels</code> and
      * <code>thumbnail.details.updateEvent</code> loaded.

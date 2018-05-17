@@ -327,7 +327,7 @@ def client(*args, **kwargs):
 
     where the returned client is created via the empty constructor to
     omero.client using only --Ice.Config or ICE_CONFIG, and the function
-    arguments are taken as metdata about the current script. With this
+    arguments are taken as metadata about the current script. With this
     information, all script consumers should be able to determine the required
     types for execution.
 
