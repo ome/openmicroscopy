@@ -209,9 +209,9 @@ class Connector(object):
 
     def is_server_up(self, useragent):
         connection = self.create_guest_connection(useragent)
+        if connection is None:
+            return False
         try:
-            if connection is None:
-                return False
             try:
                 connection.getServerVersion()
                 return True
@@ -223,9 +223,9 @@ class Connector(object):
 
     def check_version(self, useragent):
         connection = self.create_guest_connection(useragent)
+        if connection is None:
+            return False
         try:
-            if connection is None:
-                return False
             try:
                 server_version = connection.getServerVersion()
                 server_version = self.SERVER_VERSION_RE.match(server_version)
