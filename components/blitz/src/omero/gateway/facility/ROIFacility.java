@@ -760,7 +760,7 @@ public class ROIFacility extends Facility {
                         if (shape != null) {
                             if (!serverCoordMap.containsKey(coord))
                                 serverRoi.addShape(sh);
-                            else if (shape.isDirty()) {  // !!!!
+                            else if (shape.isDirty()) {
                                 shapeIndex = -1;
                                 if (deleted.contains(shape.getId())) {
                                     serverRoi.addShape(sh);
