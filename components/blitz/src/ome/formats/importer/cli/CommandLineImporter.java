@@ -469,7 +469,7 @@ public class CommandLineImporter {
             + "    --qa-baseurl=ARG\tSpecify the base URL for reporting feedback\n"
             + "  e.g. $ bin/omero import broken_image.tif"
             + " -- --email EMAIL --report --upload --logs"
-            + " --qa-baseurl=http://qa.openmicroscopy.org.uk/qa\n"
+            + " --qa-baseurl=http://qa.example.com\n"
             + "       $ ./importer-cli broken_image.tif"
             + " --email EMAIL --report --upload --logs"
             + " --qa-baseurl=http://qa.openmicroscopy.org.uk/qa\n"
