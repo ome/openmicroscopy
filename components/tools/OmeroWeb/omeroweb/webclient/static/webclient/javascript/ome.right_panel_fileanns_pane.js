@@ -156,6 +156,8 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
                     return prev;
                 }, {});
 
+                disable_delete_ns = data.disable_delete_for_namespaces || [];
+
                 // Populate experimenters within anns
                 var anns = data.annotations.map(function(ann){
                     ann.owner = experimenters[ann.owner.id];
@@ -166,6 +168,7 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
                     ann.addedBy = [ann.link.owner.id];
                     ann.description = _.escape(ann.description);
                     ann.file.size = ann.file.size !== null ? ann.file.size.filesizeformat() : "";
+                    ann.permissions.canDelete = ann.permissions.canDelete && disable_delete_ns.indexOf(ann.ns) < 0;
                     return ann;
                 });
                 // Don't show companion files
