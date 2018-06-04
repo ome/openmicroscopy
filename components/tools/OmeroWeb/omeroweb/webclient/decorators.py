@@ -138,20 +138,20 @@ class render_response(omeroweb.decorators.render_response):
         context['ome']['can_create'] = request.session.get('can_create', True)
         # UI server preferences
         if request.session.get('server_settings'):
-            s_settings = request.session.get('server_settings')
-            context['ome']['email'] = server_settings.get('email', False)
-            if s_settings.get('ui'):
+            context['ome']['email'] = request.session.get(
+                'server_settings').get('email', False)
+            if request.session.get('server_settings').get('ui'):
                 # don't overwrite existing ui
                 context.setdefault('ui', {'tree': {}})
                 context['ui']['orphans'] = \
-                    s_settings.get('ui', {}).get('tree', {}).get('orphans')
+                    request.session.get('server_settings').get('ui', {}) \
+                    .get('tree', {}).get('orphans')
                 context['ui']['dropdown_menu'] = \
-                    s_settings.get('ui', {}).get('menu', {}).get('dropdown')
+                    request.session.get('server_settings').get('ui', {}) \
+                    .get('menu', {}).get('dropdown')
                 context['ui']['tree']['type_order'] = \
-                    s_settings.get('ui', {}).get('tree', {}).get('type_order')
-            if s_settings.get('disable_delete_for_namespaces'):
-                context['ome']['disable_delete_for_namespaces'] = \
-                    s_settings.get('disable_delete_for_namespaces')
+                    request.session.get('server_settings').get('ui', {}) \
+                    .get('tree', {}).get('type_order')
 
         self.load_settings(request, context, conn)
 
