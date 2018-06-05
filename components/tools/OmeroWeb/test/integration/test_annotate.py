@@ -127,10 +127,12 @@ class TestConfig(IWebTest):
             request_url = reverse('api_annotations')
             rsp = get_json(django_client, request_url, {"image": 1})
 
-            assert rsp['disable_delete_for_namespaces'] == namespaces.split(',')
+            ns_list = namespaces.split(',')
+            assert rsp['disable_delete_for_namespaces'] == ns_list
 
         finally:
             d = self.root.sf.getConfigService() \
-                .getConfigDefaults()['omero.client.disable_delete_for_namespaces']
+                .getConfigDefaults()[
+                    'omero.client.disable_delete_for_namespaces']
             self.root.sf.getConfigService().setConfigValue(
                 "omero.client.disable_delete_for_namespaces", d)
