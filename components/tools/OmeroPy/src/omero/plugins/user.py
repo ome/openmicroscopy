@@ -40,8 +40,8 @@ class UserControl(UserGroupControl):
             "-a", "--admin", action="store_true",
             help="Whether the user should be an admin")
         add.add_argument("username", help="User's login name")
-        add.add_argument("firstname", help="User's given name")
-        add.add_argument("lastname", help="User's surname name")
+        add.add_argument("firstname", help="User's first name")
+        add.add_argument("lastname", help="User's last name")
         self.add_group_arguments(add, " to join")
 
         password_group = add.add_mutually_exclusive_group()
