@@ -193,3 +193,24 @@ button>.lutBackground {
   opacity: 0.3;
 }
 
+
+/* histogram svg */
+.logline {
+  fill: none;
+}
+
+#histogram {
+  display:none;
+  width: 100%;
+  height: 125px;
+  background:white;
+  border: solid #ccc 1px;
+  margin-bottom: 6px;
+  position: relative;
+}
+
+#histogram label {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}

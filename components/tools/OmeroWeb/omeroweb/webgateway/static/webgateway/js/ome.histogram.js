@@ -26,7 +26,7 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
     // line plot
     svg.append("g")
         .append("path")
-        .attr("class", "line")
+        .attr("class", "logline")
         .attr('opacity', 0.3);
 
     // area fill
@@ -75,7 +75,7 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
         var line = d3.svg.line()
             .x(function(d, i) { return x(i); })
             .y(function(d, i) { return yLog(d); });
-        svg.selectAll(".line")
+        svg.selectAll(".logline")
             .datum(data)
             .attr("d", line)
             .attr('stroke', color);
@@ -217,6 +217,15 @@ window.OME.createViewportHistogram = function(viewport, chartSelector, checkboxS
             $("#histogram").hide();
         }
     });
+
+    // This checkbox only visible when histogram showing
+    $("#histogramLogPlot").click(function(){
+        if (this.checked) {
+            $(".logline, .logarea").show();
+        } else {
+            $(".logline, .logarea").hide();
+        }
+    })
 
     // on load, check to see if we should show histogram...
     if (OME.getPaneExpanded && OME.getPaneExpanded('histogram')) {
