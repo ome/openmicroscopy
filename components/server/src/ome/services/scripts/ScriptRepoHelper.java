@@ -528,6 +528,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                 if (id == null) {
                     if (readOnly.isReadOnlyDb()) {
                         log.info("read-only database so ignoring addition of script {}", file.fullname());
+                        continue;
                     } else {
                         ofile = addOrReplace(session, sqlAction, sf, file, null);
                     }
@@ -542,6 +543,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                         if (!hash.equals(ofile.getHash())) {
                             if (readOnly.isReadOnlyDb()) {
                                 log.info("read-only database so ignoring modification of script ID {}", id);
+                                continue;
                             } else {
                                 ofile = addOrReplace(session, sqlAction, sf, file, id);
                             }
