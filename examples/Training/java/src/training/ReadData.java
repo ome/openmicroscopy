@@ -294,7 +294,7 @@ public class ReadData {
             List<NamedValue> list = (List<NamedValue>) mapAnnotation
                     .getContent();
             for (NamedValue namedValue : list)
-                System.out.println(namedValue.name + "  " + namedValue.value);
+                System.out.println(namedValue.name + ": " + namedValue.value);
         }
     }
     
