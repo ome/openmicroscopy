@@ -1649,11 +1649,11 @@ public class Gateway implements AutoCloseable {
                 prx = client.createSession(login.getUser().getUsername(), login
                         .getUser().getPassword());
             }
-
-            if (ctx.getGroupID() >= 0)
-                prx.setSecurityContext(new ExperimenterGroupI(ctx.getGroupID(),
-                        false));
-            
+            if (ctx.getGroupID() >= 0) {
+                prx.setSecurityContext(new ExperimenterGroupI(ctx.getGroupID(), false));
+            } else {
+                throw new IllegalArgumentException("must set security context with a valid group ID");
+            }
             c = new Connector(ctx, client, prx, login.isEncryption(), log);
             for (PropertyChangeListener l : this.pcs
                     .getPropertyChangeListeners())
