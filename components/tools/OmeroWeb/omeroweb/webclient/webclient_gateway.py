@@ -1277,13 +1277,14 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         """
         privileges = []
         role = experimenter_form.cleaned_data['role']
-        if role not in ('restricted_administrator', 'administrator'):
+        # If Role element is disabled, we don't update privileges
+        if role == '':
             return None
         # If user is Admin, we give them ALL privileges!
         if role == 'administrator':
             for p in self.getEnumerationEntries('AdminPrivilege'):
                 privileges.append(p.getValue())
-        else:
+        elif role == 'restricted_administrator':
             # Otherwise, restrict to 'checked' privileges on form
             form_privileges = ['Chgrp',
                                'Chown',
