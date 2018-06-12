@@ -19,6 +19,8 @@
 
 package ome.services.util;
 
+import java.util.Locale;
+import java.nio.charset.Charset;
 import java.lang.management.ManagementFactory;
 
 import javax.management.MBeanServer;
@@ -68,6 +70,11 @@ public class JvmSettingsCheck {
             }
             version.append(System.getProperty(key));
         }
+
+        Locale locale = Locale.getDefault();
+        log.info("Language/Country/Charset: " +
+                locale.getLanguage() + "/" + locale.getCountry() + "/" +
+                Charset.defaultCharset());
 
         log.info("Java version: " + version);
         log.info(String.format(fmt, "Max Memory (MB):  ", (rt.maxMemory() / mb)));
