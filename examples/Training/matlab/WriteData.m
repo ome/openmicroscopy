@@ -677,13 +677,13 @@ try
 
    % Unlink single annotation
    fprintf(1, 'Unlinking file annotation from project %g\n', projectId1);
-   unlinkAnnotation(session, 'project', projectId1, fa);
+   unlinkAnnotations(session, 'project', projectId1, fa);
    assert(isempty(getProjectFileAnnotations(session, projectId1)),...
        'WriteData: Annotation not deleted');
 
    % Unlink all annotations linked to a project
    fprintf(1, 'Unlinking all annotations from project %g\n', projectId1);
-   unlinkAnnotation(session, 'project', projectId1);
+   unlinkAnnotations(session, 'project', projectId1);
    assert(isempty(getProjectFileAnnotations(session, projectId1)),...
        'WriteData: Annotation not deleted');
    assert(isempty(getProjectTagAnnotations(session, projectId1)),...
