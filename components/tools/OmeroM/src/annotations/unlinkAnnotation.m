@@ -30,7 +30,7 @@ function unlinkAnnotation(session,parentType,parentID,varargin)
 % session     omero.api.ServiceFactoryPrxHelper object
 %
 %               client = loadOmero('demo.openmicroscopy.org', 4064)
-%               session = client.createSession('xxxxxx', 'xxxxxx')
+%               session = client.createSession(username, password)
 %
 % parentType  'project' | 'dataset' | 'image' | 'screen' | 'plate' | 
 %             'plateacquisition' | 'roi'
