@@ -1,4 +1,4 @@
-function unlinkAnnotation(session,parentType,parentID,varargin)
+function unlinkAnnotations(session,parentType,parentID,varargin)
 % unlinkAnnotation allows you to unlink all or specified
 % MapAnnotation (Key-Value Pairs in GUI) from parent in OMERO server.
 %
@@ -85,11 +85,6 @@ p.addOptional('annt',[],@(x) isempty(x) || all(isa(x, 'omero.model.Annotation'))
 p.parse(session,parentType,parentID,varargin{:});
 
 annt = p.Results.annt;
-
-x = annt;
-assert(isa(x,'omero.model.MapAnnotationI') || isa(x,'omero.model.TagAnnotationI') ...
-    || isa(x,'omero.model.CommentAnnotationI') || isa(x,'FileAnnotationI'))
-clear x
 
 
 % https://docs.openmicroscopy.org/omero/5.4.6/developers/Model/StructuredAnnotations.html
