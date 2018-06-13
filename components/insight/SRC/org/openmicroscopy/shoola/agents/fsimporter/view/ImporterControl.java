@@ -63,7 +63,7 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+import org.openmicroscopy.shoola.env.data.util.Status;
 import omero.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
@@ -404,7 +404,7 @@ class ImporterControl
             } else if (ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
                     ObjectToCreate l = (ObjectToCreate) evt.getNewValue();
                     model.createDataObject(l);
-            } else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
+            } else if (Status.DEBUG_TEXT_PROPERTY.equals(name)) {
                     view.appendDebugText((String) evt.getNewValue());
             } else if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(name)) {
                     Action a = getAction(EXIT);
@@ -414,12 +414,12 @@ class ImporterControl
             } else if (ImportDialog.PROPERTY_GROUP_CHANGED.equals(name)) {
                     GroupData newGroup = (GroupData) evt.getNewValue();
                     model.setUserGroup(newGroup);
-            } else if (StatusLabel.FILE_IMPORT_STARTED_PROPERTY.equals(name) ||
+            } else if (Status.FILE_IMPORT_STARTED_PROPERTY.equals(name) ||
                     FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
                 checkDisableCancelAllButtons();
-            } else if (StatusLabel.IMPORT_DONE_PROPERTY.equals(name)) {
+            } else if (Status.IMPORT_DONE_PROPERTY.equals(name)) {
                     model.onImportComplete((FileImportComponent) evt.getNewValue());
-            } else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
+            } else if (Status.UPLOAD_DONE_PROPERTY.equals(name)) {
                     model.onUploadComplete((FileImportComponent) evt.getNewValue());
             }
         }

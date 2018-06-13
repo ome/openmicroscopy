@@ -101,7 +101,7 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.RenderingServiceException;
 import omero.gateway.facility.BrowseFacility;
 
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+import org.openmicroscopy.shoola.env.data.util.Status;
 import org.openmicroscopy.shoola.env.data.util.Target;
 
 import omero.log.LogMessage;
@@ -189,7 +189,7 @@ class OmeroImageServiceImpl
 	 * @param userName The login name of the user to import for.
 	 */
 	private Object importCandidates(SecurityContext ctx,
-		Map<File, StatusLabel> files, StatusLabel status,
+		Map<File, Status> files, Status status,
 		ImportableObject object, IObject ioContainer,
 		List<Annotation> list, long userID, boolean close, boolean hcs,
 		String userName)
@@ -199,9 +199,9 @@ class OmeroImageServiceImpl
 			if (close) gateway.closeImport(ctx, userName);
 			return Boolean.valueOf(false);
 		}
-		Entry<File, StatusLabel> entry;
-		Iterator<Entry<File, StatusLabel>> jj = files.entrySet().iterator();
-		StatusLabel label = null;
+		Entry<File, Status> entry;
+		Iterator<Entry<File, Status>> jj = files.entrySet().iterator();
+		Status label = null;
 		File file;
 		boolean toClose = false;
 		int n = files.size()-1;
@@ -217,7 +217,7 @@ class OmeroImageServiceImpl
 					!(ioContainer.getClass().equals(Screen.class) ||
 					ioContainer.getClass().equals(ScreenI.class)))
 					ioContainer = null;
-			label = (StatusLabel) entry.getValue();
+			label = (Status) entry.getValue();
 			if (close) {
 				toClose = index == n;
 				index++;
@@ -998,7 +998,7 @@ class OmeroImageServiceImpl
 	{
 		if (importable == null || importable.getFile() == null)
 			throw new IllegalArgumentException("No images to import.");
-		StatusLabel status = importable.getStatus();
+		Status status = importable.getStatus();
 		SecurityContext ctx = new SecurityContext(importable.getGroup().getId());
 		//If import as.
 		ExperimenterData loggedIn = context.getAdminService().getUserDetails();
@@ -1077,7 +1077,6 @@ class OmeroImageServiceImpl
                 ImportException e = new ImportException(
                         ImportException.FILE_NOT_VALID_TEXT);
                 status.setCallback(e);
-                status.setText(ImportException.FILE_NOT_VALID_TEXT);
                 return e;
 			}
 			hcsFile = isHCS(ic.getContainers());
@@ -1173,7 +1172,6 @@ class OmeroImageServiceImpl
                     ImportException e = new ImportException(
                             ImportException.FILE_NOT_VALID_TEXT);
                     status.setCallback(e);
-                    status.setText(ImportException.FILE_NOT_VALID_TEXT);
                     return e;
 				}
 				else if (size == 1) {
@@ -1198,15 +1196,15 @@ class OmeroImageServiceImpl
 				} else {
 					List<ImportContainer> containers = ic.getContainers();
 					hcs = isHCS(containers);
-					Map<File, StatusLabel> files = 
-						new HashMap<File, StatusLabel>();
+					Map<File, Status> files = 
+						new HashMap<File, Status>();
 					Iterator<String> i = candidates.iterator();
-					StatusLabel label;
+					Status label;
 					int index = 0;
 					File f;
 					while (i.hasNext()) {
 					    f = new File(i.next());
-						label = new StatusLabel(new FileObject(f));
+						label = new Status(new FileObject(f));
 						label.setUsedFiles(containers.get(index).getUsedFiles());
 						files.put(f, label);
 						index++;
@@ -1254,12 +1252,12 @@ class OmeroImageServiceImpl
 		if (status.isMarkedAsCancel()) {
 			return Boolean.valueOf(false);
 		}
-		Map<File, StatusLabel> hcsFiles = new HashMap<File, StatusLabel>();
-		Map<File, StatusLabel> otherFiles = new HashMap<File, StatusLabel>();
-		Map<File, StatusLabel> files = new HashMap<File, StatusLabel>();
+		Map<File, Status> hcsFiles = new HashMap<File, Status>();
+		Map<File, Status> otherFiles = new HashMap<File, Status>();
+		Map<File, Status> files = new HashMap<File, Status>();
 		
 		File f;
-		StatusLabel sl;
+		Status sl;
 		int n = lic.size();
 		
 		Iterator<ImportContainer> j = lic.iterator();
@@ -1268,7 +1266,7 @@ class OmeroImageServiceImpl
 			c = j.next();
 			hcs = c.getIsSPW();
 			f = c.getFile();
-			sl = new StatusLabel(new FileObject(f));
+			sl = new Status(new FileObject(f));
 			sl.setUsedFiles(c.getUsedFiles());
 			if (hcs) {
 				if (n == 1 && file.list().length > 1)

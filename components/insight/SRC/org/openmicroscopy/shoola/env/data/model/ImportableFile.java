@@ -22,7 +22,7 @@ package org.openmicroscopy.shoola.env.data.model;
 
 import java.io.File;
 
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+import org.openmicroscopy.shoola.env.data.util.Status;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
@@ -50,7 +50,7 @@ public class ImportableFile
 	private boolean folderAsContainer;
 	
 	/** Object used to find result back. */
-	private StatusLabel status;
+	private Status status;
 	
 	/** Indicate where to import the file, either a project or screen. */
 	private omero.gateway.model.DataObject parent;
@@ -150,14 +150,14 @@ public class ImportableFile
 	 * 
 	 * @param status The component to set.
 	 */
-	public void setStatus(StatusLabel status) { this.status = status; }
+	public void setStatus(Status status) { this.status = status; }
 	
 	/**
 	 * Returns the component used to notify of the progress.
 	 * 
 	 * @return See above.
 	 */
-	public StatusLabel getStatus() { return status; }
+	public Status getStatus() { return status; }
 	
 	/**
 	 * Returns the node of reference if set.
@@ -223,7 +223,7 @@ public class ImportableFile
 		newObject.refNode = this.refNode;
 		newObject.group = this.group;
 		newObject.user = this.user;
-		newObject.status = new StatusLabel(this.file);
+		newObject.status = new Status(this.file);
 		return newObject;
 	}
 	

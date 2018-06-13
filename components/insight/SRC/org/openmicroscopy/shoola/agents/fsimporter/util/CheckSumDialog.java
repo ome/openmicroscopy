@@ -44,7 +44,7 @@ import javax.swing.table.TableColumnModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+import org.openmicroscopy.shoola.env.data.util.Status;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -76,7 +76,7 @@ public class CheckSumDialog
 	 * 
 	 * @param label The component hosting information about the checksums.
 	 */
-	private void initialize(StatusLabel label)
+	private void initialize(Status label)
 	{
 		IconManager icons = IconManager.getInstance();
 		ChecksumTableRenderer rnd = new ChecksumTableRenderer(
@@ -139,7 +139,7 @@ public class CheckSumDialog
 	 * @param owner The owner of the dialog.
 	 * @param label The component hosting information about the checksums.
 	 */
-	public CheckSumDialog(JFrame owner, StatusLabel label)
+	public CheckSumDialog(JFrame owner, Status label)
 	{
 		super(owner);
 		setTitle(TITLE);

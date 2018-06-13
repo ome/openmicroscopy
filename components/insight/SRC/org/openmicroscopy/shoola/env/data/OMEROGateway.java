@@ -79,7 +79,7 @@ import omero.gateway.model.SearchParameters;
 import omero.gateway.model.TableResult;
 import omero.gateway.util.Requests;
 
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+import org.openmicroscopy.shoola.env.data.util.Status;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -5872,7 +5872,7 @@ class OMEROGateway
 	 * @throws ImportException If an error occurred while importing.
 	 */
     Object importImageFile(SecurityContext ctx, ImportableObject object,
-            IObject container, ImportContainer ic, StatusLabel status,
+            IObject container, ImportContainer ic, Status status,
             boolean close, String userName)
         throws ImportException, DSAccessException, DSOutOfServiceException
 	{
@@ -5966,7 +5966,7 @@ class OMEROGateway
 	 * @throws ImportException If an error occurred while importing.
 	 */
 	ImportCandidates getImportCandidates(SecurityContext ctx,
-			ImportableObject object, File file, StatusLabel status)
+			ImportableObject object, File file, Status status)
 		throws ImportException
 	{
 		OMEROWrapper reader = null;

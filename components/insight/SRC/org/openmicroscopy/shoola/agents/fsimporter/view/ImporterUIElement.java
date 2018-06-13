@@ -69,7 +69,7 @@ import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+import org.openmicroscopy.shoola.env.data.util.Status;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
@@ -418,7 +418,7 @@ class ImporterUIElement
 					} else if (
 						FileImportComponent.CHECKSUM_DISPLAY_PROPERTY.equals(
 							name)) {
-						StatusLabel label = (StatusLabel) evt.getNewValue();
+						Status label = (Status) evt.getNewValue();
 						CheckSumDialog d = new CheckSumDialog(view, label);
 						UIUtilities.centerAndShow(d);
 					} else if (FileImportComponent.RETRY_PROPERTY.equals(name)) {
