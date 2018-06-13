@@ -66,6 +66,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
@@ -79,10 +80,13 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
@@ -448,12 +452,12 @@ class ImporterUI extends TopWindow
 	 * 
 	 * @return See above.
 	 */
-	List<FileImportComponent> getMarkedFiles()
+	List<FileImportComponentI> getMarkedFiles()
 	{
 		Component[] comps = tabs.getComponents();
 		if (comps == null || comps.length == 0) return null;
-		List<FileImportComponent> list = new ArrayList<FileImportComponent>();
-		List<FileImportComponent> l;
+		List<FileImportComponentI> list = new ArrayList<FileImportComponentI>();
+		List<FileImportComponentI> l;
 		ImporterUIElement element = getSelectedPane();
 		if(element == null)
 			return null;
@@ -474,8 +478,14 @@ class ImporterUI extends TopWindow
 		if (object == null) return null;
 		int n = tabs.getComponentCount();
 		String title = "Import #"+total;
-		ImporterUIElement element = new ImporterUIElement(controller, model,
-				this, uiElementID, n, title, object);
+		ImporterUIElement element = null;
+        if (object.getFiles().size() > 200) {
+            element = new ImporterUIElement(controller, model, this,
+                    uiElementID, n, title, object);
+        } else {
+            element = new ImporterUIElementDetailed(controller, model, this,
+                    uiElementID, n, title, object);
+        }
 		tabs.insertTab(title, element.getImportIcon(), element, "", total);
 		total++;
 		uiElements.put(uiElementID, element);
@@ -715,7 +725,7 @@ class ImporterUI extends TopWindow
 	 * 
 	 * @return See above.
 	 */
-	List<FileImportComponent> getFilesToReimport()
+	List<FileImportComponentI> getFilesToReimport()
 	{
 		ImporterUIElement pane = getSelectedPane();
     	if (pane == null) return null;

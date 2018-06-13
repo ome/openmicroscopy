@@ -24,9 +24,11 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 import java.util.List;
 
-import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import omero.gateway.model.ROIData;
@@ -66,7 +68,7 @@ public class ROISaver
     private List<ROIData> rois;
 
     /** The component to use to notify of saving progress.*/
-    private FileImportComponent c;
+    private FileImportComponentI c;
 
     /**
      * Creates a new instance.
@@ -81,7 +83,7 @@ public class ROISaver
      */
     public ROISaver(Importer viewer, SecurityContext ctx,
             List<ROIData> rois, long imageID, long userID,
-            FileImportComponent c)
+            FileImportComponentI c)
     {
         super(viewer, ctx);
         if (imageID < 0) 

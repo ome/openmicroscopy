@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.MeasurementsSaver;
 import org.openmicroscopy.shoola.agents.fsimporter.ROISaver;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
-import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
@@ -620,7 +620,7 @@ class ImporterModel
      * @param c The component to handle.
      * @param images The images to handle.
      */
-    void saveROI(FileImportComponent c, List<ImageData> images)
+    void saveROI(FileImportComponentI c, List<ImageData> images)
     {
         FileObject object = c.getOriginalFile();
         if (object.isImagePlus() && CollectionUtils.isNotEmpty(images)) {

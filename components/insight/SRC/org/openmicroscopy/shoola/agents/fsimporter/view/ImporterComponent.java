@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportLocationSettings;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -50,7 +51,9 @@ import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
@@ -544,18 +547,18 @@ class ImporterComponent
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#retryUpload(FileImportComponent)
 	 */
-	public void retryUpload(FileImportComponent fc)
+	public void retryUpload(FileImportComponentI fc)
 	{
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getSelectedPane();
 		if (element == null) return;
-		List<FileImportComponent> l;
+		List<FileImportComponentI> l;
 		if (fc != null) {
-			l = new ArrayList<FileImportComponent>(1);
+			l = new ArrayList<FileImportComponentI>(1);
 			l.add(fc);
 		} else l = element.getFilesToReupload();
 		if (CollectionUtils.isEmpty(l)) return;
-		Iterator<FileImportComponent> i = l.iterator();
+		Iterator<FileImportComponentI> i = l.iterator();
 		ImportableObject object = element.getData();
 		List<ImportableFile> list = new ArrayList<ImportableFile>();
 		while (i.hasNext()) {
@@ -837,7 +840,7 @@ class ImporterComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see Importer#onImportComplete(FileImportComponent)
 	 */
-	public void onImportComplete(FileImportComponent component)
+	public void onImportComplete(FileImportComponentI component)
 	{
 		if (component == null || model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getUIElement(component.getIndex());
@@ -876,8 +879,8 @@ class ImporterComponent
 		}
 		model.saveROI(component, ids);
         if (l.size() > 0 && !PlateData.class.equals(klass)) {
-            if (l.size() > FileImportComponent.MAX_THUMBNAILS) {
-                l = l.subList(0, FileImportComponent.MAX_THUMBNAILS);
+            if (l.size() > FileImportComponentI.MAX_THUMBNAILS) {
+                l = l.subList(0, FileImportComponentI.MAX_THUMBNAILS);
             }
             model.fireImportResultLoading(l, klass, component,
                     component.getImportableFile().getUser());
@@ -888,7 +891,7 @@ class ImporterComponent
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#onUploadComplete(FileImportComponent)
 	 */
-	public void onUploadComplete(FileImportComponent component)
+	public void onUploadComplete(FileImportComponentI component)
 	{
 		if (model.getState() == DISCARDED) return;
 		if (component == null || model.getState() == DISCARDED) return;
@@ -911,7 +914,7 @@ class ImporterComponent
 	public void setImportResult(Object result, Object component)
 	{
 		if (component == null || model.getState() == DISCARDED) return;
-		FileImportComponent c = (FileImportComponent) component;
+		FileImportComponentI c = (FileImportComponentI) component;
 		ImporterUIElement element = view.getUIElement(c.getIndex());
 		if (element == null) return;
 		c.setStatus(result);

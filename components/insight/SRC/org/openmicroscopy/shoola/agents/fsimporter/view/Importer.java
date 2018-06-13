@@ -28,6 +28,7 @@ import javax.swing.JFrame;
 
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
@@ -220,7 +221,7 @@ public interface Importer
      * 
      * @param fc The file to upload or <code>null</code>.
      */
-    public void retryUpload(FileImportComponent fc);
+    public void retryUpload(FileImportComponentI fc);
 
     /**
      * Returns <code>true</code> if it is the last file to import,
@@ -336,14 +337,14 @@ public interface Importer
      * 
      * @param component The component to handle.
      */
-    void onImportComplete(FileImportComponent component);
+    void onImportComplete(FileImportComponentI component);
 
     /**
      * Indicates that the import is complete for the specified component.
      * 
      * @param component The component to handle.
      */
-    void onUploadComplete(FileImportComponent component);
+    void onUploadComplete(FileImportComponentI component);
 
     /**
      * Sets the result e.g. thumbnails corresponding to the images imported.
