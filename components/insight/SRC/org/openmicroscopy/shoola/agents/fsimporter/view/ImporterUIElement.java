@@ -23,10 +23,12 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 import info.clearthought.layout.TableLayout;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,17 +42,18 @@ import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.border.LineBorder;
 
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -59,7 +62,6 @@ import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ImportStatus;
-import org.openmicroscopy.shoola.agents.fsimporter.util.LightFileImportComponent;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -85,7 +87,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @version 3.0
  * @since 3.0-Beta4
  */
-class ImporterUIElement extends ClosableTabbedPaneComponent {
+abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements PropertyChangeListener {
 
     /** Description of the component. */
     private static final String DESCRIPTION = "Closing will cancel imports that have not yet started.";
@@ -129,7 +131,7 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
     ImportableObject object;
 
     /** The components to lay out. */
-    private LinkedHashMap<String, LightFileImportComponent> components;
+    LinkedHashMap<String, FileImportComponentI> components;
 
     /** The number of cancellation. */
     private int countCancelled;
@@ -150,11 +152,13 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
     private int countFailure;
 
     /** The total number of files or folder to import. */
-    private int totalToImport;
+    int totalToImport;
 
     /** The size of the import. */
     private long sizeImport;
 
+    JButton filterButton;
+    
     /** The component displaying the size the import. */
     private JLabel sizeLabel;
 
@@ -196,7 +200,7 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
 
     /** Flag indicating if the upload has started or not. */
     private boolean uploadStarted;
-
+    
     /**
      * Returns the object found by identifier.
      * 
@@ -257,19 +261,10 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
         return null;
     }
 
-    /** Sets the text of indicating the number of imports. */
-    private void setNumberOfImport() {
-        StringBuffer buffer = new StringBuffer();
-        int n = countUploaded - countUploadFailure - countCancelled;
-        if (n < 0)
-            n = 0;
-        buffer.append(n);
-        buffer.append(" out of ");
-        buffer.append(totalToImport);
-        buffer.append(" uploaded");
-        numberOfImportLabel.setText(buffer.toString());
-    }
-
+    abstract FileImportComponentI buildComponent(ImportableFile importable, boolean
+            browsable, boolean singleGroup, int index,
+            Collection<TagAnnotationData> tags);
+    
     /** Initializes the components. */
     private void initialize() {
         sizeImport = 0;
@@ -280,10 +275,10 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
         countFailure = 0;
         countUploaded = 0;
         addPropertyChangeListener(controller);
-        components = new LinkedHashMap<String, LightFileImportComponent>();
+        components = new LinkedHashMap<String, FileImportComponentI>();
         List<ImportableFile> files = object.getFiles();
-        LightFileImportComponent c;
-
+        FileImportComponentI c;
+        
         Iterator<ImportableFile> i = files.iterator();
         ImportableFile importable;
         type = -1;
@@ -313,10 +308,11 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
         while (i.hasNext()) {
             importable = i.next();
             f = (FileObject) importable.getFile();
-            c = new LightFileImportComponent(importable, getID(),
-                    object.getTags());
+            c = buildComponent(importable,
+                    !controller.isMaster(), single, getID(), object.getTags());
             c.setType(type);
             c.addPropertyChangeListener(controller);
+            c.addPropertyChangeListener(this);
             if (f.isDirectory()) {
                 if (importable.isFolderAsContainer()) {
                     l = new JLabel(f.getName());
@@ -325,10 +321,10 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
             } else {
                 if (importable.isFolderAsContainer()) {
                     String name = f.getParentName();
-                    // first check if the name is already there.
+                    //first check if the name is already there.
                     Entry<JLabel, Object> entry;
-                    Iterator<Entry<JLabel, Object>> k = foldersName.entrySet()
-                            .iterator();
+                    Iterator<Entry<JLabel, Object>>
+                    k = foldersName.entrySet().iterator();
                     boolean exist = false;
                     while (k.hasNext()) {
                         entry = k.next();
@@ -400,66 +396,6 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
     }
 
     /**
-     * Builds and lays out the header.
-     * 
-     * @return See above.
-     */
-    private JPanel buildHeader() {
-        sizeLabel = UIUtilities.createComponent(null);
-        sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
-        reportLabel = UIUtilities.setTextFont("Report:", Font.BOLD);
-        importSizeLabel = UIUtilities.setTextFont("Import Size:", Font.BOLD);
-        double[][] design = new double[][] { { TableLayout.PREFERRED },
-                { TableLayout.PREFERRED, TableLayout.PREFERRED } };
-        TableLayout layout = new TableLayout(design);
-        JPanel detailsPanel = new JPanel(layout);
-        detailsPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-        JPanel p = createRow();
-        p.add(reportLabel);
-        p.add(numberOfImportLabel);
-        detailsPanel.add(p, "0, 0");
-        p = createRow();
-        p.add(importSizeLabel);
-        p.add(sizeLabel);
-        detailsPanel.add(p, "0, 1");
-
-        JPanel middlePanel = new JPanel();
-        middlePanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-
-        JTextArea description = new JTextArea(MESSAGE);
-        makeLabelStyle(description);
-        description.setBackground(UIUtilities.BACKGROUND_COLOR);
-
-        JPanel descriptionPanel = new JPanel();
-        descriptionPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-        descriptionPanel.add(description);
-
-        JPanel header = new JPanel();
-        header.setBackground(UIUtilities.BACKGROUND_COLOR);
-        header.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-        header.setLayout(new BorderLayout());
-
-        header.add(Box.createVerticalStrut(10), BorderLayout.NORTH);
-        header.add(detailsPanel, BorderLayout.WEST);
-        header.add(middlePanel, BorderLayout.CENTER);
-        header.add(descriptionPanel, BorderLayout.EAST);
-        header.add(Box.createVerticalStrut(10), BorderLayout.SOUTH);
-
-        return header;
-    }
-
-    /** Builds and lays out the UI. */
-    private void buildGUI() {
-        JPanel info = new JPanel();
-        info.setOpaque(false);
-        info.setBorder(new LineBorder(Color.LIGHT_GRAY));
-
-        setLayout(new BorderLayout(0, 0));
-        add(buildHeader(), BorderLayout.NORTH);
-        add(info, BorderLayout.CENTER);
-    }
-
-    /**
      * Creates a new instance.
      * 
      * @param controller
@@ -495,15 +431,99 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
         this.id = id;
         this.object = object;
         initialize();
-        buildGUI();
     }
 
+    /** Sets the text of indicating the number of imports. */
+    void setNumberOfImport()
+    {
+        StringBuffer buffer = new StringBuffer();
+        int n = countUploaded-countUploadFailure-countCancelled;
+        if (n < 0) n = 0;
+        buffer.append(n);
+        buffer.append(" out of ");
+        buffer.append(totalToImport);
+        buffer.append(" uploaded");
+        numberOfImportLabel.setText(buffer.toString());
+    }
+    
+    void filterFailures() {
+        
+    }
+    
+    /** 
+     * Builds and lays out the header.
+     * 
+     * @return See above.
+     */
+    JPanel buildHeader()
+    {
+        sizeLabel = UIUtilities.createComponent(null);
+        sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
+        reportLabel = UIUtilities.setTextFont("Report:", Font.BOLD);
+        importSizeLabel = UIUtilities.setTextFont("Import Size:", Font.BOLD);
+        
+        numberOfImportLabel =  UIUtilities.createComponent(null);
+        filterButton = new JButton(SHOW_FAILURE);
+        filterButton.setEnabled(false);
+        filterButton.addActionListener(new ActionListener() {
+            
+            /**
+             * Filters or not the import that did not fail.
+             */
+            public void actionPerformed(ActionEvent evt) {
+                filterFailures();
+            }
+        });
+        
+        double[][] design = new double[][]{
+                    {TableLayout.PREFERRED},
+                    {TableLayout.PREFERRED, TableLayout.PREFERRED}
+                };
+        TableLayout layout = new TableLayout(design);
+        JPanel detailsPanel = new JPanel(layout);
+        detailsPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        JPanel p = createRow();
+        p.add(reportLabel);
+        p.add(numberOfImportLabel);
+        detailsPanel.add(p, "0, 0");
+        p = createRow();
+        p.add(importSizeLabel);
+        p.add(sizeLabel);
+        detailsPanel.add(p, "0, 1");
+        
+        JPanel middlePanel = new JPanel();
+        middlePanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        middlePanel.add(filterButton);
+        
+        JTextArea description = new JTextArea(MESSAGE);
+        makeLabelStyle(description);
+        description.setBackground(UIUtilities.BACKGROUND_COLOR);
+        
+        JPanel descriptionPanel = new JPanel();
+        descriptionPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        descriptionPanel.add(description);
+        
+        JPanel header = new JPanel();
+        header.setBackground(UIUtilities.BACKGROUND_COLOR);
+        header.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        header.setLayout(new BorderLayout());
+        
+        header.add(Box.createVerticalStrut(10), BorderLayout.NORTH);
+        header.add(detailsPanel, BorderLayout.WEST);
+        header.add(middlePanel, BorderLayout.CENTER);
+        header.add(descriptionPanel, BorderLayout.EAST);
+        header.add(Box.createVerticalStrut(10), BorderLayout.SOUTH);
+        
+        return header;
+    }
+    
+    
     /**
      * Returns the identifier of the component.
      * 
      * @return See above.
      */
-    int getID() {
+    int getID() { 
         return id;
     }
 
@@ -747,8 +767,8 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
      */
     List<FileImportComponentI> getMarkedFiles() {
         List<FileImportComponentI> list = new ArrayList<FileImportComponentI>();
-        Entry<String, LightFileImportComponent> entry;
-        Iterator<Entry<String, LightFileImportComponent>> i = components
+        Entry<String, FileImportComponentI> entry;
+        Iterator<Entry<String, FileImportComponentI>> i = components
                 .entrySet().iterator();
         FileImportComponentI fc;
         List<FileImportComponentI> l;
@@ -769,8 +789,8 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
      */
     List<FileImportComponentI> getFilesToReupload() {
         List<FileImportComponentI> list = new ArrayList<FileImportComponentI>();
-        Entry<String, LightFileImportComponent> entry;
-        Iterator<Entry<String, LightFileImportComponent>> i = components
+        Entry<String, FileImportComponentI> entry;
+        Iterator<Entry<String, FileImportComponentI>> i = components
                 .entrySet().iterator();
         FileImportComponentI fc;
         List<FileImportComponentI> l;
@@ -802,8 +822,8 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
         if (existingContainers != null)
             return existingContainers;
         existingContainers = new ArrayList<DataObject>();
-        Entry<String, LightFileImportComponent> entry;
-        Iterator<Entry<String, LightFileImportComponent>> i = components
+        Entry<String, FileImportComponentI> entry;
+        Iterator<Entry<String, FileImportComponentI>> i = components
                 .entrySet().iterator();
         FileImportComponentI fc;
         Map<Long, DatasetData> datasets = new HashMap<Long, DatasetData>();
@@ -842,8 +862,8 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
     void setImportLogFile(Collection<FileAnnotationData> data, long id) {
         if (CollectionUtils.isEmpty(data))
             return;
-        Entry<String, LightFileImportComponent> entry;
-        Iterator<Entry<String, LightFileImportComponent>> i = components
+        Entry<String, FileImportComponentI> entry;
+        Iterator<Entry<String, FileImportComponentI>> i = components
                 .entrySet().iterator();
         FileImportComponentI fc;
         Iterator<FileAnnotationData> j;
@@ -872,8 +892,8 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
      * @return See above.
      */
     boolean hasFailuresToSend() {
-        Entry<String, LightFileImportComponent> entry;
-        Iterator<Entry<String, LightFileImportComponent>> i = components
+        Entry<String, FileImportComponentI> entry;
+        Iterator<Entry<String, FileImportComponentI>> i = components
                 .entrySet().iterator();
         FileImportComponentI fc;
         while (i.hasNext()) {
@@ -892,8 +912,8 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
      * @return See above.
      */
     boolean hasFailuresToReimport() {
-        Entry<String, LightFileImportComponent> entry;
-        Iterator<Entry<String, LightFileImportComponent>> i = components
+        Entry<String, FileImportComponentI> entry;
+        Iterator<Entry<String, FileImportComponentI>> i = components
                 .entrySet().iterator();
         FileImportComponentI fc;
         while (i.hasNext()) {
@@ -912,8 +932,8 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
      * @return See above.
      */
     boolean hasFailuresToReupload() {
-        Entry<String, LightFileImportComponent> entry;
-        Iterator<Entry<String, LightFileImportComponent>> i = components
+        Entry<String, FileImportComponentI> entry;
+        Iterator<Entry<String, FileImportComponentI>> i = components
                 .entrySet().iterator();
         FileImportComponentI fc;
         while (i.hasNext()) {
@@ -929,7 +949,7 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
     void cancelLoading() {
         if (components == null || components.size() == 0)
             return;
-        Iterator<LightFileImportComponent> i = components.values().iterator();
+        Iterator<FileImportComponentI> i = components.values().iterator();
         while (i.hasNext()) {
             i.next().cancelLoading();
         }
@@ -942,8 +962,8 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
      * @return See above.
      */
     boolean hasToRefreshTree() {
-        Entry<String, LightFileImportComponent> entry;
-        Iterator<Entry<String, LightFileImportComponent>> i = components
+        Entry<String, FileImportComponentI> entry;
+        Iterator<Entry<String, FileImportComponentI>> i = components
                 .entrySet().iterator();
         FileImportComponentI fc;
         while (i.hasNext()) {
@@ -962,10 +982,10 @@ class ImporterUIElement extends ClosableTabbedPaneComponent {
      */
     Icon getImportIcon() {
         if (isDone()) {
-            Iterator<Entry<String, LightFileImportComponent>> i = components
+            Iterator<Entry<String, FileImportComponentI>> i = components
                     .entrySet().iterator();
             FileImportComponentI fc;
-            Entry<String, LightFileImportComponent> entry;
+            Entry<String, FileImportComponentI> entry;
             int failure = 0;
             ImportStatus v;
             while (i.hasNext()) {

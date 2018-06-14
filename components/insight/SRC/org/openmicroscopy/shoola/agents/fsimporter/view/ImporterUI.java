@@ -479,8 +479,8 @@ class ImporterUI extends TopWindow
 		int n = tabs.getComponentCount();
 		String title = "Import #"+total;
 		ImporterUIElement element = null;
-        if (object.getFiles().size() > 200) {
-            element = new ImporterUIElement(controller, model, this,
+        if (object.getFiles().size() > 0) {
+            element = new ImporterUIElementLight(controller, model, this,
                     uiElementID, n, title, object);
         } else {
             element = new ImporterUIElementDetailed(controller, model, this,

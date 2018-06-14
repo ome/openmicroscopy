@@ -371,4 +371,5 @@ public interface FileImportComponentI {
      */
     public abstract String toString();
 
+    public abstract void addPropertyChangeListener(PropertyChangeListener l);
 }
