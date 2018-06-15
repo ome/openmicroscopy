@@ -1401,7 +1401,9 @@ public class FileImportComponent
 		List<FileImportComponentI> l = null;
 		if (getFile().isFile()) {
 			if (hasFailuresToReupload() && !reimported) {
-				return Arrays.asList(this);
+			    ArrayList<FileImportComponentI> ret = new ArrayList<FileImportComponentI>();
+                ret.add(this);
+                return ret;
 			}
 		} else {
 			if (components != null) {

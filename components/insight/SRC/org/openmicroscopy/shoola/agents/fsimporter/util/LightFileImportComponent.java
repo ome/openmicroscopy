@@ -952,7 +952,9 @@ public class LightFileImportComponent implements PropertyChangeListener,
         List<FileImportComponentI> l = null;
         if (getFile().isFile()) {
             if (hasFailuresToReupload() && !reimported) {
-                return Arrays.asList(this);
+                ArrayList<FileImportComponentI> ret = new ArrayList<FileImportComponentI>();
+                ret.add(this);
+                return ret;
             }
         } else {
             if (components != null) {
@@ -1144,6 +1146,9 @@ public class LightFileImportComponent implements PropertyChangeListener,
             Status sl = (Status) evt.getNewValue();
             if (sl.equals(status))
                 firePropertyChange(Status.IMPORT_DONE_PROPERTY, null, this);
+        }
+        else if (Status.STEP_PROPERTY.equals(name)) {
+            firePropertyChange(Status.STEP_PROPERTY, evt.getOldValue(), evt.getNewValue());
         }
     }
 

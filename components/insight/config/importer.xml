@@ -37,7 +37,7 @@ into a dataset -->
 <entry name="/options/FolderAsDataset" type="boolean">true</entry>
 <!-- if set to true, the debug tab will be displayed. -->
 <entry name="/options/Debug" type="boolean">false</entry>
-<!-- limit the number of files to import at once -->
-<entry name="/options/ImportFileLimit" type="integer">2000</entry>
+<!-- limit the number of files to show detailed import information for -->
+<entry name="/options/DetailedImportFileLimit" type="integer">100</entry>
 </options>
 </agent>

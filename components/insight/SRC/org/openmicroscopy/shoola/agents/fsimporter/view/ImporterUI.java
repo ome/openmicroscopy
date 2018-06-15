@@ -36,6 +36,7 @@ import java.awt.Toolkit;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -65,6 +66,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
+
 
 
 //Third-party libraries
@@ -475,11 +478,16 @@ class ImporterUI extends TopWindow
 	 */
 	ImporterUIElement addImporterElement(ImportableObject object)
 	{
-		if (object == null) return null;
+		if (object == null) 
+		    return null;
+		
+		int maxFiles = (Integer) ImporterAgent.getRegistry().lookup(
+                "/options/DetailedImportFileLimit");
+		
 		int n = tabs.getComponentCount();
 		String title = "Import #"+total;
 		ImporterUIElement element = null;
-        if (object.getFiles().size() > 0) {
+        if (fileCount(object) > maxFiles) {
             element = new ImporterUIElementLight(controller, model, this,
                     uiElementID, n, title, object);
         } else {
@@ -496,6 +504,28 @@ class ImporterUI extends TopWindow
 		}
 		return element;
 	}
+	
+    private int fileCount(ImportableObject obj) {
+        int count = 0;
+        for (ImportableFile f : obj.getFiles()) {
+            count += fileCount(f.getOriginalFile().getTrueFile());
+        }
+        return count;
+    }
+
+    private int fileCount(File file) {
+        if (file == null)
+            return 0;
+
+        if (file.isDirectory()) {
+            int count = 0;
+            for (File f : file.listFiles()) {
+                count += fileCount(f);
+            }
+            return count;
+        }
+        return 1;
+    }
 	
 	/** Resets the import.*/
 	void reset()

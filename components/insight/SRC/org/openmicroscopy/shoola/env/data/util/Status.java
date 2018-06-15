@@ -104,6 +104,8 @@ public class Status implements IObserver {
 
     /** Bound property indicating that the scanning has started. */
     public static final String PROCESSING_ERROR_PROPERTY = "processingError";
+    
+    public static final String STEP_PROPERTY = "step";
 
     /** The default text of the component. */
     public static final String DEFAULT_TEXT = "Pending...";
@@ -558,7 +560,7 @@ public class Status implements IObserver {
             return;
         cancellable = false;
         if (event instanceof ImportEvent.IMPORT_DONE) {
-            step = 6;
+            setStep(6);
             pixels = PojoMapper
                     .<PixelsData> convertToDataObjects(((ImportEvent.IMPORT_DONE) event).pixels);
             firePropertyChange(IMPORT_DONE_PROPERTY, null, this);
@@ -613,16 +615,16 @@ public class Status implements IObserver {
         } else if (event instanceof ImportEvent.FILESET_UPLOAD_END) {
             checksumEvent = (ImportEvent.FILESET_UPLOAD_END) event;
             if (exception == null) {
-                step = 1;
+                setStep(1);
             }
         } else if (event instanceof ImportEvent.METADATA_IMPORTED) {
-            step = 2;
+            setStep(2);
         } else if (event instanceof ImportEvent.PIXELDATA_PROCESSED) {
-            step = 3;
+            setStep(3);
         } else if (event instanceof ImportEvent.THUMBNAILS_GENERATED) {
-            step = 4;
+            setStep(4);
         } else if (event instanceof ImportEvent.METADATA_PROCESSED) {
-            step = 5;
+            setStep(5);
         } else if (event instanceof ImportEvent.FILESET_UPLOAD_START) {
             uploadStarted = true;
             firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
@@ -638,6 +640,13 @@ public class Status implements IObserver {
         }
         
         firePropertyChange(IMPORT_EVENT, null, event);
+    }
+    
+    public void setStep(int step) {
+        int old = this.step;
+        this.step = step;
+        int id = sourceFile.hashCode();
+        firePropertyChange(STEP_PROPERTY, id+"_"+old, id+"_"+this.step);
     }
 
     public String getUnits() {

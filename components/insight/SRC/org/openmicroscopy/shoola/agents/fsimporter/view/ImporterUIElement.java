@@ -134,22 +134,26 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
     LinkedHashMap<String, FileImportComponentI> components;
 
     /** The number of cancellation. */
-    private int countCancelled;
+    int countCancelled;
 
     /** The number of uploaded files. */
-    private int countUploaded;
+    int countUploaded;
 
     /** The number of files/folder imported. */
-    private int countImported;
+    int countImported;
 
     /** The number of files uploaded. */
-    private int countUploadFailure;
+    int countUploadFailure;
 
+    int countMetadata = 0;
+    
+    int countThumbs = 0;
+    
     /**
      * The number of failures that occurred during scanning, uploading or
      * processing.
      */
-    private int countFailure;
+    int countFailure;
 
     /** The total number of files or folder to import. */
     int totalToImport;

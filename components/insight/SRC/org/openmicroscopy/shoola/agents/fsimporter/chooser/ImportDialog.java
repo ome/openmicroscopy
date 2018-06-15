@@ -388,40 +388,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Displays the location of the import.*/
 	private void showLocationDialog()
 	{
-		if (checkFileCount() && 
-		        locationDialog.centerLocation() == LocationDialog.CMD_ADD) {
+		if (locationDialog.centerLocation() == LocationDialog.CMD_ADD) {
 			addFiles(locationDialog.getImportSettings());
 		}
 	}
-	
-        /**
-         * Check if the user wants to import more files than the current limit
-         * 
-         * @return <code>true</code> if the file limit is exceeded,
-         *         <code>false</code> otherwise
-         */
-        private boolean checkFileCount() {
-            int maxFiles = (Integer) ImporterAgent.getRegistry().lookup(
-                    "/options/ImportFileLimit");
-    
-            File[] files = chooser.getSelectedFiles();
-            int nFiles = 0;
-            for (File file : files) {
-                nFiles += countFiles(file);
-            }
-    
-            nFiles += table.getFilesToImport().size();
-    
-            if (nFiles > maxFiles) {
-                String msg = TEXT_FILE_LIMIT_EXCEEDED.replaceAll(
-                        FILE_LIMIT_WILDCARD, "" + maxFiles);
-                ImporterAgent.getRegistry().getUserNotifier()
-                        .notifyError(TITLE_FILE_LIMIT_EXCEEDED, msg);
-                return false;
-            }
-    
-            return true;
-        }
 	
         /**
          * Counts the files within the given directory (and sub directories)

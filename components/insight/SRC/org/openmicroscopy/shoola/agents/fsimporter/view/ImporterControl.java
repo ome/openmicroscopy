@@ -391,7 +391,6 @@ class ImporterControl
          */
         private void handlePropertyChangedEvent(PropertyChangeEvent evt) {
             String name = evt.getPropertyName();
-            System.out.println("ImporterControl <- "+name);
             if (ImportDialog.IMPORT_PROPERTY.equals(name)) {
                 actionsMap.get(CANCEL_BUTTON).setEnabled(true);
                 model.importData((ImportableObject) evt.getNewValue());
