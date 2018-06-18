@@ -2426,10 +2426,10 @@ class EditorModel
         if (!isMultiSelection()) {
             Map<DataObject, RatingAnnotationData> map = getAllUserRatingAnnotation();
             if (map != null) {
-            for (Entry<DataObject, RatingAnnotationData> e : map.entrySet()) {
-                if (e.getValue().getOwner().getId() == getLoggedInUserID())
-                    return e.getValue();
-            }
+                for (Entry<DataObject, RatingAnnotationData> e : map.entrySet()) {
+                    if (e.getValue().getOwner().getId() == getLoggedInUserID())
+                        return e.getValue();
+                }
             }
         }
         return null;
