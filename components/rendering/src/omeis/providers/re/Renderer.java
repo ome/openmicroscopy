@@ -953,6 +953,7 @@ public class Renderer {
     /**
      * Sets the active resolution level.
      * @param resolutionLevel The resolution level to be used by the renderer.
+     * @see ome.io.nio.PixelBuffer#setResolutionLevel(int)
      **/
     public void setResolutionLevel(int resolutionLevel)
     {
@@ -962,6 +963,7 @@ public class Renderer {
     /**
      * Retrieves the active resolution level.
      * @return The active resolution level.
+     * @see ome.io.nio.PixelBuffer#getResolutionLevel()
      **/
     public int getResolutionLevel()
     {
@@ -974,6 +976,7 @@ public class Renderer {
      * @return The number of resolution levels. This value does not
      * necessarily indicate either the presence or absence of a
      * pixels pyramid.
+     * @see ome.io.nio.PixelBuffer#getResolutionLevels()
      **/
     public int getResolutionLevels()
     {

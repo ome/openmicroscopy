@@ -130,10 +130,13 @@ public interface RawPixelsStore extends StatefulServiceInterface {
 
     public Object getResolutionDescriptions();
 
+    /* @see ome.io.nio.PixelBuffer#getResolutionLevels() */
     public int getResolutionLevels();
 
+    /* @see ome.io.nio.PixelBuffer#getResolutionLevel() */
     public int getResolutionLevel();
 
+    /* @see ome.io.nio.PixelBuffer#setResolutionLevel(int) */
     public void setResolutionLevel(int resolutionLevel);
 
     public int[] getTileSize();
