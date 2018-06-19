@@ -1198,7 +1198,17 @@ def api_annotations(request, conn=None, **kwargs):
                                           page=page,
                                           limit=limit)
 
-    return JsonResponse({'annotations': anns, 'experimenters': exps})
+    namespaces = None
+    if request.session.get('server_settings'):
+        namespaces = request.session.get('server_settings') \
+            .get('disable_delete_for_namespaces', None)
+
+    rsp_json = {'annotations': anns,
+                'experimenters': exps}
+    if namespaces is not None:
+        rsp_json['disable_delete_for_namespaces'] = namespaces.split(',')
+
+    return JsonResponse(rsp_json)
 
 
 @login_required()

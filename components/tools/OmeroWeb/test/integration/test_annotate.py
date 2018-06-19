@@ -29,6 +29,7 @@ from omeroweb.testlib import IWebTest
 from omeroweb.testlib import post, get_json
 
 from django.core.urlresolvers import reverse
+import pytest
 
 
 class TestTagging(IWebTest):
@@ -102,3 +103,36 @@ class TestTagging(IWebTest):
         tagIds = [t['id'] for t in rsp['annotations']]
         assert tag.id.val not in tagIds
         assert tag2.id.val in tagIds
+
+
+class TestConfig(IWebTest):
+
+    @pytest.mark.parametrize("namespaces",
+                             ["omero.web.f.json",
+                              "omero.web.f.json,omero.web.f.tiff",
+                              ""])
+    def testDisableDeleteNamespace(self, namespaces):
+        """
+        Test that api_annotation JSON includes
+        disable_delete_for_namespaces config values
+        """
+        try:
+            self.root.sf.getConfigService().setConfigValue(
+                "omero.client.disable_delete_for_namespaces", namespaces)
+
+            # login each time, since config is cached for each session
+            client, user1 = self.new_client_and_user(perms='rwrw--')
+            omeName = client.sf.getAdminService().getEventContext().userName
+            django_client = self.new_django_client(omeName, omeName)
+            request_url = reverse('api_annotations')
+            rsp = get_json(django_client, request_url, {"image": 1})
+
+            ns_list = namespaces.split(',')
+            assert rsp['disable_delete_for_namespaces'] == ns_list
+
+        finally:
+            d = self.root.sf.getConfigService() \
+                .getConfigDefaults()[
+                    'omero.client.disable_delete_for_namespaces']
+            self.root.sf.getConfigService().setConfigValue(
+                "omero.client.disable_delete_for_namespaces", d)
