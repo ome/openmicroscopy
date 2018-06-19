@@ -55,7 +55,9 @@ command-line arguments. Special keys include:
 
  * columns      A list of columns for parsing the value of path
  * continue     Like the "-c" changes error handling
- * dry_run      Prints out additional arguments rather than running them
+ * dry_run      If true, print out additional arguments rather than run them.
+                If another string other than false, use as a template for
+                storing the import commands. (e.g. /tmp/%s.sh)
  * include      Relative path (from the bulk file) of a parent bulk file
  * path         A file which will be parsed line by line based on its file
                 ending. Lines containing zero or more keys along with a
@@ -544,13 +546,19 @@ class ImportControl(BaseControl):
                 bulk.update(data)
                 os.chdir(parent)
 
+            incr = 0
             failed = 0
             total = 0
             for cont in self.parse_bulk(bulk, command_args):
+                incr += 1
                 if command_args.dry_run:
                     rv = ['"%s"' % x for x in command_args.added_args()]
                     rv = " ".join(rv)
-                    self.ctx.out(rv)
+                    if command_args.dry_run.lower() == "true":
+                        self.ctx.out(rv)
+                    else:
+                        with open(command_args.dry_run % incr, "w") as o:
+                            print >>o, sys.argv[0], "import", rv
                 else:
                     self.do_import(command_args, xargs)
                 if self.ctx.rv:
@@ -576,7 +584,8 @@ class ImportControl(BaseControl):
         command_args.dry_run = False
         if "dry_run" in bulk:
             dry_run = bulk.pop("dry_run")
-            command_args.dry_run = dry_run
+            if dry_run.lower() != "false":
+                command_args.dry_run = dry_run
 
         if "continue" in bulk:
             cont = True
