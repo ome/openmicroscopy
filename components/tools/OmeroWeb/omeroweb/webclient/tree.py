@@ -460,7 +460,8 @@ def _marshal_date(timestamp):
         def utcoffset(self, dt):
             # https://stackoverflow.com/questions/1111056/
             # /get-time-zone-information-of-the-system-in-python
-            offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
+            offset = time.timezone if (time.localtime().tm_isdst == 0) \
+                else time.altzone
             return timedelta(0, 0, 0, 0, 0, offset / 60 / 60 * -1)
 
         def tzname(self, dt):
