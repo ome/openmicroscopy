@@ -342,6 +342,11 @@ class FsControl(CmdControl):
                   "'<Class>:<Id>[,<Id> ...]', or '<Class>:*' "
                   "to query all the objects of the given type "))
 
+        importtime = parser.add(sub, self.importtime)
+        importtime.add_argument(
+            "fileset",
+            type=ProxyStringType("Fileset"))
+
         for x in (images, sets):
             x.add_argument(
                 "--extended", action="store_true",
@@ -1000,6 +1005,109 @@ Examples:
             tb.replace_header("size", "size (bytes)")
 
         self.ctx.out(str(tb.build()))
+
+    def importtime(self, args):
+        """Estimate how long it took to import an existing fileset"""
+
+        from omero.cmd import ImportDurationQuery, ImportDurationReport
+        from omero.sys import ParametersI
+
+        client = self.ctx.conn(args)
+        query = client.sf.getQueryService()
+
+        rsp = None
+        try:
+            idq = ImportDurationQuery()
+            idq.filesetId = args.fileset.id.val
+            cb = client.submit(idq)
+            try:
+                rsp = cb.getResponse()
+            finally:
+                cb.close(True)
+        except Exception as e:
+            self.ctx.dbg("Error on IDQ: %s" % e)
+            return
+
+        if not isinstance(rsp, ImportDurationReport):
+            self.ctx.dbg("Unexpected IDQ response: %s" % rsp)
+            return
+
+        ctx = {"omero.group": "-1"}
+        fileset_param = ParametersI().addId(args.fileset.id)
+
+        time = rsp.durations.get('UPLOAD')
+        if time:
+            time /= 1000.0
+            count = query.projection(
+                "SELECT COUNT(*) FROM FilesetEntry " +
+                "WHERE fileset.id = :id",
+                fileset_param, ctx)[0][0].val
+            if count > 0:
+                plural = "s" if count > 1 else ""
+                print(("   upload time of {:6.2f}s for "
+                       "{} file{} ({:.2f}s/file)")
+                      .format(time, count, plural, time/count))
+
+        time = rsp.durations.get('SET_ID')
+        if time:
+            time /= 1000.0
+            print("    setId time of {:6.2f}s".format(time))
+
+        time = rsp.durations.get('METADATA')
+        if time:
+            time /= 1000.0
+            print(" metadata time of {:6.2f}s".format(time))
+
+        time = rsp.durations.get('PIXELDATA')
+        if time:
+            time /= 1000.0
+            count = query.projection(
+                "SELECT SUM(sizeC * sizeT * sizeZ) FROM Pixels " +
+                "WHERE image.fileset.id = :id",
+                fileset_param, ctx)[0][0].val
+            if count > 0:
+                plural = "s" if count > 1 else ""
+                print(("   pixels time of {:6.2f}s for "
+                       "{} plane{} ({:.2f}s/plane)")
+                      .format(time, count, plural, time/count))
+
+        time = rsp.durations.get('OVERLAYS')
+        if time:
+            time /= 1000.0
+            print(" overlays time of {:6.2f}s".format(time))
+
+        time = rsp.durations.get('RND_DEFS')
+        if time:
+            time /= 1000.0
+            count = query.projection(
+                "SELECT COUNT(*) FROM RenderingDef " +
+                "WHERE pixels.image.fileset.id = :id " +
+                "AND details.owner = pixels.details.owner",
+                fileset_param, ctx)[0][0].val
+            if count > 0:
+                plural = "s" if count > 1 else ""
+                print(("    rdefs time of {:6.2f}s for "
+                       "{} rendering setting{} ({:.2f}s/rdef)")
+                      .format(time, count, plural, time/count))
+
+        time = rsp.durations.get('THUMBNAILS')
+        if time:
+            time /= 1000.0
+            count = query.projection(
+                "SELECT COUNT(*) FROM Thumbnail " +
+                "WHERE pixels.image.fileset.id = :id " +
+                "AND details.owner = pixels.details.owner",
+                fileset_param, ctx)[0][0].val
+            if count > 0:
+                plural = "s" if count > 1 else ""
+                print(("thumbnail time of {:6.2f}s for "
+                       "{} thumbnail{} ({:.2f}s/thumbnail)")
+                      .format(time, count, plural, time/count))
+
+        time = rsp.durations.get('PYRAMIDS')
+        if time:
+            time /= 1000.0
+            print("  pyramid time of {:6.2f}s".format(time))
 
 try:
     register("fs", FsControl, HELP)
