@@ -1045,7 +1045,7 @@ Examples:
             if count > 0:
                 plural = "s" if count > 1 else ""
                 print(("   upload time of {:6.2f}s for "
-                       "{} file{} ({:.2f}s/file)")
+                       "{} file{} ({:.3f}s/file)")
                       .format(time, count, plural, time/count))
 
         time = rsp.durations.get('SET_ID')
@@ -1068,7 +1068,7 @@ Examples:
             if count > 0:
                 plural = "s" if count > 1 else ""
                 print(("   pixels time of {:6.2f}s for "
-                       "{} plane{} ({:.2f}s/plane)")
+                       "{} plane{} ({:.3f}s/plane)")
                       .format(time, count, plural, time/count))
 
         time = rsp.durations.get('OVERLAYS')
@@ -1087,7 +1087,7 @@ Examples:
             if count > 0:
                 plural = "s" if count > 1 else ""
                 print(("    rdefs time of {:6.2f}s for "
-                       "{} rendering setting{} ({:.2f}s/rdef)")
+                       "{} rendering setting{} ({:.3f}s/rdef)")
                       .format(time, count, plural, time/count))
 
         time = rsp.durations.get('THUMBNAILS')
@@ -1101,7 +1101,7 @@ Examples:
             if count > 0:
                 plural = "s" if count > 1 else ""
                 print(("thumbnail time of {:6.2f}s for "
-                       "{} thumbnail{} ({:.2f}s/thumbnail)")
+                       "{} thumbnail{} ({:.3f}s/thumbnail)")
                       .format(time, count, plural, time/count))
 
         time = rsp.durations.get('PYRAMIDS')
