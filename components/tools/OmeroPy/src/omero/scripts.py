@@ -508,15 +508,16 @@ def parse_input(input_string, params):
         (omero.RLong, omero.RString, omero.RInt,
          omero.RTime, omero.RDouble, omero.RFloat)):
         val = param.prototype.__class__(val)
-    elif isinstance(param.prototype, omero.RList):
+    elif isinstance(param.prototype, (omero.RList, omero.RSet)):
+        rmethod = omero.rtypes.rlist
+        rwrap = omero.rtypes.wrap
+        if isinstance(param.prototype, omero.RSet):
+            rmethod = omero.rtypes.rset
+        if len(param.prototype.val) > 0:
+            rwrap = param.prototype.val[0].__class__
         items = val.split(",")
-        if len(param.prototype.val) == 0:
-            # Don't know what needs to be added here, so calling wrap
-            # which will produce an rlist of rstrings.
-            val = omero.rtypes.wrap(items)
-        else:
-            p = param.prototype.val[0]
-            val = omero.rtypes.rlist([p.__class__(x) for x in items])
+        val = rmethod([rwrap(x) for x in items])
+        print val
     elif isinstance(param.prototype, omero.RObject):
         try:
             parts2 = val.split(":")
