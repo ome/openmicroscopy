@@ -17,7 +17,9 @@ ARG BUILD_IMAGE=openjdk
 # The produced /src directory will be copied the
 # RUN_IMAGE for end-use. This value can also be
 # set at build time with --build-arg RUN_IMAGE=...
-ARG RUN_IMAGE=openmicroscopy/omero-server:latest
+ARG COMPONENT=server
+ARG RUN_IMAGE=openmicroscopy/omero-${COMPONENT}:latest
+
 
 FROM ${BUILD_IMAGE} as build
 RUN apt-get update \
@@ -47,7 +49,7 @@ RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
 
 RUN components/tools/travis-build
 
-FROM ${RUN_IMAGE}
+FROM ${RUN_IMAGE} as run
 COPY --from=build /src /src
 USER root
 RUN chown -R omero-server:omero-server /src
