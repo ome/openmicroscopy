@@ -234,7 +234,7 @@ class Point(Type):
     Wraps an rinternal(Point)
     """
     PROTOTYPE_FUNCTION = rinternal
-    PROTOTYPE_FUNCTION = omero.Point
+    PROTOTYPE_DEFAULT = omero.Point
 
 
 class Plane(Type):
