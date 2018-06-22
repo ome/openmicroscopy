@@ -342,24 +342,28 @@ class SessionsStore(object):
         client = omero.client(props)
         client.setAgent("OMERO.sessions")
 
-        if sudo is not None:
-            sf = client.createSession(sudo, pasw)
-            principal = omero.sys.Principal()
-            principal.name = name
-            principal.group = props.get("omero.group", None)
-            principal.eventType = "User"
+        try:
+            if sudo is not None:
+                sf = client.createSession(sudo, pasw)
+                principal = omero.sys.Principal()
+                principal.name = name
+                principal.group = props.get("omero.group", None)
+                principal.eventType = "User"
 
-            # Retrieve the default time to idle value
-            uuid = sf.ice_getIdentity().name
-            sess = sf.getSessionService().getSession(uuid)
-            timeToIdle = sess.getTimeToIdle().getValue()
+                # Retrieve the default time to idle value
+                uuid = sf.ice_getIdentity().name
+                sess = sf.getSessionService().getSession(uuid)
+                timeToIdle = sess.getTimeToIdle().getValue()
 
-            sess = sf.getSessionService().createSessionWithTimeouts(
-                principal, 0, timeToIdle)
-            client.closeSession()
-            sf = client.joinSession(sess.getUuid().getValue())
-        else:
-            sf = client.createSession(name, pasw)
+                sess = sf.getSessionService().createSessionWithTimeouts(
+                    principal, 0, timeToIdle)
+                client.closeSession()
+                sf = client.joinSession(sess.getUuid().getValue())
+            else:
+                sf = client.createSession(name, pasw)
+        except:
+            client.__del__()
+            raise
 
         ec = sf.getAdminService().getEventContext()
         uuid = sf.ice_getIdentity().name
