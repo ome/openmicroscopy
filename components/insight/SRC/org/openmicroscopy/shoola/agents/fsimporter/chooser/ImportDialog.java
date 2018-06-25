@@ -11,7 +11,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -26,12 +26,7 @@ import ij.ImagePlus;
 import ij.WindowManager;
 import info.clearthought.layout.TableLayout;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -50,28 +45,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JRootPane;
-import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 
 import loci.formats.gui.ComboFileFilter;
@@ -106,7 +80,7 @@ import omero.gateway.model.TagAnnotationData;
 
 /**
  * Dialog used to select the files to import.
- * 
+ *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -124,7 +98,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	// public constants
 	/** Bound property indicating to change the import group. */
 	public static final String PROPERTY_GROUP_CHANGED = "groupChanged";
-	
+
 	/** Bound property indicating to create the object. */
 	public static final String CREATE_OBJECT_PROPERTY = "createObject";
 
@@ -177,7 +151,13 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Tooltip text for the Import button */
 	private static final String TOOLTIP_IMPORT =
 			"Import the selected files or directories";
-	
+
+	/** Text for metadata pane */
+	private static final String TEXT_FILE_NAMING = "File Naming";
+
+	/** Text for metadata pane */
+	private static final String TEXT_SKIP_COMPUTE = "Skip Compute";
+
 	/** Text for metadata pane */
 	private static final String TEXT_METADATA_DEFAULTS = "Metadata Defaults";
 
@@ -222,26 +202,26 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** String used to retrieve if the value of the load thumbnail flag. */
 	private static final String LOAD_THUMBNAIL = "/options/LoadThumbnail";
 
-	/** Tooltip for refresh files button */	
+	/** Tooltip for refresh files button */
 	private static final String TOOLTIP_REFRESH_FILES =
 			"Refresh the file chooser list.";
-	
-	/** Text for refresh files button */	
+
+	/** Text for refresh files button */
 	private static final String TEXT_REFRESH_FILES =
 			"Refresh";
-	
+
 	/** Title for the warning dialog if the file limit is exceeded */
 	private static final String TITLE_FILE_LIMIT_EXCEEDED = "File limit exceeded";
-	
+
 	/** Wildcard for the file limit used in the warning message */
 	private static final String FILE_LIMIT_WILDCARD = "@@FILE_LIMIT@@";
-	
+
 	/** Warning if the file limit is exceeded */
 	private static final String TEXT_FILE_LIMIT_EXCEEDED = "The import is limited to "+FILE_LIMIT_WILDCARD+" files at once.\n\nFor importing a large number of files you may\nconsider using the command line tools.";
-	
+
 	/** Warning when de-selecting the name overriding option. */
 	private static final List<String> WARNING;
-	
+
 	static {
 		WARNING = new ArrayList<String>();
 		WARNING.add("NOTE: Some file formats do not include the file name " +
@@ -256,7 +236,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/** The length of a column. */
 	private static final int COLUMN_WIDTH = 200;
-	
+
 	/** The approval option the user chose. */
 	private int option;
 
@@ -322,7 +302,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/** Indicates to show thumbnails in import tab. */
 	private JCheckBox showThumbnails;
-	
+
 	/** The collection of general filters. */
 	private List<FileFilter> bioFormatsFileFilters;
 
@@ -346,7 +326,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/** Indicates to reload the hierarchies when the import is completed. */
 	private boolean reload;
-	
+
 	/**
 	 * The dialog to allow for the user to select the import location.
 	 */
@@ -363,24 +343,24 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Adds the files to the selection.
-	 * 
+	 *
 	 * @param importSettings The import settings.
 	 */
 	private void addFiles(ImportLocationSettings importSettings)
 	{
 		File[] files = chooser.getSelectedFiles();
-		
+
 		if (files == null || files.length == 0)
 			return;
-		
+
 		List<FileObject> fileList = new ArrayList<FileObject>();
-		
+
 		for (int i = 0; i < files.length; i++) {
 			checkFile(files[i], fileList);
 		}
-		
+
 		chooser.setSelectedFile(new File("."));
-		
+
 		table.addFiles(fileList, importSettings);
 		importButton.setEnabled(table.hasFilesToImport());
 	}
@@ -392,10 +372,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			addFiles(locationDialog.getImportSettings());
 		}
 	}
-	
+
         /**
          * Counts the files within the given directory (and sub directories)
-         * 
+         *
          * @param file
          *            The directory or file
          * @return The number of files within the directory (and sub directories) or
@@ -403,7 +383,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
          *         directory
          */
         private int countFiles(File file) {
-    
+
             if (file.isDirectory()) {
                 int count = 0;
                 for (File child : file.listFiles()) {
@@ -411,13 +391,13 @@ public class ImportDialog extends ClosableTabbedPaneComponent
                 }
                 return count;
             }
-            
+
             return 1;
         }
 
 	/**
 	 * Handles <code>Enter</code> key pressed.
-	 * 
+	 *
 	 * @param source
 	 *            The source of the mouse pressed.
 	 */
@@ -431,7 +411,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Handles the selection of tags.
-	 * 
+	 *
 	 * @param tags
 	 *            The selected tags.
 	 */
@@ -489,7 +469,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Creates a row.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	private JPanel initRow() {
@@ -500,7 +480,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Builds and lays out a tag.
-	 * 
+	 *
 	 * @param tag
 	 *            The tag to display.
 	 * @param icon
@@ -522,7 +502,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Shows the selection wizard.
-	 * 
+	 *
 	 * @param type
 	 *            The type of objects to handle.
 	 * @param available
@@ -557,7 +537,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Initializes the components composing the display.
-	 * 
+	 *
 	 * @param filters The filters to handle.
 	 * @param importerAction The cancel-all-imports action.
 	 */
@@ -572,11 +552,11 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 		showThumbnails = new JCheckBox(TEXT_SHOW_THUMBNAILS);
 		showThumbnails.setVisible(false);
-		
+
 		Registry registry = ImporterAgent.getRegistry();
-		
+
 		Boolean loadThumbnails = (Boolean) registry.lookup(LOAD_THUMBNAIL);
-		
+
 		if (loadThumbnails != null) {
 			if (loadThumbnails.booleanValue()) {
 				showThumbnails.setVisible(true);
@@ -590,14 +570,14 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		if (model.getSelectedGroup() != null)
 		    groupId = model.getSelectedGroup().getGroupId();
 		if (groupId < 0) groupId = ImporterAgent.getUserDetails().getGroupId();
-		
+
 		locationDialog = new LocationDialog(owner, selectedContainer, type,
 				objects, model, groupId, true);
 		locationDialog.addPropertyChangeListener(this);
 		addPropertyChangeListener(locationDialog);
-		
+
 		int plugin = ImporterAgent.runAsPlugin();
-        
+
         if (plugin == LookupNames.IMAGE_J_IMPORT ||
                 plugin == LookupNames.IMAGE_J) {
             detachedDialog = new LocationDialog(owner, selectedContainer, type,
@@ -627,13 +607,13 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		tagsMap = new LinkedHashMap<JButton, TagAnnotationData>();
 
 		IconManager icons = IconManager.getInstance();
-		
-		refreshFilesButton = new JButton(TEXT_REFRESH_FILES);		  	
+
+		refreshFilesButton = new JButton(TEXT_REFRESH_FILES);
 	    refreshFilesButton.setBackground(UIUtilities.BACKGROUND);
 	    refreshFilesButton.setToolTipText(TOOLTIP_REFRESH_FILES);
 	    refreshFilesButton.setActionCommand("" + CMD_REFRESH_FILES);
 	    refreshFilesButton.addActionListener(this);
-				
+
 		tagButton = new JButton(icons.getIcon(IconManager.PLUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(tagButton);
 		tagButton.addActionListener(this);
@@ -661,7 +641,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 			/**
 			 * Adds the files to the import queue.
-			 * 
+			 *
 			 * @see KeyListener#keyPressed(KeyEvent)
 			 */
 			public void keyPressed(KeyEvent e) {
@@ -693,37 +673,37 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		chooser.setControlButtonsAreShown(false);
 		chooser.setApproveButtonText(TEXT_IMPORT);
 		chooser.setApproveButtonToolTipText(TOOLTIP_IMPORT);
-		
+
 		bioFormatsFileFilters = new ArrayList<FileFilter>();
-		
+
 		if (filters != null) {
 			chooser.setAcceptAllFileFilterUsed(false);
-			
+
 			for (FileFilter fileFilter : filters) {
 				if (fileFilter instanceof ComboFileFilter) {
 					bioFormatsFileFiltersCombined = fileFilter;
-					
+
 					ComboFileFilter comboFilter = (ComboFileFilter) fileFilter;
 					FileFilter[] extensionFilters = comboFilter.getFilters();
-					
+
 					for (FileFilter combinedFilter : extensionFilters) {
 						bioFormatsFileFilters.add(combinedFilter);
 					}
 					break;
 				}
 			}
-			
+
 			chooser.addChoosableFileFilter(bioFormatsFileFiltersCombined);
-			
+
 			for (FileFilter fileFilter : bioFormatsFileFilters) {
 				chooser.addChoosableFileFilter(fileFilter);
 			}
-				
+
 			chooser.setFileFilter(bioFormatsFileFiltersCombined);
 		} else {
 			chooser.setAcceptAllFileFilterUsed(true);
 		}
-		
+
 
 		closeButton = new JButton(TEXT_CLOSE);
 		closeButton.setToolTipText(TOOLTIP_CLOSE);
@@ -804,7 +784,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Builds and lays out the tool bar.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	private JPanel buildToolBarLeft() {
@@ -822,39 +802,41 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Builds and lays out the components.
-	 * 
+	 *
 	 * @return See above
 	 */
 	private JPanel buildPathComponent() {
 		JLabel directoriesLabel = new JLabel(TEXT_DIRECTORIES_BEFORE_FILE);
-		
+
 		JPanel pathPanel = new JPanel();
 		pathPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		pathPanel.add(numberOfFolders);
 		pathPanel.add(directoriesLabel);
-		
+
 		return pathPanel;
 	}
 
 	/**
 	 * Builds and lays out the component displaying the options for the
 	 * metadata.
-	 * 
+	 *
 	 * @return See above.
 	 */
-	private JXTaskPane buildMetadataComponent() {
-		JXTaskPane pane = new JXTaskPane();
-		Font font = pane.getFont();
-		pane.setFont(font.deriveFont(font.getStyle(), font.getSize() - 2));
-		pane.setCollapsed(true);
-		pane.setTitle(TEXT_METADATA_DEFAULTS);
-		pane.add(buildPixelSizeComponent());
-		return pane;
-	}
+
+
+	private JXTaskPane buildPane(String title, JComponent view) {
+        JXTaskPane pane = new JXTaskPane();
+        Font font = pane.getFont();
+        pane.setFont(font.deriveFont(font.getStyle(), font.getSize() - 2));
+        pane.setCollapsed(true);
+        pane.setTitle(title);
+        pane.add(view);
+        return pane;
+    }
 
 	/**
 	 * Builds and lays out the pixels size options.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	private JPanel buildPixelSizeComponent() {
@@ -884,7 +866,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Builds and lays out the components displaying the naming options.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	private JComponent buildNamingComponent() {
@@ -920,9 +902,17 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		return UIUtilities.buildComponentPanel(p);
 	}
 
+	private JComponent buildSkipFlagsComponent() {
+		JPanel content = new JPanel();
+		content.setBorder(BorderFactory.createTitledBorder("Skip Compute"));
+		content.add(new SkipComputePanel());
+
+		return UIUtilities.buildComponentPanel(content);
+	}
+
 	/**
 	 * Builds the component hosting the controls to add annotations.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	private JPanel buildAnnotationComponent() {
@@ -944,27 +934,50 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Builds and lays out the import options available.
-	 * 
-	 * @param container
-	 *            Container where to import the image.
-	 * @return See above.
+	 *
+	 * @return JScrollPane with a JPanel as its Viewport
 	 */
-	private JPanel buildOptionsPane() {
-		// Lays out the options
-		JPanel options = new JPanel();
-		double[][] size = {
-				{ TableLayout.FILL },
-				{ TableLayout.PREFERRED, TableLayout.PREFERRED,
-						TableLayout.PREFERRED } };
-		options.setLayout(new TableLayout(size));
-		options.add(buildNamingComponent(), "0, 1");
-		options.add(buildMetadataComponent(), "0, 2");
-		return options;
-	}
+	private JComponent buildOptionsPane() {
+        // Lays out the options
+        JPanel options = new JPanel();
+        options.setLayout(new GridBagLayout());
+
+        // Set constraints for all child views
+        GridBagConstraints c = new GridBagConstraints();
+        c.weightx = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+
+        // Constraints for naming component
+        c.gridx = 0;
+        c.gridy = 0;
+        options.add(buildPane(TEXT_FILE_NAMING, buildNamingComponent()), c);
+
+        // Constraints for flags component
+        c.gridx = 0;
+        c.gridy = 1;
+        options.add(buildPane(TEXT_SKIP_COMPUTE, buildSkipFlagsComponent()), c);
+
+        // Constraints for meta data component
+        c.gridx = 0;
+        c.gridy = 2;
+        options.add(buildPane(TEXT_METADATA_DEFAULTS, buildPixelSizeComponent()), c);
+
+        // Fills in bottom space of GridBagLayout
+        c.gridx = 0;
+        c.gridy = 3;
+        c.weighty = 1;
+        options.add(new JLabel(" "), c);
+
+        // Scroll view to hold the options panel should the import dialog
+        // shrink in size or further options are added
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setViewportView(options);
+        return scrollPane;
+    }
 
 	/**
 	 * Lays out the quota.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	private JPanel buildQuotaPane() {
@@ -1011,16 +1024,16 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		    pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 	                chooser, tablePanel);
 		}
-		
+
 		JPanel mainPanel = new JPanel();
 		double[][] mainPanelDesign = { { TableLayout.FILL },
 				{ TableLayout.PREFERRED, TableLayout.FILL } };
 		mainPanel.setLayout(new TableLayout(mainPanelDesign));
 		mainPanel.setBackground(UIUtilities.BACKGROUND);
 		mainPanel.add(pane, "0, 1");
-		
+
 		this.add(mainPanel, BorderLayout.CENTER);
-		
+
 		JPanel controls = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
 
@@ -1031,7 +1044,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		bar.add(buildToolBarRight());
 		controls.add(new JSeparator());
 		controls.add(bar);
-		
+
 		add(controls, BorderLayout.SOUTH);
 		if (JDialog.isDefaultLookAndFeelDecorated()) {
 			boolean supportsWindowDecorations = UIManager.getLookAndFeel()
@@ -1045,7 +1058,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/**
 	 * Helper method returning <code>true</code> if the connection is fast,
 	 * <code>false</code> otherwise.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	private boolean isFastConnection() {
@@ -1056,7 +1069,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Handles the selection of files. Returns the files that can be imported.
-	 * 
+	 *
 	 * @param The selected files.
 	 * @return See above.
 	 */
@@ -1065,7 +1078,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	}
 
 	/** Imports the selected files. */
-	public void importFiles() {
+	public void  importFiles() {
 		option = CMD_IMPORT;
 		importButton.setEnabled(false);
 		// Set the current directory as the defaults
@@ -1098,7 +1111,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				.lookup(LOAD_THUMBNAIL);
 		if (loadThumbnails != null)
 			object.setLoadThumbnail(loadThumbnails.booleanValue());
-		
+
 		// if slow connection
 		if (!isFastConnection())
 			object.setLoadThumbnail(false);
@@ -1114,7 +1127,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			}
 			object.setTags(l);
 		}
-			
+
 		if (partialName.isSelected()) {
 			Integer number = (Integer) numberOfFolders.getValueAsNumber();
 			if (number != null && number >= 0)
@@ -1138,7 +1151,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		}
 		if (count > 0)
 			object.setPixelsSize(size);
-		
+
 		firePropertyChange(IMPORT_PROPERTY, null, object);
 		table.removeAllFiles();
 		tagsMap.clear();
@@ -1150,7 +1163,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * Checks if the file can be added to the passed list. Returns the
 	 * <code>true</code> if the file is a directory, <code>false</code>
 	 * otherwise.
-	 * 
+	 *
 	 * @param f
 	 *            The file to handle.
 	 */
@@ -1174,7 +1187,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/**
 	 * Returns <code>true</code> if the file can be imported, <code>false</code>
 	 * otherwise.
-	 * 
+	 *
 	 * @param f
 	 *            The file to check.
 	 * @return See above.
@@ -1185,7 +1198,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Checks if the passed container is hosting the desired object.
-	 * 
+	 *
 	 * @param container
 	 *            The container to handle.
 	 * @return See above.
@@ -1202,7 +1215,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Creates a new instance.
-	 * 
+	 *
 	 * @param owner
 	 *            The owner of the dialog.
 	 * @param filters
@@ -1235,7 +1248,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Returns the type of the import.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	public int getType() { return type; }
@@ -1243,7 +1256,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/**
 	 * Returns <code>true</code> if only one group for the user,
 	 * <code>false</code> otherwise.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	boolean isSingleGroup()
@@ -1254,11 +1267,11 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/**
 	 * Returns <code>true</code> if the user can import the data for other
 	 * users, <code>false</code> otherwise.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	boolean canImportAs() { return model.canImportAs(); }
-	
+
 	/** Display the size of files to add. */
 	void onSelectionChanged() {
 		if (canvas == null) return;
@@ -1272,7 +1285,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
     /**
 	 * Returns the name to display for a file.
-	 * 
+	 *
 	 * @param fullPath
 	 *            The file's absolute path.
 	 * @return See above.
@@ -1287,7 +1300,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/**
 	 * Returns <code>true</code> if the folder can be used as a container,
 	 * <code>false</code> otherwise.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	boolean useFolderAsContainer() {
@@ -1297,7 +1310,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/**
 	 * Returns <code>true</code> to indicate that the refresh containers view
 	 * needs to be refreshed.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	public boolean isRefreshLocation() {
@@ -1306,7 +1319,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Resets the text and remove all the files to import.
-	 * 
+	 *
 	 * @param objects The possible objects.
 	 * @param type One of the constants used to identify the type of import.
 	 * @param currentGroupId The id of the group.
@@ -1357,7 +1370,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Resets the text and remove all the files to import.
-	 * 
+	 *
 	 * @param selectedContainer The container where to import the files.
 	 * @param objects The possible objects.
 	 * @param type One of the constants used to identify the type of import.
@@ -1372,19 +1385,19 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		this.selectedContainer = checkContainer(selectedContainer);
 		this.objects = objects;
 		this.type = type;
-		
+
 		File[] files = chooser.getSelectedFiles();
 		table.allowAddition(files != null && files.length > 0);
 		handleTagsSelection(new ArrayList<TagAnnotationData>());
 		tabbedPane.setSelectedIndex(0);
-		
+
 		FileFilter[] filters = chooser.getChoosableFileFilters();
-		
+
 		if (filters != null && filters.length > 0)
 		{
 			if(currentFilter == null)
 				currentFilter = filters[0];
-			
+
 			chooser.setFileFilter(currentFilter);
 		}
 
@@ -1400,7 +1413,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Shows the chooser dialog.
-	 * 
+	 *
 	 * @return The option selected.
 	 */
 	public int showDialog() {
@@ -1410,7 +1423,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Shows the chooser dialog.
-	 * 
+	 *
 	 * @return The option selected.
 	 */
 	public int centerDialog() {
@@ -1420,7 +1433,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Sets the collection of existing tags.
-	 * 
+	 *
 	 * @param tags
 	 *            The collection of existing tags.
 	 */
@@ -1448,13 +1461,13 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			else
 				available.add(tag);
 		}
-		
+
 		showSelectionWizard(TagAnnotationData.class, available, selected, true);
 	}
 
 	/**
 	 * Displays the used and available disk space.
-	 * 
+	 *
 	 * @param quota
 	 *            The value to set.
 	 */
@@ -1471,7 +1484,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Notifies that the new object has been created.
-	 * 
+	 *
 	 * @param d The newly created object.
 	 * @param parent The parent of the object.
 	 */
@@ -1497,7 +1510,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/**
 	 * Returns <code>true</code> if need to reload the hierarchies,
 	 * <code>false</code> otherwise.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	public boolean reloadHierarchies() {
@@ -1506,7 +1519,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Sets the selected group.
-	 * 
+	 *
 	 * @param group
 	 *            The group to set.
 	 */
@@ -1609,12 +1622,12 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Reacts to property fired by the table.
-	 * 
+	 *
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		String name = evt.getPropertyName();
-		
+
 		if (FileSelectionTable.ADD_PROPERTY.equals(name)) {
 			showLocationDialog();
 		} else if (FileSelectionTable.REMOVE_PROPERTY.equals(name)) {
@@ -1659,7 +1672,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/**
 	 * Cancels or imports the files.
-	 * 
+	 *
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent evt) {
@@ -1696,3 +1709,4 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	}
 
 }
+
