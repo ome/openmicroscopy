@@ -10,7 +10,7 @@
 """
 
 import omero
-from omero.scripts import Long, List, Set, validate_inputs
+from omero.scripts import Long, List, validate_inputs
 from omero.rtypes import rmap, rint, rlong, rstring, rlist, rset, unwrap
 
 

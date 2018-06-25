@@ -385,3 +385,11 @@ if True:
             assert isinstance(x, omero.RInt)
         assert 1 == rv[0].val
         assert 2 == rv[1].val
+
+    def testCompareProto(self):
+        """
+        https://github.com/openmicroscopy/openmicroscopy/issues/5788
+        """
+        s = omero.rtypes.rset()
+        l = omero.rtypes.rlist()
+        assert not compare_proto("test", s, l)

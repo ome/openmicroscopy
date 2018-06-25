@@ -616,10 +616,19 @@ def compare_proto(key, proto, input, cache=None):
         cache[id(proto)] = True
         cache[id(input)] = True
 
-    itype = input is None and None or input.__class__
-    ptype = proto is None and None or proto.__class__
+    itype = None
+    ptype = None
+    both_collection = False
+    if input is not None:
+        itype = input.__class__
+        both_collection = isinstance(input, omero.RCollection)
+    if proto is not None:
+        ptype = proto.__class__
+        both_collection &= isinstance(proto, omero.RCollection)
 
-    if not isinstance(input, ptype):
+    # see https://github.com/openmicroscopy/openmicroscopy/issues/5788
+    # accept RSets as RLists and vice versa
+    if not (both_collection or isinstance(input, ptype)):
         return error_msg("Wrong type", key, "%s != %s", itype, ptype)
 
     # Now recurse if a collection type
