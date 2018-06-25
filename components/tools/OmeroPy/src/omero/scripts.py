@@ -517,7 +517,6 @@ def parse_input(input_string, params):
             rwrap = param.prototype.val[0].__class__
         items = val.split(",")
         val = rmethod([rwrap(x) for x in items])
-        print val
     elif isinstance(param.prototype, omero.RObject):
         try:
             parts2 = val.split(":")
