@@ -10,11 +10,21 @@
 """
 
 import omero
-from omero.scripts import Long, List, validate_inputs
-from omero.rtypes import rmap, rint, rlong, rstring, rlist, unwrap
+from omero.scripts import Long, List, Set, validate_inputs
+from omero.rtypes import rmap, rint, rlong, rstring, rlist, rset, unwrap
 
 
 class TestPrototypes(object):
+
+    def testRSetRInt(self):
+        params = omero.grid.JobParams()
+        param = omero.grid.Param()
+        param.prototype = rset(rint(0))
+        params.inputs = {"a": param}
+
+        input = rset(rint(1))
+        inputs = {"a": input}
+        assert "" == validate_inputs(params, inputs)
 
     # Nested lists
     def testRListRInt(self):
