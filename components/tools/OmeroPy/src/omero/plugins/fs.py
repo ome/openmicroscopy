@@ -1009,33 +1009,184 @@ Examples:
     def importtime(self, args):
         """Estimate how long it took to import an existing fileset"""
 
-        from omero.cmd import ImportDurationQuery, ImportDurationReport
         from omero.sys import ParametersI
 
         client = self.ctx.conn(args)
         query = client.sf.getQueryService()
 
-        rsp = None
-        try:
-            idq = ImportDurationQuery()
-            idq.filesetId = args.fileset.id.val
-            cb = client.submit(idq)
-            try:
-                rsp = cb.getResponse()
-            finally:
-                cb.close(True)
-        except Exception as e:
-            self.ctx.dbg("Error on IDQ: %s" % e)
-            return
-
-        if not isinstance(rsp, ImportDurationReport):
-            self.ctx.dbg("Unexpected IDQ response: %s" % rsp)
-            return
-
         ctx = {"omero.group": "-1"}
+
+        # Get the upload job ID and its creation time, and the import log ID.
+
+        hql = """
+SELECT u.id, u.details.creationEvent.time, jol.child.id
+FROM FilesetJobLink fjl, UploadJob u, JobOriginalFileLink jol
+WHERE :id = fjl.parent.id AND fjl.child = u AND u = jol.parent
+AND jol.child.mimetype = :mimetype
+ORDER BY u.id"""
+
+        results = query.projection(
+            hql, ParametersI()
+            .addId(args.fileset.id)
+            .addString('mimetype', 'application/omero-log-file')
+            .page(0, 1),
+            ctx)
+
+        if not results:
+            raise Exception('Could not query for import log')
+
+        upload_job_id = results[0][0].val
+        upload_start = results[0][1].val
+        import_log_id = results[0][2].val
+
+        # From the event log to find when the upload job was first updated.
+
+        hql = """
+SELECT event.time
+FROM EventLog
+WHERE action = :action
+AND entityType = :type AND entityId = :id
+ORDER BY id"""
+
+        results = query.projection(
+            hql, ParametersI()
+            .addId(upload_job_id)
+            .addString('type', 'ome.model.jobs.UploadJob')
+            .addString('action', 'UPDATE')
+            .page(0, 1),
+            ctx)
+
+        if not results:
+            raise Exception('Upload job is created but not yet updated.')
+
+        upload_end = results[0][0].val
+
+        # Find when the import log was updated.
+        # Its size is set after each step.
+
+        hql = """
+SELECT id, event.time
+FROM EventLog
+WHERE action = :action
+AND entityType = :type AND entityId = :id
+ORDER BY id"""
+
+        results = query.projection(
+            hql, ParametersI()
+            .addId(import_log_id)
+            .addString('type', 'ome.model.core.OriginalFile')
+            .addString('action', 'UPDATE')
+            .page(0, 3),
+            ctx)
+
+        if not results or len(results) < 3:
+            raise Exception('Thumbnails step is not yet finished.')
+
+        metadata_before_id = results[0][0]
+        pixeldata_before_id = results[1][0]
+        thumbnails_before_id = results[2][0]
+        metadata_end = results[0][1].val
+        pixeldata_end = results[1][1].val
+        thumbnails_end = results[2][1].val
+
+        # Find when the fileset's images were created.
+        # Used as an estimate for when setId completed.
+        # Ignores any inserts that follow the metadata phase.
+
+        hql = """
+SELECT el.event.time
+FROM Image i, EventLog el
+WHERE el.id < :last AND el.action = :action
+AND el.entityType = :type AND el.entityId = i.id
+AND i.fileset.id = :id"""
+
+        results = query.projection(
+            hql, ParametersI()
+            .addId(args.fileset.id)
+            .addString('type', 'ome.model.core.Image')
+            .addString('action', 'INSERT')
+            .add('last', metadata_before_id)
+            .page(0, 1),
+            ctx)
+
+        if not results:
+            raise Exception('Could not find images from metadata step.')
+
+        set_id_end = results[0][0].val
+
+        # Find when any ROIs were created during the thumbnails step.
+        # These would be overlays as one finds with MIAS plates.
+
+        hql = """
+SELECT el.event.time
+FROM Roi r, EventLog el
+WHERE el.id > :first AND el.id < :last AND el.action = :action
+AND el.entityType = :type AND el.entityId = r.id
+AND r.image.fileset.id = :id"""
+
+        results = query.projection(
+            hql, ParametersI()
+            .addId(args.fileset.id)
+            .addString('type', 'ome.model.roi.Roi')
+            .addString('action', 'INSERT')
+            .add('first', pixeldata_before_id)
+            .add('last', thumbnails_before_id)
+            .page(0, 1),
+            ctx)
+
+        overlays_start = results[0][0].val if results else None
+
+        # Find when any rendering settings were created during the thumbnails
+        # step. These are created if the thumbnails can already be generated.
+
+        hql = """
+SELECT el.event.time
+FROM RenderingDef r, EventLog el
+WHERE el.id > :first AND el.id < :last AND el.action = :action
+AND el.entityType = :type AND el.entityId = r.id
+AND r.pixels.image.fileset.id = :id"""
+
+        results = query.projection(
+            hql, ParametersI()
+            .addId(args.fileset.id)
+            .addString('type', 'ome.model.display.RenderingDef')
+            .addString('action', 'INSERT')
+            .add('first', pixeldata_before_id)
+            .add('last', thumbnails_before_id)
+            .page(0, 1),
+            ctx)
+
+        settings_start = results[0][0].val if results else None
+
+        # Find when any thumbnails were created during the thumbnails step.
+        # These are created even if it is not yet possible to generate them.
+
+        hql = """
+SELECT el.event.time
+FROM Thumbnail t, EventLog el
+WHERE el.id > :first AND el.id < :last AND el.action = :action
+AND el.entityType = :type AND el.entityId = t.id
+AND t.pixels.image.fileset.id = :id"""
+
+        results = query.projection(
+            hql, ParametersI()
+            .addId(args.fileset.id)
+            .addString('type', 'ome.model.display.Thumbnail')
+            .addString('action', 'INSERT')
+            .add('first', pixeldata_before_id)
+            .add('last', thumbnails_before_id)
+            .page(0, 1),
+            ctx)
+
+        thumbnails_start = results[0][0].val if results else None
+
+        # The remaining "count" queries have only fileset as a parameter.
+
         fileset_param = ParametersI().addId(args.fileset.id)
 
-        time = rsp.durations.get('UPLOAD')
+        # Report the upload time, including per file.
+
+        time = upload_end - upload_start
         if time:
             time /= 1000.0
             count = query.projection(
@@ -1048,17 +1199,24 @@ Examples:
                        "{} file{} ({:.3f}s/file)")
                       .format(time, count, plural, time/count))
 
-        time = rsp.durations.get('SET_ID')
+        # Report the Bio-Formats setId time.
+
+        time = set_id_end - upload_end
         if time:
             time /= 1000.0
             print("    setId time of {:6.2f}s".format(time))
 
-        time = rsp.durations.get('METADATA')
+        # Report the time to generate metadata.
+
+        time = metadata_end - set_id_end
         if time:
             time /= 1000.0
             print(" metadata time of {:6.2f}s".format(time))
 
-        time = rsp.durations.get('PIXELDATA')
+        # Report the time to generate pixel data.
+        # Does not take account of background pyramid building.
+
+        time = pixeldata_end - metadata_end
         if time:
             time /= 1000.0
             count = query.projection(
@@ -1071,13 +1229,25 @@ Examples:
                        "{} plane{} ({:.3f}s/plane)")
                       .format(time, count, plural, time/count))
 
-        time = rsp.durations.get('OVERLAYS')
-        if time:
+        # Report the time to generate overlays.
+
+        if overlays_start:
+            if settings_start:
+                time = settings_start - pixeldata_end
+            elif thumbnails_start:
+                time = thumbnails_start - pixeldata_end
+            else:
+                time = thumbnails_end - pixeldata_end
             time /= 1000.0
             print(" overlays time of {:6.2f}s".format(time))
 
-        time = rsp.durations.get('RND_DEFS')
-        if time:
+        # Report the time to generate rendering settings.
+
+        if settings_start:
+            if thumbnails_start:
+                time = thumbnails_start - settings_start
+            else:
+                time = thumbnails_end - settings_start
             time /= 1000.0
             count = query.projection(
                 "SELECT COUNT(*) FROM RenderingDef " +
@@ -1090,8 +1260,11 @@ Examples:
                        "{} rendering setting{} ({:.3f}s/rdef)")
                       .format(time, count, plural, time/count))
 
-        time = rsp.durations.get('THUMBNAILS')
-        if time:
+        # Report the time to generate thumbnails.
+        # If there are no rendering settings then pyramids must be built first.
+
+        if settings_start and thumbnails_start:
+            time = thumbnails_end - thumbnails_start
             time /= 1000.0
             count = query.projection(
                 "SELECT COUNT(*) FROM Thumbnail " +
@@ -1103,11 +1276,6 @@ Examples:
                 print(("thumbnail time of {:6.2f}s for "
                        "{} thumbnail{} ({:.3f}s/thumbnail)")
                       .format(time, count, plural, time/count))
-
-        time = rsp.durations.get('PYRAMIDS')
-        if time:
-            time /= 1000.0
-            print("  pyramid time of {:6.2f}s".format(time))
 
 try:
     register("fs", FsControl, HELP)
