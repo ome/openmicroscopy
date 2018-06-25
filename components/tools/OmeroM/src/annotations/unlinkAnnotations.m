@@ -1,10 +1,10 @@
 function unlinkAnnotations(session,parentType,parentID,varargin)
-% unlinkAnnotation allows you to unlink all or specified
+% unlinkAnnotations allows you to unlink all or specified
 % MapAnnotation (Key-Value Pairs in GUI) from parent in OMERO server.
 %
 % SYNTAX
-% unlinkAnnotation(session,parentType,parentID)
-% unlinkAnnotation(session,parentType,parentID,annt)
+% unlinkAnnotations(session,parentType,parentID)
+% unlinkAnnotations(session,parentType,parentID,annt)
 %
 %
 % BEFORE USE
@@ -23,7 +23,7 @@ function unlinkAnnotations(session,parentType,parentID,varargin)
 % REQUIREMENTS
 %
 % OMERO.matlab toolbox
-% https://docs.openmicroscopy.org/omero/5.4.6/developers/Matlab.html
+% https://docs.openmicroscopy.org/latest/omero/developers/Matlab.html
 % 
 %
 % INPUT ARGUMENTS

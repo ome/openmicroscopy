@@ -673,7 +673,7 @@ try
     assert(hasAnnotation(xa, xas), 'WriteData: Could not find annotation');
 
    % Unlink Annotations
-   % =====================
+   % ==================
 
    % Unlink single annotation
    fprintf(1, 'Unlinking file annotation from project %g\n', projectId1);
