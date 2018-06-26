@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,10 +22,8 @@ package org.openmicroscopy.shoola.env.ui;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.openmicroscopy.shoola.env.config.Registry;
 
@@ -34,10 +32,6 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import bitronix.tm.utils.CollectionUtils;
-
-import com.vividsolutions.jts.util.CollectionUtil;
 
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;

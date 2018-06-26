@@ -1,8 +1,6 @@
 /*
- * org.openmicroscopy.shoola.env.ui.OpenObjectActivity 
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,19 +21,13 @@
 package org.openmicroscopy.shoola.env.ui;
 
 
-//Java imports
 import java.io.File;
-
-//Third-party libraries
-
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
