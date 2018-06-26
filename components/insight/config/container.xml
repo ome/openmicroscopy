@@ -354,4 +354,9 @@
     </plugin>
   </structuredEntry>
   </plugins>
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * Information indicating to load the original file instead of OME-TIFF
+   when using the Open With option
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+   <entry name="/services/OpenWith/Original" type="boolean">true</entry>
 </container>
