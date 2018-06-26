@@ -34,6 +34,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.openmicroscopy.shoola.env.LookupNames;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
@@ -98,11 +99,16 @@ public class OpenObjectActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		loader = new OpenObjectLoader(viewer,  registry, ctx, 
-				parameters.getObject(), 
-				parameters.getFolderPath(), this);
-		return loader;
-	}
+        Boolean value = (Boolean) registry.lookup(LookupNames.OPEN_WITH_DATA);
+        boolean originalImage = false;
+        if (value != null) {
+            originalImage = value.booleanValue();
+        }
+        loader = new OpenObjectLoader(viewer, registry, ctx,
+                parameters.getObject(), parameters.getFolderPath(),
+                originalImage, this);
+        return loader;
+    }
 
 	/**
 	 * Modifies the text of the component and opens the application. 
