@@ -1,6 +1,6 @@
 function unlinkAnnotations(session,parentType,parentID,varargin)
 % unlinkAnnotations allows you to unlink all or specified
-% MapAnnotation (Key-Value Pairs in GUI) from parent in OMERO server.
+% omero.model.Annotation objects from parent in OMERO server.
 %
 % SYNTAX
 % unlinkAnnotations(session,parentType,parentID)
@@ -121,10 +121,6 @@ end
 parents = session.getQueryService().findAllByQuery(...
     [sprintf('select obj from %s as obj left outer join fetch obj.annotationLinks as link join fetch link.child as annotation where obj.id =  ',ParentType), ...
     num2str(parentID)], []);
-
-% images = session.getQueryService().findAllByQuery(...
-%     ['select img from Image as img left outer join fetch img.annotationLinks as link join fetch link.child as annotation where img.id =  ', ...
-%     num2str(imageID)], []);
 
 n = size(parents);
 for k = 1:n
