@@ -2,6 +2,10 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Options panel to display a list of check boxes to enable skip
@@ -10,44 +14,99 @@ import java.awt.*;
  */
 class SkipComputePanel extends JPanel {
 
-	private static final String TEXT_THUMBNAIL_GENERATION = "thumbnail generation";
-	private static final String TEXT_MIN_MAX_GENERATION = "min/max compute";
-	private static final String TEXT_CHECKSUM_GENERATION = "checksum checking";
+    /**
+     * Text for checkboxes
+     */
+    private static final String TEXT_THUMBNAIL_GENERATION = "thumbnail generation";
+    private static final String TEXT_MIN_MAX_COMPUTE = "min/max compute";
+    private static final String TEXT_CHECKSUM_CHECKING = "checksum checking";
+    private static final String TEXT_UPGRADE_CHECK = "Upgrade check for Bio-Formats";
 
-	private JCheckBox thumbGenCheckbox;
-	private JCheckBox minMaxCheckBox;
-	private JCheckBox checksumCheckBox;
+    /**
+     * Tooltips for checkboxes
+     */
+    private static final String TEXT_TOOLTIP_THUMBNAIL_SKIP = "Skip generation of thumbnails\n" +
+            "Thumbnails will usually be generated when accessing the images post-import via the OMERO clients.";
 
-	// Store state of check boxs here
+    private static final String TEXT_TOOLTIP_MIN_MAX_SKIP = "Skip calculation of the minima and maxima pixel values\n" +
+            "This option will also skip the calculation of the pixels checksum. Recalculating minima and maxima pixel " +
+            "values post-import is currently not supported. See Calculation of minima and maxima pixel " +
+            "values for more information.";
 
-	public SkipComputePanel() {
-		super(new GridLayout(0, 1));
+    private static final String TEXT_TOOLTIP_CHECKSUM_SKIP = "Skip checksum calculation on image files before and " +
+            "after transfer\n" +
+            "This option effectively sets the --checksum_algorithm to use a fast algorithm, File-Size-64, that " +
+            "considers only file size, not the actual file contents.";
 
-		// Check box options for advanced panel
-		thumbGenCheckbox = new JCheckBox(TEXT_THUMBNAIL_GENERATION);
-		thumbGenCheckbox.setToolTipText("Skips the generation of thumbnails on the server" +
-				" saving time taken to import images");
-		thumbGenCheckbox.addItemListener(e -> {
+    private static final String TEXT_TOOLTIP_UPGRADE_SKIP = "Skip upgrade check for Bio-Formats";
 
-		});
-		minMaxCheckBox = new JCheckBox(TEXT_MIN_MAX_GENERATION);
-		thumbGenCheckbox.setToolTipText("Skips the calculation of min and max of color values on the server" +
-				" saving time taken to import images");
-		minMaxCheckBox.addItemListener(e -> {
 
-		});
-		checksumCheckBox = new JCheckBox(TEXT_CHECKSUM_GENERATION);
-		checksumCheckBox.setToolTipText("Skips the calculation of min and max of color values on the server" +
-				" saving time taken to import images");
-		checksumCheckBox.addItemListener(e -> {
+    private JCheckBox thumbGenCheckbox;
+    private JCheckBox minMaxCheckBox;
+    private JCheckBox checksumCheckBox;
+    private JCheckBox upgradeCheckCheckBox;
 
-		});
+    private Map<String, Object> choices = new HashMap<String, Object>();
 
-		add(thumbGenCheckbox);
-		add(minMaxCheckBox);
-		add(checksumCheckBox);
-	}
 
-	// Get state of check boxes here
+    public SkipComputePanel() {
+        super(new GridLayout(0, 1));
 
+        // Check box options for advanced panel
+        thumbGenCheckbox = new JCheckBox(TEXT_THUMBNAIL_GENERATION);
+        thumbGenCheckbox.setToolTipText(TEXT_TOOLTIP_THUMBNAIL_SKIP);
+        thumbGenCheckbox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                boolean doThumbnails = !thumbGenCheckbox.isSelected();
+                choices.put("doThumbnails", doThumbnails);
+            }
+        });
+        thumbGenCheckbox.setSelected(false);
+
+        minMaxCheckBox = new JCheckBox(TEXT_MIN_MAX_COMPUTE);
+        minMaxCheckBox.setToolTipText(TEXT_TOOLTIP_MIN_MAX_SKIP);
+        minMaxCheckBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                choices.put("noStatsInfo", thumbGenCheckbox.isSelected());
+            }
+        });
+        minMaxCheckBox.setSelected(false);
+
+        checksumCheckBox = new JCheckBox(TEXT_CHECKSUM_CHECKING);
+        checksumCheckBox.setToolTipText(TEXT_TOOLTIP_CHECKSUM_SKIP);
+        checksumCheckBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (thumbGenCheckbox.isSelected()) {
+                    choices.put("checksumAlgorithm", "{}");
+                } else {
+                    choices.put("checksumAlgorithm", "File-Size-64");
+                }
+            }
+        });
+        checksumCheckBox.setSelected(false);
+
+        upgradeCheckCheckBox = new JCheckBox(TEXT_UPGRADE_CHECK);
+        upgradeCheckCheckBox.setToolTipText(TEXT_TOOLTIP_UPGRADE_SKIP);
+        upgradeCheckCheckBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (thumbGenCheckbox.isSelected()) {
+                    choices.put("checksumAlgorithm", "{}");
+                } else {
+                    choices.put("checksumAlgorithm", "");
+                }
+            }
+        });
+
+        add(thumbGenCheckbox);
+        add(minMaxCheckBox);
+        add(checksumCheckBox);
+    }
+
+    public Map<String, Object> getChoices() {
+        return choices;
+    }
 }

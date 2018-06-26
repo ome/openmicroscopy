@@ -993,9 +993,8 @@ class OmeroImageServiceImpl
 	 * ImportableFile, long, long, boolean)
 	 */
 	public Object importFile(ImportableObject object,
-		ImportableFile importable, boolean close) 
-		throws ImportException, DSAccessException, DSOutOfServiceException
-	{
+							 ImportableFile importable, boolean close)
+			throws ImportException, DSAccessException, DSOutOfServiceException {
 		if (importable == null || importable.getFile() == null)
 			throw new IllegalArgumentException("No images to import.");
 		Status status = importable.getStatus();
@@ -1010,10 +1009,10 @@ class OmeroImageServiceImpl
 			if (exp.getId() != loggedIn.getId())
 				userName = exp.getUserName();
 		}
-	      if (status.isMarkedAsCancel()) {
-	            if (close) gateway.closeImport(ctx, userName);
-	            return Boolean.valueOf(false);
-	        }
+		if (status.isMarkedAsCancel()) {
+			if (close) gateway.closeImport(ctx, userName);
+			return Boolean.valueOf(false);
+		}
 		Collection<TagAnnotationData> tags = object.getTags();
 		List<Annotation> customAnnotationList = new ArrayList<Annotation>();
 		List<IObject> l;
@@ -1033,9 +1032,9 @@ class OmeroImageServiceImpl
 			}
 			//save the tag.
 			try {
-			    if (l.size() > 0) {
-			        l = gateway.saveAndReturnObject(ctx, l, parameters, userName);
-			    }
+				if (l.size() > 0) {
+					l = gateway.saveAndReturnObject(ctx, l, parameters, userName);
+				}
 				Iterator<IObject> j = l.iterator();
 				Annotation a;
 				while (j.hasNext()) {
@@ -1045,10 +1044,10 @@ class OmeroImageServiceImpl
 				}
 				object.setTags(values);
 			} catch (Exception e) {
-			    LogMessage msg = new LogMessage();
-			    msg.print("Cannot create the tags.");
-			    msg.print(e);
-			    context.getLogger().error(this, msg);
+				LogMessage msg = new LogMessage();
+				msg.print("Cannot create the tags.");
+				msg.print(e);
+				context.getLogger().error(this, msg);
 			}
 		}
 		IObject link;
@@ -1059,7 +1058,7 @@ class OmeroImageServiceImpl
 		DatasetData dataset = importable.getDataset();
 		DataObject container = importable.getParent();
 		IObject ioContainer = null;
-		
+
 		DataObject createdData;
 		IObject project = null;
 		DataObject folder = null;
@@ -1070,33 +1069,33 @@ class OmeroImageServiceImpl
 		if (file.isFile()) {
 			ic = gateway.getImportCandidates(ctx, object, file, status);
 			if (CollectionUtils.isEmpty(ic.getContainers())) {
-			    Object o = status.getImportResult();
-                if (o instanceof ImportException) {
-                    return o;
-                }
-                ImportException e = new ImportException(
-                        ImportException.FILE_NOT_VALID_TEXT);
-                status.setCallback(e);
-                return e;
+				Object o = status.getImportResult();
+				if (o instanceof ImportException) {
+					return o;
+				}
+				ImportException e = new ImportException(
+						ImportException.FILE_NOT_VALID_TEXT);
+				status.setCallback(e);
+				return e;
 			}
 			hcsFile = isHCS(ic.getContainers());
 			//Create the container if required.
 			if (hcsFile) {
 				if (ic != null) {
-                    candidates = ic.getPaths();
-                    if (candidates.size() == 1) { 
-                        String value = candidates.get(0);
-                        if (!file.getAbsolutePath().equals(value) && 
-                            object.isFileinQueue(value)) {
-                            if (close) gateway.closeImport(ctx, userName);
-                            status.markedAsDuplicate();
-                            return Boolean.valueOf(true);
-                        }
-                    }
-                }
+					candidates = ic.getPaths();
+					if (candidates.size() == 1) {
+						String value = candidates.get(0);
+						if (!file.getAbsolutePath().equals(value) &&
+								object.isFileinQueue(value)) {
+							if (close) gateway.closeImport(ctx, userName);
+							status.markedAsDuplicate();
+							return Boolean.valueOf(true);
+						}
+					}
+				}
 				dataset = null;
-                if (!(container instanceof ScreenData))
-                    container = null;
+				if (!(container instanceof ScreenData))
+					container = null;
 			}
 
 			//remove hcs check if we want to create screen from folder.
@@ -1165,19 +1164,18 @@ class OmeroImageServiceImpl
 				candidates = ic.getPaths();
 				int size = candidates.size();
 				if (size == 0) {
-				    Object o = status.getImportResult();
-                    if (o instanceof ImportException) {
-                        return o;
-                    }
-                    ImportException e = new ImportException(
-                            ImportException.FILE_NOT_VALID_TEXT);
-                    status.setCallback(e);
-                    return e;
-				}
-				else if (size == 1) {
+					Object o = status.getImportResult();
+					if (o instanceof ImportException) {
+						return o;
+					}
+					ImportException e = new ImportException(
+							ImportException.FILE_NOT_VALID_TEXT);
+					status.setCallback(e);
+					return e;
+				} else if (size == 1) {
 					String value = candidates.get(0);
-					if (!file.getAbsolutePath().equals(value) && 
-						object.isFileinQueue(value)) {
+					if (!file.getAbsolutePath().equals(value) &&
+							object.isFileinQueue(value)) {
 						if (close) gateway.closeImport(ctx, userName);
 						status.markedAsDuplicate();
 						return Boolean.valueOf(true);
@@ -1196,20 +1194,20 @@ class OmeroImageServiceImpl
 				} else {
 					List<ImportContainer> containers = ic.getContainers();
 					hcs = isHCS(containers);
-					Map<File, Status> files = 
-						new HashMap<File, Status>();
+					Map<File, Status> files =
+							new HashMap<File, Status>();
 					Iterator<String> i = candidates.iterator();
 					Status label;
 					int index = 0;
 					File f;
 					while (i.hasNext()) {
-					    f = new File(i.next());
+						f = new File(i.next());
 						label = new Status(new FileObject(f));
 						label.setUsedFiles(containers.get(index).getUsedFiles());
 						files.put(f, label);
 						index++;
 					}
-						
+
 					status.setFiles(files);
 					Object v = importCandidates(ctx, files, status, object,
 							ioContainer, customAnnotationList, userID, close,
@@ -1222,10 +1220,10 @@ class OmeroImageServiceImpl
 				ic = gateway.getImportCandidates(ctx, object, file, status);
 				icContainers = ic.getContainers();
 				if (icContainers.size() == 0) {
-				    Object o = status.getImportResult();
-				    if (o instanceof ImportException) {
-				        return o;
-				    }
+					Object o = status.getImportResult();
+					if (o instanceof ImportException) {
+						return o;
+					}
 					return new ImportException(
 							ImportException.FILE_NOT_VALID_TEXT);
 				}
@@ -1243,11 +1241,11 @@ class OmeroImageServiceImpl
 		ic = gateway.getImportCandidates(ctx, object, file, status);
 		List<ImportContainer> lic = ic.getContainers();
 		if (lic.size() == 0) {
-            Object o = status.getImportResult();
-            if (o instanceof ImportException) {
-                return o;
-            }
-            return new ImportException(ImportException.FILE_NOT_VALID_TEXT);
+			Object o = status.getImportResult();
+			if (o instanceof ImportException) {
+				return o;
+			}
+			return new ImportException(ImportException.FILE_NOT_VALID_TEXT);
 		}
 		if (status.isMarkedAsCancel()) {
 			return Boolean.valueOf(false);
@@ -1255,11 +1253,11 @@ class OmeroImageServiceImpl
 		Map<File, Status> hcsFiles = new HashMap<File, Status>();
 		Map<File, Status> otherFiles = new HashMap<File, Status>();
 		Map<File, Status> files = new HashMap<File, Status>();
-		
+
 		File f;
 		Status sl;
 		int n = lic.size();
-		
+
 		Iterator<ImportContainer> j = lic.iterator();
 		ImportContainer c;
 		while (j.hasNext()) {
@@ -1322,7 +1320,7 @@ class OmeroImageServiceImpl
 						if (container != null) {
 							try {
 								Project p;
-								if (container.getId() <= 0) { 
+								if (container.getId() <= 0) {
 									//project needs to be created to.
 									createdData = object.hasObjectBeenCreated(
 											container, ctx);
@@ -1331,7 +1329,7 @@ class OmeroImageServiceImpl
 												ctx, container.asIObject(),
 												parameters, userName);
 										object.addNewDataObject(
-											PojoMapper.asDataObject(project));
+												PojoMapper.asDataObject(project));
 										p = (Project) project;
 									} else {
 										p = (Project) createdData.asProject();
@@ -1339,10 +1337,10 @@ class OmeroImageServiceImpl
 								} else { //project already exists.
 									p = (Project) container.asProject();
 								}
-								link = (ProjectDatasetLink) 
+								link = (ProjectDatasetLink)
 										ModelMapper.linkParentToChild(
 												(Dataset) ioContainer, p);
-										link = (ProjectDatasetLink) 
+								link = (ProjectDatasetLink)
 										gateway.saveAndReturnObject(ctx, link,
 												parameters, userName);
 							} catch (Exception e) {
@@ -1372,7 +1370,7 @@ class OmeroImageServiceImpl
 			}
 			//import the files that are not hcs files.
 			importCandidates(ctx, otherFiles, status, object,
-				ioContainer, customAnnotationList, userID, close, false, userName);
+					ioContainer, customAnnotationList, userID, close, false, userName);
 		}
 		return Boolean.valueOf(true);
 	}

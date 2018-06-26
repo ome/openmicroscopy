@@ -321,6 +321,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** The owner related to the component. */
 	private JFrame owner;
 
+	/** Panel inside options tab */
+	private SkipComputePanel skipComputePanel;
+
 	/** Flag indicating that the containers view needs to be refreshed. */
 	private boolean refreshLocation;
 
@@ -903,10 +906,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	}
 
 	private JComponent buildSkipFlagsComponent() {
+		skipComputePanel = new SkipComputePanel();
 		JPanel content = new JPanel();
 		content.setBorder(BorderFactory.createTitledBorder("Skip Compute"));
-		content.add(new SkipComputePanel());
-
+		content.add(skipComputePanel);
 		return UIUtilities.buildComponentPanel(content);
 	}
 
@@ -1151,6 +1154,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		}
 		if (count > 0)
 			object.setPixelsSize(size);
+
+		// Add any options for set for skipping server side compute here!
+		object.setSkipChioces(skipComputePanel.getChoices());
 
 		firePropertyChange(IMPORT_PROPERTY, null, object);
 		table.removeAllFiles();

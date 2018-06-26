@@ -206,6 +206,9 @@ public class ImportableObject
 	/** The collection of new object. */
 	private Map<Long, List<DatasetData>> projectDatasetMap;
 
+	/** Map of skip options mapping to ImportConfig functions */
+	private Map<String, Object> skipChoices;
+
 	/**
 	 * Returns the object corresponding to the passed file.
 	 * 
@@ -262,6 +265,14 @@ public class ImportableObject
 		loadThumbnail = true;
 		newObjects = new ArrayList<DataObject>();
 		projectDatasetMap = new HashMap<Long, List<DatasetData>>();
+	}
+
+	public void setSkipChioces(Map<String, Object> choices) {
+		if (skipChoices == null) {
+			skipChoices = new HashMap<>(choices);
+		} else {
+			skipChoices.putAll(choices);
+		}
 	}
 	
 	/**
@@ -431,6 +442,8 @@ public class ImportableObject
 		}
 		return null; 
 	}
+
+
 	
 	/**
 	 * Returns the collection of tags.
