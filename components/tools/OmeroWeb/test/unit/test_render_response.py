@@ -59,7 +59,7 @@ class TestRenderResponse(object):
                 'attrs': {u'title': u'History'},
                 'label': u'History'
             }, {
-                'link': u'http://help.openmicroscopy.org/',
+                'link': u'https://help.openmicroscopy.org/',
                 'attrs': {
                     u'target': u'new',
                     u'title': u'Open OMERO user guide in a new tab'
