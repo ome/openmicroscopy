@@ -123,6 +123,7 @@ public class OpenObjectLoader
     		    List<DataObject> objects = new ArrayList<DataObject>();
     		    objects.add(image);
     		    f = new File(folderPath);
+    		    f.deleteOnExit();
     		    handle = mhView.loadArchivedImage(ctx, objects, f, false, false,
     	                false, this);
     		} else {
