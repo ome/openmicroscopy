@@ -1195,8 +1195,8 @@ AND t.pixels.image.fileset.id = :id"""
                 fileset_param, ctx)[0][0].val
             if count > 0:
                 plural = "s" if count > 1 else ""
-                print(("   upload time of {:6.2f}s for "
-                       "{} file{} ({:.3f}s/file)")
+                print(("   upload time of {0:6.2f}s for "
+                       "{1} file{2} ({3:.3f}s/file)")
                       .format(time, count, plural, time/count))
 
         # Report the Bio-Formats setId time.
@@ -1204,14 +1204,14 @@ AND t.pixels.image.fileset.id = :id"""
         time = set_id_end - upload_end
         if time:
             time /= 1000.0
-            print("    setId time of {:6.2f}s".format(time))
+            print("    setId time of {0:6.2f}s".format(time))
 
         # Report the time to generate metadata.
 
         time = metadata_end - set_id_end
         if time:
             time /= 1000.0
-            print(" metadata time of {:6.2f}s".format(time))
+            print(" metadata time of {0:6.2f}s".format(time))
 
         # Report the time to generate pixel data.
         # Does not take account of background pyramid building.
@@ -1225,8 +1225,8 @@ AND t.pixels.image.fileset.id = :id"""
                 fileset_param, ctx)[0][0].val
             if count > 0:
                 plural = "s" if count > 1 else ""
-                print(("   pixels time of {:6.2f}s for "
-                       "{} plane{} ({:.3f}s/plane)")
+                print(("   pixels time of {0:6.2f}s for "
+                       "{1} plane{2} ({3:.3f}s/plane)")
                       .format(time, count, plural, time/count))
 
         # Report the time to generate overlays.
@@ -1239,7 +1239,7 @@ AND t.pixels.image.fileset.id = :id"""
             else:
                 time = thumbnails_end - pixeldata_end
             time /= 1000.0
-            print(" overlays time of {:6.2f}s".format(time))
+            print(" overlays time of {0:6.2f}s".format(time))
 
         # Report the time to generate rendering settings.
 
@@ -1256,8 +1256,8 @@ AND t.pixels.image.fileset.id = :id"""
                 fileset_param, ctx)[0][0].val
             if count > 0:
                 plural = "s" if count > 1 else ""
-                print(("    rdefs time of {:6.2f}s for "
-                       "{} rendering setting{} ({:.3f}s/rdef)")
+                print(("    rdefs time of {0:6.2f}s for "
+                       "{1} rendering setting{2} ({3:.3f}s/rdef)")
                       .format(time, count, plural, time/count))
 
         # Report the time to generate thumbnails.
@@ -1273,8 +1273,8 @@ AND t.pixels.image.fileset.id = :id"""
                 fileset_param, ctx)[0][0].val
             if count > 0:
                 plural = "s" if count > 1 else ""
-                print(("thumbnail time of {:6.2f}s for "
-                       "{} thumbnail{} ({:.3f}s/thumbnail)")
+                print(("thumbnail time of {0:6.2f}s for "
+                       "{1} thumbnail{2} ({3:.3f}s/thumbnail)")
                       .format(time, count, plural, time/count))
 
 try:
