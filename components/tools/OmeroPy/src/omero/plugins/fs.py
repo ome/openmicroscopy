@@ -1018,12 +1018,13 @@ Examples:
 
         # Get the upload job ID and its creation time, and the import log ID.
 
-        hql = """
-SELECT u.id, u.details.creationEvent.time, jol.child.id
-FROM FilesetJobLink fjl, UploadJob u, JobOriginalFileLink jol
-WHERE :id = fjl.parent.id AND fjl.child = u AND u = jol.parent
-AND jol.child.mimetype = :mimetype
-ORDER BY u.id"""
+        hql = (
+            "SELECT u.id, u.details.creationEvent.time, jol.child.id "
+            "FROM FilesetJobLink fjl, UploadJob u, JobOriginalFileLink jol "
+            "WHERE :id = fjl.parent.id AND fjl.child = u AND u = jol.parent "
+            "AND jol.child.mimetype = :mimetype "
+            "ORDER BY u.id"
+        )
 
         results = query.projection(
             hql, ParametersI()
@@ -1041,12 +1042,13 @@ ORDER BY u.id"""
 
         # From the event log to find when the upload job was first updated.
 
-        hql = """
-SELECT event.time
-FROM EventLog
-WHERE action = :action
-AND entityType = :type AND entityId = :id
-ORDER BY id"""
+        hql = (
+            "SELECT event.time "
+            "FROM EventLog "
+            "WHERE action = :action "
+            "AND entityType = :type AND entityId = :id "
+            "ORDER BY id"
+        )
 
         results = query.projection(
             hql, ParametersI()
@@ -1064,12 +1066,13 @@ ORDER BY id"""
         # Find when the import log was updated.
         # Its size is set after each step.
 
-        hql = """
-SELECT id, event.time
-FROM EventLog
-WHERE action = :action
-AND entityType = :type AND entityId = :id
-ORDER BY id"""
+        hql = (
+            "SELECT id, event.time "
+            "FROM EventLog "
+            "WHERE action = :action "
+            "AND entityType = :type AND entityId = :id "
+            "ORDER BY id"
+        )
 
         results = query.projection(
             hql, ParametersI()
@@ -1093,12 +1096,13 @@ ORDER BY id"""
         # Used as an estimate for when setId completed.
         # Ignores any inserts that follow the metadata phase.
 
-        hql = """
-SELECT el.event.time
-FROM Image i, EventLog el
-WHERE el.id < :last AND el.action = :action
-AND el.entityType = :type AND el.entityId = i.id
-AND i.fileset.id = :id"""
+        hql = (
+            "SELECT el.event.time "
+            "FROM Image i, EventLog el "
+            "WHERE el.id < :last AND el.action = :action "
+            "AND el.entityType = :type AND el.entityId = i.id "
+            "AND i.fileset.id = :id"
+        )
 
         results = query.projection(
             hql, ParametersI()
@@ -1117,12 +1121,13 @@ AND i.fileset.id = :id"""
         # Find when any ROIs were created during the thumbnails step.
         # These would be overlays as one finds with MIAS plates.
 
-        hql = """
-SELECT el.event.time
-FROM Roi r, EventLog el
-WHERE el.id > :first AND el.id < :last AND el.action = :action
-AND el.entityType = :type AND el.entityId = r.id
-AND r.image.fileset.id = :id"""
+        hql = (
+            "SELECT el.event.time "
+            "FROM Roi r, EventLog el "
+            "WHERE el.id > :first AND el.id < :last AND el.action = :action "
+            "AND el.entityType = :type AND el.entityId = r.id "
+            "AND r.image.fileset.id = :id"
+        )
 
         results = query.projection(
             hql, ParametersI()
@@ -1139,12 +1144,13 @@ AND r.image.fileset.id = :id"""
         # Find when any rendering settings were created during the thumbnails
         # step. These are created if the thumbnails can already be generated.
 
-        hql = """
-SELECT el.event.time
-FROM RenderingDef r, EventLog el
-WHERE el.id > :first AND el.id < :last AND el.action = :action
-AND el.entityType = :type AND el.entityId = r.id
-AND r.pixels.image.fileset.id = :id"""
+        hql = (
+            "SELECT el.event.time "
+            "FROM RenderingDef r, EventLog el "
+            "WHERE el.id > :first AND el.id < :last AND el.action = :action "
+            "AND el.entityType = :type AND el.entityId = r.id "
+            "AND r.pixels.image.fileset.id = :id"
+        )
 
         results = query.projection(
             hql, ParametersI()
@@ -1161,12 +1167,13 @@ AND r.pixels.image.fileset.id = :id"""
         # Find when any thumbnails were created during the thumbnails step.
         # These are created even if it is not yet possible to generate them.
 
-        hql = """
-SELECT el.event.time
-FROM Thumbnail t, EventLog el
-WHERE el.id > :first AND el.id < :last AND el.action = :action
-AND el.entityType = :type AND el.entityId = t.id
-AND t.pixels.image.fileset.id = :id"""
+        hql = (
+            "SELECT el.event.time "
+            "FROM Thumbnail t, EventLog el "
+            "WHERE el.id > :first AND el.id < :last AND el.action = :action "
+            "AND el.entityType = :type AND el.entityId = t.id "
+            "AND t.pixels.image.fileset.id = :id"
+        )
 
         results = query.projection(
             hql, ParametersI()
