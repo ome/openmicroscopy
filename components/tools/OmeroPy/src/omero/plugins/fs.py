@@ -1187,37 +1187,34 @@ AND t.pixels.image.fileset.id = :id"""
         # Report the upload time, including per file.
 
         time = upload_end - upload_start
-        if time:
-            time /= 1000.0
-            count = query.projection(
-                "SELECT COUNT(*) FROM FilesetEntry " +
-                "WHERE fileset.id = :id",
-                fileset_param, ctx)[0][0].val
-            if count > 0:
-                plural = "s" if count > 1 else ""
-                print(("   upload time of {0:6.2f}s for "
-                       "{1} file{2} ({3:.3f}s/file)")
-                      .format(time, count, plural, time/count))
+        time /= 1000.0
+        count = query.projection(
+            "SELECT COUNT(*) FROM FilesetEntry " +
+            "WHERE fileset.id = :id",
+            fileset_param, ctx)[0][0].val
+        if count > 0:
+            plural = "s" if count > 1 else ""
+            print(("   upload time of {0:6.2f}s for "
+                   "{1} file{2} ({3:.3f}s/file)")
+                  .format(time, count, plural, time/count))
 
         # Report the Bio-Formats setId time.
 
         time = set_id_end - upload_end
-        if time:
-            time /= 1000.0
-            print("    setId time of {0:6.2f}s".format(time))
+        time /= 1000.0
+        print("    setId time of {0:6.2f}s".format(time))
 
         # Report the time to generate metadata.
 
         time = metadata_end - set_id_end
-        if time:
-            time /= 1000.0
-            print(" metadata time of {0:6.2f}s".format(time))
+        time /= 1000.0
+        print(" metadata time of {0:6.2f}s".format(time))
 
         # Report the time to generate pixel data.
-        # Does not take account of background pyramid building.
+        # If there are no rendering settings then pyramids must be built first.
 
-        time = pixeldata_end - metadata_end
-        if time:
+        if settings_start:
+            time = pixeldata_end - metadata_end
             time /= 1000.0
             count = query.projection(
                 "SELECT SUM(sizeC * sizeT * sizeZ) FROM Pixels " +
