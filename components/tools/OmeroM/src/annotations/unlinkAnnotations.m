@@ -118,38 +118,42 @@ switch parentType
         ParentType = 'Roi';
 end
 
-parents = session.getQueryService().findAllByQuery(...
-    [sprintf('select obj from %s as obj left outer join fetch obj.annotationLinks as link join fetch link.child as annotation where obj.id =  ',ParentType), ...
-    num2str(parentID)], []);
+for m = 1:length(parentID)
 
-n = size(parents);
-for k = 1:n
+    parents = session.getQueryService().findAllByQuery(...
+        [sprintf('select obj from %s as obj left outer join fetch obj.annotationLinks as link join fetch link.child as annotation where obj.id =  ',ParentType), ...
+        num2str(parentID(m))], []);
     
-    prt = parents.get(k-1);
-    
-    al = prt.copyAnnotationLinks();
-    
-    if ~isempty(annt)
+    n = size(parents);
+    for k = 1:n
         
-        for j = 1:numel(annt)
+        prt = parents.get(k-1);
         
-            for i = (1:size(al))-1
-                if al.get(i).getChild().getId().equals(annt(j).getId())
-                    
-                    prt.unlinkAnnotation(al.get(i).getChild());
-                    
+        al = prt.copyAnnotationLinks();
+        
+        if ~isempty(annt)
+            
+            for j = 1:numel(annt)
+                
+                for i = (1:size(al))-1
+                    if al.get(i).getChild().getId().equals(annt(j).getId())
+                        
+                        prt.unlinkAnnotation(al.get(i).getChild());
+                        
+                    end
                 end
+                
             end
-        
+            
+        else
+            
+            prt.clearAnnotationLinks % did work (clear all the AnnotationLinks at once)
+            
         end
-
-    else
         
-        prt.clearAnnotationLinks % did work (clear all the AnnotationLinks at once)
+        prt = session.getUpdateService().saveAndReturnObject(prt);
         
     end
-    
-    prt = session.getUpdateService().saveAndReturnObject(prt);
 
 end
 
