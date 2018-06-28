@@ -22,6 +22,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -123,7 +124,6 @@ public class OpenObjectLoader
     		    List<DataObject> objects = new ArrayList<DataObject>();
     		    objects.add(image);
     		    f = new File(folderPath);
-    		    f.deleteOnExit();
     		    handle = mhView.loadArchivedImage(ctx, objects, f, false, false,
     	                false, this);
     		} else {
@@ -182,6 +182,10 @@ public class OpenObjectLoader
     	        Map<Boolean, List<File>> r = (Map<Boolean, List<File>>) result;
     	        List<File> files = r.get(true);
     	        if (files.size() > 0) {
+    	            Iterator<File> i = files.iterator();
+    	            while (i.hasNext()) {
+                        i.next().deleteOnExit();
+                    }
     	            activity.endActivity(files.get(0));
     	        } else {
     	            onException(MESSAGE_RESULT, null);
