@@ -1007,13 +1007,42 @@ Examples:
         self.ctx.out(str(tb.build()))
 
     def importtime(self, args):
-        """Estimate how long it took to import an existing fileset"""
-
-        from omero.sys import ParametersI
-
+        """Find out how long it took to import an existing fileset"""
         client = self.ctx.conn(args)
-        query = client.sf.getQueryService()
+        import_time = ImportTime(self.fileset.id, client.sf.getQueryService())
+        import_time.query_durations()
+        import_time.query_counts()
+        import_time.report()
 
+
+class ImportTime:
+
+    def __init__(self, fileset_id, query):
+        self.fileset_id = fileset_id
+        self.query = query
+        self.ns = 'openmicroscopy.org/omero/import/metrics'
+        self.times = dict()
+
+        import_tuples = [
+            ('UPLOAD', 'upload (ms)'), ('UPLOAD_C', '# files'),
+            ('SET_ID', 'setId (ms)'),
+            ('METADATA', 'metadata (ms)'),
+            ('PIXELDATA', 'pixeldata (ms)'), ('PIXELDATA_C', '# planes'),
+            ('OVERLAY', 'overlays (ms)'),
+            ('RDEF', 'rnd defs (ms)'), ('RDEF_C', '# settings'),
+            ('THUMBNAIL', 'thumbnails (ms)'), ('THUMBNAIL_C', '# thumbnails')
+        ]
+
+        # Easier in Python 2.7 with OrderedDict.
+        # Even easier in Python 3.7 in which dictionaries preserve ordering.
+        self.import_phases = [key for (key, name) in import_tuples]
+        self.import_phases_to_names = dict(import_tuples)
+        self.import_names_to_phases = dict(
+            [(y, x) for (x, y) in import_tuples])
+
+    def query_durations(self):
+        """Determine values for the phase durations for the import metrics"""
+        from omero.sys import ParametersI
         ctx = {"omero.group": "-1"}
 
         # Get the upload job ID and its creation time, and the import log ID.
@@ -1026,9 +1055,9 @@ Examples:
             "ORDER BY u.id"
         )
 
-        results = query.projection(
+        results = self.query.projection(
             hql, ParametersI()
-            .addId(args.fileset.id)
+            .addId(self.fileset_id)
             .addString('mimetype', 'application/omero-log-file')
             .page(0, 1),
             ctx)
@@ -1050,7 +1079,7 @@ Examples:
             "ORDER BY id"
         )
 
-        results = query.projection(
+        results = self.query.projection(
             hql, ParametersI()
             .addId(upload_job_id)
             .addString('type', 'ome.model.jobs.UploadJob')
@@ -1074,7 +1103,7 @@ Examples:
             "ORDER BY id"
         )
 
-        results = query.projection(
+        results = self.query.projection(
             hql, ParametersI()
             .addId(import_log_id)
             .addString('type', 'ome.model.core.OriginalFile')
@@ -1104,9 +1133,9 @@ Examples:
             "AND i.fileset.id = :id"
         )
 
-        results = query.projection(
+        results = self.query.projection(
             hql, ParametersI()
-            .addId(args.fileset.id)
+            .addId(self.fileset_id)
             .addString('type', 'ome.model.core.Image')
             .addString('action', 'INSERT')
             .add('last', metadata_before_id)
@@ -1129,9 +1158,9 @@ Examples:
             "AND r.image.fileset.id = :id"
         )
 
-        results = query.projection(
+        results = self.query.projection(
             hql, ParametersI()
-            .addId(args.fileset.id)
+            .addId(self.fileset_id)
             .addString('type', 'ome.model.roi.Roi')
             .addString('action', 'INSERT')
             .add('first', pixeldata_before_id)
@@ -1152,9 +1181,9 @@ Examples:
             "AND r.pixels.image.fileset.id = :id"
         )
 
-        results = query.projection(
+        results = self.query.projection(
             hql, ParametersI()
-            .addId(args.fileset.id)
+            .addId(self.fileset_id)
             .addString('type', 'ome.model.display.RenderingDef')
             .addString('action', 'INSERT')
             .add('first', pixeldata_before_id)
@@ -1175,9 +1204,9 @@ Examples:
             "AND t.pixels.image.fileset.id = :id"
         )
 
-        results = query.projection(
+        results = self.query.projection(
             hql, ParametersI()
-            .addId(args.fileset.id)
+            .addId(self.fileset_id)
             .addString('type', 'ome.model.display.Thumbnail')
             .addString('action', 'INSERT')
             .add('first', pixeldata_before_id)
@@ -1187,99 +1216,122 @@ Examples:
 
         thumbnails_start = results[0][0].val if results else None
 
-        # The remaining "count" queries have only fileset as a parameter.
+        # Calculate duration of import phases.
 
-        fileset_param = ParametersI().addId(args.fileset.id)
+        self.times['UPLOAD'] = upload_end - upload_start
+        self.times['SET_ID'] = set_id_end - upload_end
+        self.times['METADATA'] = metadata_end - set_id_end
 
-        # Report the upload time, including per file.
+        if overlays_start:
+            if settings_start:
+                self.times['OVERLAY'] = settings_start - pixeldata_end
+            elif thumbnails_start:
+                self.times['OVERLAY'] = thumbnails_start - pixeldata_end
+            else:
+                self.times['OVERLAY'] = thumbnails_end - pixeldata_end
 
-        time = upload_end - upload_start
-        time /= 1000.0
-        count = query.projection(
+        if settings_start:
+            # If there are no rendering settings, pyramids must be built first.
+            self.times['PIXELDATA'] = pixeldata_end - metadata_end
+
+            if thumbnails_start:
+                self.times['RDEF'] = thumbnails_start - settings_start
+                self.times['THUMBNAIL'] = thumbnails_end - thumbnails_start
+            else:
+                self.times['RDEF'] = thumbnails_end - settings_start
+
+    def query_counts(self):
+        """Determine values for the per-item counts for the import metrics"""
+        from omero.sys import ParametersI
+        ctx = {"omero.group": "-1"}
+        fileset = ParametersI().addId(self.fileset_id)
+
+        hql = (
             "SELECT COUNT(*) FROM FilesetEntry " +
-            "WHERE fileset.id = :id",
-            fileset_param, ctx)[0][0].val
-        if count > 0:
+            "WHERE fileset.id = :id"
+        )
+
+        result = self.query.projection(hql, fileset, ctx)[0][0].val
+        if result > 0:
+            self.times['UPLOAD_C'] = result
+
+        if 'PIXELDATA' in self.times:
+            hql = (
+                "SELECT SUM(sizeC * sizeT * sizeZ) FROM Pixels " +
+                "WHERE image.fileset.id = :id"
+            )
+
+            result = self.query.projection(hql, fileset, ctx)[0][0].val
+            if result > 0:
+                self.times['PIXELDATA_C'] = result
+
+        if 'RDEF' in self.times:
+            hql = (
+                "SELECT COUNT(*) FROM RenderingDef " +
+                "WHERE pixels.image.fileset.id = :id " +
+                "AND details.owner = pixels.details.owner"
+                )
+
+            result = self.query.projection(hql, fileset, ctx)[0][0].val
+            if result > 0:
+                self.times['RDEF_C'] = result
+
+        if 'THUMBNAIL' in self.times:
+            hql = (
+                "SELECT COUNT(*) FROM Thumbnail " +
+                "WHERE pixels.image.fileset.id = :id " +
+                "AND details.owner = pixels.details.owner"
+                )
+
+            result = self.query.projection(hql, fileset, ctx)[0][0].val
+            if result > 0:
+                self.times['THUMBNAIL_C'] = result
+
+    def report(self):
+        """Report how long it took to import an existing fileset"""
+        times_keys = set(self.times)
+
+        if {'UPLOAD', 'UPLOAD_C'} <= times_keys:
+            time = self.times['UPLOAD'] / 1000.0
+            count = self.times['UPLOAD_C']
             plural = "s" if count > 1 else ""
             print(("   upload time of {0:6.2f}s for "
                    "{1} file{2} ({3:.3f}s/file)")
                   .format(time, count, plural, time/count))
 
-        # Report the Bio-Formats setId time.
-
-        time = set_id_end - upload_end
-        time /= 1000.0
+        time = self.times['SET_ID'] / 1000.0
         print("    setId time of {0:6.2f}s".format(time))
 
-        # Report the time to generate metadata.
-
-        time = metadata_end - set_id_end
-        time /= 1000.0
+        time = self.times['METADATA'] / 1000.0
         print(" metadata time of {0:6.2f}s".format(time))
 
-        # Report the time to generate pixel data.
-        # If there are no rendering settings then pyramids must be built first.
+        if {'PIXELDATA', 'PIXELDATA_C'} <= times_keys:
+            time = self.times['PIXELDATA'] / 1000.0
+            count = self.times['PIXELDATA_C']
+            plural = "s" if count > 1 else ""
+            print(("   pixels time of {0:6.2f}s for "
+                   "{1} plane{2} ({3:.3f}s/plane)")
+                  .format(time, count, plural, time/count))
 
-        if settings_start:
-            time = pixeldata_end - metadata_end
-            time /= 1000.0
-            count = query.projection(
-                "SELECT SUM(sizeC * sizeT * sizeZ) FROM Pixels " +
-                "WHERE image.fileset.id = :id",
-                fileset_param, ctx)[0][0].val
-            if count > 0:
-                plural = "s" if count > 1 else ""
-                print(("   pixels time of {0:6.2f}s for "
-                       "{1} plane{2} ({3:.3f}s/plane)")
-                      .format(time, count, plural, time/count))
-
-        # Report the time to generate overlays.
-
-        if overlays_start:
-            if settings_start:
-                time = settings_start - pixeldata_end
-            elif thumbnails_start:
-                time = thumbnails_start - pixeldata_end
-            else:
-                time = thumbnails_end - pixeldata_end
-            time /= 1000.0
+        if 'OVERLAY' in times_keys:
+            time = self.times['OVERLAY'] / 1000.0
             print(" overlays time of {0:6.2f}s".format(time))
 
-        # Report the time to generate rendering settings.
+        if {'RDEF', 'RDEF_C'} <= times_keys:
+            time = self.times['RDEF'] / 1000.0
+            count = self.times['RDEF_C']
+            plural = "s" if count > 1 else ""
+            print(("    rdefs time of {0:6.2f}s for "
+                   "{1} rendering setting{2} ({3:.3f}s/rdef)")
+                  .format(time, count, plural, time/count))
 
-        if settings_start:
-            if thumbnails_start:
-                time = thumbnails_start - settings_start
-            else:
-                time = thumbnails_end - settings_start
-            time /= 1000.0
-            count = query.projection(
-                "SELECT COUNT(*) FROM RenderingDef " +
-                "WHERE pixels.image.fileset.id = :id " +
-                "AND details.owner = pixels.details.owner",
-                fileset_param, ctx)[0][0].val
-            if count > 0:
-                plural = "s" if count > 1 else ""
-                print(("    rdefs time of {0:6.2f}s for "
-                       "{1} rendering setting{2} ({3:.3f}s/rdef)")
-                      .format(time, count, plural, time/count))
-
-        # Report the time to generate thumbnails.
-        # If there are no rendering settings then pyramids must be built first.
-
-        if settings_start and thumbnails_start:
-            time = thumbnails_end - thumbnails_start
-            time /= 1000.0
-            count = query.projection(
-                "SELECT COUNT(*) FROM Thumbnail " +
-                "WHERE pixels.image.fileset.id = :id " +
-                "AND details.owner = pixels.details.owner",
-                fileset_param, ctx)[0][0].val
-            if count > 0:
-                plural = "s" if count > 1 else ""
-                print(("thumbnail time of {0:6.2f}s for "
-                       "{1} thumbnail{2} ({3:.3f}s/thumbnail)")
-                      .format(time, count, plural, time/count))
+        if {'THUMBNAIL', 'THUMBNAIL_C'} <= times_keys:
+            time = self.times['THUMBNAIL'] / 1000.0
+            count = self.times['THUMBNAIL_C']
+            plural = "s" if count > 1 else ""
+            print(("thumbnail time of {0:6.2f}s for "
+                   "{1} thumbnail{2} ({3:.3f}s/thumbnail)")
+                  .format(time, count, plural, time/count))
 
 try:
     register("fs", FsControl, HELP)
