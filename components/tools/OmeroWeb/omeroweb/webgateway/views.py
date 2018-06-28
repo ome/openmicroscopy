@@ -36,6 +36,7 @@ from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.views.generic import View
+from omeroweb.api.views import build_url
 from omeroweb.webadmin.forms import LoginForm
 from omeroweb.decorators import get_client_ip
 from omeroweb.webadmin.webadmin_utils import upgradeCheck
@@ -52,6 +53,7 @@ from omero import ApiUsageException
 from omero.util.decorators import timeit, TimeIt
 from omeroweb.http import HttpJavascriptResponse, \
     HttpJavascriptResponseServerError
+from omeroweb.connector import Server
 
 import glob
 
@@ -2250,6 +2252,9 @@ def full_viewer(request, iid, conn=None, **kwargs):
     @return:            html page of image and metadata
     """
 
+    server_id = request.session['connector'].server_id
+    server_name = Server.get(server_id).server
+
     rid = getImgDetailsFromReq(request)
     server_settings = request.session.get('server_settings', {}) \
                                      .get('viewer', {})
@@ -2261,6 +2266,27 @@ def full_viewer(request, iid, conn=None, **kwargs):
         if image is None:
             logger.debug("(a)Image %s not found..." % (str(iid)))
             raise Http404
+
+        opengraph = None
+        twitter = None
+        image_preview = None
+        page_url = None
+
+        if hasattr(settings, 'SHARING_OPENGRAPH'):
+            opengraph = settings.SHARING_OPENGRAPH.get(server_name)
+            logger.debug('Open Graph enabled: %s', opengraph)
+
+        if hasattr(settings, 'SHARING_TWITTER'):
+            twitter = settings.SHARING_TWITTER.get(server_name)
+            logger.debug('Twitter enabled: %s', twitter)
+
+        if opengraph or twitter:
+            prefix = kwargs.get(
+                'thumbprefix', 'webgateway.views.render_thumbnail')
+            image_preview = build_url(request, prefix, None, iid)
+            page_url = build_url(
+                request, 'webgateway.views.full_viewer', None, iid)
+
         d = {'blitzcon': conn,
              'image': image,
              'opts': rid,
@@ -2271,6 +2297,11 @@ def full_viewer(request, iid, conn=None, **kwargs):
              'viewport_server': kwargs.get(
                  # remove any trailing slash
                  'viewport_server', reverse('webgateway')).rstrip('/'),
+
+             'opengraph': opengraph,
+             'twitter': twitter,
+             'image_preview': image_preview,
+             'page_url': page_url,
 
              'object': 'image:%i' % int(iid)}
 
