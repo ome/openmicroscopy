@@ -5971,19 +5971,33 @@ class OMEROGateway
 	{
 		OMEROWrapper reader = null;
 		try {
-			ImportConfig config = new ImportConfig();
+            ImportConfig config = new ImportConfig();
+            config.checksumAlgorithm.set(object.getChecksumAlgorithm());
+            config.checkUpgrade.set(object.getUpgradeCheck());
+            if (object.skipThumbnails()) {
+                config.doThumbnails.set(Boolean.FALSE);
+            }
+            if (object.skipMinMax()) {
+                config.noStatsInfo.set(Boolean.TRUE);
+            }
+
 			reader = new OMEROWrapper(config);
 			String[] paths = new String[1];
 			paths[0] = file.getAbsolutePath();
 			ImportCandidates icans = new ImportCandidates(reader, paths, status);
 			
-			if(object.isOverrideName()) {
-			    String name = UIUtilities.getDisplayedFileName(file.getAbsolutePath(), object.getDepthForName());
-			    for(ImportContainer ic : icans.getContainers()) {
+			for(ImportContainer ic : icans.getContainers()) {
+			    if(object.isOverrideName()) {
+			        String name = UIUtilities.getDisplayedFileName(file.getAbsolutePath(), object.getDepthForName());
 			        ic.setUserSpecifiedName(name);
 			    }
-			}
-			
+			    if (object.skipThumbnails()) {
+	                ic.setDoThumbnails(false);
+	            }
+	            if (object.skipMinMax()) {
+	                ic.setNoStatsInfo(true);
+	            }
+            }
 			return icans;
 		} catch (Throwable e) {
 			throw new ImportException(e);

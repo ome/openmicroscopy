@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -171,6 +171,18 @@ public class ImportableObject
 		return ARBITRARY_FILES_EXTENSION.contains(ext);
 	}
 	
+	/** Option for generating thumbnails, if not set default: true */
+	public static String OPTION_THUMBNAILS = "doThumbnails";
+	
+	/** Option for skipping min/max calculation, if not set default: false */
+	public static String OPTION_SKIP_MINMAX = "noStatsInfo";
+	
+	/** Option for calculating checksums, if not set default: true */
+	public static String OPTION_CHECKSUMS = "checksumAlgorithm";
+	
+	/** Option for checking for upgrades, if not set default: true */
+	public static String OPTION_UPGRADECHECK = "checkUpgrade";
+	
 	/** The collection of files to import. */
 	private List<ImportableFile> files;
 	
@@ -267,13 +279,19 @@ public class ImportableObject
 		projectDatasetMap = new HashMap<Long, List<DatasetData>>();
 	}
 
-	public void setSkipChioces(Map<String, Object> choices) {
-		if (skipChoices == null) {
-			skipChoices = new HashMap<>(choices);
-		} else {
-			skipChoices.putAll(choices);
-		}
-	}
+    /**
+     * Set the advanced import configuration options
+     * 
+     * @param choices
+     *            The options
+     */
+    public void setSkipChioces(Map<String, Object> choices) {
+        if (skipChoices == null) {
+            skipChoices = new HashMap<>(choices);
+        } else {
+            skipChoices.putAll(choices);
+        }
+    }
 	
 	/**
 	 * Sets to <code>true</code> if the thumbnail has to be loaded when 
@@ -660,5 +678,45 @@ public class ImportableObject
 		if (CollectionUtils.isEmpty(files)) return;
 		this.files = files;
 	}
+
+    /**
+     * Get the checksum algorithm, default: 'File-Size-64'
+     * 
+     * @return See above
+     */
+    public String getChecksumAlgorithm() {
+        String option = (String) skipChoices.get(OPTION_CHECKSUMS);
+        return option != null ? option : "File-Size-64";
+    }
+
+    /**
+     * Skip Min/Max calculation, default: false
+     * 
+     * @return See above
+     */
+    public boolean skipMinMax() {
+        Boolean option = (Boolean) skipChoices.get(OPTION_SKIP_MINMAX);
+        return option != null && option;
+    }
+
+    /**
+     * Skip thumbnail generation, default: false
+     * 
+     * @return See above
+     */
+    public boolean skipThumbnails() {
+        Boolean option = (Boolean) skipChoices.get(OPTION_THUMBNAILS);
+        return option != null && !option;
+    }
+
+    /**
+     * Check for upgrade, default: true
+     * 
+     * @return See above
+     */
+    public boolean getUpgradeCheck() {
+        Boolean option = (Boolean) skipChoices.get(OPTION_UPGRADECHECK);
+        return option == null || option;
+    }
 
 }

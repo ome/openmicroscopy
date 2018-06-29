@@ -1,6 +1,29 @@
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2018 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 import javax.swing.*;
+
+import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -11,15 +34,19 @@ import java.util.Map;
  * Options panel to display a list of check boxes to enable skip
  * compute flags in importer. Holds state of what options have been
  * selected
+ * 
+ * @author  Riad Gozim &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:r.gozim@dundee.ac.uk">r.gozim@dundee.ac.uk</a>
+ * 
  */
 class SkipComputePanel extends JPanel {
 
     /**
      * Text for checkboxes
      */
-    private static final String TEXT_THUMBNAIL_GENERATION = "thumbnail generation";
-    private static final String TEXT_MIN_MAX_COMPUTE = "min/max compute";
-    private static final String TEXT_CHECKSUM_CHECKING = "checksum checking";
+    private static final String TEXT_THUMBNAIL_GENERATION = "Thumbnail generation";
+    private static final String TEXT_MIN_MAX_COMPUTE = "Min/max compute";
+    private static final String TEXT_CHECKSUM_CHECKING = "Checksum checking";
     private static final String TEXT_UPGRADE_CHECK = "Upgrade check for Bio-Formats";
 
     /**
@@ -59,7 +86,7 @@ class SkipComputePanel extends JPanel {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 boolean doThumbnails = !thumbGenCheckbox.isSelected();
-                choices.put("doThumbnails", doThumbnails);
+                choices.put(ImportableObject.OPTION_THUMBNAILS, doThumbnails);
             }
         });
         thumbGenCheckbox.setSelected(false);
@@ -69,7 +96,7 @@ class SkipComputePanel extends JPanel {
         minMaxCheckBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                choices.put("noStatsInfo", thumbGenCheckbox.isSelected());
+                choices.put(ImportableObject.OPTION_SKIP_MINMAX, minMaxCheckBox.isSelected());
             }
         });
         minMaxCheckBox.setSelected(false);
@@ -79,10 +106,10 @@ class SkipComputePanel extends JPanel {
         checksumCheckBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                if (thumbGenCheckbox.isSelected()) {
-                    choices.put("checksumAlgorithm", "{}");
+                if (checksumCheckBox.isSelected()) {
+                    choices.put(ImportableObject.OPTION_CHECKSUMS, "File-Size-64"); // File-Size-64 fast
                 } else {
-                    choices.put("checksumAlgorithm", "File-Size-64");
+                    choices.put(ImportableObject.OPTION_CHECKSUMS, "SHA1-160");  // default SHA1-160
                 }
             }
         });
@@ -93,19 +120,20 @@ class SkipComputePanel extends JPanel {
         upgradeCheckCheckBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                if (thumbGenCheckbox.isSelected()) {
-                    choices.put("checksumAlgorithm", "{}");
-                } else {
-                    choices.put("checksumAlgorithm", "");
-                }
+                choices.put(ImportableObject.OPTION_UPGRADECHECK, !upgradeCheckCheckBox.isSelected());
             }
         });
 
         add(thumbGenCheckbox);
         add(minMaxCheckBox);
         add(checksumCheckBox);
+        add(upgradeCheckCheckBox);
     }
-
+    
+    /**
+     * Get the advanced import configuration choices
+     * @return See above
+     */
     public Map<String, Object> getChoices() {
         return choices;
     }
