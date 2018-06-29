@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -45,18 +45,12 @@ import org.openmicroscopy.shoola.agents.fsimporter.util.LightFileImportComponent
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.Status;
-import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 /**
- * Component displaying an import.
- *
- * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:donald@lifesci.dundee.ac.uk"
- *         >donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * @since 3.0-Beta4
+ * A lightweight version of the ImporterUIElement.
+ * 
+ * @author Domink Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 class ImporterUIElementLight extends ImporterUIElement {
 

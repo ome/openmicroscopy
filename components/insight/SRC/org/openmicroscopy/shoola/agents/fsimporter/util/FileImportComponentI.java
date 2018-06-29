@@ -1,12 +1,30 @@
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2018 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+
 package org.openmicroscopy.shoola.agents.fsimporter.util;
 
-import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.List;
-
-import javax.swing.JPanel;
 
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
@@ -17,6 +35,13 @@ import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.util.Status;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 
+/**
+ * Component hosting the file to import and displaying the status of the 
+ * import process.
+ * 
+ * @author Domink Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ */
 public interface FileImportComponentI {
 
     /** Indicates that the container is of type <code>Project</code>. */
@@ -371,5 +396,9 @@ public interface FileImportComponentI {
      */
     public abstract String toString();
 
+    /**
+     * Add a PropertyChangeListener
+     * @param l The PropertyChangeListener
+     */
     public abstract void addPropertyChangeListener(PropertyChangeListener l);
 }

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -33,7 +33,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -97,8 +96,6 @@ import omero.gateway.model.ScreenData;
 import omero.gateway.model.TagAnnotationData;
 
 /** 
- * Component hosting the file to import and displaying the status of the 
- * import process.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -115,9 +112,6 @@ public class FileImportComponent
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
 
-	/** Text indicating that the folder does not contain importable files.*/
-	private static final String EMPTY_FOLDER = "No data to import";
-	
 	/** The maximum width used for the component.*/
 	private static final int LENGTH = 350;
 	

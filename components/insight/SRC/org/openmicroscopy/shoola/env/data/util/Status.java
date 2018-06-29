@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -105,6 +105,7 @@ public class Status implements IObserver {
     /** Bound property indicating that the scanning has started. */
     public static final String PROCESSING_ERROR_PROPERTY = "processingError";
     
+    /** Bound property indicating that the current import step has changed. */
     public static final String STEP_PROPERTY = "step";
 
     /** The default text of the component. */
@@ -196,12 +197,23 @@ public class Status implements IObserver {
     /** The file or folder this component is for. */
     private FileObject sourceFile;
 
+    /** PropertyChangeSupport **/
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
+    /**
+     * Add PropertyChangeListener
+     * @param listener  The PropertyChangeListener
+     */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         this.pcs.addPropertyChangeListener(listener);
     }
 
+    /**
+     * Fire a PropertyChangeEvent
+     * @param name The name of the event
+     * @param oldValue  The old value
+     * @param newValue  The new value
+     */
     public void firePropertyChange(String name, Object oldValue, Object newValue) {
         this.pcs.firePropertyChange(name, oldValue, newValue);
     }

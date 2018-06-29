@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.util.CheckSumDialog
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013-2018 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *

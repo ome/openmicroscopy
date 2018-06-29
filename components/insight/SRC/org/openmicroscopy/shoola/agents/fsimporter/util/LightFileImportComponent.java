@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -60,26 +59,13 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 
 /**
- * Component hosting the file to import and displaying the status of the import
- * process.
- *
- * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:donald@lifesci.dundee.ac.uk"
- *         >donald@lifesci.dundee.ac.uk</a>
- * @author Blazej Pindelski, bpindelski at dundee.ac.uk
- * @version 3.0
- * @since 3.0-Beta4
+ * A light-weight FileImportComponentI which doesn't use any heavy GUI elements.
+ * 
+ * @author Domink Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public class LightFileImportComponent implements PropertyChangeListener,
         FileImportComponentI {
-
-    /** Text indicating that the folder does not contain importable files. */
-    private static final String EMPTY_FOLDER = "No data to import";
-
-    /** The maximum width used for the component. */
-    private static final int LENGTH = 350;
 
     /**
      * private static final String EMPTY_DIRECTORY = "No data to import";

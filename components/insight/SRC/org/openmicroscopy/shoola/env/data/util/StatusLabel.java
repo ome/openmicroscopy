@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -58,53 +58,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class StatusLabel extends JPanel implements PropertyChangeListener {
 
-    /** The text displayed when the file is already selected. */
-    public static final String DUPLICATE = "Already processed, skipping";
-
-    /** The text indicating the scanning steps. */
-    public static final String SCANNING_TEXT = "Scanning...";
-
-    /**
-     * Bound property indicating that the original container has been reset.
-     * */
-    public static final String NO_CONTAINER_PROPERTY = "noContainer";
-
-    /** Bound property indicating that children files have been set. */
-    public static final String FILES_SET_PROPERTY = "filesSet";
-
-    /**
-     * Bound property indicating that the file has to be reset This should be
-     * invoked if the log file for example has been selected.
-     */
-    public static final String FILE_RESET_PROPERTY = "fileReset";
-
-    /** Bound property indicating that the import of the file has started. */
-    public static final String FILE_IMPORT_STARTED_PROPERTY = "fileImportStarted";
-
-    /**
-     * Bound property indicating that the container corresponding to the folder
-     * has been created.
-     * */
-    public static final String CONTAINER_FROM_FOLDER_PROPERTY = "containerFromFolder";
-
-    /** Bound property indicating that the status has changed. */
-    public static final String CANCELLABLE_IMPORT_PROPERTY = "cancellableImport";
-
-    /** Bound property indicating that the debug text has been sent. */
-    public static final String DEBUG_TEXT_PROPERTY = "debugText";
-
-    /** Bound property indicating that the import is done. */
-    public static final String IMPORT_DONE_PROPERTY = "importDone";
-
-    /** Bound property indicating that the upload is done. */
-    public static final String UPLOAD_DONE_PROPERTY = "uploadDone";
-
-    /** Bound property indicating that the scanning has started. */
-    public static final String SCANNING_PROPERTY = "scanning";
-
-    /** Bound property indicating that the scanning has started. */
-    public static final String PROCESSING_ERROR_PROPERTY = "processingError";
-
     /** The default text of the component. */
     public static final String DEFAULT_TEXT = "Pending...";
 
@@ -129,6 +82,7 @@ public class StatusLabel extends JPanel implements PropertyChangeListener {
     /** The exception if an error occurred. */
     private ImportException exception;
 
+    /** The component tracking the status */
     private Status status;
     
     /**
@@ -211,7 +165,7 @@ public class StatusLabel extends JPanel implements PropertyChangeListener {
             ImportEvent event = (ImportEvent) pe.getNewValue();
             if (event instanceof ImportCandidates.SCANNING) {
                 if (!status.isMarkedAsCancel() && exception == null)
-                    generalLabel.setText(SCANNING_TEXT);
+                    generalLabel.setText(Status.SCANNING_TEXT);
             } else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
                 exception = new ImportException(
                         ImportException.MISSING_LIBRARY_TEXT,
