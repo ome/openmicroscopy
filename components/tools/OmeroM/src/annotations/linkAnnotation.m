@@ -5,11 +5,31 @@ function link = linkAnnotation(session, annotation, parentType, parentId)
 %    a link between the input annotation to the object of the input type
 %    specified by the input identifier and owned by the session user.
 %
-%    Examples:
 %
-%        link = linkAnnotation(session, annotation, parentType, parentId)
+% SYNTAX
+% link = linkAnnotation(session, annotation, parentType, parentId)
 %
-% See also:
+% INPUT ARGUMENTS
+% session     omero.api.ServiceFactoryPrxHelper object
+%
+%               client = loadOmero('demo.openmicroscopy.org', 4064)
+%               session = client.createSession(username, password)
+%
+%
+% annotation  an omero.model.Annotation object 
+%             
+% parentType  'project' | 'dataset' | 'image' | 'screem' | 'plate' |
+%             'plateacquisition' | 'roi'
+%             Depends on output of getObjectTypes()
+%
+% parentId    a scalar or vector positive integers
+%             Id numbers of parent objects.
+%
+%
+% OUTPUT ARGUMENTS
+% link       omero.model.ImageAnnotationLinkI object 
+%
+% See also
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
