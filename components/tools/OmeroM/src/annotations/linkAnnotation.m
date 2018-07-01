@@ -51,12 +51,15 @@ else
     parent = parentId;
 end
 
-% Create object annotation link
-context = java.util.HashMap;
-group = parent.getDetails().getGroup().getId().getValue();
-context.put('omero.group', java.lang.String(num2str(group)));
+for i = 1:numel(parent)
+    % Create object annotation link
+    context = java.util.HashMap;
+    group = parent(i).getDetails().getGroup().getId().getValue();
+    context.put('omero.group', java.lang.String(num2str(group)));
+    
+    link = objectType.annotationLink();
+    link.setParent(parent(i))
+    link.setChild(annotation);
+    link = session.getUpdateService().saveAndReturnObject(link, context);
 
-link = objectType.annotationLink();
-link.setParent(parent)
-link.setChild(annotation);
-link = session.getUpdateService().saveAndReturnObject(link, context);
+end
