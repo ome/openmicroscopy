@@ -497,6 +497,9 @@ template. By default the original files and import log are also
 moved.
 """
 
+        # See https://trello.com/c/J3LNquSH/ for more information.
+        raise Exception('disabled since OMERO 5.4.7 due to Pixels.path bug')
+
         fid = args.fileset.id.val
         client = self.ctx.conn(args)
         uid = self.ctx.get_event_context().userId
