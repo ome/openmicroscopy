@@ -1143,7 +1143,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         defaultGroup = ExperimenterGroupI(defaultGroupId, False)
 
-        if privileges is not None:
+        if isAdmin:
+            if privileges is None:
+                privileges = []
+
             if defaultGroupId not in otherGroupIds:
                 listOfGroups.append(ExperimenterGroupI(defaultGroupId, False))
 
