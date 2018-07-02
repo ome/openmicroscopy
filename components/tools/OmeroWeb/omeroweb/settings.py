@@ -682,7 +682,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '["Data", "webindex", {"title": "Browse Data via Projects, Tags'
           ' etc"}],'
           '["History", "history", {"title": "History"}],'
-          '["Help", "http://help.openmicroscopy.org/",'
+          '["Help", "https://help.openmicroscopy.org/",'
           '{"title":"Open OMERO user guide in a new tab", "target":"new"}]'
           ']'),
          json.loads,
