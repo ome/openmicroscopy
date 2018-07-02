@@ -149,8 +149,8 @@ public class StatusLabel extends JPanel implements PropertyChangeListener {
     /**
      * Creates a new instance.
      * 
-     * @param sourceFile
-     *            The file associated to that label.
+     * @param status
+     *            The status
      */
     public StatusLabel(Status status) {
         this.status = status;

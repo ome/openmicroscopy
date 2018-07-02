@@ -247,11 +247,6 @@ public class LightFileImportComponent implements PropertyChangeListener,
      * 
      * @param importable
      *            The component hosting information about the file.
-     * @param browsable
-     *            Flag indicating that the container can be browsed or not.
-     * @param singleGroup
-     *            Passes <code>true</code> if the user is member of only one
-     *            group, <code>false</code> otherwise.
      * @param index
      *            The index of the parent.
      * @param tags
