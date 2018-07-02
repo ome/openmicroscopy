@@ -3,7 +3,7 @@
 #
 #
 #
-# Copyright (c) 2008-2014 University of Dundee.
+# Copyright (c) 2008-2018 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -506,7 +506,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 role = 'restricted_administrator'
         initial['role'] = role
 
-        root_id = [conn.getAdminService().getSecurityRoles().rootId]
+        root_id = conn.getAdminService().getSecurityRoles().rootId
         user_id = conn.getUserId()
         experimenter_root = long(eid) == root_id
         experimenter_me = long(eid) == user_id
