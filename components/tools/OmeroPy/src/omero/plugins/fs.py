@@ -1353,7 +1353,7 @@ class ImportTime:
         """Report how long it took to import an existing fileset"""
         metrics_keys = set(self.metrics)
 
-        if {'UPLOAD', 'UPLOAD_C'} <= metrics_keys:
+        if set(['UPLOAD', 'UPLOAD_C']) <= metrics_keys:
             time = self.metrics['UPLOAD'] / 1000.0
             count = self.metrics['UPLOAD_C']
             plural = "s" if count > 1 else ""
@@ -1367,7 +1367,7 @@ class ImportTime:
         time = self.metrics['METADATA'] / 1000.0
         print(" metadata time of {0:6.2f}s".format(time))
 
-        if {'PIXELDATA', 'PIXELDATA_C'} <= metrics_keys:
+        if set(['PIXELDATA', 'PIXELDATA_C']) <= metrics_keys:
             time = self.metrics['PIXELDATA'] / 1000.0
             count = self.metrics['PIXELDATA_C']
             plural = "s" if count > 1 else ""
@@ -1379,7 +1379,7 @@ class ImportTime:
             time = self.metrics['OVERLAY'] / 1000.0
             print(" overlays time of {0:6.2f}s".format(time))
 
-        if {'RDEF', 'RDEF_C'} <= metrics_keys:
+        if set(['RDEF', 'RDEF_C']) <= metrics_keys:
             time = self.metrics['RDEF'] / 1000.0
             count = self.metrics['RDEF_C']
             plural = "s" if count > 1 else ""
@@ -1387,7 +1387,7 @@ class ImportTime:
                    "{1} rendering setting{2} ({3:.3f}s/rdef)")
                   .format(time, count, plural, time/count))
 
-        if {'THUMBNAIL', 'THUMBNAIL_C'} <= metrics_keys:
+        if set(['THUMBNAIL', 'THUMBNAIL_C']) <= metrics_keys:
             time = self.metrics['THUMBNAIL'] / 1000.0
             count = self.metrics['THUMBNAIL_C']
             plural = "s" if count > 1 else ""
