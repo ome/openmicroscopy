@@ -209,9 +209,11 @@ public class ROIData
         ROICoordinate coord = shape.getROICoordinate();
         List<ShapeData> shapeList;
         shapeList = roiShapes.get(coord);
-        shapeList.remove(shape);
-        roi.removeShape((Shape) shape.asIObject());
-        setDirty(true);
+        if (shapeList != null) {
+            shapeList.remove(shape);
+            roi.removeShape((Shape) shape.asIObject());
+            setDirty(true);
+        }
     }
 
     /**
@@ -251,7 +253,11 @@ public class ROIData
     public List<ShapeData> getShapes(int z, int t)
     {
         List<ShapeData> res = roiShapes.get(new ROICoordinate(z, t));
-        res.addAll(roiShapes.get(new ROICoordinate(-1, -1)));
+        if (res == null)
+            res = new ArrayList<ShapeData>();
+        List<ShapeData> allZT = roiShapes.get(new ROICoordinate(-1, -1));
+        if (allZT != null)
+            res.addAll(allZT);
         return res;
     }
 
