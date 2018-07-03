@@ -115,7 +115,7 @@ class ImporterUIElementDetailed
 	/**
 	 * Displays only the failures or all the results.
 	 */
-	void filterFailures()
+	void showFailures()
 	{
 		String v = filterButton.getText();
 		if (SHOW_FAILURE.equals(v)) {

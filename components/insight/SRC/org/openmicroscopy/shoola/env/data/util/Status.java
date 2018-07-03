@@ -265,6 +265,7 @@ public class Status implements IObserver {
         if (isMarkedAsCancel())
             return;
         cancellable = false;
+        firePropertyChange(PROCESSING_ERROR_PROPERTY, null, this);
     }
 
     /**

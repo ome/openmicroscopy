@@ -264,7 +264,22 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
         }
         return null;
     }
+    
+    /**
+     * Show the failures
+     */
+    abstract void showFailures();
 
+    /**
+     * Build the UI
+     * @param importable The component hosting information about the file.
+     * @param browsable Flag indicating that the container can be browsed or not.
+     * @param singleGroup Passes <code>true</code> if the user is member of
+     * only one group, <code>false</code> otherwise.
+     * @param index The index of the parent.
+     * @param tags The tags that will be linked to the objects.
+     * @return The FileImportComponent
+     */
     abstract FileImportComponentI buildComponent(ImportableFile importable, boolean
             browsable, boolean singleGroup, int index,
             Collection<TagAnnotationData> tags);
@@ -450,10 +465,6 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
         numberOfImportLabel.setText(buffer.toString());
     }
     
-    void filterFailures() {
-        
-    }
-    
     /** 
      * Builds and lays out the header.
      * 
@@ -475,7 +486,7 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
              * Filters or not the import that did not fail.
              */
             public void actionPerformed(ActionEvent evt) {
-                filterFailures();
+                showFailures();
             }
         });
         
@@ -693,7 +704,7 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
      * @return See above.
      */
     boolean isUploadComplete() {
-        return (countFailure + countUploaded) == totalToImport;
+        return countUploaded == totalToImport;
     }
 
     /**

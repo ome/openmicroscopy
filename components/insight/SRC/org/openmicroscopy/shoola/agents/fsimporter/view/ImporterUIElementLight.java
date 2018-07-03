@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -40,11 +41,13 @@ import javax.swing.border.LineBorder;
 
 import omero.gateway.model.TagAnnotationData;
 
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI;
 import org.openmicroscopy.shoola.agents.fsimporter.util.LightFileImportComponent;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.Status;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
  * A lightweight version of the ImporterUIElement.
@@ -212,7 +215,19 @@ class ImporterUIElementLight extends ImporterUIElement {
         }
         lError.setText("" + super.countFailure);
         lRemaining.setText(""+(super.totalToImport-super.countFailure-complete));
+        
+        if (super.countFailure > 0) {
+            super.filterButton.setEnabled(true);
+        }
     }
+    
+    @Override
+    void showFailures() {
+        JFrame f = ImporterAgent.getRegistry().getTaskBar().getFrame();
+        FailedImportDialog d = new FailedImportDialog(f, getMarkedFiles());
+        UIUtilities.centerAndShow(d);
+    }
+
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
