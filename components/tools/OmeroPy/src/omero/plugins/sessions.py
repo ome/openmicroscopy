@@ -511,15 +511,13 @@ class SessionsControl(UserGroupControl):
             if not pasw:
                 pasw = os.getenv("OMERO_PASSWORD")
 
-            if not pasw:
-                # Note: duplicating the `not pasw` check here
-                # for an overall nicer error message.
-                self._require_tty("cannot request password")
-
             tries = 3
             while True:
                 try:
                     if not pasw:
+                        # Handle absent and incorrect passwords in
+                        # non-interactive mode
+                        self._require_tty("cannot request password")
                         if args.sudo:
                             prompt = "Password for %s:" % args.sudo
                         else:
