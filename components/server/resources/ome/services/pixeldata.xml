@@ -41,6 +41,13 @@
     <property name="cronExpression" value="${omero.pixeldata.cron}" />
   </bean>
 
+  <bean id="pixelDataTriggerGuard" class="ome.services.util.BeanInstantiationGuard" depends-on="executor">
+    <constructor-arg ref="readOnlyStatus"/>
+    <constructor-arg value="pixelDataTrigger"/>
+    <property name="isWriteDb" value="true"/>
+    <property name="isWriteRepo" value="true"/>
+  </bean>
+
   <!-- used by session factory -->
   <bean id="org.hibernate.EmptyInterceptor.INSTANCE"
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
