@@ -307,8 +307,12 @@ public class ROIData
     public Iterator<List<ShapeData>> getShapesInRange(ROICoordinate start,
             ROICoordinate end) {
         List<List<ShapeData>> res = new ArrayList<List<ShapeData>>();
-        res.addAll(roiShapes.subMap(start, end).values());
-        res.add(roiShapes.get(new ROICoordinate(-1, -1)));
+        Collection<List<ShapeData>> inRange = roiShapes.subMap(start, end).values();
+        if (inRange != null)
+            res.addAll(inRange);
+        List<ShapeData> allRanges = roiShapes.get(new ROICoordinate(-1, -1));
+        if (allRanges != null)
+            res.add(allRanges);
         return res.iterator();
     }
 
