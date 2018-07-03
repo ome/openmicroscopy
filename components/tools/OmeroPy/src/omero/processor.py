@@ -698,10 +698,11 @@ class MATLABProcessI(ProcessI):
         """
         Overrides ProcessI to call MATLAB idiosyncratically.
         """
+        r = "try, cd('%s'); script; " % self.dir
+        r += "catch e, disp(e.identifier); disp(e.message); exit(1); "
+        r += "end, exit(0)"
         matlab_cmd = [
-            self.interpreter, "-nosplash", "-nodisplay", "-nodesktop",
-            "-r", "try, cd('%s'); script; catch, exit(1); end, exit(0)"
-            % self.dir
+            self.interpreter, "-nosplash", "-nodisplay", "-nodesktop", "-r", r,
         ]
         return matlab_cmd
 
