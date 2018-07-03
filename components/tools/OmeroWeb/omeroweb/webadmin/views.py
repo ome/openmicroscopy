@@ -590,6 +590,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 privileges = conn.get_privileges_from_form(form)
                 to_add = []
                 to_remove = []
+                # privileges may be None if disabled in form
                 if privileges is not None:
                     # Only update privileges that we have permission to set
                     # (prevents privilege escalation)

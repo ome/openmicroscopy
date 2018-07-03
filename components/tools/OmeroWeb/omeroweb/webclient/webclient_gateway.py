@@ -1097,7 +1097,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         @type lastName String
         @param email A new email.
         @type email String
-        @param isAdmin An Admin permission.
+        @param isAdmin If True, new user is an Admin or Restricted Admin.
         @type isAdmin Boolean
         @param isActive Active user (user can log in).
         @type isActive Boolean
@@ -1107,6 +1107,8 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         @type otherGroupIds L{ExperimenterGroupI}
         @param password Must pass validation in the security sub-system.
         @type password String
+        @param privileges   List of Admin Privileges. Ignored if isAdmin False.
+        @type privileges    List of Strings
         @param middleName A middle name.
         @type middleName String
         @param institution An institution.
@@ -1276,7 +1278,11 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         """
         Get 'AdminPrivilege' roles from Experimenter Form
 
-        Returns None if Role is User
+        Returns None if Role section of form is disabled.
+        Returns empty list if role is regular 'user', not admin.
+        If role is 'administrator' returns ALL privileges.
+
+        @param experimenter_form    Submitted instance of ExperimenterForm
         """
         privileges = []
         role = experimenter_form.cleaned_data['role']
