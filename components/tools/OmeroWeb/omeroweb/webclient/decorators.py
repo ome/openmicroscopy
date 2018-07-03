@@ -130,7 +130,8 @@ class render_response(omeroweb.decorators.render_response):
         context['ome']['eventContext'] = eventContextMarshal(
             conn.getEventContext())
         context['ome']['user'] = conn.getUser
-        context['ome']['user_id'] = request.session.get('user_id', None)
+        context['ome']['user_id'] = request.session.get('user_id',
+                                                        conn.getUserId())
         context['ome']['group_id'] = request.session.get('group_id', None)
         context['ome']['active_group'] = request.session.get(
             'active_group', conn.getEventContext().groupId)
