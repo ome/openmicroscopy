@@ -26,7 +26,12 @@ import ij.ImagePlus;
 import ij.WindowManager;
 import info.clearthought.layout.TableLayout;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -45,7 +50,29 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JRootPane;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
 import loci.formats.gui.ComboFileFilter;
@@ -1156,7 +1183,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			object.setPixelsSize(size);
 
 		// Add any options for set for skipping server side compute here!
-		object.setSkipChioces(skipComputePanel.getChoices());
+		object.setSkipChoices(skipComputePanel.getChoices());
 
 		firePropertyChange(IMPORT_PROPERTY, null, object);
 		table.removeAllFiles();

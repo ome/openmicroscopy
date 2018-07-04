@@ -55,6 +55,9 @@ public class FailedImportDialog extends JDialog {
     /** Holds the error logs (key: file name) */
     private Map<String, String> errors = new HashMap<String, String>();
 
+    /** Maximum broken import files to list */
+    private final int MAX_ENTRIES = 50;
+    
     /**
      * Create new instance
      * 
@@ -94,15 +97,15 @@ public class FailedImportDialog extends JDialog {
         con.add(new JLabel("File:"), c);
 
         String[] tmp = null;
-        if (errors.keySet().size() < 50) {
+        if (errors.keySet().size() < MAX_ENTRIES) {
             tmp = new String[errors.keySet().size()];
             tmp = errors.keySet().toArray(tmp);
         } else {
-            tmp = new String[51];
+            tmp = new String[MAX_ENTRIES + 1];
             Iterator<String> it = errors.keySet().iterator();
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < MAX_ENTRIES; i++)
                 tmp[i] = it.next();
-            tmp[50] = "... and " + (errors.keySet().size() - 50) + " more.";
+            tmp[50] = "... and " + (errors.keySet().size() - MAX_ENTRIES) + " more.";
         }
         String selected = tmp[0];
 

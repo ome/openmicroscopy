@@ -285,7 +285,7 @@ public class ImportableObject
      * @param choices
      *            The options
      */
-    public void setSkipChioces(Map<String, Object> choices) {
+    public void setSkipChoices(Map<String, Object> choices) {
         if (skipChoices == null) {
             skipChoices = new HashMap<>(choices);
         } else {
@@ -686,7 +686,7 @@ public class ImportableObject
      */
     public String getChecksumAlgorithm() {
         String option = (String) skipChoices.get(OPTION_CHECKSUMS);
-        return option != null ? option : "File-Size-64";
+        return option != null ? option : omero.model.enums.ChecksumAlgorithmFileSize64.value;
     }
 
     /**
