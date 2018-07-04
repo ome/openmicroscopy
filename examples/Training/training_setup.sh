@@ -64,7 +64,7 @@ imageid=$(sed -n -e 's/^Image://p' image_import.log)
 # Add a Map annotation
 MAP=$(bin/omero obj new MapAnnotation)
 bin/omero obj map-set $MAP mapValue testkey testvalue
-bin/omero obj new ImageAnnotationLink parent=$imageid child=$MAP
+bin/omero obj new ImageAnnotationLink parent=Image:$imageid child=$MAP
 
 # Create screen/plate
 screen=$(bin/omero obj new Screen name='Screen')
