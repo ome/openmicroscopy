@@ -499,6 +499,7 @@ moved.
 """
 
         # See https://trello.com/c/J3LNquSH/ for more information.
+        # When reenabling, also reenable testRenameAdminOnly.
         self.ctx.die(30, 'disabled since OMERO 5.4.7 due to Pixels.path bug')
         # Keep privilege imports used until @admin_only decorator restored.
         [AdminPrivilegeWriteOwned, AdminPrivilegeWriteManagedRepo,
