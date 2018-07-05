@@ -16,7 +16,9 @@ from path import path
 import omero
 
 from omero.grid import JobParams
-from omero.scripts import String, List, Bool, Long, MissingInputs, ParseExit
+from omero.scripts import (
+    String, List, Bool, Long, Set,
+    MissingInputs, ParseExit, compare_proto)
 from omero.scripts import client, parse_inputs, validate_inputs, parse_text
 from omero.scripts import parse_file, group_params, rlong, rint, wrap, unwrap
 
@@ -313,6 +315,13 @@ if True:
         assert 1 == rv["a"].val[0].val
         assert 2 == rv["a"].val[1].val
 
+    def testParseInputsStringSetIsDefault(self):
+        params = JobParams()
+        params.inputs = {"a": Set("a", optional=False)}
+        rv = parse_inputs(["a=1"], params)
+        assert isinstance(rv["a"], omero.RSet)
+        assert "1" == rv["a"].val[0].val
+
     def testParseInputsStringListIsDefault(self):
         params = JobParams()
         params.inputs = {"a": List("a", optional=False)}
@@ -362,3 +371,25 @@ if True:
             assert isinstance(x, omero.RInt)
         assert 1 == rv[0].val
         assert 2 == rv[1].val
+
+    def testParseIntSet(self):
+        """
+        see ticket:7003
+        """
+        params = JobParams()
+        a = Set("Channels").ofType(rint(0))
+        params.inputs = {"a": a}
+
+        rv = parse_inputs(["a=1,2"], params)["a"].val
+        for x in rv:
+            assert isinstance(x, omero.RInt)
+        assert 1 == rv[0].val
+        assert 2 == rv[1].val
+
+    def testCompareProto(self):
+        """
+        https://github.com/openmicroscopy/openmicroscopy/issues/5788
+        """
+        s = omero.rtypes.rset()
+        l = omero.rtypes.rlist()
+        assert not compare_proto("test", s, l)

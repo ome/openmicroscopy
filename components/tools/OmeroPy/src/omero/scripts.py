@@ -234,7 +234,7 @@ class Point(Type):
     Wraps an rinternal(Point)
     """
     PROTOTYPE_FUNCTION = rinternal
-    PROTOTYPE_FUNCTION = omero.Point
+    PROTOTYPE_DEFAULT = omero.Point
 
 
 class Plane(Type):
@@ -508,15 +508,15 @@ def parse_input(input_string, params):
         (omero.RLong, omero.RString, omero.RInt,
          omero.RTime, omero.RDouble, omero.RFloat)):
         val = param.prototype.__class__(val)
-    elif isinstance(param.prototype, omero.RList):
+    elif isinstance(param.prototype, (omero.RList, omero.RSet)):
+        rmethod = omero.rtypes.rlist
+        rwrap = omero.rtypes.wrap
+        if isinstance(param.prototype, omero.RSet):
+            rmethod = omero.rtypes.rset
+        if len(param.prototype.val) > 0:
+            rwrap = param.prototype.val[0].__class__
         items = val.split(",")
-        if len(param.prototype.val) == 0:
-            # Don't know what needs to be added here, so calling wrap
-            # which will produce an rlist of rstrings.
-            val = omero.rtypes.wrap(items)
-        else:
-            p = param.prototype.val[0]
-            val = omero.rtypes.rlist([p.__class__(x) for x in items])
+        val = rmethod([rwrap(x) for x in items])
     elif isinstance(param.prototype, omero.RObject):
         try:
             parts2 = val.split(":")
@@ -616,10 +616,19 @@ def compare_proto(key, proto, input, cache=None):
         cache[id(proto)] = True
         cache[id(input)] = True
 
-    itype = input is None and None or input.__class__
-    ptype = proto is None and None or proto.__class__
+    itype = None
+    ptype = None
+    both_collection = False
+    if input is not None:
+        itype = input.__class__
+        both_collection = isinstance(input, omero.RCollection)
+    if proto is not None:
+        ptype = proto.__class__
+        both_collection &= isinstance(proto, omero.RCollection)
 
-    if not isinstance(input, ptype):
+    # see https://github.com/openmicroscopy/openmicroscopy/issues/5788
+    # accept RSets as RLists and vice versa
+    if not (both_collection or isinstance(input, ptype)):
         return error_msg("Wrong type", key, "%s != %s", itype, ptype)
 
     # Now recurse if a collection type
