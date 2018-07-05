@@ -207,8 +207,7 @@ public class ROIData
         if (roi == null) 
             throw new IllegalArgumentException("No Roi specified.");
         ROICoordinate coord = shape.getROICoordinate();
-        List<ShapeData> shapeList;
-        shapeList = roiShapes.get(coord);
+        List<ShapeData> shapeList = roiShapes.get(coord);
         if (shapeList != null) {
             shapeList.remove(shape);
             roi.removeShape((Shape) shape.asIObject());

@@ -144,7 +144,7 @@ public class ROIFacilityTest extends GatewayTest {
 
         compare(myRois, rois);
     }
-    
+
     @Test
     public void testGetROIFolders() throws DSOutOfServiceException,
             DSAccessException {
