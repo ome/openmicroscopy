@@ -588,18 +588,19 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
                 # Update 'AdminPrivilege' config roles for user
                 privileges = conn.get_privileges_from_form(form)
-                if privileges is None:
-                    privileges = []
-                # Only process privileges that we have permission to set
                 to_add = []
                 to_remove = []
-                for p in conn.getCurrentAdminPrivileges():
-                    if p in privileges:
-                        to_add.append(p)
-                    else:
-                        to_remove.append(p)
-
-                conn.updateAdminPrivileges(experimenter.id, to_add, to_remove)
+                # privileges may be None if disabled in form
+                if privileges is not None:
+                    # Only update privileges that we have permission to set
+                    # (prevents privilege escalation)
+                    for p in conn.getCurrentAdminPrivileges():
+                        if p in privileges:
+                            to_add.append(p)
+                        else:
+                            to_remove.append(p)
+                    conn.updateAdminPrivileges(experimenter.id,
+                                               to_add, to_remove)
 
                 conn.updateExperimenter(
                     experimenter, omename, firstName, lastName, email, admin,

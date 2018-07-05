@@ -1097,7 +1097,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         @type lastName String
         @param email A new email.
         @type email String
-        @param isAdmin An Admin permission.
+        @param isAdmin If True, new user is an Admin or Restricted Admin.
         @type isAdmin Boolean
         @param isActive Active user (user can log in).
         @type isActive Boolean
@@ -1107,6 +1107,8 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         @type otherGroupIds L{ExperimenterGroupI}
         @param password Must pass validation in the security sub-system.
         @type password String
+        @param privileges   List of Admin Privileges. Ignored if isAdmin False.
+        @type privileges    List of Strings
         @param middleName A middle name.
         @type middleName String
         @param institution An institution.
@@ -1143,7 +1145,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         defaultGroup = ExperimenterGroupI(defaultGroupId, False)
 
-        if privileges is not None:
+        if isAdmin:
+            if privileges is None:
+                privileges = []
+
             if defaultGroupId not in otherGroupIds:
                 listOfGroups.append(ExperimenterGroupI(defaultGroupId, False))
 
@@ -1273,17 +1278,22 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         """
         Get 'AdminPrivilege' roles from Experimenter Form
 
-        Returns None if Role is User
+        Returns None if Role section of form is disabled.
+        Returns empty list if role is regular 'user', not admin.
+        If role is 'administrator' returns ALL privileges.
+
+        @param experimenter_form    Submitted instance of ExperimenterForm
         """
         privileges = []
         role = experimenter_form.cleaned_data['role']
-        if role not in ('restricted_administrator', 'administrator'):
+        # If Role element is disabled, we don't update privileges
+        if role == '':
             return None
         # If user is Admin, we give them ALL privileges!
         if role == 'administrator':
             for p in self.getEnumerationEntries('AdminPrivilege'):
                 privileges.append(p.getValue())
-        else:
+        elif role == 'restricted_administrator':
             # Otherwise, restrict to 'checked' privileges on form
             form_privileges = ['Chgrp',
                                'Chown',
