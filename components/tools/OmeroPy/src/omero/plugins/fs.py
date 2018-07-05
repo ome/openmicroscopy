@@ -499,7 +499,7 @@ moved.
 """
 
         # See https://trello.com/c/J3LNquSH/ for more information.
-        raise Exception('disabled since OMERO 5.4.7 due to Pixels.path bug')
+        self.ctx.die(30, 'disabled since OMERO 5.4.7 due to Pixels.path bug')
         # Keep privilege imports used until @admin_only decorator restored.
         [AdminPrivilegeWriteOwned, AdminPrivilegeWriteManagedRepo,
          AdminPrivilegeDeleteOwned, AdminPrivilegeDeleteManagedRepo]
