@@ -61,6 +61,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI;
+import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI.ContainerType;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ImportStatus;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.Environment;
@@ -191,7 +192,7 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
     ImporterModel model;
 
     /** The type of container to handle. */
-    private int type;
+    private ContainerType type;
 
     /** The existing containers. */
     private List<DataObject> existingContainers;
@@ -300,7 +301,7 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
         
         Iterator<ImportableFile> i = files.iterator();
         ImportableFile importable;
-        type = -1;
+        type = ContainerType.NA;
         List<Object> containers = object.getRefNodes();
         if (containers != null && containers.size() > 0) {
             Iterator<Object> j = containers.iterator();
@@ -310,16 +311,14 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
                 node = (TreeImageDisplay) j.next();
                 h = node.getUserObject();
                 if (h instanceof DatasetData) {
-                    type = FileImportComponentI.DATASET_TYPE;
+                    type = ContainerType.DATASET;
                 } else if (h instanceof ScreenData) {
-                    type = FileImportComponentI.SCREEN_TYPE;
+                    type = ContainerType.SCREEN;
                 } else if (h instanceof ProjectData) {
-                    type = FileImportComponentI.PROJECT_TYPE;
+                    type = ContainerType.PROJECT;
                 }
                 break;
             }
-        } else {
-            type = FileImportComponentI.NO_CONTAINER;
         }
         JLabel l;
         boolean single = model.isSingleGroup();

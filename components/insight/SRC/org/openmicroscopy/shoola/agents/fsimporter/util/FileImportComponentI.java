@@ -44,14 +44,18 @@ import org.openmicroscopy.shoola.util.file.ImportErrorObject;
  */
 public interface FileImportComponentI {
 
-    /** Indicates that the container is of type <code>Project</code>. */
-    public static final int PROJECT_TYPE = 0;
-    /** Indicates that the container is of type <code>Screen</code>. */
-    public static final int SCREEN_TYPE = 1;
-    /** Indicates that the container is of type <code>Dataset</code>. */
-    public static final int DATASET_TYPE = 2;
-    /** Indicates that no container specified. */
-    public static final int NO_CONTAINER = 3;
+    /** The container type */
+    public enum ContainerType {
+        /** Project type */
+        PROJECT,
+        /** Screen type */
+        SCREEN,
+        /** Dataset type */
+        DATASET,
+        /** No container type */
+        NA
+    }
+
     /** Bound property indicating to retry an upload.*/
     public static final String RETRY_PROPERTY = "retry";
     /** 
@@ -281,14 +285,14 @@ public interface FileImportComponentI {
      * 
      * @param type One of the constants defined by this class.
      */
-    public abstract void setType(int type);
+    public abstract void setType(ContainerType type);
 
     /**
      * Returns the supported type. One of the constants defined by this class.
      * 
      * @return See above.
      */
-    public abstract int getType();
+    public abstract ContainerType getType();
 
     /**
      * Returns <code>true</code> if the folder has been converted into a

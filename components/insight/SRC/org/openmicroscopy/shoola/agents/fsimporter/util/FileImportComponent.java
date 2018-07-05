@@ -119,7 +119,7 @@ public class FileImportComponent
 	private static final String EMPTY_DIRECTORY = "No data to import";
 	
 	/** One of the constants defined by this class. */
-	private int type;
+	private ContainerType type;
 
 	/** The component indicating the progress of the import. */
 	private JXBusyLabel busyLabel;
@@ -1293,15 +1293,15 @@ public class FileImportComponent
 		if (getFile().isFile()) {
 			if (hasImportFailed()) return false;
 			switch (type) {
-				case PROJECT_TYPE:
-				case NO_CONTAINER:
+				case PROJECT:
+				case NA:
 					return true;
 				default:
 					return false;
 			}
 		}
 		if (components == null) return false;
-		if (importable.isFolderAsContainer() && type != PROJECT_TYPE) {
+		if (importable.isFolderAsContainer() && type != ContainerType.PROJECT) {
 		    Collection<FileImportComponent> values =  components.values();
             synchronized (components) {
                 Iterator<FileImportComponent> i = values.iterator();
@@ -1363,13 +1363,13 @@ public class FileImportComponent
      * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#setType(int)
      */
 	@Override
-    public void setType(int type) { this.type = type; }
+    public void setType(ContainerType type) { this.type = type; }
 	
 	/* (non-Javadoc)
      * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getType()
      */
 	@Override
-    public int getType() { return type; }
+    public ContainerType getType() { return type; }
 	
 	/* (non-Javadoc)
      * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#isFolderAsContainer()

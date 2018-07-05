@@ -72,7 +72,7 @@ public class LightFileImportComponent implements PropertyChangeListener,
      * 
      * /** One of the constants defined by this class.
      */
-    private int type;
+    private ContainerType type;
 
     /** The imported image. */
     private Object image;
@@ -807,8 +807,8 @@ public class LightFileImportComponent implements PropertyChangeListener,
             if (hasImportFailed())
                 return false;
             switch (type) {
-            case PROJECT_TYPE:
-            case NO_CONTAINER:
+            case PROJECT:
+            case NA:
                 return true;
             default:
                 return false;
@@ -816,7 +816,7 @@ public class LightFileImportComponent implements PropertyChangeListener,
         }
         if (components == null)
             return false;
-        if (importable.isFolderAsContainer() && type != PROJECT_TYPE) {
+        if (importable.isFolderAsContainer() && type != ContainerType.PROJECT) {
             Collection<LightFileImportComponent> values = components.values();
             synchronized (components) {
                 Iterator<LightFileImportComponent> i = values.iterator();
@@ -881,7 +881,7 @@ public class LightFileImportComponent implements PropertyChangeListener,
      * #setType(int)
      */
     @Override
-    public void setType(int type) {
+    public void setType(ContainerType type) {
         this.type = type;
     }
 
@@ -893,7 +893,7 @@ public class LightFileImportComponent implements PropertyChangeListener,
      * #getType()
      */
     @Override
-    public int getType() {
+    public ContainerType getType() {
         return type;
     }
 
