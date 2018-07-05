@@ -258,6 +258,12 @@ public class ROIData
         List<ShapeData> allZT = roiShapes.get(new ROICoordinate(-1, -1));
         if (allZT != null)
             res.addAll(allZT);
+        List<ShapeData> allZ = roiShapes.get(new ROICoordinate(-1, t));
+        if (allZ != null)
+            res.addAll(allZ);
+        List<ShapeData> allT = roiShapes.get(new ROICoordinate(z, -1));
+        if (allT != null)
+            res.addAll(allT);
         return res;
     }
 
@@ -303,6 +309,9 @@ public class ROIData
      * @param end
      *            The final plane where the Shapes should reside.
      * @return See above.
+     * @deprecated Will be removed in future. Does not work as
+     * expected if the ROI contains shapes which are associated
+     * with all planes (Z, C, T == -1)
      */
     public Iterator<List<ShapeData>> getShapesInRange(ROICoordinate start,
             ROICoordinate end) {
