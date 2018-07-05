@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -31,6 +29,7 @@ import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionManager;
 import ome.services.util.ExecutionThread;
 import ome.services.util.Executor;
+import ome.services.util.ReadOnlyStatus;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -75,9 +74,12 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
 
     private final Timer batchTimer;
 
+    private final ReadOnlyStatus readOnly;
+
     /**
      * Uses default {@link Principal} for processing
      */
+    @Deprecated
     public PixelDataThread(SessionManager manager, Executor executor,
             PixelDataHandler handler, String uuid) {
         this(manager, executor, handler, DEFAULT_PRINCIPAL, uuid, DEFAULT_THREADS);
@@ -87,6 +89,7 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
      * Uses default {@link Principal} for processing and a {@link NullMetrics}
      * instance.
      */
+    @Deprecated
     public PixelDataThread(SessionManager manager, Executor executor,
             PixelDataHandler handler, String uuid, int numThreads) {
         this(manager, executor, handler, DEFAULT_PRINCIPAL, uuid, numThreads,
@@ -99,6 +102,7 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
      * {@link #PixelDataThread(boolean, SessionManager, Executor, PixelDataHandler, Principal, String, int) the main ctor}
      * passing a {@link NullMetrics} as necessary.
      */
+    @Deprecated
     public PixelDataThread(SessionManager manager, Executor executor,
             PixelDataHandler handler, Principal principal, String uuid,
             int numThreads) {
@@ -112,6 +116,7 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
      * "pixelDataTrigger" and passes all parameters to
      * {@link #PixelDataThread(boolean, SessionManager, Executor, PixelDataHandler, Principal, String, int) the main ctor}.
      */
+    @Deprecated
     public PixelDataThread(
             SessionManager manager, Executor executor,
             PixelDataHandler handler, String uuid,
@@ -128,11 +133,41 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
      */
     public PixelDataThread(
             SessionManager manager, Executor executor,
+            PixelDataHandler handler, String uuid,
+            int numThreads, Metrics metrics, ReadOnlyStatus readOnly) {
+        this(executor.getContext().containsBean("pixelDataTrigger"),
+                manager, executor, handler, DEFAULT_PRINCIPAL,
+                uuid, numThreads, metrics, readOnly);
+    }
+
+    /**
+     * Calculates {@link #performProcessing} based on the existence of the
+     * "pixelDataTrigger" and passes all parameters to
+     * {@link #PixelDataThread(boolean, SessionManager, Executor, PixelDataHandler, Principal, String, int) the main ctor}.
+     */
+    @Deprecated
+    public PixelDataThread(
+            SessionManager manager, Executor executor,
             PixelDataHandler handler, Principal principal, String uuid,
             int numThreads, Metrics metrics) {
         this(executor.getContext().containsBean("pixelDataTrigger"),
-                manager, executor, handler, principal, 
+                manager, executor, handler, principal,
                 uuid, numThreads, metrics);
+    }
+
+    /**
+     * Calculates {@link #performProcessing} based on the existence of the
+     * "pixelDataTrigger" and passes all parameters to
+     * {@link #PixelDataThread(boolean, SessionManager, Executor, PixelDataHandler, Principal, String, int) the main ctor}.
+     */
+    @Deprecated
+    public PixelDataThread(
+            SessionManager manager, Executor executor,
+            PixelDataHandler handler, Principal principal, String uuid,
+            int numThreads, Metrics metrics, ReadOnlyStatus readOnly) {
+        this(executor.getContext().containsBean("pixelDataTrigger"),
+                manager, executor, handler, principal,
+                uuid, numThreads, metrics, readOnly);
     }
 
     /**
@@ -142,8 +177,19 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
             SessionManager manager, Executor executor,
             PixelDataHandler handler, Principal principal, String uuid,
             int numThreads) {
-        this(performProcessing, manager, executor, handler, principal, 
+        this(performProcessing, manager, executor, handler, principal,
                 uuid, numThreads, new NullMetrics());
+    }
+
+    /**
+     * Calls main constructor with read-only status being all read-write.
+     */
+    public PixelDataThread(boolean performProcessing,
+            SessionManager manager, Executor executor,
+            PixelDataHandler handler, Principal principal, String uuid,
+            int numThreads, Metrics metrics) {
+        this(performProcessing, manager, executor, handler, principal,
+                uuid, numThreads, metrics, new ReadOnlyStatus(false, false));
     }
 
     /**
@@ -152,12 +198,13 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
     public PixelDataThread(boolean performProcessing,
             SessionManager manager, Executor executor,
             PixelDataHandler handler, Principal principal, String uuid,
-            int numThreads, Metrics metrics) {
+            int numThreads, Metrics metrics, ReadOnlyStatus readOnly) {
         super(manager, executor, handler, principal);
         this.performProcessing = performProcessing;
         this.uuid = uuid;
         this.numThreads = numThreads;
         this.batchTimer = metrics.timer(this, "batch");
+        this.readOnly = readOnly;
     }
 
     /**
@@ -282,7 +329,10 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
      * {@link EventLog} which will get processed by PixelData-0.
      */
     public void onApplicationEvent(final MissingPyramidMessage mpm) {
-
+        if (readOnly.isReadOnlyDb()) {
+            log.debug("Ignored: " + mpm);
+            return;
+        }
         log.info("Received: " + mpm);
         // #5232. If this is called without an active event, then throw
         // an exception since a call to Executor should wrap whatever the
