@@ -41,7 +41,6 @@ before_install:
     - export PATH=$PATH:$HOME/.local/bin
     - if [[ $BUILD == 'build-python' ]]; then travis_retry pip install --user flake8==2.4.0 pytest==2.7.3; fi
     - if [[ $BUILD == 'build-python' ]]; then ./components/tools/travis-build py-flake8; fi
-    - if [[ $BUILD == 'integration' ]]; then git clone git://github.com/openmicroscopy/omero-test-infra .omero; fi
 
 # retries the build due to:
 # https://github.com/travis-ci/travis-ci/issues/2507
@@ -52,7 +51,6 @@ install:
 script:
     - if [[ $BUILD == 'build-python' ]]; then ./components/tools/travis-build py-test; fi
     - if [[ $BUILD == 'build-java' ]]; then ./components/tools/travis-build java-test; fi
-    - if [[ $BUILD == 'integration' ]]; then .omero/docker srv; fi
 
 notifications:
   slack:
