@@ -130,10 +130,34 @@ public interface RawPixelsStore extends StatefulServiceInterface {
 
     public Object getResolutionDescriptions();
 
+    /**
+     * Retrieves the number of resolution levels that the backing
+     * pixels pyramid contains.
+     * @return The number of resolution levels. This value does not
+     * necessarily indicate either the presence or absence of a
+     * pixels pyramid.
+     **/
     public int getResolutionLevels();
 
+    /**
+     * Retrieves the active resolution level.
+     * @return The active resolution level.  The level will be non-negative and less
+     * than {@link #getResolutionLevels()}.  Resolution level 0 is the smallest
+     * resolution and resolution level <code>getResolutionLevels() - 1</code>
+     * is the largest resolution.  This is the inverse of how Bio-Formats indexes
+     * resolutions.
+     */
     public int getResolutionLevel();
 
+    /**
+     * Sets the active resolution level.
+     * @param resolutionLevel The resolution level to be used.
+     * The level should be non-negative and less than
+     * {@link #getResolutionLevels()}.  * Resolution level 0 is the smallest
+     * resolution and resolution level <code>getResolutionLevels() - 1</code>
+     * is the largest resolution.  This is the inverse of how Bio-Formats indexes
+     * resolutions.
+     */
     public void setResolutionLevel(int resolutionLevel);
 
     public int[] getTileSize();
