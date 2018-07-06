@@ -702,8 +702,8 @@ public class ROIFacility extends Facility {
                         for (int i = 0 ; i < serverRoi.sizeOfShapes(); i++) {
                             s = serverRoi.getShape(i);
                             if (s != null) {
-                                z = 0;
-                                t = 0;
+                                z = -1;
+                                t = -1;
                                 if (s.getTheZ() != null) z = s.getTheZ().getValue();
                                 if (s.getTheT() != null) t = s.getTheT().getValue();
                                 serverCoordMap.put(new ROICoordinate(z, t), s);

@@ -107,6 +107,7 @@ public class MaskData
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setTextValue(rtypes.rstring(text));
+        setDirty(true);
     }
 
     /**
@@ -135,6 +136,7 @@ public class MaskData
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setX(rtypes.rdouble(x));
+        setDirty(true);
     }
 
     /**
@@ -163,6 +165,7 @@ public class MaskData
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setY(rtypes.rdouble(y));
+        setDirty(true);
     }
 
     /**
@@ -191,6 +194,7 @@ public class MaskData
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setWidth(rtypes.rdouble(width));
+        setDirty(true);
     }
 
     /**
@@ -219,6 +223,7 @@ public class MaskData
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setHeight(rtypes.rdouble(height));
+        setDirty(true);
     }
 
     /**
@@ -230,6 +235,7 @@ public class MaskData
     {
         Mask shape = (Mask) asIObject();
         shape.setBytes(mask);	
+        setDirty(true);
     }
 
     /**
@@ -255,6 +261,7 @@ public class MaskData
                     }
                     setBit(data, (int)(y*getWidth()+x), 1);
                 }
+        setDirty(true);
     }
 
     /**
@@ -343,6 +350,7 @@ public class MaskData
         data[bytePosition] = (byte) ((byte)(data[bytePosition]&
                 (~(byte)(0x1<<bitPosition)))|
                 (byte)(val<<bitPosition));
+        setDirty(true);
     }
 
     /** 
