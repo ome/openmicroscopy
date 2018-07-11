@@ -1132,23 +1132,4 @@ public class LightFileImportComponent implements PropertyChangeListener,
             firePropertyChange(Status.STEP_PROPERTY, evt.getOldValue(), evt.getNewValue());
         }
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI
-     * #toString()
-     */
-    @Override
-    public String toString() {
-        StringBuffer buf = new StringBuffer();
-        buf.append(getFile().getAbsolutePath());
-        if (importable.getGroup() != null)
-            buf.append("_" + importable.getGroup().getId());
-        if (importable.getUser() != null)
-            buf.append("_" + importable.getUser().getId());
-        return buf.toString();
-    }
-
 }

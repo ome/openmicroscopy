@@ -230,7 +230,7 @@ public interface FileImportComponentI {
     public abstract boolean hasFailuresToReupload();
 
     /**
-     * Returns <code>true</code> if the import has failed, <code>false</code>
+     * Returns <code>true</code> if the import has started, <code>false</code>
      * otherwise.
      * 
      * @return See above.

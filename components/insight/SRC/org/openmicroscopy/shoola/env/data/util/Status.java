@@ -182,9 +182,6 @@ public class Status implements IObserver {
     /** The callback. This should only be set when importing a directory. */
     private Object callback;
 
-    /** Indicates that the file scanned is a directory. */
-    // private boolean directory;
-
     /** The id of the log file. */
     private long logFileID;
 
