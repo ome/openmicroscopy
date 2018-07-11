@@ -486,8 +486,9 @@ omero.fs.repo.path are all set to be owned by the root user.
         mrepo.makeDir(args.new_dir, args.parents)
 
     @windows_warning
-    @admin_only(AdminPrivilegeWriteOwned, AdminPrivilegeWriteManagedRepo,
-                AdminPrivilegeDeleteOwned, AdminPrivilegeDeleteManagedRepo)
+    # Remove decorator from disabled rename to more promptly raise Exception.
+    # @admin_only(AdminPrivilegeWriteOwned, AdminPrivilegeWriteManagedRepo,
+    #             AdminPrivilegeDeleteOwned, AdminPrivilegeDeleteManagedRepo)
     def rename(self, args):
         """Moves an existing fileset to a new location (admin-only)
 
@@ -496,6 +497,13 @@ it may be useful to rename an existing fileset to match the new
 template. By default the original files and import log are also
 moved.
 """
+
+        # See https://trello.com/c/J3LNquSH/ for more information.
+        # When reenabling, also reenable testRenameAdminOnly.
+        self.ctx.die(30, 'disabled since OMERO 5.4.7 due to Pixels.path bug')
+        # Keep privilege imports used until @admin_only decorator restored.
+        [AdminPrivilegeWriteOwned, AdminPrivilegeWriteManagedRepo,
+         AdminPrivilegeDeleteOwned, AdminPrivilegeDeleteManagedRepo]
 
         fid = args.fileset.id.val
         client = self.ctx.conn(args)
