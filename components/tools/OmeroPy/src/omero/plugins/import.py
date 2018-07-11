@@ -385,7 +385,7 @@ class ImportControl(BaseControl):
             help=SUPPRESS)
 
         java_group = parser.add_argument_group(
-            'Java arguments', 'Optional arguments passed strictly to Java')
+            'Java arguments', 'Optional arguments passed strictly to Java.')
 
         def add_java_argument(*args, **kwargs):
             java_group.add_argument(*args, **kwargs)
@@ -430,7 +430,7 @@ class ImportControl(BaseControl):
         advjava_group = parser.add_argument_group(
             'Advanced Java arguments', (
                 'Optional arguments passed strictly to Java. '
-                'For more information, see --advanced-help'))
+                'For more information, see --advanced-help.'))
 
         def add_advjava_argument(*args, **kwargs):
             advjava_group.add_argument(*args, **kwargs)
