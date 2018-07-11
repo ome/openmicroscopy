@@ -797,7 +797,7 @@ public class FileImportComponent
 			containerObject = dataset;
 			return;
 		}
-		if (data != null && data instanceof ScreenData) {
+		if (data instanceof ScreenData) {
 			containerObject = data;
 		}
 	}

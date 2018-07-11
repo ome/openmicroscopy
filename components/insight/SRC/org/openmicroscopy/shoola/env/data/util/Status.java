@@ -346,7 +346,7 @@ public class Status implements IObserver {
         firePropertyChange(UPLOAD_DONE_PROPERTY, null, this);
     }
 
-    /** Marks the import has cancelled. */
+    /** Marks the import as cancelled. */
     public void markedAsCancel() {
         this.markedAsCancel = true;
     }
@@ -361,7 +361,7 @@ public class Status implements IObserver {
         return markedAsCancel;
     }
 
-    /** Marks the import has duplicate. */
+    /** Marks the import as duplicate. */
     public void markedAsDuplicate() {
         this.markedAsDuplicate = true;
     }

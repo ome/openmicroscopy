@@ -20,15 +20,17 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
-import javax.swing.*;
 
-import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-
-import java.awt.*;
+import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+
+import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 
 /**
  * Options panel to display a list of check boxes to enable skip
@@ -107,9 +109,9 @@ class SkipComputePanel extends JPanel {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (checksumCheckBox.isSelected()) {
-                    choices.put(ImportableObject.OPTION_CHECKSUMS, "File-Size-64"); // File-Size-64 fast
+                    choices.put(ImportableObject.OPTION_CHECKSUMS, omero.model.enums.ChecksumAlgorithmFileSize64.value); // File-Size-64 fast
                 } else {
-                    choices.put(ImportableObject.OPTION_CHECKSUMS, "SHA1-160");  // default SHA1-160
+                    choices.put(ImportableObject.OPTION_CHECKSUMS, omero.model.enums.ChecksumAlgorithmSHA1160.value);  // default SHA1-160
                 }
             }
         });

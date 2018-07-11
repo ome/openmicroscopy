@@ -42,6 +42,7 @@ import javax.swing.border.LineBorder;
 import omero.gateway.model.TagAnnotationData;
 
 import org.jdesktop.swingx.JXBusyLabel;
+import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI;
 import org.openmicroscopy.shoola.agents.fsimporter.util.LightFileImportComponent;
@@ -210,6 +211,7 @@ class ImporterUIElementLight extends ImporterUIElement {
         if (uploaded == super.totalToImport) {
             upload.setString("Finished");
             uploadBusy.setBusy(false);
+            uploadBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY));
         } else
             upload.setString(uploaded + "/" + super.totalToImport);
 
@@ -218,7 +220,11 @@ class ImporterUIElementLight extends ImporterUIElement {
         if (complete == super.totalToImport) {
             processed.setString("Finished");
             processedBusy.setBusy(false);
-        } else
+            processedBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY));
+        } else if (complete+super.countFailure == super.totalToImport) {
+            processedBusy.setBusy(false);
+            processedBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY_CANCEL));
+        }else 
             processed.setString(complete + "/" + super.totalToImport);
 
         errors.setText("" + super.countFailure);

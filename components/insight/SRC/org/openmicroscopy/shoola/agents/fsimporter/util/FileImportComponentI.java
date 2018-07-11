@@ -254,7 +254,7 @@ public interface FileImportComponentI {
     public abstract boolean hasComponents();
 
     /**
-     * Returns the status of the import process one of the
+     * Returns the status of the import process. One of the
      * values defined in @see ImportStatus
      * 
      * @return See above.

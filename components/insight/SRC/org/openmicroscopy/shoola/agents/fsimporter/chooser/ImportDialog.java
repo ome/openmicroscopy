@@ -1108,7 +1108,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	}
 
 	/** Imports the selected files. */
-	public void  importFiles() {
+	public void importFiles() {
 		option = CMD_IMPORT;
 		importButton.setEnabled(false);
 		// Set the current directory as the defaults
