@@ -22,25 +22,26 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
 import omero.gateway.model.TagAnnotationData;
 
+import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI;
 import org.openmicroscopy.shoola.agents.fsimporter.util.LightFileImportComponent;
@@ -57,22 +58,23 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class ImporterUIElementLight extends ImporterUIElement {
 
-    JLabel lTotal = new JLabel("0");
-    JLabel lRemaining = new JLabel("0");
-    JLabel lError = new JLabel("0");
+    private Map<Integer, Integer> importStatus = new ConcurrentHashMap<Integer, Integer>();
 
-    Map<Integer, JLabel> stepLabel = new HashMap<Integer, JLabel>();
-    Map<Integer, JLabel> stepValues = new HashMap<Integer, JLabel>();
+    private JProgressBar upload = new JProgressBar(SwingConstants.HORIZONTAL);
+    private JProgressBar processed = new JProgressBar(SwingConstants.HORIZONTAL);
 
-    Map<Integer, Integer> importStatus = new ConcurrentHashMap<Integer, Integer>();
-    
+    private JXBusyLabel uploadBusy = new JXBusyLabel();
+    private JXBusyLabel processedBusy = new JXBusyLabel();
+
+    private JLabel errors = new JLabel("0");
+
     @Override
     FileImportComponentI buildComponent(ImportableFile importable,
             boolean browsable, boolean singleGroup, int index,
             Collection<TagAnnotationData> tags) {
         LightFileImportComponent fc = new LightFileImportComponent(importable,
                 getID(), object.getTags());
-        
+
         fc.addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
@@ -82,7 +84,7 @@ class ImporterUIElementLight extends ImporterUIElement {
                     String[] tmp = ((String) evt.getNewValue()).split("_");
                     int id = Integer.parseInt(tmp[0]);
                     int step = Integer.parseInt(tmp[1]);
-                    
+
                     importStatus.put(id, step);
 
                     SwingUtilities.invokeLater(new Runnable() {
@@ -122,20 +124,8 @@ class ImporterUIElementLight extends ImporterUIElement {
         buildGUI();
     }
 
-    private JLabel boldLabel(String text) {
-        JLabel l = new JLabel(text);
-        l.setFont(l.getFont().deriveFont(Font.BOLD));
-        return l;
-    }
-    
     /** Builds and lays out the UI. */
     private void buildGUI() {
-        for (int i = 1; i < 7; i++) {
-            JLabel l = new JLabel(Status.STEPS.get(i));
-            stepLabel.put(i, l);
-            stepValues.put(i, new JLabel("0"));
-        }
-
         setLayout(new BorderLayout(0, 0));
 
         add(buildHeader(), BorderLayout.NORTH);
@@ -143,6 +133,7 @@ class ImporterUIElementLight extends ImporterUIElement {
         JPanel info = new JPanel();
         info.setOpaque(false);
         info.setBorder(new LineBorder(Color.LIGHT_GRAY));
+        info.setBackground(UIUtilities.BACKGROUND);
 
         info.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -150,84 +141,98 @@ class ImporterUIElementLight extends ImporterUIElement {
 
         c.gridx = 0;
         c.gridy = 0;
-        info.add(boldLabel("Total images"), c);
+        c.fill = GridBagConstraints.NONE;
+        info.add(new JLabel("Uploaded:"), c);
+
         c.gridx = 1;
-        info.add(lTotal, c);
-        
-        c.gridx = 0;
-        c.gridy = 1;
-        c.insets = new Insets(10, 2, 2, 2);
-        info.add(boldLabel("Import Queue"), c);
-        c.gridx = 1;
-        info.add(lRemaining, c);
-        
-        c.gridx = 0;
-        c.gridy = 2;
-        c.gridwidth = 2;
-        c.insets = new Insets(10, 2, 2, 2);
-        info.add(boldLabel("Processing Queues"), c);
-        c.gridwidth = 1;
-        c.insets = new Insets(2, 2, 2, 2);
-        
-        for (int i = 1; i < 6; i++) {
-            c.gridx = 0;
-            c.gridy = i+2;
-            info.add(stepLabel.get(i), c);
-            c.gridx = 1;
-            info.add(stepValues.get(i), c);
-        }
-        
-        c.gridx = 0;
-        c.gridy = 8;
-        c.gridwidth = 2;
-        c.insets = new Insets(10, 2, 2, 2);
-        info.add(boldLabel("Result"), c);
-        c.gridwidth = 1;
-        c.insets = new Insets(2, 2, 2, 2);
+        c.gridy = 0;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        info.add(upload, c);
+        upload.setMinimum(0);
+        upload.setStringPainted(true);
+
+        c.gridx = 2;
+        c.gridy = 0;
+        c.fill = GridBagConstraints.NONE;
+        info.add(uploadBusy, c);
+        uploadBusy.setBusy(true);
 
         c.gridx = 0;
-        c.gridy = 9;
-        info.add(stepLabel.get(6), c);
+        c.gridy = 1;
+        c.fill = GridBagConstraints.NONE;
+        info.add(new JLabel("Processed:"), c);
+
         c.gridx = 1;
-        info.add(stepValues.get(6), c);
-        
+        c.gridy = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        info.add(processed, c);
+        processed.setMinimum(0);
+        processed.setStringPainted(true);
+
+        c.gridx = 2;
+        c.gridy = 1;
+        c.fill = GridBagConstraints.NONE;
+        info.add(processedBusy, c);
+        processedBusy.setBusy(true);
+
         c.gridx = 0;
-        c.gridy = 10;
-        info.add(new JLabel("Errors"), c);
+        c.gridy = 3;
+        c.fill = GridBagConstraints.NONE;
+        info.add(new JLabel("Errors:"), c);
+
         c.gridx = 1;
-        info.add(lError, c);
+        c.gridy = 3;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = 2;
+        c.anchor = GridBagConstraints.WEST;
+        info.add(errors, c);
 
         add(info, BorderLayout.CENTER);
     }
 
     private void updateDisplay() {
-        lTotal.setText("" + super.totalToImport);
+
         int complete = 0;
+        int uploaded = 0;
         for (int i = 1; i < 7; i++) {
             int c = 0;
             for (int step : importStatus.values()) {
                 if (i == step)
                     c++;
             }
-            stepValues.get(i).setText("" + c);
-            if(i == 6)
+            uploaded += c;
+            if (i == 6)
                 complete = c;
         }
-        lError.setText("" + super.countFailure);
-        lRemaining.setText(""+(super.totalToImport-super.countFailure-complete));
-        
+
+        upload.setValue(uploaded);
+        upload.setMaximum(super.totalToImport);
+        if (uploaded == super.totalToImport) {
+            upload.setString("Finished");
+            uploadBusy.setBusy(false);
+        } else
+            upload.setString(uploaded + "/" + super.totalToImport);
+
+        processed.setValue(complete);
+        processed.setMaximum(super.totalToImport);
+        if (complete == super.totalToImport) {
+            processed.setString("Finished");
+            processedBusy.setBusy(false);
+        } else
+            processed.setString(complete + "/" + super.totalToImport);
+
+        errors.setText("" + super.countFailure);
+
         if (super.countFailure > 0) {
             super.filterButton.setEnabled(true);
-        }
-    }
-    
+        }    }
+
     @Override
     void showFailures() {
         JFrame f = ImporterAgent.getRegistry().getTaskBar().getFrame();
         FailedImportDialog d = new FailedImportDialog(f, getMarkedFiles());
         UIUtilities.centerAndShow(d);
     }
-
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
