@@ -185,6 +185,12 @@
               setModel(OME.preview_viewport, $(this).get(0).checked?'g':'c');
             });
 
+            // handle 'Active' checkbox
+            $('#showactive').click(function(e){
+              $("#preview_tab #rdef-active-area table tr.rdef-window:not(:has(button.pressed))")
+                  .css({'display': this.checked? 'none' : ''});
+            });
+
             // Save settings
             $("#rdef-setdef-btn").click(function(){
               setImageDefaults(OME.preview_viewport, this, function() {
@@ -444,6 +450,8 @@
         <div id="rdef-active-area">
           <input id="rd-wblitz-rmodel" type="checkbox" />
           <label for="rd-wblitz-rmodel">Grayscale</label>
+          <input id="showactive" title="Show only active channels" type="checkbox" />
+          <label for="showactive">Active</label>
           <div style="float:right {% if tiledImage %}; color:#bbb{%endif%}"
             {% if tiledImage or share %}
               title="Histogram not supported for tiled images or in share"
