@@ -63,7 +63,7 @@ class ImporterUIElementLight extends ImporterUIElement {
 
     private JProgressBar upload = new JProgressBar(SwingConstants.HORIZONTAL);
     private JProgressBar processed = new JProgressBar(SwingConstants.HORIZONTAL);
-
+    
     private JXBusyLabel uploadBusy = new JXBusyLabel();
     private JXBusyLabel processedBusy = new JXBusyLabel();
 
@@ -127,6 +127,19 @@ class ImporterUIElementLight extends ImporterUIElement {
 
     /** Builds and lays out the UI. */
     private void buildGUI() {
+        
+        // init
+        upload.setBorderPainted(true);
+        upload.setMinimum(0);
+        upload.setStringPainted(false);
+        
+        processed.setBorderPainted(true);
+        processed.setMinimum(0);
+        processed.setStringPainted(false);
+        
+        uploadBusy.setBusy(true);
+        processedBusy.setBusy(true);
+        
         setLayout(new BorderLayout(0, 0));
 
         add(buildHeader(), BorderLayout.NORTH);
@@ -149,14 +162,11 @@ class ImporterUIElementLight extends ImporterUIElement {
         c.gridy = 0;
         c.fill = GridBagConstraints.HORIZONTAL;
         info.add(upload, c);
-        upload.setMinimum(0);
-        upload.setStringPainted(true);
 
         c.gridx = 2;
         c.gridy = 0;
         c.fill = GridBagConstraints.NONE;
         info.add(uploadBusy, c);
-        uploadBusy.setBusy(true);
 
         c.gridx = 0;
         c.gridy = 1;
@@ -167,14 +177,11 @@ class ImporterUIElementLight extends ImporterUIElement {
         c.gridy = 1;
         c.fill = GridBagConstraints.HORIZONTAL;
         info.add(processed, c);
-        processed.setMinimum(0);
-        processed.setStringPainted(true);
 
         c.gridx = 2;
         c.gridy = 1;
         c.fill = GridBagConstraints.NONE;
         info.add(processedBusy, c);
-        processedBusy.setBusy(true);
 
         c.gridx = 0;
         c.gridy = 3;
@@ -209,23 +216,23 @@ class ImporterUIElementLight extends ImporterUIElement {
         upload.setValue(uploaded);
         upload.setMaximum(super.totalToImport);
         if (uploaded == super.totalToImport) {
-            upload.setString("Finished");
+            uploadBusy.setText("Finished");
             uploadBusy.setBusy(false);
             uploadBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY));
         } else
-            upload.setString(uploaded + "/" + super.totalToImport);
+            uploadBusy.setText(uploaded + "/" + super.totalToImport);
 
         processed.setValue(complete);
         processed.setMaximum(super.totalToImport);
         if (complete == super.totalToImport) {
-            processed.setString("Finished");
+            processedBusy.setText("Finished");
             processedBusy.setBusy(false);
             processedBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY));
         } else if (complete+super.countFailure == super.totalToImport) {
             processedBusy.setBusy(false);
             processedBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY_CANCEL));
         }else 
-            processed.setString(complete + "/" + super.totalToImport);
+            processedBusy.setText(complete + "/" + super.totalToImport);
 
         errors.setText("" + super.countFailure);
 
