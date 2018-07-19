@@ -448,10 +448,14 @@
     <div id="rdef-container">
       <div id="rdef-postit">
         <div id="rdef-active-area">
-          <input id="rd-wblitz-rmodel" type="checkbox" />
-          <label for="rd-wblitz-rmodel">Grayscale</label>
-          <input id="showactive" title="Show only active channels" type="checkbox" />
-          <label for="showactive">Active</label>
+          <label title="Enable grayscale rendering mode">
+            <input id="rd-wblitz-rmodel" type="checkbox" />
+            Grayscale
+          </label>
+          <label title="Show only active channels">
+            <input id="showactive" type="checkbox" />
+            Active
+          </label>
           <div style="float:right {% if tiledImage %}; color:#bbb{%endif%}"
             {% if tiledImage or share %}
               title="Histogram not supported for tiled images or in share"
