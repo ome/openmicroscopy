@@ -1,10 +1,10 @@
-function ma = strToMapAnnotation(str, varargin)
+function ma = strToMapAnnotation(session, str, varargin)
 % strToMapAnnotation returns MapAnnotation object of OMERO from
 % string array or cell array of strings
 %
 % SYNTAX
-% ma = strToMapAnnotation(str)
-% ma = strToMapAnnotation(str,iseditable)
+% ma = strToMapAnnotation(session,str)
+% ma = strToMapAnnotation(session,str,iseditable)
 %
 % REQUIREMENTS
 %
@@ -17,6 +17,8 @@ function ma = strToMapAnnotation(str, varargin)
 %     client = loadOmero('demo.openmicroscopy.org', 4064)
 %
 % INPUT ARGUMENTS
+% session     omero.api.ServiceFactoryPrxHelper object
+%
 % str         string array | cell array of strings
 %             Number of columns must be 2.
 %
@@ -24,6 +26,10 @@ function ma = strToMapAnnotation(str, varargin)
 %             (Optional) If true or 1, MapAnnotation (Key-Value Pairs) will
 %             be editable via GUI (OMERO.web or OMERO.insight)
 %
+% OPTIONAL PARA<ETER/VALUE PAIRS
+% 'description'
+%             char
+%             Description for the MapAnnotation
 %
 %
 % OUTPUT ARGUMENTS
@@ -46,15 +52,19 @@ function ma = strToMapAnnotation(str, varargin)
 % 09-Jun-2018 15:20:17
 %
 % See also
-% linkAnnotation
+% writeMapAnnotation, omero_xlsIHC2MapAnnotation, linkAnnotation
 
 p = inputParser;
-p.addRequired('str',@(x) size(str,2) ==2 && iscellstr(x) || isstring(x) );
+p.addRequired('session',@(x) isscalar(x));
+p.addRequired('str',@(x) (size(str,2) ==2 || size(str,2) == 3) ...
+    && iscellstr(x) || isstring(x) );
 p.addOptional('iseditable',false,@(x) isscalar(x) && x == 1 || x == 0);
+p.addParameter('description', '', @ischar);
 
-p.parse(str,varargin{:});
+p.parse(session,str,varargin{:});
 
 iseditable = p.Results.iseditable;
+description = p.Results.description;
 
 
 %% Job
@@ -66,29 +76,18 @@ if iscellstr(str) %#ok<ISCLSTR>
 end
 
 
-import java.util.ArrayList
-eval('import omero.model.NamedValue')
-
-li = ArrayList;
-
-for r = 1:size(str,1)
-    
-    li.add(NamedValue(str{r,1},str{r,2}));
-
-end
-
-eval('import omero.model.MapAnnotationI')
-
-ma = MapAnnotationI(int64(1),true); % 'false' results in Java exception occurred: omero.UnloadedEntityException:
-ma.setMapValue(li);
-
 if iseditable
     %NOTE this is required to make it editable from GUI
     eval('import omero.constants.metadata.NSCLIENTMAPANNOTATION')
-    ma.setNs(rstring(NSCLIENTMAPANNOTATION.value));
+    namespace = char(NSCLIENTMAPANNOTATION.value);
+else
+    namespace = '';
 end
 
 
+ma = writeMapAnnotation(session,...
+    str(:,1),str(:,2),...
+    'namespace',namespace,'description',description);
 
 
 end

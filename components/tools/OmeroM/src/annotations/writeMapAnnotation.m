@@ -46,16 +46,19 @@ function ma = writeMapAnnotation(session, keys, values, varargin)
 % Input check
 ip = inputParser;
 ip.addRequired('session');
-ip.addRequired('keys', @(x) ischar(x) || iscellstr(x));
-ip.addRequired('values', @(x) ischar(x) || iscellstr(x));
-ip.addParamValue('namespace', '', @ischar);
-ip.addParamValue('description', '', @ischar);
-ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
+ip.addRequired('keys', @(x) ischar(x) || iscellstr(x) || isstring(x));
+ip.addRequired('values', @(x) ischar(x) || iscellstr(x) || isstring(x));
+ip.addParameter('namespace', '', @ischar);
+ip.addParameter('description', '', @ischar);
+ip.addParameter('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(session, keys, values, varargin{:});
 
 % Convert keys and values into cell arrays
 if ischar(keys), keys = {keys}; end
 if ischar(values), values = {values}; end
+if isstring(keys), keys = cellstr(keys); end
+if isstring(values),values = cellstr(values); end
+
 assert(numel(keys) == numel(values),...
     'Keys and values input should have the same number of elements');
 
@@ -69,11 +72,11 @@ end
 ma = omero.model.MapAnnotationI();
 ma.setMapValue(nv);
 
-if ~isempty(ip.Results.description),
+if ~isempty(ip.Results.description)
     ma.setDescription(rstring(ip.Results.description));
 end
 
-if ~isempty(ip.Results.namespace),
+if ~isempty(ip.Results.namespace)
     ma.setNs(rstring(ip.Results.namespace))
 end
 
