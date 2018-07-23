@@ -46,8 +46,13 @@ function ma = writeMapAnnotation(session, keys, values, varargin)
 % Input check
 ip = inputParser;
 ip.addRequired('session');
-ip.addRequired('keys', @(x) ischar(x) || iscellstr(x) || isstring(x));
-ip.addRequired('values', @(x) ischar(x) || iscellstr(x) || isstring(x));
+if verLessThan('matlab','9.1.0')
+    ip.addRequired('keys', @(x) ischar(x) || iscellstr(x)); %#ok<ISCLSTR>
+    ip.addRequired('values', @(x) ischar(x) || iscellstr(x)); %#ok<ISCLSTR>
+else
+    ip.addRequired('keys', @(x) ischar(x) || iscellstr(x) || isstring(x));
+    ip.addRequired('values', @(x) ischar(x) || iscellstr(x) || isstring(x));
+end
 ip.addParameter('namespace', '', @ischar);
 ip.addParameter('description', '', @ischar);
 ip.addParameter('group', [], @(x) isscalar(x) && isnumeric(x));
@@ -56,8 +61,10 @@ ip.parse(session, keys, values, varargin{:});
 % Convert keys and values into cell arrays
 if ischar(keys), keys = {keys}; end
 if ischar(values), values = {values}; end
-if isstring(keys), keys = cellstr(keys); end
-if isstring(values),values = cellstr(values); end
+if ~verLessThan('matlab','9.1.0')
+    if isstring(keys), keys = cellstr(keys); end
+    if isstring(values),values = cellstr(values); end
+end
 
 assert(numel(keys) == numel(values),...
     'Keys and values input should have the same number of elements');
