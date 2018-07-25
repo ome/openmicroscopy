@@ -1,5 +1,5 @@
 /*
- *   Copyright 2014-2017 University of Dundee. All rights reserved.
+ *   Copyright 2014-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -13,6 +13,7 @@ import org.springframework.mail.MailException;
 
 import ome.conditions.ApiUsageException;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.security.SecuritySystem;
 import ome.security.auth.PasswordChangeException;
 import ome.security.auth.PasswordProvider;
@@ -131,6 +132,14 @@ public class ResetPasswordRequestI extends ResetPasswordRequest implements
                             .format("User is authenticated by LDAP server. "
                                     + "You cannot reset this password."));
         else {
+            final long systemGroupId = sec.getSecurityRoles().getSystemGroupId();
+            for (final ExperimenterGroup group : e.linkedExperimenterGroupList()) {
+                if (group.getId() == systemGroupId) {
+                    throw helper.cancel(new ERR(), null, "password-change-failed",
+                            "PasswordChangeException",
+                            "Cannot reset password of administrators. Have another administrator set the new password.");
+                }
+            }
             final String newPassword = passwordUtil.generateRandomPasswd();
             // FIXME
             // workaround as sec.runAsAdmin doesn't execute with the root
@@ -155,6 +164,7 @@ public class ResetPasswordRequestI extends ResetPasswordRequest implements
             try {
                 mailUtil.sendEmail(sender, e.getEmail(), subject, body, false,
                         null, null);
+                log.info("sent new password for {} to {}", e.getOmeName(), e.getEmail());
             } catch (MailException me) {
                 log.error(me.getMessage());
                 throw helper.cancel(new ERR(), null, "mail-send-failed",

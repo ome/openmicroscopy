@@ -728,7 +728,12 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
         ofile.getDetails().setGroup(group);
         setMimetype(ofile);
 
-        return sf.getUpdateService().saveAndReturnObject(ofile);
+        ofile = sf.getUpdateService().saveAndReturnObject(ofile);
+        final String name = ofile.getName();
+        if (name.startsWith(fileRepoSecretKey)) {
+            ofile.setName(name.substring(fileRepoSecretKey.length()));
+        }
+        return ofile;
     }
 
     public String read(String path) throws IOException {

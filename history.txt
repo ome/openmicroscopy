@@ -1,9 +1,61 @@
 .. Content for this page should be opened as a PR against
 .. https://github.com/openmicroscopy/openmicroscopy/blob/develop/history.txt
-.. initially and transfered to this page via the autogen job
+.. initially and transferred to this page via the autogen job
 
 OMERO version history
 =====================
+
+5.4.7 (July 2018)
+-----------------
+
+This is a security release which also includes a number of
+bug fixes. **It is highly recommended that you upgrade your
+server**.
+
+See the :secvuln:`security advisories <>` page for details on
+2018-SV1, 2018-SV2 and 2018-SV3.
+
+Impacts of the security vulnerability fixes include:
+
+- omero.security.password_required=false no longer applies for
+  administrators: their correct password is always required
+- administrators can no longer change the password of other
+  administrators who are more privileged in any way
+- administrators can no longer reset their password and receive the new
+  one by e-mail: they must instead have another administrator who is at
+  least as privileged set a new password manually
+- cli: the session UUID has been removed from the standard output when
+  logging in but can still be retrieved using `bin/omero sessions key`
+
+Improvements include:
+
+-  web: fix loss of privileges when editing full admins
+-  web: fix exceptions on invalid connections
+-  web: fix CSS in group/user search element
+-  web: fix error when public user is disabled
+-  web: gray out user role when editing root user
+-  insight: permit open_with on original files
+-  read-only: reduce error logging for scripts and pixel data
+-  scripts: improve error messages for invalid MATLAB
+-  as well as various documentation improvements
+
+Sysadmin improvements include:
+
+-  log locale and time zone information on startup
+
+Developer updates include:
+
+-  cli: clean up "communicator not destroyed" logging
+-  cli: don't hang when incorrect password passed in a script
+-  java: add a map annotation example
+-  java: throw a clear exception when -1 is used for all groups
+-  web: fix @render_response when extending base templates
+-  matlab: contributions from Kouichi Nakamura for working with annotations
+
+This release also upgrades the version of Bio-Formats which OMERO
+uses to 5.9.0. **Note:** this is a significant upgrade and will
+invalidate the Bio-Formats Memoizer cache. Please see the upgrade
+guide for further information.
 
 5.4.6 (May 2018)
 ----------------
@@ -69,7 +121,7 @@ which remains at 5.7.3.
 
 This is a bug-fix release which also introduces some new functionality.
 
-It includes a security fix for :secvuln:`2017-SV6 <>`. **It is highly
+It includes a security fix for :secvuln:`2017-SV6 <2017-SV6-job-file-link>`. **It is highly
 recommended that you upgrade your server**.
 
 Improvements include:

@@ -338,6 +338,11 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
 
         final Principal principal = req.principal;
 
+        if (internal_uuid != null && internal_uuid.equals(principal.getName())) {
+            /* 2018-SV2 */
+            throw new AuthenticationException("to create a session one may not use the internal UUID as the principal's user name");
+        }
+
         // If username exists as session, then return that
         try {
             SessionContext context = cache.getSessionContext(principal.getName());

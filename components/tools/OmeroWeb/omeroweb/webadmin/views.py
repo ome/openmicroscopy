@@ -40,6 +40,7 @@ from omero_version import omero_version
 
 from django.template import loader as template_loader
 from django.core.urlresolvers import reverse
+from django.views.decorators.debug import sensitive_post_parameters
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext as Context
 from django.utils.translation import ugettext as _
@@ -616,6 +617,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     return context
 
 
+@sensitive_post_parameters('old_password', 'password',
+                           'confirmation', 'csrfmiddlewaretoken')
 @login_required()
 @render_response_admin()
 def manage_password(request, eid, conn=None, **kwargs):

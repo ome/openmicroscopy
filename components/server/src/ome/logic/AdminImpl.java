@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2017 University of Dundee. All rights reserved.
+ *   Copyright 2006-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -1177,6 +1177,14 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                     throw new AuthenticationException(
                             "User is authenticated by LDAP server you cannot reset this password.");
                 } else {
+                    final long systemGroupId = getSecurityRoles().getSystemGroupId();
+                    for (final ExperimenterGroup group : e.linkedExperimenterGroupList()) {
+                        if (group.getId() == systemGroupId) {
+                            throw new ApiUsageException(
+                                    "Cannot reset password of administrators. Have another administrator set the new password.");
+                        }
+                    }
+
                     String passwd = passwordUtil.generateRandomPasswd();
                     sendEmail(e, passwd);
                     // changeUserPassword checks adminOrPiOfUser
@@ -1187,7 +1195,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         });
     }
 
-    private boolean sendEmail(Experimenter e, String newPassword) {
+    private void sendEmail(Experimenter e, String newPassword) {
         // Create a thread safe "copy" of the template message and customize it
         SimpleMailMessage msg = new SimpleMailMessage(this.templateMessage);
         msg.setSubject("OMERO - Reset password");
@@ -1197,6 +1205,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 + newPassword);
         try {
             this.mailSender.send(msg);
+            getBeanHelper().getLogger().info("sent new password for {} to {}", e.getOmeName(), e.getEmail());
         } catch (Exception ex) {
             throw new RuntimeException(
                     "Exception: "
@@ -1208,7 +1217,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                             + ". Please turn on the debug "
                             + "mode in omero.properties by the: omero.mail.debug=true");
         }
-        return true;
     }
     
     // ~ Password access
@@ -1241,7 +1249,14 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed({"user", "HasPassword"})
     @Transactional(readOnly = false)
     public void changeUserPassword(final String user, final String newPassword) {
-        adminOrPiOfUser(userProxy(user));
+        final Experimenter targetUser = userProxy(user);
+        adminOrPiOfUser(targetUser);
+        final Set<AdminPrivilege> myPrivileges = getCurrentAdminPrivilegesForSession();
+        for (final AdminPrivilege targetPrivilege : getAdminPrivileges(targetUser)) {
+            if (!myPrivileges.contains(targetPrivilege)) {
+                throw new SecurityViolation("Cannot change the password of a more privileged user.");
+            }
+        }
         _changePassword(user, newPassword);
     }
 

@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2016 University of Dundee. All rights reserved.
+ *   Copyright 2006-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -567,7 +567,7 @@ public interface IAdmin extends ServiceInterface {
      * Can be used after repeated {@link AuthenticationException} instances are
      * thrown, to request that an email with a temporary password be sent. The
      * given email must match the email for the user listed under the name
-     * argument.
+     * argument. The user must not be an administrator.
      * 
      * Does not require a session to be active.
      * 
