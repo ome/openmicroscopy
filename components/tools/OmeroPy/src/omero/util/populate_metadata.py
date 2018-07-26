@@ -87,6 +87,7 @@ Examples:
 Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
     sys.exit(2)
 
+
 # Global thread pool for use by workers
 thread_pool = None
 
@@ -100,8 +101,8 @@ IMAGE_NAME_COLUMN = 'Image Name'
 
 COLUMN_TYPES = {
     'plate': PlateColumn, 'well': WellColumn, 'image': ImageColumn,
-    'roi': RoiColumn, 'd': DoubleColumn, 'l': LongColumn, 's': StringColumn,
-    'b': BoolColumn
+    'dataset': DatasetColumn, 'roi': RoiColumn,
+    'd': DoubleColumn, 'l': LongColumn, 's': StringColumn, 'b': BoolColumn
 }
 
 REGEX_HEADER_SPECIFIER = r'# header '
@@ -134,7 +135,7 @@ class HeaderResolver(object):
     }
 
     project_keys = {
-        'dataset': DatasetColumn,
+        'dataset': StringColumn,  # DatasetColumn
         'dataset_name': StringColumn,
         'image': ImageColumn,
         'image_name': StringColumn,
@@ -242,11 +243,19 @@ class HeaderResolver(object):
             else:
                 try:
                     keys = getattr(self, "%s_keys" % klass)
-                    column = keys[header_as_lower](
-                        name, description, list())
+                    log.debug("Adding keys %r" % keys)
+                    if keys[header_as_lower] is StringColumn:
+                        column = keys[header_as_lower](
+                            name, description,
+                            self.DEFAULT_COLUMN_SIZE, list())
+                    else:
+                        column = keys[header_as_lower](
+                            name, description, list())
                 except KeyError:
+                    log.debug("Adding string column %r" % name)
                     column = StringColumn(
                         name, description, self.DEFAULT_COLUMN_SIZE, list())
+            log.debug("New column %r" % column)
             columns.append(column)
         append = []
         for column in columns:
@@ -261,7 +270,7 @@ class HeaderResolver(object):
                               self.DEFAULT_COLUMN_SIZE, list()))
             # Currently hard-coded, but "if image name, then add image id"
             if column.name == IMAGE_NAME_COLUMN:
-                append.append(ImageColumn("image", '', list()))
+                append.append(ImageColumn("Image", '', list()))
         columns.extend(append)
         self.columns_sanity_check(columns)
         return columns
@@ -288,8 +297,13 @@ class ValueResolver(object):
         q = "select x.details.group.id from %s x where x.id = %d " % (
             self.target_type, self.target_id
         )
-        self.target_group = unwrap(
-            self.client.sf.getQueryService().projection(q, None))
+        rows = unwrap(
+            self.client.sf.getQueryService().projection(
+                q, None, {'omero.group': '-1'}))
+        if rows is None or len(rows) != 1:
+            raise MetadataError(
+                "Cannot find %s:%d" % (self.target_type, self.target_id))
+        self.target_group = rows[0][0]
         # The goal is to make this the only instance of
         # a if/elif/else block on the target_class. All
         # logic should be placed in a the concrete wrapper
@@ -333,18 +347,43 @@ class ValueResolver(object):
             if len(self.wrapper.images_by_id) == 1:
                 images_by_id = self.wrapper.images_by_id.values()[0]
             else:
-                for column, plate in row:
+                for column, column_value in row:
                     if column.__class__ is PlateColumn:
-                        images_by_id = self.images_by_id[
-                            self.plates_by_name[plate].id.val
+                        images_by_id = self.wrapper.images_by_id[
+                            self.wrapper.plates_by_name[column_value].id.val
                         ]
                         log.debug(
-                            "Got plate %i", self.plates_by_name[plate].id.val
+                            "Got plate %i",
+                            self.wrapper.plates_by_name[column_value].id.val
                         )
-                    break
+                        break
+                    elif column.name.lower() == "dataset name":
+                        # DatasetColumn unimplemented at the momnet
+                        # We can still access column names though
+                        images_by_id = self.wrapper.images_by_id[
+                            self.wrapper.datasets_by_name[column_value].id.val
+                        ]
+                        log.debug(
+                            "Got dataset %i",
+                            self.wrapper.datasets_by_name[column_value].id.val
+                        )
+                        break
+                    elif column.name.lower() == "dataset":
+                        # DatasetColumn unimplemented at the momnet
+                        # We can still access column names though
+                        images_by_id = self.wrapper.images_by_id[
+                            self.wrapper.datasets_by_id[
+                                int(column_value)].id.val
+                        ]
+                        log.debug(
+                            "Got dataset %i",
+                            self.wrapper.datasets_by_id[
+                                int(column_value)].id.val
+                        )
+                        break
             if images_by_id is None:
                 raise MetadataError(
-                    'Unable to locate Plate column in Row: %r' % row
+                    'Unable to locate Parent column in Row: %r' % row
                 )
             try:
                 return images_by_id[long(value)].id.val
@@ -356,6 +395,9 @@ class ValueResolver(object):
             return self.wrapper.resolve_well(column, row, value)
         if PlateColumn is column_class:
             return self.wrapper.resolve_plate(column, row, value)
+        # Prepared to handle DatasetColumn
+        if DatasetColumn is column_class:
+            return self.wrapper.resolve_dataset(column, row, value)
         if column_as_lower in ('row', 'column') \
            and column_class is LongColumn:
             try:
@@ -650,7 +692,10 @@ class DatasetWrapper(PDIWrapper):
         self._load()
 
     def get_image_id_by_name(self, iname, dname=None):
-        return self.images_by_name[iname]
+        return self.images_by_name[iname].id.val
+
+    def get_image_name_by_id(self, iid, did):
+        return self.images_by_id[did][iid].name.val
 
     def _load(self):
         query_service = self.client.getSession().getQueryService()
@@ -667,12 +712,12 @@ class DatasetWrapper(PDIWrapper):
         data = list()
         while True:
             parameters.page(len(data), 1000)
-            rv = unwrap(query_service.projection((
-                'select distinct i.id, i.name from Dataset as d '
+            rv = query_service.findAllByQuery((
+                'select distinct i from Dataset as d '
                 'join d.imageLinks as l '
                 'join l.child as i '
                 'where d.id = :id order by i.id desc'),
-                parameters, {'omero.group': '-1'}))
+                parameters, {'omero.group': '-1'})
             if len(rv) == 0:
                 break
             else:
@@ -680,13 +725,17 @@ class DatasetWrapper(PDIWrapper):
         if not data:
             raise MetadataError('Could not find target object!')
 
-        for iid, iname in data:
-            self.images_by_id[iid] = iname
+        images_by_id = dict()
+        for image in data:
+            iname = image.name.val
+            iid = image.id.val
+            images_by_id[iid] = image
             if iname in self.images_by_name:
                 raise Exception("Image named %s(id=%d) present. (id=%s)" % (
                     iname, self.images_by_name[iname], iid
                 ))
-            self.images_by_name[iname] = iid
+            self.images_by_name[iname] = image
+        self.images_by_id[self.target_object.id.val] = images_by_id
         log.debug('Completed parsing dataset: %s' % self.target_name)
 
 
@@ -694,12 +743,24 @@ class ProjectWrapper(PDIWrapper):
 
     def __init__(self, value_resolver):
         super(ProjectWrapper, self).__init__(value_resolver)
-        self.graph_by_id = defaultdict(lambda: dict())
-        self.graph_by_name = defaultdict(lambda: dict())
+        self.images_by_id = defaultdict(lambda: dict())
+        self.images_by_name = defaultdict(lambda: dict())
+        self.datasets_by_id = dict()
+        self.datasets_by_name = dict()
         self._load()
 
     def get_image_id_by_name(self, iname, dname=None):
-        return self.graph_by_name[dname][iname][2]
+        return self.images_by_name[dname][iname].id.val
+
+    def get_image_name_by_id(self, iid, did=None):
+        return self.images_by_id[did][iid].name.val
+
+    def resolve_dataset(self, column, row, value):
+        try:
+            return self.datasets_by_name[value].id.val
+        except KeyError:
+            log.warn('Project is missing dataset: %s' % value)
+            return Skip()
 
     def _load(self):
         query_service = self.client.getSession().getQueryService()
@@ -717,7 +778,7 @@ class ProjectWrapper(PDIWrapper):
         while True:
             parameters.page(len(data), 1000)
             rv = unwrap(query_service.projection((
-                'select distinct d.id, d.name, i.id, i.name '
+                'select distinct d, i '
                 'from Project p '
                 'join p.datasetLinks as pdl '
                 'join pdl.child as d '
@@ -733,9 +794,12 @@ class ProjectWrapper(PDIWrapper):
             raise MetadataError('Could not find target object!')
 
         seen = dict()
-        for row in data:
-            did, dname, iid, iname = row
-
+        for dataset, image in data:
+            did = dataset.id.val
+            dname = dataset.name.val
+            iid = image.id.val
+            iname = image.name.val
+            log.info("Adding dataset:%d image:%s" % (did, iid))
             if dname in seen and seen[dname] != did:
                 raise Exception("Duplicate datasets: '%s' = %s, %s" % (
                     dname, seen[dname], did
@@ -750,8 +814,10 @@ class ProjectWrapper(PDIWrapper):
             else:
                 seen[ikey] = iid
 
-            self.graph_by_id[did][iid] = row
-            self.graph_by_name[dname][iname] = row
+            self.images_by_id[did][iid] = image
+            self.images_by_name[did][iname] = image
+            self.datasets_by_id[did] = dataset
+            self.datasets_by_name[dname] = dataset
         log.debug('Completed parsing project: %s' % self.target_object.id.val)
 
 
@@ -892,8 +958,10 @@ class ParsingContext(object):
         plate_name_column = None
         image_column = None
         image_name_column = None
+        resolve_image_names = False
+        resolve_image_ids = False
         for column in self.columns:
-            columns_by_name[column.name] = column
+            columns_by_name[column.name.lower()] = column
             if column.__class__ is PlateColumn:
                 log.warn("PlateColumn is unimplemented")
             elif column.__class__ is WellColumn:
@@ -904,9 +972,18 @@ class ParsingContext(object):
                 plate_name_column = column
             elif column.name == IMAGE_NAME_COLUMN:
                 image_name_column = column
+                log.debug("Image name column len:%d" % len(column.values))
+                if len(column.values) > 0:
+                    resolve_image_ids = True
+                    log.debug("Resolving Image Ids")
             elif column.__class__ is ImageColumn:
                 image_column = column
+                log.debug("Image column len:%d" % len(column.values))
+                if len(column.values) > 0:
+                    resolve_image_names = True
+                    log.debug("Resolving Image Ids")
 
+        log.debug("Column by name:%r" % columns_by_name)
         if well_name_column is None and plate_name_column is None \
                 and image_name_column is None:
             log.info('Nothing to do during post processing.')
@@ -920,8 +997,8 @@ class ParsingContext(object):
                 try:
                     well_id = well_column.values[i]
                     plate = None
-                    if "Plate" in columns_by_name:  # FIXME
-                        plate = columns_by_name["Plate"].values[i]
+                    if "plate" in columns_by_name:  # FIXME
+                        plate = columns_by_name["plate"].values[i]
                     v = self.value_resolver.get_well_name(well_id, plate)
                 except KeyError:
                     log.warn(
@@ -935,30 +1012,60 @@ class ParsingContext(object):
 
             if image_name_column is not None and (
                     DatasetI is target_class or
-                    ProjectI is target_class):
+                    ProjectI is target_class) and \
+                    resolve_image_names and not resolve_image_ids:
+                iname = ""
+                try:
+                    log.debug(image_name_column)
+                    iid = image_column.values[i]
+                    did = self.target_object.id.val
+                    if "dataset name" in columns_by_name:
+                        dname = columns_by_name["dataset name"].values[i]
+                        did = self.value_resolver.wrapper.datasets_by_name[
+                            dname].id.val
+                    elif "dataset" in columns_by_name:
+                        did = int(columns_by_name["dataset"].values[i])
+                    log.debug("Using Dataset:%d" % did)
+                    iname = self.value_resolver.get_image_name_by_id(
+                        iid, did)
+                except KeyError:
+                    log.warn(
+                        "%d not found in image ids" % iid)
+                assert i == len(image_name_column.values)
+                image_name_column.values.append(iname)
+                image_name_column.size = max(
+                    image_name_column.size, len(iname))
+            elif image_name_column is not None and (
+                    DatasetI is target_class or
+                    ProjectI is target_class) and \
+                    resolve_image_ids and not resolve_image_names:
                 iid = -1
                 try:
+                    log.debug(image_column)
                     iname = image_name_column.values[i]
-                    did = None
-                    if "Dataset Name" in columns_by_name:  # FIXME
-                        did = columns_by_name["Dataset Name"].values[i]
+                    did = self.target_object.id.val
+                    if "dataset name" in columns_by_name:
+                        dname = columns_by_name["dataset name"].values[i]
+                        did = self.value_resolver.wrapper.datasets_by_name[
+                            dname].id.val
+                    elif "dataset" in columns_by_name:
+                        did = int(columns_by_name["dataset"].values[i])
+                    log.debug("Using Dataset:%d" % did)
                     iid = self.value_resolver.get_image_id_by_name(
                         iname, did)
                 except KeyError:
                     log.warn(
-                        "%s not found in image names" % iname)
+                        "%d not found in image ids" % iid)
                 assert i == len(image_column.values)
                 image_column.values.append(iid)
-                image_name_column.size = max(
-                    image_name_column.size, len(iname))
             elif image_name_column is not None and (
                     ScreenI is target_class or
                     PlateI is target_class):
                 iid = image_column.values[i]
                 log.info("Checking image %s", iid)
                 pid = None
-                if 'Plate' in columns_by_name:
-                    pid = columns_by_name['Plate'].values[i]
+                if 'plate' in columns_by_name:
+                    pid = columns_by_name['plate'].values[i]
                 iname = self.value_resolver.get_image_name_by_id(iid, pid)
                 image_name_column.values.append(iname)
                 image_name_column.size = max(
@@ -968,7 +1075,7 @@ class ParsingContext(object):
                 log.info('Missing image name column, skipping.')
 
             if plate_name_column is not None:
-                plate = columns_by_name['Plate'].values[i]   # FIXME
+                plate = columns_by_name['plate'].values[i]   # FIXME
                 v = self.value_resolver.get_plate_name_by_id(plate)
                 plate_name_column.size = max(plate_name_column.size, len(v))
                 plate_name_column.values.append(v)
@@ -1679,6 +1786,8 @@ def parse_target_object(target_object):
     type, id = target_object.split(':')
     if 'Dataset' == type:
         return DatasetI(long(id), False)
+    if 'Project' == type:
+        return ProjectI(long(id), False)
     if 'Plate' == type:
         return PlateI(long(id), False)
     if 'Screen' == type:
