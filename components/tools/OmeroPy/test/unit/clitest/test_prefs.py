@@ -41,8 +41,11 @@ class TestPrefs(object):
     def config(self):
         return ConfigXml(filename=str(self.p))
 
-    def assertStdoutStderr(self, capsys, out='', err=''):
+    def assertStdoutStderr(self, capsys, out='', err='', strip_warning=False):
         o, e = capsys.readouterr()
+        if strip_warning:
+            assert(e.startswith('warning: '))
+            e = '\n'.join(e.split('\n')[1:])
         assert (o.strip() == out and
                 e.strip() == err)
 
@@ -136,9 +139,11 @@ class TestPrefs(object):
         self.invoke("get --show-password")
         self.assertStdoutStderr(capsys, out=output_with_password)
         self.invoke("list")
-        self.assertStdoutStderr(capsys, out=output_hidden_password)
+        self.assertStdoutStderr(capsys, out=output_hidden_password,
+                                strip_warning=True)
         self.invoke("list --show-password")
-        self.assertStdoutStderr(capsys, out=output_with_password)
+        self.assertStdoutStderr(capsys, out=output_with_password,
+                                strip_warning=True)
 
     @pytest.mark.parametrize('argument', ['A=B', 'A= B'])
     def testSetFails(self, capsys, argument):
@@ -372,7 +377,7 @@ class TestPrefs(object):
         for k, v in data[0].items():
             self.invoke("set %s %s" % (k, v))
         self.invoke("list")
-        self.assertStdoutStderr(capsys, out=data[1])
+        self.assertStdoutStderr(capsys, out=data[1], strip_warning=True)
 
     @pytest.mark.parametrize("data", (
         ("omero.a=b\nomero.c=d\n##ignore=me\n",
