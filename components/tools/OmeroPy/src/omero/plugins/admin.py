@@ -1783,7 +1783,7 @@ present, the user will enter a console""")
         client.submit(req).loop(100, 100)
 
     def sessionlist(self, args):
-        self.ctx.err('warning: "admin sessionlist" is deprecated, '
+        self.ctx.err('WARNING: "admin sessionlist" is deprecated, '
                      'use "sessions who" instead')
         client = self.ctx.conn(args)
         service = client.sf.getQueryService()
