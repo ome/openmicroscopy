@@ -140,7 +140,7 @@ class PrefsControl(WriteableConfigControl):
 
         list = parser.add(
             sub, self.list,
-            "List all key-value pairs from the current profile")
+            "List all key-value pairs from the current profile (deprecated)")
         list.set_defaults(func=self.list)
 
         get = parser.add(
