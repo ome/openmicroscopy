@@ -44,7 +44,7 @@ class TestPrefs(object):
     def assertStdoutStderr(self, capsys, out='', err='', strip_warning=False):
         o, e = capsys.readouterr()
         if strip_warning:
-            assert(e.startswith('warning: '))
+            assert(e.startswith('WARNING: '))
             e = '\n'.join(e.split('\n')[1:])
         assert (o.strip() == out and
                 e.strip() == err)
