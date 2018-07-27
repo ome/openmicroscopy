@@ -280,7 +280,7 @@ class PrefsControl(WriteableConfigControl):
 
     @with_config
     def list(self, args, config):
-        self.ctx.err('warning: "config list" is deprecated, '
+        self.ctx.err('WARNING: "config list" is deprecated, '
                      'use "config get" instead')
         args.KEY = []
         self.get(args, config)
