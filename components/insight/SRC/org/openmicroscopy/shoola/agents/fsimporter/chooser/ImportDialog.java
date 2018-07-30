@@ -935,7 +935,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private JComponent buildSkipFlagsComponent() {
 		skipComputePanel = new SkipComputePanel();
 		JPanel content = new JPanel();
-		content.setBorder(BorderFactory.createTitledBorder("Skip Compute"));
+		content.setBorder(BorderFactory.createTitledBorder(TEXT_SKIP_COMPUTE));
 		content.add(skipComputePanel);
 		return UIUtilities.buildComponentPanel(content);
 	}
@@ -1742,4 +1742,3 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	}
 
 }
-

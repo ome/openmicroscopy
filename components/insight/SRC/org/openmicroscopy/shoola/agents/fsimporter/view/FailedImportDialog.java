@@ -28,7 +28,9 @@ import java.awt.event.ActionListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -53,7 +55,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class FailedImportDialog extends JDialog {
 
     /** Holds the error logs (key: file name) */
-    private Map<String, String> errors = new HashMap<String, String>();
+    private Map<String, String> errors = new TreeMap<String, String>();
 
     /** Maximum broken import files to list */
     private final int MAX_ENTRIES = 50;
@@ -76,7 +78,7 @@ public class FailedImportDialog extends JDialog {
                     .getAbsolutePath(), 60), UIUtilities.printErrorText(obj
                     .getException()));
         }
-
+        
         buildUI();
     }
 

@@ -460,8 +460,6 @@ public class ImportableObject
 		}
 		return null; 
 	}
-
-
 	
 	/**
 	 * Returns the collection of tags.

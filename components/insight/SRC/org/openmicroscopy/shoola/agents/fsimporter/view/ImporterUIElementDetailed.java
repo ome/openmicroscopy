@@ -71,24 +71,8 @@ class ImporterUIElementDetailed
 	extends ImporterUIElement
 {
 	
-	/** Description of the component. */
-	private static final String DESCRIPTION = 
-		"Closing will cancel imports that have not yet started.";
-	
-	/** Text indicating to only show the failure.*/
-	private static final String SHOW_FAILURE = "Show Failed";
-	
-	/** Text indicating to show all the imports.*/
-	private static final String SHOW_ALL = "Show All";
-	
 	/** The columns for the layout of the {@link #entries}. */
 	private static final double[] COLUMNS = {TableLayout.FILL};
-	
-	/** The message to display in the header.*/
-	private static final String MESSAGE = 
-			"When upload is complete, the import" +CommonsLangUtils.LINE_SEPARATOR+
-			"window and OMERO session can be closed." +CommonsLangUtils.LINE_SEPARATOR+
-			"Reading will continue on the server.";
 
 	/** Component hosting the entries. */
 	private JPanel	entries;

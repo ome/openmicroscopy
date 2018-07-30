@@ -238,7 +238,8 @@ class ImporterUIElementLight extends ImporterUIElement {
 
         if (super.countFailure > 0) {
             super.filterButton.setEnabled(true);
-        }    }
+        }
+    }
 
     @Override
     void showFailures() {

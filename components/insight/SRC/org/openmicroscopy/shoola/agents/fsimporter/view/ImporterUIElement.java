@@ -91,13 +91,13 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements PropertyChangeListener {
 
     /** Description of the component. */
-    private static final String DESCRIPTION = "Closing will cancel imports that have not yet started.";
+    static final String DESCRIPTION = "Closing will cancel imports that have not yet started.";
 
     /** Text indicating to only show the failure. */
-    private static final String SHOW_FAILURE = "Show Failed";
+    static final String SHOW_FAILURE = "Show Failed";
 
     /** Text indicating to show all the imports. */
-    private static final String SHOW_ALL = "Show All";
+    static final String SHOW_ALL = "Show All";
 
     /** The columns for the layout of the {@link #entries}. */
     private static final double[] COLUMNS = { TableLayout.FILL };
@@ -122,7 +122,7 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
     }
 
     /** The message to display in the header. */
-    private static final String MESSAGE = "When upload is complete, the import"
+    static final String MESSAGE = "When upload is complete, the import"
             + CommonsLangUtils.LINE_SEPARATOR
             + "window and OMERO session can be closed."
             + CommonsLangUtils.LINE_SEPARATOR
@@ -456,7 +456,6 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
     {
         StringBuffer buffer = new StringBuffer();
         int n = countUploaded-countUploadFailure-countCancelled;
-        if (n < 0) n = 0;
         buffer.append(n);
         buffer.append(" out of ");
         buffer.append(totalToImport);

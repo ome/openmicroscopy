@@ -269,14 +269,6 @@ public interface FileImportComponentI {
      */
     public abstract boolean hasToRefreshTree();
 
-    /**
-     * Returns <code>true</code> if some files were imported, 
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    public abstract boolean toRefresh();
-
     /** Indicates the import has been cancelled. */
     public abstract void cancelLoading();
 

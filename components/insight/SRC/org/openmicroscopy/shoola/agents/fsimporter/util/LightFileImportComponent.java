@@ -83,7 +83,7 @@ public class LightFileImportComponent implements PropertyChangeListener,
     /** Indicates the status of the on-going import. */
     private Status status;
 
-    /** Keep tracks of the components. */
+    /** Keep track of the components. */
     private Map<File, LightFileImportComponent> components;
 
     /** The data object corresponding to the folder. */
@@ -97,9 +97,6 @@ public class LightFileImportComponent implements PropertyChangeListener,
 
     /** The node of reference if any. */
     private Object refNode;
-
-    /** The object where the data have been imported. */
-    private DataObject containerObject;
 
     /** The parent of the node. */
     private FileImportComponentI parent;
@@ -304,22 +301,6 @@ public class LightFileImportComponent implements PropertyChangeListener,
         this.data = data;
         this.dataset = dataset;
         this.refNode = refNode;
-        if (refNode != null && refNode instanceof TreeImageDisplay) {
-            TreeImageDisplay n = (TreeImageDisplay) refNode;
-            Object ho = n.getUserObject();
-            if (ho instanceof DatasetData || ho instanceof ProjectData
-                    || ho instanceof ScreenData) {
-                containerObject = (DataObject) ho;
-            }
-            return;
-        }
-        if (dataset != null) {
-            containerObject = dataset;
-            return;
-        }
-        if (data instanceof ScreenData) {
-            containerObject = data;
-        }
     }
 
     /*
@@ -495,7 +476,7 @@ public class LightFileImportComponent implements PropertyChangeListener,
                     while (i.hasNext()) {
                         fc = i.next();
                         list = fc.getImportErrors();
-                        if (!CollectionUtils.isEmpty(list))
+                        if (CollectionUtils.isNotEmpty(list))
                             l.addAll(list);
                     }
                 }
@@ -702,16 +683,12 @@ public class LightFileImportComponent implements PropertyChangeListener,
             return resultIndex != ImportStatus.QUEUED;
         if (components == null)
             return false;
-        Collection<LightFileImportComponent> values = components.values();
-        int count = 0;
         synchronized (components) {
-            Iterator<LightFileImportComponent> i = values.iterator();
-            while (i.hasNext()) {
-                if (i.next().hasImportStarted())
-                    count++;
-            }
+            for (LightFileImportComponent c : components.values()) 
+                if (!c.hasImportStarted())
+                    return false;
         }
-        return count == components.size();
+        return true;
     }
 
     /*
@@ -817,37 +794,8 @@ public class LightFileImportComponent implements PropertyChangeListener,
         if (components == null)
             return false;
         if (importable.isFolderAsContainer() && type != ContainerType.PROJECT) {
-            Collection<LightFileImportComponent> values = components.values();
-            synchronized (components) {
-                Iterator<LightFileImportComponent> i = values.iterator();
-                while (i.hasNext()) {
-                    if (i.next().toRefresh())
-                        return true;
-                }
-            }
-            return false;
+            return true;
         }
-        return true;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI
-     * #toRefresh()
-     */
-    @Override
-    public boolean toRefresh() {
-        /*
-         * if (file.isFile()) { if (deleteButton.isVisible()) return false; else
-         * if (errorBox.isVisible()) return !(errorBox.isEnabled() &&
-         * errorBox.isSelected()); return true; } if (components == null) return
-         * false; Iterator<FileImportComponent> i =
-         * components.values().iterator(); int count = 0; while (i.hasNext()) {
-         * if (i.next().hasFailuresToSend()) count++; } return components.size()
-         * != count;
-         */
         return true;
     }
 
@@ -1108,11 +1056,6 @@ public class LightFileImportComponent implements PropertyChangeListener,
                     evt.getNewValue());
         } else if (Status.CONTAINER_FROM_FOLDER_PROPERTY.equals(name)) {
             containerFromFolder = (DataObject) evt.getNewValue();
-            if (containerFromFolder instanceof DatasetData) {
-                containerObject = containerFromFolder;
-            } else if (containerFromFolder instanceof ScreenData) {
-                containerObject = containerFromFolder;
-            }
         } else if (Status.DEBUG_TEXT_PROPERTY.equals(name)) {
             firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
         } else if (ThumbnailLabel.VIEW_IMAGE_PROPERTY.equals(name)) {

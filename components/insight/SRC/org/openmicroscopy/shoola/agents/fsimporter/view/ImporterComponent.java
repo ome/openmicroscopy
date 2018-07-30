@@ -51,7 +51,6 @@ import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
-
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;

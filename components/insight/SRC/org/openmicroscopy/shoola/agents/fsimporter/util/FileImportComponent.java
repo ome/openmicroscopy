@@ -77,14 +77,13 @@ import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 
-import omero.gateway.SecurityContext;
-
 import org.openmicroscopy.shoola.env.data.util.Status;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import omero.gateway.SecurityContext;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.FileAnnotationData;
@@ -1161,15 +1160,12 @@ public class FileImportComponent
 	{
 		if (getFile().isFile()) return resultIndex != ImportStatus.QUEUED;
 		if (components == null) return false;
-		Collection<FileImportComponent> values =  components.values();
-		int count = 0;
         synchronized (components) {
-            Iterator<FileImportComponent> i = values.iterator();
-    		while (i.hasNext()) {
-    			if (i.next().hasImportStarted()) count++;
-    		}
+            for (FileImportComponent c : components.values()) 
+                if (!c.hasImportStarted())
+                    return false;
         }
-		return count == components.size();
+        return true;
 	}
 
 	/* (non-Javadoc)
@@ -1302,41 +1298,8 @@ public class FileImportComponent
 		}
 		if (components == null) return false;
 		if (importable.isFolderAsContainer() && type != ContainerType.PROJECT) {
-		    Collection<FileImportComponent> values =  components.values();
-            synchronized (components) {
-                Iterator<FileImportComponent> i = values.iterator();
-    			while (i.hasNext()) {
-    				if (i.next().toRefresh()) 
-    					return true;
-    			}
-            }
-			return false;
+		    return true;
 		}
-		return true;
-	}
-	
-	/* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#toRefresh()
-     */
-	@Override
-    public boolean toRefresh()
-	{
-		/*
-		if (file.isFile()) {
-			if (deleteButton.isVisible()) return false;
-			else if (errorBox.isVisible())
-				return !(errorBox.isEnabled() && errorBox.isSelected());
-			return true;
-		}
-		if (components == null) return false;
-		Iterator<FileImportComponent> i = components.values().iterator();
-		int count = 0;
-		while (i.hasNext()) {
-			if (i.next().hasFailuresToSend()) 
-				count++;
-		}
-		return components.size() != count;
-		*/
 		return true;
 	}
 
