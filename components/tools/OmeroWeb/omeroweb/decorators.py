@@ -84,9 +84,7 @@ class ConnCleaningHttpResponse(StreamingHttpResponse):
         try:
             logger.debug('Closing OMERO connection in %r' % self)
             if self.conn is not None and self.conn.c is not None:
-                for v in self.conn._proxies.values():
-                    v.close()
-                self.conn.c.closeSession()
+                self.conn.close(hard=False)
         except:
             logger.error('Failed to clean up connection.', exc_info=True)
 
