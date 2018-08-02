@@ -387,12 +387,6 @@ public interface FileImportComponentI {
     public abstract void propertyChange(PropertyChangeEvent evt);
 
     /**
-     * Returns the name of the file and group's id and user's id.
-     * @see #toString()
-     */
-    public abstract String toString();
-
-    /**
      * Add a PropertyChangeListener
      * @param l The PropertyChangeListener
      */

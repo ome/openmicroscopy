@@ -1075,4 +1075,20 @@ public class LightFileImportComponent implements PropertyChangeListener,
             firePropertyChange(Status.STEP_PROPERTY, evt.getOldValue(), evt.getNewValue());
         }
     }
+    
+    /**
+     * Returns the name of the file and group's id and user's id. 
+     * (This String is used as reference to find a specific LightFileImportComponent
+     * (see {@link LightFileImportComponent#components}) again, don't remove!)
+     */
+    @Override
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        buf.append(getFile().getAbsolutePath());
+        if (importable.getGroup() != null)
+            buf.append("_" + importable.getGroup().getId());
+        if (importable.getUser() != null)
+            buf.append("_" + importable.getUser().getId());
+        return buf.toString();
+    }
 }

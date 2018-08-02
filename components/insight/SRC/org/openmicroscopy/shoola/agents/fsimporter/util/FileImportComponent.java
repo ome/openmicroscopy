@@ -76,7 +76,6 @@ import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
-
 import org.openmicroscopy.shoola.env.data.util.Status;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -1541,4 +1540,20 @@ public class FileImportComponent
 						this);
 		}
 	}
+	
+    /**
+     * Returns the name of the file and group's id and user's id. 
+     * (This String is used as reference to find a specific FileImportComponent
+     * (see {@link FileImportComponent#components}) again, don't remove!)
+     */
+    @Override
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        buf.append(getFile().getAbsolutePath());
+        if (importable.getGroup() != null)
+            buf.append("_" + importable.getGroup().getId());
+        if (importable.getUser() != null)
+            buf.append("_" + importable.getUser().getId());
+        return buf.toString();
+    }
 }
