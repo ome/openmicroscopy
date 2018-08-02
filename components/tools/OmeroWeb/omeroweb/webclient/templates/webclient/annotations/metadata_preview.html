@@ -185,6 +185,12 @@
               setModel(OME.preview_viewport, $(this).get(0).checked?'g':'c');
             });
 
+            // handle 'Active' checkbox
+            $('#showactive').click(function(e){
+              $("#preview_tab #rdef-active-area table tr.rdef-window:not(:has(button.pressed))")
+                  .css({'display': this.checked? 'none' : ''});
+            });
+
             // Save settings
             $("#rdef-setdef-btn").click(function(){
               setImageDefaults(OME.preview_viewport, this, function() {
@@ -371,6 +377,7 @@
 	
 <!-- open-image link -->
 
+    <div>
 			<a id="preview_open_viewer"
         href="{% if share and not share.share.isOwned %}{% url 'web_image_viewer' share.share.id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}"
         class="btn silver btn_text" alt="View"
@@ -379,6 +386,7 @@
                 {% trans "Full viewer" %} 
 				</span>
 			</a>
+    </div>
 
     <div style="clear:both; margin-bottom: 3px"></div>
 
@@ -437,59 +445,67 @@
       </button></li>
     </ul>
 
-    <div id="rdef-postit">
-      <div id="rdef-active-area">
-        <input id="rd-wblitz-rmodel" type="checkbox" />
-        <label for="rd-wblitz-rmodel">Grayscale</label>
-        <div style="float:right {% if tiledImage %}; color:#bbb{%endif%}"
-          {% if tiledImage or share %}
-            title="Histogram not supported for tiled images or in share"
-          {%else%}
-            title="Show histogram of pixel intensities for selected channel"
-          {% endif %} >
-          <!-- histogram (not supported for Big images) -->
-          <input id="showhistogram" type="checkbox" {% if tiledImage or share %}disabled{% endif %}/>
-          <label for="showhistogram">Show Histogram</label>
+    <div id="rdef-container">
+      <div id="rdef-postit">
+        <div id="rdef-active-area">
+          <label title="Enable grayscale rendering mode">
+            <input id="rd-wblitz-rmodel" type="checkbox" />
+            Grayscale
+          </label>
+          <label title="Show only active channels">
+            <input id="showactive" type="checkbox" />
+            Active
+          </label>
+          <div style="float:right {% if tiledImage %}; color:#bbb{%endif%}"
+            {% if tiledImage or share %}
+              title="Histogram not supported for tiled images or in share"
+            {%else%}
+              title="Show histogram of pixel intensities for selected channel"
+            {% endif %} >
+            <!-- histogram (not supported for Big images) -->
+            <input id="showhistogram" type="checkbox" {% if tiledImage or share %}disabled{% endif %}/>
+            <label for="showhistogram">Show Histogram</label>
+          </div>
+          <div id="histogram" style="display:none; width: 100%; height: 125px; background:white; border: solid #ccc 1px; margin-bottom: 6px"></div>
+          <table cellspacing="0" style="font-size:0.9em">
+            <tr>
+            </tr>
+          </table>
         </div>
-        <div id="histogram" style="display:none; width: 100%; height: 125px; background:white; border: solid #ccc 1px; margin-bottom: 6px"></div>
-        <table cellspacing="0" style="font-size:0.9em">
-          <tr>
-          </tr>
-        </table>
       </div>
-    </div>
 
-    <ul>
-      <li>
-        <button id="rdef-minmax-btn" title="Each slider will be set to cover the min/max pixel intensities for that channel">
-          Min/Max
-        </button>
-        <button id="rdef-fullrange-btn" title="Each slider will be set to cover the full range of pixel intensities for the image">
-          Full Range
-        </button>
-        <button id="rdef-reset-btn" title="Applies the original imported settings for this image">
-          Imported
-        </button>
-      </li>
-
-      <hr class="thin-margin"/>
-
-      <h3 style="margin-bottom:2px; margin-top:4px">User Settings:</h3>
-
-      <li id='rdef-buttons'>
-        {% for rdef in rdefs %}
-          <button class='rdef {% if rdef.current %}clicked{% endif %}'
-            data-ownerid="{{ rdef.owner.id }}" data-rdid="{{ rdef.id }}">
-            <img class='rdef' src="
-{% if share.share.id and not share.share.isOwned %}{% url 'render_thumbnail'  manager.image.id share.share.id%}
-{% else %}{% url 'render_thumbnail' manager.image.id %}{% endif %}?rdefId={{ rdef.id }}"/><br>
-            <span {% ifequal manager.image.getDetails.owner.id.val rdef.owner.id %}class="owner"{% endifequal %}>
-              {{ rdef.owner.firstName }} {{ rdef.owner.lastName }}
-            </span>
+      <ul>
+        <li>
+          <button id="rdef-minmax-btn" title="Each slider will be set to cover the min/max pixel intensities for that channel">
+            Min/Max
           </button>
-        {% endfor %}
-      </li>
-    </ul>
+          <button id="rdef-fullrange-btn" title="Each slider will be set to cover the full range of pixel intensities for the image">
+            Full Range
+          </button>
+          <button id="rdef-reset-btn" title="Applies the original imported settings for this image">
+            Imported
+          </button>
+        </li>
+
+        <hr class="thin-margin"/>
+
+        <h3 style="margin-bottom:2px; margin-top:4px">User Settings:</h3>
+
+        <li id='rdef-buttons'>
+          {% for rdef in rdefs %}
+            <button class='rdef {% if rdef.current %}clicked{% endif %}'
+              data-ownerid="{{ rdef.owner.id }}" data-rdid="{{ rdef.id }}">
+              <img class='rdef' src="
+  {% if share.share.id and not share.share.isOwned %}{% url 'render_thumbnail'  manager.image.id share.share.id%}
+  {% else %}{% url 'render_thumbnail' manager.image.id %}{% endif %}?rdefId={{ rdef.id }}"/><br>
+              <span {% ifequal manager.image.getDetails.owner.id.val rdef.owner.id %}class="owner"{% endifequal %}>
+                {{ rdef.owner.firstName }} {{ rdef.owner.lastName }}
+              </span>
+            </button>
+          {% endfor %}
+        </li>
+      </ul>
+    </div>
 
 
 </div>
