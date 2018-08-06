@@ -47,9 +47,8 @@ class SkipComputePanel extends JPanel {
      * Text for checkboxes
      */
     private static final String TEXT_THUMBNAIL_GENERATION = "Thumbnail generation";
-    private static final String TEXT_MIN_MAX_COMPUTE = "Min/max compute";
-    private static final String TEXT_CHECKSUM_CHECKING = "Checksum checking";
-    private static final String TEXT_UPGRADE_CHECK = "Upgrade check for Bio-Formats";
+    private static final String TEXT_MIN_MAX_COMPUTE = "Min/max calculation";
+    private static final String TEXT_CHECKSUM_CHECKING = "Checksum verification";
 
     /**
      * Tooltips for checkboxes
@@ -73,7 +72,6 @@ class SkipComputePanel extends JPanel {
     private JCheckBox thumbGenCheckbox;
     private JCheckBox minMaxCheckBox;
     private JCheckBox checksumCheckBox;
-    private JCheckBox upgradeCheckCheckBox;
 
     private Map<String, Object> choices = new HashMap<String, Object>();
 
@@ -117,19 +115,9 @@ class SkipComputePanel extends JPanel {
         });
         checksumCheckBox.setSelected(false);
 
-        upgradeCheckCheckBox = new JCheckBox(TEXT_UPGRADE_CHECK);
-        upgradeCheckCheckBox.setToolTipText(TEXT_TOOLTIP_UPGRADE_SKIP);
-        upgradeCheckCheckBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                choices.put(ImportableObject.OPTION_UPGRADECHECK, !upgradeCheckCheckBox.isSelected());
-            }
-        });
-
         add(thumbGenCheckbox);
         add(minMaxCheckBox);
         add(checksumCheckBox);
-        add(upgradeCheckCheckBox);
     }
     
     /**

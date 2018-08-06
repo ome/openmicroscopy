@@ -702,7 +702,7 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
      * @return See above.
      */
     boolean isUploadComplete() {
-        return countUploaded == totalToImport;
+        return (countUploaded + countUploadFailure) == totalToImport;
     }
 
     /**

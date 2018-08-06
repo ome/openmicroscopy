@@ -183,7 +183,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private static final String TEXT_FILE_NAMING = "File Naming";
 
 	/** Text for metadata pane */
-	private static final String TEXT_SKIP_COMPUTE = "Skip Compute";
+	private static final String TEXT_SKIP_COMPUTE = "Skip Processing";
 
 	/** Text for metadata pane */
 	private static final String TEXT_METADATA_DEFAULTS = "Metadata Defaults";

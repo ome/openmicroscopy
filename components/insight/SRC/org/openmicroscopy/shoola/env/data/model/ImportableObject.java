@@ -180,9 +180,6 @@ public class ImportableObject
 	/** Option for calculating checksums, if not set default: true */
 	public static String OPTION_CHECKSUMS = "checksumAlgorithm";
 	
-	/** Option for checking for upgrades, if not set default: true */
-	public static String OPTION_UPGRADECHECK = "checkUpgrade";
-	
 	/** The collection of files to import. */
 	private List<ImportableFile> files;
 	
@@ -705,16 +702,6 @@ public class ImportableObject
     public boolean skipThumbnails() {
         Boolean option = (Boolean) skipChoices.get(OPTION_THUMBNAILS);
         return option != null && !option;
-    }
-
-    /**
-     * Check for upgrade, default: true
-     * 
-     * @return See above
-     */
-    public boolean getUpgradeCheck() {
-        Boolean option = (Boolean) skipChoices.get(OPTION_UPGRADECHECK);
-        return option == null || option;
     }
 
 }

@@ -5973,7 +5973,6 @@ class OMEROGateway
 		try {
             ImportConfig config = new ImportConfig();
             config.checksumAlgorithm.set(object.getChecksumAlgorithm());
-            config.checkUpgrade.set(object.getUpgradeCheck());
             if (object.skipThumbnails()) {
                 config.doThumbnails.set(Boolean.FALSE);
             }
