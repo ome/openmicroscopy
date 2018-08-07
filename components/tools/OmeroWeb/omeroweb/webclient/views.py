@@ -2902,10 +2902,10 @@ def get_original_file(request, fileId, download=False, conn=None, **kwargs):
 @login_required(doConnectionCleanup=False)
 def download_annotation(request, annId, conn=None, **kwargs):
     """ Returns the file annotation as an http response for download """
-    ann = conn.getObject("Annotation", annId)
+    ann = conn.getObject("FileAnnotation", annId)
     if ann is None:
         rsp = ConnCleaningHttpResponse(StringIO(
-            "Annotation does not exist (id:%s)." % (annId)), status=404)
+            "FileAnnotation does not exist (id:%s)." % (annId)), status=404)
         rsp.conn = conn
         return rsp
 
