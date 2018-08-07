@@ -588,6 +588,8 @@ class ImportControl(BaseControl):
             if isinstance(dry_run, (unicode, str)):
                 if dry_run.lower() != "false":
                     command_args.dry_run = dry_run
+            else:
+                command_args.dry_run = dry_run
 
         if "continue" in bulk:
             cont = True
