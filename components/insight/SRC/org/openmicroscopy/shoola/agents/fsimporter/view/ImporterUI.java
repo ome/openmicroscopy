@@ -567,8 +567,9 @@ class ImporterUI extends TopWindow
 	void setSelectedPane(ImporterUIElement element, boolean startImport)
 	{
 		int n = tabs.getComponentCount();
+		
 		if (n == 0 || element == null) return;
-		if (tabs.getSelectedComponent() == element) return;
+		
 		Component[] components = tabs.getComponents();
 		int index = -1;
 		for (int i = 0; i < components.length; i++) {
@@ -577,6 +578,7 @@ class ImporterUI extends TopWindow
 				tabs.setSelectedComponent(element);
 			}
 		}
+		
 		if (startImport) {
 			Icon icon = element.startImport(tabs);
 			if (index >=0) tabs.setIconAt(index, icon);

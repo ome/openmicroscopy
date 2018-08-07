@@ -137,8 +137,8 @@ class ImporterUIElementLight extends ImporterUIElement {
         processed.setMinimum(0);
         processed.setStringPainted(false);
         
-        uploadBusy.setBusy(true);
-        processedBusy.setBusy(true);
+        uploadBusy.setBusy(false);
+        processedBusy.setBusy(false);
         
         setLayout(new BorderLayout(0, 0));
 
@@ -152,6 +152,7 @@ class ImporterUIElementLight extends ImporterUIElement {
         info.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(2, 2, 2, 2);
+        c.anchor = GridBagConstraints.ABOVE_BASELINE_LEADING;
 
         c.gridx = 0;
         c.gridy = 0;
@@ -219,9 +220,11 @@ class ImporterUIElementLight extends ImporterUIElement {
             uploadBusy.setText("Finished");
             uploadBusy.setBusy(false);
             uploadBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY));
-        } else
+        } else {
             uploadBusy.setText(uploaded + "/" + super.totalToImport);
-
+            uploadBusy.setBusy(true);
+        }
+        
         processed.setValue(complete);
         processed.setMaximum(super.totalToImport);
         if (complete == super.totalToImport) {
@@ -231,9 +234,10 @@ class ImporterUIElementLight extends ImporterUIElement {
         } else if (complete+super.countFailure == super.totalToImport) {
             processedBusy.setBusy(false);
             processedBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY_CANCEL));
-        }else 
+        }else  {
             processedBusy.setText(complete + "/" + super.totalToImport);
-
+            processedBusy.setBusy(true);
+        }
         errors.setText("" + super.countFailure);
 
         if (super.countFailure > 0) {
