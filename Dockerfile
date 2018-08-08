@@ -6,7 +6,7 @@
 
 # By default, building this dockerfile will use
 # the IMAGE argument below for the runtime image.
-ARG BUILD_IMAGE=openjdk
+ARG BUILD_IMAGE=openjdk:8
 
 # To build code with other runtimes
 # pass a build argument, e.g.:
