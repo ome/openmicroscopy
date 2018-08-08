@@ -34,11 +34,11 @@ from omero.util.concurrency import get_event
 class CmdCallback(omero.callbacks.CmdCallbackI):
 
     def __init__(self, client, handle):
-        super(CmdCallback, self).__init__(client, handle)
         self.t_lock = threading.RLock()
         self.t_steps = 0
         self.t_finished = 0
         self.t_event = get_event("CmdCallback")
+        super(CmdCallback, self).__init__(client, handle)
 
     def step(self, complete, total, current=None):
         self.t_lock.acquire()
