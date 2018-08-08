@@ -5881,8 +5881,7 @@ class OMEROGateway
         //FIXME: unclear why we would need to set these values on
         // both the ImportConfig and the ImportContainer.
         if (container != null) {
-        	 config.targetClass.set(container.getClass().getSimpleName());
-             config.targetId.set(container.getId().getValue());
+             config.target.set("omero.model.Dataset:"+container.getId().getValue());
              ic.setTarget(container);
         }
 
