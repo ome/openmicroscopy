@@ -5881,8 +5881,12 @@ class OMEROGateway
         //FIXME: unclear why we would need to set these values on
         // both the ImportConfig and the ImportContainer.
         if (container != null) {
-             config.target.set("omero.model.Dataset:"+container.getId().getValue());
-             ic.setTarget(container);
+            String name = container.getClass().getName();
+            if (name.endsWith("I")) {
+                name = name.substring(0, name.length()-1);
+            }
+            config.target.set(name+":"+container.getId().getValue());
+            ic.setTarget(container);
         }
 
         ic.setUserPixels(object.getPixelsSize());
