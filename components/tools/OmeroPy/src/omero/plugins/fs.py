@@ -1019,7 +1019,7 @@ Examples:
         import_time = ImportTime(self.ctx, client.sf.getQueryService())
         if args.fileset:
             if args.summary:
-                raise Exception("no summary if fileset provided")
+                self.ctx.die(28, "no summary if fileset provided")
             import_time.fileset_id = args.fileset.id
             import_time.get_cache()
             if not import_time.metrics:
@@ -1031,7 +1031,7 @@ Examples:
         elif args.summary:
             import_time.print_summary()
         else:
-            raise Exception("provide fileset or request summary")
+            self.ctx.die(29, "provide fileset or request summary")
 
 
 class ImportTime:
@@ -1082,7 +1082,7 @@ class ImportTime:
             self.ice_ctx)
 
         if not results:
-            raise Exception('Could not query for import log')
+            self.cli_ctx.die(30, 'Could not query for import log')
 
         upload_job_id = results[0][0].val
         upload_start = results[0][1].val
@@ -1107,7 +1107,7 @@ class ImportTime:
             self.ice_ctx)
 
         if not results:
-            raise Exception('Upload job is created but not yet updated.')
+            self.cli_ctx.die(31, 'Upload job is created but not yet updated.')
 
         upload_end = results[0][0].val
 
@@ -1131,7 +1131,7 @@ class ImportTime:
             self.ice_ctx)
 
         if not results or len(results) < 3:
-            raise Exception('Thumbnails step is not yet finished.')
+            self.cli_ctx.die(32, 'Thumbnails step is not yet finished.')
 
         metadata_before_id = results[0][0]
         pixeldata_before_id = results[1][0]
@@ -1162,7 +1162,7 @@ class ImportTime:
             self.ice_ctx)
 
         if not results:
-            raise Exception('Could not find images from metadata step.')
+            self.cli_ctx.die(33, 'Could not find images from metadata step.')
 
         set_id_end = results[0][0].val
 
