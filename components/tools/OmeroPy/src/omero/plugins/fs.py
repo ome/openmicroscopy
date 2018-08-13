@@ -1082,7 +1082,7 @@ class ImportTime:
             self.ice_ctx)
 
         if not results:
-            self.cli_ctx.die(30, 'Could not query for import log')
+            self.cli_ctx.die(30, 'Could not query for import log.')
 
         upload_job_id = results[0][0].val
         upload_start = results[0][1].val
