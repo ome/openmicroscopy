@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -142,9 +142,14 @@ class FileElement
 	 */
 	String getFileLengthAsString()
 	{
-		long l = getFileLength();
-		if (l <= 0) return "--";
-		return UIUtilities.formatFileSize(l);
+        final long l = getFileLength();
+        if (l > 0) {
+            return UIUtilities.formatFileSize(l);
+        } else if (l == 0) {
+            return "empty";
+        } else {
+            return "--";
+        }
 	}
 	
 	/**
