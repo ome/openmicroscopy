@@ -1016,7 +1016,7 @@ Examples:
     def importtime(self, args):
         """Find out how long it took to import an existing fileset"""
         client = self.ctx.conn(args)
-        import_time = ImportTime(client.sf.getQueryService())
+        import_time = ImportTime(self.ctx, client.sf.getQueryService())
         if args.fileset:
             if args.summary:
                 raise Exception("no summary if fileset provided")
@@ -1036,9 +1036,10 @@ Examples:
 
 class ImportTime:
 
-    def __init__(self, query):
+    def __init__(self, ctx, query):
+        self.cli_ctx = ctx
+        self.ice_ctx = {"omero.group": "-1"}
         self.query = query
-        self.ctx = {"omero.group": "-1"}
         self.ns = 'openmicroscopy.org/omero/import/metrics'
         self.metrics = dict()
 
@@ -1078,7 +1079,7 @@ class ImportTime:
             .addId(self.fileset_id)
             .addString('mimetype', 'application/omero-log-file')
             .page(0, 1),
-            self.ctx)
+            self.ice_ctx)
 
         if not results:
             raise Exception('Could not query for import log')
@@ -1103,7 +1104,7 @@ class ImportTime:
             .addString('type', 'ome.model.jobs.UploadJob')
             .addString('action', 'UPDATE')
             .page(0, 1),
-            self.ctx)
+            self.ice_ctx)
 
         if not results:
             raise Exception('Upload job is created but not yet updated.')
@@ -1127,7 +1128,7 @@ class ImportTime:
             .addString('type', 'ome.model.core.OriginalFile')
             .addString('action', 'UPDATE')
             .page(0, 3),
-            self.ctx)
+            self.ice_ctx)
 
         if not results or len(results) < 3:
             raise Exception('Thumbnails step is not yet finished.')
@@ -1158,7 +1159,7 @@ class ImportTime:
             .addString('action', 'INSERT')
             .add('last', metadata_before_id)
             .page(0, 1),
-            self.ctx)
+            self.ice_ctx)
 
         if not results:
             raise Exception('Could not find images from metadata step.')
@@ -1184,7 +1185,7 @@ class ImportTime:
             .add('first', pixeldata_before_id)
             .add('last', thumbnails_before_id)
             .page(0, 1),
-            self.ctx)
+            self.ice_ctx)
 
         overlays_start = results[0][0].val if results else None
 
@@ -1207,7 +1208,7 @@ class ImportTime:
             .add('first', pixeldata_before_id)
             .add('last', thumbnails_before_id)
             .page(0, 1),
-            self.ctx)
+            self.ice_ctx)
 
         settings_start = results[0][0].val if results else None
 
@@ -1230,7 +1231,7 @@ class ImportTime:
             .add('first', pixeldata_before_id)
             .add('last', thumbnails_before_id)
             .page(0, 1),
-            self.ctx)
+            self.ice_ctx)
 
         thumbnails_start = results[0][0].val if results else None
 
@@ -1268,7 +1269,8 @@ class ImportTime:
             "WHERE fileset.id = :id"
         )
 
-        result = self.query.projection(hql, fileset, self.ctx)[0][0].val
+        result = self.query.projection(hql, fileset,
+                                       self.ice_ctx)[0][0].val
         if result > 0:
             self.metrics['UPLOAD_C'] = result
 
@@ -1278,7 +1280,8 @@ class ImportTime:
                 "WHERE image.fileset.id = :id"
             )
 
-            result = self.query.projection(hql, fileset, self.ctx)[0][0].val
+            result = self.query.projection(hql, fileset,
+                                           self.ice_ctx)[0][0].val
             if result > 0:
                 self.metrics['PIXELDATA_C'] = result
 
@@ -1289,7 +1292,8 @@ class ImportTime:
                 "AND details.owner = pixels.details.owner"
                 )
 
-            result = self.query.projection(hql, fileset, self.ctx)[0][0].val
+            result = self.query.projection(hql, fileset,
+                                           self.ice_ctx)[0][0].val
             if result > 0:
                 self.metrics['RDEF_C'] = result
 
@@ -1300,7 +1304,8 @@ class ImportTime:
                 "AND details.owner = pixels.details.owner"
                 )
 
-            result = self.query.projection(hql, fileset, self.ctx)[0][0].val
+            result = self.query.projection(hql, fileset,
+                                           self.ice_ctx)[0][0].val
             if result > 0:
                 self.metrics['THUMBNAIL_C'] = result
 
@@ -1319,7 +1324,7 @@ class ImportTime:
             hql, ParametersI()
             .addId(self.fileset_id)
             .addString('ns', self.ns),
-            self.ctx)
+            self.ice_ctx)
 
         if results:
             for [name, value] in results:
@@ -1410,7 +1415,7 @@ class ImportTime:
         results = self.query.projection(
             hql, ParametersI()
             .addString('ns', self.ns),
-            self.ctx)
+            self.ice_ctx)
 
         if not results:
             print "no import times to report"
