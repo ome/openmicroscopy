@@ -53,8 +53,8 @@ module omero {
          * The methods which take a StringSet and a Parameters object, also
          * have a <i>bool merge</i> argument. This argument defines whether or
          * not the LIMIT applies to each object independently
-         * (<code>["a","b"] @ 100 == 200</code>) or merges the lists together
-         * chronologically (<code>["a","b"] @ 100 merged == 100</code>).
+         * (<code>\["a","b"] @ 100 == 200</code>) or merges the lists together
+         * chronologically (<code>\["a","b"] @ 100 merged == 100</code>).
          *
          * <h4>Time used</h4>
          *
