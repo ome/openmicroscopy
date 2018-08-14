@@ -68,7 +68,7 @@ import com.google.common.primitives.Ints;
 public class AnnotationDeleteTest extends AbstractServerTest {
 
     /** Reference to the <code>Rating</code> name space. */
-    public final static RString RATING = omero.rtypes.rstring(omero.constants.metadata.NSINSIGHTRATING.value);
+    public static final RString RATING = omero.rtypes.rstring(omero.constants.metadata.NSINSIGHTRATING.value);
 
     /**
      * Tests that the object, an annotation, and the link are all deleted.
