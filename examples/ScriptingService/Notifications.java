@@ -4,7 +4,7 @@ import omero.grid.*;
 
 public class Notifications {
 
-    public final static String SCRIPT = "" +
+    public static final String SCRIPT = "" +
     "import omero\n" +
     "import omero.scripts as s\n" +
     "s.client(\"name\")\n";
