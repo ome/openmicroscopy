@@ -65,18 +65,18 @@ class HierarchyBrowsingViewImpl
     
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadThumbnails(Collection, int, int, long,
-     *                                           AgentEventListener)
+     * @see HierarchyBrowsingView#loadThumbnails(SecurityContext, Collection, int, int, long, int, AgentEventListener)
      */
     public CallHandle loadThumbnails(SecurityContext ctx,
     	Collection<DataObject> images, int maxWidth, int maxHeight, long userID,
         int type, AgentEventListener observer)
     {
     	BatchCallTree cmd;
-    	if (type == EXPERIMENTER)
-    		cmd = new ThumbnailSetLoader(ctx, images, maxHeight, type);
-    	else cmd = new ThumbnailLoader(ctx, images, maxWidth,
-    			maxHeight, userID);
+    	if (type == EXPERIMENTER) {
+            cmd = new ThumbnailSetLoader(ctx, images, maxHeight, type);
+        } else {
+            cmd = new ThumbnailLoader(ctx, images, maxWidth, maxHeight, userID);
+        }
         return cmd.exec(observer);
     }
 

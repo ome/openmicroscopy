@@ -481,9 +481,7 @@ public class ThumbnailBean extends AbstractLevel2Service
      * @throws IOException
      *             if there is a problem writing to disk.
      */
-    private void compressThumbnailToDisk(Thumbnail thumb, BufferedImage image)
-    throws IOException {
-
+    private void compressThumbnailToDisk(Thumbnail thumb, BufferedImage image) throws IOException {
         if (diskSpaceChecking) {
             iRepositoryInfo.sanityCheckRepository();
         }
@@ -819,10 +817,18 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
     }
 
-    /** Actually does the work specified by {@link #createThumbnail(Integer, Integer)}. */
+    /** Helper function for using local thumbnailMetadata */
     private Thumbnail _createThumbnail() {
+        // For old times sake
+        return _createThumbnail(thumbnailMetadata);
+    }
+
+    /*
+     * Actually does the work specified by {@link #createThumbnail(Integer, Integer)}.
+     */
+    private Thumbnail _createThumbnail(Thumbnail thumbMetaData) {
         StopWatch s1 = new Slf4JStopWatch("omero._createThumbnail");
-        if (thumbnailMetadata == null) {
+        if (thumbMetaData == null) {
             throw new ValidationException("Missing thumbnail metadata.");
         } else if (ctx.dirtyMetadata(pixels.getId())) {
             // Increment the version of the thumbnail so that its
@@ -831,7 +837,7 @@ public class ThumbnailBean extends AbstractLevel2Service
             // implemented using IUpdate.touch() or similar once that
             // functionality exists.
             //Check first if the thumbnail is the one of the settings owner
-            Long ownerId = thumbnailMetadata.getDetails().getOwner().getId();
+            Long ownerId = thumbMetaData.getDetails().getOwner().getId();
             Long rndOwnerId = settings.getDetails().getOwner().getId();
             final Long rndGroupId = settings.getDetails().getGroup().getId();
             final Map<String, String> groupContext = new HashMap<>();
@@ -846,16 +852,16 @@ public class ThumbnailBean extends AbstractLevel2Service
                 }
                 if (rndOwnerId.equals(ownerId)) {
                     final Pixels unloadedPixels = new Pixels(pixels.getId(), false);
-                    thumbnailMetadata.setPixels(unloadedPixels);
-                    _setMetadataVersion(thumbnailMetadata, inProgress);
+                    thumbMetaData.setPixels(unloadedPixels);
+                    _setMetadataVersion(thumbMetaData, inProgress);
                     dirtyMetadata = true;
                 } else {
                     //new one for owner of the settings.
-                    final Dimension d = new Dimension(thumbnailMetadata.getSizeX(),
-                                                      thumbnailMetadata.getSizeY());
-                    thumbnailMetadata = ctx.createThumbnailMetadata(pixels, d);
-                    _setMetadataVersion(thumbnailMetadata, inProgress);
-                    thumbnailMetadata = iUpdate.saveAndReturnObject(thumbnailMetadata);
+                    final Dimension d = new Dimension(thumbMetaData.getSizeX(),
+                                                      thumbMetaData.getSizeY());
+                    thumbMetaData = ctx.createThumbnailMetadata(pixels, d);
+                    _setMetadataVersion(thumbMetaData, inProgress);
+                    thumbMetaData = iUpdate.saveAndReturnObject(thumbMetaData);
                     dirtyMetadata = false;
                 }
             } finally {
@@ -874,9 +880,9 @@ public class ThumbnailBean extends AbstractLevel2Service
 
         BufferedImage image = createScaledImage(null, null);
         try {
-            compressThumbnailToDisk(thumbnailMetadata, image);
+            compressThumbnailToDisk(thumbMetaData, image);
             s1.stop();
-            return thumbnailMetadata;
+            return thumbMetaData;
         } catch (IOException e) {
             log.error("Thumbnail could not be compressed.", e);
             throw new ResourceError(e.getMessage());
@@ -1070,6 +1076,38 @@ public class ThumbnailBean extends AbstractLevel2Service
         return value;
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see ome.api.ThumbnailStore#getThumbnail(ome.model.core.Pixels,
+     *      ome.model.displayRenderingDef, java.lang.Integer,
+     *      java.lang.Integer)
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public byte[] getThumbnailWithoutDefault(Integer sizeX, Integer sizeY) {
+        errorIfNullPixelsAndRenderingDef();
+        Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
+        Set<Long> pixelsIds = Collections.singleton(pixelsId);
+        ctx.loadAndPrepareMetadata(pixelsIds, dimensions);
+
+        thumbnailMetadata = ctx.getMetadataSimple(pixelsId);
+        if (thumbnailMetadata == null) {
+            // If this comes back null, don't have a thumbnail yet
+            thumbnailMetadata = ctx.createThumbnailMetadata(pixels, dimensions);
+
+            // Trigger a thumbnail creation
+            // ToDo: make this async
+            _createThumbnail(thumbnailMetadata);
+        }
+
+        byte[] value = retrieveThumbnail();
+
+        // I don't really know why this is here, no iquery calls being that I can see...
+        iQuery.clear();//see #11072
+        return value;
+    }
+
     /**
      * Creates the thumbnail or retrieves it from cache and updates the
      * thumbnail metadata.
@@ -1154,6 +1192,33 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
         catch (IOException e)
         {
+            log.error("Could not obtain thumbnail", e);
+            throw new ResourceError(e.getMessage());
+        }
+    }
+
+    /**
+     * A simple way to creates the thumbnail or retrieves it from cache.
+     *
+     * @return Thumbnail bytes.
+     */
+    private byte[] retrieveThumbnail() throws ResourceError {
+        try {
+            boolean cached = ctx.isThumbnailCached(pixels.getId());
+            if (cached) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Cache hit.");
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Cache miss, thumbnail missing or out of date.");
+                }
+
+                // Return empty array for the time being
+                return new byte[0];
+            }
+            return ioService.getThumbnail(thumbnailMetadata);
+        } catch (IOException e) {
             log.error("Could not obtain thumbnail", e);
             throw new ResourceError(e.getMessage());
         }

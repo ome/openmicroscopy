@@ -495,6 +495,25 @@ public class ThumbnailCtx
     }
 
     /**
+     * Retrieves the Thumbnail object for a given Pixels ID.
+     *
+     * @param pixelsId Pixels ID to retrieve the Thumbnail object for.
+     * @return returns null if the thumbnail metadata can't be found
+     */
+    public Thumbnail getMetadataSimple(long pixelsId) throws ResourceError {
+        Thumbnail thumbnail = pixelsIdMetadataMap.get(pixelsId);
+        if (thumbnail == null && securitySystem.isGraphCritical(null)) {
+            Pixels pixels = pixelsIdPixelsMap.get(pixelsId);
+            long ownerId = pixels.getDetails().getOwner().getId();
+            throw new ResourceError(String.format(
+                    "The user id:%s may not be the owner id:%d. The owner " +
+                            "has not viewed the Pixels set id:%d and thumbnail " +
+                            "metadata is missing.", userId, ownerId, pixelsId));
+        }
+        return thumbnail;
+    }
+
+    /**
      * Whether or not the thumbnail metadata for a given Pixels ID is dirty
      * (the RenderingDef has been updated since the Thumbnail was).
      * @param pixelsId Pixels ID to check for dirty metadata.
