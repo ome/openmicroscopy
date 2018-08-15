@@ -35,15 +35,14 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import Ice.Current;
-
 import ome.services.blitz.impl.AbstractCloseableAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.repo.PublicRepositoryI.AMD_submit;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ServiceFactoryAware;
-
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
+import omero.cmd.CallContext;
 import omero.cmd.HandlePrx;
 import omero.grid.ImportLocation;
 import omero.grid.ImportProcessPrx;
@@ -141,11 +140,25 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
     private HandlePrx handle;
 
     /**
+     * Additional logfile for this process. Must be set in {@link MDC} with key
+     * "fileset" to be activated.
+     */
+    private String logFilename;
+
+    /**
+     * Root session UUID token that can be used for authentication.
+     *
+     * Be careful with this.
+     */
+    private String rootToken;
+
+    /**
      * Create and register a servant for servicing the import process
      * within a managed repository.
      */
     public ManagedImportProcessI(ManagedRepositoryI repo, Fileset fs,
-            ImportLocation location, ImportSettings settings, Current __current)
+            ImportLocation location, ImportSettings settings, Current __current,
+            String rootToken)
                 throws ServerError {
         super(null, null);
         this.repo = repo;
@@ -153,10 +166,13 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
         this.settings = settings;
         this.location = location;
         this.current = __current;
+        this.rootToken = rootToken;
         this.proxy = registerProxy(__current);
         setApplicationContext(repo.context);
         // TODO: The above could be moved to SessionI.internalServantConfig as
         // long as we're careful to remove all other, redundant calls to setAC.
+        CheckedPath logFile = ((ManagedImportLocationI) location).getLogFile();
+        logFilename = logFile.getFullFsPath();
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -175,12 +191,6 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
         Ice.Current adjustedCurr = repo.makeAdjustedCurrent(current);
         Ice.ObjectPrx prx = repo.registerServant(tie, this, adjustedCurr);
         return ImportProcessPrxHelper.uncheckedCast(prx);
-   }
-
-   protected void activateMDCLog() {
-        CheckedPath logFile = ((ManagedImportLocationI) location).getLogFile();
-        String logFilename = logFile.getFullFsPath();
-        MDC.put("fileset", logFilename);
    }
 
     public ImportProcessPrx getProxy() {
@@ -219,7 +229,7 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
 
         StopWatch sw1 = new Slf4JStopWatch();
         try {
-            activateMDCLog();
+            MDC.put("fileset", logFilename);
 
             String mode = null;
             if (current != null && current.ctx != null) {
@@ -235,7 +245,10 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
                 public UploadState call() throws ServerError {
                     final StopWatch sw2 = new Slf4JStopWatch();
                     final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
-                    final RawFileStorePrx prx = repo.file(path, applicableMode, ManagedImportProcessI.this.current);
+                    final Ice.Current adjustedCurr = repo.makeAdjustedCurrent(ManagedImportProcessI.this.current);
+                    adjustedCurr.ctx.put(CallContext.FILENAME_KEY, logFilename);
+                    adjustedCurr.ctx.put(CallContext.TOKEN_KEY, rootToken);
+                    final RawFileStorePrx prx = repo.file(path, applicableMode,  adjustedCurr);
                     try {
                         registerCallback(prx, i);
                     } catch (RuntimeException re) {
@@ -304,7 +317,7 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
             throws ServerError {
 
         try {
-            activateMDCLog();
+            MDC.put("fileset", logFilename);
             final int size = fs.sizeOfUsedFiles();
             if (hashes == null) {
                 throw new omero.ApiUsageException(null, null,

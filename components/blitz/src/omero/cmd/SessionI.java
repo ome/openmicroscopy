@@ -554,10 +554,23 @@ public class SessionI implements _SessionOperations {
      */
     public Ice.ObjectPrx registerServant(Ice.Identity id, Ice.Object servant)
             throws ServerError {
+        return registerServant(id, servant, null);
+    }
+
+    /**
+     * Additionally stores information from the {@link Ice.Current} argument
+     * in the {@link CallContext} so that information from the creation of
+     * a servant can be recorded server-side without the need for clients to
+     * re-send the information or even for values which clients should not
+     * know.
+     */
+    public Ice.ObjectPrx registerServant(Ice.Identity id, Ice.Object servant,
+            Ice.Current current)
+            throws ServerError {
 
         Ice.ObjectPrx prx = null;
         try {
-            servant = callContextWrapper(servant);
+            servant = callContextWrapper(servant, current);
             Ice.Object already = adapter.find(id);
             if (null == already) {
                 adapter.add(servant, id); // OK ADAPTER USAGE
@@ -597,7 +610,7 @@ public class SessionI implements _SessionOperations {
     }
 
 
-    protected Ice.Object callContextWrapper(Ice.Object servant) {
+    protected Ice.Object callContextWrapper(Ice.Object servant, Ice.Current current) {
         // If this isn't a tie, then we can't do any wrapping.
         if (!(Ice.TieBase.class.isAssignableFrom(servant.getClass()))) {
             return servant;
@@ -607,7 +620,7 @@ public class SessionI implements _SessionOperations {
         Object delegate = tie.ice_delegate();
 
         ProxyFactory wrapper = new ProxyFactory(delegate);
-        wrapper.addAdvice(0, new CallContext(context, token));
+        wrapper.addAdvice(0, new CallContext(context, token, current));
         tie.ice_delegate(wrapper.getProxy());
         return servant;
     }
