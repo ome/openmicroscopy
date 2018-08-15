@@ -17,8 +17,11 @@ import time
 import datetime
 import os
 from tempfile import NamedTemporaryFile
+from cStringIO import StringIO
 
 import omero.gateway
+from omero.rtypes import rstring
+from omero.gateway import FileAnnotationWrapper
 
 
 def _testAnnotation(obj, annclass, ns, value, sameOwner=False,
@@ -307,6 +310,37 @@ def testFileAnnotation(author_testimg_generated, gatewaywrapper):
     handle = gateway.deleteObjects("Annotation", [annId])
     gateway._waitOnCmd(handle)
     assert gateway.getObject("Annotation", annId) is None
+
+
+def testFileAnnotationNoName(author_testimg_generated, gatewaywrapper):
+    """Test conn.createOriginalFileFromFileObj() and getFileName()"""
+    file_text = "test"
+    file_size = len(file_text)
+    f = StringIO()
+    f.write(file_text)
+    file_name = "testFileAnnotationNoName"
+    conn = gatewaywrapper.gateway
+    update_service = conn.getUpdateService()
+
+    # Create Original File and File Annotation
+    orig_file = conn.createOriginalFileFromFileObj(
+        f, '', file_name, file_size, mimetype="application/txt")
+    fa = omero.model.FileAnnotationI()
+    fa.setFile(orig_file._obj)
+    fa = update_service.saveAndReturnObject(fa, conn.SERVICE_OPTS)
+    ann_id = fa.id.val
+    file_ann = FileAnnotationWrapper(conn, fa)
+
+    file_id = orig_file.getId()
+    assert file_ann.getFileName() == file_name
+
+    # Set Name to None - getFileName() should return file ID as string
+    orig_file._obj.name = rstring("")
+    orig_file._obj = update_service.saveAndReturnObject(orig_file._obj,
+                                                        conn.SERVICE_OPTS)
+    # reload file_ann to update
+    file_ann = conn.getObject("FileAnnotation", ann_id)
+    assert file_ann.getFileName() == str(file_id)
 
 
 def testFileAnnotationSpeed(author_testimg_generated, gatewaywrapper):
