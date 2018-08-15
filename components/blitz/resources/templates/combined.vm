@@ -258,7 +258,7 @@ STATIC FIELDS:
 
 [$hdr]    public:
 #foreach( $property in $type.propertyClosure )
-[$jav]       public final static String ${property.nameUpper} = "${type.id}_${property.name}";
+[$jav]       public static final String ${property.nameUpper} = "${type.id}_${property.name}";
 [$pyc]       ${property.nameUpper} =  "${type.id}_${property.name}"
 [$hdr]       static const std::string ${property.nameUpper};
 [$cpp]       const std::string ${PojoI}::${property.nameUpper} =  "${type.id}_${property.name}";
