@@ -32,7 +32,24 @@ RUN apt-get update \
  && pip install tables "zeroc-ice>3.5,<3.7"
 # TODO: unpin pip when possible
 RUN adduser omero
-COPY . /src
+
+# TODO: would be nice to not need to copy .git since it invalidates the build frequently and takes more time
+COPY .git /src/.git
+
+COPY build.py /src/
+COPY build.xml /src/
+COPY components /src/components
+COPY docs /src/docs
+COPY etc /src/etc
+COPY ivy.xml /src/
+COPY lib /src/lib
+COPY luts /src/luts
+COPY omero.class /src/
+COPY setup.cfg /src/
+COPY sql /src/sql
+COPY test.xml /src/
+COPY LICENSE.txt /src/
+COPY history.txt /src/
 RUN chown -R omero /src
 USER omero
 WORKDIR /src
