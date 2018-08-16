@@ -101,13 +101,13 @@ public class CallContext implements MethodInterceptor {
             return false;
         }
 
-        String filename = ctx.getOrDefault(FILENAME_KEY, null);
+        String filename = ctx.get(FILENAME_KEY);
         if (filename == null) {
             return false;
         }
 
         if (requireToken) {
-            String token = ctx.getOrDefault(TOKEN_KEY, null);
+            String token = ctx.get(TOKEN_KEY);
             if (!this.token.equals(token)) {
                 log.error("Found bad token: user={} != server={}",
                         token, this.token);
