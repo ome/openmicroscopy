@@ -2348,6 +2348,7 @@ public class AbstractServerTest extends AbstractTest {
      * Convenient helper function for providing Boolean arguments to TestNG tests.
      * @param argCount how many arguments the test takes
      * @return every combination of argument values
+     * @see ome.testing.DataProviderBuilder#addBoolean(boolean)
      */
     private static Boolean[][] provideEveryBooleanCombination(int argCount) {
         // TODO: Once we use Guava 19 we can use Collections.nCopies and Lists.cartesianProduct instead of this manual approach.
