@@ -39,7 +39,10 @@ import ome.services.blitz.repo.PublicRepositoryI.AMD_submit;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ServiceFactoryAware;
 
+import omero.RLong;
+import omero.RString;
 import omero.ServerError;
+import omero.api.IQueryPrx;
 import omero.api.RawFileStorePrx;
 import omero.cmd.HandlePrx;
 import omero.grid.ImportLocation;
@@ -51,6 +54,8 @@ import omero.grid._ImportProcessOperations;
 import omero.grid._ImportProcessTie;
 import omero.model.Fileset;
 import omero.model.FilesetJobLink;
+import omero.sys.Parameters;
+import omero.sys.ParametersI;
 
 /**
  * Represents a single import within a defined-session
@@ -293,11 +298,14 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
         }
 
         Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
+        final IQueryPrx iQuery = sf.getQueryService(__current);
+        final String hql = "SELECT hash FROM OriginalFile WHERE id = :id";
         for (int i = 0; i < size; i++) {
-            String usedFile = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
-            CheckedPath cp = repo.checkPath(usedFile, settings.checksumAlgorithm, this.current);
+            final RLong fileId = fs.getFilesetEntry(i).getOriginalFile().getId();
+            final Parameters params = new ParametersI().addId(fileId);
+            final RString result = (RString) iQuery.projection(hql, params).get(0).get(0);
             final String clientHash = hashes.get(i);
-            final String serverHash = cp.hash();
+            final String serverHash = result.getValue();
             if (!clientHash.equals(serverHash)) {
                 failingChecksums.put(i, serverHash);
             }
