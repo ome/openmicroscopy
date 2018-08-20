@@ -39,7 +39,6 @@ import ome.services.blitz.repo.PublicRepositoryI.AMD_submit;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ServiceFactoryAware;
 
-import omero.RLong;
 import omero.RString;
 import omero.ServerError;
 import omero.api.IQueryPrx;
@@ -299,10 +298,11 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
 
         Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
         final IQueryPrx iQuery = sf.getQueryService(__current);
-        final String hql = "SELECT hash FROM OriginalFile WHERE id = :id";
+        final String hql = "SELECT originalFile.hash FROM FilesetEntry "
+                + "WHERE fileset.id = :id AND originalFile.path || originalFile.name = :usedfile";
         for (int i = 0; i < size; i++) {
-            final RLong fileId = fs.getFilesetEntry(i).getOriginalFile().getId();
-            final Parameters params = new ParametersI().addId(fileId);
+            String usedFile = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
+            final Parameters params = new ParametersI().addId(fs.getId()).add("usedfile", omero.rtypes.rstring(usedFile));
             final RString result = (RString) iQuery.projection(hql, params).get(0).get(0);
             final String clientHash = hashes.get(i);
             final String serverHash = result.getValue();
