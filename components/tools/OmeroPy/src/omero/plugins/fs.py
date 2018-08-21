@@ -342,6 +342,18 @@ class FsControl(CmdControl):
                   "'<Class>:<Id>[,<Id> ...]', or '<Class>:*' "
                   "to query all the objects of the given type "))
 
+        importtime = parser.add(sub, self.importtime)
+        importtime.add_argument(
+            "fileset", nargs="?",
+            type=ProxyStringType("Fileset"))
+        importtime_alternatives = importtime.add_mutually_exclusive_group()
+        importtime_alternatives.add_argument(
+            "--cache", action="store_true",
+            help="to cache the results by annotating the fileset")
+        importtime_alternatives.add_argument(
+            "--summary", action="store_true",
+            help="summarize the results cached for filesets")
+
         for x in (images, sets):
             x.add_argument(
                 "--extended", action="store_true",
@@ -1008,6 +1020,444 @@ Examples:
             tb.replace_header("size", "size (bytes)")
 
         self.ctx.out(str(tb.build()))
+
+    def importtime(self, args):
+        """Find out how long it took to import an existing fileset"""
+        client = self.ctx.conn(args)
+        import_time = ImportTime(self.ctx, client.sf.getQueryService())
+        if args.fileset:
+            if args.summary:
+                self.ctx.die(28, "no summary if fileset provided")
+            import_time.fileset_id = args.fileset.id
+            import_time.get_cache()
+            if not import_time.metrics:
+                import_time.query_durations()
+                import_time.query_counts()
+                if args.cache:
+                    import_time.write_cache(client.sf.getUpdateService())
+            import_time.print_report()
+        elif args.summary:
+            import_time.print_summary()
+        else:
+            self.ctx.die(29, "provide fileset or request summary")
+
+
+class ImportTime:
+
+    def __init__(self, ctx, query):
+        self.cli_ctx = ctx
+        self.ice_ctx = {"omero.group": "-1"}
+        self.query = query
+        self.ns = 'openmicroscopy.org/omero/import/metrics'
+        self.metrics = dict()
+
+        import_tuples = [
+            ('UPLOAD', 'upload (ms)'), ('UPLOAD_C', '# files'),
+            ('SET_ID', 'setId (ms)'),
+            ('METADATA', 'metadata (ms)'),
+            ('PIXELDATA', 'pixeldata (ms)'), ('PIXELDATA_C', '# planes'),
+            ('OVERLAY', 'overlays (ms)'),
+            ('RDEF', 'rnd defs (ms)'), ('RDEF_C', '# settings'),
+            ('THUMBNAIL', 'thumbnails (ms)'), ('THUMBNAIL_C', '# thumbnails')
+        ]
+
+        # Easier in Python 2.7 with OrderedDict.
+        # Even easier in Python 3.7 in which dictionaries preserve ordering.
+        self.import_phases = [key for (key, name) in import_tuples]
+        self.import_phases_to_names = dict(import_tuples)
+        self.import_names_to_phases = dict(
+            [(y, x) for (x, y) in import_tuples])
+
+    def query_durations(self):
+        """Determine values for the phase durations for the import metrics"""
+        from omero.sys import ParametersI
+
+        # Get the upload job ID and its creation time, and the import log ID.
+
+        hql = (
+            "SELECT u.id, u.details.creationEvent.time, jol.child.id "
+            "FROM FilesetJobLink fjl, UploadJob u, JobOriginalFileLink jol "
+            "WHERE :id = fjl.parent.id AND fjl.child = u AND u = jol.parent "
+            "AND jol.child.mimetype = :mimetype "
+            "ORDER BY u.id"
+        )
+
+        results = self.query.projection(
+            hql, ParametersI()
+            .addId(self.fileset_id)
+            .addString('mimetype', 'application/omero-log-file')
+            .page(0, 1),
+            self.ice_ctx)
+
+        if not results:
+            self.cli_ctx.die(30, 'Could not query for import log.')
+
+        upload_job_id = results[0][0].val
+        upload_start = results[0][1].val
+        import_log_id = results[0][2].val
+
+        # From the event log to find when the upload job was first updated.
+
+        hql = (
+            "SELECT event.time "
+            "FROM EventLog "
+            "WHERE action = :action "
+            "AND entityType = :type AND entityId = :id "
+            "ORDER BY id"
+        )
+
+        results = self.query.projection(
+            hql, ParametersI()
+            .addId(upload_job_id)
+            .addString('type', 'ome.model.jobs.UploadJob')
+            .addString('action', 'UPDATE')
+            .page(0, 1),
+            self.ice_ctx)
+
+        if not results:
+            self.cli_ctx.die(31, 'Upload job is created but not yet updated.')
+
+        upload_end = results[0][0].val
+
+        # Find when the import log was updated.
+        # Its size is set after each step.
+
+        hql = (
+            "SELECT id, event.time "
+            "FROM EventLog "
+            "WHERE action = :action "
+            "AND entityType = :type AND entityId = :id "
+            "ORDER BY id"
+        )
+
+        results = self.query.projection(
+            hql, ParametersI()
+            .addId(import_log_id)
+            .addString('type', 'ome.model.core.OriginalFile')
+            .addString('action', 'UPDATE')
+            .page(0, 3),
+            self.ice_ctx)
+
+        if not results or len(results) < 3:
+            self.cli_ctx.die(32, 'Thumbnails step is not yet finished.')
+
+        metadata_before_id = results[0][0]
+        pixeldata_before_id = results[1][0]
+        thumbnails_before_id = results[2][0]
+        metadata_end = results[0][1].val
+        pixeldata_end = results[1][1].val
+        thumbnails_end = results[2][1].val
+
+        # Find when the fileset's images were created.
+        # Used as an estimate for when setId completed.
+        # Ignores any inserts that follow the metadata phase.
+
+        hql = (
+            "SELECT el.event.time "
+            "FROM Image i, EventLog el "
+            "WHERE el.id < :last AND el.action = :action "
+            "AND el.entityType = :type AND el.entityId = i.id "
+            "AND i.fileset.id = :id"
+        )
+
+        results = self.query.projection(
+            hql, ParametersI()
+            .addId(self.fileset_id)
+            .addString('type', 'ome.model.core.Image')
+            .addString('action', 'INSERT')
+            .add('last', metadata_before_id)
+            .page(0, 1),
+            self.ice_ctx)
+
+        if not results:
+            self.cli_ctx.die(33, 'Could not find images from metadata step.')
+
+        set_id_end = results[0][0].val
+
+        # Find when any ROIs were created during the thumbnails step.
+        # These would be overlays as one finds with MIAS plates.
+
+        hql = (
+            "SELECT el.event.time "
+            "FROM Roi r, EventLog el "
+            "WHERE el.id > :first AND el.id < :last AND el.action = :action "
+            "AND el.entityType = :type AND el.entityId = r.id "
+            "AND r.image.fileset.id = :id"
+        )
+
+        results = self.query.projection(
+            hql, ParametersI()
+            .addId(self.fileset_id)
+            .addString('type', 'ome.model.roi.Roi')
+            .addString('action', 'INSERT')
+            .add('first', pixeldata_before_id)
+            .add('last', thumbnails_before_id)
+            .page(0, 1),
+            self.ice_ctx)
+
+        overlays_start = results[0][0].val if results else None
+
+        # Find when any rendering settings were created during the thumbnails
+        # step. These are created if the thumbnails can already be generated.
+
+        hql = (
+            "SELECT el.event.time "
+            "FROM RenderingDef r, EventLog el "
+            "WHERE el.id > :first AND el.id < :last AND el.action = :action "
+            "AND el.entityType = :type AND el.entityId = r.id "
+            "AND r.pixels.image.fileset.id = :id"
+        )
+
+        results = self.query.projection(
+            hql, ParametersI()
+            .addId(self.fileset_id)
+            .addString('type', 'ome.model.display.RenderingDef')
+            .addString('action', 'INSERT')
+            .add('first', pixeldata_before_id)
+            .add('last', thumbnails_before_id)
+            .page(0, 1),
+            self.ice_ctx)
+
+        settings_start = results[0][0].val if results else None
+
+        # Find when any thumbnails were created during the thumbnails step.
+        # These are created even if it is not yet possible to generate them.
+
+        hql = (
+            "SELECT el.event.time "
+            "FROM Thumbnail t, EventLog el "
+            "WHERE el.id > :first AND el.id < :last AND el.action = :action "
+            "AND el.entityType = :type AND el.entityId = t.id "
+            "AND t.pixels.image.fileset.id = :id"
+        )
+
+        results = self.query.projection(
+            hql, ParametersI()
+            .addId(self.fileset_id)
+            .addString('type', 'ome.model.display.Thumbnail')
+            .addString('action', 'INSERT')
+            .add('first', pixeldata_before_id)
+            .add('last', thumbnails_before_id)
+            .page(0, 1),
+            self.ice_ctx)
+
+        thumbnails_start = results[0][0].val if results else None
+
+        # Calculate duration of import phases.
+
+        self.metrics['UPLOAD'] = upload_end - upload_start
+        self.metrics['SET_ID'] = set_id_end - upload_end
+        self.metrics['METADATA'] = metadata_end - set_id_end
+
+        if overlays_start:
+            if settings_start:
+                self.metrics['OVERLAY'] = settings_start - pixeldata_end
+            elif thumbnails_start:
+                self.metrics['OVERLAY'] = thumbnails_start - pixeldata_end
+            else:
+                self.metrics['OVERLAY'] = thumbnails_end - pixeldata_end
+
+        if settings_start:
+            # If there are no rendering settings, pyramids must be built first.
+            self.metrics['PIXELDATA'] = pixeldata_end - metadata_end
+
+            if thumbnails_start:
+                self.metrics['RDEF'] = thumbnails_start - settings_start
+                self.metrics['THUMBNAIL'] = thumbnails_end - thumbnails_start
+            else:
+                self.metrics['RDEF'] = thumbnails_end - settings_start
+
+    def query_counts(self):
+        """Determine values for the per-item counts for the import metrics"""
+        from omero.sys import ParametersI
+        fileset = ParametersI().addId(self.fileset_id)
+
+        hql = (
+            "SELECT COUNT(*) FROM FilesetEntry " +
+            "WHERE fileset.id = :id"
+        )
+
+        result = self.query.projection(hql, fileset,
+                                       self.ice_ctx)[0][0].val
+        if result > 0:
+            self.metrics['UPLOAD_C'] = result
+
+        if 'PIXELDATA' in self.metrics:
+            hql = (
+                "SELECT SUM(sizeC * sizeT * sizeZ) FROM Pixels " +
+                "WHERE image.fileset.id = :id"
+            )
+
+            result = self.query.projection(hql, fileset,
+                                           self.ice_ctx)[0][0].val
+            if result > 0:
+                self.metrics['PIXELDATA_C'] = result
+
+        if 'RDEF' in self.metrics:
+            hql = (
+                "SELECT COUNT(*) FROM RenderingDef " +
+                "WHERE pixels.image.fileset.id = :id " +
+                "AND details.owner = pixels.details.owner"
+                )
+
+            result = self.query.projection(hql, fileset,
+                                           self.ice_ctx)[0][0].val
+            if result > 0:
+                self.metrics['RDEF_C'] = result
+
+        if 'THUMBNAIL' in self.metrics:
+            hql = (
+                "SELECT COUNT(*) FROM Thumbnail " +
+                "WHERE pixels.image.fileset.id = :id " +
+                "AND details.owner = pixels.details.owner"
+                )
+
+            result = self.query.projection(hql, fileset,
+                                           self.ice_ctx)[0][0].val
+            if result > 0:
+                self.metrics['THUMBNAIL_C'] = result
+
+    def get_cache(self):
+        """Retrieve import metrics from a map annotation on the fileset"""
+        from omero.sys import ParametersI
+
+        hql = (
+            "SELECT mv.name, mv.value "
+            "FROM FilesetAnnotationLink AS l "
+            "JOIN l.child.mapValue AS mv "
+            "WHERE l.parent.id = :id AND l.child.ns = :ns"
+        )
+
+        results = self.query.projection(
+            hql, ParametersI()
+            .addId(self.fileset_id)
+            .addString('ns', self.ns),
+            self.ice_ctx)
+
+        if results:
+            for [name, value] in results:
+                phase = self.import_names_to_phases.get(name.val)
+                if phase:
+                    self.metrics[phase] = long(value.val)
+
+    def write_cache(self, update):
+        """Write import metrics to a map annotation on the fileset"""
+        from omero.model import FilesetI
+        from omero.model import FilesetAnnotationLinkI
+        from omero.model import MapAnnotationI
+        from omero.model import NamedValue
+
+        link = FilesetAnnotationLinkI()
+        link.parent = FilesetI(self.fileset_id, False)
+        link.child = MapAnnotationI()
+
+        link.child.ns = rstring(self.ns)
+        link.child.mapValue = []
+
+        for phase in self.import_phases:
+            if phase in self.metrics:
+                link.child.mapValue.append(NamedValue(
+                    self.import_phases_to_names[phase],
+                    str(self.metrics[phase])))
+
+        update.saveObject(link)
+
+    def print_report(self):
+        """Report how long it took to import an existing fileset"""
+        metrics_keys = set(self.metrics)
+
+        if set(['UPLOAD', 'UPLOAD_C']) <= metrics_keys:
+            time = self.metrics['UPLOAD'] / 1000.0
+            count = self.metrics['UPLOAD_C']
+            plural = "s" if count > 1 else ""
+            print(("   upload time of {0:6.2f}s for "
+                   "{1} file{2} ({3:.3f}s/file)")
+                  .format(time, count, plural, time/count))
+
+        time = self.metrics['SET_ID'] / 1000.0
+        print("    setId time of {0:6.2f}s".format(time))
+
+        time = self.metrics['METADATA'] / 1000.0
+        print(" metadata time of {0:6.2f}s".format(time))
+
+        if set(['PIXELDATA', 'PIXELDATA_C']) <= metrics_keys:
+            time = self.metrics['PIXELDATA'] / 1000.0
+            count = self.metrics['PIXELDATA_C']
+            plural = "s" if count > 1 else ""
+            print(("   pixels time of {0:6.2f}s for "
+                   "{1} plane{2} ({3:.3f}s/plane)")
+                  .format(time, count, plural, time/count))
+
+        if 'OVERLAY' in metrics_keys:
+            time = self.metrics['OVERLAY'] / 1000.0
+            print(" overlays time of {0:6.2f}s".format(time))
+
+        if set(['RDEF', 'RDEF_C']) <= metrics_keys:
+            time = self.metrics['RDEF'] / 1000.0
+            count = self.metrics['RDEF_C']
+            plural = "s" if count > 1 else ""
+            print(("    rdefs time of {0:6.2f}s for "
+                   "{1} rendering setting{2} ({3:.3f}s/rdef)")
+                  .format(time, count, plural, time/count))
+
+        if set(['THUMBNAIL', 'THUMBNAIL_C']) <= metrics_keys:
+            time = self.metrics['THUMBNAIL'] / 1000.0
+            count = self.metrics['THUMBNAIL_C']
+            plural = "s" if count > 1 else ""
+            print(("thumbnail time of {0:6.2f}s for "
+                   "{1} thumbnail{2} ({3:.3f}s/thumbnail)")
+                  .format(time, count, plural, time/count))
+
+    def print_summary(self):
+        """Report import metrics from map annotations on filesets"""
+        from omero.sys import ParametersI
+
+        hql = (
+            "SELECT l.parent.id, mv.name, mv.value "
+            "FROM FilesetAnnotationLink AS l "
+            "JOIN l.child.mapValue AS mv "
+            "WHERE l.child.ns = :ns "
+            "ORDER BY l.parent.id"
+        )
+
+        results = self.query.projection(
+            hql, ParametersI()
+            .addString('ns', self.ns),
+            self.ice_ctx)
+
+        if not results:
+            print "no import times to report"
+            return
+
+        columns = ['fileset']
+        for phase in self.import_phases:
+            columns.append(self.import_phases_to_names[phase])
+        print(','.join(['"{0}"'.format(column) for column in columns]))
+
+        self.fileset_id = None
+
+        for result in results:
+            if self.fileset_id != result[0].val:
+                self.print_summary_line()
+                self.fileset_id = result[0].val
+            phase = self.import_names_to_phases.get(result[1].val)
+            if phase:
+                self.metrics[phase] = long(result[2].val)
+        self.print_summary_line()
+
+    def print_summary_line(self):
+        """Report import metrics from the map annotations on a fileset"""
+        if not self.metrics:
+            return
+        values = [str(self.fileset_id)]
+        for phase in self.import_phases:
+            if phase in self.metrics:
+                values.append(str(self.metrics[phase]))
+            else:
+                values.append('')
+        print(','.join(values))
+        self.metrics.clear()
+
 
 try:
     register("fs", FsControl, HELP)
