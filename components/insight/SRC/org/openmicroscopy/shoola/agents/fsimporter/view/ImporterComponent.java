@@ -827,8 +827,9 @@ class ImporterComponent
 			ImporterUIElement element;
 			while (i.hasNext()) {
 				element = i.next();
-				if (!element.isUploadComplete())
+				if (!element.isUploadComplete()) {
 					return true;
+				}
 			}
 		}
 		return false;

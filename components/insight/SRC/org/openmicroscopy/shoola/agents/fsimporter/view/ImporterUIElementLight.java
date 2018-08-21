@@ -214,12 +214,18 @@ class ImporterUIElementLight extends ImporterUIElement {
                 complete = c;
         }
 
+        int cancelled = super.cancelled();
+        
         upload.setValue(uploaded);
         upload.setMaximum(super.totalToImport);
         if (uploaded == super.totalToImport) {
             uploadBusy.setText("Finished");
             uploadBusy.setBusy(false);
             uploadBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY));
+        } else if (complete + cancelled == super.totalToImport) {
+            uploadBusy.setText(uploaded + "/" + super.totalToImport);
+            uploadBusy.setBusy(false);
+            uploadBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY_CANCEL));
         } else {
             uploadBusy.setText(uploaded + "/" + super.totalToImport);
             uploadBusy.setBusy(true);
@@ -234,7 +240,11 @@ class ImporterUIElementLight extends ImporterUIElement {
         } else if (complete+super.countFailure == super.totalToImport) {
             processedBusy.setBusy(false);
             processedBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY_CANCEL));
-        }else  {
+        } else if (complete + cancelled == super.totalToImport) {
+            processedBusy.setText(complete + "/" + super.totalToImport);
+            processedBusy.setBusy(false);
+            processedBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY_CANCEL));
+        } else {
             processedBusy.setText(complete + "/" + super.totalToImport);
             processedBusy.setBusy(true);
         }
@@ -260,6 +270,8 @@ class ImporterUIElementLight extends ImporterUIElement {
             Integer v = (Integer) evt.getNewValue() - 1;
             totalToImport += v;
             setNumberOfImport();
+        } else if (FileImportComponentI.CANCEL_IMPORT_PROPERTY.equals(name)) {
+            controller.cancel((FileImportComponentI) evt.getNewValue());
         }
         updateDisplay();
     }

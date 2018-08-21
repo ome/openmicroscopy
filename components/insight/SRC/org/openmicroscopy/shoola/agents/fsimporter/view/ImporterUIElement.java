@@ -772,6 +772,15 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
         }
         return false;
     }
+    
+    int cancelled() {
+        int i = 0;
+        for (final FileImportComponentI fic : components.values()) {
+            if (fic.isCancelled())
+                i++;
+        }
+        return i;
+    }
 
     /**
      * Returns the collection of files that could not be imported.
