@@ -5977,10 +5977,10 @@ class OMEROGateway
             ImportConfig config = new ImportConfig();
             config.checksumAlgorithm.set(object.getChecksumAlgorithm());
             if (object.skipThumbnails()) {
-                config.doThumbnails.set(Boolean.FALSE);
+                config.doThumbnails.set(false);
             }
             if (object.skipMinMax()) {
-                config.noStatsInfo.set(Boolean.TRUE);
+                config.noStatsInfo.set(true);
             }
 
 			reader = new OMEROWrapper(config);
