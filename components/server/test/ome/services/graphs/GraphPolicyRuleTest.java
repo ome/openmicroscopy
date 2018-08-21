@@ -207,6 +207,7 @@ import ome.services.graphs.GraphPolicy.Action;
 import ome.services.graphs.GraphPolicy.Details;
 import ome.services.graphs.GraphPolicy.Orphan;
 import ome.services.graphs.GraphPolicyRule;
+import ome.testing.DataProviderBuilder;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;

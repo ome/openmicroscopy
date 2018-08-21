@@ -17,7 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.graphs;
+package ome.testing;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,7 +34,7 @@ import org.testng.annotations.DataProvider;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.4.1
  */
-class DataProviderBuilder {
+public class DataProviderBuilder {
 
     private List<List<Object>> args = Collections.singletonList(Collections.emptyList());
 
@@ -43,7 +43,7 @@ class DataProviderBuilder {
      * @param enumClass the enumeration class whose values are to be iterated through
      * @return this builder with the additional argument noted
      */
-    DataProviderBuilder add(Class<? extends Enum<?>> enumClass) {
+    public DataProviderBuilder add(Class<? extends Enum<?>> enumClass) {
         final Enum<?>[] enums = enumClass.getEnumConstants();
         final List<List<Object>> newArgs = new ArrayList<>(args.size() * enums.length);
         for (final List<Object> arg : args) {
@@ -65,7 +65,7 @@ class DataProviderBuilder {
      * @return this builder with the additional argument noted
      * @throws ReflectiveOperationException if the model object could not be instantiated
      */
-    DataProviderBuilder add(Collection<Class<? extends IObject>> objectClasses)
+    public DataProviderBuilder add(Collection<Class<? extends IObject>> objectClasses)
             throws ReflectiveOperationException {
         final List<IObject> objects = new ArrayList<>(objectClasses.size());
         for (final Class<? extends IObject> objectClass : objectClasses) {
@@ -89,7 +89,7 @@ class DataProviderBuilder {
      * @param isNullable if {@code null} should be included along with {@code true} and {@code false}
      * @return this builder with the additional argument noted
      */
-    DataProviderBuilder addBoolean(boolean isNullable) {
+    public DataProviderBuilder addBoolean(boolean isNullable) {
         final List<List<Object>> newArgs = new ArrayList<>(args.size() * (isNullable ? 3 : 2));
         for (final List<Object> arg : args) {
             List<Object> newArg;
@@ -115,7 +115,7 @@ class DataProviderBuilder {
     /**
      * @return the return value of a {@link DataProvider} that provides the arguments noted by this builder
      */
-    Object[][] build() {
+    public Object[][] build() {
         final Object[][] argsArray = new Object[args.size()][];
         int index = 0;
         for (final List<Object> arg : args) {
