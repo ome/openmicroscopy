@@ -182,8 +182,11 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Text for metadata pane */
 	private static final String TEXT_FILE_NAMING = "File Naming";
 
+	/** Text for metadata pane title */
+	private static final String TEXT_SKIP_COMPUTE_TITLE = "Import speed-up";
+	
 	/** Text for metadata pane */
-	private static final String TEXT_SKIP_COMPUTE = "Skip Processing";
+    private static final String TEXT_SKIP_COMPUTE = "Shorten the import by skipping...";
 
 	/** Text for metadata pane */
 	private static final String TEXT_METADATA_DEFAULTS = "Metadata Defaults";
@@ -934,9 +937,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	private JComponent buildSkipFlagsComponent() {
 		skipComputePanel = new SkipComputePanel();
-		JPanel content = new JPanel();
-		content.setBorder(BorderFactory.createTitledBorder(TEXT_SKIP_COMPUTE));
-		content.add(skipComputePanel);
+		JPanel content = new JPanel(new BorderLayout());
+		content.add(new JLabel(TEXT_SKIP_COMPUTE), BorderLayout.NORTH);
+		content.add(skipComputePanel, BorderLayout.CENTER);
 		return UIUtilities.buildComponentPanel(content);
 	}
 
@@ -985,7 +988,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
         // Constraints for flags component
         c.gridx = 0;
         c.gridy = 1;
-        options.add(buildPane(TEXT_SKIP_COMPUTE, buildSkipFlagsComponent()), c);
+        options.add(buildPane(TEXT_SKIP_COMPUTE_TITLE, buildSkipFlagsComponent()), c);
 
         // Constraints for meta data component
         c.gridx = 0;
