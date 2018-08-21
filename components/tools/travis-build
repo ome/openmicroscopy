@@ -3,6 +3,7 @@
 # with travis, but may be used by hand as well.
 
 set -e
+set -x
 
 if [ -z "$ICE_HOME" ]; then
   export ICE_HOME=/usr/share/Ice
