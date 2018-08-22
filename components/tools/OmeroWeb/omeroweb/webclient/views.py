@@ -34,6 +34,7 @@ import re
 import sys
 import warnings
 
+from StringIO import StringIO
 from time import time
 
 from omero_version import build_year
@@ -2877,8 +2878,10 @@ def get_original_file(request, fileId, download=False, conn=None, **kwargs):
 
     orig_file = conn.getObject("OriginalFile", fileId)
     if orig_file is None:
-        return handlerInternalError(
-            request, "Original File does not exists (id:%s)." % (fileId))
+        rsp = ConnCleaningHttpResponse(StringIO(
+            "Original File does not exist (id:%s)." % (fileId)), status=404)
+        rsp.conn = conn
+        return rsp
 
     rsp = ConnCleaningHttpResponse(
         orig_file.getFileInChunks(buf=settings.CHUNK_SIZE))
@@ -2899,10 +2902,12 @@ def get_original_file(request, fileId, download=False, conn=None, **kwargs):
 @login_required(doConnectionCleanup=False)
 def download_annotation(request, annId, conn=None, **kwargs):
     """ Returns the file annotation as an http response for download """
-    ann = conn.getObject("Annotation", annId)
+    ann = conn.getObject("FileAnnotation", annId)
     if ann is None:
-        return handlerInternalError(
-            request, "Annotation does not exist (id:%s)." % (annId))
+        rsp = ConnCleaningHttpResponse(StringIO(
+            "FileAnnotation does not exist (id:%s)." % (annId)), status=404)
+        rsp.conn = conn
+        return rsp
 
     rsp = ConnCleaningHttpResponse(
         ann.getFileInChunks(buf=settings.CHUNK_SIZE))
