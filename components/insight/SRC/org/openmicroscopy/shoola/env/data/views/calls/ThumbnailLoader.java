@@ -126,15 +126,16 @@ public class ThumbnailLoader
     private void handleBatchCall(ThumbnailStorePrx store, PixelsData pxd, long userId) {
         // If image has pyramids, check to see if image is ready for loading as a thumbnail.
         try {
-            Image thumbnail;
+            Image   thumbnail;
             byte[] thumbnailData = loadThumbnail(store, pxd, userId);
             if (thumbnailData == null || thumbnailData.length == 0) {
                 // Find out why the thumbnail is not ready on the server
-                if (requiresPixelsPyramid(pxd)) {
-                    thumbnail = determineThumbnailState(pxd);
-                } else {
-                    thumbnail = Factory.createDefaultThumbnail("Loading");
-                }
+                thumbnail = Factory.createDefaultThumbnail("Loading");
+//                if (requiresPixelsPyramid(pxd)) {
+//                    thumbnail = determineThumbnailState(pxd);
+//                } else {
+//                    thumbnail = Factory.createDefaultThumbnail("Loading");
+//                }
             } else {
                 thumbnail = WriterImage.bytesToImage(thumbnailData);
             }
@@ -243,10 +244,9 @@ public class ThumbnailLoader
                 final boolean last = lastIndex == k++;
 
                 // Add a new load thumbnail task to tree
-                add(new BatchCall("Loading thumbnails") {
+                BatchCall call = new BatchCall("Loading thumbnails") {
                     @Override
                     public void doCall() throws Exception {
-                        super.doCall();
                         ThumbnailStorePrx store = service.createThumbnailStore(ctx);
                         try {
                             handleBatchCall(store, pxd, userId);
@@ -257,7 +257,9 @@ public class ThumbnailLoader
                             }
                         }
                     }
-                });
+                };
+
+                add(call);
             }
         }
     }

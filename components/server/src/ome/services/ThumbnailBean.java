@@ -1093,20 +1093,42 @@ public class ThumbnailBean extends AbstractLevel2Service
         Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
         Set<Long> pixelsIds = Collections.singleton(pixelsId);
         ctx.loadAndPrepareMetadata(pixelsIds, dimensions);
-        Thumbnail thumbMetaData = ctx.getMetadataSimple(pixelsId);
-        if (thumbMetaData == null) {
-            // If this comes back null, don't have a thumbnail yet
-            thumbMetaData = ctx.createThumbnailMetadata(pixels, dimensions);
+
+        // If this comes back null, don't have a thumbnail yet
+        thumbnailMetadata = ctx.getMetadataSimple(pixelsId);
+        if (thumbnailMetadata == null) {
+            // We don't have a thumbnail to load, lets try to create it
+            // and then return it
+            thumbnailMetadata = ctx.createThumbnailMetadata(pixels, dimensions);
+        }
+
+        // I don't really know why this is here, no iquery calls being that I can see...
+        iQuery.clear();//see #11072
+
+        return retrieveThumbnail(thumbnailMetadata);
+
+//        return retrieveThumbnailDirect((int) dimensions.getWidth(),
+//                (int) dimensions.getHeight(), null, null, true);
+
+        /*byte[] value = retrieveThumbnail(thumbMetaData);
+        if (value.length == 0) {
+            try {
+                pixelDataService.getPixelBuffer(ctx.getPixels(pixelsId), false);
+            } catch (ConcurrencyException e) {
+                log.debug("ConcurrencyException on retrieveThumbnailSet.ctx.hasSettings: pyramid in progress");
+                return value;
+            }
 
             // Trigger a thumbnail creation
             // ToDo: make this async
-            _createThumbnail(thumbMetaData);
-        }
+            // _createThumbnail(thumbMetaData);
 
-        byte[] value = retrieveThumbnail(thumbMetaData);
-        // I don't really know why this is here, no iquery calls being that I can see...
-        iQuery.clear();//see #11072
-        return value;
+            // Now try to load thumbnail
+            // value = retrieveThumbnail(thumbMetaData);
+        }*/
+
+
+        // return value;
     }
 
     /**
@@ -1204,24 +1226,23 @@ public class ThumbnailBean extends AbstractLevel2Service
      * @return Thumbnail bytes.
      */
     private byte[] retrieveThumbnail(Thumbnail thumbMetaData) throws ResourceError {
-        if (!ctx.isThumbnailCached(pixels.getId())) {
+        try {
+            return ioService.getThumbnail(thumbMetaData);
+        } catch (IOException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Cache miss, thumbnail missing or out of date.");
             }
 
-            // Return empty array for the time being
-            return new byte[0];
-        }
+            // If we get here, then we can assume the thumbnail just needs created
+            // and saved to disk
+            _createThumbnail(thumbMetaData);
 
-        if (log.isDebugEnabled()) {
-            log.debug("Cache hit.");
-        }
-
-        try {
-            return ioService.getThumbnail(thumbMetaData);
-        } catch (IOException e) {
-            log.error("Could not obtain thumbnail", e);
-            throw new ResourceError(e.getMessage());
+            try {
+                return ioService.getThumbnail(thumbMetaData);
+            } catch (IOException e1) {
+                log.error("Could not obtain thumbnail", e1);
+                throw new ResourceError(e.getMessage());
+            }
         }
     }
 
