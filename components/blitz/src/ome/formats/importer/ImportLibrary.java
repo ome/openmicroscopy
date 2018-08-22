@@ -27,6 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import loci.common.Location;
 import loci.formats.FormatException;
@@ -286,7 +290,7 @@ public class ImportLibrary implements IObservable
                 }
 
                 try {
-                    importImage(ic,index,numDone,containers.size());
+                    importImage(ic, config.parallelUpload.get(), index, numDone, containers.size());
                     numDone++;
                 } catch (Throwable t) {
                     String message = "Error on import";
@@ -461,11 +465,22 @@ public class ImportLibrary implements IObservable
 
     }
 
+    /**
+     * Image import with only one file upload thread.
+     * @see #importImage(ImportContainer, int, int, int, int)
+     * @deprecated now used by tests only
+     */
+    @SuppressWarnings("javadoc")
+    @Deprecated
+    public List<Pixels> importImage(final ImportContainer container, int index, int numDone, int total) throws Throwable {
+        return importImage(container, 1, index, numDone, total);
+    }
 
     /**
      * Perform an image import uploading files if necessary.
      * @param container The import container which houses all the configuration
      * values and target for the import.
+     * @param parallelUpload How many threads to use in file upload, at least <code>1</code>.
      * @param index Index of the import in a set. <code>0</code> is safe if
      * this is a singular import.
      * @param numDone Number of imports completed in a set. <code>0</code> is
@@ -481,8 +496,8 @@ public class ImportLibrary implements IObservable
      * @throws Throwable If there is some other kind of error during import.
      * @since OMERO Beta 4.2.1.
      */
-    public List<Pixels> importImage(final ImportContainer container, int index,
-                                    int numDone, int total)
+    public List<Pixels> importImage(final ImportContainer container, int parallelUpload, 
+            int index, int numDone, int total)
             throws FormatException, IOException, Throwable
     {
         HandlePrx handle;
@@ -506,7 +521,12 @@ public class ImportLibrary implements IObservable
         final ImportProcessPrx proc = createImport(container);
         final String[] srcFiles = container.getUsedFiles();
         final List<String> checksums = new ArrayList<String>();
-        final byte[] buf = new byte[store.getDefaultBlockSize()];
+        final ThreadLocal<byte[]> buf = new ThreadLocal<byte[]>() {
+            @Override
+            protected byte[] initialValue() {
+                return new byte[store.getDefaultBlockSize()];
+            }
+        };
         final TimeEstimator estimator = new ProportionalTimeEstimatorImpl(
                 container.getUsedFilesTotalSize());
         Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
@@ -514,9 +534,22 @@ public class ImportLibrary implements IObservable
         notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
                 null, index, srcFiles.length, null, null, null));
 
+        final List<Callable<String>> uploadThreads = new ArrayList<>(srcFiles.length);
         for (int i = 0; i < srcFiles.length; i++) {
-            checksums.add(uploadFile(proc, srcFiles, i, checksumProviderFactory,
-                    estimator, buf));
+            final int fileIndex = i;
+            uploadThreads.add(new Callable<String>() {
+                @Override
+                public String call() throws Exception {
+                    return uploadFile(proc, srcFiles, fileIndex, checksumProviderFactory, estimator, buf.get());
+                }});
+        }
+        final List<Future<String>> completedUploads = Executors.newFixedThreadPool(parallelUpload).invokeAll(uploadThreads);
+        for (final Future<String> completedUpload : completedUploads) {
+            try {
+                checksums.add(completedUpload.get());
+            } catch (ExecutionException ee) {
+                throw ee.getCause();
+            }
         }
 
         try {
