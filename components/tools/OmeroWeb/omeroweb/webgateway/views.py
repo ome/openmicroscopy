@@ -36,7 +36,6 @@ from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.views.generic import View
-from omeroweb.api.views import build_url
 from omeroweb.webadmin.forms import LoginForm
 from omeroweb.decorators import get_client_ip
 from omeroweb.webadmin.webadmin_utils import upgradeCheck
@@ -2281,11 +2280,13 @@ def full_viewer(request, iid, conn=None, **kwargs):
             logger.debug('Twitter enabled: %s', twitter)
 
         if opengraph or twitter:
+            urlargs = {'iid': iid}
             prefix = kwargs.get(
                 'thumbprefix', 'webgateway.views.render_thumbnail')
-            image_preview = build_url(request, prefix, None, iid)
-            page_url = build_url(
-                request, 'webgateway.views.full_viewer', None, iid)
+            image_preview = request.build_absolute_uri(
+                reverse(prefix, kwargs=urlargs))
+            page_url = request.build_absolute_uri(
+                reverse('webgateway.views.full_viewer', kwargs=urlargs))
 
         d = {'blitzcon': conn,
              'image': image,
