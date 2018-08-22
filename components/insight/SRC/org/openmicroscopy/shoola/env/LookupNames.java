@@ -415,4 +415,7 @@ public class LookupNames
 
     /** Lookup name used to identify the status of the server*/
     public static final String CAN_CREATE = "canCreate";
+
+    /** Lookup name used to identify the format to use to download the data when using open with*/
+    public static final String OPEN_WITH_DATA = "/services/OpenWith/Original";
 }

@@ -140,7 +140,7 @@ class PrefsControl(WriteableConfigControl):
 
         list = parser.add(
             sub, self.list,
-            "List all key-value pairs from the current profile")
+            "List all key-value pairs from the current profile (deprecated)")
         list.set_defaults(func=self.list)
 
         get = parser.add(
@@ -280,6 +280,8 @@ class PrefsControl(WriteableConfigControl):
 
     @with_config
     def list(self, args, config):
+        self.ctx.err('WARNING: "config list" is deprecated, '
+                     'use "config get" instead')
         args.KEY = []
         self.get(args, config)
 

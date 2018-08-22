@@ -183,7 +183,13 @@ class UserControl(UserGroupControl):
             self.ctx.dbg(traceback.format_exc(sv))
 
         if args.username:
-            self.ctx.out("Changing password for %s" % args.username)
+            try:
+                e = admin.lookupExperimenter(args.username)
+            except omero.ApiUsageException:
+                self.ctx.die(457, "Unknown user: %s" % args.username)
+                return  # Never reached
+            self.ctx.out("Changing password for %s (id:%s)" % (
+                args.username, e.id.val))
         else:
             self.ctx.out("Changing password for %s" % own_name)
 

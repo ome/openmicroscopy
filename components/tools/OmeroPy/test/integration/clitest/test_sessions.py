@@ -59,7 +59,7 @@ class TestSessions(CLITest):
 
     def get_connection_string(self, timetoidle="10 min"):
         ec = self.cli.get_event_context()
-        string = 'session %s (%s).' % (ec.sessionUuid, self.conn_string)
+        string = 'session for %s.' % self.conn_string
         if timetoidle:
             string += ' Idle timeout: %s.' % timetoidle
         else:

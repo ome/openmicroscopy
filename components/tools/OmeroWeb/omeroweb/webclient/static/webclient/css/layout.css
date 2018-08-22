@@ -541,10 +541,21 @@
         //border-left: solid 1px hsl(210,10%,85%);
         min-width:240px;
     }
-    
-   
-   
-   
+
+    #preview_tab .right_tab_inner {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #preview_tab .right_tab_inner > * {
+        flex-shrink: 0;
+    }
+
+    #preview_tab .right_tab_inner #rdef-container {
+        flex-shrink: 1;
+        overflow-y: auto;
+    }
+
     /* Seperator */
     
     hr {
@@ -1556,6 +1567,7 @@
 				border:solid 1px rgba(0,0,0,.3);
 				border-top:solid 1px rgba(0,0,0,.4);
 				color:#333;
+				box-sizing: border-box;
 			}
 	
 

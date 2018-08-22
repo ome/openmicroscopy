@@ -328,7 +328,7 @@ module omero {
                  *
                  * @param obj Can be <i>unloaded</i>.
                  * @param collectionName
-                 *            <code>public final static String</code> from the
+                 *            <code>public static final String</code> from the
                  *            IObject.class
                  * @param options
                  *            Parameters. Unused.

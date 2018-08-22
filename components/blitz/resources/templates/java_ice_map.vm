@@ -21,18 +21,18 @@ import java.util.Map;
  */
 public class IceMap {
 
-        private final static Map<Class, Class> _ome2omero = new HashMap<Class, Class>();
-        private final static Map<Class, Class> _omero2ome = new HashMap<Class, Class>();
+        private static final Map<Class, Class> _ome2omero = new HashMap<Class, Class>();
+        private static final Map<Class, Class> _omero2ome = new HashMap<Class, Class>();
 
         /**
          * Unmodifiable map of ome.model.* classes to omero.model.* classes.
          */
-        public final static Map<Class, Class> OMEtoOMERO;
+        public static final Map<Class, Class> OMEtoOMERO;
 
         /**
          * Unmodifiable map of omero.model.* classes to ome.model.* classes.
          */
-        public final static Map<Class, Class> OMEROtoOME;
+        public static final Map<Class, Class> OMEROtoOME;
 
         static {
 #macro(put $longtype $shorttype)

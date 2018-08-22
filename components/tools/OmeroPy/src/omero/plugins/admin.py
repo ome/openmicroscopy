@@ -350,7 +350,8 @@ dt_socket,address=8787,suspend=y" \\
             help="Re-enables the background indexer after for indexing")
 
         sessionlist = Action(
-            "sessionlist", "List currently running sessions").parser
+            "sessionlist", "List currently running sessions (deprecated)") \
+            .parser
         sessionlist.add_login_arguments()
 
         cleanse = Action("cleanse", """Remove binary data files from OMERO  (admins only)
@@ -1783,6 +1784,8 @@ present, the user will enter a console""")
         client.submit(req).loop(100, 100)
 
     def sessionlist(self, args):
+        self.ctx.err('WARNING: "admin sessionlist" is deprecated, '
+                     'use "sessions who" instead')
         client = self.ctx.conn(args)
         service = client.sf.getQueryService()
         params = omero.sys.ParametersI()

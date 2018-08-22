@@ -339,7 +339,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["DEBUG",
          "false",
          parse_boolean,
-         "A boolean that turns on/off debug mode."],
+         ("A boolean that turns on/off debug mode. "
+          "Use debug mode only in development, not in production, as it logs "
+          "sensitive and confidential information in plaintext.")],
     "omero.web.secret_key":
         ["SECRET_KEY",
          None,
@@ -682,7 +684,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '["Data", "webindex", {"title": "Browse Data via Projects, Tags'
           ' etc"}],'
           '["History", "history", {"title": "History"}],'
-          '["Help", "http://help.openmicroscopy.org/",'
+          '["Help", "https://help.openmicroscopy.org/",'
           '{"title":"Open OMERO user guide in a new tab", "target":"new"}]'
           ']'),
          json.loads,
