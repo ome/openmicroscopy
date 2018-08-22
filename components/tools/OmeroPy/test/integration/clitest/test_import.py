@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2014-2018 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -1220,3 +1220,27 @@ path: test.tsv
 
         # TBD
         # assert self.get_object(out, 'Image')
+
+    def testParallelUpload(self, tmpdir, capfd):
+        """Test parallel file upload"""
+
+        # write a pattern file into a new subdirectory
+        subdir = tmpdir.mkdir('ParallelUpload-' + self.uuid())
+        pattern_file = subdir.join('fakes.pattern')
+        pattern_file.write('image-T<0-9>.fake')
+
+        # write fake planes for pattern file
+        for timepoint in range(0, 10):
+            file = 'image-T{0}.fake'.format(timepoint)
+            subdir.join(file).write('')
+
+        # set arguments for parallel upload of pattern file with planes
+        self.args += ['--parallel-upload', '3']
+        self.args += [str(pattern_file)]
+
+        # do import
+        out, err = self.do_import(capfd)
+
+        # check that the pattern file was imported
+        image = self.get_object(out, 'Image')
+        assert image.name.val == 'fakes.pattern'
