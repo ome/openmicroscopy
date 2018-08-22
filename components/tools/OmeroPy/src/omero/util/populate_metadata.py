@@ -33,6 +33,7 @@ from getpass import getpass
 from getopt import getopt, GetoptError
 from itertools import izip
 from collections import defaultdict
+import warnings
 
 import omero.clients
 from omero import CmdError
@@ -59,6 +60,11 @@ from populate_roi import ThreadPool
 
 log = logging.getLogger("omero.util.populate_metadata")
 
+warnings.warn(
+    "This module is deprecated as of OMERO 5.4.8. Use the module"
+    " in the omero-metadata project available from"
+    " https://pypi.org/project/omero-metadata/ instead.",
+    DeprecationWarning)
 
 def usage(error):
     """Prints usage so that we don't have to. :)"""
