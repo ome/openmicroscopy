@@ -1090,15 +1090,17 @@ public class FileImportComponent
 		return false;
 	}
 	
-	@Override
+    @Override
     public int cancelled() {
         int c = 0;
-        Collection<FileImportComponent> values = components.values();
-        synchronized (components) {
-            Iterator<FileImportComponent> i = values.iterator();
-            while (i.hasNext()) {
-                if (i.next().isCancelled())
-                    c++;
+        if (components != null) {
+            Collection<FileImportComponent> values = components.values();
+            synchronized (components) {
+                Iterator<FileImportComponent> i = values.iterator();
+                while (i.hasNext()) {
+                    if (i.next().isCancelled())
+                        c++;
+                }
             }
         }
         return c;

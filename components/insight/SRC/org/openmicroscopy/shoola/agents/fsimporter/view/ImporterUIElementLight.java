@@ -73,31 +73,8 @@ class ImporterUIElementLight extends ImporterUIElement {
     FileImportComponentI buildComponent(ImportableFile importable,
             boolean browsable, boolean singleGroup, int index,
             Collection<TagAnnotationData> tags) {
-        LightFileImportComponent fc = new LightFileImportComponent(importable,
+        return new LightFileImportComponent(importable,
                 getID(), object.getTags());
-
-        fc.addPropertyChangeListener(new PropertyChangeListener() {
-
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                String name = evt.getPropertyName();
-                if (Status.STEP_PROPERTY.equals(name)) {
-                    String[] tmp = ((String) evt.getNewValue()).split("_");
-                    int id = Integer.parseInt(tmp[0]);
-                    int step = Integer.parseInt(tmp[1]);
-
-                    importStatus.put(id, step);
-
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            updateDisplay();
-                        }
-                    });
-                }
-            }
-        });
-        return fc;
     }
 
     /**
@@ -265,6 +242,12 @@ class ImporterUIElementLight extends ImporterUIElement {
             setNumberOfImport();
         } else if (FileImportComponentI.CANCEL_IMPORT_PROPERTY.equals(name)) {
             controller.cancel((FileImportComponentI) evt.getNewValue());
+        } else if (Status.STEP_PROPERTY.equals(name)) {
+            String[] tmp = ((String) evt.getNewValue()).split("_");
+            int id = Integer.parseInt(tmp[0]);
+            int step = Integer.parseInt(tmp[1]);
+
+            importStatus.put(id, step);
         }
         
         SwingUtilities.invokeLater(new Runnable() {
@@ -273,6 +256,7 @@ class ImporterUIElementLight extends ImporterUIElement {
                 updateDisplay();
             }
         });
+        
     }
 
 }
