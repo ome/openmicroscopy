@@ -66,6 +66,7 @@ warnings.warn(
     " https://pypi.org/project/omero-metadata/ instead.",
     DeprecationWarning)
 
+
 def usage(error):
     """Prints usage so that we don't have to. :)"""
     cmd = sys.argv[0]
