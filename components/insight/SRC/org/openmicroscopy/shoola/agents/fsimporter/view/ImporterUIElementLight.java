@@ -222,7 +222,7 @@ class ImporterUIElementLight extends ImporterUIElement {
         if (uploaded == super.totalToImport) {
             uploadBusy.setBusy(false);
             uploadBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY));
-        } else if (complete + cancelled == super.totalToImport) {
+        } else if (uploaded + cancelled + super.countFailure == super.totalToImport) {
             uploadBusy.setBusy(false);
             uploadBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY_CANCEL));
         } else {
@@ -235,17 +235,14 @@ class ImporterUIElementLight extends ImporterUIElement {
         if (complete == super.totalToImport) {
             processedBusy.setBusy(false);
             processedBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY));
-        } else if (complete+super.countFailure == super.totalToImport) {
-            processedBusy.setBusy(false);
-            processedBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY_CANCEL));
-        } else if (complete + cancelled == super.totalToImport) {
+        } else if (complete + cancelled + super.countFailure == super.totalToImport) {
             processedBusy.setBusy(false);
             processedBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY_CANCEL));
         } else {
             processedBusy.setBusy(true);
         }
         errors.setText("" + super.countFailure);
-
+        
         if (super.countFailure > 0) {
             super.filterButton.setEnabled(true);
         }
@@ -269,7 +266,13 @@ class ImporterUIElementLight extends ImporterUIElement {
         } else if (FileImportComponentI.CANCEL_IMPORT_PROPERTY.equals(name)) {
             controller.cancel((FileImportComponentI) evt.getNewValue());
         }
-        updateDisplay();
+        
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                updateDisplay();
+            }
+        });
     }
 
 }

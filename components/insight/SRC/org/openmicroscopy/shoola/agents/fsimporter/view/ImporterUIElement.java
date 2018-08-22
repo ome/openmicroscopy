@@ -773,11 +773,14 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
         return false;
     }
     
+    /**
+     * Get the number of cancelled imports.
+     * @return See above.
+     */
     int cancelled() {
         int i = 0;
         for (final FileImportComponentI fic : components.values()) {
-            if (fic.isCancelled())
-                i++;
+            i += fic.cancelled();
         }
         return i;
     }

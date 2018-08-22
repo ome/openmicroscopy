@@ -206,6 +206,13 @@ public interface FileImportComponentI {
     public abstract boolean isCancelled();
 
     /**
+     * Returns the number of cancelled imports
+     * 
+     * @return See above.
+     */
+    public int cancelled();
+    
+    /**
      * Returns <code>true</code> if the component has imports to cancel,
      * <code>false</code> otherwise.
      * 

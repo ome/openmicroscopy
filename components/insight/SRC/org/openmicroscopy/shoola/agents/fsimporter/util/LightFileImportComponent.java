@@ -592,6 +592,20 @@ public class LightFileImportComponent implements PropertyChangeListener,
         }
         return false;
     }
+    
+    @Override
+    public int cancelled() {
+        int c = 0;
+        Collection<LightFileImportComponent> values = components.values();
+        synchronized (components) {
+            Iterator<LightFileImportComponent> i = values.iterator();
+            while (i.hasNext()) {
+                if (i.next().isCancelled())
+                    c++;
+            }
+        }
+        return c;
+    }
 
     /*
      * (non-Javadoc)
