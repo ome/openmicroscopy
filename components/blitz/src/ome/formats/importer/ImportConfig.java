@@ -282,7 +282,7 @@ public class ImportConfig {
         numOfDirectories = new IntValue("numOfDirectories", this, 0);
         savedDirectory = new FileValue("savedDirectory", this);
 
-        encryptedConnection = new BoolValue("ecryptedConnection", this, true);
+        encryptedConnection = new BoolValue("encryptedConnection", this, true);
         autoClose = new BoolValue("autoClose", this, false);
 
         annotations = new AnnotationListValue(
