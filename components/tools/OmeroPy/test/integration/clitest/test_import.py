@@ -27,6 +27,7 @@ import stat
 import re
 import yaml
 import omero
+import subprocess
 from omero.cli import NonZeroReturnCode
 from omero.rtypes import rstring
 
@@ -1218,5 +1219,5 @@ path: test.tsv
         # At this point, script1.sh has been created
         assert script.exists()
 
-        # TBD
-        # assert self.get_object(out, 'Image')
+        out = subprocess.check_output(["bash", str(script)])
+        assert self.get_object(out, 'Image')
