@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2013-2018 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -64,7 +64,7 @@ public class ProportionalTimeEstimatorImpl implements TimeEstimator {
      */
     public void stop() {
         sw.stop();
-        totalTime += sw.getTime();
+        updateStats();
     }
 
     /**
@@ -72,6 +72,14 @@ public class ProportionalTimeEstimatorImpl implements TimeEstimator {
      */
     public void stop(long uploadedBytes) {
         sw.stop();
+        updateStats(uploadedBytes);
+    }
+
+    private void updateStats() {
+        totalTime += sw.getTime();
+    }
+
+    private void updateStats(long uploadedBytes) {
         totalTime += sw.getTime();
         totalBytes += uploadedBytes;
         imageContainerSize -= uploadedBytes;
@@ -89,5 +97,4 @@ public class ProportionalTimeEstimatorImpl implements TimeEstimator {
     public long getUploadTimeLeft() {
         return timeLeft;
     }
-
 }
