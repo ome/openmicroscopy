@@ -31,13 +31,18 @@ import org.apache.commons.lang.time.StopWatch;
  */
 public class ProportionalTimeEstimatorImpl implements TimeEstimator {
 
+    private final ThreadLocal<StopWatch> swGetter = new ThreadLocal<StopWatch>() {
+        @Override
+        protected StopWatch initialValue() {
+            return new StopWatch();
+        }
+    };
+
     private long imageContainerSize = 0, timeLeft = 0;
 
     private long totalBytes = 0;
 
     private long totalTime = 0;
-
-    private StopWatch sw;
 
     /**
      * Creates a new object of this class with a defined internal buffer size.
@@ -47,7 +52,6 @@ public class ProportionalTimeEstimatorImpl implements TimeEstimator {
      *            time is being estimated.
      */
     public ProportionalTimeEstimatorImpl(long imageContainerSize) {
-        sw = new StopWatch();
         this.imageContainerSize = imageContainerSize;
     }
 
@@ -55,6 +59,7 @@ public class ProportionalTimeEstimatorImpl implements TimeEstimator {
      * @see TimeEstimator#start()
      */
     public void start() {
+        final StopWatch sw = swGetter.get();
         sw.reset();
         sw.start();
     }
@@ -63,23 +68,25 @@ public class ProportionalTimeEstimatorImpl implements TimeEstimator {
      * @see TimeEstimator#stop()
      */
     public void stop() {
+        final StopWatch sw = swGetter.get();
         sw.stop();
-        updateStats();
+        updateStats(sw);
     }
 
     /**
      * @see TimeEstimator#stop(long)
      */
     public void stop(long uploadedBytes) {
+        final StopWatch sw = swGetter.get();
         sw.stop();
-        updateStats(uploadedBytes);
+        updateStats(sw, uploadedBytes);
     }
 
-    private void updateStats() {
+    private synchronized void updateStats(StopWatch sw) {
         totalTime += sw.getTime();
     }
 
-    private void updateStats(long uploadedBytes) {
+    private synchronized void updateStats(StopWatch sw, long uploadedBytes) {
         totalTime += sw.getTime();
         totalBytes += uploadedBytes;
         imageContainerSize -= uploadedBytes;
@@ -94,7 +101,7 @@ public class ProportionalTimeEstimatorImpl implements TimeEstimator {
     /**
      * @see TimeEstimator#getUploadTimeLeft()
      */
-    public long getUploadTimeLeft() {
+    public synchronized long getUploadTimeLeft() {
         return timeLeft;
     }
 }
