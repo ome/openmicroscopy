@@ -233,6 +233,11 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
             return -1;
         }
 
+        @Override
+        public byte[] getThumbnailWithoutDefault(Integer arg0, Integer arg1) {
+            return null;
+        }
+
     }
 
     // 
