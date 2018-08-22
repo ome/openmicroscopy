@@ -129,6 +129,7 @@ public class ImportConfig {
     public final BoolValue sendReport;
     public final BoolValue sendFiles;
     public final BoolValue sendLogFile;
+    public final IntValue parallelUpload;
     public final StrValue qaBaseURL;
     public final BoolValue checkUpgrade;
 
@@ -274,6 +275,7 @@ public class ImportConfig {
         sendReport   = new BoolValue("sendReport", this, false);
         sendFiles    = new BoolValue("sendFiles", this, true);
         sendLogFile  = new BoolValue("sendLogFile", this, true);
+        parallelUpload = new IntValue("parallelUpload", this, 1);
 
         useFullPath  = new BoolValue("useFullPath", this, true);
         useCustomImageNaming = new BoolValue("overrideImageName", this, true);
