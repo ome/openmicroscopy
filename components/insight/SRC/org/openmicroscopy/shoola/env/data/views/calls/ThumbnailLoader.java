@@ -299,7 +299,7 @@ public class ThumbnailLoader
      */
     public ThumbnailLoader(SecurityContext ctx, Collection<DataObject> imgs,
                            int maxWidth, int maxHeight, Collection<Long> userIDs) {
-        if (images == null) {
+        if (imgs == null) {
             throw new NullPointerException("No images.");
         }
 
