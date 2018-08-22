@@ -823,8 +823,11 @@ public class ThumbnailBean extends AbstractLevel2Service
         return _createThumbnail(thumbnailMetadata);
     }
 
-    /*
+    /**
      * Actually does the work specified by {@link #createThumbnail(Integer, Integer)}.
+     *
+     * @param thumbMetaData Thumbnail meta data object
+     * @return
      */
     private Thumbnail _createThumbnail(Thumbnail thumbMetaData) {
         StopWatch s1 = new Slf4JStopWatch("omero._createThumbnail");
@@ -1090,19 +1093,17 @@ public class ThumbnailBean extends AbstractLevel2Service
         Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
         Set<Long> pixelsIds = Collections.singleton(pixelsId);
         ctx.loadAndPrepareMetadata(pixelsIds, dimensions);
-
-        thumbnailMetadata = ctx.getMetadataSimple(pixelsId);
-        if (thumbnailMetadata == null) {
+        Thumbnail thumbMetaData = ctx.getMetadataSimple(pixelsId);
+        if (thumbMetaData == null) {
             // If this comes back null, don't have a thumbnail yet
-            thumbnailMetadata = ctx.createThumbnailMetadata(pixels, dimensions);
+            thumbMetaData = ctx.createThumbnailMetadata(pixels, dimensions);
 
             // Trigger a thumbnail creation
             // ToDo: make this async
-            _createThumbnail(thumbnailMetadata);
+            _createThumbnail(thumbMetaData);
         }
 
-        byte[] value = retrieveThumbnail();
-
+        byte[] value = retrieveThumbnail(thumbMetaData);
         // I don't really know why this is here, no iquery calls being that I can see...
         iQuery.clear();//see #11072
         return value;
@@ -1202,29 +1203,29 @@ public class ThumbnailBean extends AbstractLevel2Service
      *
      * @return Thumbnail bytes.
      */
-    private byte[] retrieveThumbnail() throws ResourceError {
-        try {
-            boolean cached = ctx.isThumbnailCached(pixels.getId());
-            if (cached) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Cache hit.");
-                }
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Cache miss, thumbnail missing or out of date.");
-                }
-
-                // Return empty array for the time being
-                return new byte[0];
+    private byte[] retrieveThumbnail(Thumbnail thumbMetaData) throws ResourceError {
+        if (!ctx.isThumbnailCached(pixels.getId())) {
+            if (log.isDebugEnabled()) {
+                log.debug("Cache miss, thumbnail missing or out of date.");
             }
-            return ioService.getThumbnail(thumbnailMetadata);
+
+            // Return empty array for the time being
+            return new byte[0];
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Cache hit.");
+        }
+
+        try {
+            return ioService.getThumbnail(thumbMetaData);
         } catch (IOException e) {
             log.error("Could not obtain thumbnail", e);
             throw new ResourceError(e.getMessage());
         }
     }
 
-    /*
+    /**
      * (non-Javadoc)
      *
      * @see ome.api.ThumbnailStore#getThumbnailByLongestSide(ome.model.core.Pixels,
