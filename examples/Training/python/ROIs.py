@@ -248,6 +248,25 @@ for roi in result.rois:
             print "  ", key, value,
         print ""
 
+# Get Pixel Intensities for ROIs
+# ==============================
+result = roi_service.findByImage(imageId, None)
+shape_ids = []
+for roi in result.rois:
+    for s in roi.copyShapes():
+        shape_ids.append(s.id.val)
+ch_index = 0
+# Z/T will only be used if a shape doesn't have Z/T set
+the_z = 0
+the_t = 0
+stats = roi_service.getShapeStatsRestricted(shape_ids, the_z, the_t, [ch_index])
+for s in stats:
+    print "Points", s.pointsCount[ch_index],
+    print "Min", s.min[ch_index],
+    print "Mean", s.mean[ch_index],
+    print "Max", s.max[ch_index],
+    print "Sum", s.max[ch_index],
+    print "StdDev", s.stdDev[ch_index]
 
 # Remove shape from ROI
 # =====================
