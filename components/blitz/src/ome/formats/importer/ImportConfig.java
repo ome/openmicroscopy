@@ -133,6 +133,7 @@ public class ImportConfig {
     public final BoolValue checkUpgrade;
 
     public final BoolValue useCustomImageNaming;
+    @Deprecated
     public final BoolValue useFullPath;
     public final IntValue numOfDirectories;
 
@@ -558,6 +559,7 @@ public class ImportConfig {
     /**
      * @return ini user full path
      */
+    @Deprecated
     public boolean getUserFullPath() {
         return ini.getUserFullPath();
     }
@@ -565,6 +567,7 @@ public class ImportConfig {
     /**
      * @param b ini user full path
      */
+    @Deprecated
     public void setUserFullPath(boolean b) {
         ini.setUserFullPath(b);
     }
