@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
@@ -543,7 +544,16 @@ public class ImportLibrary implements IObservable
                     return uploadFile(proc, srcFiles, fileIndex, checksumProviderFactory, estimator, buf.get());
                 }});
         }
-        final List<Future<String>> completedUploads = Executors.newFixedThreadPool(parallelUpload).invokeAll(uploadThreads);
+        ExecutorService threadPool = null;
+        final List<Future<String>> completedUploads;
+        try {
+            threadPool = Executors.newFixedThreadPool(parallelUpload);
+            completedUploads = threadPool.invokeAll(uploadThreads);
+        } finally {
+            if (threadPool != null) {
+                threadPool.shutdown();
+            }
+        }
         for (final Future<String> completedUpload : completedUploads) {
             try {
                 checksums.add(completedUpload.get());
