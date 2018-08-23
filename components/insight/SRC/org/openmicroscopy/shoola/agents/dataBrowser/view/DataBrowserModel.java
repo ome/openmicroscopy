@@ -1022,24 +1022,7 @@ abstract class DataBrowserModel
 	{
 		if (images == null) return null;
 		List<DataBrowserLoader> loaders = new ArrayList<DataBrowserLoader>();
-		int n = images.size();
-		int diff = n/MAX_LOADER;
-		List<DataObject> l;
-		int j;
-		int step = 0;
-		if (n < MAX_LOADER) diff = 1;
-		for (int k = 0; k < MAX_LOADER; k++) {
-			l = new ArrayList<DataObject>();
-			j = step+diff;
-			if (k == (MAX_LOADER-1)) j += (n-j);
-			if (j <= n) {
-				l = images.subList(step, j);
-				step += l.size();
-			}
-			if (l.size() > 0) {
-				loaders.add(new ThumbnailLoader(component, ctx, l, n));
-			}
-		}
+		loaders.add(new ThumbnailLoader(component, ctx, images, images.size()));
 		return loaders;
 	}
 

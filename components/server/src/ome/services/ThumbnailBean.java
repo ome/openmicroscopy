@@ -1102,33 +1102,10 @@ public class ThumbnailBean extends AbstractLevel2Service
             thumbnailMetadata = ctx.createThumbnailMetadata(pixels, dimensions);
         }
 
+        byte[] value = retrieveThumbnail(thumbnailMetadata);
         // I don't really know why this is here, no iquery calls being that I can see...
         iQuery.clear();//see #11072
-
-        return retrieveThumbnail(thumbnailMetadata);
-
-//        return retrieveThumbnailDirect((int) dimensions.getWidth(),
-//                (int) dimensions.getHeight(), null, null, true);
-
-        /*byte[] value = retrieveThumbnail(thumbMetaData);
-        if (value.length == 0) {
-            try {
-                pixelDataService.getPixelBuffer(ctx.getPixels(pixelsId), false);
-            } catch (ConcurrencyException e) {
-                log.debug("ConcurrencyException on retrieveThumbnailSet.ctx.hasSettings: pyramid in progress");
-                return value;
-            }
-
-            // Trigger a thumbnail creation
-            // ToDo: make this async
-            // _createThumbnail(thumbMetaData);
-
-            // Now try to load thumbnail
-            // value = retrieveThumbnail(thumbMetaData);
-        }*/
-
-
-        // return value;
+        return value;
     }
 
     /**
@@ -1231,6 +1208,15 @@ public class ThumbnailBean extends AbstractLevel2Service
         } catch (IOException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Cache miss, thumbnail missing or out of date.");
+            }
+
+            final long pixelsId = thumbMetaData.getPixels().getId();
+            if (!ctx.hasSettings(pixelsId)) {
+                try {
+                    pixelDataService.getPixelBuffer(ctx.getPixels(pixelsId), false);
+                } catch (ConcurrencyException ce) {
+                    return new byte[0];
+                }
             }
 
             // If we get here, then we can assume the thumbnail just needs created
