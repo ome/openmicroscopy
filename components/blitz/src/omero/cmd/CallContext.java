@@ -72,7 +72,7 @@ public class CallContext implements MethodInterceptor {
                         // Don't trust user-passed values
                         if (!checkLogFile(ctx, true)) {
                             if (this.current != null) {
-                                // fall back to the service wide-values
+                                // fall back to the service-wide values
                                 checkLogFile(this.current.ctx, true);
                             }
                         }

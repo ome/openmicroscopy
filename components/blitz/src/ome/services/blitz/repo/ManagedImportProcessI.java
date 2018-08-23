@@ -35,11 +35,13 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import Ice.Current;
+
 import ome.services.blitz.impl.AbstractCloseableAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.repo.PublicRepositoryI.AMD_submit;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ServiceFactoryAware;
+
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.cmd.CallContext;
@@ -260,7 +262,6 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
                         throw re;
                     } finally {
                         sw2.stop("omero.import.process.opener");
-                        MDC.clear();
                     }
                     return new UploadState(prx);
                 }
@@ -378,7 +379,7 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
             this.handle = submit.ret;
             // TODO: in 5.1 this should be added to the request object
             ((ManagedImportRequestI) req).handle = submit.ret;
-            sw2.stop("omero.import.process.verify");
+            sw2.stop("omero.import.process.submit");
             return submit.ret;
         } finally {
             MDC.clear();
