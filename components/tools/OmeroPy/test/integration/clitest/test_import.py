@@ -24,14 +24,11 @@ ImportControl = plugin.ImportControl
 from omero.testlib.cli import CLITest
 import pytest
 import stat
-import sys
 import re
 import yaml
 import omero
-import subprocess
 from omero.cli import NonZeroReturnCode
 from omero.rtypes import rstring
-from omero.plugins.sessions import SessionsControl
 
 
 class NamingFixture(object):
@@ -121,19 +118,10 @@ class TestImport(CLITest):
 
     def setup_method(self, method):
         super(TestImport, self).setup_method(method)
-        self.cli.register("sessions", SessionsControl, "TEST")
         self.cli.register("import", plugin.ImportControl, "TEST")
         self.args += ["import"]
         self.add_client_dir()
         self.keep_root_alive()
-
-    def set_login_args(self):
-        host = self.root.getProperty("omero.host")
-        port = self.root.getProperty("omero.port")
-        self.args = ["sessions", "login"]
-        self.args += ["-s", host, "-p", port]
-        self.args += ["-u", self.user.omeName.val]
-        self.args += ["-w", self.user.omeName.val]
 
     def set_conn_args(self):
         host = self.root.getProperty("omero.host")
@@ -1207,7 +1195,7 @@ class TestImport(CLITest):
         out, err = self.do_import(capfd)
         assert self.get_object(out, 'Image')
 
-    def testBulk(self, tmpdir, capfd, monkeypatch):
+    def testBulk(self, tmpdir, capfd):
         """Test Bulk import"""
 
         fakefile = tmpdir.join("test.fake")
@@ -1225,18 +1213,10 @@ path: test.tsv
         script = tmpdir.join("script1.sh")
 
         self.args += ["-f", "--bulk", str(yml)]
-        bin = self.omero_dist / "bin" / "omero"
-        monkeypatch.setattr(sys, "argv", [str(bin)])
         out, err = self.do_import(capfd)
 
         # At this point, script1.sh has been created
         assert script.exists()
 
-        # But we need to login and then run the script
-        monkeypatch.setenv("OMERO_SESSIONDIR", tmpdir)
-        self.set_login_args()
-        self.cli.invoke(self.args, strict=True)
-        out = subprocess.check_output(
-            ["bash", str(script)],
-            cwd=str(tmpdir))
-        assert self.get_object(out, 'Image')
+        # TBD
+        # assert self.get_object(out, 'Image')
