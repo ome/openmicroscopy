@@ -1075,6 +1075,18 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
+         * Expand {@code %thread%} to the name of the current thread.
+         * @param prefix path component text preceding the expansion term, may be empty
+         * @param suffix path component text following the expansion term, may be empty
+         * @return entire replaced path component, may be unchanged to be revisited,
+         * or {@code null} if it has been wholly processed; otherwise it will be created
+         */
+        @SuppressWarnings("unused")  /* used by create() via Method.invoke */
+        public String expandThread(String prefix, String suffix) {
+            return prefix + serverPaths.getPathSanitizer().apply(Thread.currentThread().getName()) + suffix;
+        }
+
+        /**
          * Expand and create the template path.
          * @return the path
          * @throws ServerError if the path could not be expanded and created
