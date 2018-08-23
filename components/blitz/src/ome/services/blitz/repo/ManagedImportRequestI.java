@@ -471,9 +471,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             cleanupReader();
             cleanupStore();
 
-            log.info(ClassicConstants.FINALIZE_SESSION_MARKER, "Finalizing log file.");
-            /* hereafter back to normal log destination, not import log file*/
-            MDC.clear();
+            log.info(ClassicConstants.FINALIZE_SESSION_MARKER, "Cleaning up import.");
             try {
                 /* requires usable session */
                 setLogFileSize();
@@ -483,9 +481,14 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
             cleanupSession();
         } finally {
-            autoClose(); // Doesn't throw
-            if (resources != null) {
-                resources.remove(resourcesEntry);
+            try {
+                autoClose(); // Doesn't throw
+                if (resources != null) {
+                    resources.remove(resourcesEntry);
+                }
+            } finally {
+                /* hereafter back to normal log destination, not import log file*/
+                MDC.clear();
             }
         }
     }
