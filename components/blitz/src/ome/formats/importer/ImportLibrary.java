@@ -272,49 +272,49 @@ public class ImportLibrary implements IObservable
             filesetThreadPool = Executors.newFixedThreadPool(config.parallelFileset.get());
             uploadThreadPool  = Executors.newFixedThreadPool(config.parallelUpload.get());
             try {
-            for (int index = 0; index < count; index++) {
-                ImportContainer ic = containers.get(index);
-                ImportTarget target = config.getTarget();
-                if (target != null) {
-                    try {
-                        IObject obj = target.load(store, ic);
-                        if (!(obj instanceof Annotation)) {
-                            ic.setTarget(obj);
-                        } else {
-                            // This is likely a "post-processing" annotation
-                            // so that we don't have to resolve the target
-                            // until later.
-                            ic.getCustomAnnotationList().add((Annotation) obj);
+                for (int index = 0; index < count; index++) {
+                    ImportContainer ic = containers.get(index);
+                    ImportTarget target = config.getTarget();
+                    if (target != null) {
+                        try {
+                            IObject obj = target.load(store, ic);
+                            if (!(obj instanceof Annotation)) {
+                                ic.setTarget(obj);
+                            } else {
+                                // This is likely a "post-processing" annotation
+                                // so that we don't have to resolve the target
+                                // until later.
+                                ic.getCustomAnnotationList().add((Annotation) obj);
+                            }
+                        } catch (Exception e) {
+                            log.error("Could not load target: {}", target);
+                            throw new RuntimeException("Failed to load target", e);
                         }
-                    } catch (Exception e) {
-                        log.error("Could not load target: {}", target);
-                        throw new RuntimeException("Failed to load target", e);
                     }
-                }
-                if (config.checksumAlgorithm.get() != null) {
-                    ic.setChecksumAlgorithm(config.checksumAlgorithm.get());
-                }
+                    if (config.checksumAlgorithm.get() != null) {
+                        ic.setChecksumAlgorithm(config.checksumAlgorithm.get());
+                    }
 
-                try {
-                    importImage(ic, config.parallelUpload.get(), index, numDone, count);
-                    numDone++;
-                } catch (Throwable t) {
-                    String message = "Error on import";
-                    if (t instanceof ServerError) {
-                        final ServerError se = (ServerError) t;
-                        if (StringUtils.isNotBlank(se.message)) {
-                            message += ": " + se.message;
+                    try {
+                        importImage(ic, config.parallelUpload.get(), index, numDone, count);
+                        numDone++;
+                    } catch (Throwable t) {
+                        String message = "Error on import";
+                        if (t instanceof ServerError) {
+                            final ServerError se = (ServerError) t;
+                            if (StringUtils.isNotBlank(se.message)) {
+                                message += ": " + se.message;
+                            }
+                        }
+                        log.error(message, t);
+                        if (!config.contOnError.get()) {
+                            log.info("Exiting on error");
+                            return false;
+                        } else {
+                            log.info("Continuing after error");
                         }
                     }
-                    log.error(message, t);
-                    if (!config.contOnError.get()) {
-                        log.info("Exiting on error");
-                        return false;
-                    } else {
-                        log.info("Continuing after error");
-                    }
                 }
-            }
             } finally {
                 if (filesetThreadPool != null) {
                     filesetThreadPool.shutdown();
