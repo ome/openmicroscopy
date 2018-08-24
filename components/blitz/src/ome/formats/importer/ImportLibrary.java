@@ -271,7 +271,7 @@ public class ImportLibrary implements IObservable
             filesetThreadPool = Executors.newFixedThreadPool(config.parallelFileset.get());
             uploadThreadPool  = Executors.newFixedThreadPool(config.parallelUpload.get());
             try {
-                final List<Callable<Boolean>> filesetThreads = new ArrayList<>(count);
+                final List<Callable<Boolean>> threads = new ArrayList<>(count);
                 for (int index = 0; index < count; index++) {
                     final ImportContainer ic = containers.get(index);
                     final ImportTarget target = config.getTarget();
@@ -296,7 +296,7 @@ public class ImportLibrary implements IObservable
                     }
                     final ExecutorService uploadThreadPoolFinal = uploadThreadPool;
                     final int indexFinal = index;
-                    filesetThreads.add(new Callable<Boolean>() {
+                    threads.add(new Callable<Boolean>() {
                         @Override
                         public Boolean call() {
                             try {
@@ -322,9 +322,15 @@ public class ImportLibrary implements IObservable
                         }
                     });
                 }
+                final List<Future<Boolean>> outcomes = new ArrayList<>(count);
+                for (final Callable<Boolean> thread : threads) {
+                    outcomes.add(filesetThreadPool.submit(thread));
+                }
                 try {
-                    for (final Future<Boolean> completedFileset : filesetThreadPool.invokeAll(filesetThreads)) {
-                        completedFileset.get();
+                    for (final Future<Boolean> outcome : outcomes) {
+                        if (!outcome.get()) {
+                            return false;
+                        }
                     }
                 } catch (InterruptedException ie) {
                     log.error("import interrupted", ie);
@@ -335,10 +341,10 @@ public class ImportLibrary implements IObservable
                 }
             } finally {
                 if (filesetThreadPool != null) {
-                    filesetThreadPool.shutdown();
+                    filesetThreadPool.shutdownNow();
                 }
                 if (uploadThreadPool != null) {
-                    uploadThreadPool.shutdown();
+                    uploadThreadPool.shutdownNow();
                 }
             }
         }
@@ -569,23 +575,26 @@ public class ImportLibrary implements IObservable
         notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
                 null, index, srcFiles.length, null, null, null));
 
-        final List<Callable<String>> uploadThreads = new ArrayList<>(srcFiles.length);
+        final List<Callable<String>> threads = new ArrayList<>(total);
         for (int i = 0; i < srcFiles.length; i++) {
             final int fileIndex = i;
-            uploadThreads.add(new Callable<String>() {
+            threads.add(new Callable<String>() {
                 @Override
                 public String call() throws Exception {
                     return uploadFile(proc, srcFiles, fileIndex, checksumProviderFactory, estimator, buf.get());
                 }});
         }
-        for (final Future<String> completedUpload : threadPool.invokeAll(uploadThreads)) {
+        final List<Future<String>> outcomes = new ArrayList<>(total);
+        for (final Callable<String> thread : threads) {
+            outcomes.add(threadPool.submit(thread));
+        }
+        for (final Future<String> outcome : outcomes) {
             try {
-                checksums.add(completedUpload.get());
+                checksums.add(outcome.get());
             } catch (ExecutionException ee) {
                 throw ee.getCause();
             }
         }
-
         try {
             handle = proc.verifyUpload(checksums);
         } catch (ChecksumValidationException cve) {
