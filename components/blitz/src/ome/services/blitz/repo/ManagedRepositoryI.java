@@ -1130,7 +1130,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
                     /* try to expand the term */
                     final String oldPattern = pattern;
                     final boolean isTryCreateDirectory = createDirectories &&
-                            !(TEMPLATE_TERM.matcher(prefix).matches() || TEMPLATE_TERM.matcher(suffix).matches());
+                            !(TEMPLATE_TERM.matcher(prefix).find() || TEMPLATE_TERM.matcher(suffix).find());
                     while (true) {
                         try {
                             if (parameters == null) {
