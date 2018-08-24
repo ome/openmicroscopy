@@ -549,6 +549,7 @@ public class CommandLineImporter {
         config.sendReport.set(false);
         config.contOnError.set(false);
         config.parallelUpload.set(1);
+        config.parallelFileset.set(1);
         config.debug.set(false);
         config.encryptedConnection.set(false);
 
@@ -616,6 +617,9 @@ public class CommandLineImporter {
         LongOpt parallelUpload =
                 new LongOpt("parallel-upload", LongOpt.REQUIRED_ARGUMENT, null, 27);
 
+        LongOpt parallelFileset =
+                new LongOpt("parallel-fileset", LongOpt.REQUIRED_ARGUMENT, null, 28);
+
         // DEPRECATED OPTIONS
         LongOpt minutesWaitDeprecated =
                 new LongOpt("minutes_wait", LongOpt.REQUIRED_ARGUMENT, null, 86);
@@ -654,7 +658,8 @@ public class CommandLineImporter {
                                 exclude, target, noStatsInfo,
                                 noUpgradeCheck, qaBaseURL,
                                 outputFormat, encryptedConnection,
-                                parallelUpload, plateName, plateName2,
+                                parallelUpload, parallelFileset,
+                                plateName, plateName2,
                                 plateDescription, plateDescription2,
                                 noThumbnailsDeprecated,
                                 checksumAlgorithmDeprecated,
@@ -819,9 +824,15 @@ public class CommandLineImporter {
                 break;
             }
             case 27: {
-                String parallelArg = g.getOptarg();
-                log.info("Setting parallel upload: {}", parallelArg);
-                config.parallelUpload.set(Integer.valueOf(parallelArg));
+                String parallelFArg = g.getOptarg();
+                log.info("Setting parallel upload: {}", parallelFArg);
+                config.parallelUpload.set(Integer.valueOf(parallelFArg));
+                break;
+            }
+            case 28: {
+                String parallelUArg = g.getOptarg();
+                log.info("Setting parallel fileset: {}", parallelUArg);
+                config.parallelFileset.set(Integer.valueOf(parallelUArg));
                 break;
             }
             // ADVANCED END ---------------------------------------------------
