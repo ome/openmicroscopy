@@ -68,7 +68,10 @@ class ImporterUIElementLight extends ImporterUIElement {
     private JXBusyLabel processedBusy = new JXBusyLabel();
 
     private JLabel errors = new JLabel("0");
-
+    
+    private JLabel cancelled = new JLabel("0");
+    private JLabel cancelledLabel = new JLabel("Cancelled:")
+    ;
     @Override
     FileImportComponentI buildComponent(ImportableFile importable,
             boolean browsable, boolean singleGroup, int index,
@@ -164,10 +167,24 @@ class ImporterUIElementLight extends ImporterUIElement {
         c.gridx = 0;
         c.gridy = 3;
         c.fill = GridBagConstraints.NONE;
+        cancelledLabel.setVisible(false);
+        info.add(cancelledLabel, c);
+        
+        c.gridx = 1;
+        c.gridy = 3;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = 2;
+        c.anchor = GridBagConstraints.WEST;
+        cancelled.setVisible(false);
+        info.add(cancelled, c);
+        
+        c.gridx = 0;
+        c.gridy = 4;
+        c.fill = GridBagConstraints.NONE;
         info.add(new JLabel("Errors:"), c);
 
         c.gridx = 1;
-        c.gridy = 3;
+        c.gridy = 4;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridwidth = 2;
         c.anchor = GridBagConstraints.WEST;
@@ -196,29 +213,30 @@ class ImporterUIElementLight extends ImporterUIElement {
         upload.setValue(uploaded);
         upload.setMaximum(super.totalToImport);
         uploadBusy.setText(+uploaded + "/" + super.totalToImport);
-        if (uploaded == super.totalToImport) {
+        if (uploaded + cancelled + super.countFailure == super.totalToImport) {
             uploadBusy.setBusy(false);
             uploadBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY));
-        } else if (uploaded + cancelled + super.countFailure == super.totalToImport) {
-            uploadBusy.setBusy(false);
-            uploadBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY_CANCEL));
-        } else {
+        }  else {
             uploadBusy.setBusy(true);
         }
         
         processed.setValue(complete);
-        processed.setMaximum(super.totalToImport);
-        processedBusy.setText(complete + "/" + super.totalToImport);
-        if (complete == super.totalToImport) {
+        processed.setMaximum(uploaded);
+        processedBusy.setText(complete + "/" + uploaded);
+        if (complete + cancelled + super.countFailure == super.totalToImport) {
             processedBusy.setBusy(false);
             processedBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY));
-        } else if (complete + cancelled + super.countFailure == super.totalToImport) {
-            processedBusy.setBusy(false);
-            processedBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY_CANCEL));
         } else {
             processedBusy.setBusy(true);
         }
+        
         errors.setText("" + super.countFailure);
+        
+        if (cancelled > 0) {
+            this.cancelledLabel.setVisible(true);
+            this.cancelled.setText(""+cancelled);
+            this.cancelled.setVisible(true);
+        }
         
         if (super.countFailure > 0) {
             super.filterButton.setEnabled(true);
