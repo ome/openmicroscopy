@@ -296,7 +296,7 @@ public class ImportLibrary implements IObservable
                     }
 
                     try {
-                        importImage(ic, config.parallelUpload.get(), index, numDone, count);
+                        importImage(ic, uploadThreadPool, index, numDone, count);
                         numDone++;
                     } catch (Throwable t) {
                         String message = "Error on import";
@@ -487,14 +487,19 @@ public class ImportLibrary implements IObservable
     @SuppressWarnings("javadoc")
     @Deprecated
     public List<Pixels> importImage(final ImportContainer container, int index, int numDone, int total) throws Throwable {
-        return importImage(container, 1, index, numDone, total);
+        final ExecutorService threadPool = Executors.newSingleThreadExecutor();
+        try {
+            return importImage(container, threadPool, index, numDone, total);
+        } finally {
+            threadPool.shutdown();
+        }
     }
 
     /**
      * Perform an image import uploading files if necessary.
      * @param container The import container which houses all the configuration
      * values and target for the import.
-     * @param parallelUpload How many threads to use in file upload, at least <code>1</code>.
+     * @param threadPool The pool of threads to use in file upload.
      * @param index Index of the import in a set. <code>0</code> is safe if
      * this is a singular import.
      * @param numDone Number of imports completed in a set. <code>0</code> is
@@ -510,7 +515,7 @@ public class ImportLibrary implements IObservable
      * @throws Throwable If there is some other kind of error during import.
      * @since OMERO Beta 4.2.1.
      */
-    public List<Pixels> importImage(final ImportContainer container, int parallelUpload, 
+    public List<Pixels> importImage(final ImportContainer container, ExecutorService threadPool,
             int index, int numDone, int total)
             throws FormatException, IOException, Throwable
     {
@@ -557,17 +562,7 @@ public class ImportLibrary implements IObservable
                     return uploadFile(proc, srcFiles, fileIndex, checksumProviderFactory, estimator, buf.get());
                 }});
         }
-        ExecutorService threadPool = null;
-        final List<Future<String>> completedUploads;
-        try {
-            threadPool = Executors.newFixedThreadPool(parallelUpload);
-            completedUploads = threadPool.invokeAll(uploadThreads);
-        } finally {
-            if (threadPool != null) {
-                threadPool.shutdown();
-            }
-        }
-        for (final Future<String> completedUpload : completedUploads) {
+        for (final Future<String> completedUpload : threadPool.invokeAll(uploadThreads)) {
             try {
                 checksums.add(completedUpload.get());
             } catch (ExecutionException ee) {
