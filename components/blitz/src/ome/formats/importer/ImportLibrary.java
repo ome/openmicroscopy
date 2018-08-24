@@ -297,29 +297,29 @@ public class ImportLibrary implements IObservable
                     final ExecutorService uploadThreadPoolFinal = uploadThreadPool;
                     final int indexFinal = index;
                     filesetThreads.add(new Callable<Boolean>() {
-                                           @Override
-                                           public Boolean call() {
-                    try {
-                        importImage(ic, uploadThreadPoolFinal, indexFinal, count);
-                        return true;
-                    } catch (Throwable t) {
-                        String message = "Error on import";
-                        if (t instanceof ServerError) {
-                            final ServerError se = (ServerError) t;
-                            if (StringUtils.isNotBlank(se.message)) {
-                                message += ": " + se.message;
+                        @Override
+                        public Boolean call() {
+                            try {
+                                importImage(ic, uploadThreadPoolFinal, indexFinal, count);
+                                return true;
+                            } catch (Throwable t) {
+                                String message = "Error on import";
+                                if (t instanceof ServerError) {
+                                    final ServerError se = (ServerError) t;
+                                    if (StringUtils.isNotBlank(se.message)) {
+                                        message += ": " + se.message;
+                                    }
+                                }
+                                log.error(message, t);
+                                if (!config.contOnError.get()) {
+                                    log.info("Exiting on error");
+                                    return false;
+                                } else {
+                                    log.info("Continuing after error");
+                                    return true;
+                                }
                             }
                         }
-                        log.error(message, t);
-                        if (!config.contOnError.get()) {
-                            log.info("Exiting on error");
-                            return false;
-                        } else {
-                            log.info("Continuing after error");
-                            return true;
-                        }
-                    }
-                }
                     });
                 }
                 try {
