@@ -268,6 +268,10 @@ public class ImportLibrary implements IObservable
         if (containers != null) {
             final int count = containers.size();
             int numDone = 0;
+            ExecutorService filesetThreadPool, uploadThreadPool;
+            filesetThreadPool = Executors.newFixedThreadPool(config.parallelFileset.get());
+            uploadThreadPool  = Executors.newFixedThreadPool(config.parallelUpload.get());
+            try {
             for (int index = 0; index < count; index++) {
                 ImportContainer ic = containers.get(index);
                 ImportTarget target = config.getTarget();
@@ -309,6 +313,14 @@ public class ImportLibrary implements IObservable
                     } else {
                         log.info("Continuing after error");
                     }
+                }
+            }
+            } finally {
+                if (filesetThreadPool != null) {
+                    filesetThreadPool.shutdown();
+                }
+                if (uploadThreadPool != null) {
+                    uploadThreadPool.shutdown();
                 }
             }
         }
