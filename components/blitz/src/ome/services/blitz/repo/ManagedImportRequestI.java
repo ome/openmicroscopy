@@ -76,6 +76,8 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 
 import ch.qos.logback.classic.ClassicConstants;
 
@@ -205,6 +207,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     }
 
     public void init(Helper helper) {
+        StopWatch sw = new Slf4JStopWatch();
         this.helper = helper;
         helper.setSteps(5);
 
@@ -283,6 +286,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         } catch (Throwable t) {
             throw helper.cancel(new ERR(), t, "error-on-init");
         } finally {
+            sw.stop("omero.import.request.init");
             MDC.clear();
         }
     }
@@ -467,9 +471,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             cleanupReader();
             cleanupStore();
 
-            log.info(ClassicConstants.FINALIZE_SESSION_MARKER, "Finalizing log file.");
-            /* hereafter back to normal log destination, not import log file*/
-            MDC.clear();
+            log.info(ClassicConstants.FINALIZE_SESSION_MARKER, "Cleaning up import.");
             try {
                 /* requires usable session */
                 setLogFileSize();
@@ -479,9 +481,14 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
             cleanupSession();
         } finally {
-            autoClose(); // Doesn't throw
-            if (resources != null) {
-                resources.remove(resourcesEntry);
+            try {
+                autoClose(); // Doesn't throw
+                if (resources != null) {
+                    resources.remove(resourcesEntry);
+                }
+            } finally {
+                /* hereafter back to normal log destination, not import log file*/
+                MDC.clear();
             }
         }
     }
@@ -498,6 +505,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     }
 
     public Object step(int step) {
+        StopWatch sw = new Slf4JStopWatch();
         helper.assertStep(step);
         try {
             MDC.put("fileset", logFilename);
@@ -565,6 +573,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             } catch (Throwable t) {
                 throw helper.cancel(new ERR(), t, "update-log-file-size");
             }
+            sw.stop("omero.import.request.step");
             MDC.clear();
         }
     }
@@ -619,6 +628,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Map<String, List<IObject>> importMetadata(MetadataImportJob mij) throws Throwable {
+        StopWatch sw = new Slf4JStopWatch();
         notifyObservers(new ImportEvent.LOADING_IMAGE(
                 shortName, 0, 0, 0));
 
@@ -646,11 +656,13 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         notifyObservers(new ImportEvent.END_SAVE_TO_DB(
                 0, null, userSpecifiedTarget, null, 0, null));
 
+        sw.stop("omero.import.request.metadata");
         return objects;
 
     }
 
     public Object pixelData(PixelDataJob pdj) throws Throwable {
+        StopWatch sw = new Slf4JStopWatch();
 
         if (!reader.isMinMaxSet() && !noStatsInfo)
         {
@@ -691,11 +703,13 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         }
 
 
+        sw.stop("omero.import.request.pixels");
         return null;
     }
 
 
     public Object generateThumbnails(ThumbnailGenerationJob tgj) throws Throwable {
+        StopWatch sw = new Slf4JStopWatch();
 
         List<Long> plateIds = new ArrayList<Long>();
         Image image = pixList.get(0).getImage();
@@ -721,6 +735,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             log.warn("Not creating thumbnails at user request!");
         }
 
+        sw.stop("omero.import.request.thumbs");
         return null;
     }
 

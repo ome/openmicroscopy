@@ -1194,3 +1194,29 @@ class TestImport(CLITest):
 
         out, err = self.do_import(capfd)
         assert self.get_object(out, 'Image')
+
+    def testBulk(self, tmpdir, capfd):
+        """Test Bulk import"""
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        yml = tmpdir.join("test.yml")
+        yml.write("""---
+dry_run: "script%s.sh"
+path: test.tsv
+        """)
+
+        tsv = tmpdir.join("test.tsv")
+        tsv.write("test.fake")
+
+        script = tmpdir.join("script1.sh")
+
+        self.args += ["-f", "--bulk", str(yml)]
+        out, err = self.do_import(capfd)
+
+        # At this point, script1.sh has been created
+        assert script.exists()
+
+        # TBD
+        # assert self.get_object(out, 'Image')
