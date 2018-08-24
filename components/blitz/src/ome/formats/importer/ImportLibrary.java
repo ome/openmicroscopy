@@ -266,8 +266,9 @@ public class ImportLibrary implements IObservable
     {
         List<ImportContainer> containers = candidates.getContainers();
         if (containers != null) {
+            final int count = containers.size();
             int numDone = 0;
-            for (int index = 0; index < containers.size(); index++) {
+            for (int index = 0; index < count; index++) {
                 ImportContainer ic = containers.get(index);
                 ImportTarget target = config.getTarget();
                 if (target != null) {
@@ -291,7 +292,7 @@ public class ImportLibrary implements IObservable
                 }
 
                 try {
-                    importImage(ic, config.parallelUpload.get(), index, numDone, containers.size());
+                    importImage(ic, config.parallelUpload.get(), index, numDone, count);
                     numDone++;
                 } catch (Throwable t) {
                     String message = "Error on import";
