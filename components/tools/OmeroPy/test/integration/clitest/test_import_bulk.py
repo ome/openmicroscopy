@@ -136,7 +136,11 @@ path: test.tsv
         self.args += ["-u", self.user.omeName.val]
         self.args += ["-w", self.user.omeName.val]
         self.cli.invoke(self.args, strict=True)
-        out = subprocess.check_output(
+        popen = subprocess.Popen(
             ["bash", str(script)],
-            cwd=str(tmpdir))
+            cwd=str(tmpdir),
+            stdout=subprocess.PIPE)
+        out = popen.communicate()[0]
+        rcode = popen.poll()
+        assert rcode == 0
         assert self.get_object(out, 'Image')
