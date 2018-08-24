@@ -452,6 +452,9 @@ class ImportControl(BaseControl):
         add_advjava_argument(
             "--parallel-upload", metavar="COUNT",
             help="Number of file upload threads to run at the same time")
+        add_advjava_argument(
+            "--parallel-fileset", metavar="COUNT",
+            help="Number of fileset candidates to import at the same time")
 
         # Unsure on these.
         add_python_argument(
