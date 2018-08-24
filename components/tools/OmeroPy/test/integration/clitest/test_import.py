@@ -1231,8 +1231,8 @@ path: test.tsv
 
         # write fake planes for pattern file
         for timepoint in range(0, 10):
-            file = 'image-T{0}.fake'.format(timepoint)
-            subdir.join(file).write('')
+            filename = 'image-T{0}.fake'.format(timepoint)
+            subdir.join(filename).write('')
 
         # set arguments for parallel upload of pattern file with planes
         self.args += ['--parallel-upload', '3']
@@ -1244,3 +1244,27 @@ path: test.tsv
         # check that the pattern file was imported
         image = self.get_object(out, 'Image')
         assert image.name.val == 'fakes.pattern'
+
+    def testParallelFileset(self, tmpdir, capfd):
+        """Test parallel fileset import"""
+
+        # set arguments for parallel import of fake images
+        self.args += ['--parallel-fileset', '3']
+
+        # write fake images into a new subdirectory
+        subdir = tmpdir.mkdir('ParallelFileset-' + self.uuid())
+        filenames = set()
+        for index in range(0, 10):
+            filename = 'image-{0}.fake'.format(index)
+            filenames.add(filename)
+            file = subdir.join(filename)
+            file.write('')
+            self.args += [str(file)]
+
+        # do import
+        out, err = self.do_import(capfd)
+
+        # check that the image files were imported
+        images = self.get_objects(out, 'Image')
+        imagenames = set([image.name.val for image in images])
+        assert filenames == imagenames
