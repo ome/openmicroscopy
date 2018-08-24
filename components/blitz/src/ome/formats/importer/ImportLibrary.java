@@ -262,7 +262,7 @@ public class ImportLibrary implements IObservable
      * @param candidates Hosts information about the files to import.
      * @return if the import did not exit because of an error
      */
-    public boolean importCandidates(ImportConfig config, ImportCandidates candidates)
+    public boolean importCandidates(final ImportConfig config, ImportCandidates candidates)
     {
         List<ImportContainer> containers = candidates.getContainers();
         if (containers != null) {
@@ -271,9 +271,10 @@ public class ImportLibrary implements IObservable
             filesetThreadPool = Executors.newFixedThreadPool(config.parallelFileset.get());
             uploadThreadPool  = Executors.newFixedThreadPool(config.parallelUpload.get());
             try {
+                final List<Callable<Boolean>> filesetThreads = new ArrayList<>(count);
                 for (int index = 0; index < count; index++) {
-                    ImportContainer ic = containers.get(index);
-                    ImportTarget target = config.getTarget();
+                    final ImportContainer ic = containers.get(index);
+                    final ImportTarget target = config.getTarget();
                     if (target != null) {
                         try {
                             IObject obj = target.load(store, ic);
@@ -293,9 +294,14 @@ public class ImportLibrary implements IObservable
                     if (config.checksumAlgorithm.get() != null) {
                         ic.setChecksumAlgorithm(config.checksumAlgorithm.get());
                     }
-
+                    final ExecutorService uploadThreadPoolFinal = uploadThreadPool;
+                    final int indexFinal = index;
+                    filesetThreads.add(new Callable<Boolean>() {
+                                           @Override
+                                           public Boolean call() {
                     try {
-                        importImage(ic, uploadThreadPool, index, count);
+                        importImage(ic, uploadThreadPoolFinal, indexFinal, count);
+                        return true;
                     } catch (Throwable t) {
                         String message = "Error on import";
                         if (t instanceof ServerError) {
@@ -310,8 +316,22 @@ public class ImportLibrary implements IObservable
                             return false;
                         } else {
                             log.info("Continuing after error");
+                            return true;
                         }
                     }
+                }
+                    });
+                }
+                try {
+                    for (final Future<Boolean> completedFileset : filesetThreadPool.invokeAll(filesetThreads)) {
+                        completedFileset.get();
+                    }
+                } catch (InterruptedException ie) {
+                    log.error("import interrupted", ie);
+                    return false;
+                } catch (ExecutionException ee) {
+                    log.error("exception should be handled in other thread", ee);
+                    return false;
                 }
             } finally {
                 if (filesetThreadPool != null) {
