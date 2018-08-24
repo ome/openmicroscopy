@@ -267,7 +267,6 @@ public class ImportLibrary implements IObservable
         List<ImportContainer> containers = candidates.getContainers();
         if (containers != null) {
             final int count = containers.size();
-            int numDone = 0;
             ExecutorService filesetThreadPool, uploadThreadPool;
             filesetThreadPool = Executors.newFixedThreadPool(config.parallelFileset.get());
             uploadThreadPool  = Executors.newFixedThreadPool(config.parallelUpload.get());
@@ -296,8 +295,7 @@ public class ImportLibrary implements IObservable
                     }
 
                     try {
-                        importImage(ic, uploadThreadPool, index, numDone, count);
-                        numDone++;
+                        importImage(ic, uploadThreadPool, index, count);
                     } catch (Throwable t) {
                         String message = "Error on import";
                         if (t instanceof ServerError) {
@@ -489,7 +487,7 @@ public class ImportLibrary implements IObservable
     public List<Pixels> importImage(final ImportContainer container, int index, int numDone, int total) throws Throwable {
         final ExecutorService threadPool = Executors.newSingleThreadExecutor();
         try {
-            return importImage(container, threadPool, index, numDone, total);
+            return importImage(container, threadPool, index, total);
         } finally {
             threadPool.shutdown();
         }
@@ -502,8 +500,6 @@ public class ImportLibrary implements IObservable
      * @param threadPool The pool of threads to use in file upload.
      * @param index Index of the import in a set. <code>0</code> is safe if
      * this is a singular import.
-     * @param numDone Number of imports completed in a set. <code>0</code> is
-     * safe if this is a singular import.
      * @param total Total number of imports in a set. <code>1</code> is safe
      * if this is a singular import.
      * @return List of Pixels that have been imported.
@@ -516,7 +512,7 @@ public class ImportLibrary implements IObservable
      * @since OMERO Beta 4.2.1.
      */
     public List<Pixels> importImage(final ImportContainer container, ExecutorService threadPool,
-            int index, int numDone, int total)
+            int index, int total)
             throws FormatException, IOException, Throwable
     {
         HandlePrx handle;
