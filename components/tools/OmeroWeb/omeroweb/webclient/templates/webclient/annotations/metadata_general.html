@@ -389,8 +389,10 @@
                         if (expanded && $("#bulk_annotations_table").is(":empty")) {
                             loadBulkAnnotations(screenQuery, query, showBulkAnnTooltip);
                             loadBulkAnnotations(plateQuery, query, showBulkAnnTooltip);
-                            loadBulkAnnotations(projectQuery, query, showBulkAnnTooltip);
-                            loadBulkAnnotations(datasetQuery, query, showBulkAnnTooltip);
+                            {% if manager.image %}
+                                loadBulkAnnotations(projectQuery, query, showBulkAnnTooltip);
+                                loadBulkAnnotations(datasetQuery, query, showBulkAnnTooltip);
+                            {% endif %}
                         }
                     });
 
@@ -402,8 +404,10 @@
                         if ($("#bulk_annotations_table").is(":empty")) {
                             loadBulkAnnotations(screenQuery, query, showBulkAnnTooltip);
                             loadBulkAnnotations(plateQuery, query, showBulkAnnTooltip);
-                            loadBulkAnnotations(projectQuery, query, showBulkAnnTooltip);
-                            loadBulkAnnotations(datasetQuery, query, showBulkAnnTooltip);
+                            {% if manager.image %}
+                                loadBulkAnnotations(projectQuery, query, showBulkAnnTooltip);
+                                loadBulkAnnotations(datasetQuery, query, showBulkAnnTooltip);
+                            {% endif %}
                         }
                     }
 
