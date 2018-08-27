@@ -232,6 +232,14 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     @Test
+    public void testExpandTemplateThread() throws ServerError {
+        String expected = Thread.currentThread().getName();
+        EventContext ecStub = newEventContext();
+        String actual = this.tmri.expandTemplate("%thread%", ecStub);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
     public void testExpandTemplateEscape() throws ServerError {
         String expected = "%%";
         EventContext ecStub = newEventContext();
