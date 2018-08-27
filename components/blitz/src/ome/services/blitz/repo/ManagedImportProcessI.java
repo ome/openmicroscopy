@@ -33,6 +33,7 @@ import org.springframework.aop.framework.Advised;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableMap;
 
 import Ice.Current;
 
@@ -41,6 +42,7 @@ import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.repo.PublicRepositoryI.AMD_submit;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.system.Login;
 
 import omero.RString;
 import omero.ServerError;
@@ -334,6 +336,7 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
             }
 
             Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
+            final Map<String, String> allGroupsContext = ImmutableMap.of(Login.OMERO_GROUP, "-1");
             final IQueryPrx iQuery = sf.getQueryService(__current);
             final String hql = "SELECT originalFile.hash FROM FilesetEntry "
                     + "WHERE fileset.id = :id AND originalFile.path || originalFile.name = :usedfile";
@@ -341,7 +344,7 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
                 StopWatch sw1 = new Slf4JStopWatch();
                 String usedFile = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
                 final Parameters params = new ParametersI().addId(fs.getId()).add("usedfile", omero.rtypes.rstring(usedFile));
-                final RString result = (RString) iQuery.projection(hql, params).get(0).get(0);
+                final RString result = (RString) iQuery.projection(hql, params, allGroupsContext).get(0).get(0);
                 final String clientHash = hashes.get(i);
                 final String serverHash = result.getValue();
                 if (!clientHash.equals(serverHash)) {
