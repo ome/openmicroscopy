@@ -595,11 +595,11 @@ public class ImportLibrary implements IObservable
             try {
                 final Map.Entry<Integer, String> outcome = threadQueue.take().get();
                 checksumArray[outcome.getKey()] = outcome.getValue();
-            } catch (ExecutionException ee) {
+            } catch (InterruptedException | ExecutionException e) {
                 for (final Future<Map.Entry<Integer, String>> outcome : outcomes) {
                     outcome.cancel(true);
                 }
-                throw ee.getCause();
+                throw e instanceof ExecutionException ? e.getCause() : e;
             }
         }
         final List<String> checksums = Arrays.asList(checksumArray);
