@@ -22,6 +22,7 @@ package ome.formats.importer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -88,6 +90,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 
 import Ice.Current;
 
@@ -322,13 +325,14 @@ public class ImportLibrary implements IObservable
                         }
                     });
                 }
+                final ExecutorCompletionService<Boolean> threadQueue = new ExecutorCompletionService<>(filesetThreadPool);
                 final List<Future<Boolean>> outcomes = new ArrayList<>(count);
                 for (final Callable<Boolean> thread : threads) {
-                    outcomes.add(filesetThreadPool.submit(thread));
+                    outcomes.add(threadQueue.submit(thread));
                 }
                 try {
-                    for (final Future<Boolean> outcome : outcomes) {
-                        if (!outcome.get()) {
+                    for (int index = 0; index < count; index++) {
+                        if (!threadQueue.take().get()) {
                             return false;
                         }
                     }
@@ -558,7 +562,6 @@ public class ImportLibrary implements IObservable
         }
         final ImportProcessPrx proc = createImport(container);
         final String[] srcFiles = container.getUsedFiles();
-        final List<String> checksums = new ArrayList<String>();
         final ThreadLocal<byte[]> buf = new ThreadLocal<byte[]>() {
             @Override
             protected byte[] initialValue() {
@@ -572,26 +575,31 @@ public class ImportLibrary implements IObservable
         notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
                 null, index, srcFiles.length, null, null, null));
 
-        final List<Callable<String>> threads = new ArrayList<>(srcFiles.length);
+        final List<Callable<Map.Entry<Integer, String>>> threads = new ArrayList<>(srcFiles.length);
         for (int i = 0; i < srcFiles.length; i++) {
             final int fileIndex = i;
-            threads.add(new Callable<String>() {
+            threads.add(new Callable<Map.Entry<Integer, String>>() {
                 @Override
-                public String call() throws Exception {
-                    return uploadFile(proc, srcFiles, fileIndex, checksumProviderFactory, estimator, buf.get());
+                public Map.Entry<Integer, String> call() throws Exception {
+                    final String checksum = uploadFile(proc, srcFiles, fileIndex, checksumProviderFactory, estimator, buf.get());
+                    return Maps.immutableEntry(fileIndex, checksum);
                 }});
         }
-        final List<Future<String>> outcomes = new ArrayList<>(srcFiles.length);
-        for (final Callable<String> thread : threads) {
-            outcomes.add(threadPool.submit(thread));
+        final ExecutorCompletionService<Map.Entry<Integer, String>> threadQueue = new ExecutorCompletionService<>(threadPool);
+        final List<Future<Map.Entry<Integer, String>>> outcomes = new ArrayList<>(srcFiles.length);
+        for (final Callable<Map.Entry<Integer, String>> thread : threads) {
+            outcomes.add(threadQueue.submit(thread));
         }
-        for (final Future<String> outcome : outcomes) {
+        final String[] checksumArray = new String[srcFiles.length];
+        for (index = 0; index < srcFiles.length; index++) {
             try {
-                checksums.add(outcome.get());
+                final Map.Entry<Integer, String> outcome = threadQueue.take().get();
+                checksumArray[outcome.getKey()] = outcome.getValue();
             } catch (ExecutionException ee) {
                 throw ee.getCause();
             }
         }
+        final List<String> checksums = Arrays.asList(checksumArray);
         try {
             handle = proc.verifyUpload(checksums);
         } catch (ChecksumValidationException cve) {
@@ -604,6 +612,7 @@ public class ImportLibrary implements IObservable
             } catch (Exception e) {
                 log.warn("Exception while closing proc", e);
             }
+
 
             notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
                     null, index, srcFiles.length, null, null, srcFiles,
