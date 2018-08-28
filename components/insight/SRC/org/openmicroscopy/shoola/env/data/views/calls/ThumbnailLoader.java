@@ -216,7 +216,7 @@ public class ThumbnailLoader
                     @Override
                     public void doCall() throws Exception {
                         // System.out.println(image.getId());
-                        ThumbnailStorePrx store = service.createThumbnailStore(ctx);
+                        ThumbnailStorePrx store = getThumbnailStore(pxd);
                         try {
                             handleBatchCall(store, pxd, userId);
                         } finally {
@@ -289,6 +289,17 @@ public class ThumbnailLoader
         return Factory.createDefaultThumbnail("Error");
     }
 
+    private ThumbnailStorePrx getThumbnailStore(PixelsData pxd) throws DSAccessException,
+            DSOutOfServiceException, ServerError {
+        // System.out.println(image.getId());
+        ThumbnailStorePrx store = service.createThumbnailStore(ctx);
+        if (!store.setPixelsId(pxd.getId())) {
+            store.resetDefaults();
+            store.setPixelsId(pxd.getId());
+        }
+        return store;
+    }
+
     /**
      * Loads the thumbnail for {@link #images}<code>[index]</code>.
      *
@@ -307,11 +318,6 @@ public class ThumbnailLoader
                     pxd.getSizeX(), pxd.getSizeY());
             sizeX = d.width;
             sizeY = d.height;
-        }
-
-        if (!store.setPixelsId(pxd.getId())) {
-            store.resetDefaults();
-            store.setPixelsId(pxd.getId());
         }
 
         if (userId >= 0) {
