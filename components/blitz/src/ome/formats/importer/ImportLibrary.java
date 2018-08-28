@@ -596,6 +596,9 @@ public class ImportLibrary implements IObservable
                 final Map.Entry<Integer, String> outcome = threadQueue.take().get();
                 checksumArray[outcome.getKey()] = outcome.getValue();
             } catch (ExecutionException ee) {
+                for (final Future<Map.Entry<Integer, String>> outcome : outcomes) {
+                    outcome.cancel(true);
+                }
                 throw ee.getCause();
             }
         }
