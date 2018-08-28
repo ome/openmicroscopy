@@ -300,7 +300,7 @@ public class ImportLibrary implements IObservable
                         @Override
                         public Boolean call() {
                             try {
-                                importImage(ic, uploadThreadPoolFinal, indexFinal, count);
+                                importImage(ic, uploadThreadPoolFinal, indexFinal);
                                 return true;
                             } catch (Throwable t) {
                                 String message = "Error on import";
@@ -505,7 +505,7 @@ public class ImportLibrary implements IObservable
 
     /**
      * Image import with only one file upload thread.
-     * @see #importImage(ImportContainer, int, int, int, int)
+     * @see #importImage(ImportContainer, ExecutorService, int)
      * @deprecated now used by tests only
      */
     @SuppressWarnings("javadoc")
@@ -513,7 +513,7 @@ public class ImportLibrary implements IObservable
     public List<Pixels> importImage(final ImportContainer container, int index, int numDone, int total) throws Throwable {
         final ExecutorService threadPool = Executors.newSingleThreadExecutor();
         try {
-            return importImage(container, threadPool, index, total);
+            return importImage(container, threadPool, index);
         } finally {
             threadPool.shutdown();
         }
@@ -526,8 +526,6 @@ public class ImportLibrary implements IObservable
      * @param threadPool The pool of threads to use in file upload.
      * @param index Index of the import in a set. <code>0</code> is safe if
      * this is a singular import.
-     * @param total Total number of imports in a set. <code>1</code> is safe
-     * if this is a singular import.
      * @return List of Pixels that have been imported.
      * @throws FormatException If there is a Bio-Formats image file format
      * error during import.
@@ -537,8 +535,7 @@ public class ImportLibrary implements IObservable
      * @throws Throwable If there is some other kind of error during import.
      * @since OMERO Beta 4.2.1.
      */
-    public List<Pixels> importImage(final ImportContainer container, ExecutorService threadPool,
-            int index, int total)
+    public List<Pixels> importImage(final ImportContainer container, ExecutorService threadPool, int index)
             throws FormatException, IOException, Throwable
     {
         HandlePrx handle;
@@ -575,7 +572,7 @@ public class ImportLibrary implements IObservable
         notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
                 null, index, srcFiles.length, null, null, null));
 
-        final List<Callable<String>> threads = new ArrayList<>(total);
+        final List<Callable<String>> threads = new ArrayList<>(srcFiles.length);
         for (int i = 0; i < srcFiles.length; i++) {
             final int fileIndex = i;
             threads.add(new Callable<String>() {
@@ -584,7 +581,7 @@ public class ImportLibrary implements IObservable
                     return uploadFile(proc, srcFiles, fileIndex, checksumProviderFactory, estimator, buf.get());
                 }});
         }
-        final List<Future<String>> outcomes = new ArrayList<>(total);
+        final List<Future<String>> outcomes = new ArrayList<>(srcFiles.length);
         for (final Callable<String> thread : threads) {
             outcomes.add(threadPool.submit(thread));
         }
@@ -607,7 +604,6 @@ public class ImportLibrary implements IObservable
             } catch (Exception e) {
                 log.warn("Exception while closing proc", e);
             }
-
 
             notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
                     null, index, srcFiles.length, null, null, srcFiles,
