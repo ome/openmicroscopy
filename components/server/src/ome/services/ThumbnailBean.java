@@ -821,7 +821,12 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
     }
 
-    /** Helper function for using local thumbnailMetadata */
+    /**
+     * Calls {@code _createThumbnail(Thumbnail thumbMetaData)} with the local
+     * variable {@code thumbnailMetadata} as the input parameter.
+     *
+     * @return thumbnail object
+     */
     private Thumbnail _createThumbnail() {
         // For old times sake
         return _createThumbnail(thumbnailMetadata);
