@@ -481,7 +481,8 @@ public class ThumbnailBean extends AbstractLevel2Service
      * @throws IOException
      *             if there is a problem writing to disk.
      */
-    private void compressThumbnailToDisk(Thumbnail thumb, BufferedImage image) throws IOException {
+    private void compressThumbnailToDisk(Thumbnail thumb, BufferedImage image, boolean inProgress)
+            throws IOException {
         if (diskSpaceChecking) {
             iRepositoryInfo.sanityCheckRepository();
         }
@@ -489,7 +490,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         FileOutputStream stream = ioService.getThumbnailOutputStream(thumb);
         try {
             if (inProgress) {
-                compressInProgressImageToStream(thumb, stream);
+                compressInProgressImageToStream(thumb, stream, inProgressImageResource);
             } else {
                 compressionService.compressToStream(image, stream);
             }
@@ -500,45 +501,48 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /**
      * Compresses the <i>in progress</i> image to a stream.
-     * @param thumb The thumbnail metadata.
+     *
+     * @param thumb Thumbnail meta data
      * @param outputStream Stream to compress the data to.
+     * @param inProgressImageResource The image file (located in resources) to write to disk
+     * @throws IOException
      */
-    private void compressInProgressImageToStream(
-            Thumbnail thumb, OutputStream outputStream) {
-        int x = thumb.getSizeX();
-        int y = thumb.getSizeY();
-        StopWatch s1 = new Slf4JStopWatch("omero.transcodeSVG");
-        try
-        {
-            SVGRasterizer rasterizer = new SVGRasterizer(
-                    inProgressImageResource.getInputStream());
-            // Batik will automatically maintain the aspect ratio of the
-            // resulting image if we only specify the width or height.
-            if (x > y)
-            {
-                rasterizer.setImageWidth(x);
-            }
-            else
-            {
-                rasterizer.setImageHeight(y);
-            }
-            rasterizer.setQuality(compressionService.getCompressionLevel());
-            rasterizer.createJPEG(outputStream);
-            s1.stop();
-        }
-        catch (IOException e1)
-        {
-            String s = "Error loading in-progress image from Spring resource.";
-            log.error(s, e1);
-            throw new ResourceError(s);
-        }
-        catch (TranscoderException e2)
-        {
-            String s = "Error transcoding in progress SVG.";
-            log.error(s, e2);
-            throw new ResourceError(s);
-        }
-    }
+   private void compressInProgressImageToStream(Thumbnail thumb, OutputStream outputStream,
+                                                Resource inProgressImageResource) {
+       int x = thumb.getSizeX();
+       int y = thumb.getSizeY();
+       StopWatch s1 = new Slf4JStopWatch("omero.transcodeSVG");
+       try
+       {
+           SVGRasterizer rasterizer = new SVGRasterizer(
+                   inProgressImageResource.getInputStream());
+           // Batik will automatically maintain the aspect ratio of the
+           // resulting image if we only specify the width or height.
+           if (x > y)
+           {
+               rasterizer.setImageWidth(x);
+           }
+           else
+           {
+               rasterizer.setImageHeight(y);
+           }
+           rasterizer.setQuality(compressionService.getCompressionLevel());
+           rasterizer.createJPEG(outputStream);
+           s1.stop();
+       }
+       catch (IOException e1)
+       {
+           String s = "Error loading in-progress image from Spring resource.";
+           log.error(s, e1);
+           throw new ResourceError(s);
+       }
+       catch (TranscoderException e2)
+       {
+           String s = "Error transcoding in progress SVG.";
+           log.error(s, e2);
+           throw new ResourceError(s);
+       }
+   }
 
     /**
      * Checks that sizeX and sizeY are not out of range for the active pixels
@@ -883,7 +887,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
         BufferedImage image = createScaledImage(null, null);
         try {
-            compressThumbnailToDisk(thumbMetaData, image);
+            compressThumbnailToDisk(thumbMetaData, image, inProgress);
             s1.stop();
             return thumbMetaData;
         } catch (IOException e) {
@@ -1209,26 +1213,34 @@ public class ThumbnailBean extends AbstractLevel2Service
             if (log.isDebugEnabled()) {
                 log.debug("Cache miss, thumbnail missing or out of date.");
             }
+        }
 
-            final long pixelsId = thumbMetaData.getPixels().getId();
-            if (!ctx.hasSettings(pixelsId)) {
-                try {
-                    pixelDataService.getPixelBuffer(ctx.getPixels(pixelsId), false);
-                } catch (ConcurrencyException ce) {
-                    return new byte[0];
-                }
-            }
-
-            // If we get here, then we can assume the thumbnail just needs created
-            // and saved to disk
-            _createThumbnail(thumbMetaData);
-
+        final long pixelsId = thumbMetaData.getPixels().getId();
+        if (!ctx.hasSettings(pixelsId)) {
             try {
-                return ioService.getThumbnail(thumbMetaData);
-            } catch (IOException e1) {
-                log.error("Could not obtain thumbnail", e1);
-                throw new ResourceError(e.getMessage());
+                pixelDataService.getPixelBuffer(ctx.getPixels(pixelsId), false);
+            } catch (ConcurrencyException ce) {
+                return new byte[0];
             }
+        }
+
+        // If we get here, then we can assume the thumbnail just needs created
+        // and saved to disk
+        try {
+            BufferedImage image = createScaledImage(null, null);
+            if (image != null) {
+                compressThumbnailToDisk(thumbMetaData, image, false);
+            }
+        } catch (Exception e) {
+            log.error("Thumbnail could not be compressed.", e);
+            throw new ResourceError(e.getMessage());
+        }
+
+        try {
+            return ioService.getThumbnail(thumbMetaData);
+        } catch (IOException e) {
+            log.error("Could not obtain thumbnail", e);
+            throw new ResourceError(e.getMessage());
         }
     }
 
@@ -1300,11 +1312,11 @@ public class ThumbnailBean extends AbstractLevel2Service
             thumbnailMetadata = local;
         }
 
-        BufferedImage image = createScaledImage(theZ, theT);
+        BufferedImage image = inProgress? null : createScaledImage(theZ, theT);
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try {
             if (inProgress) {
-                compressInProgressImageToStream(local, byteStream);
+                compressInProgressImageToStream(local, byteStream, inProgressImageResource);
             } else {
                 compressionService.compressToStream(image, byteStream);
             }
