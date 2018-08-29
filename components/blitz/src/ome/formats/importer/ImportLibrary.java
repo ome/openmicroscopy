@@ -287,22 +287,22 @@ public class ImportLibrary implements IObservable
                         @Override
                         public Boolean call() {
                             try {
-                    if (target != null) {
-                        try {
-                            IObject obj = target.load(store, ic);
-                            if (!(obj instanceof Annotation)) {
-                                ic.setTarget(obj);
-                            } else {
-                                // This is likely a "post-processing" annotation
-                                // so that we don't have to resolve the target
-                                // until later.
-                                ic.getCustomAnnotationList().add((Annotation) obj);
-                            }
-                        } catch (Exception e) {
-                            log.error("Could not load target: {}", target);
-                            throw new RuntimeException("Failed to load target", e);
-                        }
-                    }
+                                if (target != null) {
+                                    try {
+                                        IObject obj = target.load(store, ic);
+                                        if (!(obj instanceof Annotation)) {
+                                            ic.setTarget(obj);
+                                        } else {
+                                            // This is likely a "post-processing" annotation
+                                            // so that we don't have to resolve the target
+                                            // until later.
+                                            ic.getCustomAnnotationList().add((Annotation) obj);
+                                        }
+                                    } catch (Exception e) {
+                                        log.error("Could not load target: {}", target);
+                                        throw new RuntimeException("Failed to load target", e);
+                                    }
+                                }
                                 importImage(ic, uploadThreadPoolFinal, indexFinal);
                                 return true;
                             } catch (Throwable t) {
