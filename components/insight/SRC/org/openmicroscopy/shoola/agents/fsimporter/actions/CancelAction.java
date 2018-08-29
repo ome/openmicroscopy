@@ -25,9 +25,12 @@ package org.openmicroscopy.shoola.agents.fsimporter.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
 
 //Third-party libraries
+
+import javax.swing.SwingUtilities;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
@@ -89,6 +92,16 @@ public class CancelAction
      * Cancels the on-going import.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.cancelAllImports(); }
+    public void actionPerformed(ActionEvent e) { 
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                // This might cause the UI to freeze for a while if there
+                // are thousands of imports to cancel, hence wrapped into 
+                // SwingUtilities.invokeLater
+                model.cancelAllImports(); 
+            }
+        });
+    }
 
 }
