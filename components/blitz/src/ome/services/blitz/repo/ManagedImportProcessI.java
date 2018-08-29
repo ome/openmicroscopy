@@ -344,10 +344,15 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
                 StopWatch sw1 = new Slf4JStopWatch();
                 String usedFile = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
                 final Parameters params = new ParametersI().addId(fs.getId()).add("usedfile", omero.rtypes.rstring(usedFile));
-                final RString result = (RString) iQuery.projection(hql, params, allGroupsContext).get(0).get(0);
                 final String clientHash = hashes.get(i);
-                final String serverHash = result.getValue();
-                if (!clientHash.equals(serverHash)) {
+                String serverHash = "";
+                try {
+                    final RString result = (RString) iQuery.projection(hql, params, allGroupsContext).get(0).get(0);
+                    serverHash = result.getValue();
+                } catch (IndexOutOfBoundsException | NullPointerException e) {
+                    log.error("no server checksum on imported file {}", usedFile, e);
+                }
+                if (serverHash.isEmpty() || !clientHash.equals(serverHash)) {
                     failingChecksums.put(i, serverHash);
                 }
                 sw1.stop("omero.import.process.checksum");
