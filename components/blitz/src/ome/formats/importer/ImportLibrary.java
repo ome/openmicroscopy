@@ -278,6 +278,15 @@ public class ImportLibrary implements IObservable
                 for (int index = 0; index < count; index++) {
                     final ImportContainer ic = containers.get(index);
                     final ImportTarget target = config.getTarget();
+                    if (config.checksumAlgorithm.get() != null) {
+                        ic.setChecksumAlgorithm(config.checksumAlgorithm.get());
+                    }
+                    final ExecutorService uploadThreadPoolFinal = uploadThreadPool;
+                    final int indexFinal = index;
+                    threads.add(new Callable<Boolean>() {
+                        @Override
+                        public Boolean call() {
+                            try {
                     if (target != null) {
                         try {
                             IObject obj = target.load(store, ic);
@@ -294,15 +303,6 @@ public class ImportLibrary implements IObservable
                             throw new RuntimeException("Failed to load target", e);
                         }
                     }
-                    if (config.checksumAlgorithm.get() != null) {
-                        ic.setChecksumAlgorithm(config.checksumAlgorithm.get());
-                    }
-                    final ExecutorService uploadThreadPoolFinal = uploadThreadPool;
-                    final int indexFinal = index;
-                    threads.add(new Callable<Boolean>() {
-                        @Override
-                        public Boolean call() {
-                            try {
                                 importImage(ic, uploadThreadPoolFinal, indexFinal);
                                 return true;
                             } catch (Throwable t) {
