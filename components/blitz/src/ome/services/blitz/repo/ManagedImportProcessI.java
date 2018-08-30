@@ -350,7 +350,7 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
                     final RString result = (RString) iQuery.projection(hql, params, allGroupsContext).get(0).get(0);
                     serverHash = result.getValue();
                 } catch (IndexOutOfBoundsException | NullPointerException e) {
-                    log.error("no server checksum on imported file {}", usedFile, e);
+                    log.error("no server checksum on uploaded file {}", usedFile, e);
                 }
                 if (serverHash.isEmpty() || !clientHash.equals(serverHash)) {
                     failingChecksums.put(i, serverHash);
