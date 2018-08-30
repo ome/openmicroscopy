@@ -357,18 +357,26 @@ public interface Executor extends ApplicationContextAware {
         public Impl(CurrentDetails principalHolder, SessionFactory factory,
                 SqlAction sqlAction, String[] proxyNames,
                 ExecutorService service) {
+            this(principalHolder, factory, sqlAction, proxyNames,
+                    service, Executors.newFixedThreadPool(10,
+                    new ThreadFactoryBuilder()
+                        .setNameFormat("background-%d")
+                        .setPriority(Thread.MIN_PRIORITY)
+                        .build()));
+        }
+
+        public Impl(CurrentDetails principalHolder, SessionFactory factory,
+                SqlAction sqlAction, String[] proxyNames,
+                ExecutorService service,
+                ExecutorService backgroundService) {
             this.sqlAction = sqlAction;
             this.factory = factory;
             this.principalHolder = principalHolder;
             this.proxyNames = proxyNames;
             this.service = service;
+            this.backgroundService = backgroundService;
             // Allowed to create more threads.
             this.systemService = Executors.newCachedThreadPool();
-            this.backgroundService = Executors.newFixedThreadPool(10,
-                    new ThreadFactoryBuilder()
-                        .setNameFormat("background-%d")
-                        .setPriority(Thread.MIN_PRIORITY)
-                        .build());
         }
 
         public void setApplicationContext(ApplicationContext applicationContext)

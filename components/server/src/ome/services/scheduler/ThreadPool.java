@@ -13,6 +13,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import ome.services.util.BoundedExecutorService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.quartz.Scheduler;
@@ -34,15 +36,23 @@ public class ThreadPool {
 
     private final ExecutorService executor;
 
-    public ThreadPool(int minThreads, int maxThreads, long msTimeout) {
+    private final BoundedExecutorService background;
+
+    public ThreadPool(int minThreads, int maxThreads, long msTimeout, int maxBackground) {
         queue = new LinkedBlockingQueue<Runnable>();
         factory = null;
         executor = new ThreadPoolExecutor(minThreads, maxThreads, msTimeout,
                 TimeUnit.MILLISECONDS, queue); // factory
+        background = new BoundedExecutorService(
+                (ThreadPoolExecutor) executor, maxBackground);
     }
 
     public ExecutorService getExecutor() {
         return executor;
+    }
+
+    public ExecutorService getBackgroundExecutor() {
+        return background;
     }
 
     public int size() {

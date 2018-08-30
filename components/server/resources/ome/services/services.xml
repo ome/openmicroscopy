@@ -153,6 +153,7 @@
     <constructor-arg ref="statelessInterceptors"/>
     <constructor-arg ref="simpleSqlAction"/>
     <constructor-arg ref="taskExecutor"/>
+    <constructor-arg ref="backgroundTaskExecutor"/>
   </bean>
 
   <bean id="statefulExecutor" class="ome.services.util.Executor$Impl">
@@ -166,6 +167,7 @@
     <constructor-arg ref="statefulInterceptors"/>
     <constructor-arg ref="simpleSqlAction"/>
     <constructor-arg ref="taskExecutor"/>
+    <constructor-arg ref="backgroundTaskExecutor"/>
   </bean>
 
   <bean id="queryFactory" class="ome.services.query.QueryFactory">
@@ -183,9 +185,12 @@
     <constructor-arg index="0" value="${omero.threads.min_threads}"/>
     <constructor-arg index="1" value="${omero.threads.max_threads}"/>
     <constructor-arg index="2" value="${omero.threads.idle_timeout}"/>
+    <constructor-arg index="3" value="${omero.threads.max_background_threads}"/>
   </bean>
 
   <bean id="taskExecutor" factory-bean="threadPool" factory-method="getExecutor"/>
+
+  <bean id="backgroundTaskExecutor" factory-bean="threadPool" factory-method="getBackgroundExecutor"/>
 
   <bean id="scheduler" class="ome.services.scheduler.SchedulerFactoryBean"
     depends-on="sessionManager">
