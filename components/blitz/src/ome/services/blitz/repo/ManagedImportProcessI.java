@@ -33,6 +33,7 @@ import org.springframework.aop.framework.Advised;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableMap;
 
 import Ice.Current;
 
@@ -41,8 +42,11 @@ import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.repo.PublicRepositoryI.AMD_submit;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.system.Login;
 
+import omero.RString;
 import omero.ServerError;
+import omero.api.IQueryPrx;
 import omero.api.RawFileStorePrx;
 import omero.cmd.CallContext;
 import omero.cmd.HandlePrx;
@@ -55,6 +59,8 @@ import omero.grid._ImportProcessOperations;
 import omero.grid._ImportProcessTie;
 import omero.model.Fileset;
 import omero.model.FilesetJobLink;
+import omero.sys.Parameters;
+import omero.sys.ParametersI;
 
 /**
  * Represents a single import within a defined-session
@@ -330,13 +336,23 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
             }
 
             Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
+            final Map<String, String> allGroupsContext = ImmutableMap.of(Login.OMERO_GROUP, "-1");
+            final IQueryPrx iQuery = sf.getQueryService(__current);
+            final String hql = "SELECT originalFile.hash FROM FilesetEntry "
+                    + "WHERE fileset.id = :id AND originalFile.path || originalFile.name = :usedfile";
             for (int i = 0; i < size; i++) {
                 StopWatch sw1 = new Slf4JStopWatch();
                 String usedFile = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
-                CheckedPath cp = repo.checkPath(usedFile, settings.checksumAlgorithm, this.current);
+                final Parameters params = new ParametersI().addId(fs.getId()).add("usedfile", omero.rtypes.rstring(usedFile));
                 final String clientHash = hashes.get(i);
-                final String serverHash = cp.hash();
-                if (!clientHash.equals(serverHash)) {
+                String serverHash = "";
+                try {
+                    final RString result = (RString) iQuery.projection(hql, params, allGroupsContext).get(0).get(0);
+                    serverHash = result.getValue();
+                } catch (IndexOutOfBoundsException | NullPointerException e) {
+                    log.error("no server checksum on uploaded file {}", usedFile, e);
+                }
+                if (serverHash.isEmpty() || !clientHash.equals(serverHash)) {
                     failingChecksums.put(i, serverHash);
                 }
                 sw1.stop("omero.import.process.checksum");
