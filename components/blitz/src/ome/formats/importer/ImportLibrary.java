@@ -271,7 +271,7 @@ public class ImportLibrary implements IObservable
         if (containers != null) {
             final int count = containers.size();
             ExecutorService filesetThreadPool, uploadThreadPool;
-            filesetThreadPool = Executors.newFixedThreadPool(config.parallelFileset.get());
+            filesetThreadPool = Executors.newFixedThreadPool(Math.min(count, config.parallelFileset.get()));
             uploadThreadPool  = Executors.newFixedThreadPool(config.parallelUpload.get());
             try {
                 final List<Callable<Boolean>> threads = new ArrayList<>(count);
