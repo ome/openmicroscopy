@@ -147,6 +147,11 @@ public class SessionI implements _SessionOperations {
 
     public void submit_async(AMD_Session_submit __cb, omero.cmd.Request req,
             Ice.Current current) {
+        submit_async(__cb, req, current, null); // null == USER priority
+    }
+
+    public void submit_async(AMD_Session_submit __cb, omero.cmd.Request req,
+            Ice.Current current, Executor.Priority priority) {
         try {
 
             if (req == null || !IRequest.class.isAssignableFrom(req.getClass())) {
@@ -200,7 +205,7 @@ public class SessionI implements _SessionOperations {
             // Init
             try {
                 handle.initialize(id, (IRequest) req, current.ctx);
-                executor.submit(current.ctx, Executors.callable(handle));
+                executor.submit(priority, current.ctx, Executors.callable(handle));
                 __cb.ice_response(prx);
             } catch (Throwable e) {
                 log.error("Exception on startup; removing handle " + id, e);

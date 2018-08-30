@@ -36,14 +36,13 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableMap;
 
 import Ice.Current;
-
 import ome.services.blitz.impl.AbstractCloseableAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.repo.PublicRepositoryI.AMD_submit;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.util.Executor;
 import ome.system.Login;
-
 import omero.RString;
 import omero.ServerError;
 import omero.api.IQueryPrx;
@@ -391,7 +390,7 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
                 /* propagate this process' call context to the new import request */
                 ((ManagedImportRequestI) req).setCallContext(current.ctx);
             }
-            final AMD_submit submit = repo.submitRequest(sf, req, this.current);
+            final AMD_submit submit = repo.submitRequest(sf, req, this.current, Executor.Priority.BACKGROUND);
             this.handle = submit.ret;
             // TODO: in 5.1 this should be added to the request object
             ((ManagedImportRequestI) req).handle = submit.ret;
