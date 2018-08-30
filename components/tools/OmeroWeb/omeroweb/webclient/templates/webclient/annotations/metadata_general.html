@@ -352,6 +352,7 @@
                     var projectQuery = "{% url 'webgateway_object_table_query' 'Project.datasetLinks.child.imageLinks.child' manager.image.id %}";
                     var datasetQuery = "{% url 'webgateway_object_table_query' 'Dataset.imageLinks.child' manager.image.id %}";
                     var query = "Image-{{ manager.image.id }}";
+                    var query2 = "image-{{ manager.image.id }}";
                     {% endif %}
 
                     var showBulkAnnTooltip = function(data) {
@@ -392,6 +393,8 @@
                             {% if manager.image %}
                                 loadBulkAnnotations(projectQuery, query, showBulkAnnTooltip);
                                 loadBulkAnnotations(datasetQuery, query, showBulkAnnTooltip);
+                                loadBulkAnnotations(projectQuery, query2, showBulkAnnTooltip);
+                                loadBulkAnnotations(datasetQuery, query2, showBulkAnnTooltip);
                             {% endif %}
                         }
                     });
@@ -407,6 +410,8 @@
                             {% if manager.image %}
                                 loadBulkAnnotations(projectQuery, query, showBulkAnnTooltip);
                                 loadBulkAnnotations(datasetQuery, query, showBulkAnnTooltip);
+                                loadBulkAnnotations(projectQuery, query2, showBulkAnnTooltip);
+                                loadBulkAnnotations(datasetQuery, query2, showBulkAnnTooltip);
                             {% endif %}
                         }
                     }
