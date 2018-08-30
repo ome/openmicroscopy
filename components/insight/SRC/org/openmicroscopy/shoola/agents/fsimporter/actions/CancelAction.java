@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.Action;
 
 //Third-party libraries
