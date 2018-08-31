@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.util.VersionCompare;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 
@@ -66,8 +67,12 @@ import java.util.HashSet;
  * @version 2.2
  * @since OME2.2
  */
-public class ThumbnailLoader
-        extends BatchCallTree {
+public class ThumbnailLoader extends BatchCallTree {
+
+    /**
+     * Version of OMERO.server with {@code getThumbnailWithoutDefault}
+     */
+    private static final String VERSION_THUMBNAIL_NO_DEFAULT = "5.4.8";
 
     /**
      * The images for which we need thumbnails.
@@ -216,8 +221,9 @@ public class ThumbnailLoader
                     @Override
                     public void doCall() throws Exception {
                         ThumbnailStorePrx store = getThumbnailStore(pxd);
+                        IConfigPrx configService = getConfigService();
                         try {
-                            handleBatchCall(store, pxd, userId);
+                            handleBatchCall(store, configService, pxd, userId);
                         } finally {
                             if (last) {
                                 context.getDataService()
@@ -240,14 +246,14 @@ public class ThumbnailLoader
         return configService;
     }
 
-    private void handleBatchCall(ThumbnailStorePrx store, PixelsData pxd, long userId) {
+    private void handleBatchCall(ThumbnailStorePrx store, IConfigPrx configService, PixelsData pxd, long userId) {
         // If image has pyramids, check to see if image is ready for loading as a thumbnail.
         try {
             Image thumbnail;
-            byte[] thumbnailData = loadThumbnail(store, pxd, userId);
+            byte[] thumbnailData = loadThumbnail(store, configService, pxd, userId);
             if (thumbnailData == null || thumbnailData.length == 0) {
                 // Find out why the thumbnail is not ready on the server
-                if (requiresPixelsPyramid(pxd)) {
+                if (requiresPixelsPyramid(configService, pxd)) {
                     thumbnail = determineThumbnailState(pxd);
                 } else {
                     thumbnail = Factory.createDefaultThumbnail("Loading");
@@ -306,7 +312,7 @@ public class ThumbnailLoader
      * @param userId The id of the user the thumbnail is for.
      * @param store  The thumbnail store to use.
      */
-    private byte[] loadThumbnail(ThumbnailStorePrx store, PixelsData pxd, long userId)
+    private byte[] loadThumbnail(ThumbnailStorePrx store, IConfigPrx configService, PixelsData pxd, long userId)
             throws ServerError, DSAccessException, DSOutOfServiceException {
         int sizeX = maxWidth, sizeY = maxHeight;
         if (asImage) {
@@ -328,8 +334,15 @@ public class ThumbnailLoader
                 store.setRenderingDefId(rndDefId);
         }
 
-        return store.getThumbnailWithoutDefault(omero.rtypes.rint(sizeX),
-                omero.rtypes.rint(sizeY));
+        if (VersionCompare.compare(configService.getVersion(), VERSION_THUMBNAIL_NO_DEFAULT) >= 0) {
+            // If the client is connecting a server with version 5.4.8 or greater, use the thumbnail
+            // loading function that doesn't return a clock.
+            return store.getThumbnailWithoutDefault(omero.rtypes.rint(sizeX),
+                    omero.rtypes.rint(sizeY));
+        } else {
+            return store.getThumbnail(omero.rtypes.rint(sizeX),
+                    omero.rtypes.rint(sizeY));
+        }
     }
 
     /**
@@ -340,10 +353,10 @@ public class ThumbnailLoader
      * @param pxd
      * @return
      */
-    private boolean requiresPixelsPyramid(PixelsData pxd) throws DSOutOfServiceException, ServerError {
-        int maxWidth = Integer.parseInt(getConfigService()
+    private boolean requiresPixelsPyramid(IConfigPrx configService, PixelsData pxd) throws ServerError {
+        int maxWidth = Integer.parseInt(configService
                 .getConfigValue("omero.pixeldata.max_plane_width"));
-        int maxHeight = Integer.parseInt(getConfigService()
+        int maxHeight = Integer.parseInt(configService
                 .getConfigValue("omero.pixeldata.max_plane_height"));
         return pxd.getSizeX() * pxd.getSizeY() > maxWidth * maxHeight;
     }
