@@ -215,7 +215,6 @@ public class ThumbnailLoader
                 BatchCall call = new BatchCall("Loading thumbnails") {
                     @Override
                     public void doCall() throws Exception {
-                        // System.out.println(image.getId());
                         ThumbnailStorePrx store = getThumbnailStore(pxd);
                         try {
                             handleBatchCall(store, pxd, userId);
