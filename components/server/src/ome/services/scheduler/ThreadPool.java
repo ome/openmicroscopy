@@ -43,19 +43,29 @@ public class ThreadPool extends ThreadPoolExecutor {
      */
     private final Semaphore maxBackground;
 
+    /**
+     * Milliseconds to wait until calls to {@link #background(Callable)} will
+     * timeout.
+     */
+    private final long backgroundTimeout;
+
     public ThreadPool() {
         // Values from Executres.newCachedThreadPool
         super(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
             new SynchronousQueue<Runnable>());
         this.maxBackground = new Semaphore(10);
+        this.backgroundTimeout = 3600*1000;
 
     }
 
-    public ThreadPool(int minThreads, int maxThreads, long msTimeout, int maxBackground) {
+    public ThreadPool(int minThreads, int maxThreads, long msTimeout,
+            int backgroundThreads, long backgroundTimeout) {
         super(minThreads, maxThreads, msTimeout, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>());
-        this.maxBackground = new Semaphore(maxBackground);
-        log.info("ThreadPool: normal={}, background={}", maxThreads, maxBackground);
+        this.maxBackground = new Semaphore(backgroundThreads);
+        this.backgroundTimeout = backgroundTimeout;
+        log.info("ThreadPool: normal={}, background={}, timeout={}",
+                maxThreads, maxBackground, backgroundTimeout);
     }
 
     /**
@@ -79,9 +89,10 @@ public class ThreadPool extends ThreadPoolExecutor {
     public <T> Future<T> background(Callable<T> callable){
         StopWatch sw = new Slf4JStopWatch();
         try {
-            if (!maxBackground.tryAcquire(1, 1, TimeUnit.HOURS)) {
+            if (!maxBackground.tryAcquire(
+                    1, backgroundTimeout, TimeUnit.MILLISECONDS)) {
                 String msg = String.format(
-                    "Failed to execute %s after 1h", callable);
+                    "Failed to execute %s after %sms", callable, backgroundTimeout);
                 log.warn(msg);
                 throw new RejectedExecutionException(msg);
             }
