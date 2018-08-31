@@ -152,8 +152,7 @@
     <constructor-arg ref="omeroSessionFactory"/>
     <constructor-arg ref="statelessInterceptors"/>
     <constructor-arg ref="simpleSqlAction"/>
-    <constructor-arg ref="taskExecutor"/>
-    <constructor-arg ref="backgroundTaskExecutor"/>
+    <constructor-arg ref="threadPool"/>
   </bean>
 
   <bean id="statefulExecutor" class="ome.services.util.Executor$Impl">
@@ -166,8 +165,7 @@
     <constructor-arg ref="omeroSessionFactory"/>
     <constructor-arg ref="statefulInterceptors"/>
     <constructor-arg ref="simpleSqlAction"/>
-    <constructor-arg ref="taskExecutor"/>
-    <constructor-arg ref="backgroundTaskExecutor"/>
+    <constructor-arg ref="threadPool"/>
   </bean>
 
   <bean id="queryFactory" class="ome.services.query.QueryFactory">
@@ -188,10 +186,6 @@
     <constructor-arg index="3" value="${omero.threads.max_background_threads}"/>
   </bean>
 
-  <bean id="taskExecutor" factory-bean="threadPool" factory-method="getExecutor"/>
-
-  <bean id="backgroundTaskExecutor" factory-bean="threadPool" factory-method="getBackgroundExecutor"/>
-
   <bean id="scheduler" class="ome.services.scheduler.SchedulerFactoryBean"
     depends-on="sessionManager">
     <!-- In order to slow down the scheduler background tasks, we are now
@@ -201,7 +195,7 @@
     triggers it can find.  -->
     <property name="autoStartup" value="false"/>
     <property name="schedulerName" value="OMERO.scheduler"/>
-    <property name="taskExecutor" ref="taskExecutor"/>
+    <property name="taskExecutor" ref="threadPool"/>
     <property name="quartzProperties">
         <props>
             <prop key="org.quartz.scheduler.jmx.export">true</prop>

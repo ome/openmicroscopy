@@ -15,10 +15,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import ome.conditions.InternalException;
 import ome.security.SecuritySystem;
 import ome.security.basic.CurrentDetails;
+import ome.services.scheduler.ThreadPool;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -42,8 +44,6 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
-
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * Simple execution/work interface which can be used for <em>internal</em> tasks
@@ -344,37 +344,17 @@ public interface Executor extends ApplicationContextAware {
         final protected String[] proxyNames;
         final protected SessionFactory factory;
         final protected SqlAction sqlAction;
-        final protected ExecutorService service;
+        final protected ThreadPool service;
         final protected ExecutorService systemService;
-        final protected ExecutorService backgroundService;
-
-        public Impl(CurrentDetails principalHolder, SessionFactory factory,
-                SqlAction sqlAction, String[] proxyNames) {
-            this(principalHolder, factory, sqlAction, proxyNames,
-                    java.util.concurrent.Executors.newCachedThreadPool());
-        }
 
         public Impl(CurrentDetails principalHolder, SessionFactory factory,
                 SqlAction sqlAction, String[] proxyNames,
-                ExecutorService service) {
-            this(principalHolder, factory, sqlAction, proxyNames,
-                    service, Executors.newFixedThreadPool(10,
-                    new ThreadFactoryBuilder()
-                        .setNameFormat("background-%d")
-                        .setPriority(Thread.MIN_PRIORITY)
-                        .build()));
-        }
-
-        public Impl(CurrentDetails principalHolder, SessionFactory factory,
-                SqlAction sqlAction, String[] proxyNames,
-                ExecutorService service,
-                ExecutorService backgroundService) {
+                ThreadPool service) {
             this.sqlAction = sqlAction;
             this.factory = factory;
             this.principalHolder = principalHolder;
             this.proxyNames = proxyNames;
             this.service = service;
-            this.backgroundService = backgroundService;
             // Allowed to create more threads.
             this.systemService = Executors.newCachedThreadPool();
         }
@@ -515,7 +495,7 @@ public interface Executor extends ApplicationContextAware {
             if (prio == null || prio == Priority.USER) {
                 return service.submit(wrapper);
             } else if (prio == Priority.BACKGROUND) {
-                return backgroundService.submit(wrapper);
+                return service.background(wrapper);
             } else if (prio == Priority.SYSTEM) {
                 return systemService.submit(wrapper);
             } else {
