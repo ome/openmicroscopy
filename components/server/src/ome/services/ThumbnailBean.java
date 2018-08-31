@@ -1249,7 +1249,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
     }
 
-    /**
+    /*
      * (non-Javadoc)
      *
      * @see ome.api.ThumbnailStore#getThumbnailByLongestSide(ome.model.core.Pixels,

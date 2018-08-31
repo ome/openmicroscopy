@@ -221,9 +221,8 @@ public class ThumbnailLoader extends BatchCallTree {
                     @Override
                     public void doCall() throws Exception {
                         ThumbnailStorePrx store = getThumbnailStore(pxd);
-                        IConfigPrx configService = getConfigService();
                         try {
-                            handleBatchCall(store, configService, pxd, userId);
+                            handleBatchCall(store, pxd, userId);
                         } finally {
                             if (last) {
                                 context.getDataService()
@@ -246,14 +245,14 @@ public class ThumbnailLoader extends BatchCallTree {
         return configService;
     }
 
-    private void handleBatchCall(ThumbnailStorePrx store, IConfigPrx configService, PixelsData pxd, long userId) {
+    private void handleBatchCall(ThumbnailStorePrx store, PixelsData pxd, long userId) {
         // If image has pyramids, check to see if image is ready for loading as a thumbnail.
         try {
             Image thumbnail;
-            byte[] thumbnailData = loadThumbnail(store, configService, pxd, userId);
+            byte[] thumbnailData = loadThumbnail(store, pxd, userId);
             if (thumbnailData == null || thumbnailData.length == 0) {
                 // Find out why the thumbnail is not ready on the server
-                if (requiresPixelsPyramid(configService, pxd)) {
+                if (requiresPixelsPyramid(pxd)) {
                     thumbnail = determineThumbnailState(pxd);
                 } else {
                     thumbnail = Factory.createDefaultThumbnail("Loading");
@@ -312,7 +311,7 @@ public class ThumbnailLoader extends BatchCallTree {
      * @param userId The id of the user the thumbnail is for.
      * @param store  The thumbnail store to use.
      */
-    private byte[] loadThumbnail(ThumbnailStorePrx store, IConfigPrx configService, PixelsData pxd, long userId)
+    private byte[] loadThumbnail(ThumbnailStorePrx store, PixelsData pxd, long userId)
             throws ServerError, DSAccessException, DSOutOfServiceException {
         int sizeX = maxWidth, sizeY = maxHeight;
         if (asImage) {
@@ -334,8 +333,8 @@ public class ThumbnailLoader extends BatchCallTree {
                 store.setRenderingDefId(rndDefId);
         }
 
-        if (VersionCompare.compare(configService.getVersion(), VERSION_THUMBNAIL_NO_DEFAULT) >= 0) {
-            // If the client is connecting a server with version 5.4.8 or greater, use the thumbnail
+        if (VersionCompare.compare(context.getGateway().getServerVersion(), VERSION_THUMBNAIL_NO_DEFAULT) >= 0) {
+            // If the client is connecting to a server with version 5.4.8 or greater, use the thumbnail
             // loading function that doesn't return a clock.
             return store.getThumbnailWithoutDefault(omero.rtypes.rint(sizeX),
                     omero.rtypes.rint(sizeY));
@@ -353,10 +352,10 @@ public class ThumbnailLoader extends BatchCallTree {
      * @param pxd
      * @return
      */
-    private boolean requiresPixelsPyramid(IConfigPrx configService, PixelsData pxd) throws ServerError {
-        int maxWidth = Integer.parseInt(configService
+    private boolean requiresPixelsPyramid(PixelsData pxd) throws ServerError, DSOutOfServiceException {
+        int maxWidth = Integer.parseInt(getConfigService()
                 .getConfigValue("omero.pixeldata.max_plane_width"));
-        int maxHeight = Integer.parseInt(configService
+        int maxHeight = Integer.parseInt(getConfigService()
                 .getConfigValue("omero.pixeldata.max_plane_height"));
         return pxd.getSizeX() * pxd.getSizeY() > maxWidth * maxHeight;
     }
