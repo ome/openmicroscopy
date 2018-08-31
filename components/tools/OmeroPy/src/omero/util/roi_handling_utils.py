@@ -127,14 +127,14 @@ def get_line_data(pixels, x1, y1, x2, y2, line_w=2, the_z=0, the_c=0, the_t=0):
 def points_string_to_xy_list(string):
     """
     Method for converting the string returned from
-    omero.model.ShapeI.getPoints() into list of (x,y) points
+    omero.model.ShapeI.getPoints() into list of (x,y) points (floats)
     e.g. "points[309,427, 366,503, 190,491]"
     """
     point_lists = string.strip().split("points")
     if len(point_lists) < 2:
         if len(point_lists) == 1 and point_lists[0]:
             xys = point_lists[0].split()
-            xy_list = [tuple(map(int, xy.split(','))) for xy in xys]
+            xy_list = [tuple(map(float, xy.split(','))) for xy in xys]
             return xy_list
         raise ValueError("Unrecognised ROI shape 'points' string: %s" % string)
 
@@ -142,5 +142,5 @@ def points_string_to_xy_list(string):
     xy_list = []
     for xy in first_list.strip(" []").split(", "):
         x, y = xy.split(",")
-        xy_list.append((int(x.strip()), int(y.strip())))
+        xy_list.append((float(x.strip()), float(y.strip())))
     return xy_list
