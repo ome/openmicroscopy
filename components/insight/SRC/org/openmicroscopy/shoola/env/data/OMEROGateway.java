@@ -79,7 +79,7 @@ import omero.gateway.model.SearchParameters;
 import omero.gateway.model.TableResult;
 import omero.gateway.util.Requests;
 
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+import org.openmicroscopy.shoola.env.data.util.Status;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -5872,7 +5872,7 @@ class OMEROGateway
 	 * @throws ImportException If an error occurred while importing.
 	 */
     Object importImageFile(SecurityContext ctx, ImportableObject object,
-            IObject container, ImportContainer ic, StatusLabel status,
+            IObject container, ImportContainer ic, Status status,
             boolean close, String userName)
         throws ImportException, DSAccessException, DSOutOfServiceException
 	{
@@ -5881,9 +5881,12 @@ class OMEROGateway
         //FIXME: unclear why we would need to set these values on
         // both the ImportConfig and the ImportContainer.
         if (container != null) {
-        	 config.targetClass.set(container.getClass().getSimpleName());
-             config.targetId.set(container.getId().getValue());
-             ic.setTarget(container);
+            String name = container.getClass().getName();
+            if (name.endsWith("I")) {
+                name = name.substring(0, name.length()-1);
+            }
+            config.target.set(name+":"+container.getId().getValue());
+            ic.setTarget(container);
         }
 
         ic.setUserPixels(object.getPixelsSize());
@@ -5966,24 +5969,37 @@ class OMEROGateway
 	 * @throws ImportException If an error occurred while importing.
 	 */
 	ImportCandidates getImportCandidates(SecurityContext ctx,
-			ImportableObject object, File file, StatusLabel status)
+			ImportableObject object, File file, Status status)
 		throws ImportException
 	{
 		OMEROWrapper reader = null;
 		try {
-			ImportConfig config = new ImportConfig();
+            ImportConfig config = new ImportConfig();
+            config.checksumAlgorithm.set(object.getChecksumAlgorithm());
+            if (object.skipThumbnails()) {
+                config.doThumbnails.set(false);
+            }
+            if (object.skipMinMax()) {
+                config.noStatsInfo.set(true);
+            }
+
 			reader = new OMEROWrapper(config);
 			String[] paths = new String[1];
 			paths[0] = file.getAbsolutePath();
 			ImportCandidates icans = new ImportCandidates(reader, paths, status);
 			
-			if(object.isOverrideName()) {
-			    String name = UIUtilities.getDisplayedFileName(file.getAbsolutePath(), object.getDepthForName());
-			    for(ImportContainer ic : icans.getContainers()) {
+			for(ImportContainer ic : icans.getContainers()) {
+			    if(object.isOverrideName()) {
+			        String name = UIUtilities.getDisplayedFileName(file.getAbsolutePath(), object.getDepthForName());
 			        ic.setUserSpecifiedName(name);
 			    }
-			}
-			
+			    if (object.skipThumbnails()) {
+	                ic.setDoThumbnails(false);
+	            }
+	            if (object.skipMinMax()) {
+	                ic.setNoStatsInfo(true);
+	            }
+            }
 			return icans;
 		} catch (Throwable e) {
 			throw new ImportException(e);

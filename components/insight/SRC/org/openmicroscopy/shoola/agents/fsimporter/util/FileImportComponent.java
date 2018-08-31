@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -33,7 +33,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -77,12 +76,13 @@ import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
-import omero.gateway.SecurityContext;
+import org.openmicroscopy.shoola.env.data.util.Status;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import omero.gateway.SecurityContext;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.FileAnnotationData;
@@ -94,8 +94,6 @@ import omero.gateway.model.ScreenData;
 import omero.gateway.model.TagAnnotationData;
 
 /** 
- * Component hosting the file to import and displaying the status of the 
- * import process.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -107,64 +105,11 @@ import omero.gateway.model.TagAnnotationData;
  */
 public class FileImportComponent
 	extends JPanel
-	implements PropertyChangeListener
+	implements PropertyChangeListener, FileImportComponentI
 {
-	/** Indicates that the container is of type <code>Project</code>. */
-	public static final int PROJECT_TYPE = 0;
-	
-	/** Indicates that the container is of type <code>Screen</code>. */
-	public static final int SCREEN_TYPE = 1;
-	
-	/** Indicates that the container is of type <code>Dataset</code>. */
-	public static final int DATASET_TYPE = 2;
-	
-	/** Indicates that no container specified. */
-	public static final int NO_CONTAINER = 3;
-	
-	/** Bound property indicating to retry an upload.*/
-	public static final String RETRY_PROPERTY = "retry";
-	
-	/** 
-	 * Bound property indicating that the error to submit is selected or not.
-	 */
-	public static final String SUBMIT_ERROR_PROPERTY = "submitError";
-	
-	/** Bound property indicating to display the error.*/
-	public static final String DISPLAY_ERROR_PROPERTY = "displayError";
-	
-	/** Bound property indicating to cancel the import.*/
-	public static final String CANCEL_IMPORT_PROPERTY = "cancelImport";
-	
-	/** Bound property indicating to browse the node. */
-	public static final String BROWSE_PROPERTY = "browse";
-	
-	/** Bound property indicating to increase the number of files to import. */
-	public static final String IMPORT_FILES_NUMBER_PROPERTY = "importFilesNumber";
-	
-	/**
-	 * Bound property indicating to load the content of the log file.
-	 */
-	public static final String LOAD_LOGFILEPROPERTY = "loadLogfile";
-
-	/**
-	 * Bound property indicating to retrieve the log file.
-	 */
-	public static final String RETRIEVE_LOGFILEPROPERTY = "retrieveLogfile";
-	
-	/**
-	 * Bound property indicating to show the checksums,
-	 */
-	public static final String CHECKSUM_DISPLAY_PROPERTY = "checksumDisplay";
-
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
 
-	/** The number of extra labels for images to add. */
-	public static final int MAX_THUMBNAILS = 3;
-
-	/** Text indicating that the folder does not contain importable files.*/
-	private static final String EMPTY_FOLDER = "No data to import";
-	
 	/** The maximum width used for the component.*/
 	private static final int LENGTH = 350;
 	
@@ -172,7 +117,7 @@ public class FileImportComponent
 	private static final String EMPTY_DIRECTORY = "No data to import";
 	
 	/** One of the constants defined by this class. */
-	private int type;
+	private ContainerType type;
 
 	/** The component indicating the progress of the import. */
 	private JXBusyLabel busyLabel;
@@ -193,7 +138,7 @@ public class FileImportComponent
 	private Object image;
 
 	/** Indicates the status of the on-going import. */
-	private StatusLabel statusLabel;
+	private Status status;
 	
 	/** The component displaying the name of the file. */
 	private JLabel fileNameLabel;
@@ -226,7 +171,7 @@ public class FileImportComponent
 	private JXTaskPane pane;
 	
 	/** The parent of the node. */
-	private FileImportComponent parent;
+	private FileImportComponentI parent;
 
 	/** 
 	 * Flag indicating that the container hosting the imported image
@@ -270,7 +215,7 @@ public class FileImportComponent
 	/** Retries to upload the file.*/
 	private void retry()
 	{
-		Object o = statusLabel.getImportResult();
+		Object o = status.getImportResult();
 		if (o instanceof Exception || image instanceof Exception)
 			firePropertyChange(RETRY_PROPERTY, null, this);
 	}
@@ -288,7 +233,7 @@ public class FileImportComponent
 	    String checksumText = "View Checksum";
 	    String exceptionText = "View Exception";
 	    String copyExceptionText = "Copy Exception to Clipboard";
-	    Object result = statusLabel.getImportResult();
+	    Object result = status.getImportResult();
 	    switch (resultIndex) {
 	    case FAILURE_LIBRARY:
 	        menu.add(new JMenuItem(new AbstractAction(exceptionText) {
@@ -337,7 +282,7 @@ public class FileImportComponent
 	        boolean b = false;
 	        if (result instanceof Collection)
 	            b = ((Collection) result).size() == 1;
-	        item.setEnabled(b && !statusLabel.isHCS());
+	        item.setEnabled(b && !status.isHCS());
 	        menu.add(item);
 	        item = new JMenuItem(new AbstractAction("In Data Browser") {
 	            public void actionPerformed(ActionEvent e) {
@@ -352,7 +297,7 @@ public class FileImportComponent
 	            displayLogFile();
 	        }
 	    });
-	    item.setEnabled(statusLabel.getLogFileID() > 0);
+	    item.setEnabled(status.getLogFileID() > 0);
 	    menu.add(item);
 
 	    item = new JMenuItem(new AbstractAction(checksumText) {
@@ -360,7 +305,7 @@ public class FileImportComponent
 	            showChecksumDetails();
 	        }
 	    });
-	    item.setEnabled(statusLabel.hasChecksum());
+	    item.setEnabled(status.hasChecksum());
 	    menu.add(item);
 	    return menu;
 	}
@@ -376,7 +321,7 @@ public class FileImportComponent
 	 */
 	private void showChecksumDetails()
 	{
-		firePropertyChange(CHECKSUM_DISPLAY_PROPERTY, null, statusLabel);
+		firePropertyChange(CHECKSUM_DISPLAY_PROPERTY, null, status);
 	}
 
 	/**
@@ -397,8 +342,8 @@ public class FileImportComponent
 			buf.append(p.getId());
 			buf.append("<br>");
 		}
-		if (!statusLabel.isHCS()) {
-			Object o = statusLabel.getImportResult();
+		if (!status.isHCS()) {
+			Object o = status.getImportResult();
 			if (o instanceof Set) {
 				Set<PixelsData> list = (Set<PixelsData>) o;
 				int n = list.size();
@@ -417,7 +362,7 @@ public class FileImportComponent
 			}
 		}
 		buf.append("<b>Size: </b>");
-		buf.append(FileUtils.byteCountToDisplaySize(statusLabel.getFileSize()));
+		buf.append(FileUtils.byteCountToDisplaySize(status.getSizeUpload()));
 		buf.append("<br>");
 		buf.append("<b>Group: </b>");
 		buf.append(importable.getGroup().getName());
@@ -476,7 +421,7 @@ public class FileImportComponent
 		refButton = actionMenuButton;
 		addControlsToDisplay();
 		IconManager icons = IconManager.getInstance();
-		Object result = statusLabel.getImportResult();
+		Object result = status.getImportResult();
 		if (image instanceof ImportException) result = image;
 		if (result instanceof ImportException) {
 			ImportException e = (ImportException) result;
@@ -492,7 +437,6 @@ public class FileImportComponent
 			else if (status == ImportException.MISSING_LIBRARY)
 			    resultIndex = ImportStatus.FAILURE_LIBRARY;
 			else resultIndex = ImportStatus.FAILURE;
-			statusLabel.setText("");
 		} else if (result instanceof CmdCallback) {
 			callback = (CmdCallback) result;
 		} else {
@@ -508,7 +452,7 @@ public class FileImportComponent
 	/** Submits the error.*/
 	private void submitError()
 	{
-		Object o = statusLabel.getImportResult();
+		Object o = status.getImportResult();
 		if (o instanceof Exception)
 			firePropertyChange(SUBMIT_ERROR_PROPERTY, null, this);
 	}
@@ -516,7 +460,7 @@ public class FileImportComponent
 	/** Views the error.*/
 	private void viewError()
 	{
-	    Object o = statusLabel.getImportResult();
+	    Object o = status.getImportResult();
 	    if (o instanceof ImportException) {
 	        String v = UIUtilities.printErrorText((ImportException) o);
 	        JFrame f = ImporterAgent.getRegistry().getTaskBar().getFrame();
@@ -529,7 +473,7 @@ public class FileImportComponent
 	/** Copies the error to the clipboard.*/
     private void copyErrorToClipboard()
     {
-        Object o = statusLabel.getImportResult();
+        Object o = status.getImportResult();
         if (o instanceof ImportException) {
             String v = UIUtilities.printErrorText((ImportException) o);
             UIUtilities.copyToClipboard(v);
@@ -554,12 +498,12 @@ public class FileImportComponent
 	 */
 	private void cancel(boolean fire)
 	{
-		boolean b = statusLabel.isCancellable() || getFile().isDirectory();
+		boolean b = status.isCancellable() || getFile().isDirectory();
 		if (!isCancelled() && !hasImportFailed() && b &&
-		        !statusLabel.isMarkedAsDuplicate()) {
+		        !status.isMarkedAsDuplicate()) {
 			busyLabel.setBusy(false);
 			busyLabel.setVisible(false);
-			statusLabel.markedAsCancel();
+			status.markedAsCancel();
 			cancelButton.setEnabled(false);
 			cancelButton.setVisible(false);
 			firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
@@ -573,7 +517,7 @@ public class FileImportComponent
 	{
 		ViewImage evt;
 		int plugin = ImporterAgent.runAsPlugin();
-		if (image == null) image = statusLabel.getImportResult();
+		if (image == null) image = status.getImportResult();
 		Object ho = image;
 		if (image instanceof Collection) {
 			Collection l = (Collection) image;
@@ -673,8 +617,8 @@ public class FileImportComponent
 		namePane.add(fileNameLabel);
 		namePane.add(Box.createHorizontalStrut(10));
 		resultLabel = new JLabel();
-		statusLabel = new StatusLabel(importable.getFile());
-		statusLabel.addPropertyChangeListener(this);
+		status = new Status(importable.getFile());
+		status.addPropertyChangeListener(this);
 		image = null;
 		refButton = cancelButton;
 		refLabel = busyLabel;
@@ -695,7 +639,7 @@ public class FileImportComponent
 					getFile().getName()));
 		add(UIUtilities.buildComponentPanel(namePane, false),
 				"0, 0, l, c");
-		add(statusLabel, "1, 0, l, c");
+		add(new StatusLabel(status), "1, 0, l, c");
 		
 		/*
 		add(busyLabel, "2, 0, l, c");
@@ -734,14 +678,14 @@ public class FileImportComponent
 	 * 
 	 * @param files The files to import.
 	 */
-	private void insertFiles(Map<File, StatusLabel> files)
+	private void insertFiles(Map<File, Status> files)
 	{
 		resultIndex = ImportStatus.SUCCESS;
 		if (files == null || files.size() == 0) return;
 		components = Collections.synchronizedMap(new HashMap<File, FileImportComponent>());
 		
-		Entry<File, StatusLabel> entry;
-		Iterator<Entry<File, StatusLabel>> i = files.entrySet().iterator();
+		Entry<File, Status> entry;
+		Iterator<Entry<File, Status>> i = files.entrySet().iterator();
 		FileImportComponent c;
 		File f;
 		DatasetData d = dataset;
@@ -816,28 +760,23 @@ public class FileImportComponent
 				importable.getRefNode());
 	}
 	
-	/**
-	 * Returns the file hosted by this component.
-	 * 
-	 * @return See above.
-	 */
-	public FileObject getFile() { return importable.getFile(); }
-	
-	/**
-     * Returns the file hosted by this component.
-     * 
-     * @return See above.
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getFile()
      */
+	@Override
+    public FileObject getFile() { return importable.getFile(); }
+	
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getOriginalFile()
+     */
+    @Override
     public FileObject getOriginalFile() { return importable.getOriginalFile(); }
     
-	/**
-	 * Sets the location where to import the files.
-	 * 
-	 * @param data The data where to import the folder or screening data.
-	 * @param dataset The dataset if any.
-	 * @param refNode The node of reference.
-	 */
-	public void setLocation(DataObject data, DatasetData dataset, 
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#setLocation(omero.gateway.model.DataObject, omero.gateway.model.DatasetData, java.lang.Object)
+     */
+	@Override
+    public void setLocation(DataObject data, DatasetData dataset, 
 			Object refNode)
 	{
 		this.data = data;
@@ -856,44 +795,40 @@ public class FileImportComponent
 			containerObject = dataset;
 			return;
 		}
-		if (data != null && data instanceof ScreenData) {
+		if (data instanceof ScreenData) {
 			containerObject = data;
 		}
 	}
 	
-	/**
-	 * Sets the log file annotation.
-	 * 
-	 * @param data The annotation associated to the file set.
-	 * @param id The id of the file set.
-	 */
-	public void setImportLogFile(Collection<FileAnnotationData> data, long id)
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#setImportLogFile(java.util.Collection, long)
+     */
+	@Override
+    public void setImportLogFile(Collection<FileAnnotationData> data, long id)
 	{
 	}
 
-	/**
-	 * Returns the dataset or <code>null</code>.
-	 * 
-	 * @return See above.
-	 */
-	public DatasetData getDataset() { return dataset; }
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getDataset()
+     */
+	@Override
+    public DatasetData getDataset() { return dataset; }
 	
-	/**
-	 * Returns the object or <code>null</code>.
-	 * 
-	 * @return See above.
-	 */
-	public DataObject getDataObject() { return data; }
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getDataObject()
+     */
+	@Override
+    public DataObject getDataObject() { return data; }
 	
 	/**
 	 * Replaces the initial status label.
 	 * 
 	 * @param label The value to replace.
 	 */
-	void setStatusLabel(StatusLabel label)
+	void setStatusLabel(Status label)
 	{
-		statusLabel = label;
-		statusLabel.addPropertyChangeListener(this);
+		status = label;
+		status.addPropertyChangeListener(this);
 		buildGUI();
 		revalidate();
 		repaint();
@@ -904,25 +839,22 @@ public class FileImportComponent
 	 * 
 	 * @param parent The value to set.
 	 */
-	void setParent(FileImportComponent parent)
+	void setParent(FileImportComponentI parent)
 	{
 		this.parent = parent;
 	}
 	
-	/**
-	 * Returns <code>true</code> if the parent is set.
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasParent() { return parent != null; }
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#hasParent()
+     */
+	@Override
+    public boolean hasParent() { return parent != null; }
 	
-	/**
-	 * Returns the components displaying the status of an on-going import.
-	 * 
-	 * @return See above.
-	 */
-	public StatusLabel getStatus() { return statusLabel; }
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getStatus()
+     */
+	@Override
+    public Status getStatus() { return status; }
 
 	/**
 	 * Returns the associated file if any.
@@ -955,11 +887,11 @@ public class FileImportComponent
 	    return CollectionUtils.isNotEmpty(l);
 	}
 
-	/**
-	 * Sets the result of the import.
-	 * @param image The image.
-	 */
-	public void setStatus(Object image)
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#setStatus(java.lang.Object)
+     */
+	@Override
+    public void setStatus(Object image)
 	{
 		busyLabel.setVisible(false);
 		busyLabel.setBusy(false);
@@ -991,7 +923,7 @@ public class FileImportComponent
 		                    label.setVisible(true);
 		                    label.setData(list.get(0));
 		                    list.remove(0);
-		                    int n = statusLabel.getNumberOfImportedFiles()-m;
+		                    int n = status.getNumberOfImportedFiles()-m;
 		                    if (n > 0) {
 		                        label = imageLabels.get(2);
 		                        label.setVisible(true);
@@ -1030,14 +962,13 @@ public class FileImportComponent
 		} else if (image instanceof ImportException) {
 			if (getFile().isDirectory()) {
 				this.image = null;
-				statusLabel.setText(EMPTY_FOLDER);
 			} else formatResult();
 		} else if (image instanceof Boolean) {
 			busyLabel.setBusy(false);
 			busyLabel.setVisible(false);
 			cancelButton.setVisible(false);
-			if (statusLabel.isMarkedAsCancel() ||
-					statusLabel.isMarkedAsDuplicate()) {
+			if (status.isMarkedAsCancel() ||
+					status.isMarkedAsDuplicate()) {
 				resultIndex = ImportStatus.IGNORED;
 				this.image = null;
 			}
@@ -1046,18 +977,17 @@ public class FileImportComponent
 		repaint();
 	}
 
-	/**
-	 * Returns the files that failed to import.
-	 * 
-	 * @return See above.
-	 */
-	public List<FileImportComponent> getImportErrors()
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getImportErrors()
+     */
+	@Override
+    public List<FileImportComponentI> getImportErrors()
 	{
-		List<FileImportComponent> l = null;
+		List<FileImportComponentI> l = null;
 		if (getFile().isFile()) {
-			Object r = statusLabel.getImportResult();
+			Object r = status.getImportResult();
 			if (r instanceof Exception || image instanceof Exception) {
-				l = new ArrayList<FileImportComponent>();
+				l = new ArrayList<FileImportComponentI>();
 				l.add(this);
 				return l;
 			}
@@ -1066,9 +996,9 @@ public class FileImportComponent
 			    Collection<FileImportComponent> values =  components.values();
                 synchronized (components) {
                     Iterator<FileImportComponent> i = values.iterator();
-    				FileImportComponent fc;
-    				l = new ArrayList<FileImportComponent>();
-    				List<FileImportComponent> list;
+    				FileImportComponentI fc;
+    				l = new ArrayList<FileImportComponentI>();
+    				List<FileImportComponentI> list;
     				while (i.hasNext()) {
     					fc = i.next();
     					list = fc.getImportErrors();
@@ -1081,38 +1011,35 @@ public class FileImportComponent
 		return l;
 	}
 	
-	/**
-	 * Returns the id of the group.
-	 * 
-	 * @return See above.
-	 */
-	public long getGroupID() { return importable.getGroup().getId(); }
-
-	/**
-     * Returns the id of the experimenter.
-     * 
-     * @return See above.
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getGroupID()
      */
+	@Override
+    public long getGroupID() { return importable.getGroup().getId(); }
+
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getExperimenterID()
+     */
+    @Override
     public long getExperimenterID() { return importable.getUser().getId(); }
 	
-	/**
-	 * Returns the import error object.
-	 * 
-	 * @return See above.
-	 */
-	public ImportErrorObject getImportErrorObject()
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getImportErrorObject()
+     */
+	@Override
+    public ImportErrorObject getImportErrorObject()
 	{
-		Object r = statusLabel.getImportResult();
+		Object r = status.getImportResult();
 		Exception e = null;
 		if (r instanceof Exception) e = (Exception) r;
 		else if (image instanceof Exception) e = (Exception) image;
 		if (e == null) return null;
 		ImportErrorObject object = new ImportErrorObject(
 		        getFile().getTrueFile(), e, getGroupID());
-		object.setImportContainer(statusLabel.getImportContainer());
-		long id = statusLabel.getLogFileID();
+		object.setImportContainer(status.getImportContainer());
+		long id = status.getLogFileID();
 		if (id <= 0) {
-			FilesetData data = statusLabel.getFileset();
+			FilesetData data = status.getFileset();
 			if (data != null) {
 				id = data.getId();
 				object.setRetrieveFromAnnotation(true);
@@ -1122,40 +1049,34 @@ public class FileImportComponent
 		return object;
 	}
 	
-	/**
-	 * Returns <code>true</code> if the import has failed, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasImportFailed()
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#hasImportFailed()
+     */
+	@Override
+    public boolean hasImportFailed()
 	{
 		return resultIndex == ImportStatus.FAILURE ||
 				resultIndex == ImportStatus.UPLOAD_FAILURE;
 	}
 	
-	/**
-	 * Returns <code>true</code> if it was a failure prior or during the
-	 * upload, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasUploadFailed()
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#hasUploadFailed()
+     */
+	@Override
+    public boolean hasUploadFailed()
 	{
 		return resultIndex == ImportStatus.UPLOAD_FAILURE ||
 				(resultIndex == ImportStatus.FAILURE &&
-				!statusLabel.didUploadStart());
+				!status.didUploadStart());
 	}
 	
-	/**
-	 * Returns <code>true</code> if the import has been cancelled,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isCancelled()
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#isCancelled()
+     */
+	@Override
+    public boolean isCancelled()
 	{
-		boolean b = statusLabel.isMarkedAsCancel();
+		boolean b = status.isMarkedAsCancel();
 		if (b || getFile().isFile()) return b;
 		if (components == null) return false;
 		Collection<FileImportComponent> values =  components.values();
@@ -1168,23 +1089,37 @@ public class FileImportComponent
         }
 		return false;
 	}
+	
+    @Override
+    public int cancelled() {
+        int c = 0;
+        if (components != null) {
+            Collection<FileImportComponent> values = components.values();
+            synchronized (components) {
+                Iterator<FileImportComponent> i = values.iterator();
+                while (i.hasNext()) {
+                    if (i.next().isCancelled())
+                        c++;
+                }
+            }
+        }
+        return c;
+    }
 
-	/**
-	 * Returns <code>true</code> if the component has imports to cancel,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#hasImportToCancel()
+     */
+    @Override
     public boolean hasImportToCancel()
     {
-        boolean b = statusLabel.isMarkedAsCancel();
+        boolean b = status.isMarkedAsCancel();
         if (b) return false;
         if (getFile().isFile() && !hasImportStarted()) return true;
         if (components == null) return false;
         Collection<FileImportComponent> values =  components.values();
         synchronized (components) {
             Iterator<FileImportComponent> i = values.iterator();
-            FileImportComponent fc;
+            FileImportComponentI fc;
             while (i.hasNext()) {
                 fc = i.next();
                 if (!fc.isCancelled() && !fc.hasImportStarted())
@@ -1194,13 +1129,11 @@ public class FileImportComponent
         return false;
     }
     
-	/**
-	 * Returns <code>true</code> if the file can be re-imported,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasFailuresToReimport()
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#hasFailuresToReimport()
+     */
+	@Override
+    public boolean hasFailuresToReimport()
 	{
 		if (getFile().isFile()) return hasUploadFailed() && !reimported;
 		if (components == null) return false;
@@ -1215,13 +1148,11 @@ public class FileImportComponent
 		return false;
 	}
 	
-	/**
-	 * Returns <code>true</code> if the file can be re-imported,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasFailuresToReupload()
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#hasFailuresToReupload()
+     */
+	@Override
+    public boolean hasFailuresToReupload()
 	{
 		if (getFile().isFile()) return hasUploadFailed() && !reimported;
 		if (components == null) return false;
@@ -1236,34 +1167,27 @@ public class FileImportComponent
 		return false;
 	}
 	
-	/**
-	 * Returns <code>true</code> if the import has failed, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasImportStarted()
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#hasImportStarted()
+     */
+	@Override
+    public boolean hasImportStarted()
 	{
 		if (getFile().isFile()) return resultIndex != ImportStatus.QUEUED;
 		if (components == null) return false;
-		Collection<FileImportComponent> values =  components.values();
-		int count = 0;
         synchronized (components) {
-            Iterator<FileImportComponent> i = values.iterator();
-    		while (i.hasNext()) {
-    			if (i.next().hasImportStarted()) count++;
-    		}
+            for (FileImportComponent c : components.values()) 
+                if (!c.hasImportStarted())
+                    return false;
         }
-		return count == components.size();
+        return true;
 	}
 
-	/**
-	 * Returns <code>true</code> the error can be submitted, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasFailuresToSend()
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#hasFailuresToSend()
+     */
+	@Override
+    public boolean hasFailuresToSend()
 	{
 		if (getFile().isFile()) return resultIndex == ImportStatus.FAILURE;
 		if (components == null) return false;
@@ -1278,24 +1202,16 @@ public class FileImportComponent
 		return false;
 	}
 	
-	/**
-	 * Returns <code>true</code> if the folder has components added,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasComponents()
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#hasComponents()
+     */
+	@Override
+    public boolean hasComponents()
 	{
 		return components != null && components.size() > 0;
 	}
 	
-	/** 
-	 * Lays out the entries.
-	 * 
-	 * @param failure Pass <code>true</code> to display the failed import only,
-	 * <code>false</code> to display all the entries.
-	 */
-	public void layoutEntries(boolean failure)
+    public void layoutEntries(boolean failure)
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -1341,13 +1257,11 @@ public class FileImportComponent
 		pane.repaint();
 	}
 	
-	/**
-	 * Returns the status of the import process one of the
-	 * values defined in @see ImportStatus
-	 * 
-	 * @return See above.
-	 */
-	public ImportStatus getImportStatus()
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getImportStatus()
+     */
+	@Override
+    public ImportStatus getImportStatus()
 	{
 		if (getFile().isFile()) {
 			if (hasImportFailed()) return ImportStatus.FAILURE;
@@ -1358,8 +1272,8 @@ public class FileImportComponent
 				if (getFile().isDirectory()) {
 					return ImportStatus.SUCCESS;
 				} else {
-					if (!statusLabel.isMarkedAsCancel() &&
-						!statusLabel.isMarkedAsDuplicate())
+					if (!status.isMarkedAsCancel() &&
+						!status.isMarkedAsDuplicate())
 						return ImportStatus.FAILURE;
 				}
 			}
@@ -1381,68 +1295,34 @@ public class FileImportComponent
 		return ImportStatus.SUCCESS;
 	}
 	
-	/**
-	 * Returns <code>true</code> if refresh whole tree, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasToRefreshTree()
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#hasToRefreshTree()
+     */
+	@Override
+    public boolean hasToRefreshTree()
 	{
 		if (getFile().isFile()) {
 			if (hasImportFailed()) return false;
 			switch (type) {
-				case PROJECT_TYPE:
-				case NO_CONTAINER:
+				case PROJECT:
+				case NA:
 					return true;
 				default:
 					return false;
 			}
 		}
 		if (components == null) return false;
-		if (importable.isFolderAsContainer() && type != PROJECT_TYPE) {
-		    Collection<FileImportComponent> values =  components.values();
-            synchronized (components) {
-                Iterator<FileImportComponent> i = values.iterator();
-    			while (i.hasNext()) {
-    				if (i.next().toRefresh()) 
-    					return true;
-    			}
-            }
-			return false;
+		if (importable.isFolderAsContainer() && type != ContainerType.PROJECT) {
+		    return true;
 		}
-		return true;
-	}
-	
-	/**
-	 * Returns <code>true</code> if some files were imported, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean toRefresh()
-	{
-		/*
-		if (file.isFile()) {
-			if (deleteButton.isVisible()) return false;
-			else if (errorBox.isVisible())
-				return !(errorBox.isEnabled() && errorBox.isSelected());
-			return true;
-		}
-		if (components == null) return false;
-		Iterator<FileImportComponent> i = components.values().iterator();
-		int count = 0;
-		while (i.hasNext()) {
-			if (i.next().hasFailuresToSend()) 
-				count++;
-		}
-		return components.size() != count;
-		*/
 		return true;
 	}
 
-	/** Indicates the import has been cancelled. */
-	public void cancelLoading()
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#cancelLoading()
+     */
+	@Override
+    public void cancelLoading()
 	{
 		if (components == null || components.isEmpty()) {
 			cancel(getFile().isFile());
@@ -1457,59 +1337,54 @@ public class FileImportComponent
         }
 	}
 	
-	/**
-	 * Sets the type. 
-	 * 
-	 * @param type One of the constants defined by this class.
-	 */
-	public void setType(int type) { this.type = type; }
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#setType(int)
+     */
+	@Override
+    public void setType(ContainerType type) { this.type = type; }
 	
-	/**
-	 * Returns the supported type. One of the constants defined by this class.
-	 * 
-	 * @return See above.
-	 */
-	public int getType() { return type; }
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getType()
+     */
+	@Override
+    public ContainerType getType() { return type; }
 	
-	/**
-	 * Returns <code>true</code> if the folder has been converted into a
-	 * container, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isFolderAsContainer()
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#isFolderAsContainer()
+     */
+	@Override
+    public boolean isFolderAsContainer()
 	{
 		return importable.isFolderAsContainer();
 	}
 	
-	/**
-	 * Returns the object corresponding to the folder.
-	 * 
-	 * @return See above.
-	 */
-	public DataObject getContainerFromFolder() { return containerFromFolder; }
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getContainerFromFolder()
+     */
+	@Override
+    public DataObject getContainerFromFolder() { return containerFromFolder; }
 
-	/**
-	 * Returns <code>true</code> if the file has already been marked for
-	 * re-import, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public List<FileImportComponent> getFilesToReupload()
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getFilesToReupload()
+     */
+	@Override
+    public List<FileImportComponentI> getFilesToReupload()
 	{
-		List<FileImportComponent> l = null;
+		List<FileImportComponentI> l = null;
 		if (getFile().isFile()) {
 			if (hasFailuresToReupload() && !reimported) {
-				return Arrays.asList(this);
+			    ArrayList<FileImportComponentI> ret = new ArrayList<FileImportComponentI>();
+                ret.add(this);
+                return ret;
 			}
 		} else {
 			if (components != null) {
 			    Collection<FileImportComponent> values =  components.values();
 		        synchronized (components) {
 		            Iterator<FileImportComponent> i = values.iterator();
-    				FileImportComponent fc;
-    				l = new ArrayList<FileImportComponent>();
-    				List<FileImportComponent> list;
+    				FileImportComponentI fc;
+    				l = new ArrayList<FileImportComponentI>();
+    				List<FileImportComponentI> list;
     				while (i.hasNext()) {
     					fc = i.next();
     					list = fc.getFilesToReupload();
@@ -1522,96 +1397,77 @@ public class FileImportComponent
 		return l;
 	}
 	
-	/**
-	 * Sets to <code>true</code> to mark the file for reimport.
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param reimported Pass <code>true</code> to mark the file for reimport,
-	 * <code>false</code> otherwise.
-	 */
-	public void setReimported(boolean reimported)
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#setReimported(boolean)
+     */
+	@Override
+    public void setReimported(boolean reimported)
 	{ 
 		this.reimported = reimported;
 		repaint();
 	}
 	
-	/**
-	 * Sets the result of the import for the specified file.
-	 * 
-	 * @param result The result.
-	 */
-	public void uploadComplete(Object result)
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#uploadComplete(java.lang.Object)
+     */
+	@Override
+    public void uploadComplete(Object result)
 	{
 		if (result instanceof CmdCallback)
 			callback = (CmdCallback) result;
 	}
 
-	/**
-	 * Returns the index associated to the main component.
-	 * 
-	 * @return See above.
-	 */
-	public int getIndex() { return index; }
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getIndex()
+     */
+	@Override
+    public int getIndex() { return index; }
 	
-	/**
-	 * Returns the result of the import either a collection of
-	 * <code>PixelsData</code> or an exception.
-	 * 
-	 * @return See above.
-	 */
-	public Object getImportResult() { return statusLabel.getImportResult(); }
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getImportResult()
+     */
+	@Override
+    public Object getImportResult() { return status.getImportResult(); }
 	
-	/**
-	 * Returns <code>true</code> if it is a HCS file, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isHCS() { return statusLabel.isHCS(); }
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#isHCS()
+     */
+	@Override
+    public boolean isHCS() { return status.isHCS(); }
 	
-	/**
-	 * Returns the size of the upload.
-	 * 
-	 * @return See above.
-	 */
-	public long getImportSize() { return statusLabel.getFileSize(); }
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getImportSize()
+     */
+	@Override
+    public long getImportSize() { return status.getSizeUpload(); }
 	
-	/**
-	 * Returns <code>true</code> if the result has already been set,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasResult() { return image != null; }
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#hasResult()
+     */
+	@Override
+    public boolean hasResult() { return image != null; }
 	
-	/**
-	 * Returns the importable object associated to the parent,
-	 * <code>null</code> if no parent.
-	 * 
-	 * @return See above.
-	 */
-	public ImportableFile getImportableFile() { return importable; }
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#getImportableFile()
+     */
+	@Override
+    public ImportableFile getImportableFile() { return importable; }
 
-	/**
-	 * Indicates the results saving status.
-	 *
-	 * @param message The message to display
-	 * @param busy Pass <code>true</code> when saving,
-	 *             <code>false</code> otherwise.
-	 */
-	public void onResultsSaving(String message, boolean busy)
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#onResultsSaving(java.lang.String, boolean)
+     */
+	@Override
+    public void onResultsSaving(String message, boolean busy)
 	{
-	    statusLabel.updatePostProcessing(message, !busy);
 	    busyLabel.setVisible(busy);
 	    busyLabel.setBusy(busy);
 	}
 
-	/**
-	 * Overridden to make sure that all the components have the correct 
-	 * background.
-	 * @see JPanel#setBackground(Color)
-	 */
-	public void setBackground(Color color)
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#setBackground(java.awt.Color)
+     */
+	@Override
+    public void setBackground(Color color)
 	{
 		if (busyLabel != null) busyLabel.setBackground(color);
 		if (namePane != null) {
@@ -1622,68 +1478,68 @@ public class FileImportComponent
 		super.setBackground(color);
 	}
 
-	/**
-	 * Listens to property fired by the <code>StatusLabel</code>.
-	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-	 */
-	public void propertyChange(PropertyChangeEvent evt)
+	/* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#propertyChange(java.beans.PropertyChangeEvent)
+     */
+	@Override
+    public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		if (StatusLabel.FILES_SET_PROPERTY.equals(name)) {
+		if (Status.FILES_SET_PROPERTY.equals(name)) {
 			if (isCancelled()) {
 				busyLabel.setBusy(false);
 				busyLabel.setVisible(false);
 				return;
 			}
-			Map<File, StatusLabel> files = (Map<File, StatusLabel>)
+			Map<File, Status> files = (Map<File, Status>)
 				evt.getNewValue();
 			int n = files.size();
 			insertFiles(files);
 			firePropertyChange(IMPORT_FILES_NUMBER_PROPERTY, null,n);
-		} else if (StatusLabel.FILE_IMPORT_STARTED_PROPERTY.equals(name)) {
+		} else if (Status.FILE_IMPORT_STARTED_PROPERTY.equals(name)) {
 			resultIndex = ImportStatus.STARTED;
-			StatusLabel sl = (StatusLabel) evt.getNewValue();
-			if (sl.equals(statusLabel) && busyLabel != null) {
+			Status sl = (Status) evt.getNewValue();
+			if (sl.equals(status) && busyLabel != null) {
 				cancelButton.setEnabled(sl.isCancellable());
-				firePropertyChange(StatusLabel.FILE_IMPORT_STARTED_PROPERTY,
+				firePropertyChange(Status.FILE_IMPORT_STARTED_PROPERTY,
 				        null, this);
 			}
-		} else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
-			StatusLabel sl = (StatusLabel) evt.getNewValue();
-			if (sl.equals(statusLabel) && hasParent()) {
+		} else if (Status.UPLOAD_DONE_PROPERTY.equals(name)) {
+			Status sl = (Status) evt.getNewValue();
+			if (sl.equals(status) && hasParent()) {
 				if (sl.isMarkedAsCancel()) cancel(true);
 				else {
 					formatResult();
-					firePropertyChange(StatusLabel.UPLOAD_DONE_PROPERTY, null,
+					firePropertyChange(Status.UPLOAD_DONE_PROPERTY, null,
 							this);
 				}
 			}
-		} else if (StatusLabel.CANCELLABLE_IMPORT_PROPERTY.equals(name)) {
-			StatusLabel sl = (StatusLabel) evt.getNewValue();
-			if (sl.equals(statusLabel))
+		} else if (Status.CANCELLABLE_IMPORT_PROPERTY.equals(name)) {
+			Status sl = (Status) evt.getNewValue();
+			if (sl.equals(status))
 				cancelButton.setVisible(sl.isCancellable());
-		} else if (StatusLabel.SCANNING_PROPERTY.equals(name)) {
-			StatusLabel sl = (StatusLabel) evt.getNewValue();
-			if (sl.equals(statusLabel)) {
+		} else if (Status.SCANNING_PROPERTY.equals(name)) {
+			Status sl = (Status) evt.getNewValue();
+			if (sl.equals(status)) {
 				if (busyLabel != null && !isCancelled()) {
 					busyLabel.setBusy(true);
 					busyLabel.setVisible(true);
 				}
 			}
-		} else if (StatusLabel.FILE_RESET_PROPERTY.equals(name)) {
+		} else if (Status.FILE_RESET_PROPERTY.equals(name)) {
 			importable.setFile((File) evt.getNewValue());
 			fileNameLabel.setText(getFile().getName());
 		} else if (ThumbnailLabel.BROWSE_PLATE_PROPERTY.equals(name)) {
 			firePropertyChange(BROWSE_PROPERTY, evt.getOldValue(), 
 					evt.getNewValue());
-		} else if (StatusLabel.CONTAINER_FROM_FOLDER_PROPERTY.equals(name)) {
+		} else if (Status.CONTAINER_FROM_FOLDER_PROPERTY.equals(name)) {
 			containerFromFolder = (DataObject) evt.getNewValue();
 			if (containerFromFolder instanceof DatasetData) {
 				containerObject = containerFromFolder;
 			} else if (containerFromFolder instanceof ScreenData) {
 				containerObject = containerFromFolder;
 			}
-		} else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
+		} else if (Status.DEBUG_TEXT_PROPERTY.equals(name)) {
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
 		} else if (ThumbnailLabel.VIEW_IMAGE_PROPERTY.equals(name)) {
 			//use the group
@@ -1692,28 +1548,28 @@ public class FileImportComponent
 			EventBus bus = ImporterAgent.getRegistry().getEventBus();
 			Long id = (Long) evt.getNewValue();
 			bus.post(new ViewImage(ctx, new ViewImageObject(id), null));
-		} else if (StatusLabel.IMPORT_DONE_PROPERTY.equals(name) ||
-				StatusLabel.PROCESSING_ERROR_PROPERTY.equals(name)) {
-			StatusLabel sl = (StatusLabel) evt.getNewValue();
-			if (sl.equals(statusLabel))
-				firePropertyChange(StatusLabel.IMPORT_DONE_PROPERTY, null,
+		} else if (Status.IMPORT_DONE_PROPERTY.equals(name) ||
+				Status.PROCESSING_ERROR_PROPERTY.equals(name)) {
+			Status sl = (Status) evt.getNewValue();
+			if (sl.equals(status))
+				firePropertyChange(Status.IMPORT_DONE_PROPERTY, null,
 						this);
 		}
 	}
-
-	/**
-	 * Returns the name of the file and group's id and user's id.
-	 * @see #toString()
-	 */
-	public String toString()
-	{
-		StringBuffer buf = new StringBuffer();
-		buf.append(getFile().getAbsolutePath());
-		if (importable.getGroup() != null)
-			buf.append("_"+importable.getGroup().getId());
-		if (importable.getUser() != null)
-			buf.append("_"+importable.getUser().getId());
-		return buf.toString();
-	}
-
+	
+    /**
+     * Returns the name of the file and group's id and user's id. 
+     * (This String is used as reference to find a specific FileImportComponent
+     * (see {@link FileImportComponent#components}) again, don't remove!)
+     */
+    @Override
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        buf.append(getFile().getAbsolutePath());
+        if (importable.getGroup() != null)
+            buf.append("_" + importable.getGroup().getId());
+        if (importable.getUser() != null)
+            buf.append("_" + importable.getUser().getId());
+        return buf.toString();
+    }
 }

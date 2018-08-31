@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -58,13 +58,13 @@ import org.openmicroscopy.shoola.agents.fsimporter.actions.RetryImportAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.SubmitFilesAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
-import omero.log.Logger;
+import org.openmicroscopy.shoola.env.data.util.Status;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
@@ -120,7 +120,7 @@ class ImporterControl
 	private ImporterUI		view;
 
 	/** Collection of files to submit. */
-	private List<FileImportComponent> markedFailed;
+	private List<FileImportComponentI> markedFailed;
 	
 	/** Maps actions identifiers onto actual <code>Action</code> object. */
 	private Map<Integer, ImporterAction>	actionsMap;
@@ -260,11 +260,11 @@ class ImporterControl
 	 * 
 	 * @param fc The component to handle or <code>null</code>.
 	 */
-	void submitFiles(FileImportComponent fc)
+	void submitFiles(FileImportComponentI fc)
 	{
-		List<FileImportComponent> list;
+		List<FileImportComponentI> list;
 		if (fc != null) {
-			list = new ArrayList<FileImportComponent>();
+			list = new ArrayList<FileImportComponentI>();
 			list.add(fc);
 		} else {
 			list = view.getMarkedFiles();
@@ -272,7 +272,7 @@ class ImporterControl
 		
 		markedFailed = list;
 		//Now prepare the list of object to send.
-		Iterator<FileImportComponent> i = list.iterator();
+		Iterator<FileImportComponentI> i = list.iterator();
 		ImportErrorObject object;
 		List<ImportErrorObject> toSubmit = new ArrayList<ImportErrorObject>();
 		while (i.hasNext()) {
@@ -397,14 +397,14 @@ class ImporterControl
                     model.close();
             } else if (ClosableTabbedPane.CLOSE_TAB_PROPERTY.equals(name)) {
                     model.removeImportElement(evt.getNewValue());
-            } else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
+            } else if (FileImportComponentI.SUBMIT_ERROR_PROPERTY.equals(name)) {
                     submitFiles((FileImportComponent) evt.getNewValue());
             } else if (ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)) {
                     model.refreshContainers((ImportLocationDetails) evt.getNewValue());
             } else if (ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
                     ObjectToCreate l = (ObjectToCreate) evt.getNewValue();
                     model.createDataObject(l);
-            } else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
+            } else if (Status.DEBUG_TEXT_PROPERTY.equals(name)) {
                     view.appendDebugText((String) evt.getNewValue());
             } else if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(name)) {
                     Action a = getAction(EXIT);
@@ -414,13 +414,13 @@ class ImporterControl
             } else if (ImportDialog.PROPERTY_GROUP_CHANGED.equals(name)) {
                     GroupData newGroup = (GroupData) evt.getNewValue();
                     model.setUserGroup(newGroup);
-            } else if (StatusLabel.FILE_IMPORT_STARTED_PROPERTY.equals(name) ||
-                    FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
+            } else if (Status.FILE_IMPORT_STARTED_PROPERTY.equals(name) ||
+                    FileImportComponentI.CANCEL_IMPORT_PROPERTY.equals(name)) {
                 checkDisableCancelAllButtons();
-            } else if (StatusLabel.IMPORT_DONE_PROPERTY.equals(name)) {
-                    model.onImportComplete((FileImportComponent) evt.getNewValue());
-            } else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
-                    model.onUploadComplete((FileImportComponent) evt.getNewValue());
+            } else if (Status.IMPORT_DONE_PROPERTY.equals(name)) {
+                    model.onImportComplete((FileImportComponentI) evt.getNewValue());
+            } else if (Status.UPLOAD_DONE_PROPERTY.equals(name)) {
+                    model.onUploadComplete((FileImportComponentI) evt.getNewValue());
             }
         }
 
@@ -439,7 +439,7 @@ class ImporterControl
 	 * 
 	 * @param fc The file to upload.
 	 */
-	void cancel(FileImportComponent fc)
+	void cancel(FileImportComponentI fc)
 	{
 		model.onUploadComplete(fc);
 	}
