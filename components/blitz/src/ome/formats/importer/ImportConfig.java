@@ -129,6 +129,8 @@ public class ImportConfig {
     public final BoolValue sendReport;
     public final BoolValue sendFiles;
     public final BoolValue sendLogFile;
+    public final IntValue parallelUpload;
+    public final IntValue parallelFileset;
     public final StrValue qaBaseURL;
     public final BoolValue checkUpgrade;
 
@@ -275,13 +277,15 @@ public class ImportConfig {
         sendReport   = new BoolValue("sendReport", this, false);
         sendFiles    = new BoolValue("sendFiles", this, true);
         sendLogFile  = new BoolValue("sendLogFile", this, true);
+        parallelUpload  = new IntValue("parallelUpload", this, 1);
+        parallelFileset = new IntValue("parallelFileset", this, 1);
 
         useFullPath  = new BoolValue("useFullPath", this, true);
         useCustomImageNaming = new BoolValue("overrideImageName", this, true);
         numOfDirectories = new IntValue("numOfDirectories", this, 0);
         savedDirectory = new FileValue("savedDirectory", this);
 
-        encryptedConnection = new BoolValue("ecryptedConnection", this, true);
+        encryptedConnection = new BoolValue("encryptedConnection", this, true);
         autoClose = new BoolValue("autoClose", this, false);
 
         annotations = new AnnotationListValue(

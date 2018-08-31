@@ -1,9 +1,10 @@
 /*
- *   Copyright (C) 2009-2016 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2009-2018 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.formats.importer.cli;
 
 import gnu.getopt.Getopt;
@@ -547,6 +548,8 @@ public class CommandLineImporter {
         config.sendLogFile.set(false);
         config.sendReport.set(false);
         config.contOnError.set(false);
+        config.parallelUpload.set(1);
+        config.parallelFileset.set(1);
         config.debug.set(false);
         config.encryptedConnection.set(false);
 
@@ -611,6 +614,12 @@ public class CommandLineImporter {
         LongOpt encryptedConnection =
                 new LongOpt("encrypted", LongOpt.REQUIRED_ARGUMENT, null, 26);
 
+        LongOpt parallelUpload =
+                new LongOpt("parallel-upload", LongOpt.REQUIRED_ARGUMENT, null, 27);
+
+        LongOpt parallelFileset =
+                new LongOpt("parallel-fileset", LongOpt.REQUIRED_ARGUMENT, null, 28);
+
         // DEPRECATED OPTIONS
         LongOpt minutesWaitDeprecated =
                 new LongOpt("minutes_wait", LongOpt.REQUIRED_ARGUMENT, null, 86);
@@ -649,6 +658,7 @@ public class CommandLineImporter {
                                 exclude, target, noStatsInfo,
                                 noUpgradeCheck, qaBaseURL,
                                 outputFormat, encryptedConnection,
+                                parallelUpload, parallelFileset,
                                 plateName, plateName2,
                                 plateDescription, plateDescription2,
                                 noThumbnailsDeprecated,
@@ -811,6 +821,18 @@ public class CommandLineImporter {
                 String encryptedArg = g.getOptarg();
                 log.info("Setting encrypted: {}", encryptedArg);
                 config.encryptedConnection.set(Boolean.valueOf(encryptedArg));
+                break;
+            }
+            case 27: {
+                String parallelFArg = g.getOptarg();
+                log.info("Setting parallel upload: {}", parallelFArg);
+                config.parallelUpload.set(Integer.valueOf(parallelFArg));
+                break;
+            }
+            case 28: {
+                String parallelUArg = g.getOptarg();
+                log.info("Setting parallel fileset: {}", parallelUArg);
+                config.parallelFileset.set(Integer.valueOf(parallelUArg));
                 break;
             }
             // ADVANCED END ---------------------------------------------------
