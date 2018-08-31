@@ -348,6 +348,12 @@ public interface Executor extends ApplicationContextAware {
         final protected ExecutorService systemService;
 
         public Impl(CurrentDetails principalHolder, SessionFactory factory,
+                SqlAction sqlAction, String[] proxyNames) {
+            this(principalHolder, factory, sqlAction, proxyNames,
+                    new ThreadPool());
+        }
+
+        public Impl(CurrentDetails principalHolder, SessionFactory factory,
                 SqlAction sqlAction, String[] proxyNames,
                 ThreadPool service) {
             this.sqlAction = sqlAction;

@@ -15,6 +15,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +42,14 @@ public class ThreadPool extends ThreadPoolExecutor {
      * during {@link #afterExecute(Runnable, Throwable)}.
      */
     private final Semaphore maxBackground;
+
+    public ThreadPool() {
+        // Values from Executres.newCachedThreadPool
+        super(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+            new SynchronousQueue<Runnable>());
+        this.maxBackground = new Semaphore(10);
+
+    }
 
     public ThreadPool(int minThreads, int maxThreads, long msTimeout, int maxBackground) {
         super(minThreads, maxThreads, msTimeout, TimeUnit.MILLISECONDS,
