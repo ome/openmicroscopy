@@ -64,8 +64,8 @@ public class ThreadPool extends ThreadPoolExecutor {
                 new LinkedBlockingQueue<Runnable>());
         this.maxBackground = new Semaphore(backgroundThreads);
         this.backgroundTimeout = backgroundTimeout;
-        log.info("ThreadPool: normal={}, background={}, timeout={}",
-                maxThreads, maxBackground, backgroundTimeout);
+        log.info("ThreadPool: normal=(#{}, {}ms), background=(#{}, {}ms)",
+                maxThreads, msTimeout, backgroundThreads, backgroundTimeout);
     }
 
     /**
@@ -84,7 +84,7 @@ public class ThreadPool extends ThreadPoolExecutor {
      * the task will run in the same thread pool as both USER and BACKGROUND
      * tasks.
      * @param callable
-     * @return
+     * @return a future for this task
      */
     public <T> Future<T> background(Callable<T> callable){
         StopWatch sw = new Slf4JStopWatch();
@@ -108,7 +108,7 @@ public class ThreadPool extends ThreadPoolExecutor {
     }
 
     /**
-     * Overrides {@link TaskPoolExecutor} to return our own instance of
+     * Overrides {@link ThreadPoolExecutor} to return our own instance of
      * {@link FutureTask} so that we have a marker for when the background
      * activity is completed in {@link #afterExecute(Runnable, Throwable)}.
      *
@@ -125,8 +125,8 @@ public class ThreadPool extends ThreadPoolExecutor {
 
     /**
      * Standard {@link ThreadPoolExecutor} extension point which checks for the
-     * {@link BackgroundFutureTask} marker and releases a slot in the
-     * {@link #maxBackground} {@link Semaphore}.
+     * BackgroundFutureTask marker and releases a slot in the {@link #maxBackground}
+     * {@link Semaphore}.
      */
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
