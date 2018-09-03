@@ -5,6 +5,47 @@
 OMERO version history
 =====================
 
+5.4.8 (August 2018)
+-------------------
+
+This release focuses on a number of import performance
+improvements while including several other fixes as
+well as an upgrade of Bio-Formats.
+
+Import improvements include:
+
+- cli: new experimental `--parallel-upload` and
+  `--parallel-fileset` flags to the `import` command
+- cli: new `fs importtime` cli command
+- insight: new options for skipping various import steps
+  to speed up the process (match cli's `--skip` option)
+- insight: supporting imports with thousands of files
+  by providing a light-weight UI
+- insight: better representation of missing thumbnails
+- server: preventing recalculation of checksums for upload
+- server: providing better performance logging,
+  accessible to users via `fs logfile`
+- as well as preservation of Bio-Formats' knowledge of
+  channel colors where provided.
+
+Other client changes include:
+
+- web: better handling of large numbers of channels
+- web: fixed socket leakage on unclosed web sessions
+- web: fixed issue with bulk annotation table handling
+- cli: deprecating `admin sessionlist` and `config list`
+
+Sysadmin improvements include:
+
+- new `%thread` option for omero.fs.repo.path
+  as well as fix a few bugs for dealing with
+  parallel imports
+- new omero.threads.background_threads property
+  to limit the number of simultaneous imports
+
+This release also upgrades the version of Bio-Formats which OMERO
+uses to 5.9.2.
+
 5.4.7 (July 2018)
 -----------------
 
