@@ -50,7 +50,7 @@ public class ThreadPool extends ThreadPoolExecutor {
     private final long backgroundTimeout;
 
     public ThreadPool() {
-        // Values from Executres.newCachedThreadPool
+        // Values from Executors.newCachedThreadPool
         super(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
             new SynchronousQueue<Runnable>());
         this.maxBackground = new Semaphore(10);
