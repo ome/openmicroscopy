@@ -67,6 +67,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
+import org.openmicroscopy.shoola.util.VersionCompare;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
@@ -585,6 +586,9 @@ public class DataServicesFactory
         	omeroGateway.logout();
         	return;
         }
+
+        // TODO: Can be removed for >= 5.5.0 release
+        container.getRegistry().bind(LookupNames.SERVER_5_4_8_OR_LATER, VersionCompare.compare(version, "5.4.8") >= 0);
 
         //Upgrade check only if client and server are compatible
         omeroGateway.isUpgradeRequired(name);
