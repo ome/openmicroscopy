@@ -21,7 +21,11 @@ Import improvements include:
   to speed up the process (match cli's `--skip` option)
 - insight: supporting imports with thousands of files
   by providing a lightweight UI
-- insight: better representation of missing thumbnails
+- insight: new loading placeholder when browsing data to
+  to show when an image is busy being processed and not
+  ready to generate a thumbnail
+- insight: added error placeholder when browsing data to
+  indicate a failed import
 - server: preventing recalculation of checksums for upload
 - server: providing better performance logging,
   accessible to users via `fs logfile`
