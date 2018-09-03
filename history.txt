@@ -20,7 +20,7 @@ Import improvements include:
 - insight: new options for skipping various import steps
   to speed up the process (match cli's `--skip` option)
 - insight: supporting imports with thousands of files
-  by providing a light-weight UI
+  by providing a lightweight UI
 - insight: better representation of missing thumbnails
 - server: preventing recalculation of checksums for upload
 - server: providing better performance logging,
@@ -37,7 +37,7 @@ Other client changes include:
 
 Sysadmin improvements include:
 
-- new `%thread` option for omero.fs.repo.path
+- new `%thread%` option for omero.fs.repo.path
   as well as fix a few bugs for dealing with
   parallel imports
 - new omero.threads.background_threads property
