@@ -331,7 +331,6 @@ def testFileAnnotationNoName(author_testimg_generated, gatewaywrapper):
     ann_id = fa.id.val
     file_ann = FileAnnotationWrapper(conn, fa)
 
-    file_id = orig_file.getId()
     assert file_ann.getFileName() == file_name
 
     # Set Name to None - getFileName() should return file ID as string
