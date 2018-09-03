@@ -25,8 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 /**
  * An internal implementation of {@link ThreadPoolExecutor} that additionally
  * handles the submission of {@link #background(Callable)} tasks at a lower
