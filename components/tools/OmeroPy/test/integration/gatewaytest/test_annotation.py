@@ -340,7 +340,7 @@ def testFileAnnotationNoName(author_testimg_generated, gatewaywrapper):
                                                         conn.SERVICE_OPTS)
     # reload file_ann to update
     file_ann = conn.getObject("FileAnnotation", ann_id)
-    assert file_ann.getFileName() == "No name (id:%s)" % file_id
+    assert file_ann.getFileName() == ""
 
 
 def testFileAnnotationSpeed(author_testimg_generated, gatewaywrapper):

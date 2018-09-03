@@ -5201,13 +5201,7 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
         f = self.getFile()
         if f is None or f._obj is None:
             return None
-        fname = f.getName()
-        if fname is not None and len(fname) > 0:
-            return fname
-        fpath = f.getPath()
-        if fpath is not None and len(fpath) > 0:
-            return fpath
-        return "No name (id:%s)" % f.id
+        return f.getName()
 
     def getFileInChunks(self, buf=2621440):
         """
