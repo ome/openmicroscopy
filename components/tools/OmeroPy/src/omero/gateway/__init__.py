@@ -1931,6 +1931,14 @@ class _BlitzGateway (object):
         self._proxies = NoProxies()
         logger.info("closed connection (uuid=%s)" % str(self._sessionUuid))
 
+    def closeServices(self):
+        """
+        Terminates all services (proxies) of the current session.
+        """
+        for proxy in self._proxies.values():
+            proxy.close()
+        self._proxies = NoProxies()
+
     def _createProxies(self):
         """
         Creates proxies to the server services. Called on connection or
