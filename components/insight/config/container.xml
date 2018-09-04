@@ -307,8 +307,8 @@
     <entry name="Version">@OMERO_DISPLAY_VERSION@</entry>
     <entry name="SoftwareName">OMERO.insight</entry>
     <entry name="AboutFile">about.xml</entry>
-    <entry name="HelpOnLine">http://help.openmicroscopy.org/</entry>
-    <entry name="HelpOnLineSearch">http://help.openmicroscopy.org/search.html</entry>
+    <entry name="HelpOnLine">https://help.openmicroscopy.org/</entry>
+    <entry name="HelpOnLineSearch">https://help.openmicroscopy.org/search.html</entry>
     <entry name="Forum">https://www.openmicroscopy.org/community/</entry>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -322,6 +322,11 @@
    * 1: indicate to display the user's data. Default value
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
    <entry name="DataDisplay" type="integer">1</entry>
+   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * Information indicating to load the original file instead of OME-TIFF
+   when using the Open With option
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+   <entry name="/services/OpenWith/Original" type="boolean">false</entry>
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Information indicating the dependencies when the client is used as a plugin
    * e.g. as an ImageJ plugin.

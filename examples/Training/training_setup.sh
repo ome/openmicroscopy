@@ -61,6 +61,11 @@ touch "test&sizeT=10&sizeZ=5&sizeC=3.fake"
 bin/omero import "test&sizeT=10&sizeZ=5&sizeC=3.fake" > image_import.log 2>&1
 imageid=$(sed -n -e 's/^Image://p' image_import.log)
 
+# Add a Map annotation
+MAP=$(bin/omero obj new MapAnnotation)
+bin/omero obj map-set $MAP mapValue testkey testvalue
+bin/omero obj new ImageAnnotationLink parent=Image:$imageid child=$MAP
+
 # Create screen/plate
 screen=$(bin/omero obj new Screen name='Screen')
 plate=$(bin/omero obj new Plate name='Plate')

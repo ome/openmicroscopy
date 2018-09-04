@@ -12,7 +12,7 @@ from omero.testlib import ITest
 import omero
 
 
-class TestMetdataStore(ITest):
+class TestMetadataStore(ITest):
 
     def testBasicUsage(self):
 

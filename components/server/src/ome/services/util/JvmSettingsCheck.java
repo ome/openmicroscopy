@@ -19,6 +19,10 @@
 
 package ome.services.util;
 
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.nio.charset.Charset;
 import java.lang.management.ManagementFactory;
 
 import javax.management.MBeanServer;
@@ -26,6 +30,8 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.google.common.base.Joiner;
 
 /**
  * Hook run by the context which prints out JVM-related
@@ -68,6 +74,10 @@ public class JvmSettingsCheck {
             }
             version.append(System.getProperty(key));
         }
+
+        Locale locale = Locale.getDefault();
+        log.info("Language,Country,Charset,Timezone: " + Joiner.on(',').join(Arrays.asList(
+                locale.getLanguage(), locale.getCountry(), Charset.defaultCharset(), TimeZone.getDefault().getID())));
 
         log.info("Java version: " + version);
         log.info(String.format(fmt, "Max Memory (MB):  ", (rt.maxMemory() / mb)));

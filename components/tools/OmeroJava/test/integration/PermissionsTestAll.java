@@ -104,7 +104,7 @@ public class PermissionsTestAll extends AbstractServerTest {
             );
 
     /** The password used for user. **/
-    private final static String PASSWORD = "ome";
+    private static final String PASSWORD = "ome";
 
     @Override
     @BeforeClass

@@ -14,10 +14,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import ome.conditions.InternalException;
 import ome.security.SecuritySystem;
 import ome.security.basic.CurrentDetails;
+import ome.services.scheduler.ThreadPool;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -67,7 +70,13 @@ public interface Executor extends ApplicationContextAware {
          * Uses the limited thread pool configured via etc/omero.properties
          * with omero.threads.max_threads, etc.
          */
-        USER;
+        USER,
+
+        /**
+         * Separate thread pool for long-running tasks that should not prevent
+         * users from logging in, etc.
+         */
+        BACKGROUND;
     }
 
     /**
@@ -335,18 +344,18 @@ public interface Executor extends ApplicationContextAware {
         final protected String[] proxyNames;
         final protected SessionFactory factory;
         final protected SqlAction sqlAction;
-        final protected ExecutorService service;
+        final protected ThreadPool service;
         final protected ExecutorService systemService;
 
         public Impl(CurrentDetails principalHolder, SessionFactory factory,
                 SqlAction sqlAction, String[] proxyNames) {
             this(principalHolder, factory, sqlAction, proxyNames,
-                    java.util.concurrent.Executors.newCachedThreadPool());
+                    new ThreadPool());
         }
 
         public Impl(CurrentDetails principalHolder, SessionFactory factory,
                 SqlAction sqlAction, String[] proxyNames,
-                ExecutorService service) {
+                ThreadPool service) {
             this.sqlAction = sqlAction;
             this.factory = factory;
             this.principalHolder = principalHolder;
@@ -491,6 +500,8 @@ public interface Executor extends ApplicationContextAware {
 
             if (prio == null || prio == Priority.USER) {
                 return service.submit(wrapper);
+            } else if (prio == Priority.BACKGROUND) {
+                return service.background(wrapper);
             } else if (prio == Priority.SYSTEM) {
                 return systemService.submit(wrapper);
             } else {

@@ -26,7 +26,7 @@ import omero.clients
 from time import sleep
 
 from omeroweb.testlib import IWebTest
-from omeroweb.testlib import post, get_json
+from omeroweb.testlib import get, post, get_json
 
 from django.core.urlresolvers import reverse
 
@@ -102,3 +102,41 @@ class TestTagging(IWebTest):
         tagIds = [t['id'] for t in rsp['annotations']]
         assert tag.id.val not in tagIds
         assert tag2.id.val in tagIds
+
+
+class TestFileAnnotations(IWebTest):
+    """
+    Tests listing file annotations
+    """
+
+    def test_add_fileannotations_form(self):
+
+        # Create User in a Read-Annotate group
+        client, user = self.new_client_and_user(perms='rwrw--')
+        # conn = omero.gateway.BlitzGateway(client_obj=client)
+        omeName = client.sf.getAdminService().getEventContext().userName
+        django_client1 = self.new_django_client(omeName, omeName)
+
+        # User creates Dataset
+        ds = self.make_dataset("user1_Dataset", client=client)
+
+        # Create File and FileAnnotation
+        update = client.sf.getUpdateService()
+        f = omero.model.OriginalFileI()
+        f.name = omero.rtypes.rstring("")
+        f.path = omero.rtypes.rstring("")
+        f = update.saveAndReturnObject(f)
+        fa = omero.model.FileAnnotationI()
+        fa.setFile(f)
+        fa = update.saveAndReturnObject(fa)
+
+        # get form for annotating Dataset
+        request_url = reverse('annotate_file')
+        data = {
+            "dataset": ds.id.val
+        }
+        rsp = get(django_client1, request_url, data)
+        html = rsp.content
+
+        expected_name = "No name. ID %s" % fa.id.val
+        assert expected_name in html

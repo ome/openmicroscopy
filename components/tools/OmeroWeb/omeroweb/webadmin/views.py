@@ -3,7 +3,7 @@
 #
 #
 #
-# Copyright (c) 2008-2014 University of Dundee.
+# Copyright (c) 2008-2018 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -40,6 +40,7 @@ from omero_version import omero_version
 
 from django.template import loader as template_loader
 from django.core.urlresolvers import reverse
+from django.views.decorators.debug import sensitive_post_parameters
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext as Context
 from django.utils.translation import ugettext as _
@@ -506,7 +507,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 role = 'restricted_administrator'
         initial['role'] = role
 
-        root_id = [conn.getAdminService().getSecurityRoles().rootId]
+        root_id = conn.getAdminService().getSecurityRoles().rootId
         user_id = conn.getUserId()
         experimenter_root = long(eid) == root_id
         experimenter_me = long(eid) == user_id
@@ -588,18 +589,19 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
 
                 # Update 'AdminPrivilege' config roles for user
                 privileges = conn.get_privileges_from_form(form)
-                if privileges is None:
-                    privileges = []
-                # Only process privileges that we have permission to set
                 to_add = []
                 to_remove = []
-                for p in conn.getCurrentAdminPrivileges():
-                    if p in privileges:
-                        to_add.append(p)
-                    else:
-                        to_remove.append(p)
-
-                conn.updateAdminPrivileges(experimenter.id, to_add, to_remove)
+                # privileges may be None if disabled in form
+                if privileges is not None:
+                    # Only update privileges that we have permission to set
+                    # (prevents privilege escalation)
+                    for p in conn.getCurrentAdminPrivileges():
+                        if p in privileges:
+                            to_add.append(p)
+                        else:
+                            to_remove.append(p)
+                    conn.updateAdminPrivileges(experimenter.id,
+                                               to_add, to_remove)
 
                 conn.updateExperimenter(
                     experimenter, omename, firstName, lastName, email, admin,
@@ -615,6 +617,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
     return context
 
 
+@sensitive_post_parameters('old_password', 'password',
+                           'confirmation', 'csrfmiddlewaretoken')
 @login_required()
 @render_response_admin()
 def manage_password(request, eid, conn=None, **kwargs):

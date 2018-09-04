@@ -97,6 +97,7 @@ public class PolygonData
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setTextValue(rtypes.rstring(text));
+        setDirty(true);
     }
 
     /**
@@ -138,6 +139,7 @@ public class PolygonData
         String pointsValues =
                 toPoints(points.toArray(new Point2D.Double[points.size()]));
         shape.setPoints(rtypes.rstring(pointsValues));
+        setDirty(true);
     }
 
 }

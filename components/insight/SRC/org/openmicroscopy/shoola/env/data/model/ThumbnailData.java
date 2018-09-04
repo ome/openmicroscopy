@@ -11,7 +11,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -22,12 +22,14 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 
 import omero.gateway.model.ImageData;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 
-/** 
+/**
  * Holds a {@link BufferedImage} serving as a thumbnail for a given <i>OME</i>
  * image.
  *
@@ -45,79 +47,79 @@ public class ThumbnailData
 
 	/** The id of the image to which the thumbnail belong. */
     private long            userID;
-    
+
     /** The id of the image to which the thumbnail belong. */
     private long            imageID;
-    
+
     /** The thumbnail pixels. */
     private BufferedImage   thumbnail;
 
     /** Flag indicating if the image is a default image or not. */
     private boolean			validImage;
-    
+
     /** Used to store the image. */
     private ImageData		image;
-    
+
     /** Flag indicating that the image required a pyramid to be build.*/
     private Boolean			requirePyramid;
-    
+
     /** The object of reference. */
     private omero.gateway.model.DataObject refObject;
-    
-    /** 
+
+    /**
      * Exception if not possible to create the object. This should
      * be used when imported.
      */
     private Exception		error;
-    
+
     /**
      * Creates a new instance.
-     * 
+     *
      * @param imageID    The id of the image to which the thumbnail belong.
      *                   Must be positive.
      * @param thumbnail  The thumbnail pixels.  Mustn't be <code>null</code>.
      * @param userID   	 The id of the user the thumbnail is for.
      *                   Must be positive.
-     * @param validImage Pass <code>true</code> if the image is a real image, 
+     * @param validImage Pass <code>true</code> if the image is a real image,
      * 					 <code>false</code> otherwise.
      */
-    public ThumbnailData(long imageID, BufferedImage thumbnail, long userID, 
-    		boolean validImage)
+    public ThumbnailData(long imageID, Image thumbnail, long userID,
+                         boolean validImage)
     {
-        if (imageID <= 0) 
+        if (imageID <= 0)
             throw new IllegalArgumentException("Non-positive image id: "+
                                                imageID+".");
         this.imageID = imageID;
-        this.thumbnail = thumbnail;
+        this.thumbnail = toBufferedImage(thumbnail);
         this.userID = userID;
         this.validImage = validImage;
         requirePyramid = null;
     }
-    
+
     /**
      * Creates a new instance.
-     * 
+     *
      * @param imageID    The id of the image to which the thumbnail belong.
      *                   Must be positive.
      * @param thumbnail  The thumbnail pixels. Mustn't be <code>null</code>.
-     * @param validImage Pass <code>true</code> if the image is a real image, 
+     * @param validImage Pass <code>true</code> if the image is a real image,
      * 					 <code>false</code> otherwise.
      */
-    public ThumbnailData(long imageID, BufferedImage thumbnail, 
+    public ThumbnailData(long imageID, Image thumbnail,
     		boolean validImage)
     {
         this(imageID, thumbnail, -1, validImage);
     }
-    
+
     /**
      * Creates a new instance.
-     * 
+     *
      * @param refOjbect The object of reference. Mustn't be <code>null</code>.
      * @param thumbnail The thumbnail pixels. Mustn't be <code>null</code>.
-     * @param validImage Passed <code>true</code> if it is a valid image, 
+     * @param validImage Passed <code>true</code> if it is a valid image,
      * <code>false</code> otherwise.
      */
-    public ThumbnailData(omero.gateway.model.DataObject refOjbect, BufferedImage thumbnail,
+    public ThumbnailData(omero.gateway.model.DataObject refOjbect, Image thumbnail,
     		boolean validImage)
     {
     	  if (refOjbect == null)
@@ -126,13 +128,13 @@ public class ThumbnailData
     		  throw new IllegalArgumentException("Type not valid.");
     	  this.refObject = refOjbect;
     	  this.validImage = validImage;
-    	  this.thumbnail = thumbnail;
+    	  this.thumbnail = toBufferedImage(thumbnail);
     	  requirePyramid = null;
     }
-    
+
     /**
      * Creates a new instance.
-     * 
+     *
      * @param refOjbect The object of reference. Mustn't be <code>null</code>.
      * @param requirePyramid Pass <code>true</code> if a pyramid is required,
      * 						<code>false</code> otherwise.
@@ -142,10 +144,10 @@ public class ThumbnailData
         this(refOjbect, null, false);
         this.requirePyramid = requirePyramid;
     }
-    
+
     /**
      * Creates a new instance.
-     * 
+     *
      * @param refOjbect The object of reference. Mustn't be <code>null</code>.
      * @param thumbnail The thumbnail pixels. Mustn't be <code>null</code>.
      */
@@ -153,43 +155,43 @@ public class ThumbnailData
     {
     	  this(refOjbect, thumbnail, true);
     }
-    
+
     /**
      * Sets the time the flag indicating if the image requires a pyramid to be
      * built.
-     * 
+     *
      * @param requirePyramid The value to set.
      */
     public void setBackOffForPyramid(Boolean requirePyramid)
     {
     	this.requirePyramid = requirePyramid;
     }
-    
+
     /**
      * Sets the exception thrown when trying to create a thumbnail.
-     * 
+     *
      * @param error The exception to set.
      */
     public void setError(Exception error) { this.error = error; }
-    
+
     /**
      * Returns the exception.
-     * 
+     *
      * @return See above.
      */
     public Exception getError() { return error; }
-    
-    /** 
+
+    /**
      * Sets the image.
-     * 
+     *
      * @param image The image to set.
      */
     public void setImage(ImageData image) { this.image = image; }
-    
+
     /**
      * Clones this object.
      * This is a deep-copy, the thumbnail pixels are cloned too.
-     * 
+     *
      * @see org.openmicroscopy.shoola.env.data.model.DataObject#makeNew()
      */
     public DataObject makeNew()
@@ -197,7 +199,7 @@ public class ThumbnailData
         BufferedImage pixClone = null;
         if (thumbnail != null) {
         	pixClone = new BufferedImage( thumbnail.getWidth(),
-                    thumbnail.getHeight(), 
+                    thumbnail.getHeight(),
                     thumbnail.getType());
         	 Graphics2D g2D = pixClone.createGraphics();
              g2D.drawImage(thumbnail, null, 0, 0);
@@ -216,58 +218,71 @@ public class ThumbnailData
     }
 
     /**
-     * Returns <code>true</code> if the image is a real image, 
+     * Returns <code>true</code> if the image is a real image,
      * <code>false</code> otherwise.
-     * 
+     *
      * @return See above.
      */
     public boolean isValidImage() { return validImage; }
-    
+
     /**
      * Returns the id of the user.
-     * 
+     *
      * @return See above.
      */
     public long getUserID() { return userID; }
-    
+
     /**
      * Returns the id of the image to which the thumbnail belong.
-     * 
+     *
      * @return See above.
      */
     public long getImageID() { return imageID; }
-    
+
     /**
      * Returns the thumbnail pixels.
-     * 
+     *
      * @return See above.
      */
     public BufferedImage getThumbnail() { return thumbnail; }
-    
+
     /**
      * Returns the image.
-     * 
+     *
      * @return See above.
      */
     public ImageData getImage() { return image; }
-    
+
     /**
      * Returns the object of reference.
-     * 
+     *
      * @return See above.
      */
     public omero.gateway.model.DataObject getRefObject() { return refObject; }
-    
+
     /**
      * Returns <code>true</code> if a pyramid is required, <code>false</code>
      * otherwise.
-     * 
+     *
      * @return See above.
      */
     public Boolean requirePyramid()
-    { 
+    {
     	if (requirePyramid != null) return requirePyramid.booleanValue();
     	return null;
+    }
+
+    /**
+     * Converts a given Image into a BufferedImage
+     *
+     * @param img The Image to be converted
+     * @return The converted BufferedImage
+     */
+    public static BufferedImage toBufferedImage(Image img) {
+        if (img instanceof BufferedImage) {
+            return (BufferedImage) img;
+        }
+        return Factory.createImage(img);
     }
 
 }

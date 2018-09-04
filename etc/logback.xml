@@ -150,6 +150,11 @@
     <appender-ref ref="SIFT"/>
   </logger>
 
+  <logger name="org.perf4j">
+    <level value="DEBUG"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
   <logger name="ome.annotations">
     <level value="INFO"/>
     <appender-ref ref="SIFT"/>

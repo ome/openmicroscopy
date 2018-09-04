@@ -409,7 +409,13 @@ public class LookupNames
 
     /** Lookup name of the orphaned images folder */
     public static final String ORPHANED_IMAGE_DESCRIPTION = "omero.client.ui.tree.orphans.description";
-    
+
     /** Lookup name for the tree type order */
     public static final String TREE_TYPE_ORDER = "omero.client.ui.tree.type_order";
+
+    /** Lookup name used to identify the status of the server*/
+    public static final String CAN_CREATE = "canCreate";
+
+    /** Lookup name used to identify the format to use to download the data when using open with*/
+    public static final String OPEN_WITH_DATA = "/services/OpenWith/Original";
 }

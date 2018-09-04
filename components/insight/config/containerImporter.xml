@@ -298,7 +298,7 @@
   <entry name="Version">@OMERO_DISPLAY_VERSION@</entry>
   <entry name="SoftwareName">OMERO.importer</entry>
   <entry name="AboutFile">about.xml</entry>
-  <entry name="HelpOnLine">http://help.openmicroscopy.org/</entry>
+  <entry name="HelpOnLine">https://help.openmicroscopy.org/</entry>
   <entry name="Forum">https://www.openmicroscopy.org/community/</entry>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -24,23 +24,30 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.aop.framework.Advised;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableMap;
 
 import Ice.Current;
-
 import ome.services.blitz.impl.AbstractCloseableAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.repo.PublicRepositoryI.AMD_submit;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ServiceFactoryAware;
-
+import ome.services.util.Executor;
+import ome.system.Login;
+import omero.RString;
 import omero.ServerError;
+import omero.api.IQueryPrx;
 import omero.api.RawFileStorePrx;
+import omero.cmd.CallContext;
 import omero.cmd.HandlePrx;
 import omero.grid.ImportLocation;
 import omero.grid.ImportProcessPrx;
@@ -51,6 +58,8 @@ import omero.grid._ImportProcessOperations;
 import omero.grid._ImportProcessTie;
 import omero.model.Fileset;
 import omero.model.FilesetJobLink;
+import omero.sys.Parameters;
+import omero.sys.ParametersI;
 
 /**
  * Represents a single import within a defined-session
@@ -138,11 +147,25 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
     private HandlePrx handle;
 
     /**
+     * Additional logfile for this process. Must be set in {@link MDC} with key
+     * "fileset" to be activated.
+     */
+    private String logFilename;
+
+    /**
+     * Root session UUID token that can be used for authentication.
+     *
+     * Be careful with this.
+     */
+    private String rootToken;
+
+    /**
      * Create and register a servant for servicing the import process
      * within a managed repository.
      */
     public ManagedImportProcessI(ManagedRepositoryI repo, Fileset fs,
-            ImportLocation location, ImportSettings settings, Current __current)
+            ImportLocation location, ImportSettings settings, Current __current,
+            String rootToken)
                 throws ServerError {
         super(null, null);
         this.repo = repo;
@@ -150,10 +173,13 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
         this.settings = settings;
         this.location = location;
         this.current = __current;
+        this.rootToken = rootToken;
         this.proxy = registerProxy(__current);
         setApplicationContext(repo.context);
         // TODO: The above could be moved to SessionI.internalServantConfig as
         // long as we're careful to remove all other, redundant calls to setAC.
+        CheckedPath logFile = ((ManagedImportLocationI) location).getLogFile();
+        logFilename = logFile.getFullFsPath();
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -208,43 +234,57 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
     public RawFileStorePrx getUploader(final int i, Current current)
             throws ServerError {
 
-        String mode = null;
-        if (current != null && current.ctx != null) {
-            mode = current.ctx.get("omero.fs.mode");
-            if (mode == null) {
-                mode = "rw";
-            }
-        }
-
-        final String applicableMode = mode;
-        final Callable<UploadState> rfsOpener = new Callable<UploadState>() {
-            @Override
-            public UploadState call() throws ServerError {
-                final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
-                final RawFileStorePrx prx = repo.file(path, applicableMode, ManagedImportProcessI.this.current);
-                try {
-                    registerCallback(prx, i);
-                } catch (RuntimeException re) {
-                    try {
-                        prx.close();  // close if anything happens
-                    } catch (Exception e) {
-                        log.error("Failed to close RawFileStorePrx", e);
-                    }
-                    throw re;
-                }
-                return new UploadState(prx);
-            }
-        };
-
+        StopWatch sw1 = new Slf4JStopWatch();
         try {
-            return uploaders.get(i, rfsOpener).prx;
-        } catch (ExecutionException e) {
-            if (e.getCause() instanceof RuntimeException) {
-                throw (RuntimeException) e.getCause();
-            } else {
-                /* there are no checked exceptions to worry about, so this cannot happen */
-                return null;
+            MDC.put("fileset", logFilename);
+
+            String mode = null;
+            if (current != null && current.ctx != null) {
+                mode = current.ctx.get("omero.fs.mode");
+                if (mode == null) {
+                    mode = "rw";
+                }
             }
+
+            final String applicableMode = mode;
+            final Callable<UploadState> rfsOpener = new Callable<UploadState>() {
+                @Override
+                public UploadState call() throws ServerError {
+                    final StopWatch sw2 = new Slf4JStopWatch();
+                    final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
+                    final Ice.Current adjustedCurr = repo.makeAdjustedCurrent(ManagedImportProcessI.this.current);
+                    adjustedCurr.ctx.put(CallContext.FILENAME_KEY, logFilename);
+                    adjustedCurr.ctx.put(CallContext.TOKEN_KEY, rootToken);
+                    final RawFileStorePrx prx = repo.file(path, applicableMode,  adjustedCurr);
+                    try {
+                        registerCallback(prx, i);
+                    } catch (RuntimeException re) {
+                        try {
+                            prx.close();  // close if anything happens
+                        } catch (Exception e) {
+                            log.error("Failed to close RawFileStorePrx", e);
+                        }
+                        throw re;
+                    } finally {
+                        sw2.stop("omero.import.process.opener");
+                    }
+                    return new UploadState(prx);
+                }
+            };
+
+            try {
+                return uploaders.get(i, rfsOpener).prx;
+            } catch (ExecutionException e) {
+                if (e.getCause() instanceof RuntimeException) {
+                    throw (RuntimeException) e.getCause();
+                } else {
+                    /* there are no checked exceptions to worry about, so this cannot happen */
+                    return null;
+                }
+            }
+        } finally {
+            sw1.stop("omero.import.process.uploader");
+            MDC.clear();
         }
     }
 
@@ -282,63 +322,83 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
     public HandlePrx verifyUpload(List<String> hashes, Current __current)
             throws ServerError {
 
-        final int size = fs.sizeOfUsedFiles();
-        if (hashes == null) {
-            throw new omero.ApiUsageException(null, null,
-                    "hashes list cannot be null");
-        } else if (hashes.size() != size) {
-            throw new omero.ApiUsageException(null, null,
-                    String.format("hashes size should be %s not %s", size,
-                            hashes.size()));
-        }
-
-        Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
-        for (int i = 0; i < size; i++) {
-            String usedFile = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
-            CheckedPath cp = repo.checkPath(usedFile, settings.checksumAlgorithm, this.current);
-            final String clientHash = hashes.get(i);
-            final String serverHash = cp.hash();
-            if (!clientHash.equals(serverHash)) {
-                failingChecksums.put(i, serverHash);
+        try {
+            MDC.put("fileset", logFilename);
+            final int size = fs.sizeOfUsedFiles();
+            if (hashes == null) {
+                throw new omero.ApiUsageException(null, null,
+                        "hashes list cannot be null");
+            } else if (hashes.size() != size) {
+                throw new omero.ApiUsageException(null, null,
+                        String.format("hashes size should be %s not %s", size,
+                                hashes.size()));
             }
-        }
 
-        if (!failingChecksums.isEmpty()) {
-            throw new omero.ChecksumValidationException(null,
-                    omero.ChecksumValidationException.class.toString(),
-                    "A checksum mismatch has occurred.",
-                    failingChecksums);
-        }
-        // i==0 is the upload job which is implicit.
-        FilesetJobLink link = fs.getFilesetJobLink(0);
-        repo.repositoryDao.updateJob(link.getChild(),
-                "Finished", "Finished", this.current);
+            Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
+            final Map<String, String> allGroupsContext = ImmutableMap.of(Login.OMERO_GROUP, "-1");
+            final IQueryPrx iQuery = sf.getQueryService(__current);
+            final String hql = "SELECT originalFile.hash FROM FilesetEntry "
+                    + "WHERE fileset.id = :id AND originalFile.path || originalFile.name = :usedfile";
+            for (int i = 0; i < size; i++) {
+                StopWatch sw1 = new Slf4JStopWatch();
+                String usedFile = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
+                final Parameters params = new ParametersI().addId(fs.getId()).add("usedfile", omero.rtypes.rstring(usedFile));
+                final String clientHash = hashes.get(i);
+                String serverHash = "";
+                try {
+                    final RString result = (RString) iQuery.projection(hql, params, allGroupsContext).get(0).get(0);
+                    serverHash = result.getValue();
+                } catch (IndexOutOfBoundsException | NullPointerException e) {
+                    log.error("no server checksum on uploaded file {}", usedFile, e);
+                }
+                if (serverHash.isEmpty() || !clientHash.equals(serverHash)) {
+                    failingChecksums.put(i, serverHash);
+                }
+                sw1.stop("omero.import.process.checksum");
+            }
 
-        // Now move on to the metadata import.
-        link = fs.getFilesetJobLink(1);
-        CheckedPath checkedPath = ((ManagedImportLocationI) location).getLogFile();
-        final omero.model.OriginalFile logFile = repo.findInDb(checkedPath, "r", __current);
+            if (!failingChecksums.isEmpty()) {
+                throw new omero.ChecksumValidationException(null,
+                        omero.ChecksumValidationException.class.toString(),
+                        "A checksum mismatch has occurred.",
+                        failingChecksums);
+            }
 
-        final String reqId = ImportRequest.ice_staticId();
-        final ImportRequest req = (ImportRequest)
-                repo.getFactory(reqId, this.current).create(reqId);
-        // TODO: Should eventually be from a new omero.client
-        req.clientUuid = UUID.randomUUID().toString();
-        req.repoUuid = repo.getRepoUuid();
-        req.process = this.proxy;
-        req.activity = link;
-        req.location = location;
-        req.settings = settings;
-        req.logFile = logFile;
-        if (req instanceof ManagedImportRequestI && current.ctx != null) {
-            /* propagate this process' call context to the new import request */
-            ((ManagedImportRequestI) req).setCallContext(current.ctx);
+            StopWatch sw2 = new Slf4JStopWatch();
+            // i==0 is the upload job which is implicit.
+            FilesetJobLink link = fs.getFilesetJobLink(0);
+            repo.repositoryDao.updateJob(link.getChild(),
+                    "Finished", "Finished", this.current);
+
+            // Now move on to the metadata import.
+            link = fs.getFilesetJobLink(1);
+            CheckedPath checkedPath = ((ManagedImportLocationI) location).getLogFile();
+            final omero.model.OriginalFile logFile = repo.findInDb(checkedPath, "r", __current);
+
+            final String reqId = ImportRequest.ice_staticId();
+            final ImportRequest req = (ImportRequest)
+                    repo.getFactory(reqId, this.current).create(reqId);
+            // TODO: Should eventually be from a new omero.client
+            req.clientUuid = UUID.randomUUID().toString();
+            req.repoUuid = repo.getRepoUuid();
+            req.process = this.proxy;
+            req.activity = link;
+            req.location = location;
+            req.settings = settings;
+            req.logFile = logFile;
+            if (req instanceof ManagedImportRequestI && current.ctx != null) {
+                /* propagate this process' call context to the new import request */
+                ((ManagedImportRequestI) req).setCallContext(current.ctx);
+            }
+            final AMD_submit submit = repo.submitRequest(sf, req, this.current, Executor.Priority.BACKGROUND);
+            this.handle = submit.ret;
+            // TODO: in 5.1 this should be added to the request object
+            ((ManagedImportRequestI) req).handle = submit.ret;
+            sw2.stop("omero.import.process.submit");
+            return submit.ret;
+        } finally {
+            MDC.clear();
         }
-        final AMD_submit submit = repo.submitRequest(sf, req, this.current);
-        this.handle = submit.ret;
-        // TODO: in 5.1 this should be added to the request object
-        ((ManagedImportRequestI) req).handle = submit.ret;
-        return submit.ret;
     }
 
     //

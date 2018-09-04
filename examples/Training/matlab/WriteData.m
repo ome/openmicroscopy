@@ -672,6 +672,31 @@ try
     xas = getScreenXmlAnnotations(session, screenId1, 'include', ns);
     assert(hasAnnotation(xa, xas), 'WriteData: Could not find annotation');
 
+   % Unlink Annotations
+   % ==================
+
+   % Unlink single annotation
+   fprintf(1, 'Unlinking file annotation from project %g\n', projectId1);
+   unlinkAnnotations(session, 'project', projectId1, fa);
+   assert(isempty(getProjectFileAnnotations(session, projectId1)),...
+       'WriteData: Annotation not deleted');
+
+   % Unlink all annotations linked to a project
+   fprintf(1, 'Unlinking all annotations from project %g\n', projectId1);
+   unlinkAnnotations(session, 'project', projectId1);
+   assert(isempty(getProjectFileAnnotations(session, projectId1)),...
+       'WriteData: Annotation not deleted');
+   assert(isempty(getProjectTagAnnotations(session, projectId1)),...
+       'WriteData: Annotation not deleted');
+   assert(isempty(getProjectCommentAnnotations(session, projectId1)),...
+       'WriteData: Annotation not deleted');
+   assert(isempty(getProjectDoubleAnnotations(session, projectId1)),...
+       'WriteData: Annotation not deleted');
+   assert(isempty(getProjectLongAnnotations(session, projectId1)),...
+       'WriteData: Annotation not deleted');
+   assert(isempty(getProjectDoubleAnnotations(session, projectId1)),...
+       'WriteData: Annotation not deleted');    
+    
 %%
 % end-code
 %%

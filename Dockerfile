@@ -6,7 +6,7 @@
 
 # By default, building this dockerfile will use
 # the IMAGE argument below for the runtime image.
-ARG BUILD_IMAGE=openjdk
+ARG BUILD_IMAGE=openjdk:8
 
 # To build code with other runtimes
 # pass a build argument, e.g.:
@@ -17,7 +17,9 @@ ARG BUILD_IMAGE=openjdk
 # The produced /src directory will be copied the
 # RUN_IMAGE for end-use. This value can also be
 # set at build time with --build-arg RUN_IMAGE=...
-ARG RUN_IMAGE=openmicroscopy/omero-server:latest
+ARG COMPONENT=server
+ARG RUN_IMAGE=openmicroscopy/omero-${COMPONENT}:latest
+
 
 FROM ${BUILD_IMAGE} as build
 RUN apt-get update \
@@ -30,7 +32,24 @@ RUN apt-get update \
  && pip install tables "zeroc-ice>3.5,<3.7"
 # TODO: unpin pip when possible
 RUN adduser omero
-COPY . /src
+
+# TODO: would be nice to not need to copy .git since it invalidates the build frequently and takes more time
+COPY .git /src/.git
+
+COPY build.py /src/
+COPY build.xml /src/
+COPY components /src/components
+COPY docs /src/docs
+COPY etc /src/etc
+COPY ivy.xml /src/
+COPY lib /src/lib
+COPY luts /src/luts
+COPY omero.class /src/
+COPY setup.cfg /src/
+COPY sql /src/sql
+COPY test.xml /src/
+COPY LICENSE.txt /src/
+COPY history.txt /src/
 RUN chown -R omero /src
 USER omero
 WORKDIR /src
@@ -43,11 +62,11 @@ RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
 #
 #     https://trello.com/c/rPstbt4z/216-open-ssl-110
 #
-# RUN sed -i 's/\("IceSSL.Ciphers".*ADH\)/\1:@SECLEVEL=0/' /src/componenthreadts/tools/OmeroPy/src/omero/clients.py /src/etc/templates/grid/templates.xml
+# RUN sed -i 's/\("IceSSL.Ciphers".*ADH[^"]*\)/\1:@SECLEVEL=0/' /src/components/tools/OmeroPy/src/omero/clients.py /src/etc/templates/grid/templates.xml
 
 RUN components/tools/travis-build
 
-FROM ${RUN_IMAGE}
+FROM ${RUN_IMAGE} as run
 COPY --from=build /src /src
 USER root
 RUN chown -R omero-server:omero-server /src

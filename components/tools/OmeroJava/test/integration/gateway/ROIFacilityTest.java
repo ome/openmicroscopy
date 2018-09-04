@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -40,6 +40,7 @@ import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.PixelsType;
 import omero.model.Roi;
+import omero.model.Shape;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -49,6 +50,7 @@ import omero.gateway.model.FolderData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.RectangleData;
+import omero.gateway.model.ShapeData;
 
 /**
  *
@@ -83,13 +85,32 @@ public class ROIFacilityTest extends GatewayTest {
         rois = new ArrayList<ROIData>();
         rois.add(createRectangleROI(0, 0, 10, 10));
         rois.add(createRectangleROI(11, 11, 10, 10));
-        rois = roifac.saveROIs(rootCtx, img.getId(), rois);
+        rois.add(createRectangleROI(12, 12, 10, 10, false));
+        rois.add(createRectangleROI(13, 13, 10, 10, true));
+        
+        Collection<ROIData> saved = roifac.saveROIs(rootCtx, img.getId(), rois);
 
-        Assert.assertEquals(rois.size(), 2);
-        for (ROIData roi : rois) {
+        Assert.assertEquals(saved.size(), rois.size());
+        Assert.assertEquals(getShapes(saved).size(), getShapes(rois).size());
+        for (ROIData roi : saved) {
             Assert.assertTrue(roi.getId() >= 0);
         }
-    }
+        
+        // check that ZCT correctly saved:
+        List<ShapeData> shapes = getShapes(saved);
+        for (ShapeData shape : shapes) {
+            if (shape.getROICoordinate().getTimePoint() == -1)
+                Assert.assertNull(((Shape) shape.asIObject()).getTheT());
+            else
+                Assert.assertNotNull(((Shape) shape.asIObject()).getTheT());
+            if (shape.getROICoordinate().getZSection() == -1)
+                Assert.assertNull(((Shape) shape.asIObject()).getTheZ());
+            else
+                Assert.assertNotNull(((Shape) shape.asIObject()).getTheZ());
+        }
+        
+        rois = saved;
+    } 
 
     @Test
     public void testSaveImagelessROIs() throws DSOutOfServiceException,
@@ -102,19 +123,12 @@ public class ROIFacilityTest extends GatewayTest {
         Assert.assertTrue(r.getId() >= 0);
         Assert.assertNull(r.getImage() );
     }
-    
-    private ROIData createRectangleROI(int x, int y, int w, int h) {
-        ROIData roiData = new ROIData();
-        RectangleData rectangle = new RectangleData(x, y, w, h);
-        roiData.addShapeData(rectangle);
-        return roiData;
-    }
 
     @Test(dependsOnMethods = { "testSaveROIs" })
     public void testGetROICount() throws DSOutOfServiceException,
             DSAccessException {
         int n = roifac.getROICount(rootCtx, img.getId());
-        Assert.assertEquals(2, n);
+        Assert.assertEquals(rois.size(), n);
     }
     
     @Test(dependsOnMethods = { "testSaveROIs" })
@@ -128,16 +142,7 @@ public class ROIFacilityTest extends GatewayTest {
 
         Assert.assertEquals(myRois.size(), rois.size());
 
-        Iterator<ROIData> it = myRois.iterator();
-        while (it.hasNext()) {
-            ROIData r = it.next();
-            for (ROIData r2 : rois) {
-                if (r2.getId() == r.getId())
-                    it.remove();
-            }
-        }
-
-        Assert.assertTrue(myRois.isEmpty());
+        compare(myRois, rois);
     }
 
     @Test
@@ -252,6 +257,29 @@ public class ROIFacilityTest extends GatewayTest {
         folder = createRoiFolder(rootCtx, folderRois);
     }
     
+    private ROIData createRectangleROI(int x, int y, int w, int h) {
+        return createRectangleROI(x, y, w, h, null);
+    }
+
+    private ROIData createRectangleROI(int x, int y, int w, int h, Boolean plane) {
+        ROIData roiData = new ROIData();
+        RectangleData rectangle = new RectangleData(x, y, w, h);
+        if (plane != null) {
+            if (plane) {
+                rectangle.setC(1);
+                rectangle.setZ(1);
+                rectangle.setT(1);
+            }
+            else {
+                rectangle.setC(-1);
+                rectangle.setZ(-1);
+                rectangle.setT(-1);
+            }
+        }
+        roiData.addShapeData(rectangle);
+        return roiData;
+    }
+    
     private FolderData createRoiFolder(SecurityContext ctx,
             Collection<ROIData> rois) throws DSOutOfServiceException,
             DSAccessException {
@@ -262,5 +290,39 @@ public class ROIFacilityTest extends GatewayTest {
             f.linkRoi((Roi) roi.asIObject());
         return (FolderData) datamanagerFacility
                 .saveAndReturnObject(ctx, folder);
+    }
+    
+    private void compare(Collection<ROIData> list1, Collection<ROIData> list2) {
+        List<ShapeData> shapes1 = getShapes(list1);
+        List<ShapeData> shapes2 = getShapes(list2);
+        
+        Assert.assertEquals(shapes1.size(), shapes2.size());
+        
+        Iterator<ShapeData> it1 = shapes1.iterator();
+        while(it1.hasNext()) {
+            ShapeData s1 = it1.next();
+            
+            Iterator<ShapeData> it2 = shapes2.iterator();
+            while(it2.hasNext()) {
+                ShapeData s2 = it2.next();
+                if(s1.getId() == s2.getId()) {
+                    Assert.assertEquals(s1.getROICoordinate(), s2.getROICoordinate());
+                    it2.remove();
+                    break;
+                }
+            }
+        }
+        
+        Assert.assertTrue(shapes2.isEmpty());
+    }
+    
+    private List<ShapeData> getShapes(Collection<ROIData> rois) {
+        List<ShapeData> res = new ArrayList<ShapeData>();
+        for(ROIData r : rois) {
+            Iterator<List<ShapeData>> sit = r.getIterator();
+            while(sit.hasNext()) 
+                res.addAll(sit.next());
+        }
+        return res;
     }
 }

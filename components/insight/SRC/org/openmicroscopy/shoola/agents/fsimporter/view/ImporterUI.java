@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -36,6 +36,7 @@ import java.awt.Toolkit;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -74,15 +75,15 @@ import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
 //Application-internal dependencies
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
-import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
@@ -448,12 +449,12 @@ class ImporterUI extends TopWindow
 	 * 
 	 * @return See above.
 	 */
-	List<FileImportComponent> getMarkedFiles()
+	List<FileImportComponentI> getMarkedFiles()
 	{
 		Component[] comps = tabs.getComponents();
 		if (comps == null || comps.length == 0) return null;
-		List<FileImportComponent> list = new ArrayList<FileImportComponent>();
-		List<FileImportComponent> l;
+		List<FileImportComponentI> list = new ArrayList<FileImportComponentI>();
+		List<FileImportComponentI> l;
 		ImporterUIElement element = getSelectedPane();
 		if(element == null)
 			return null;
@@ -471,11 +472,22 @@ class ImporterUI extends TopWindow
 	 */
 	ImporterUIElement addImporterElement(ImportableObject object)
 	{
-		if (object == null) return null;
+		if (object == null) 
+		    return null;
+		
+		int maxFiles = (Integer) ImporterAgent.getRegistry().lookup(
+                "/options/DetailedImportFileLimit");
+		
 		int n = tabs.getComponentCount();
 		String title = "Import #"+total;
-		ImporterUIElement element = new ImporterUIElement(controller, model,
-				this, uiElementID, n, title, object);
+		ImporterUIElement element = null;
+        if (fileCount(object) > maxFiles) {
+            element = new ImporterUIElementLight(controller, model, this,
+                    uiElementID, n, title, object);
+        } else {
+            element = new ImporterUIElementDetailed(controller, model, this,
+                    uiElementID, n, title, object);
+        }
 		tabs.insertTab(title, element.getImportIcon(), element, "", total);
 		total++;
 		uiElements.put(uiElementID, element);
@@ -486,6 +498,28 @@ class ImporterUI extends TopWindow
 		}
 		return element;
 	}
+	
+    private int fileCount(ImportableObject obj) {
+        int count = 0;
+        for (ImportableFile f : obj.getFiles()) {
+            count += fileCount(f.getOriginalFile().getTrueFile());
+        }
+        return count;
+    }
+
+    private int fileCount(File file) {
+        if (file == null)
+            return 0;
+
+        if (file.isDirectory()) {
+            int count = 0;
+            for (File f : file.listFiles()) {
+                count += fileCount(f);
+            }
+            return count;
+        }
+        return 1;
+    }
 	
 	/** Resets the import.*/
 	void reset()
@@ -533,8 +567,9 @@ class ImporterUI extends TopWindow
 	void setSelectedPane(ImporterUIElement element, boolean startImport)
 	{
 		int n = tabs.getComponentCount();
+		
 		if (n == 0 || element == null) return;
-		if (tabs.getSelectedComponent() == element) return;
+		
 		Component[] components = tabs.getComponents();
 		int index = -1;
 		for (int i = 0; i < components.length; i++) {
@@ -543,6 +578,7 @@ class ImporterUI extends TopWindow
 				tabs.setSelectedComponent(element);
 			}
 		}
+		
 		if (startImport) {
 			Icon icon = element.startImport(tabs);
 			if (index >=0) tabs.setIconAt(index, icon);
@@ -715,7 +751,7 @@ class ImporterUI extends TopWindow
 	 * 
 	 * @return See above.
 	 */
-	List<FileImportComponent> getFilesToReimport()
+	List<FileImportComponentI> getFilesToReimport()
 	{
 		ImporterUIElement pane = getSelectedPane();
     	if (pane == null) return null;

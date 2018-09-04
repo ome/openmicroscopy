@@ -23,8 +23,10 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Random;
 
+import ome.api.IQuery;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.system.Roles;
 import ome.util.SqlAction;
@@ -78,6 +80,8 @@ public class PasswordUtil {
 
     private final Charset encoding;
 
+    private IQuery iQuery;
+
     public PasswordUtil(SqlAction sql) {
         this(sql, new Roles(), true);
     }
@@ -104,6 +108,10 @@ public class PasswordUtil {
         this.roles = roles;
         this.passwordRequired = passwordRequired;
         this.encoding = encoding;
+    }
+
+    public void setQueryService(IQuery iQuery) {
+        this.iQuery = iQuery;
     }
 
     /**
@@ -280,10 +288,9 @@ public class PasswordUtil {
     }
 
     /**
-     * Returns a boolean based on the supplied user ID and system property
-     * setting. If password requirement is switched off or the user is
-     * a guest user, then this returns <code>false</code>. In all other cases
-     * this returns <code>true</code>.
+     * Returns a boolean based on the supplied user ID and system property setting.
+     * Returns {@code false} for the guest user, {@code true} for administrators,
+     * otherwise matches the setting of {@code omero.security.password_required}.
      *
      * @param id The user ID.
      * @return boolean <code>true</code> or <code>false</code>
@@ -291,9 +298,15 @@ public class PasswordUtil {
     public boolean isPasswordRequired(Long id) {
         if (id == null) {
             return passwordRequired;
+        } else if (id == roles.getGuestId()) {
+            return false;
+        } else if (!(passwordRequired || iQuery == null)) {
+            /* require passwords for administrators */
+            final String hql = "FROM GroupExperimenterMap WHERE parent.id = :group AND child.id = :user";
+            final Parameters params = new Parameters().addLong("group", roles.getSystemGroupId()).addLong("user", id);
+            return iQuery.findByQuery(hql, params) != null;
         } else {
-            return !id.equals(roles.getGuestId()) && passwordRequired;
+            return passwordRequired;
         }
     }
-
 }

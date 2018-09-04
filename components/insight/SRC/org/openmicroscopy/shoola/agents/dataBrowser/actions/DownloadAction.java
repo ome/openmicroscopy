@@ -44,7 +44,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 import omero.gateway.model.DataObject;
-import omero.gateway.model.ImageData;
 
 
 /**
@@ -69,6 +68,10 @@ public class DownloadAction
      */
     protected void onDisplayChange(ImageDisplay node)
     {
+        if (!DataBrowserAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
         if (node == null) {
             setEnabled(false);
             return;

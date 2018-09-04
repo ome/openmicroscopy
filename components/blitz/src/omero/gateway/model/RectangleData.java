@@ -100,6 +100,7 @@ public class RectangleData
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setTextValue(rtypes.rstring(text));
+        setDirty(true);
     }
 
     /**
@@ -130,6 +131,7 @@ public class RectangleData
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setX(rtypes.rdouble(x));
+        setDirty(true);
     }
 
     /**
@@ -160,6 +162,7 @@ public class RectangleData
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setY(rtypes.rdouble(y));
+        setDirty(true);
     }
 
     /**
@@ -188,6 +191,7 @@ public class RectangleData
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setWidth(rtypes.rdouble(width));
+        setDirty(true);
     }
 
     /**
@@ -216,6 +220,7 @@ public class RectangleData
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setHeight(rtypes.rdouble(height));
+        setDirty(true);
     }
 
 }

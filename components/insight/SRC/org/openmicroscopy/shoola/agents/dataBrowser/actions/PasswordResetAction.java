@@ -69,6 +69,10 @@ public class PasswordResetAction
      */
     protected void onDisplayChange(ImageDisplay node)
     {
+        if (!DataBrowserAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
         if (!DataBrowserAgent.isAdministrator()) {
             setEnabled(false);
             return;

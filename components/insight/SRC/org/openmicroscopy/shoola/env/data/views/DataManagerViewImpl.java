@@ -141,8 +141,7 @@ class DataManagerViewImpl
 	public CallHandle loadThumbnail(SecurityContext ctx, ImageData image,
 		int maxWidth, int maxHeight, long userID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ThumbnailLoader(ctx, image, maxWidth, maxHeight,
-				userID);
+		BatchCallTree cmd = new ThumbnailLoader(ctx, image, maxWidth, maxHeight, userID);
 		return cmd.exec(observer);
 	}
 	

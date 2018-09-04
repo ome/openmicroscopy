@@ -48,6 +48,8 @@ import ome.util.checksum.ChecksumType;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -216,7 +218,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         }
 
         if (isModified() || buffer != null && size() == 0) {
-
+            StopWatch flush = new Slf4JStopWatch();
             final String path = buffer.getPath();
 
             try {
@@ -226,8 +228,11 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
                 log.warn(msg);
                 clean();
                 throw new ResourceError(msg);
+            } finally {
+                flush.stop("omero.services.file.flush");
             }
 
+            StopWatch checksum = new Slf4JStopWatch();
             try {
                 if (file.getHasher() != null) {
                     final ChecksumType checksumType = checksumAlgorithms.get(file.getHasher().getValue());
@@ -249,12 +254,18 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
                     throw new ResourceError(msg);
                 }
                 throw re;
+            } finally {
+                checksum.stop("omero.services.file.checksum");
             }
 
-            iUpdate.flush();
-            modified = false;
-
-            return new ShallowCopy().copy(file);
+            StopWatch finalize = new Slf4JStopWatch();
+            try {
+                iUpdate.flush();
+                modified = false;
+                return new ShallowCopy().copy(file);
+            } finally {
+                finalize.stop("omero.services.file.finalize");
+            }
         }
         return null;
     }

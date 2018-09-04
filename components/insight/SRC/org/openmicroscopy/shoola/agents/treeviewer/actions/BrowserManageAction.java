@@ -334,14 +334,17 @@ public class BrowserManageAction
 			case NEW_ADMIN:
 			case NEW_CONTAINERS:
 			case NEW_TAGS:
-				setEnabled(true);
+				setEnabled(TreeViewerAgent.canCreate());
 				return;
 		}
     	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) {
     		setEnabled(TreeViewerAgent.isAdministrator());
     		return;
     	}
-    	
+        if (!TreeViewerAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
     	adaptActionNameDescription(model.getBrowserType());
     	
     	if (selectedDisplay == null) {

@@ -105,6 +105,35 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * @see #getThumbnailDirect(Integer, Integer)
      */
     public byte[] getThumbnail(Integer sizeX, Integer sizeY);
+
+    /**
+    * Retrieves a thumbnail for a pixels set using a given set of
+    * rendering settings (RenderingDef). If the thumbnail exists
+    * in the on-disk cache it will be returned directly,
+    * otherwise it will be created as in
+    * {@link #getThumbnailDirect}, placed in the on-disk
+    * cache and returned. If the thumbnail is still to be generated, an empty array will
+    * be returned.
+    *
+    * @param sizeX the X-axis width of the thumbnail.
+    *              <code>null</code> specifies the default size
+    *              of 48.
+    * @param sizeY the Y-axis width of the thumbnail.
+    *              <code>null</code> specifies the default size
+    *              of 48.
+    * @throws ApiUsageException
+    *             if:
+    *             <ul>
+    *             <li><code>sizeX</code> > pixels.sizeX</li>
+    *             <li><code>sizeX</code> is negative</li>
+    *             <li><code>sizeY</code> > pixels.sizeY</li>
+    *             <li><code>sizeY</code> is negative</li>
+    *             <li>{@link #setPixelsId} has not yet been called</li>
+    *             </ul>
+    * @return a JPEG thumbnail byte buffer
+    * @see #getThumbnailDirect
+    */
+    public byte[] getThumbnailWithoutDefault(Integer sizeX, Integer sizeY);
     
     /**
      * Retrieves a number of thumbnails for pixels sets using given sets of 

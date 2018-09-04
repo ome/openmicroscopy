@@ -330,7 +330,7 @@ implements java.io.Serializable, IObject
 #foreach($prop in $type.properties)
 #if($prop.class.name == "ome.dsl.EntryField")
 #set($enumSymbol = ${prop.name.replaceAll("-","_").replaceAll("([a-z])([A-Z])", "$1_$2").toUpperCase().replaceAll("[^A-Z0-9_]","")})
-    public final static String VALUE_${enumSymbol} = "${prop.name}";
+    public static final String VALUE_${enumSymbol} = "${prop.name}";
 #end
 #end
 
@@ -340,10 +340,10 @@ implements java.io.Serializable, IObject
     * Constants naming filters used by the OMERO
     * security system.
     */
-    public final static String OWNER_FILTER = "${ofilter}";
-    public final static String GROUP_FILTER = "${gfilter}";
-    public final static String EVENT_FILTER = "${efilter}";
-    public final static String PERMS_FILTER = "${pfilter}";
+    public static final String OWNER_FILTER = "${ofilter}";
+    public static final String GROUP_FILTER = "${gfilter}";
+    public static final String EVENT_FILTER = "${efilter}";
+    public static final String PERMS_FILTER = "${pfilter}";
 
 #end
     public ${type.shortname} () {
@@ -397,7 +397,7 @@ implements java.io.Serializable, IObject
 #end## END ctorWithRequiredNeeded
 
 #if(!${type.superclass})
-    public final static String ID = "${type.id}_id";
+    public static final String ID = "${type.id}_id";
     
     protected Long id;
 
@@ -435,7 +435,7 @@ implements java.io.Serializable, IObject
     */
 
 #if(!${type.immutable} && !${type.superclass})
-    public final static String VERSION = "${type.id}_version";
+    public static final String VERSION = "${type.id}_version";
 
     protected Integer version = 0;
 
@@ -584,10 +584,10 @@ implements java.io.Serializable, IObject
     * Filter names which are used by the security system to turn on filters
     * for this particular collection.
     */
-    public final static String OWNER_FILTER_${prop.nameUpper} = "${ofilter}_${prop.nameUpper}";
-    public final static String GROUP_FILTER_${prop.nameUpper} = "${gfilter}_${prop.nameUpper}";
-    public final static String EVENT_FILTER_${prop.nameUpper} = "${efilter}_${prop.nameUpper}";
-    public final static String PERMS_FILTER_${prop.nameUpper} = "${pfilter}_${prop.nameUpper}";
+    public static final String OWNER_FILTER_${prop.nameUpper} = "${ofilter}_${prop.nameUpper}";
+    public static final String GROUP_FILTER_${prop.nameUpper} = "${gfilter}_${prop.nameUpper}";
+    public static final String EVENT_FILTER_${prop.nameUpper} = "${efilter}_${prop.nameUpper}";
+    public static final String PERMS_FILTER_${prop.nameUpper} = "${pfilter}_${prop.nameUpper}";
 #end
 
    /**
@@ -1469,12 +1469,12 @@ implements java.io.Serializable, IObject
 
 #foreach($prop in $type.classProperties)
 #if($prop.one2Many && $prop.isLink && !$prop.actualTarget.global)
-    public final static String ${prop.name.toUpperCase()}COUNTPEROWNER = "${type.id}_${prop.name}CountPerOwner";
+    public static final String ${prop.name.toUpperCase()}COUNTPEROWNER = "${type.id}_${prop.name}CountPerOwner";
 #end
-    public final static String ${prop.nameUpper} = "${type.id}_${prop.name}";
+    public static final String ${prop.nameUpper} = "${type.id}_${prop.name}";
 #end
 
-    public final static java.util.Set<String> FIELDS;
+    public static final java.util.Set<String> FIELDS;
     static {
        java.util.Set<String> raw = new java.util.HashSet<String>();
 #if(!$type.superclass)
@@ -1693,7 +1693,7 @@ implements java.io.Serializable, IObject
 #if(!$type.superclass)
     public static class Details extends ome.model.internal.Details {
 
-        private final static long serialVersionUID = 0000000030000020301L;
+        private static final long serialVersionUID = 0000000030000020301L;
 
         public Details() {
             super();

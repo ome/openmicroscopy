@@ -74,6 +74,10 @@ public class BrowserImportAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        if (!TreeViewerAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
     	int t = model.getBrowserType();
     	if (t == Browser.PROJECTS_EXPLORER || t == Browser.SCREENS_EXPLORER) {
     		if (selectedDisplay == null) {

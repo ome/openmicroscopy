@@ -22,11 +22,18 @@ package ome.formats.importer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import loci.common.Location;
 import loci.formats.FormatException;
@@ -83,6 +90,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 
 import Ice.Current;
 
@@ -257,52 +265,90 @@ public class ImportLibrary implements IObservable
      * @param candidates Hosts information about the files to import.
      * @return if the import did not exit because of an error
      */
-    public boolean importCandidates(ImportConfig config, ImportCandidates candidates)
+    public boolean importCandidates(final ImportConfig config, ImportCandidates candidates)
     {
         List<ImportContainer> containers = candidates.getContainers();
         if (containers != null) {
-            int numDone = 0;
-            for (int index = 0; index < containers.size(); index++) {
-                ImportContainer ic = containers.get(index);
-                ImportTarget target = config.getTarget();
-                if (target != null) {
-                    try {
-                        IObject obj = target.load(store, ic);
-                        if (!(obj instanceof Annotation)) {
-                            ic.setTarget(obj);
-                        } else {
-                            // This is likely a "post-processing" annotation
-                            // so that we don't have to resolve the target
-                            // until later.
-                            ic.getCustomAnnotationList().add((Annotation) obj);
-                        }
-                    } catch (Exception e) {
-                        log.error("Could not load target: {}", target);
-                        throw new RuntimeException("Failed to load target", e);
+            final int count = containers.size();
+            ExecutorService filesetThreadPool, uploadThreadPool;
+            filesetThreadPool = Executors.newFixedThreadPool(Math.min(count, config.parallelFileset.get()));
+            uploadThreadPool  = Executors.newFixedThreadPool(config.parallelUpload.get());
+            try {
+                final List<Callable<Boolean>> threads = new ArrayList<>(count);
+                for (int index = 0; index < count; index++) {
+                    final ImportContainer ic = containers.get(index);
+                    final ImportTarget target = config.getTarget();
+                    if (config.checksumAlgorithm.get() != null) {
+                        ic.setChecksumAlgorithm(config.checksumAlgorithm.get());
                     }
+                    final ExecutorService uploadThreadPoolFinal = uploadThreadPool;
+                    final int indexFinal = index;
+                    threads.add(new Callable<Boolean>() {
+                        @Override
+                        public Boolean call() {
+                            try {
+                                if (target != null) {
+                                    try {
+                                        IObject obj = target.load(store, ic);
+                                        if (!(obj instanceof Annotation)) {
+                                            ic.setTarget(obj);
+                                        } else {
+                                            // This is likely a "post-processing" annotation
+                                            // so that we don't have to resolve the target
+                                            // until later.
+                                            ic.getCustomAnnotationList().add((Annotation) obj);
+                                        }
+                                    } catch (Exception e) {
+                                        log.error("Could not load target: {}", target);
+                                        throw new RuntimeException("Failed to load target", e);
+                                    }
+                                }
+                                importImage(ic, uploadThreadPoolFinal, indexFinal);
+                                return true;
+                            } catch (Throwable t) {
+                                String message = "Error on import";
+                                if (t instanceof ServerError) {
+                                    final ServerError se = (ServerError) t;
+                                    if (StringUtils.isNotBlank(se.message)) {
+                                        message += ": " + se.message;
+                                    }
+                                }
+                                log.error(message, t);
+                                if (!config.contOnError.get()) {
+                                    log.info("Exiting on error");
+                                    return false;
+                                } else {
+                                    log.info("Continuing after error");
+                                    return true;
+                                }
+                            }
+                        }
+                    });
                 }
-                if (config.checksumAlgorithm.get() != null) {
-                    ic.setChecksumAlgorithm(config.checksumAlgorithm.get());
+                final ExecutorCompletionService<Boolean> threadQueue = new ExecutorCompletionService<>(filesetThreadPool);
+                final List<Future<Boolean>> outcomes = new ArrayList<>(count);
+                for (final Callable<Boolean> thread : threads) {
+                    outcomes.add(threadQueue.submit(thread));
                 }
-
                 try {
-                    importImage(ic,index,numDone,containers.size());
-                    numDone++;
-                } catch (Throwable t) {
-                    String message = "Error on import";
-                    if (t instanceof ServerError) {
-                        final ServerError se = (ServerError) t;
-                        if (StringUtils.isNotBlank(se.message)) {
-                            message += ": " + se.message;
+                    for (int index = 0; index < count; index++) {
+                        if (!threadQueue.take().get()) {
+                            return false;
                         }
                     }
-                    log.error(message, t);
-                    if (!config.contOnError.get()) {
-                        log.info("Exiting on error");
-                        return false;
-                    } else {
-                        log.info("Continuing after error");
-                    }
+                } catch (InterruptedException ie) {
+                    log.error("import interrupted", ie);
+                    return false;
+                } catch (ExecutionException ee) {
+                    log.error("exception should be handled in other thread", ee);
+                    return false;
+                }
+            } finally {
+                if (filesetThreadPool != null) {
+                    filesetThreadPool.shutdownNow();
+                }
+                if (uploadThreadPool != null) {
+                    uploadThreadPool.shutdownNow();
                 }
             }
         }
@@ -461,17 +507,29 @@ public class ImportLibrary implements IObservable
 
     }
 
+    /**
+     * Image import with only one file upload thread.
+     * @see #importImage(ImportContainer, ExecutorService, int)
+     * @deprecated now used by tests only
+     */
+    @SuppressWarnings("javadoc")
+    @Deprecated
+    public List<Pixels> importImage(final ImportContainer container, int index, int numDone, int total) throws Throwable {
+        final ExecutorService threadPool = Executors.newSingleThreadExecutor();
+        try {
+            return importImage(container, threadPool, index);
+        } finally {
+            threadPool.shutdown();
+        }
+    }
 
     /**
      * Perform an image import uploading files if necessary.
      * @param container The import container which houses all the configuration
      * values and target for the import.
+     * @param threadPool The pool of threads to use in file upload.
      * @param index Index of the import in a set. <code>0</code> is safe if
      * this is a singular import.
-     * @param numDone Number of imports completed in a set. <code>0</code> is
-     * safe if this is a singular import.
-     * @param total Total number of imports in a set. <code>1</code> is safe
-     * if this is a singular import.
      * @return List of Pixels that have been imported.
      * @throws FormatException If there is a Bio-Formats image file format
      * error during import.
@@ -481,8 +539,7 @@ public class ImportLibrary implements IObservable
      * @throws Throwable If there is some other kind of error during import.
      * @since OMERO Beta 4.2.1.
      */
-    public List<Pixels> importImage(final ImportContainer container, int index,
-                                    int numDone, int total)
+    public List<Pixels> importImage(final ImportContainer container, ExecutorService threadPool, int index)
             throws FormatException, IOException, Throwable
     {
         HandlePrx handle;
@@ -505,8 +562,12 @@ public class ImportLibrary implements IObservable
         }
         final ImportProcessPrx proc = createImport(container);
         final String[] srcFiles = container.getUsedFiles();
-        final List<String> checksums = new ArrayList<String>();
-        final byte[] buf = new byte[store.getDefaultBlockSize()];
+        final ThreadLocal<byte[]> buf = new ThreadLocal<byte[]>() {
+            @Override
+            protected byte[] initialValue() {
+                return new byte[store.getDefaultBlockSize()];
+            }
+        };
         final TimeEstimator estimator = new ProportionalTimeEstimatorImpl(
                 container.getUsedFilesTotalSize());
         Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
@@ -514,11 +575,34 @@ public class ImportLibrary implements IObservable
         notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
                 null, index, srcFiles.length, null, null, null));
 
+        final List<Callable<Map.Entry<Integer, String>>> threads = new ArrayList<>(srcFiles.length);
         for (int i = 0; i < srcFiles.length; i++) {
-            checksums.add(uploadFile(proc, srcFiles, i, checksumProviderFactory,
-                    estimator, buf));
+            final int fileIndex = i;
+            threads.add(new Callable<Map.Entry<Integer, String>>() {
+                @Override
+                public Map.Entry<Integer, String> call() throws Exception {
+                    final String checksum = uploadFile(proc, srcFiles, fileIndex, checksumProviderFactory, estimator, buf.get());
+                    return Maps.immutableEntry(fileIndex, checksum);
+                }});
         }
-
+        final ExecutorCompletionService<Map.Entry<Integer, String>> threadQueue = new ExecutorCompletionService<>(threadPool);
+        final List<Future<Map.Entry<Integer, String>>> outcomes = new ArrayList<>(srcFiles.length);
+        for (final Callable<Map.Entry<Integer, String>> thread : threads) {
+            outcomes.add(threadQueue.submit(thread));
+        }
+        final String[] checksumArray = new String[srcFiles.length];
+        for (index = 0; index < srcFiles.length; index++) {
+            try {
+                final Map.Entry<Integer, String> outcome = threadQueue.take().get();
+                checksumArray[outcome.getKey()] = outcome.getValue();
+            } catch (InterruptedException | ExecutionException e) {
+                for (final Future<Map.Entry<Integer, String>> outcome : outcomes) {
+                    outcome.cancel(true);
+                }
+                throw e instanceof ExecutionException ? e.getCause() : e;
+            }
+        }
+        final List<String> checksums = Arrays.asList(checksumArray);
         try {
             handle = proc.verifyUpload(checksums);
         } catch (ChecksumValidationException cve) {

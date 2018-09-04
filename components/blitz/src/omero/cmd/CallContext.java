@@ -27,20 +27,32 @@ import omero.SecurityViolation;
  */
 public class CallContext implements MethodInterceptor {
 
+    public static final String FILENAME_KEY = "omero.logfilename";
+
+    public static final String TOKEN_KEY = "omero.logfilename.token";
+
     private static Logger log = LoggerFactory.getLogger(CallContext.class);
 
     private final CurrentDetails cd;
 
     private final String token;
 
-    public CallContext(OmeroContext ctx, String token) {
+    private final Ice.Current current;
+
+    public CallContext(OmeroContext ctx, String token, Ice.Current current) {
         this.cd = ctx.getBean(CurrentDetails.class);
         this.token = token;
+        this.current = current;
+    }
+
+    public CallContext(OmeroContext ctx, String token) {
+        this(ctx, token, null);
     }
 
     public CallContext(CurrentDetails cd, String token) {
         this.cd = cd;
         this.token = token;
+        this.current = null;
     }
 
     /**
@@ -57,16 +69,11 @@ public class CallContext implements MethodInterceptor {
                     final Map<String, String> ctx = current.ctx;
                     if (ctx != null && ctx.size() > 0) {
                         cd.setContext(ctx);
-                        if (ctx.containsKey("omero.logfilename")) {
-                            if (ctx.containsKey("omero.logfilename.token")
-                                    && token.equals(ctx
-                                            .get("omero.logfilename.token"))) {
-                                MDC.put("fileset", ctx.get("omero.logfilename"));
-                            } else {
-                                throw new SecurityViolation(null, null,
-                                        "Setting the omero.logfilename value is"
-                                        + " not permitted without a secure"
-                                        + " server token!");
+                        // Don't trust user-passed values
+                        if (!checkLogFile(ctx, true)) {
+                            if (this.current != null) {
+                                // fall back to the service-wide values
+                                checkLogFile(this.current.ctx, true);
                             }
                         }
                     }
@@ -80,5 +87,38 @@ public class CallContext implements MethodInterceptor {
             cd.setContext(null);
             MDC.clear();
         }
+    }
+
+    /**
+     * If "omero.logfilename" is in the passed {@link Map}, then set it in the
+     * {@link MDC} IFF requireToken is false or the token is present and matches
+     * the original token set on this instance.
+     */
+    private boolean checkLogFile(Map<String, String> ctx, boolean requireToken)
+        throws SecurityViolation {
+
+        if (ctx == null) {
+            return false;
+        }
+
+        String filename = ctx.get(FILENAME_KEY);
+        if (filename == null) {
+            return false;
+        }
+
+        if (requireToken) {
+            String token = ctx.get(TOKEN_KEY);
+            if (!this.token.equals(token)) {
+                log.error("Found bad token: user={} != server={}",
+                        token, this.token);
+                throw new SecurityViolation(null, null,
+                        String.format("Setting the %s value is"
+                        + " not permitted without a secure"
+                        + " server token!", FILENAME_KEY));
+            }
+        }
+
+        MDC.put("fileset", filename);
+        return true;
     }
 }

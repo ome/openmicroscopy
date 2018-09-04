@@ -107,6 +107,7 @@ class TestFS(CLITest):
         out, err = capsys.readouterr()
         assert err.endswith("SecurityViolation: Admins only!\n")
 
+    @pytest.mark.broken(reason="fs rename is temporarily disabled")
     def testRenameAdminOnly(self, capsys):
         """Test fs rename is admin-only"""
 

@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -144,19 +142,17 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
      * @see ome.api.IRepositoryInfo#getFreeSpaceInKilobytes()
      */
     @RolesAllowed("user")
+    @Transactional(readOnly = true)
     public long getFreeSpaceInKilobytes() {
-        long result = 0L;
+        final long result;
 
         try {
             result = FileSystemUtils.freeSpaceKb(datadir);
-            if (log.isInfoEnabled()) {
-                log.info("Total kilobytes free: " + result);
-            }
         } catch (Throwable t) {
             log.error("Error retrieving usage in KB.", t);
             throw new ResourceError(t.getMessage());
         }
-
+        log.info("Total kilobytes free: {}", result);
         return result;
     }
 

@@ -843,7 +843,7 @@ class AutoLockFile (file):
     """
 
     def __init__(self, fn, mode):
-        """ creates a '.lock' file with the spicified file name and mode """
+        """ creates a '.lock' file with the specified file name and mode """
         super(AutoLockFile, self).__init__(fn, mode)
         self._lock = os.path.join(os.path.dirname(fn), '.lock')
         file(self._lock, 'a').close()

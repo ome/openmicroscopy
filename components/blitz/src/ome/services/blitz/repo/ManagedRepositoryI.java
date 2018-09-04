@@ -86,8 +86,11 @@ import omero.util.IceMapper;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import Ice.Current;
 
@@ -440,6 +443,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
             ImportLocation location, ImportSettings settings, Current __current)
                 throws ServerError {
 
+        StopWatch sw = new Slf4JStopWatch();
+
         // Initialization version info
         final ImportConfig config = new ImportConfig();
         final List<NamedValue> serverVersionInfo = new ArrayList<NamedValue>();
@@ -477,9 +482,16 @@ public class ManagedRepositoryI extends PublicRepositoryI
         fs.linkJob(new IndexingJobI());
 
         if (location instanceof ManagedImportLocationI) {
-            OriginalFile of = ((ManagedImportLocationI) location).getLogFile().asOriginalFile(IMPORT_LOG_MIMETYPE);
+            CheckedPath logFile  = ((ManagedImportLocationI) location).getLogFile();
+            OriginalFile of = logFile.asOriginalFile(IMPORT_LOG_MIMETYPE);
             of = persistLogFile(of, __current);
             job.linkOriginalFile((omero.model.OriginalFile) new IceMapper().map(of));
+            try {
+                MDC.put("fileset", logFile.getFullFsPath());
+                sw.stop("omero.import.process.init");
+            } finally {
+                MDC.clear();
+            }
         }
 
         return createUploadProcess(fs, location, settings, __current, false);
@@ -495,22 +507,29 @@ public class ManagedRepositoryI extends PublicRepositoryI
             ImportLocation location, ImportSettings settings,
             Current __current, boolean uploadOnly) throws ServerError {
 
-        // Create CheckedPath objects for use by saveFileset
-        final int size = fs.sizeOfUsedFiles();
-        final List<CheckedPath> checked = new ArrayList<CheckedPath>();
-        for (int i = 0; i < size; i++) {
-            final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
-            checked.add(checkPath(path, settings.checksumAlgorithm, __current));
+        StopWatch sw = new Slf4JStopWatch();
+        MDC.put("fileset", ((ManagedImportLocationI) location).getLogFile().getFullFsPath());
+        try {
+            // Create CheckedPath objects for use by saveFileset
+            final int size = fs.sizeOfUsedFiles();
+            final List<CheckedPath> checked = new ArrayList<CheckedPath>();
+            for (int i = 0; i < size; i++) {
+                final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
+                checked.add(checkPath(path, settings.checksumAlgorithm, __current));
+            }
+
+            final Fileset managedFs = repositoryDao.saveFileset(getRepoUuid(), fs, settings.checksumAlgorithm, checked, __current);
+            // Since the fileset saved validly, we create a session for the user
+            // and return the process.
+
+            final ManagedImportProcessI proc = new ManagedImportProcessI(this,
+                    managedFs, location, settings, __current, rootSessionUuid);
+            processes.addProcess(proc);
+            return proc.getProxy();
+        } finally {
+            sw.stop("omero.import.process.create");
+            MDC.clear();
         }
-
-        final Fileset managedFs = repositoryDao.saveFileset(getRepoUuid(), fs, settings.checksumAlgorithm, checked, __current);
-        // Since the fileset saved validly, we create a session for the user
-        // and return the process.
-
-        final ManagedImportProcessI proc = new ManagedImportProcessI(this,
-                managedFs, location, settings, __current);
-        processes.addProcess(proc);
-        return proc.getProxy();
     }
 
     /**
@@ -1075,6 +1094,18 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         /**
+         * Expand {@code %thread%} to the name of the current thread.
+         * @param prefix path component text preceding the expansion term, may be empty
+         * @param suffix path component text following the expansion term, may be empty
+         * @return entire replaced path component, may be unchanged to be revisited,
+         * or {@code null} if it has been wholly processed; otherwise it will be created
+         */
+        @SuppressWarnings("unused")  /* used by create() via Method.invoke */
+        public String expandThread(String prefix, String suffix) {
+            return prefix + serverPaths.getPathSanitizer().apply(Thread.currentThread().getName()) + suffix;
+        }
+
+        /**
          * Expand and create the template path.
          * @return the path
          * @throws ServerError if the path could not be expanded and created
@@ -1111,7 +1142,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
                     /* try to expand the term */
                     final String oldPattern = pattern;
                     final boolean isTryCreateDirectory = createDirectories &&
-                            !(TEMPLATE_TERM.matcher(prefix).matches() || TEMPLATE_TERM.matcher(suffix).matches());
+                            !(TEMPLATE_TERM.matcher(prefix).find() || TEMPLATE_TERM.matcher(suffix).find());
                     while (true) {
                         try {
                             if (parameters == null) {

@@ -40,8 +40,8 @@ class UserControl(UserGroupControl):
             "-a", "--admin", action="store_true",
             help="Whether the user should be an admin")
         add.add_argument("username", help="User's login name")
-        add.add_argument("firstname", help="User's given name")
-        add.add_argument("lastname", help="User's surname name")
+        add.add_argument("firstname", help="User's first name")
+        add.add_argument("lastname", help="User's last name")
         self.add_group_arguments(add, " to join")
 
         password_group = add.add_mutually_exclusive_group()
@@ -183,7 +183,13 @@ class UserControl(UserGroupControl):
             self.ctx.dbg(traceback.format_exc(sv))
 
         if args.username:
-            self.ctx.out("Changing password for %s" % args.username)
+            try:
+                e = admin.lookupExperimenter(args.username)
+            except omero.ApiUsageException:
+                self.ctx.die(457, "Unknown user: %s" % args.username)
+                return  # Never reached
+            self.ctx.out("Changing password for %s (id:%s)" % (
+                args.username, e.id.val))
         else:
             self.ctx.out("Changing password for %s" % own_name)
 

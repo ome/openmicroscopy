@@ -1,9 +1,10 @@
 /*
- *   Copyright (C) 2009-2016 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2009-2018 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.formats.importer.cli;
 
 import gnu.getopt.Getopt;
@@ -419,7 +420,7 @@ public class CommandLineImporter {
             + "          cp              \t# Use local copy command.\n"
             + "          cp_rm           \t# Caution! Copy followed by source deletion.\n\n"
             + "\n"
-            + "  e.g. $ bin/omero import -- --transfer=ln_s foo.tiff\n"
+            + "  e.g. $ bin/omero import --transfer=ln_s foo.tiff\n"
             + "       $ ./importer-cli --transfer=ln bar.tiff\n"
             + "       $ CLASSPATH=mycode.jar ./importer-cli --transfer=com.example.MyTransfer baz.tiff\n"
             + "\n"
@@ -442,8 +443,8 @@ public class CommandLineImporter {
             + "    --exclude=filename      \tExclude files based on filename.\n\n"
             + "    --exclude=clientpath    \tExclude files based on the original path.\n\n"
             + "\n"
-            + "  e.g. $ bin/omero import -- --exclude=filename foo.tiff # First-time imports\n"
-            + "       $ bin/omero import -- --exclude=filename foo.tiff # Second-time skips\n"
+            + "  e.g. $ bin/omero import --exclude=filename foo.tiff # First-time imports\n"
+            + "       $ bin/omero import --exclude=filename foo.tiff # Second-time skips\n"
             + "\n"
             + "  Import speed:\n"
             + "  -------------\n\n"
@@ -451,7 +452,7 @@ public class CommandLineImporter {
             + "                            \te.g. Adler-32 (fast), CRC-32 (fast), File-Size-64 (fast),\n"
             + "                            \t     MD5-128, Murmur3-32, Murmur3-128,\n"
             + "                            \t     SHA1-160 (slow, default)\n\n"
-            + "  e.g. $ bin/omero import -- --checksum-algorithm=CRC-32 foo.tiff\n"
+            + "  e.g. $ bin/omero import --checksum-algorithm=CRC-32 foo.tiff\n"
             + "       $ ./importer-cli --checksum-algorithm=Murmur3-128 bar.tiff\n\n"
             + "    --no-stats-info\t\tDisable calculation of minima and maxima"
             + " when as part of the Bio-Formats reader metadata\n\n"
@@ -469,10 +470,10 @@ public class CommandLineImporter {
             + "    --qa-baseurl=ARG\tSpecify the base URL for reporting feedback\n"
             + "  e.g. $ bin/omero import broken_image.tif"
             + " -- --email EMAIL --report --upload --logs"
-            + " --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
+            + " --qa-baseurl=http://qa.example.com\n"
             + "       $ ./importer-cli broken_image.tif"
             + " --email EMAIL --report --upload --logs"
-            + " --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
+            + " --qa-baseurl=http://qa.openmicroscopy.org.uk/qa\n"
             + "\n"
             + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>");
         System.exit(1);
@@ -547,6 +548,8 @@ public class CommandLineImporter {
         config.sendLogFile.set(false);
         config.sendReport.set(false);
         config.contOnError.set(false);
+        config.parallelUpload.set(1);
+        config.parallelFileset.set(1);
         config.debug.set(false);
         config.encryptedConnection.set(false);
 
@@ -611,6 +614,12 @@ public class CommandLineImporter {
         LongOpt encryptedConnection =
                 new LongOpt("encrypted", LongOpt.REQUIRED_ARGUMENT, null, 26);
 
+        LongOpt parallelUpload =
+                new LongOpt("parallel-upload", LongOpt.REQUIRED_ARGUMENT, null, 27);
+
+        LongOpt parallelFileset =
+                new LongOpt("parallel-fileset", LongOpt.REQUIRED_ARGUMENT, null, 28);
+
         // DEPRECATED OPTIONS
         LongOpt minutesWaitDeprecated =
                 new LongOpt("minutes_wait", LongOpt.REQUIRED_ARGUMENT, null, 86);
@@ -649,6 +658,7 @@ public class CommandLineImporter {
                                 exclude, target, noStatsInfo,
                                 noUpgradeCheck, qaBaseURL,
                                 outputFormat, encryptedConnection,
+                                parallelUpload, parallelFileset,
                                 plateName, plateName2,
                                 plateDescription, plateDescription2,
                                 noThumbnailsDeprecated,
@@ -811,6 +821,18 @@ public class CommandLineImporter {
                 String encryptedArg = g.getOptarg();
                 log.info("Setting encrypted: {}", encryptedArg);
                 config.encryptedConnection.set(Boolean.valueOf(encryptedArg));
+                break;
+            }
+            case 27: {
+                String parallelFArg = g.getOptarg();
+                log.info("Setting parallel upload: {}", parallelFArg);
+                config.parallelUpload.set(Integer.valueOf(parallelFArg));
+                break;
+            }
+            case 28: {
+                String parallelUArg = g.getOptarg();
+                log.info("Setting parallel fileset: {}", parallelUArg);
+                config.parallelFileset.set(Integer.valueOf(parallelUArg));
                 break;
             }
             // ADVANCED END ---------------------------------------------------

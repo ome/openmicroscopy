@@ -3,7 +3,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# Copyright 2006-2016 University of Dundee. All rights reserved.
+# Copyright 2006-2018 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -138,6 +138,7 @@
     <constructor-arg ref="roles"/>
     <constructor-arg value="${omero.security.password_required}"/>
     <constructor-arg value="UTF-8"/>
+    <property name="queryService" ref="internal-ome.api.IQuery"/>
   </bean>
 
   <bean id="latin1PasswordUtil" class="ome.security.auth.PasswordUtil">
@@ -145,6 +146,7 @@
     <constructor-arg ref="roles"/>
     <constructor-arg value="${omero.security.password_required}"/>
     <constructor-arg value="ISO-8859-1"/>
+    <property name="queryService" ref="internal-ome.api.IQuery"/>
   </bean>
 
   <bean name="managed-ome.api.IAdmin" parent="managedService">
