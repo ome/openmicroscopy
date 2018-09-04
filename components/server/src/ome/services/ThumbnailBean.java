@@ -1212,17 +1212,22 @@ public class ThumbnailBean extends AbstractLevel2Service
      * @return Thumbnail bytes.
      */
     private byte[] retrieveThumbnail(Thumbnail thumbMetaData) throws ResourceError {
-        try {
-            return ioService.getThumbnail(thumbMetaData);
-        } catch (IOException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cache miss, thumbnail missing or out of date.");
+        if (ctx.isThumbnailCached(pixels.getId())) {
+            // If the thumbnail is not dirty, belongs to the user and is on disk
+            // try to load it.
+            try {
+                return ioService.getThumbnail(thumbMetaData);
+            } catch (IOException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Cache miss, thumbnail missing or out of date.");
+                }
             }
         }
 
         final long pixelsId = thumbMetaData.getPixels().getId();
         if (!ctx.hasSettings(pixelsId)) {
             try {
+                // This will throw if a thumbnail is blocked waiting on import completion
                 pixelDataService.getPixelBuffer(ctx.getPixels(pixelsId), false);
             } catch (ConcurrencyException ce) {
                 return new byte[0];
@@ -1233,12 +1238,11 @@ public class ThumbnailBean extends AbstractLevel2Service
         // and saved to disk
         try {
             BufferedImage image = createScaledImage(null, null);
-            if (image != null) {
-                compressThumbnailToDisk(thumbMetaData, image, false);
-            }
+            compressThumbnailToDisk(thumbMetaData, image, false);
         } catch (Exception e) {
-            log.error("Thumbnail could not be compressed.", e);
-            throw new ResourceError(e.getMessage());
+            String msg = "Thumbnail could not be written to disk. " + e.getMessage();
+            log.error(msg, e);
+            throw new ResourceError(msg);
         }
 
         try {
@@ -1317,7 +1321,7 @@ public class ThumbnailBean extends AbstractLevel2Service
             thumbnailMetadata = local;
         }
 
-        BufferedImage image = inProgress? null : createScaledImage(theZ, theT);
+        BufferedImage image = createScaledImage(theZ, theT);
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try {
             if (inProgress) {
@@ -1355,7 +1359,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         return value;
     }
 
-    /** Actually does the work specified by {@link getThumbnailByLongestSideDirect()}.*/
+    /** Actually does the work specified by {@code getThumbnailByLongestSideDirect}.*/
     private byte[] _getThumbnailByLongestSideDirect(Integer size, Integer theZ,
             Integer theT, boolean rewriteMetadata)
     {
@@ -1386,7 +1390,9 @@ public class ThumbnailBean extends AbstractLevel2Service
         return value;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see ome.api.ThumbnailStore#getThumbnailForSectionByLongestSideDirect(int, int, java.lang.Integer)
      */
     @RolesAllowed("user")
@@ -1446,7 +1452,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         iUpdate.flush();
     }
 
-    /** Actually does the work specified by {@link resetDefaults()}.*/
+    /** Actually does the work specified by {@code resetDefaults}.*/
     private void _resetDefaults()
     {
         // Ensure that setPixelsId() has been called first.
