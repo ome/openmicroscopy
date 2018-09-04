@@ -5,8 +5,8 @@
 OMERO version history
 =====================
 
-5.4.8 (August 2018)
--------------------
+5.4.8-rc1 (August 2018)
+-----------------------
 
 This release focuses on a number of import performance
 improvements while including several other fixes as
