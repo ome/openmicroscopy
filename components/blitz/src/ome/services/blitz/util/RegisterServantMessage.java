@@ -65,7 +65,7 @@ public class RegisterServantMessage extends FindServiceFactoryMessage {
             final String name = UUID.randomUUID().toString() + "-" + readableName;
             final Ice.Identity newId = new Ice.Identity(name, id.name);
             sf.configureServant(servant); // Sets holder
-            setProxy(sf.registerServant(newId, servant));
+            setProxy(sf.registerServant(newId, servant, getCurrent()));
         }
     }
 

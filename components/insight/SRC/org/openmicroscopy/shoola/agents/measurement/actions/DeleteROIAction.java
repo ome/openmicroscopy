@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.actions.DeleteROIAction 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
@@ -27,6 +25,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.Action;
 
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -59,6 +58,10 @@ public class DeleteROIAction
 	 */
 	protected void onStateChange()
 	{
+        if (!MeasurementAgent.canCreate()) {
+            setEnabled(false);
+            return;
+        }
 		if (model.getState() == MeasurementViewer.READY)
 			setEnabled(model.canDelete() && model.hasROIToDelete());
 		else setEnabled(false);

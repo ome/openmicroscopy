@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2018 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -22,21 +22,27 @@
 
 package training;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.facility.BrowseFacility;
+import omero.gateway.facility.MetadataFacility;
 import omero.log.SimpleLogger;
 import omero.model.Length;
+import omero.model.NamedValue;
 import omero.model.enums.UnitsLength;
+import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.ImageData;
+import omero.gateway.model.MapAnnotationData;
 import omero.gateway.model.PixelsData;
 import omero.gateway.model.PlateData;
 import omero.gateway.model.ProjectData;
@@ -266,6 +272,34 @@ public class ReadData {
     }
 
     /**
+     * Load the MapAnnotations of the currently logged in user.
+     */
+    private void loadMapAnnotations(long imageId) throws Exception {
+        BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
+        ImageData image = browse.getImage(ctx, imageId);
+
+        // load only this user's annotations
+        List<Long> userIds = new ArrayList<Long>();
+        userIds.add(this.user.getId());
+
+        // load only MapAnnotations
+        List<Class<? extends AnnotationData>> types = new ArrayList<Class<? extends AnnotationData>>();
+        types.add(MapAnnotationData.class);
+
+        MetadataFacility metadata = gateway.getFacility(MetadataFacility.class);
+        List<AnnotationData> annotations = metadata.getAnnotations(ctx, image,
+                types, userIds);
+        for (AnnotationData annotation : annotations) {
+            MapAnnotationData mapAnnotation = (MapAnnotationData) annotation;
+            List<NamedValue> list = (List<NamedValue>) mapAnnotation
+                    .getContent();
+            System.out.println("\nMapAnnotation ID: "+mapAnnotation.getId());
+            for (NamedValue namedValue : list)
+                System.out.println(namedValue.name + ": " + namedValue.value);
+        }
+    }
+    
+    /**
      * end-code
      */
 
@@ -292,6 +326,7 @@ public class ReadData {
             loadScreens();
             loadWells(plateId);
             loadPlate();
+            loadMapAnnotations(imageId);
 
         } catch (Exception e) {
             e.printStackTrace();

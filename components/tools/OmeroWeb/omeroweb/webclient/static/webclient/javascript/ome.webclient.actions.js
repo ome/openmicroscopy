@@ -89,10 +89,6 @@ OME.handle_tree_selection = function(data, event) {
     // and update_thumbnails_panel, just run them instead
 
     // Check the functions exist, they might not if the central panel has not been loaded
-    if (typeof(syncThumbSelection) === "function") {
-        // safe to use the function
-        syncThumbSelection(data, event);
-    }
     if (typeof(update_thumbnails_panel) === "function") {
         // safe to use the function
         update_thumbnails_panel(event, data);
@@ -964,6 +960,7 @@ OME.formatScriptName = function(name) {
 OME.showScriptList = function(event) {
     // We're almost always going to be triggered from an anchor
     event.preventDefault();
+    if (!WEBCLIENT.CAN_CREATE) return;
 
     // show menu - load if empty
     // $('#scriptList').css('visibility', 'visible');

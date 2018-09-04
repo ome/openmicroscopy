@@ -1108,6 +1108,7 @@ $(function() {
                     canLink = OME.nodeHasPermission(node, 'canLink'),
                     parentAllowsCreate = (node.type === "orphaned" || node.type === "experimenter");
 
+                canCreate = canCreate && WEBCLIENT.CAN_CREATE;  // global state for read-only server
                 if(canCreate) {
                     // Enable tag or P/D/I submenus created above
                     config["create"]["_disabled"] = false;

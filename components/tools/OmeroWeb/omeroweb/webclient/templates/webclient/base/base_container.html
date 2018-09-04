@@ -167,6 +167,7 @@
         WEBCLIENT.USER = {'id': {{ ome.user.id }}, 'fullName': "{{ ome.user.getFullName }}"};
         WEBCLIENT.active_user = {'id': {{ ome.user_id }}, 'fullName': "{{ active_user.getFullName }}"};
         WEBCLIENT.eventContext = {{ ome.eventContext|json_dumps|safe }};
+        WEBCLIENT.CAN_CREATE = {{ ome.can_create|json_dumps|safe }};
 
         WEBCLIENT.URLS = {};
         WEBCLIENT.URLS.webindex = "{% url 'webindex' %}";

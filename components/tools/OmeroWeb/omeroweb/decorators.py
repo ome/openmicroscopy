@@ -84,9 +84,7 @@ class ConnCleaningHttpResponse(StreamingHttpResponse):
         try:
             logger.debug('Closing OMERO connection in %r' % self)
             if self.conn is not None and self.conn.c is not None:
-                for v in self.conn._proxies.values():
-                    v.close()
-                self.conn.c.closeSession()
+                self.conn.close(hard=False)
         except:
             logger.error('Failed to clean up connection.', exc_info=True)
 
@@ -247,7 +245,12 @@ class login_required(object):
         return False
 
     def load_server_settings(self, conn, request):
-        """Loads Client preferences from the server."""
+        """Loads Client preferences and Read-Only status from the server."""
+        try:
+            request.session['can_create']
+        except KeyError:
+            request.session.modified = True
+            request.session['can_create'] = conn.canCreate()
         try:
             request.session['server_settings']
         except:

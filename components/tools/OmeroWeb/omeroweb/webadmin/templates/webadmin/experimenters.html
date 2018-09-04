@@ -63,21 +63,22 @@
 {% if experimenterList %}
 
 <div class="one_column_header">
-    <form class="search filtersearch" id="filtersearch" action="#">
-        <input type="text" id="id_search">
-        <input type="submit" value="Go" />
-        <span class="loading">
-            <img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
-        </span>
-    </form>
 
-    {% if can_modify_user %}
+    {% if can_modify_user and ome.can_create %}
     <div class="btn blue">
         <a href="{% url 'wamanageexperimenterid' "new" %}">
             <span>{% trans "Add new User" %}</span>
         </a>
     </div>
     {% endif %}
+
+    <form class="search filtersearch" id="filtersearch" action="#" style="width: 160px">
+        <input type="text" id="id_search">
+        <input type="submit" value="Go" />
+        <span class="loading">
+            <img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
+        </span>
+    </form>
 
 </div>
 

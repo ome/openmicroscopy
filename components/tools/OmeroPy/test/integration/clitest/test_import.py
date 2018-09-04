@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2014-2018 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -1194,3 +1194,77 @@ class TestImport(CLITest):
 
         out, err = self.do_import(capfd)
         assert self.get_object(out, 'Image')
+
+    def testBulk(self, tmpdir, capfd):
+        """Test Bulk import"""
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        yml = tmpdir.join("test.yml")
+        yml.write("""---
+dry_run: "script%s.sh"
+path: test.tsv
+        """)
+
+        tsv = tmpdir.join("test.tsv")
+        tsv.write("test.fake")
+
+        script = tmpdir.join("script1.sh")
+
+        self.args += ["-f", "--bulk", str(yml)]
+        out, err = self.do_import(capfd)
+
+        # At this point, script1.sh has been created
+        assert script.exists()
+
+        # TBD
+        # assert self.get_object(out, 'Image')
+
+    def testParallelUpload(self, tmpdir, capfd):
+        """Test parallel file upload"""
+
+        # write a pattern file into a new subdirectory
+        subdir = tmpdir.mkdir('ParallelUpload-' + self.uuid())
+        pattern_file = subdir.join('fakes.pattern')
+        pattern_file.write('image-T<0-9>.fake')
+
+        # write fake planes for pattern file
+        for timepoint in range(0, 10):
+            filename = 'image-T{0}.fake'.format(timepoint)
+            subdir.join(filename).write('')
+
+        # set arguments for parallel upload of pattern file with planes
+        self.args += ['--parallel-upload', '3']
+        self.args += [str(pattern_file)]
+
+        # do import
+        out, err = self.do_import(capfd)
+
+        # check that the pattern file was imported
+        image = self.get_object(out, 'Image')
+        assert image.name.val == 'fakes.pattern'
+
+    def testParallelFileset(self, tmpdir, capfd):
+        """Test parallel fileset import"""
+
+        # set arguments for parallel import of fake images
+        self.args += ['--parallel-fileset', '3']
+
+        # write fake images into a new subdirectory
+        subdir = tmpdir.mkdir('ParallelFileset-' + self.uuid())
+        filenames = set()
+        for index in range(0, 10):
+            filename = 'image-{0}.fake'.format(index)
+            filenames.add(filename)
+            file = subdir.join(filename)
+            file.write('')
+            self.args += [str(file)]
+
+        # do import
+        out, err = self.do_import(capfd)
+
+        # check that the image files were imported
+        images = self.get_objects(out, 'Image')
+        imagenames = set([image.name.val for image in images])
+        assert filenames == imagenames

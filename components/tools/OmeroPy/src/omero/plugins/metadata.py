@@ -13,6 +13,7 @@ import mimetypes
 import os
 import re
 import sys
+import warnings
 
 import omero
 from omero.cli import BaseControl
@@ -628,6 +629,11 @@ class MetadataControl(BaseControl):
 
 try:
     if "OMERO_DEV_PLUGINS" in os.environ:
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.4.8. Use the metadata"
+            " CLI plugin available from"
+            " https://pypi.org/project/omero-metadata/ instead.",
+            DeprecationWarning)
         register("metadata", MetadataControl, HELP)
 except NameError:
     if __name__ == "__main__":

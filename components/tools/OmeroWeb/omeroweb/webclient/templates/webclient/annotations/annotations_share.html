@@ -235,6 +235,7 @@
             
             <table>
                 <!-- SHARE COMMENT -->
+                {% if ome.can_create %}
                 <tr>
                     <th colspan="3"> 
                         {% trans "Comment:" %}
@@ -255,6 +256,7 @@
                         {% endif %}
                     </th>
                 </tr>
+                {% endif %}
                 <tr>
                     <td colspan="3">
                         <div id="share_comments_container" class="lncomments">

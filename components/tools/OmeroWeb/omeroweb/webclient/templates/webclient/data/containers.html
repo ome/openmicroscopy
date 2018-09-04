@@ -295,6 +295,7 @@
                 canCreate = (userId === WEBCLIENT.USER.id || (allMembers && memberOfGroup) ||
                     (!allMembers && writeOwned));
 
+            canCreate = canCreate && WEBCLIENT.CAN_CREATE;  // global state for read-only server
             // These nodes can be Orphans, so creation is not selection-specific
             if (canCreate) {
                 toolbar_config["addproject"] = true;

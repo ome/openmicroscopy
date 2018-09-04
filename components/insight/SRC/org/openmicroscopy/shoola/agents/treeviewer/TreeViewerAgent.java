@@ -215,7 +215,19 @@ public class TreeViewerAgent
 
         return isAdministrator() && b.booleanValue();
     }
-    
+
+    /**
+     * Returns <code>true</code> data objects can be created,
+     * <code>false</code> otherwise. This will be <code>false</code> if the
+     * server is for example read-only.
+     *
+     * @return See above.
+     */
+    public static boolean canCreate() {
+        Boolean b = (Boolean) registry.lookup(LookupNames.CAN_CREATE);
+        return b.booleanValue();
+    }
+
 	/**
 	 * Returns the context for an administrator.
 	 * 

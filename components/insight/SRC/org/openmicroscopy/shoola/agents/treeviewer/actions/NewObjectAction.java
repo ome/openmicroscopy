@@ -28,13 +28,16 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+
 import javax.swing.Action;
 
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -52,7 +55,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta3
  */
-public class NewObjectAction    
+public class NewObjectAction
 	extends TreeViewerAction
     implements MouseListener
 {
@@ -117,7 +120,7 @@ public class NewObjectAction
                 setEnabled(false);
                 break;
             default:
-            	setEnabled(true);
+            	setEnabled(TreeViewerAgent.canCreate());
         }
     }
     

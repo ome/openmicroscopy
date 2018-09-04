@@ -55,7 +55,9 @@ command-line arguments. Special keys include:
 
  * columns      A list of columns for parsing the value of path
  * continue     Like the "-c" changes error handling
- * dry_run      Prints out additional arguments rather than running them
+ * dry_run      If true, print out additional arguments rather than run them.
+                If another string other than false, use as a template for
+                storing the import commands. (e.g. /tmp/%s.sh)
  * include      Relative path (from the bulk file) of a parent bulk file
  * path         A file which will be parsed line by line based on its file
                 ending. Lines containing zero or more keys along with a
@@ -385,7 +387,7 @@ class ImportControl(BaseControl):
             help=SUPPRESS)
 
         java_group = parser.add_argument_group(
-            'Java arguments', 'Optional arguments passed strictly to Java')
+            'Java arguments', 'Optional arguments passed strictly to Java.')
 
         def add_java_argument(*args, **kwargs):
             java_group.add_argument(*args, **kwargs)
@@ -429,8 +431,8 @@ class ImportControl(BaseControl):
         # Arguments previously *following" `--`
         advjava_group = parser.add_argument_group(
             'Advanced Java arguments', (
-                'Optional arguments passed strictly to Java.'
-                'For more information, see --advanced-help'))
+                'Optional arguments passed strictly to Java. '
+                'For more information, see --advanced-help.'))
 
         def add_advjava_argument(*args, **kwargs):
             advjava_group.add_argument(*args, **kwargs)
@@ -447,6 +449,12 @@ class ImportControl(BaseControl):
         add_advjava_argument(
             "--checksum-algorithm", nargs="?", metavar="TYPE",
             help="Alternative hashing mechanisms balancing speed & accuracy")
+        add_advjava_argument(
+            "--parallel-upload", metavar="COUNT",
+            help="Number of file upload threads to run at the same time")
+        add_advjava_argument(
+            "--parallel-fileset", metavar="COUNT",
+            help="Number of fileset candidates to import at the same time")
 
         # Unsure on these.
         add_python_argument(
@@ -544,13 +552,20 @@ class ImportControl(BaseControl):
                 bulk.update(data)
                 os.chdir(parent)
 
+            incr = 0
             failed = 0
             total = 0
             for cont in self.parse_bulk(bulk, command_args):
+                incr += 1
                 if command_args.dry_run:
                     rv = ['"%s"' % x for x in command_args.added_args()]
                     rv = " ".join(rv)
-                    self.ctx.out(rv)
+                    if command_args.dry_run.lower() == "true":
+                        self.ctx.out(rv)
+                    else:
+                        with open(command_args.dry_run % incr, "w") as o:
+                            # FIXME: this assumes 'bin/omero'
+                            print >>o, sys.argv[0], "import", rv
                 else:
                     self.do_import(command_args, xargs)
                 if self.ctx.rv:
@@ -575,8 +590,10 @@ class ImportControl(BaseControl):
 
         command_args.dry_run = False
         if "dry_run" in bulk:
-            dry_run = bulk.pop("dry_run")
-            command_args.dry_run = dry_run
+            dry_run = str(bulk.pop("dry_run"))
+            # Accept any non-false string since it might be a pattern
+            if dry_run.lower() != "false":
+                command_args.dry_run = dry_run
 
         if "continue" in bulk:
             cont = True

@@ -87,7 +87,7 @@ import com.google.common.collect.Multimap;
 @Test(groups = "ticket:2615")
 public class HierarchyDeleteTest extends AbstractServerTest {
 
-    private final static omero.RString t3031 = omero.rtypes.rstring("#3031");
+    private static final omero.RString t3031 = omero.rtypes.rstring("#3031");
 
     /**
      * Test to delete a dataset containing an image also contained in another

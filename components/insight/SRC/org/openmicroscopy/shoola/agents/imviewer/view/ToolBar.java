@@ -301,6 +301,7 @@ class ToolBar
     	IconManager im = IconManager.getInstance();
     	script.setIcon(im.getIcon(IconManager.ANALYSIS_RUN));
     	UIUtilities.unifiedButtonLookAndFeel(script);
+    	script.setEnabled(ImViewerAgent.canCreate());
     	script.addActionListener(new ActionListener() {
             
             @Override

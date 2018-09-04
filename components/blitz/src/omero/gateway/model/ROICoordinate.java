@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -58,8 +58,8 @@ public class ROICoordinate
     /**
      * Creates a new instance.
      *
-     * @param z The z-section.
-     * @param t The timepoint.
+     * @param z The z-section. (-1 == all z-sections)
+     * @param t The timepoint. (-1 == all timepoints)
      */
     public ROICoordinate(int z, int t)
     {
@@ -69,14 +69,14 @@ public class ROICoordinate
 
     /**
      * Returns the timepoint.
-     *
+     * (-1 == all timepoints)
      * @return See above.
      */
     public int getTimePoint() { return t; }
 
     /**
      * Returns the z-section.
-     *
+     * (-1 == all z-sections)
      * @return See above.
      */
     public int getZSection() { return z; }
@@ -84,7 +84,6 @@ public class ROICoordinate
     /**
      * Implemented as specified by the {@link Comparator} I/F.
      * @see Comparator#compare(Object, Object)
-     * If any attribute == -1 it is not included in comparison.
      */
     public int compare(Object o1, Object o2)
     {
@@ -101,7 +100,6 @@ public class ROICoordinate
 
     /**
      * Overridden to control if the passed object equals the current one.
-     * If any attribute == -1 it is not included in comparison.
      * @see java.lang.Object#equals(Object)
      */
     public boolean equals(Object obj)

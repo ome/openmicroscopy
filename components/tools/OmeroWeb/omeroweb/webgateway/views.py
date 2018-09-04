@@ -24,6 +24,8 @@ from django.http import HttpResponse, HttpResponseBadRequest, \
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.template import loader as template_loader
 from django.views.decorators.http import require_POST
+from django.views.decorators.debug import sensitive_post_parameters
+from django.utils.decorators import method_decorator
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.conf import settings
 from django.template import RequestContext as Context
@@ -2410,9 +2412,11 @@ def archived_files(request, iid=None, conn=None, **kwargs):
     wellIds = request.GET.getlist('well')
     if iid is None:
         if len(imgIds) == 0 and len(wellIds) == 0:
-            return HttpResponseServerError(
+            rsp = ConnCleaningHttpResponse(StringIO(
                 "No images or wells specified in request."
-                " Use ?image=123 or ?well=123")
+                " Use ?image=123 or ?well=123"), status=400)
+            rsp.conn = conn
+            return rsp
     else:
         imgIds = [iid]
 
@@ -2429,17 +2433,20 @@ def archived_files(request, iid=None, conn=None, **kwargs):
         for w in wells:
             images.append(w.getWellSample(index).image())
     if len(images) == 0:
-        logger.debug(
-            "Cannot download archived file becuase Images not found.")
-        return HttpResponseServerError(
-            "Cannot download archived file because Images not found (ids:"
-            " %s)." % (imgIds))
+        message = 'Cannot download archived file because Images not ' \
+            'found (ids: %s)' % (imgIds)
+        logger.debug(message)
+        rsp = ConnCleaningHttpResponse(StringIO(message), status=404)
+        rsp.conn = conn
+        return rsp
 
     # Test permissions on images and weels
     for ob in (wells):
         if hasattr(ob, 'canDownload'):
             if not ob.canDownload():
-                raise Http404
+                rsp = ConnCleaningHttpResponse(status=404)
+                rsp.conn = conn
+                return rsp
 
     for ob in (images):
         well = None
@@ -2448,12 +2455,15 @@ def archived_files(request, iid=None, conn=None, **kwargs):
         except:
             if hasattr(ob, 'canDownload'):
                 if not ob.canDownload():
-                    raise Http404
+                    rsp = ConnCleaningHttpResponse(status=404)
+                    rsp.conn = conn
         else:
             if well and isinstance(well, omero.gateway.WellWrapper):
                 if hasattr(well, 'canDownload'):
                     if not well.canDownload():
-                        raise Http404
+                        rsp = ConnCleaningHttpResponse(status=404)
+                        rsp.conn = conn
+                        return rsp
 
     # make list of all files, removing duplicates
     fileMap = {}
@@ -2463,9 +2473,12 @@ def archived_files(request, iid=None, conn=None, **kwargs):
     files = fileMap.values()
 
     if len(files) == 0:
-        logger.debug("Tried downloading archived files from image with no"
-                     " files archived.")
-        return HttpResponseServerError("This image has no Archived Files.")
+        message = 'Tried downloading archived files from image with no' \
+            ' files archived.'
+        logger.debug(message)
+        rsp = ConnCleaningHttpResponse(message, status=404)
+        rsp.conn = conn
+        return rsp
 
     if len(files) == 1:
         orig_file = files[0]
@@ -2494,10 +2507,11 @@ def archived_files(request, iid=None, conn=None, **kwargs):
             temp.seek(0)
         except Exception:
             temp.close()
-            stack = traceback.format_exc()
-            logger.error(stack)
-            return HttpResponseServerError(
-                "Cannot download file (id:%s).\n%s" % (iid, stack))
+            message = 'Cannot download file (id:%s)' % (iid)
+            logger.error(message, exc_info=True)
+            rsp = ConnCleaningHttpResponse(StringIO(message), status=500)
+            rsp.conn = conn
+            return rsp
 
     rsp['Content-Type'] = 'application/force-download'
     return rsp
@@ -2846,6 +2860,12 @@ class LoginView(View):
 
     form_class = LoginForm
     useragent = 'OMERO.webapi'
+
+    @method_decorator(sensitive_post_parameters('password',
+                                                'csrfmiddlewaretoken'))
+    def dispatch(self, *args, **kwargs):
+        """Wrap other methods to add decorators."""
+        return super(LoginView, self).dispatch(*args, **kwargs)
 
     def get(self, request, api_version=None):
         """Simply return a message to say GET not supported."""

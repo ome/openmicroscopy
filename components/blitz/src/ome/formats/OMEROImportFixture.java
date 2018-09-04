@@ -45,7 +45,9 @@ import org.slf4j.LoggerFactory;
  * @author Josh Moore, josh.moore at gmx.de
  * @see OMEROMetadataStoreClient
  * @since 4.0
+ * @deprecated to be moved to {@code components/blitz/test/}
  */
+@Deprecated  // will no longer be shipped in main artifacts
 public class OMEROImportFixture {
 
     Logger log = LoggerFactory.getLogger(OMEROImportFixture.class);

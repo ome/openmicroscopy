@@ -207,7 +207,7 @@
         {% endif %}
 
         {% if not share %}
-            {% if image and not image.requiresPixelsPyramid %}
+            {% if image and not image.requiresPixelsPyramid and ome.can_create %}
             <li>
                 <a id="create-ometiff" href="{% url 'ome_tiff_script' image.id %}" 
                 title="Create OME-TIFF File for Download">Export as OME-TIFF...</a>
@@ -333,7 +333,7 @@
 
     <!-- Publishing Options (Figure Scripts) -->
     {% if not share %}
-    {% if not differentGroups %}
+    {% if not differentGroups and ome.can_create %}
     {% include "webclient/annotations/includes/figure_scripts_menu.html" %}
     {% endif %}
     {% endif %}

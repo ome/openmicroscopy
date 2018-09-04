@@ -25,6 +25,7 @@ import java.beans.PropertyChangeListener;
 import java.util.UUID;
 
 import integration.AbstractServerTest;
+import omero.SecurityViolation;
 import omero.gateway.Gateway;
 import omero.gateway.JoinSessionCredentials;
 import omero.gateway.LoginCredentials;
@@ -37,10 +38,13 @@ import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 import omero.log.SimpleLogger;
+import omero.model.LongAnnotation;
+import omero.model.LongAnnotationI;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Tests the login options supported by gateway
@@ -230,6 +234,62 @@ public class GatewayUsageTest extends AbstractServerTest
                     "Dataset does not belong to new group");
         } catch (Exception e1) {
             Assert.fail("Create dataset in new group failed.", e1);
+        }
+    }
+
+    /**
+     * Test that queries respond as expected to group context.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testGroupContextForService() throws Exception {
+        /* as a normal user create an annotation */
+        LongAnnotation annotation = new LongAnnotationI();
+        annotation.setLongValue(omero.rtypes.rlong(1));
+        annotation.setNs(omero.rtypes.rstring("test/" + getClass().getSimpleName() + "/" + UUID.randomUUID()));
+        final long annotationId = iUpdate.saveAndReturnObject(annotation).getId().getValue();
+        final long annotationGroupId = iAdmin.getEventContext().groupId;
+
+        /* now do the rest of the test as the root user via the gateway */
+        final LoginCredentials credentials = new LoginCredentials(
+                roles.rootName, client.getProperty("omero.rootpass"), 
+                client.getProperty("omero.host"), Integer.valueOf(client.getProperty("omero.port")));
+        try (final Gateway gateway = new Gateway(new SimpleLogger())) {
+            gateway.connect(credentials);
+
+            /* set query service to system group's context */
+            iQuery = gateway.getQueryService(new SecurityContext(roles.systemGroupId));
+            try {
+                annotation = (LongAnnotation) iQuery.find(LongAnnotation.class.getSimpleName(), annotationId);
+                Assert.fail("should not see annotation from wrong group");
+            } catch (SecurityViolation sv) {
+                /* expected */
+            }
+
+            /* do query in annotation group's context */
+            iQuery = gateway.getQueryService(new SecurityContext(roles.systemGroupId));
+            annotation = (LongAnnotation) iQuery.find(LongAnnotation.class.getSimpleName(), annotationId,
+                    ImmutableMap.of("omero.group", Long.toString(annotationGroupId)));
+            Assert.assertNotNull(annotation, "should see annotation from query in its group");
+
+            /* set query service to annotation group's context */
+            iQuery = gateway.getQueryService(new SecurityContext(annotationGroupId));
+            annotation = (LongAnnotation) iQuery.find(LongAnnotation.class.getSimpleName(), annotationId);
+            Assert.assertNotNull(annotation, "should see annotation from query service in its group");
+
+            /* do query in all-groups context */
+            iQuery = gateway.getQueryService(new SecurityContext(roles.systemGroupId));
+            annotation = (LongAnnotation) iQuery.find(LongAnnotation.class.getSimpleName(), annotationId,
+                    ALL_GROUPS_CONTEXT);
+            Assert.assertNotNull(annotation, "should see annotation from query in all-groups context");
+
+            try {
+                /* set query service to all-groups context */
+                iQuery = gateway.getQueryService(new SecurityContext(-1));
+                Assert.fail("should not be possible without an equivalent of SERVICE_OPTS");
+            } catch (DSOutOfServiceException dsoose) {
+                Assert.assertEquals(dsoose.getCause().getClass(), IllegalArgumentException.class);
+            }
         }
     }
 }

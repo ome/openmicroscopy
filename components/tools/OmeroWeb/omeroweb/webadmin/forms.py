@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2008-2014 University of Dundee.
+# Copyright (c) 2008-2018 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -151,7 +151,8 @@ class ExperimenterForm(NonASCIIForm):
             initial='user')
         # If current user is restricted Admin, can't create full Admin
         restricted_admin = "ReadSession" not in self.user_privileges
-        self.fields['role'].widget.renderer.disable_admin = restricted_admin
+        self.fields['role'].widget.renderer.disable_admin = \
+            restricted_admin or experimenter_root
 
         if ('with_password' in kwargs['initial'] and
                 kwargs['initial']['with_password']):

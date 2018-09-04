@@ -138,9 +138,12 @@ class AnnotationQuerySetIterator(object):
         for obj in self.queryset:
             textValue = None
             if isinstance(obj._obj, FileAnnotationI):
-                textValue = (
-                    (len(obj.getFileName()) < 45) and (obj.getFileName()) or
-                    (obj.getFileName()[:42]+"..."))
+                file_name = obj.getFileName()
+                if not file_name:
+                    textValue = "No name. ID %s" % obj.id
+                else:
+                    textValue = (len(file_name) < 45 and file_name or
+                                 (file_name[:42]+"..."))
             elif isinstance(obj._obj, TagAnnotationI):
                 if obj.textValue is not None:
                     if obj.ns is not None and obj.ns != "":

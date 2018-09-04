@@ -259,7 +259,7 @@ class TestConfig(object):
             '{"title": "Browse Data via Projects, Tags etc"}], ' \
             '["History", "history", ' \
             '{"title": "History"}], ' \
-            '["Help", "http://help.openmicroscopy.org/", ' \
+            '["Help", "https://help.openmicroscopy.org/", ' \
             '{"target": "new", "title": ' \
             '"Open OMERO user guide in a new tab"}], ' \
             '["Figure", "figure_index"]]'

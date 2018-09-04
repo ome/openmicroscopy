@@ -25,9 +25,13 @@ $(document).ready(function() {
     $("#right_panel").bind('resize', function(event) {
 
         // This behaviour is also in the metatdata_preview.html itself
-        var vpWidth = $(this).width() - 50,
-            vpHeight = Math.min(vpWidth, $("#preview_tab").height() - 100);
-        vpHeight = Math.max(300, vpHeight);
+        var vpWidth = $(this).width() - 50;
+        // Use a 1:1 aspect ratio with the width.  Keep the viewport from
+        // taking up more than 75% of the available height.
+        var vpHeight = Math.max(
+            300,
+            Math.min(vpWidth, ($("#preview_tab").height() - 100) * 0.75)
+        );
 
         if (OME.preview_viewport) {
             // Need to set a few sizes, then call viewport.refresh()

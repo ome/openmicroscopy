@@ -263,3 +263,51 @@ class TestRois(ITest):
                 shapeCount += 1
         # Check we found 4 shapes
         assert shapeCount == 4
+
+    def testGetShapeStatsRestricted(self):
+        """Test ROI intensity stats."""
+        img = self.create_test_image(100, 100, 1, 1, 1, self.client.sf)
+        pixid1 = img.getPrimaryPixels().getId().getValue()
+        print img.id.val, pixid1
+
+        roi = omero.model.RoiI()
+        roi.setImage(img)
+
+        rect = omero.model.RectangleI()
+        rect.x = rdouble(5)
+        rect.y = rdouble(5)
+        rect.width = rdouble(50)
+        rect.height = rdouble(50)
+        rect.theZ = rint(0)
+        rect.theT = rint(0)
+        rect.textValue = rstring("test-Rectangle")
+        roi.addShape(rect)
+
+        ellipse = omero.model.EllipseI()
+        ellipse.x = rdouble(50.0)
+        ellipse.y = rdouble(35.5)
+        ellipse.radiusX = rdouble(10)
+        ellipse.radiusY = rdouble(10)
+        ellipse.textValue = rstring("test-Ellipse")
+        roi.addShape(ellipse)
+
+        new_roi = self.update.saveAndReturnObject(roi)
+
+        roi_service = self.client.sf.getRoiService()
+        result = roi_service.findByImage(img.id.val, None)
+        assert result is not None
+        shape_ids = []
+        for roi in result.rois:
+            assert roi.id.val == new_roi.id.val
+            for s in roi.copyShapes():
+                shape_ids.append(s.id.val)
+
+        print "shape_ids", shape_ids
+
+        stats = roi_service.getShapeStatsRestricted(shape_ids, 0, 0, [0])
+        print stats
+        assert len(stats) == len(shape_ids)
+        for s in stats:
+            assert s.min[0] < s.mean[0]
+            assert s.mean[0] < s.max[0]
+            assert s.max[0] < s.sum[0]

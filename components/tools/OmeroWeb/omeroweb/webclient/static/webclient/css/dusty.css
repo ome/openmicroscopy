@@ -976,6 +976,7 @@ button::-moz-focus-inner {
 		-webkit-box-shadow: 0 1px 0 rgba(255,255,255,.2), inset 0 1px 1px rgba(0,0,0,.2);
 		-moz-box-shadow: 0 1px 0 rgba(255,255,255,.2), inset 0 1px 1px rgba(0,0,0,.2);
 		box-shadow: 0 1px 0 rgba(255,255,255,.15), inset 0 1px 2px rgba(0,0,0,.3);
+		right: 0;
 	}
 
 	#search input[type=submit], .filtersearch input[type=submit]{
@@ -994,10 +995,6 @@ button::-moz-focus-inner {
 		   -moz-transition:   opacity .2s linear;
 		     -o-transition:   opacity .2s linear;
 		        transition:   opacity .2s linear; 
-	}
-	
-	.filtersearch input[type=submit] {
-		right:22px;
 	}
 	
 	#search input[type=submit]:hover, .filtersearch input[type=submit]:hover {
@@ -1059,8 +1056,8 @@ button::-moz-focus-inner {
 		
 		.filtersearch .loading {
 			position:absolute;
-			right:-4px;
-			top:2px;
+			left: 110%;
+			top: 6px;
 		}
 	
 	/* same as .filtersearch label for top search field */

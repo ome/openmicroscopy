@@ -657,9 +657,16 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     protected AMD_submit submitRequest(final ServiceFactoryI sf,
             final omero.cmd.Request req,
             final Ice.Current current) throws ServerError, InternalException {
+        return submitRequest(sf, req, current, null);
+    }
+
+    protected AMD_submit submitRequest(final ServiceFactoryI sf,
+            final omero.cmd.Request req,
+            final Ice.Current current,
+            final Executor.Priority priority) throws ServerError, InternalException {
 
         final AMD_submit submit = new AMD_submit();
-        sf.submit_async(submit, req, current);
+        sf.submit_async(submit, req, current, priority);
         if (submit.ex != null) {
             IceMapper mapper = new IceMapper();
             throw mapper.handleServerError(submit.ex, context);

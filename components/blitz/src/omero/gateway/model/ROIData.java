@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2016 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -207,17 +207,21 @@ public class ROIData
         if (roi == null) 
             throw new IllegalArgumentException("No Roi specified.");
         ROICoordinate coord = shape.getROICoordinate();
-        List<ShapeData> shapeList;
-        shapeList = roiShapes.get(coord);
-        shapeList.remove(shape);
-        roi.removeShape((Shape) shape.asIObject());
-        setDirty(true);
+        List<ShapeData> shapeList = roiShapes.get(coord);
+        if (shapeList != null) {
+            shapeList.remove(shape);
+            roi.removeShape((Shape) shape.asIObject());
+            setDirty(true);
+        }
     }
 
     /**
      * Returns the number of planes occupied by the ROI.
      *
      * @return See above.
+     * @deprecated Will be removed in future. Does not work as 
+     * expected if the ROI contains shapes which are associated 
+     * with all planes (Z, C, T == -1)
      */
     public int getPlaneCount() { return roiShapes.size(); }
 
@@ -247,7 +251,19 @@ public class ROIData
      */
     public List<ShapeData> getShapes(int z, int t)
     {
-        return roiShapes.get(new ROICoordinate(z, t));
+        List<ShapeData> res = roiShapes.get(new ROICoordinate(z, t));
+        if (res == null)
+            res = new ArrayList<ShapeData>();
+        List<ShapeData> allZT = roiShapes.get(new ROICoordinate(-1, -1));
+        if (allZT != null)
+            res.addAll(allZT);
+        List<ShapeData> allZ = roiShapes.get(new ROICoordinate(-1, t));
+        if (allZ != null)
+            res.addAll(allZ);
+        List<ShapeData> allT = roiShapes.get(new ROICoordinate(z, -1));
+        if (allT != null)
+            res.addAll(allT);
+        return res;
     }
 
     /**
@@ -260,38 +276,53 @@ public class ROIData
         return roiShapes.values().iterator();
     }
 
-    /** 
+    /**
      * Return the first plane that the ROI starts on.
      *
      * @return See above.
+     * @deprecated Will be removed in future. Does not work as 
+     * expected if the ROI contains shapes which are associated 
+     * with all planes (Z, C, T == -1)
      */
-    public ROICoordinate firstPlane()
-    {
+    public ROICoordinate firstPlane() {
         return roiShapes.firstKey();
     }
 
-    /** 
+    /**
      * Returns the last plane that the ROI ends on.
      *
      * @return See above.
+     * @deprecated Will be removed in future. Does not work as 
+     * expected if the ROI contains shapes which are associated 
+     * with all planes (Z, C, T == -1)
      */
-    public ROICoordinate lastPlane()
-    {
+    public ROICoordinate lastPlane() {
         return roiShapes.lastKey();
     }
 
     /**
      * Returns an iterator of the Shapes in the ROI in the range [start, end].
      *
-     * @param start The starting plane where the Shapes should reside.
-     * @param end The final plane where the Shapes should reside.
+     * @param start
+     *            The starting plane where the Shapes should reside.
+     * @param end
+     *            The final plane where the Shapes should reside.
      * @return See above.
+     * @deprecated Will be removed in future. Does not work as
+     * expected if the ROI contains shapes which are associated
+     * with all planes (Z, C, T == -1)
      */
     public Iterator<List<ShapeData>> getShapesInRange(ROICoordinate start,
-            ROICoordinate end)
-            {
-        return roiShapes.subMap(start, end).values().iterator();
-            }
+            ROICoordinate end) {
+        List<List<ShapeData>> res = new ArrayList<List<ShapeData>>();
+        Collection<List<ShapeData>> inRange = roiShapes.subMap(start, end).values();
+        if (inRange != null)
+            res.addAll(inRange);
+        List<ShapeData> allRanges = roiShapes.get(new ROICoordinate(-1, -1));
+        if (allRanges != null)
+            res.add(allRanges);
+        return res.iterator();
+    }
 
     /**
      * Returns <code>true</code> if the object a client-side object,

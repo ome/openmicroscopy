@@ -105,7 +105,7 @@ module omero {
                  *
                  * @param klass type of entity to be searched
                  * @param field the name of the field, either as simple string
-                 *              or as public final static from the entity
+                 *              or as public static final from the entity
                  *              class, e.g. {@link omero.model.Project#NAME}
                  * @param value String used for search.
                  * @return found entity or possibly null.
@@ -122,7 +122,7 @@ module omero {
                  *
                  * @param klass type of entity to be searched. Not null.
                  * @param field the name of the field, either as simple string
-                 *              or as public final static from the entity
+                 *              or as public static final from the entity
                  *              class, e.g. {@link omero.model.Project#NAME}.
                  *              Not null.
                  * @param value String used for search. Not null.

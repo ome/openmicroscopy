@@ -308,7 +308,7 @@ class SessionsControl(UserGroupControl):
         msg += " (timeToIdle: %d sec, timeToLive: %d sec)" % (tti, ttl)
 
         self.ctx.err(msg)
-        self.ctx.out(sessId)
+        self.ctx.out(sessId)  # Ok, must share
 
     def close(self, args):
         client = self.ctx.conn(args)
@@ -511,15 +511,13 @@ class SessionsControl(UserGroupControl):
             if not pasw:
                 pasw = os.getenv("OMERO_PASSWORD")
 
-            if not pasw:
-                # Note: duplicating the `not pasw` check here
-                # for an overall nicer error message.
-                self._require_tty("cannot request password")
-
             tries = 3
             while True:
                 try:
                     if not pasw:
+                        # Handle absent and incorrect passwords in
+                        # non-interactive mode
+                        self._require_tty("cannot request password")
                         if args.sudo:
                             prompt = "Password for %s:" % args.sudo
                         else:
@@ -611,8 +609,8 @@ class SessionsControl(UserGroupControl):
         host = client.getProperty("omero.host")
         port = client.getProperty("omero.port")
 
-        msg = "%s session %s (%s@%s:%s)." \
-            % (action, uuid, ec.userName, host, port)
+        msg = "%s session for %s@%s:%s." \
+            % (action, ec.userName, host, port)
         msg += self._parse_timeout(idle, " Idle timeout: ")
         msg += self._parse_timeout(live, " Expires in : ")
 
@@ -717,10 +715,6 @@ class SessionsControl(UserGroupControl):
         s = store.contents()
         previous = store.get_current()
 
-        # fmt = "%-16.16s\t%-12.12s\t%-12.12s\t%-40.40s\t%-30.30s\t%s"
-        # self.ctx.out(fmt % ("Server","User","Group", "Session","Active",
-        # "Started"))
-        # self.ctx.out("-"*136)
         headers = ("Server", "User", "Group", "Session", "Active", "Started")
         results = dict([(x, []) for x in headers])
         for server, names in s.items():

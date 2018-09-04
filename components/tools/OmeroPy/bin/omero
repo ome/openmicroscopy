@@ -15,6 +15,11 @@ import os
 import stat
 import sys
 
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+# Assuming a CLI user never wants to see development details
+# such as code that has been deprecated.
+
 
 def not_root():
     """

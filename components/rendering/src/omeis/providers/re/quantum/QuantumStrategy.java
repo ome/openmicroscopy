@@ -308,8 +308,17 @@ public abstract class QuantumStrategy {
      *            The noise reduction flag.
      */
     public void setMapping(Family family, double k, boolean noiseReduction) {
+        if (k <= 0) {
+            throw new IllegalArgumentException("Unsupported curve coefficient: '"
+                    + k + "'");
+        }
         defineMapper(family);
         this.family = family;
+        String value = family.getValue();
+        if (value.equals(Family.VALUE_LINEAR)) {
+            //Make sure that for linear the coefficient is always set to 1
+            k = 1.0;
+        }
         curveCoefficient = k;
         this.noiseReduction = noiseReduction;
     }
