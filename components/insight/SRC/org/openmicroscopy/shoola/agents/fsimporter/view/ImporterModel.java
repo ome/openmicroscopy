@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
+import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 
@@ -365,7 +366,6 @@ class ImporterModel
 	void importCompleted(int loaderID)
 	{
 		state = Importer.READY;
-		loaders.remove(loaderID);
 	}
 	
 	/**
@@ -523,10 +523,37 @@ class ImporterModel
 	            ctx.sudo();
 	        }
         }
-		ImportResultLoader loader = new ImportResultLoader(this.component, ctx,
-				pixels, type, component);
-		loader.load();
+
+        if (requestThumbnails(component)) {
+            ImportResultLoader loader = new ImportResultLoader(this.component,
+                    ctx, pixels, type, component);
+            loader.load();
+        }
 	}
+	
+    /**
+     * Checks of the thumbnails should be requested after the import has
+     * finished.
+     * 
+     * @param component
+     *            The FileImportComponent
+     * @return <code>true</code> if the they should be requested.
+     */
+    boolean requestThumbnails(Object component) {
+        if (component instanceof FileImportComponentI) {
+            ImportableFile impf = ((FileImportComponentI) component)
+                    .getImportableFile();
+            for (ImagesImporter imp : loaders.values()) {
+                ImportableObject io = imp.getImportableObject();
+                for (ImportableFile f : io.getFiles()) {
+                    if (impf.getFile().getName().equals(f.getFile().getName())
+                            && io.skipThumbnails())
+                        return false;
+                }
+            }
+        }
+        return true;
+    }
 	
     /**
      * Returns the id of the user to import data for.

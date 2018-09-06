@@ -80,6 +80,15 @@ public class ImagesImporter
 		this.context = context;
 		this.loaderID = loaderID;
 	}
+	
+    /**
+     * Get the ImportableObject corresponding to this ImagesImporter
+     * 
+     * @return See above.
+     */
+    public ImportableObject getImportableObject() {
+        return context;
+    }
 
 	/** 
 	 * Starts the import.
