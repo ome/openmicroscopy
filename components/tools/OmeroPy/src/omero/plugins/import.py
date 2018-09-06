@@ -450,15 +450,11 @@ class ImportControl(BaseControl):
             "--checksum-algorithm", nargs="?", metavar="TYPE",
             help="Alternative hashing mechanisms balancing speed & accuracy")
         add_advjava_argument(
-            "--no-stats-info", action="store_true",
-            help="Disable calculation of minima and maxima when as part of the"
-            " Bio-Formats reader metadata")
+            "--no-stats-info", action="store_true", help=SUPPRESS)
         add_advjava_argument(
-            "--no-thumbnails", action="store_true",
-            help="Do not perform thumbnailing after import")
+            "--no-thumbnails", action="store_true", help=SUPPRESS)
         add_advjava_argument(
-            "--no-upgrade-check", action="store_true",
-            help="Disable upgrade check for each import")
+            "--no-upgrade-check", action="store_true", help=SUPPRESS)
         add_advjava_argument(
             "--parallel-upload", metavar="COUNT",
             help="Number of file upload threads to run at the same time")
