@@ -365,3 +365,22 @@ class TestImport(object):
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
         assert o == '"--name=no-op" "1.fake"\n'
+
+    def testBulkJavaArgs(self):
+        """Test Java arguments"""
+        t = path(__file__).parent / "bulk_import" / "test_javaargs"
+        b = t / "bulk.yml"
+
+        class MockImportControl(ImportControl):
+            def do_import(self, command_args, xargs):
+                assert ("--checksum-algorithm=File-Size-64" in
+                        command_args.java_args())
+                assert "--parallel-upload=10" in command_args.java_args()
+                assert "--parallel-fileset=5" in command_args.java_args()
+                assert "--transfer=ln_s" in command_args.java_args()
+                assert "--exclude=clientpath" in command_args.java_args()
+        self.cli.register("mock-import", MockImportControl, "HELP")
+
+        self.args = ["mock-import", "-f", "---bulk=%s" % b]
+        self.add_client_dir()
+        self.cli.invoke(self.args, strict=True)
