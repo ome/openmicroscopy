@@ -229,7 +229,7 @@ public class ThumbnailLoader extends BatchCallTree {
                         } catch (ApiUsageException ex) {
                             // Can't get the thumbnail and/or service
                             Image thumbnail = Factory
-                                    .createDefaultThumbnail("");
+                                    .createDefaultThumbnail("Can't render");
                             currentThumbnail = new ThumbnailData(pxd.getImage()
                                     .getId(), thumbnail, userId, true);
                             LogMessage msg = new LogMessage(
@@ -258,10 +258,12 @@ public class ThumbnailLoader extends BatchCallTree {
         return configService;
     }
 
-    private void handleBatchCall(ThumbnailStorePrx store, PixelsData pxd, long userId) {
-        // If image has pyramids, check to see if image is ready for loading as a thumbnail.
+    private void handleBatchCall(ThumbnailStorePrx store, PixelsData pxd,
+            long userId) {
+        // If image has pyramids, check to see if image is ready for loading as
+        // a thumbnail.
+        Image thumbnail = null;
         try {
-            Image thumbnail;
             byte[] thumbnailData = loadThumbnail(store, pxd, userId);
             if (thumbnailData == null || thumbnailData.length == 0) {
                 // Find out why the thumbnail is not ready on the server
@@ -272,14 +274,15 @@ public class ThumbnailLoader extends BatchCallTree {
                 }
             } else {
                 thumbnail = WriterImage.bytesToImage(thumbnailData);
-                if (thumbnail == null) 
-                    thumbnail = Factory.createDefaultThumbnail("Error");
             }
+        } catch (Exception e) {
+            context.getLogger().error(this, e.getMessage());
+        } finally {
+            if (thumbnail == null)
+                thumbnail = Factory.createDefaultThumbnail("Can't render");
             // Convert thumbnail to whatever
             currentThumbnail = new ThumbnailData(pxd.getImage().getId(),
                     thumbnail, userId, true);
-        } catch (Exception e) {
-            context.getLogger().error(this, e.getMessage());
         }
     }
 
