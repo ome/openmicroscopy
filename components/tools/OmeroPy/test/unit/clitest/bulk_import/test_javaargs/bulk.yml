@@ -1,7 +1,7 @@
 ---
 checksum_algorithm: "File-Size-64"
 parallel_upload: "10"
-parallel_fileset: "10"
+parallel_fileset: "5"
 transfer: "ln_s"
 exclude: "clientpath"
 path: bulk.tsv
