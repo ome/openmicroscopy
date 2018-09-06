@@ -180,7 +180,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			"Import the selected files or directories";
 
 	/** Text for metadata pane */
-	private static final String TEXT_FILE_NAMING = "File Naming";
+	private static final String TEXT_FILE_NAMING = "File Naming & Tags";
 
 	/** Text for metadata pane title */
 	private static final String TEXT_SKIP_COMPUTE_TITLE = "Import Speedup";
