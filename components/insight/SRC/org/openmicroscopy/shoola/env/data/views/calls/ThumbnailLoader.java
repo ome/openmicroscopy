@@ -272,6 +272,8 @@ public class ThumbnailLoader extends BatchCallTree {
                 }
             } else {
                 thumbnail = WriterImage.bytesToImage(thumbnailData);
+                if (thumbnail == null) 
+                    thumbnail = Factory.createDefaultThumbnail("Error");
             }
             // Convert thumbnail to whatever
             currentThumbnail = new ThumbnailData(pxd.getImage().getId(),
