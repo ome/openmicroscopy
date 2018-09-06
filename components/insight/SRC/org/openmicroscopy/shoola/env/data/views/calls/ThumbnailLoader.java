@@ -22,6 +22,7 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 import ome.conditions.ResourceError;
+import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IConfigPrx;
 import omero.api.RawPixelsStorePrx;
@@ -33,6 +34,7 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PixelsData;
 import omero.log.LogMessage;
+
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -220,13 +222,24 @@ public class ThumbnailLoader extends BatchCallTree {
                 BatchCall call = new BatchCall("Loading thumbnails") {
                     @Override
                     public void doCall() throws Exception {
-                        ThumbnailStorePrx store = getThumbnailStore(pxd);
+                        ThumbnailStorePrx store = null;
                         try {
+                            store = getThumbnailStore(pxd);
                             handleBatchCall(store, pxd, userId);
+                        } catch (ApiUsageException ex) {
+                            // Can't get the thumbnail and/or service
+                            Image thumbnail = Factory
+                                    .createDefaultThumbnail("");
+                            currentThumbnail = new ThumbnailData(pxd.getImage()
+                                    .getId(), thumbnail, userId, true);
+                            LogMessage msg = new LogMessage(
+                                    "Couldn't initialize the ThumbnailStore for pixels id "
+                                            + pxd.getId(), ex);
+                            context.getLogger().warn(this, msg);
                         } finally {
-                            if (last) {
-                                context.getDataService()
-                                        .closeService(ctx, store);
+                            if (last && store != null) {
+                                context.getDataService().closeService(ctx,
+                                        store);
                             }
                         }
                     }
@@ -295,7 +308,6 @@ public class ThumbnailLoader extends BatchCallTree {
 
     private ThumbnailStorePrx getThumbnailStore(PixelsData pxd) throws DSAccessException,
             DSOutOfServiceException, ServerError {
-        // System.out.println(image.getId());
         ThumbnailStorePrx store = service.createThumbnailStore(ctx);
         if (!store.setPixelsId(pxd.getId())) {
             store.resetDefaults();
