@@ -55,12 +55,15 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class Status implements IObserver {
 
+    /** Bound property indicating that the file was marked as cancelled **/
+    public static final String CANCELLED_PROPERTY = "markedAsCancelled";
+
     /** Bound property indicating that the file was marked as duplicate **/
     public static final String DUPLICATE_PROPERTY = "markedAsDuplicate";
-    
+
     /** Pass through of IObserver events **/
     public static final String IMPORT_EVENT = "importEvenPassThrough";
-    
+
     /**
      * Bound property indicating that the original container has been reset.
      * */
@@ -104,9 +107,6 @@ public class Status implements IObserver {
     
     /** Bound property indicating that the current import step has changed. */
     public static final String STEP_PROPERTY = "step";
-
-    /** The default text of the component. */
-    public static final String DEFAULT_TEXT = "Pending...";
 
     /**
      * The number of processing sets. 1. Importing Metadata 2. Processing Pixels
@@ -343,6 +343,7 @@ public class Status implements IObserver {
     /** Marks the import as cancelled. */
     public void markedAsCancel() {
         this.markedAsCancel = true;
+        firePropertyChange(CANCELLED_PROPERTY, null, CANCELLED_PROPERTY);
     }
 
     /**
