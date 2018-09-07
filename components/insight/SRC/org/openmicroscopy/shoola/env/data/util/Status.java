@@ -55,12 +55,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class Status implements IObserver {
 
-    /** The text displayed when the file is already selected. */
-    public static final String DUPLICATE = "Already processed, skipping";
-
-    /** The text indicating the scanning steps. */
-    public static final String SCANNING_TEXT = "Scanning...";
-
+    /** Bound property indicating that the file was marked as duplicate **/
+    public static final String DUPLICATE_PROPERTY = "markedAsDuplicate";
+    
     /** Pass through of IObserver events **/
     public static final String IMPORT_EVENT = "importEvenPassThrough";
     
@@ -361,6 +358,7 @@ public class Status implements IObserver {
     /** Marks the import as duplicate. */
     public void markedAsDuplicate() {
         this.markedAsDuplicate = true;
+        firePropertyChange(DUPLICATE_PROPERTY, null, DUPLICATE_PROPERTY);
     }
 
     /**

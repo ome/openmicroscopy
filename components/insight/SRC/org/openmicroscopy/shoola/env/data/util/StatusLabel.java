@@ -60,6 +60,12 @@ public class StatusLabel extends JPanel implements PropertyChangeListener {
 
     /** The default text of the component. */
     public static final String DEFAULT_TEXT = "Pending...";
+    
+    /** The text displayed when the file is already selected. */
+    public static final String DUPLICATE = "Already processed, skipping";
+
+    /** The text indicating the scanning steps. */
+    public static final String SCANNING_TEXT = "Scanning...";
 
     /** The width of the upload bar. */
     private static final int WIDTH = 200;
@@ -165,7 +171,7 @@ public class StatusLabel extends JPanel implements PropertyChangeListener {
             ImportEvent event = (ImportEvent) pe.getNewValue();
             if (event instanceof ImportCandidates.SCANNING) {
                 if (!status.isMarkedAsCancel() && exception == null)
-                    generalLabel.setText(Status.SCANNING_TEXT);
+                    generalLabel.setText(SCANNING_TEXT);
             } else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
                 exception = new ImportException(
                         ImportException.MISSING_LIBRARY_TEXT,
@@ -218,6 +224,8 @@ public class StatusLabel extends JPanel implements PropertyChangeListener {
             
             processingBar.setValue(status.getStep());
             processingBar.setString(Status.STEPS.get(status.getStep()));
+        } else if(pe.getPropertyName().equals(Status.DUPLICATE_PROPERTY)) {
+            generalLabel.setText(DUPLICATE);
         }
 
     }
