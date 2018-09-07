@@ -347,22 +347,6 @@ class ImporterControl
 	 */
 	boolean isMaster() { return view.isMaster(); }
 
-    /**
-     * Disable the Cancel All button if there are no cancellable imports.
-     */
-    private void checkDisableCancelAllButtons() {
-        final ImporterAction cancelAction = actionsMap.get(CANCEL_BUTTON);
-        if (!cancelAction.isEnabled()) {
-            return;
-        }
-        for (final ImporterUIElement importerUIElement : view.getImportElements()) {
-        	if (importerUIElement.hasImportToCancel()) {
-                return;
-            }
-        }
-        cancelAction.setEnabled(false);
-	}
-
         /**
          * Reacts to property changes.
          * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -414,9 +398,6 @@ class ImporterControl
             } else if (ImportDialog.PROPERTY_GROUP_CHANGED.equals(name)) {
                     GroupData newGroup = (GroupData) evt.getNewValue();
                     model.setUserGroup(newGroup);
-            } else if (Status.FILE_IMPORT_STARTED_PROPERTY.equals(name) ||
-                    FileImportComponentI.CANCEL_IMPORT_PROPERTY.equals(name)) {
-                checkDisableCancelAllButtons();
             } else if (Status.IMPORT_DONE_PROPERTY.equals(name)) {
                     model.onImportComplete((FileImportComponentI) evt.getNewValue());
             } else if (Status.UPLOAD_DONE_PROPERTY.equals(name)) {

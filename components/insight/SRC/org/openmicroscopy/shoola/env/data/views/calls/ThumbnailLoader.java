@@ -22,6 +22,7 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 import ome.conditions.ResourceError;
+import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IConfigPrx;
 import omero.api.RawPixelsStorePrx;
@@ -33,6 +34,7 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PixelsData;
 import omero.log.LogMessage;
+
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -119,6 +121,21 @@ public class ThumbnailLoader extends BatchCallTree {
      */
     private boolean asImage = false;
 
+    /**
+     * Error conditions if a thumbnail couldn't be retrieved.
+     */
+    enum Error {
+        CORRUPT_PYRAMID(1),
+        NO_THUMBNAILSTORE(2),
+        CORRUPT_THUMBNAIL(3),
+        UNSPECIFIED(4);
+
+        private int code = -1;
+
+        Error(int code) {
+            this.code = code;
+        }
+    }
 
     /**
      * Creates a new instance.
@@ -220,13 +237,28 @@ public class ThumbnailLoader extends BatchCallTree {
                 BatchCall call = new BatchCall("Loading thumbnails") {
                     @Override
                     public void doCall() throws Exception {
-                        ThumbnailStorePrx store = getThumbnailStore(pxd);
+                        ThumbnailStorePrx store = null;
                         try {
+                            store = getThumbnailStore(pxd);
                             handleBatchCall(store, pxd, userId);
+                        } catch (DSOutOfServiceException e) {
+                            // connection issue, rethrow, triggers Insight to reconnect
+                            throw e;
+                        }
+                        catch (Throwable e) {
+                            // Can't get access to thumbnail store
+                            Image thumbnail = Factory
+                                    .createDefaultThumbnail("Can't render\n[Error "+Error.NO_THUMBNAILSTORE.code+"]");
+                            currentThumbnail = new ThumbnailData(pxd.getImage()
+                                    .getId(), thumbnail, userId, true);
+                            LogMessage msg = new LogMessage(
+                                    "Couldn't initialize the ThumbnailStore for pixels id "
+                                            + pxd.getId(), e);
+                            context.getLogger().warn(this, msg);
                         } finally {
-                            if (last) {
-                                context.getDataService()
-                                        .closeService(ctx, store);
+                            if (last && store != null) {
+                                context.getDataService().closeService(ctx,
+                                        store);
                             }
                         }
                     }
@@ -245,10 +277,13 @@ public class ThumbnailLoader extends BatchCallTree {
         return configService;
     }
 
-    private void handleBatchCall(ThumbnailStorePrx store, PixelsData pxd, long userId) {
-        // If image has pyramids, check to see if image is ready for loading as a thumbnail.
+    private void handleBatchCall(ThumbnailStorePrx store, PixelsData pxd,
+            long userId) {
+        // If image has pyramids, check to see if image is ready for loading as
+        // a thumbnail.
+        Image thumbnail = null;
+        Error error = Error.UNSPECIFIED;
         try {
-            Image thumbnail;
             byte[] thumbnailData = loadThumbnail(store, pxd, userId);
             if (thumbnailData == null || thumbnailData.length == 0) {
                 // Find out why the thumbnail is not ready on the server
@@ -259,12 +294,18 @@ public class ThumbnailLoader extends BatchCallTree {
                 }
             } else {
                 thumbnail = WriterImage.bytesToImage(thumbnailData);
+                if (thumbnail == null)
+                    error = Error.CORRUPT_THUMBNAIL;
+            }
+        } catch (Exception e) {
+            context.getLogger().error(this, e.getMessage());
+        } finally {
+            if (thumbnail == null) {
+                thumbnail = Factory.createDefaultThumbnail("Can't render\n[Error "+error.code+"]");
             }
             // Convert thumbnail to whatever
             currentThumbnail = new ThumbnailData(pxd.getImage().getId(),
                     thumbnail, userId, true);
-        } catch (Exception e) {
-            context.getLogger().error(this, e.getMessage());
         }
     }
 
@@ -290,12 +331,11 @@ public class ThumbnailLoader extends BatchCallTree {
             context.getLogger().error(this, new LogMessage("Error getting pyramid from server," +
                     " it might be corrupt", e));
         }
-        return Factory.createDefaultThumbnail("Error");
+        return Factory.createDefaultThumbnail("Can't render\n[Error "+Error.CORRUPT_PYRAMID.code+"]");
     }
 
     private ThumbnailStorePrx getThumbnailStore(PixelsData pxd) throws DSAccessException,
             DSOutOfServiceException, ServerError {
-        // System.out.println(image.getId());
         ThumbnailStorePrx store = service.createThumbnailStore(ctx);
         if (!store.setPixelsId(pxd.getId())) {
             store.resetDefaults();

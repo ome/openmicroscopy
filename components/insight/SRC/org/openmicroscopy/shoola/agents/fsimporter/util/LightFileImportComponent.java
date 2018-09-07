@@ -1042,7 +1042,10 @@ public class LightFileImportComponent implements PropertyChangeListener,
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String name = evt.getPropertyName();
-        if (Status.FILES_SET_PROPERTY.equals(name)) {
+        if (Status.SCANNING_PROPERTY.equals(name)) {
+            firePropertyChange(Status.SCANNING_PROPERTY, evt.getOldValue(), evt.getNewValue());
+        }
+        else if (Status.FILES_SET_PROPERTY.equals(name)) {
             if (isCancelled()) {
                 return;
             }

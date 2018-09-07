@@ -262,7 +262,10 @@ public class Factory
 			int yTxt = sizeY/2-fontMetrics.getHeight();
 			g.setColor(Color.WHITE);
 			g.setFont(g.getFont().deriveFont(Font.BOLD));
-			g.drawString(text, xTxt, yTxt);
+			for (String line : text.split("\n")) {
+			    g.drawString(line, xTxt, yTxt);
+			    yTxt += g.getFontMetrics().getHeight();
+			}
 			g.dispose();
 		}
 		return thumbPix;

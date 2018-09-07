@@ -72,8 +72,8 @@ class ImporterUIElementLight extends ImporterUIElement {
     private JLabel cancelled = new JLabel("0");
     private JLabel cancelledLabel = new JLabel("Cancelled:");
     
-    private boolean isScanning = true;
-    
+    private Boolean isScanning = null;
+
     @Override
     FileImportComponentI buildComponent(ImportableFile importable,
             boolean browsable, boolean singleGroup, int index,
@@ -111,7 +111,7 @@ class ImporterUIElementLight extends ImporterUIElement {
     private void buildGUI() {
         
         // init
-        scanningBusy.setBusy(true);
+        scanningBusy.setBusy(false);
         
         upload.setBorderPainted(true);
         upload.setMinimum(0);
@@ -219,10 +219,16 @@ class ImporterUIElementLight extends ImporterUIElement {
                 complete = c;
         }
 
-        if (!isScanning) {
-            scanningBusy.setBusy(false);
-            scanningBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY));
+        if (isScanning != null) {
+            if (isScanning) {
+                scanningBusy.setBusy(true);
+            }
+            else {
+                scanningBusy.setBusy(false);
+                scanningBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY));
+            }
         }
+        
         
         int cancelled = super.cancelled();
         
@@ -284,9 +290,12 @@ class ImporterUIElementLight extends ImporterUIElement {
             int id = Integer.parseInt(tmp[0]);
             int step = Integer.parseInt(tmp[1]);
             importStatus.put(id, step);
-            
-            if (isScanning)
+            if (isScanning != null && isScanning)
                 isScanning = false;
+        }
+        else if (Status.SCANNING_PROPERTY.equals(name)) {
+            if (isScanning == null)
+                isScanning = true;
         }
         
         SwingUtilities.invokeLater(new Runnable() {
