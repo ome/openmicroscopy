@@ -114,7 +114,7 @@ class CommandArguments(object):
             "JAVA_DEBUG", "quiet", "server", "depth", "clientdir",
             "sudo")
         self.set_login_arguments(ctx, args)
-        self.set_skip_arguments(args)
+        self.set_skip_arguments(args.skip)
 
         for key in vars(args):
             self.__accepts.add(key)
@@ -236,18 +236,18 @@ class CommandArguments(object):
             self.__java_initial.extend(["-p", port])
             self.__java_initial.extend(["-k", session])
 
-    def set_skip_arguments(self, args):
+    def set_skip_arguments(self, value):
         """Set the arguments to skip steps during import"""
-        if not args.skip:
+        if not value:
             return
 
-        if ('all' in args.skip or 'checksum' in args.skip):
+        if ('all' in value or 'checksum' in value):
             self.__java_initial.append("--checksum-algorithm=File-Size-64")
-        if ('all' in args.skip or 'thumbnails' in args.skip):
+        if ('all' in value or 'thumbnails' in value):
             self.__java_initial.append("--no-thumbnails")
-        if ('all' in args.skip or 'minmax' in args.skip):
+        if ('all' in value or 'minmax' in value):
             self.__java_initial.append("--no-stats-info")
-        if ('all' in args.skip or 'upgrade' in args.skip):
+        if ('all' in value or 'upgrade' in value):
             self.__java_initial.append("--no-upgrade-check")
 
     def open_files(self):
@@ -606,6 +606,9 @@ class ImportControl(BaseControl):
             c = bulk.pop("continue")
             if bool(c):
                 command_args.add("c")
+
+        if "skip" in bulk:
+            command_args.set_skip_arguments(bulk.pop("skip"))
 
         if "path" not in bulk:
             # Required until @file format is implemented
