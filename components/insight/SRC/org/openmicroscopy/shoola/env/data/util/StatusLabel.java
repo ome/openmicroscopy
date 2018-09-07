@@ -68,7 +68,7 @@ public class StatusLabel extends JPanel implements PropertyChangeListener {
     public static final String SCANNING_TEXT = "Scanning...";
 
     /** The text indicating the scanning steps. */
-    public static final String CANCELLED_TEXT = "Cancelled...";
+    public static final String CANCELLED_TEXT = "Cancelled";
 
     /** The width of the upload bar. */
     private static final int WIDTH = 200;
