@@ -546,7 +546,7 @@ class ImporterModel
             for (ImagesImporter imp : loaders.values()) {
                 ImportableObject io = imp.getImportableObject();
                 for (ImportableFile f : io.getFiles()) {
-                    if (impf.getFile().getName().equals(f.getFile().getName())
+                    if (impf.toString().equals(f.toString())
                             && io.skipThumbnails())
                         return false;
                 }
