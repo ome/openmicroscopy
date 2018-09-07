@@ -121,6 +121,21 @@ public class ThumbnailLoader extends BatchCallTree {
      */
     private boolean asImage = false;
 
+    /**
+     * Error conditions if a thumbnail couldn't be retrieved.
+     */
+    enum Error {
+        CORRUPT_PYRAMID(1),
+        NO_THUMBNAILSTORE(2),
+        CORRUPT_THUMBNAIL(3),
+        UNSPECIFIED(4);
+
+        private int code = -1;
+
+        Error(int code) {
+            this.code = code;
+        }
+    }
 
     /**
      * Creates a new instance.
@@ -226,15 +241,19 @@ public class ThumbnailLoader extends BatchCallTree {
                         try {
                             store = getThumbnailStore(pxd);
                             handleBatchCall(store, pxd, userId);
-                        } catch (ApiUsageException ex) {
-                            // Can't get the thumbnail and/or service
+                        } catch (DSOutOfServiceException e) {
+                            // connection issue, rethrow, triggers Insight to reconnect
+                            throw e;
+                        }
+                        catch (Throwable e) {
+                            // Can't get access to thumbnail store
                             Image thumbnail = Factory
-                                    .createDefaultThumbnail("Can't render");
+                                    .createDefaultThumbnail("Can't render\n[Error "+Error.NO_THUMBNAILSTORE.code+"]");
                             currentThumbnail = new ThumbnailData(pxd.getImage()
                                     .getId(), thumbnail, userId, true);
                             LogMessage msg = new LogMessage(
                                     "Couldn't initialize the ThumbnailStore for pixels id "
-                                            + pxd.getId(), ex);
+                                            + pxd.getId(), e);
                             context.getLogger().warn(this, msg);
                         } finally {
                             if (last && store != null) {
@@ -263,6 +282,7 @@ public class ThumbnailLoader extends BatchCallTree {
         // If image has pyramids, check to see if image is ready for loading as
         // a thumbnail.
         Image thumbnail = null;
+        Error error = Error.UNSPECIFIED;
         try {
             byte[] thumbnailData = loadThumbnail(store, pxd, userId);
             if (thumbnailData == null || thumbnailData.length == 0) {
@@ -274,12 +294,15 @@ public class ThumbnailLoader extends BatchCallTree {
                 }
             } else {
                 thumbnail = WriterImage.bytesToImage(thumbnailData);
+                if (thumbnail == null)
+                    error = Error.CORRUPT_THUMBNAIL;
             }
         } catch (Exception e) {
             context.getLogger().error(this, e.getMessage());
         } finally {
-            if (thumbnail == null)
-                thumbnail = Factory.createDefaultThumbnail("Can't render");
+            if (thumbnail == null) {
+                thumbnail = Factory.createDefaultThumbnail("Can't render\n[Error "+error.code+"]");
+            }
             // Convert thumbnail to whatever
             currentThumbnail = new ThumbnailData(pxd.getImage().getId(),
                     thumbnail, userId, true);
@@ -308,7 +331,7 @@ public class ThumbnailLoader extends BatchCallTree {
             context.getLogger().error(this, new LogMessage("Error getting pyramid from server," +
                     " it might be corrupt", e));
         }
-        return Factory.createDefaultThumbnail("Error");
+        return Factory.createDefaultThumbnail("Can't render\n[Error "+Error.CORRUPT_PYRAMID.code+"]");
     }
 
     private ThumbnailStorePrx getThumbnailStore(PixelsData pxd) throws DSAccessException,
