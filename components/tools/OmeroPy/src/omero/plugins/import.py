@@ -242,7 +242,6 @@ class CommandArguments(object):
             return
         self.set_skip_values(args.skip)
 
-
     def set_skip_values(self, skip):
         """Set the arguments to skip steps during import"""
 
