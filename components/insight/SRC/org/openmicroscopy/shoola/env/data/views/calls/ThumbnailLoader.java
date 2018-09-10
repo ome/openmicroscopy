@@ -380,8 +380,8 @@ public class ThumbnailLoader extends BatchCallTree {
     }
 
     /**
-     * Returns whether a pyramid should be used for the given {@link PixelsData}.
-     * This usually implies that this is a "Big image" and therefore will need
+     * Returns whether a pyramid should be used for the given {@link PixelsData}
+     * . This usually implies that this is a "Big image" and therefore will need
      * tiling.
      *
      * @param pxd
@@ -389,10 +389,12 @@ public class ThumbnailLoader extends BatchCallTree {
      */
     private boolean requiresPixelsPyramid(PixelsData pxd) throws ServerError,
             DSOutOfServiceException {
-        int maxWidth = context.lookup(LookupNames.MAX_PLANE_WIDTH) != null ? (Integer) context
-                .lookup(LookupNames.MAX_PLANE_WIDTH) : 3192;
-        int maxHeight = context.lookup(LookupNames.MAX_PLANE_HEIGHT) != null ? (Integer) context
-                .lookup(LookupNames.MAX_PLANE_HEIGHT) : 3192;
+        int maxWidth = context.lookup(LookupNames.MAX_PLANE_WIDTH) != null ? Integer
+                .parseInt((String) context.lookup(LookupNames.MAX_PLANE_WIDTH))
+                : 3192;
+        int maxHeight = context.lookup(LookupNames.MAX_PLANE_HEIGHT) != null ? Integer
+                .parseInt((String) context.lookup(LookupNames.MAX_PLANE_HEIGHT))
+                : 3192;
         return pxd.getSizeX() * pxd.getSizeY() > maxWidth * maxHeight;
     }
 
