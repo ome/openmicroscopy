@@ -240,14 +240,18 @@ class CommandArguments(object):
         """Set the arguments to skip steps during import"""
         if not args.skip:
             return
+        self.set_skip_values(args.skip)
 
-        if ('all' in args.skip or 'checksum' in args.skip):
+    def set_skip_values(self, skip):
+        """Set the arguments to skip steps during import"""
+
+        if ('all' in skip or 'checksum' in skip):
             self.__java_initial.append("--checksum-algorithm=File-Size-64")
-        if ('all' in args.skip or 'thumbnails' in args.skip):
+        if ('all' in skip or 'thumbnails' in skip):
             self.__java_initial.append("--no-thumbnails")
-        if ('all' in args.skip or 'minmax' in args.skip):
+        if ('all' in skip or 'minmax' in skip):
             self.__java_initial.append("--no-stats-info")
-        if ('all' in args.skip or 'upgrade' in args.skip):
+        if ('all' in skip or 'upgrade' in skip):
             self.__java_initial.append("--no-upgrade-check")
 
     def open_files(self):
@@ -606,6 +610,9 @@ class ImportControl(BaseControl):
             c = bulk.pop("continue")
             if bool(c):
                 command_args.add("c")
+
+        if "skip" in bulk:
+            command_args.set_skip_values(bulk.pop("skip"))
 
         if "path" not in bulk:
             # Required until @file format is implemented

@@ -416,3 +416,29 @@ class TestImport(object):
         self.args = ["mock-import", "-f", "---bulk=%s" % b]
         self.add_client_dir()
         self.cli.invoke(self.args, strict=True)
+
+    @pytest.mark.parametrize('skip', plugin.SKIP_CHOICES)
+    def testBulkSkip(self, skip):
+        """Test skip arguments"""
+        t = path(__file__).parent / "bulk_import" / "test_skip"
+        b = t / "%s.yml" % skip
+
+        class MockImportControl(ImportControl):
+            def do_import(self, command_args, xargs):
+                if skip in ["all", "checksum"]:
+                    assert ("--checksum-algorithm=File-Size-64" in
+                            command_args.java_args())
+                if skip in ["all", "minmax"]:
+                    assert ("--no-stats-info" in
+                            command_args.java_args())
+                if skip in ["all", "thumbnails"]:
+                    assert ("--no-thumbnails" in
+                            command_args.java_args())
+                if skip in ["all", "upgrade"]:
+                    assert ("--no-upgrade-check" in
+                            command_args.java_args())
+        self.cli.register("mock-import", MockImportControl, "HELP")
+
+        self.args = ["mock-import", "-f", "---bulk=%s" % b]
+        self.add_client_dir()
+        self.cli.invoke(self.args, strict=True)
