@@ -181,6 +181,38 @@ class TestImport(object):
         assert outputlines[-3] == \
             "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
 
+    @pytest.mark.parametrize('params', (
+        ("-l", "only_fakes.txt", True),
+        ("-l", "no_fakes.txt", False),
+        ("--readers", "only_fakes.txt", True),
+        ("--readers", "no_fakes.txt", False),
+    ))
+    def testImportReaders(self, tmpdir, capfd, params):
+        """Test fake image import"""
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        flag, filename, status = params
+        filename = path(__file__).parent / "readers" / filename
+        self.add_client_dir()
+        self.args += ["-f", flag, filename]
+        self.args += [str(fakefile)]
+
+        if status:
+            self.cli.invoke(self.args, strict=True)
+            o, e = capfd.readouterr()
+            outputlines = str(o).split('\n')
+            reader = 'loci.formats.in.FakeReader'
+            assert outputlines[-2] == str(fakefile)
+            assert outputlines[-3] == \
+                "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
+        else:
+            with pytest.raises(NonZeroReturnCode):
+                self.cli.invoke(self.args, strict=True)
+            o, e = capfd.readouterr()
+            assert "parsed into 0 group" in e
+
     @pytest.mark.parametrize('with_ds_store', (True, False))
     def testImportFakeScreen(self, tmpdir, capfd, with_ds_store):
         """Test fake screen import"""

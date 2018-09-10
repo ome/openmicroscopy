@@ -620,6 +620,9 @@ public class CommandLineImporter {
         LongOpt parallelFileset =
                 new LongOpt("parallel-fileset", LongOpt.REQUIRED_ARGUMENT, null, 28);
 
+        LongOpt readers =
+                new LongOpt("readers", LongOpt.REQUIRED_ARGUMENT, null, 29);
+
         // DEPRECATED OPTIONS
         LongOpt minutesWaitDeprecated =
                 new LongOpt("minutes_wait", LongOpt.REQUIRED_ARGUMENT, null, 86);
@@ -659,6 +662,7 @@ public class CommandLineImporter {
                                 noUpgradeCheck, qaBaseURL,
                                 outputFormat, encryptedConnection,
                                 parallelUpload, parallelFileset,
+                                readers,
                                 plateName, plateName2,
                                 plateDescription, plateDescription2,
                                 noThumbnailsDeprecated,
@@ -928,7 +932,8 @@ public class CommandLineImporter {
                 config.contOnError.set(true);
                 break;
             }
-            case 'l': {
+            case 'l':
+            case 29: {
                 config.readersPath.set(g.getOptarg());
                 break;
             }

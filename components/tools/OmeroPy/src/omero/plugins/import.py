@@ -399,7 +399,7 @@ class ImportControl(BaseControl):
             "-c", action="store_true",
             help="Continue importing after errors (**)")
         add_java_argument(
-            "-l",
+            "-l", "--readers",
             help="Use the list of readers rather than the default (**)",
             metavar="READER_FILE")
         add_java_argument(
