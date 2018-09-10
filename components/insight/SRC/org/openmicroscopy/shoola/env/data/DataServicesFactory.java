@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
 import omero.ServerError;
+import omero.api.IConfigPrx;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -589,6 +590,14 @@ public class DataServicesFactory
 
         // TODO: Can be removed for >= 5.5.0 release
         container.getRegistry().bind(LookupNames.SERVER_5_4_8_OR_LATER, VersionCompare.compare(version, "5.4.8") >= 0);
+        
+        IConfigPrx cs = omeroGateway.getGateway().getConfigService(new SecurityContext(exp.getGroupId()));
+        try {
+            container.getRegistry().bind(LookupNames.MAX_PLANE_WIDTH, cs.getConfigValue("omero.pixeldata.max_plane_width"));
+            container.getRegistry().bind(LookupNames.MAX_PLANE_HEIGHT, cs.getConfigValue("omero.pixeldata.max_plane_height"));
+        } catch (ServerError e2) {
+            registry.getLogger().warn(this, "Could not access ConfigService");
+        }
 
         //Upgrade check only if client and server are compatible
         omeroGateway.isUpgradeRequired(name);
@@ -613,7 +622,7 @@ public class DataServicesFactory
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         registry.bind(LookupNames.IMAGE_QUALITY_LEVEL, 
         		determineImageQuality(uc.getSpeedLevel()));
-        
+
         try {
             // Load the omero client properties from the server
             List agents = (List) registry.lookup(LookupNames.AGENTS);
