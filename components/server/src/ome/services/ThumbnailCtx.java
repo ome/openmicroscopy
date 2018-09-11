@@ -526,6 +526,12 @@ public class ThumbnailCtx
             pixelsIdMetadataLastModifiedTimeMap.get(pixelsId);
         Timestamp settingsLastUpdated =
             pixelsIdSettingsLastModifiedTimeMap.get(pixelsId);
+        
+        if (log.isDebugEnabled())
+        {
+            log.debug("Thumb time: " + metadataLastUpdated);
+            log.debug("Settings time: " + settingsLastUpdated);
+        }
 
         if (metadataLastUpdated == null) {
            return true;
@@ -533,12 +539,6 @@ public class ThumbnailCtx
 
         if (settingsLastUpdated == null) {
             return false;
-        }
-
-        if (log.isDebugEnabled())
-        {
-            log.debug("Thumb time: " + metadataLastUpdated);
-            log.debug("Settings time: " + settingsLastUpdated);
         }
 
         return settingsLastUpdated.after(metadataLastUpdated);
