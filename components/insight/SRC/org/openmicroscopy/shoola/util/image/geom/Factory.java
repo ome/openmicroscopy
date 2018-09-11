@@ -57,6 +57,8 @@ import java.awt.image.ShortLookupTable;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -283,6 +285,22 @@ public class Factory
 		return createDefaultThumbnail(DEFAULT_THUMB, DEFAULT_THUMB,
 				text);
 	}
+
+	/**
+	 * Loads an image from the resources folder
+	 *
+	 * @param resUrl path to image file to load
+	 * @return A BufferedImage if resource found, otherwise null
+	 * @throws IOException if an error occurs during reading
+	 */
+	public static BufferedImage createThumbnailFromRes(String resUrl) throws IOException {
+		URL url = Factory.class.getClassLoader().getResource(resUrl);
+		if (url != null) {
+			return ImageIO.read(url);
+		}
+		return null;
+	}
+
 
 	/**
 	 * Creates a default thumbnail whose width is {@link #DEFAULT_THUMB}
