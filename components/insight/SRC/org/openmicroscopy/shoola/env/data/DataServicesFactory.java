@@ -593,8 +593,10 @@ public class DataServicesFactory
         
         IConfigPrx cs = omeroGateway.getGateway().getConfigService(new SecurityContext(exp.getGroupId()));
         try {
-            container.getRegistry().bind(LookupNames.MAX_PLANE_WIDTH, cs.getConfigValue("omero.pixeldata.max_plane_width"));
-            container.getRegistry().bind(LookupNames.MAX_PLANE_HEIGHT, cs.getConfigValue("omero.pixeldata.max_plane_height"));
+            String val = cs.getConfigValue("omero.pixeldata.max_plane_width");
+            container.getRegistry().bind(LookupNames.MAX_PLANE_WIDTH, val != null ? Integer.parseInt(val) : 3192);
+            val = cs.getConfigValue("omero.pixeldata.max_plane_height");
+            container.getRegistry().bind(LookupNames.MAX_PLANE_HEIGHT, val != null ? Integer.parseInt(val) : 3192);
         } catch (ServerError e2) {
             registry.getLogger().warn(this, "Could not access ConfigService");
         }
