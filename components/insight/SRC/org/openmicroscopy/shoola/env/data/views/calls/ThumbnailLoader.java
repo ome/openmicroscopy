@@ -43,10 +43,10 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.EncoderException;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 
 import java.awt.Dimension;
 import java.awt.Image;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -223,7 +223,7 @@ public class ThumbnailLoader extends BatchCallTree {
                             store = getThumbnailStore(pxd);
                             handleBatchCall(store, pxd, userId);
                         } catch (DSAccessException e) {
-                            currentThumbnail = Factory.createThumbnailFromRes("icons/error_black_96px.png");
+                            currentThumbnail = getErrorIcon();
                             LogMessage msg = new LogMessage(
                                     "Couldn't initialize the ThumbnailStore for pixels id "
                                             + pxd.getId(), e);
@@ -250,7 +250,7 @@ public class ThumbnailLoader extends BatchCallTree {
     }
 
     private void handleBatchCall(ThumbnailStorePrx store, PixelsData pxd, long userId) throws DSOutOfServiceException,
-            DSAccessException, IOException {
+            DSAccessException {
         Image thumbnail = null;
         try {
             byte[] thumbnailData = loadThumbnail(store, pxd, userId);
@@ -259,7 +259,7 @@ public class ThumbnailLoader extends BatchCallTree {
                 if (requiresPixelsPyramid(pxd)) {
                     thumbnail = determineThumbnailState(pxd);
                 } else {
-                    thumbnail = Factory.createThumbnailFromRes("icons/loading_timer_black_96px.png");
+                    thumbnail = getLoadingIcon();
                 }
             } else {
                 thumbnail = WriterImage.bytesToImage(thumbnailData);
@@ -274,7 +274,7 @@ public class ThumbnailLoader extends BatchCallTree {
         }
 
         if (thumbnail == null) {
-            thumbnail = Factory.createThumbnailFromRes("icons/error_black_96px.png");
+            thumbnail = getErrorIcon();
         }
 
         // Convert thumbnail to whatever
@@ -289,7 +289,7 @@ public class ThumbnailLoader extends BatchCallTree {
     }
 
     private Image determineThumbnailState(PixelsData pxd)
-            throws DSOutOfServiceException, ServerError, IOException {
+            throws DSOutOfServiceException, ServerError {
         RawPixelsStorePrx rawPixelStore = context.getGateway()
                 .getPixelsStore(ctx);
         try {
@@ -299,12 +299,12 @@ public class ThumbnailLoader extends BatchCallTree {
         } catch (MissingPyramidException e) {
             // Thrown if pyramid file is missing, then we know the thumbnail still has
             // to be generated in a short time
-            return Factory.createThumbnailFromRes("icons/loading_timer_black_96px.png");
+            return getLoadingIcon();
         } catch (ResourceError e) {
             context.getLogger().error(this, new LogMessage("Error getting pyramid from server," +
                     " it might be corrupt", e));
         }
-        return Factory.createThumbnailFromRes("icons/error_black_96px.png");
+        return getErrorIcon();
     }
 
     private ThumbnailStorePrx getThumbnailStore(PixelsData pxd) throws DSAccessException,
@@ -370,6 +370,18 @@ public class ThumbnailLoader extends BatchCallTree {
         int maxWidth = (Integer) context.lookup(LookupNames.MAX_PLANE_WIDTH);
         int maxHeight = (Integer) context.lookup(LookupNames.MAX_PLANE_HEIGHT);
         return pxd.getSizeX() * pxd.getSizeY() > maxWidth * maxHeight;
+    }
+
+    private Image getLoadingIcon() {
+        return IconManager.getInstance()
+                .getImageIcon(IconManager.THUMBNAIL_LOADING_TIMER_BLACK)
+                .getImage();
+    }
+
+    private Image getErrorIcon() {
+        return IconManager.getInstance()
+                .getImageIcon(IconManager.THUMBNAIL_ERROR_BLACK)
+                .getImage();
     }
 
 }

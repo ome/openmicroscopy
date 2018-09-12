@@ -287,22 +287,6 @@ public class Factory
 	}
 
 	/**
-	 * Loads an image from the resources folder
-	 *
-	 * @param resUrl path to image file to load
-	 * @return A BufferedImage if resource found, otherwise null
-	 * @throws IOException if an error occurs during reading
-	 */
-	public static BufferedImage createThumbnailFromRes(String resUrl) throws IOException {
-		URL url = Factory.class.getClassLoader().getResource(resUrl);
-		if (url != null) {
-			return ImageIO.read(url);
-		}
-		return null;
-	}
-
-
-	/**
 	 * Creates a default thumbnail whose width is {@link #DEFAULT_THUMB}
 	 * and height is {@link #DEFAULT_THUMB} and default message
 	 * {@link #LOADING_TEXT}.
