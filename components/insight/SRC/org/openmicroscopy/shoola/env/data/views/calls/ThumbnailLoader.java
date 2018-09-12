@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 import ome.conditions.ResourceError;
 import omero.MissingPyramidException;
 import omero.ServerError;
-import omero.api.IConfigPrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.gateway.SecurityContext;
@@ -218,10 +217,13 @@ public class ThumbnailLoader extends BatchCallTree {
                             store = getThumbnailStore(pxd);
                             handleBatchCall(store, pxd, userId);
                         } catch (DSAccessException | ServerError e) {
-                            currentThumbnail = getErrorIcon();
+                            currentThumbnail = new ThumbnailData(pxd.getImage().getId(),
+                                    getErrorIcon(), userId, false);
+
                             LogMessage msg = new LogMessage(
                                     "Couldn't initialize the ThumbnailStore for pixels id "
                                             + pxd.getId(), e);
+
                             context.getLogger().warn(this, msg);
                         } finally {
                             if (last && store != null) {
