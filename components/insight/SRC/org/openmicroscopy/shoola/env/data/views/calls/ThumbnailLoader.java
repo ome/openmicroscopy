@@ -109,11 +109,6 @@ public class ThumbnailLoader extends BatchCallTree {
     private SecurityContext ctx;
 
     /**
-     * Use getConfigService() instead of this directly
-     */
-    private IConfigPrx configService;
-
-    /**
      * Load the thumbnail as an full size image.
      */
     private boolean asImage = false;
@@ -222,7 +217,7 @@ public class ThumbnailLoader extends BatchCallTree {
                         try {
                             store = getThumbnailStore(pxd);
                             handleBatchCall(store, pxd, userId);
-                        } catch (DSAccessException e) {
+                        } catch (DSAccessException | ServerError e) {
                             currentThumbnail = getErrorIcon();
                             LogMessage msg = new LogMessage(
                                     "Couldn't initialize the ThumbnailStore for pixels id "
@@ -239,14 +234,6 @@ public class ThumbnailLoader extends BatchCallTree {
                 add(call);
             }
         }
-    }
-
-    private IConfigPrx getConfigService() throws DSOutOfServiceException {
-        if (configService == null) {
-            configService = context.getGateway()
-                    .getConfigService(ctx);
-        }
-        return configService;
     }
 
     private void handleBatchCall(ThumbnailStorePrx store, PixelsData pxd, long userId) throws DSOutOfServiceException,
