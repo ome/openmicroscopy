@@ -127,10 +127,10 @@ public class LookupNames
     public static final String SERVER_5_4_8_OR_LATER = "5.4.8 or later";
     
     /** Maximum plane width for non pyramid images **/
-    public static final String MAX_PLANE_WIDTH = "MAX_PLANE_WIDTH";
+    public static final String MAX_PLANE_WIDTH = "/services/Thumbnailing/non_pyramid_max_plane_width";
     
     /** Maximum plane height for non pyramid images **/
-    public static final String MAX_PLANE_HEIGHT = "MAX_PLANE_HEIGHT";
+    public static final String MAX_PLANE_HEIGHT = "/services/Thumbnailing/non_pyramid_max_plane_height";
     
     /** Field to access the <code>Name of the software</code>. */
     public static final String SOFTWARE_NAME = "SoftwareName";
