@@ -1212,7 +1212,8 @@ public class ThumbnailBean extends AbstractLevel2Service
      * @return Thumbnail bytes.
      */
     private byte[] retrieveThumbnail(Thumbnail thumbMetaData) throws ResourceError {
-        if (ctx.isThumbnailCached(pixels.getId())) {
+        final long pixelsId = thumbMetaData.getPixels().getId();
+        if (ctx.isThumbnailCached(pixelsId)) {
             // If the thumbnail is not dirty, belongs to the user and is on disk
             // try to load it.
             try {
@@ -1224,20 +1225,15 @@ public class ThumbnailBean extends AbstractLevel2Service
             }
         }
 
-        final long pixelsId = thumbMetaData.getPixels().getId();
-        if (!ctx.hasSettings(pixelsId)) {
-            try {
-                // This will throw if a thumbnail is blocked waiting on import completion
-                pixelDataService.getPixelBuffer(ctx.getPixels(pixelsId), false);
-            } catch (ConcurrencyException ce) {
-                return new byte[0];
-            }
+        // This will return null if a thumbnail is blocked waiting on import completion
+        BufferedImage image = createScaledImage(null, null);
+        if (image == null) {
+            return new byte[0];
         }
 
         // If we get here, then we can assume the thumbnail just needs created
         // and saved to disk
         try {
-            BufferedImage image = createScaledImage(null, null);
             compressThumbnailToDisk(thumbMetaData, image, false);
         } catch (Exception e) {
             String msg = "Thumbnail could not be written to disk. " + e.getMessage();

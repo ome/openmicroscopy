@@ -57,6 +57,8 @@ import java.awt.image.ShortLookupTable;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
