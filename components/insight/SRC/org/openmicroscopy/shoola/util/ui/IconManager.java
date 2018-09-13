@@ -733,8 +733,8 @@ public class IconManager
         relPaths[ROI_FOLDER_NOT_OWNER] = "roi_folder_user_icon.png";
         relPaths[LOOKUP_TABLE_24] = "lookuptable24.png";
         relPaths[LUTS] = "lookuptables.png";
-        relPaths[THUMBNAIL_ERROR_BLACK] = "thumbnail_error_black_96px.png";
-        relPaths[THUMBNAIL_LOADING_TIMER_BLACK] = "thumbnail_loading_timer_black_96px.png";
+        relPaths[THUMBNAIL_ERROR_BLACK] = "material_thumbnail_error_black_96px.png";
+        relPaths[THUMBNAIL_LOADING_TIMER_BLACK] = "material_thumbnail_loading_timer_black_96px.png";
     }
 
     /**
