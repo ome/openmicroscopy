@@ -1063,8 +1063,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /*
      * (non-Javadoc)
      *
-     * @see ome.api.ThumbnailStore#getThumbnail(ome.model.core.Pixels,
-     *      ome.model.display.RenderingDef, java.lang.Integer,
+     * @see ome.api.ThumbnailStore#getThumbnail(java.lang.Integer,
      *      java.lang.Integer)
      */
     @RolesAllowed("user")
@@ -1091,8 +1090,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /*
      * (non-Javadoc)
      *
-     * @see ome.api.ThumbnailStore#getThumbnail(ome.model.core.Pixels,
-     *      ome.model.displayRenderingDef, java.lang.Integer,
+     * @see ome.api.ThumbnailStore#getThumbnailWithoutDefault(java.lang.Integer,
      *      java.lang.Integer)
      */
     @RolesAllowed("user")
@@ -1207,7 +1205,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     }
 
     /**
-     * A simple way to creates the thumbnail or retrieves it from cache.
+     * A simple way to create the thumbnail or retrieve it from cache.
      *
      * @return Thumbnail bytes.
      */
