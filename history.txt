@@ -17,6 +17,9 @@ Import improvements include:
 - cli: new experimental `--parallel-upload` and
   `--parallel-fileset` flags to the `import` command
 - cli: new `fs importtime` cli command
+- cli: add support for `--skip`, `--parallel-upload`, 
+  `--parallel-fileset` and `--readers` options in bulk
+  import configuration files
 - insight: new options for skipping various import steps
   to speed up the process (match cli's `--skip` option)
 - insight: supporting imports with thousands of files
