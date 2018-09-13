@@ -1286,6 +1286,13 @@
   License File: cpl-v10.html
 
 
+  Artifacts:    material_*
+  Project:      Google Material design. We use some of their icons.
+  Website:      https://material.io/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    nuvola_*
   Project:      The Nuvola icon theme. It provides most of the icons in OMERO.insight.
   Web Site:     http://www.icon-king.com/
