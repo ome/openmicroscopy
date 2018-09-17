@@ -474,43 +474,59 @@ public class ThumbnailBean extends AbstractLevel2Service
     /**
      * Compresses a buffered image thumbnail to disk.
      *
-     * @param thumb
-     *            the thumbnail metadata.
-     * @param image
-     *            the thumbnail's buffered image.
-     * @throws IOException
-     *             if there is a problem writing to disk.
+     * @param metadata  the thumbnail metadata.
+     * @param image the thumbnail's buffered image.
+     * @param inProgress if set to true, writes inProgressImageResource to disk
+     * @throws ResourceError if there is a problem writing to disk.
      */
-    private void compressThumbnailToDisk(Thumbnail thumb, BufferedImage image, boolean inProgress)
-            throws IOException {
+    private void compressThumbnailToDisk(Thumbnail metadata, BufferedImage image, boolean inProgress)
+            throws IOException, ResourceError {
         if (diskSpaceChecking) {
             iRepositoryInfo.sanityCheckRepository();
         }
 
-        FileOutputStream stream = ioService.getThumbnailOutputStream(thumb);
-        try {
+        try (FileOutputStream stream = ioService.getThumbnailOutputStream(metadata)) {
             if (inProgress) {
-                compressInProgressImageToStream(thumb, stream, inProgressImageResource);
+                compressInProgressImageToStream(metadata.getSizeX(), metadata.getSizeY(),
+                        stream, inProgressImageResource);
             } else {
                 compressionService.compressToStream(image, stream);
             }
-        } finally {
-            stream.close();
+        }
+    }
+
+    /**
+     * Compresses a buffered image thumbnail to a byte array.
+     *
+     * @param image the thumbnail's buffered image.
+     * @param inProgress if set to true, returns inProgressImageResource
+     * @return byte data of thumbnail
+     * @throws ResourceError if there is a problem converting  to disk.
+     */
+    private byte[] convertThumbnailToBytes(BufferedImage image, boolean inProgress)
+            throws IOException {
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
+            if (inProgress) {
+                compressInProgressImageToStream(image.getWidth(), image.getHeight(),
+                        byteStream, inProgressImageResource);
+            } else {
+                compressionService.compressToStream(image, byteStream);
+            }
+            return byteStream.toByteArray();
         }
     }
 
     /**
      * Compresses the <i>in progress</i> image to a stream.
      *
-     * @param thumb Thumbnail meta data
+     * @param width image width
+     * @param height image height
      * @param outputStream Stream to compress the data to.
      * @param inProgressImageResource The image file (located in resources) to write to disk
-     * @throws IOException
+     * @throws ResourceError
      */
-   private void compressInProgressImageToStream(Thumbnail thumb, OutputStream outputStream,
-                                                Resource inProgressImageResource) {
-       int x = thumb.getSizeX();
-       int y = thumb.getSizeY();
+   private void compressInProgressImageToStream(int width, int height, OutputStream outputStream,
+                                                Resource inProgressImageResource) throws ResourceError {
        StopWatch s1 = new Slf4JStopWatch("omero.transcodeSVG");
        try
        {
@@ -518,13 +534,11 @@ public class ThumbnailBean extends AbstractLevel2Service
                    inProgressImageResource.getInputStream());
            // Batik will automatically maintain the aspect ratio of the
            // resulting image if we only specify the width or height.
-           if (x > y)
-           {
-               rasterizer.setImageWidth(x);
+           if (width > height) {
+               rasterizer.setImageWidth(width);
            }
-           else
-           {
-               rasterizer.setImageHeight(y);
+           else  {
+               rasterizer.setImageHeight(height);
            }
            rasterizer.setQuality(compressionService.getCompressionLevel());
            rasterizer.createJPEG(outputStream);
@@ -574,8 +588,6 @@ public class ThumbnailBean extends AbstractLevel2Service
     /**
      * Creates a scaled buffered image from the active pixels set.
      *
-     * @param def
-     *            the rendering settings to use for buffered image creation.
      * @param theZ the optical section (offset across the Z-axis) requested.
      * <pre>null</pre> signifies the rendering engine default.
      * @param theT the timepoint (offset across the T-axis) requested.
@@ -1211,15 +1223,28 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     private byte[] retrieveThumbnail(Thumbnail thumbMetaData) throws ResourceError {
         final long pixelsId = thumbMetaData.getPixels().getId();
-        if (ctx.isThumbnailCached(pixelsId)) {
-            // If the thumbnail is not dirty, belongs to the user and is on disk
-            // try to load it.
-            try {
-                return ioService.getThumbnail(thumbMetaData);
-            } catch (IOException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Cache miss, thumbnail missing or out of date.");
+        try {
+            if (ctx.isThumbnailCached(pixelsId)) {
+                // If the thumbnail is not dirty, belongs to the user and is on disk
+                // try to load it.
+                try {
+                    return ioService.getThumbnail(thumbMetaData);
+                } catch (IOException e) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Cache miss, thumbnail missing or out of date.");
+                    }
                 }
+            }
+        } catch (ResourceError e) {
+            //Thumbnail cannot create one
+            try {
+                BufferedImage image = createScaledImage(null, null);
+                if (image == null) {
+                    return new byte[0];
+                }
+                return convertThumbnailToBytes(image, false);
+            } catch (IOException e1) {
+                throw new ResourceError(e1.getMessage());
             }
         }
 
@@ -1229,16 +1254,29 @@ public class ThumbnailBean extends AbstractLevel2Service
             return new byte[0];
         }
 
-        // If we get here, then we can assume the thumbnail just needs created
+        // If we get here we can assume the thumbnail just needs created
         // and saved to disk
+        if (thumbMetaData.getId() == null) {
+            try {
+                return convertThumbnailToBytes(image, false);
+            } catch (IOException e) {
+                throw new ResourceError(e.getMessage());
+            }
+        }
         try {
             compressThumbnailToDisk(thumbMetaData, image, false);
-        } catch (Exception e) {
-            String msg = "Thumbnail could not be written to disk. " + e.getMessage();
-            log.error(msg, e);
-            throw new ResourceError(msg);
+        } catch (ReadOnlyGroupSecurityViolation | IOException e) {
+            String msg = "Thumbnail could not be written to disk. Returning without caching";
+            log.warn(msg, e);
+            try {
+                return convertThumbnailToBytes(image, false);
+            } catch (IOException e1) {
+                throw new ResourceError(e1.getMessage());
+            }
         }
 
+        // If we get here the compressThumbnailToDisk method above succeeded and
+        // we can load the thumbnail from disk
         try {
             return ioService.getThumbnail(thumbMetaData);
         } catch (IOException e) {
@@ -1316,15 +1354,14 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
 
         BufferedImage image = createScaledImage(theZ, theT);
+        if (image == null) {
+            image = new BufferedImage(local.getSizeX(), local.getSizeY(),
+                    BufferedImage.TYPE_INT_RGB);
+        }
+
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try {
-            if (inProgress) {
-                compressInProgressImageToStream(local, byteStream, inProgressImageResource);
-            } else {
-                compressionService.compressToStream(image, byteStream);
-            }
-            byte[] thumbnail = byteStream.toByteArray();
-            return thumbnail;
+            return convertThumbnailToBytes(image, inProgress);
         } catch (IOException e) {
             log.error("Could not obtain thumbnail direct.", e);
             throw new ResourceError(e.getMessage());
