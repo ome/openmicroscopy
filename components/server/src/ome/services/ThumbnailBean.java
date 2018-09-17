@@ -1240,8 +1240,8 @@ public class ThumbnailBean extends AbstractLevel2Service
             log.warn(msg, e);
             return retrieveThumbnailDirect((int) thumbMetaData.getSizeX(),
                         (int) thumbMetaData.getSizeY(), null, null, true);
-        }catch (Exception e) {
-            String msg = "Thumbnail could not be written to disk. " + e.getMessage()+" "+e.toString();
+        } catch (Exception e) {
+            String msg = "Thumbnail could not be written to disk. " + e.getMessage();
             log.error(msg, e);
             throw new ResourceError(msg);
         }
