@@ -54,7 +54,7 @@ public class LoggingImportMonitor implements IObserver
         return old;
     }
 
-    public void update(IObservable importLibrary, ImportEvent event)
+    public synchronized void update(IObservable importLibrary, ImportEvent event)
     {
         if (event instanceof IMPORT_DONE) {
             IMPORT_DONE ev = (IMPORT_DONE) event;
