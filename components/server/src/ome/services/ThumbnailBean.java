@@ -510,8 +510,7 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     private byte[] convertThumbnailToBytes(BufferedImage image, boolean inProgress)
             throws IOException {
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
             if (inProgress) {
                 compressInProgressImageToStream(image.getWidth(), image.getHeight(),
                         byteStream, inProgressImageResource);
@@ -519,8 +518,6 @@ public class ThumbnailBean extends AbstractLevel2Service
                 compressionService.compressToStream(image, byteStream);
             }
             return byteStream.toByteArray();
-        } finally {
-            byteStream.close();
         }
     }
 
