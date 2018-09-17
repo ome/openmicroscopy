@@ -54,7 +54,7 @@ public class LoggingImportMonitor implements IObserver
         return old;
     }
 
-    public void update(IObservable importLibrary, ImportEvent event)
+    public synchronized void update(IObservable importLibrary, ImportEvent event)
     {
         if (event instanceof IMPORT_DONE) {
             IMPORT_DONE ev = (IMPORT_DONE) event;
@@ -223,15 +223,12 @@ public class LoggingImportMonitor implements IObserver
                 String exclude) {
 
             System.err.println("Other imported objects:");
-            System.err.print("Fileset:");
-            System.err.println(fid);
+            System.err.println("Fileset:" + fid);
             for (String kls : collect.keySet()) {
                 if (exclude == null || !kls.equals(exclude)) {
                     List<Long> ids = collect.get(kls);
                     for (Long id : ids) {
-                        System.err.print(kls);
-                        System.err.print(":");
-                        System.err.println(id);
+                        System.err.println(String.format("%s:%d", kls, id));
                     }
                 }
             }
@@ -272,11 +269,8 @@ public class LoggingImportMonitor implements IObserver
             ListMultimap<String, Long> collect = getObjectIdMap(ev);
             for (String kls : collect.keySet()) {
                 List<Long> ids = collect.get(kls);
-                System.out.print("  ");
-                System.out.print(kls);
-                System.out.print(": [");
-                System.out.print(Joiner.on(",").join(ids));
-                System.out.println("]");
+                System.out.println(String.format("  %s: [%s]", kls,
+                    Joiner.on(",").join(ids)));
             }
         }
 
@@ -298,9 +292,7 @@ public class LoggingImportMonitor implements IObserver
                 kls = "Image";
             }
             List<Long> ids = collect.get(kls);
-            System.out.print(kls);
-            System.out.print(":");
-            System.out.println(Joiner.on(",").join(ids));
+            System.out.println(String.format("%s:%s", kls, Joiner.on(",").join(ids)));
 
             otherImportedObjects(ev.fileset.getId().getValue(), collect, kls);
         }
