@@ -1235,12 +1235,16 @@ public class ThumbnailBean extends AbstractLevel2Service
         // and saved to disk
         try {
             compressThumbnailToDisk(thumbMetaData, image, false);
-        } catch (Exception e) {
-            String msg = "Thumbnail could not be written to disk. " + e.getMessage();
+        } catch (ReadOnlyGroupSecurityViolation | NullPointerException e) {
+            String msg = "Thumbnail could not be written to disk. Returning without caching";
+            log.warn(msg, e);
+            return retrieveThumbnailDirect((int) thumbMetaData.getSizeX(),
+                        (int) thumbMetaData.getSizeY(), null, null, true);
+        }catch (Exception e) {
+            String msg = "Thumbnail could not be written to disk. " + e.getMessage()+" "+e.toString();
             log.error(msg, e);
             throw new ResourceError(msg);
         }
-
         try {
             return ioService.getThumbnail(thumbMetaData);
         } catch (IOException e) {
