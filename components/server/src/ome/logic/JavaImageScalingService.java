@@ -1,7 +1,5 @@
 /*
- * ome.logic.JavaImageScalingService
- *
- *   Copyright 2006-2015 University of Dundee. All rights reserved.
+ *   Copyright 2006-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -65,6 +63,7 @@ public class JavaImageScalingService implements IScale {
                             RenderingHints.VALUE_ANTIALIAS_OFF));
             g.drawImage(image, 0, 0, thumbWidth, thumbHeight, 0, 0,
                     image.getWidth(), image.getHeight(), null);
+            g.dispose();
         }
         s1.stop();
         return toReturn;
