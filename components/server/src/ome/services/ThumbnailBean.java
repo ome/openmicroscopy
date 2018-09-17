@@ -1245,9 +1245,16 @@ public class ThumbnailBean extends AbstractLevel2Service
 
         // If we get here we can assume the thumbnail just needs created
         // and saved to disk
+        if (thumbMetaData.getId() == null) {
+            try {
+                return convertThumbnailToBytes(image, false);
+            } catch (IOException e) {
+                throw new ResourceError(e.getMessage());
+            }
+        }
         try {
             compressThumbnailToDisk(thumbMetaData, image, false);
-        } catch (ReadOnlyGroupSecurityViolation | NullPointerException | IOException e) {
+        } catch (ReadOnlyGroupSecurityViolation | IOException e) {
             String msg = "Thumbnail could not be written to disk. Returning without caching";
             log.warn(msg, e);
             try {
