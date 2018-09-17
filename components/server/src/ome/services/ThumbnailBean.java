@@ -1225,15 +1225,28 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     private byte[] retrieveThumbnail(Thumbnail thumbMetaData) throws ResourceError {
         final long pixelsId = thumbMetaData.getPixels().getId();
-        if (ctx.isThumbnailCached(pixelsId)) {
-            // If the thumbnail is not dirty, belongs to the user and is on disk
-            // try to load it.
-            try {
-                return ioService.getThumbnail(thumbMetaData);
-            } catch (IOException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Cache miss, thumbnail missing or out of date.");
+        try {
+            if (ctx.isThumbnailCached(pixelsId)) {
+                // If the thumbnail is not dirty, belongs to the user and is on disk
+                // try to load it.
+                try {
+                    return ioService.getThumbnail(thumbMetaData);
+                } catch (IOException e) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Cache miss, thumbnail missing or out of date.");
+                    }
                 }
+            }
+        } catch (ResourceError e) {
+            //Thumbnail cannot create one
+            try {
+                BufferedImage image = createScaledImage(null, null);
+                if (image == null) {
+                    return new byte[0];
+                }
+                return convertThumbnailToBytes(image, false);
+            } catch (IOException e1) {
+                throw new ResourceError(e1.getMessage());
             }
         }
 
