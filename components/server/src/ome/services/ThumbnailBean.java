@@ -480,23 +480,18 @@ public class ThumbnailBean extends AbstractLevel2Service
      * @throws ResourceError if there is a problem writing to disk.
      */
     private void compressThumbnailToDisk(Thumbnail metadata, BufferedImage image, boolean inProgress)
-            throws IOException {
+            throws IOException, ResourceError {
         if (diskSpaceChecking) {
             iRepositoryInfo.sanityCheckRepository();
         }
 
-        FileOutputStream stream = ioService.getThumbnailOutputStream(metadata);
-        try {
+        try (FileOutputStream stream = ioService.getThumbnailOutputStream(metadata)) {
             if (inProgress) {
                 compressInProgressImageToStream(metadata.getSizeX(), metadata.getSizeY(),
                         stream, inProgressImageResource);
             } else {
                 compressionService.compressToStream(image, stream);
             }
-        } catch (IOException e) {
-            throw new ResourceError(e.getMessage());
-        } finally {
-            stream.close();
         }
     }
 
