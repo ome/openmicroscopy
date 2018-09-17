@@ -1362,8 +1362,6 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
     }
 
-
-
     /* (non-Javadoc)
      * @see ome.api.ThumbnailStore#getThumbnailForSectionDirect(int, int, java.lang.Integer, java.lang.Integer)
      */
