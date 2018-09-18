@@ -594,7 +594,7 @@ public class ThumbnailBean extends AbstractLevel2Service
      * <pre>null</pre> signifies the rendering engine default.
      * @return a scaled buffered image.
      */
-    private BufferedImage createScaledImage(Integer theZ, Integer theT)
+    private BufferedImage createScaledImage(Thumbnail thumbMetaData, Integer theZ, Integer theT)
     {
         // Ensure that we have a valid state for rendering
         errorIfInvalidState();
@@ -626,8 +626,8 @@ public class ThumbnailBean extends AbstractLevel2Service
                 renderer.setResolutionLevel(resolutionLevel);
                 pixelBufferSizeX = pixelBuffer.getSizeX();
                 pixelBufferSizeY = pixelBuffer.getSizeY();
-                if (pixelBufferSizeX <= thumbnailMetadata.getSizeX()
-                    || pixelBufferSizeY <= thumbnailMetadata.getSizeY())
+                if (pixelBufferSizeX <= thumbMetaData.getSizeX()
+                    || pixelBufferSizeY <= thumbMetaData.getSizeY())
                 {
                     break;
                 }
@@ -651,9 +651,9 @@ public class ThumbnailBean extends AbstractLevel2Service
 
             // Finally, scale our image using scaling factors (percentage).
             float xScale = (float)
-                    thumbnailMetadata.getSizeX() / pixelBufferSizeX;
+                    thumbMetaData.getSizeX() / pixelBufferSizeX;
             float yScale = (float)
-                    thumbnailMetadata.getSizeY() / pixelBufferSizeY;
+                    thumbMetaData.getSizeY() / pixelBufferSizeY;
             log.debug(String.format("Using scaling factors x:%f y:%f",
                     xScale, yScale));
             return iScale.scaleBufferedImage(image, xScale, yScale);
@@ -842,7 +842,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     private Thumbnail _createThumbnail() throws ResourceError {
         StopWatch s1 = new Slf4JStopWatch("omero._createThumbnail");
         thumbnailMetadata = _createThumbnail(thumbnailMetadata);
-        BufferedImage image = createScaledImage(null, null);
+        BufferedImage image = createScaledImage(thumbnailMetadata, null, null);
         try {
             compressThumbnailToDisk(thumbnailMetadata, image, inProgress);
             return thumbnailMetadata;
@@ -860,7 +860,7 @@ public class ThumbnailBean extends AbstractLevel2Service
      * @param thumbMetaData Thumbnail meta data object
      * @return
      */
-    private BufferedImage _createThumbnail(Thumbnail thumbMetaData) {
+    private Thumbnail _createThumbnail(Thumbnail thumbMetaData) {
         StopWatch s1 = new Slf4JStopWatch("omero._createThumbnail(thumbMetaData)");
         try {
             if (thumbMetaData == null) {
@@ -1238,17 +1238,17 @@ public class ThumbnailBean extends AbstractLevel2Service
             }
         }
 
-        thumbnailMetadata = _createThumbnail(thumbMetaData);
-        BufferedImage image = _createThumbnail(thumbMetaData);
+        Thumbnail updatedMetaData = _createThumbnail(thumbMetaData);
+        BufferedImage image = createScaledImage(updatedMetaData, null, null);
         if (image == null) {
-            // This will return null if a thumbnail is blocked waiting on import completion
+            // createScaledImage return null if a thumbnail is blocked waiting on import completion
             return new byte[0];
         }
 
         try {
             // ToDo: maybe we should skip this if isNotMyImage && inUserInReadOnlyGroup
-            compressThumbnailToDisk(thumbMetaData, image, false);
-            iUpdate.saveObject(thumbMetaData);
+            compressThumbnailToDisk(updatedMetaData, image, false);
+            iUpdate.saveObject(updatedMetaData);
         } catch (ReadOnlyGroupSecurityViolation | IOException e) {
             String msg = "Thumbnail could not be written to disk. Returning without caching";
             log.warn(msg, e);
@@ -1262,7 +1262,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         // If we get here the compressThumbnailToDisk method above succeeded and
         // we can load the thumbnail from disk
         try {
-            return ioService.getThumbnail(thumbMetaData);
+            return ioService.getThumbnail(updatedMetaData);
         } catch (IOException e) {
             log.error("Could not obtain thumbnail", e);
             throw new ResourceError(e.getMessage());
@@ -1337,7 +1337,7 @@ public class ThumbnailBean extends AbstractLevel2Service
             thumbnailMetadata = local;
         }
 
-        BufferedImage image = createScaledImage(theZ, theT);
+        BufferedImage image = createScaledImage(local, theZ, theT);
         if (image == null) {
             image = new BufferedImage(local.getSizeX(), local.getSizeY(),
                     BufferedImage.TYPE_INT_RGB);
