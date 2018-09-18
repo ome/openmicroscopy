@@ -568,6 +568,23 @@ public class ThumbnailCtx
         }
     }
 
+    public boolean isThumbnailLoadable(long pixelsId) {
+        if (!pixelsIdMetadataMap.containsKey(pixelsId)) {
+            return false;
+        }
+
+        try {
+            Thumbnail metadata = pixelsIdMetadataMap.get(pixelsId);
+            boolean dirtyMetadata = dirtyMetadata(pixelsId);
+            boolean thumbnailExists = thumbnailService.getThumbnailExists(metadata);
+            return !dirtyMetadata && thumbnailExists;
+        } catch (IOException e) {
+            String s = "Could not check if thumbnail is on disk: ";
+            log.error(s, e);
+            throw new ResourceError(s + e.getMessage());
+        }
+    }
+
     /**
      * Checks to see if a thumbnail is in the on disk cache or not.
      *
@@ -576,12 +593,13 @@ public class ThumbnailCtx
      */
     public boolean isThumbnailCached(long pixelsId)
     {
-        Thumbnail metadata = pixelsIdMetadataMap.get(pixelsId);
-        if (metadata == null) {
+        if (!pixelsIdMetadataMap.containsKey(pixelsId)) {
             return false;
         }
+
         try
         {
+            Thumbnail metadata = pixelsIdMetadataMap.get(pixelsId);
             boolean dirtyMetadata = dirtyMetadata(pixelsId);
             boolean thumbnailExists =
                 thumbnailService.getThumbnailExists(metadata);

@@ -860,7 +860,7 @@ public class ThumbnailBean extends AbstractLevel2Service
      * @param thumbMetaData Thumbnail meta data object
      * @return
      */
-    private Thumbnail _createThumbnail(Thumbnail thumbMetaData) {
+    private BufferedImage _createThumbnail(Thumbnail thumbMetaData) {
         StopWatch s1 = new Slf4JStopWatch("omero._createThumbnail(thumbMetaData)");
         try {
             if (thumbMetaData == null) {
@@ -1226,48 +1226,27 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     private byte[] retrieveThumbnail(Thumbnail thumbMetaData) throws ResourceError {
         final long pixelsId = thumbMetaData.getPixels().getId();
-        try {
-            if (ctx.isThumbnailCached(pixelsId)) {
-                // If the thumbnail is not dirty, belongs to the user and is on disk
-                // try to load it.
-                try {
-                    return ioService.getThumbnail(thumbMetaData);
-                } catch (IOException e) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Cache miss, thumbnail missing or out of date.");
-                    }
-                }
-            }
-        } catch (ResourceError e) {
-            //Thumbnail cannot create one
+        if (ctx.isThumbnailLoadable(pixelsId)) {
+            // If the thumbnail is not dirty, belongs to the user and is on disk
+            // try to load it.
             try {
-                BufferedImage image = createScaledImage(null, null);
-                if (image == null) {
-                    return new byte[0];
+                return ioService.getThumbnail(thumbMetaData);
+            } catch (IOException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Cache miss, thumbnail missing or out of date.");
                 }
-                return convertThumbnailToBytes(image, false);
-            } catch (IOException e1) {
-                throw new ResourceError(e1.getMessage());
             }
         }
 
         thumbnailMetadata = _createThumbnail(thumbMetaData);
-        BufferedImage image = createScaledImage(null, null);
+        BufferedImage image = _createThumbnail(thumbMetaData);
         if (image == null) {
             // This will return null if a thumbnail is blocked waiting on import completion
             return new byte[0];
         }
 
-        // If we get here we can assume the thumbnail just needs created
-        // and saved to disk
-        if (thumbMetaData.getId() == null) {
-            try {
-                return convertThumbnailToBytes(image, false);
-            } catch (IOException e) {
-                throw new ResourceError(e.getMessage());
-            }
-        }
         try {
+            // ToDo: maybe we should skip this if isNotMyImage && inUserInReadOnlyGroup
             compressThumbnailToDisk(thumbMetaData, image, false);
             iUpdate.saveObject(thumbMetaData);
         } catch (ReadOnlyGroupSecurityViolation | IOException e) {
