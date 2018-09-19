@@ -839,9 +839,18 @@ public class ThumbnailBean extends AbstractLevel2Service
      *
      * @return thumbnail object
      */
-    private Thumbnail _createThumbnail() {
-        // For old times sake
-        return _createThumbnail(thumbnailMetadata);
+    private Thumbnail _createThumbnail() throws ResourceError {
+        StopWatch s1 = new Slf4JStopWatch("omero._createThumbnail");
+        thumbnailMetadata = _createThumbnail(thumbnailMetadata);
+        BufferedImage image = createScaledImage(null, null);
+        try {
+            compressThumbnailToDisk(thumbnailMetadata, image, inProgress);
+            s1.stop();
+            return thumbnailMetadata;
+        } catch (IOException e) {
+            log.error("Thumbnail could not be compressed.", e);
+            throw new ResourceError(e.getMessage());
+        }
     }
 
     /**
@@ -851,7 +860,6 @@ public class ThumbnailBean extends AbstractLevel2Service
      * @return
      */
     private Thumbnail _createThumbnail(Thumbnail thumbMetaData) {
-        StopWatch s1 = new Slf4JStopWatch("omero._createThumbnail");
         if (thumbMetaData == null) {
             throw new ValidationException("Missing thumbnail metadata.");
         } else if (ctx.dirtyMetadata(pixels.getId())) {
@@ -898,19 +906,7 @@ public class ThumbnailBean extends AbstractLevel2Service
                 }
             }
         }
-        // dirtyMetadata is left false here because we may be creating a
-        // thumbnail for the first time and the Thumbnail object has just been
-        // created upstream of us.
-
-        BufferedImage image = createScaledImage(null, null);
-        try {
-            compressThumbnailToDisk(thumbMetaData, image, inProgress);
-            s1.stop();
-            return thumbMetaData;
-        } catch (IOException e) {
-            log.error("Thumbnail could not be compressed.", e);
-            throw new ResourceError(e.getMessage());
-        }
+        return thumbMetaData;
     }
 
     private static void _setMetadataVersion(Thumbnail tb, boolean inProgress) {
@@ -1248,9 +1244,10 @@ public class ThumbnailBean extends AbstractLevel2Service
             }
         }
 
-        // This will return null if a thumbnail is blocked waiting on import completion
+        thumbnailMetadata = _createThumbnail(thumbMetaData);
         BufferedImage image = createScaledImage(null, null);
         if (image == null) {
+            // This will return null if a thumbnail is blocked waiting on import completion
             return new byte[0];
         }
 
@@ -1265,6 +1262,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
         try {
             compressThumbnailToDisk(thumbMetaData, image, false);
+            iUpdate.saveObject(thumbMetaData);
         } catch (ReadOnlyGroupSecurityViolation | IOException e) {
             String msg = "Thumbnail could not be written to disk. Returning without caching";
             log.warn(msg, e);
