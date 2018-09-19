@@ -1117,14 +1117,15 @@ public class ThumbnailBean extends AbstractLevel2Service
         ctx.loadAndPrepareMetadata(pixelsIds, dimensions);
 
         // If this comes back null, don't have a thumbnail yet
-        thumbnailMetadata = ctx.getMetadataSimple(pixelsId);
-        if (thumbnailMetadata == null) {
+        Thumbnail metadata = ctx.getMetadataSimple(pixelsId);
+        if (metadata == null) {
             // We don't have a thumbnail to load, lets try to create it
             // and then return it
-            thumbnailMetadata = ctx.createThumbnailMetadata(pixels, dimensions);
+            metadata = ctx.createThumbnailMetadata(pixels, dimensions);
+            return retrieveThumbnailDirect(metadata, null, null);
         }
 
-        byte[] value = retrieveThumbnail(thumbnailMetadata);
+        byte[] value = retrieveThumbnail(metadata);
         // I don't really know why this is here, no iquery calls being that I can see...
         iQuery.clear();//see #11072
         return value;
@@ -1336,10 +1337,21 @@ public class ThumbnailBean extends AbstractLevel2Service
         if (rewriteMetadata) {
             thumbnailMetadata = local;
         }
+        return retrieveThumbnailDirect(local, theZ, theT);
+    }
 
-        BufferedImage image = createScaledImage(local, theZ, theT);
+    /**
+     * Creates a thumbnail in memory and returns the bytes.
+     *
+     * @param metadata thumbnail metadata
+     * @param theZ Optical section to retrieve a thumbnail for.
+     * @param theT Timepoint to retrieve a thumbnail for.
+     * @return byte array of image data
+     */
+    private byte[] retrieveThumbnailDirect(Thumbnail metadata, Integer theZ, Integer theT) {
+        BufferedImage image = createScaledImage(metadata, theZ, theT);
         if (image == null) {
-            image = new BufferedImage(local.getSizeX(), local.getSizeY(),
+            image = new BufferedImage(metadata.getSizeX(), metadata.getSizeY(),
                     BufferedImage.TYPE_INT_RGB);
         }
 
@@ -1358,6 +1370,7 @@ public class ThumbnailBean extends AbstractLevel2Service
             }
         }
     }
+
 
     /* (non-Javadoc)
      * @see ome.api.ThumbnailStore#getThumbnailForSectionDirect(int, int, java.lang.Integer, java.lang.Integer)

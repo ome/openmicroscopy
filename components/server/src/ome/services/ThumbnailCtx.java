@@ -475,18 +475,8 @@ public class ThumbnailCtx
      */
     public Thumbnail getMetadata(long pixelsId) throws NoThumbnail
     {
-        Thumbnail thumbnail = pixelsIdMetadataMap.get(pixelsId);
-        if (thumbnail == null && securitySystem.isGraphCritical(null)) // maythrow
-        {
-            Pixels pixels = pixelsIdPixelsMap.get(pixelsId);
-            long ownerId = pixels.getDetails().getOwner().getId();
-            throw new ResourceError(String.format(
-                    "The user id:%s may not be the owner id:%d. The owner " +
-                    "has not viewed the Pixels set id:%d and thumbnail " +
-                    "metadata is missing.", userId, ownerId, pixelsId));
-        }
-        else if (thumbnail == null)
-        {
+        Thumbnail thumbnail = getMetadataSimple(pixelsId);
+        if (thumbnail == null) {
             throw new NoThumbnail(
                     "Fatal error retrieving thumbnail metadata for Pixels " +
                     "set id:" + pixelsId);
@@ -501,16 +491,19 @@ public class ThumbnailCtx
      * @return returns null if the thumbnail metadata can't be found
      */
     public Thumbnail getMetadataSimple(long pixelsId) throws ResourceError {
-        Thumbnail thumbnail = pixelsIdMetadataMap.get(pixelsId);
-        if (thumbnail == null && securitySystem.isGraphCritical(null)) {
-            Pixels pixels = pixelsIdPixelsMap.get(pixelsId);
-            long ownerId = pixels.getDetails().getOwner().getId();
-            throw new ResourceError(String.format(
-                    "The user id:%s may not be the owner id:%d. The owner " +
-                            "has not viewed the Pixels set id:%d and thumbnail " +
-                            "metadata is missing.", userId, ownerId, pixelsId));
+        if (!pixelsIdMetadataMap.containsKey(pixelsId)) {
+           if (securitySystem.isGraphCritical(null)) {
+               Pixels pixels = pixelsIdPixelsMap.get(pixelsId);
+               long ownerId = pixels.getDetails().getOwner().getId();
+               throw new ResourceError(String.format(
+                       "The user id:%s may not be the owner id:%d. The owner " +
+                               "has not viewed the Pixels set id:%d and thumbnail " +
+                               "metadata is missing.", userId, ownerId, pixelsId));
+           } else {
+               return null;
+           }
         }
-        return thumbnail;
+        return pixelsIdMetadataMap.get(pixelsId);
     }
 
     /**
