@@ -865,7 +865,8 @@ public class ThumbnailBean extends AbstractLevel2Service
         try {
             if (thumbMetaData == null) {
                 throw new ValidationException("Missing thumbnail metadata.");
-            } else if (ctx.dirtyMetadata(pixels.getId())) {
+            } else if (ctx.dirtyMetadata(pixels.getId()) &&
+                    thumbMetaData.getDetails().getOwner() != null) {
                 // Increment the version of the thumbnail so that its
                 // update event has a timestamp equal to or after that of
                 // the rendering settings. FIXME: This should be
