@@ -115,6 +115,13 @@
     -->
     <entry name="/services/Thumbnailing/fetchMediumSpeed" type="double">0.5</entry>
     
+    <!-- Default value for the max plane width which does not require pyramids - 
+         will be overwritten if set server side -->
+    <entry name="/services/Thumbnailing/non_pyramid_max_plane_width" type="integer">3192</entry>
+    
+    <!-- Default value for the max plane height which does not require pyramids - 
+         will be overwritten if set server side -->
+    <entry name="/services/Thumbnailing/non_pyramid_max_plane_height" type="integer">3192</entry>
     
     <!-- Rendering Engine configuration.
          NOTE: All the following entries for the Rendering Engine will

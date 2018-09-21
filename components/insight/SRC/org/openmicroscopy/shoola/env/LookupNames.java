@@ -120,6 +120,18 @@ public class LookupNames
     /** Field to access the <code>Version</code> information. */
     public static final String VERSION = "Version";
 
+    /** 
+     * Field to check if the server version is 5.4.8 or later.
+     * TODO: Can be removed for >= 5.5.0 release
+     * */
+    public static final String SERVER_5_4_8_OR_LATER = "5.4.8 or later";
+    
+    /** Maximum plane width for non pyramid images **/
+    public static final String MAX_PLANE_WIDTH = "/services/Thumbnailing/non_pyramid_max_plane_width";
+    
+    /** Maximum plane height for non pyramid images **/
+    public static final String MAX_PLANE_HEIGHT = "/services/Thumbnailing/non_pyramid_max_plane_height";
+    
     /** Field to access the <code>Name of the software</code>. */
     public static final String SOFTWARE_NAME = "SoftwareName";
 

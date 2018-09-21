@@ -240,14 +240,18 @@ class CommandArguments(object):
         """Set the arguments to skip steps during import"""
         if not args.skip:
             return
+        self.set_skip_values(args.skip)
 
-        if ('all' in args.skip or 'checksum' in args.skip):
+    def set_skip_values(self, skip):
+        """Set the arguments to skip steps during import"""
+
+        if ('all' in skip or 'checksum' in skip):
             self.__java_initial.append("--checksum-algorithm=File-Size-64")
-        if ('all' in args.skip or 'thumbnails' in args.skip):
+        if ('all' in skip or 'thumbnails' in skip):
             self.__java_initial.append("--no-thumbnails")
-        if ('all' in args.skip or 'minmax' in args.skip):
+        if ('all' in skip or 'minmax' in skip):
             self.__java_initial.append("--no-stats-info")
-        if ('all' in args.skip or 'upgrade' in args.skip):
+        if ('all' in skip or 'upgrade' in skip):
             self.__java_initial.append("--no-upgrade-check")
 
     def open_files(self):
@@ -399,7 +403,7 @@ class ImportControl(BaseControl):
             "-c", action="store_true",
             help="Continue importing after errors (**)")
         add_java_argument(
-            "-l",
+            "-l", "--readers",
             help="Use the list of readers rather than the default (**)",
             metavar="READER_FILE")
         add_java_argument(
@@ -449,6 +453,12 @@ class ImportControl(BaseControl):
         add_advjava_argument(
             "--checksum-algorithm", nargs="?", metavar="TYPE",
             help="Alternative hashing mechanisms balancing speed & accuracy")
+        add_advjava_argument(
+            "--no-stats-info", action="store_true", help=SUPPRESS)
+        add_advjava_argument(
+            "--no-thumbnails", action="store_true", help=SUPPRESS)
+        add_advjava_argument(
+            "--no-upgrade-check", action="store_true", help=SUPPRESS)
         add_advjava_argument(
             "--parallel-upload", metavar="COUNT",
             help="Number of file upload threads to run at the same time")
@@ -600,6 +610,9 @@ class ImportControl(BaseControl):
             c = bulk.pop("continue")
             if bool(c):
                 command_args.add("c")
+
+        if "skip" in bulk:
+            command_args.set_skip_values(bulk.pop("skip"))
 
         if "path" not in bulk:
             # Required until @file format is implemented
