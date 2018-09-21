@@ -21,16 +21,21 @@
 package integration;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
+import edu.emory.mathcs.backport.java.util.Collections;
 import ome.formats.OMEROMetadataStoreClient;
+import omero.ServerError;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.ThumbnailStorePrx;
 import omero.model.Pixels;
 
+import omero.model.RenderingDef;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -65,47 +70,169 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         importer.initialize(factory);
     }
 
-    /**
-     * Test to retrieve the newly created image. Tests thumbnailService methods:
-     * getThumbnail(rint, rint) and getThumbnailByLongestSide(rint)
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
-     */
-    @Test
-    public void testGetThumbnail() throws Exception {
-        ThumbnailStorePrx svc = factory.createThumbnailStore();
-        // first import an image already tested see ImporterTest
-        String format = ModelMockFactory.FORMATS[0];
-        File f = File.createTempFile("testImportGraphicsImages" + format, "."
-                + format);
-        mmFactory.createImageFile(f, format);
-        List<Pixels> pixels = null;
-        try {
-            pixels = importFile(importer, f, format, false);
-        } catch (Throwable e) {
-            throw new Exception("cannot import image", e);
-        }
-        f.delete();
-        Pixels p = pixels.get(0);
-        long pixelsID = p.getId().getValue();
-        if (!(svc.setPixelsId(pixelsID))) {
-            svc.resetDefaults();
-            svc.setPixelsId(pixelsID);
-        }
-        int sizeX = 48;
-        int sizeY = 48;
-        byte[] values = svc.getThumbnail(omero.rtypes.rint(sizeX),
-                omero.rtypes.rint(sizeY));
-        Assert.assertNotNull(values);
-        Assert.assertTrue(values.length > 0);
+    public static class SingleThumbnail extends AbstractServerTest {
 
-        byte[] lsValues = svc.getThumbnailByLongestSide(omero.rtypes
-                .rint(sizeX));
-        Assert.assertNotNull(lsValues);
-        Assert.assertTrue(lsValues.length > 0);
-        svc.close();
+        /** Reference to the importer store. */
+        private OMEROMetadataStoreClient importer;
+
+        private Pixels pixels;
+
+        @BeforeMethod
+        protected void setUpNewUserWithImporter() throws Throwable {
+            newUserAndGroup("rwr-r-");
+            importer = new OMEROMetadataStoreClient();
+            importer.initialize(factory);
+            pixels = createSingleFile();
+        }
+
+        /**
+         * Test to retrieve the newly created image. Tests thumbnailService methods:
+         * getThumbnail(rint, rint) and getThumbnailByLongestSide(rint)
+         *
+         * @throws Exception
+         *             Thrown if an error occurred.
+         */
+        @Test
+        public void testGetThumbnail() throws Exception {
+            final int sizeX = 48;
+            final int sizeY = 48;
+
+            ThumbnailStorePrx svc = getThumbnailStoreForPixels();
+            byte[] values = svc.getThumbnail(omero.rtypes.rint(sizeX),
+                    omero.rtypes.rint(sizeY));
+            Assert.assertNotNull(values);
+            Assert.assertTrue(values.length > 0);
+            svc.close();
+        }
+
+        @Test
+        public void testGetThumbnailByLongestSide() throws Exception {
+            final int sizeX = 48;
+
+            ThumbnailStorePrx svc = getThumbnailStoreForPixels();
+            byte[] lsValues = svc.getThumbnailByLongestSide(omero.rtypes
+                    .rint(sizeX));
+            Assert.assertNotNull(lsValues);
+            Assert.assertTrue(lsValues.length > 0);
+            svc.close();
+        }
+
+        @Test
+        public void testGetThumbnailWithoutDefault() throws Exception {
+            final int sizeX = 48;
+            final int sizeY = 48;
+
+            ThumbnailStorePrx svc = getThumbnailStoreForPixels();
+            byte[] values = svc.getThumbnailWithoutDefault(
+                    omero.rtypes.rint(sizeX),
+                    omero.rtypes.rint(sizeY));
+            Assert.assertNotNull(values);
+            Assert.assertTrue(values.length > 0);
+            svc.close();
+        }
+
+        /**
+         * Test to retrieve the thumbnails for images. Load the thumbnails, reset
+         * the rendering settings then reload the rendering settings again. Tests
+         * thumbnailService methods: getThumbnail(rint, rint) and
+         * getThumbnailByLongestSide(rint)
+         *
+         * @throws Exception
+         *             Thrown if an error occurred.
+         */
+        @Test
+        public void testGetThumbnailAfterReset() throws Exception {
+            final int sizeX = 96;
+            final int sizeY = 96;
+
+            ThumbnailStorePrx svc = getThumbnailStoreForPixels();
+            byte[] values = svc.getThumbnail(omero.rtypes.rint(sizeX),
+                    omero.rtypes.rint(sizeY));
+            Assert.assertNotNull(values);
+            Assert.assertTrue(values.length > 0);
+
+            final long id = pixels.getId().getValue();
+
+            // Reset rendering settings for pixels object
+            resetRenderingSettingsForPixelsObject(id);
+
+            // Set pixel object to thumbnail store
+            if (!svc.setPixelsId(id)) {
+                svc.resetDefaults();
+                svc.setPixelsId(id);
+            }
+
+            // Call getThumbnail
+            values = svc.getThumbnail(omero.rtypes.rint(sizeX),
+                    omero.rtypes.rint(sizeY));
+            Assert.assertNotNull(values);
+            Assert.assertTrue(values.length > 0);
+            svc.close();
+        }
+
+        @Test
+        public void testGetThumbnailWithoutDefaultAfterReset() throws Exception {
+            final int sizeX = 96;
+            final int sizeY = 96;
+
+            ThumbnailStorePrx svc = getThumbnailStoreForPixels();
+            byte[] values = svc.getThumbnailWithoutDefault(omero.rtypes.rint(sizeX),
+                    omero.rtypes.rint(sizeY));
+            Assert.assertNotNull(values);
+            Assert.assertTrue(values.length > 0);
+
+            final long id = pixels.getId().getValue();
+
+            // Reset rendering settings for pixels object
+            resetRenderingSettingsForPixelsObject(id);
+
+            // Set pixel object to thumbnail store
+            if (!svc.setPixelsId(id)) {
+                svc.resetDefaults();
+                svc.setPixelsId(id);
+            }
+
+            // Call getThumbnail
+            values = svc.getThumbnailWithoutDefault(omero.rtypes.rint(sizeX),
+                    omero.rtypes.rint(sizeY));
+            Assert.assertNotNull(values);
+            Assert.assertTrue(values.length > 0);
+            svc.close();
+        }
+
+        private void resetRenderingSettingsForPixelsObject(long pixelId) throws ServerError {
+            // Reset the rendering settings.
+            IRenderingSettingsPrx proxy = factory.getRenderingSettingsService();
+            RenderingDef settings = proxy.getRenderingSettings(pixelId);
+            proxy.resetDefaults(settings, pixels);
+        }
+
+        private ThumbnailStorePrx getThumbnailStoreForPixels() throws ServerError {
+            ThumbnailStorePrx svc = factory.createThumbnailStore();
+            long pixelsID = pixels.getId().getValue();
+            if (!(svc.setPixelsId(pixelsID))) {
+                svc.resetDefaults();
+                svc.setPixelsId(pixelsID);
+            }
+            return svc;
+        }
+
+        private Pixels createSingleFile() throws Throwable {
+            File f = null;
+            try {
+                String format = ModelMockFactory.FORMATS[0];
+                f = File.createTempFile("testImportGraphicsImages" + format, "."
+                        + format);
+                mmFactory.createImageFile(f, format);
+                return importFile(importer, f, format, false).get(0);
+            } finally {
+                if (f != null) {
+                    f.delete();
+                }
+            }
+        }
     }
+
 
     /**
      * Tests thumbnailService methods: getThumbnailSet(rint, rint, list<long>)
@@ -163,73 +290,6 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         svc.close();
     }
 
-    /**
-     * Test to retrieve the thumbnails for images. Load the thumbnails, reset
-     * the rendering settings then reload the rendering settings again. Tests
-     * thumbnailService methods: getThumbnail(rint, rint) and
-     * getThumbnailByLongestSide(rint)
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
-     */
-    @Test
-    public void testGetThumbnailAfterReset() throws Exception {
-        ThumbnailStorePrx svc = factory.createThumbnailStore();
-        // first import an image already tested see ImporterTest
-        String format = ModelMockFactory.FORMATS[0];
-        List<Pixels> all = new ArrayList<Pixels>();
-        List<Pixels> pixels = null;
-        int n = 2;
-        File f;
-        for (int i = 0; i < n; i++) {
-            f = File.createTempFile("testImportGraphicsImages_" + i + format,
-                    "." + format);
-            mmFactory.createImageFile(f, format);
-            try {
-                pixels = importFile(importer, f, format, false);
-                all.addAll(pixels);
-            } catch (Throwable e) {
-                throw new Exception("cannot import image", e);
-            }
-            f.delete();
-        }
-        Iterator<Pixels> i = all.iterator();
-        long id;
-        int sizeX = 96;
-        int sizeY = 96;
-        byte[] values;
-        List<Long> ids = new ArrayList<Long>(pixels.size());
-        while (i.hasNext()) {
-            id = i.next().getId().getValue();
-            ids.add(id);
-            if (!(svc.setPixelsId(id))) {
-                svc.resetDefaults();
-                svc.setPixelsId(id);
-            }
-            values = svc.getThumbnail(omero.rtypes.rint(sizeX),
-                    omero.rtypes.rint(sizeY));
-            Assert.assertNotNull(values);
-            Assert.assertTrue(values.length > 0);
-        }
-        // Reset the rendering settings.
-        IRenderingSettingsPrx proxy = factory.getRenderingSettingsService();
-        proxy.resetDefaultsInSet(Pixels.class.getName(), ids);
-        i = all.iterator();
-        // Retrieve the thumbnails. They need to be created again.
-        while (i.hasNext()) {
-            id = i.next().getId().getValue();
-            ids.add(id);
-            if (!(svc.setPixelsId(id))) {
-                svc.resetDefaults();
-                svc.setPixelsId(id);
-            }
-            values = svc.getThumbnail(omero.rtypes.rint(sizeX),
-                    omero.rtypes.rint(sizeY));
-            Assert.assertNotNull(values);
-            Assert.assertTrue(values.length > 0);
-        }
-        svc.close();
-    }
 
     /**
      * Test that thumbnails can be retrieved from multiple groups at once.
