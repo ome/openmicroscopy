@@ -891,13 +891,7 @@ public class ThumbnailBean extends AbstractLevel2Service
                         _setMetadataVersion(thumbMetaData, inProgress);
                         dirtyMetadata = true;
                     } else {
-                        //new one for owner of the settings.
-                        final Dimension d = new Dimension(thumbMetaData.getSizeX(),
-                                thumbMetaData.getSizeY());
-                        thumbMetaData = ctx.createThumbnailMetadata(pixels, d);
-                        _setMetadataVersion(thumbMetaData, inProgress);
-                        thumbMetaData = iUpdate.saveAndReturnObject(thumbMetaData);
-                        dirtyMetadata = false;
+                        thumbMetaData = createThumbnailSettingsForUser(thumbMetaData);
                     }
                 } finally {
                     try {
@@ -913,6 +907,13 @@ public class ThumbnailBean extends AbstractLevel2Service
         } finally {
             s1.stop();
         }
+    }
+
+    private Thumbnail createThumbnailSettingsForUser(Thumbnail thumbMetaData) {
+        _setMetadataVersion(thumbMetaData, inProgress);
+        Thumbnail updated = iUpdate.saveAndReturnObject(thumbMetaData);
+        dirtyMetadata = false;
+        return updated;
     }
 
     private static void _setMetadataVersion(Thumbnail tb, boolean inProgress) {
@@ -1118,10 +1119,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         // If this comes back null, don't have a thumbnail yet
         Thumbnail metadata = ctx.getMetadataSimple(pixelsId);
         if (metadata == null) {
-            // We don't have a thumbnail to load, lets try to create it
-            // and then return it
             metadata = ctx.createThumbnailMetadata(pixels, dimensions);
-            return retrieveThumbnailDirect(metadata, null, null);
         }
 
         byte[] value = retrieveThumbnail(metadata);
@@ -1226,7 +1224,7 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     private byte[] retrieveThumbnail(Thumbnail thumbMetaData) throws ResourceError {
         final long pixelsId = thumbMetaData.getPixels().getId();
-        if (ctx.isThumbnailLoadable(pixelsId)) {
+        if (ctx.isThumbnailCached(pixelsId)) {
             // If the thumbnail is not dirty, belongs to the user and is on disk
             // try to load it.
             try {
@@ -1238,8 +1236,16 @@ public class ThumbnailBean extends AbstractLevel2Service
             }
         }
 
-        Thumbnail updatedMetaData = _createThumbnail(thumbMetaData);
-        BufferedImage image = createScaledImage(updatedMetaData, null, null);
+        ome.model.internal.Details details = thumbMetaData.getDetails();
+        if (details == null || details.getOwner() == null) {
+            // This thumbnail needs an owner
+            //new one for owner of the settings.
+            thumbMetaData = createThumbnailSettingsForUser(thumbMetaData);
+        } else {
+            thumbMetaData = _createThumbnail(thumbMetaData);
+        }
+
+        BufferedImage image = createScaledImage(thumbMetaData, null, null);
         if (image == null) {
             // createScaledImage return null if a thumbnail is blocked waiting on import completion
             return new byte[0];
@@ -1247,8 +1253,8 @@ public class ThumbnailBean extends AbstractLevel2Service
 
         try {
             // ToDo: maybe we should skip this if isNotMyImage && inUserInReadOnlyGroup
-            compressThumbnailToDisk(updatedMetaData, image, false);
-            iUpdate.saveObject(updatedMetaData);
+            compressThumbnailToDisk(thumbMetaData, image, false);
+            iUpdate.saveObject(thumbMetaData);
         } catch (ReadOnlyGroupSecurityViolation | IOException e) {
             String msg = "Thumbnail could not be written to disk. Returning without caching";
             log.warn(msg, e);
@@ -1262,7 +1268,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         // If we get here the compressThumbnailToDisk method above succeeded and
         // we can load the thumbnail from disk
         try {
-            return ioService.getThumbnail(updatedMetaData);
+            return ioService.getThumbnail(thumbMetaData);
         } catch (IOException e) {
             log.error("Could not obtain thumbnail", e);
             throw new ResourceError(e.getMessage());
