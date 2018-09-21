@@ -839,9 +839,19 @@ public class ThumbnailBean extends AbstractLevel2Service
      *
      * @return thumbnail object
      */
-    private Thumbnail _createThumbnail() {
-        // For old times sake
-        return _createThumbnail(thumbnailMetadata);
+    private Thumbnail _createThumbnail() throws ResourceError {
+        StopWatch s1 = new Slf4JStopWatch("omero._createThumbnail");
+        thumbnailMetadata = _createThumbnail(thumbnailMetadata);
+        BufferedImage image = createScaledImage(null, null);
+        try {
+            compressThumbnailToDisk(thumbnailMetadata, image, inProgress);
+            return thumbnailMetadata;
+        } catch (IOException e) {
+            log.error("Thumbnail could not be compressed.", e);
+            throw new ResourceError(e.getMessage());
+        } finally {
+            s1.stop();
+        }
     }
 
     /**
@@ -851,65 +861,58 @@ public class ThumbnailBean extends AbstractLevel2Service
      * @return
      */
     private Thumbnail _createThumbnail(Thumbnail thumbMetaData) {
-        StopWatch s1 = new Slf4JStopWatch("omero._createThumbnail");
-        if (thumbMetaData == null) {
-            throw new ValidationException("Missing thumbnail metadata.");
-        } else if (ctx.dirtyMetadata(pixels.getId())) {
-            // Increment the version of the thumbnail so that its
-            // update event has a timestamp equal to or after that of
-            // the rendering settings. FIXME: This should be
-            // implemented using IUpdate.touch() or similar once that
-            // functionality exists.
-            //Check first if the thumbnail is the one of the settings owner
-            Long ownerId = thumbMetaData.getDetails().getOwner().getId();
-            Long rndOwnerId = settings.getDetails().getOwner().getId();
-            final Long rndGroupId = settings.getDetails().getGroup().getId();
-            final Map<String, String> groupContext = new HashMap<>();
-            groupContext.put("omero.group", Long.toString(rndGroupId));
-            try {
+        StopWatch s1 = new Slf4JStopWatch("omero._createThumbnail(thumbMetaData)");
+        try {
+            if (thumbMetaData == null) {
+                throw new ValidationException("Missing thumbnail metadata.");
+            } else if (ctx.dirtyMetadata(pixels.getId()) &&
+                    thumbMetaData.getDetails().getOwner() != null) {
+                // Increment the version of the thumbnail so that its
+                // update event has a timestamp equal to or after that of
+                // the rendering settings. FIXME: This should be
+                // implemented using IUpdate.touch() or similar once that
+                // functionality exists.
+                //Check first if the thumbnail is the one of the settings owner
+                Long ownerId = thumbMetaData.getDetails().getOwner().getId();
+                Long rndOwnerId = settings.getDetails().getOwner().getId();
+                final Long rndGroupId = settings.getDetails().getGroup().getId();
+                final Map<String, String> groupContext = new HashMap<>();
+                groupContext.put("omero.group", Long.toString(rndGroupId));
                 try {
-                    applicationContext.publishMessage(new ContextMessage.Push(this, groupContext));
-                } catch (Throwable t) {
-                    final String errorMessage = "could not publish context change push";
-                    log.error(errorMessage, t);
-                    throw new InternalException(errorMessage + ": " + t);
-                }
-                if (rndOwnerId.equals(ownerId)) {
-                    final Pixels unloadedPixels = new Pixels(pixels.getId(), false);
-                    thumbMetaData.setPixels(unloadedPixels);
-                    _setMetadataVersion(thumbMetaData, inProgress);
-                    dirtyMetadata = true;
-                } else {
-                    //new one for owner of the settings.
-                    final Dimension d = new Dimension(thumbMetaData.getSizeX(),
-                                                      thumbMetaData.getSizeY());
-                    thumbMetaData = ctx.createThumbnailMetadata(pixels, d);
-                    _setMetadataVersion(thumbMetaData, inProgress);
-                    thumbMetaData = iUpdate.saveAndReturnObject(thumbMetaData);
-                    dirtyMetadata = false;
-                }
-            } finally {
-                try {
-                    applicationContext.publishMessage(new ContextMessage.Pop(this, groupContext));
-                } catch (Throwable t) {
-                    final String errorMessage = "could not publish context change pop";
-                    log.error(errorMessage, t);
-                    throw new InternalException(errorMessage + ": " + t);
+                    try {
+                        applicationContext.publishMessage(new ContextMessage.Push(this, groupContext));
+                    } catch (Throwable t) {
+                        final String errorMessage = "could not publish context change push";
+                        log.error(errorMessage, t);
+                        throw new InternalException(errorMessage + ": " + t);
+                    }
+                    if (rndOwnerId.equals(ownerId)) {
+                        final Pixels unloadedPixels = new Pixels(pixels.getId(), false);
+                        thumbMetaData.setPixels(unloadedPixels);
+                        _setMetadataVersion(thumbMetaData, inProgress);
+                        dirtyMetadata = true;
+                    } else {
+                        //new one for owner of the settings.
+                        final Dimension d = new Dimension(thumbMetaData.getSizeX(),
+                                thumbMetaData.getSizeY());
+                        thumbMetaData = ctx.createThumbnailMetadata(pixels, d);
+                        _setMetadataVersion(thumbMetaData, inProgress);
+                        thumbMetaData = iUpdate.saveAndReturnObject(thumbMetaData);
+                        dirtyMetadata = false;
+                    }
+                } finally {
+                    try {
+                        applicationContext.publishMessage(new ContextMessage.Pop(this, groupContext));
+                    } catch (Throwable t) {
+                        final String errorMessage = "could not publish context change pop";
+                        log.error(errorMessage, t);
+                        throw new InternalException(errorMessage + ": " + t);
+                    }
                 }
             }
-        }
-        // dirtyMetadata is left false here because we may be creating a
-        // thumbnail for the first time and the Thumbnail object has just been
-        // created upstream of us.
-
-        BufferedImage image = createScaledImage(null, null);
-        try {
-            compressThumbnailToDisk(thumbMetaData, image, inProgress);
-            s1.stop();
             return thumbMetaData;
-        } catch (IOException e) {
-            log.error("Thumbnail could not be compressed.", e);
-            throw new ResourceError(e.getMessage());
+        } finally {
+            s1.stop();
         }
     }
 
@@ -1248,9 +1251,10 @@ public class ThumbnailBean extends AbstractLevel2Service
             }
         }
 
-        // This will return null if a thumbnail is blocked waiting on import completion
+        thumbnailMetadata = _createThumbnail(thumbMetaData);
         BufferedImage image = createScaledImage(null, null);
         if (image == null) {
+            // This will return null if a thumbnail is blocked waiting on import completion
             return new byte[0];
         }
 
@@ -1265,6 +1269,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
         try {
             compressThumbnailToDisk(thumbMetaData, image, false);
+            iUpdate.saveObject(thumbMetaData);
         } catch (ReadOnlyGroupSecurityViolation | IOException e) {
             String msg = "Thumbnail could not be written to disk. Returning without caching";
             log.warn(msg, e);
