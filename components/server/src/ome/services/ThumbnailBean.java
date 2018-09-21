@@ -1260,7 +1260,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
         // If we get here we can assume the thumbnail just needs created
         // and saved to disk
-        if (thumbMetaData.getId() == null) {
+        if (thumbnailMetadata.getId() == null) {
             try {
                 return convertThumbnailToBytes(image, false);
             } catch (IOException e) {
@@ -1268,8 +1268,14 @@ public class ThumbnailBean extends AbstractLevel2Service
             }
         }
         try {
-            compressThumbnailToDisk(thumbMetaData, image, false);
-            iUpdate.saveObject(thumbMetaData);
+            compressThumbnailToDisk(thumbnailMetadata, image, false);
+            //Saving of thumbnailMetadata already happened in _createThumbnail
+            //if owner != settings but not for owner == settings
+            //This could be moved to _createThumbnail
+            if  (thumbnailMetadata.getDetails().getOwner().getId() ==
+                 settings.getDetails().getOwner().getId()) {
+                iUpdate.saveObject(thumbnailMetadata);
+            }
         } catch (ReadOnlyGroupSecurityViolation | IOException e) {
             String msg = "Thumbnail could not be written to disk. Returning without caching";
             log.warn(msg, e);
@@ -1283,7 +1289,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         // If we get here the compressThumbnailToDisk method above succeeded and
         // we can load the thumbnail from disk
         try {
-            return ioService.getThumbnail(thumbMetaData);
+            return ioService.getThumbnail(thumbnailMetadata);
         } catch (IOException e) {
             log.error("Could not obtain thumbnail", e);
             throw new ResourceError(e.getMessage());
