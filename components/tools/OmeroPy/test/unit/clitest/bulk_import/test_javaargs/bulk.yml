@@ -1,0 +1,10 @@
+---
+checksum_algorithm: "File-Size-64"
+parallel_upload: "10"
+parallel_fileset: "5"
+transfer: "ln_s"
+exclude: "clientpath"
+no_stats_info: True
+no_thumbnails: True
+no_upgrade_check: True
+path: bulk.tsv

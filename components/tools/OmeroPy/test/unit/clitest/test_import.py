@@ -181,6 +181,38 @@ class TestImport(object):
         assert outputlines[-3] == \
             "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
 
+    @pytest.mark.parametrize('params', (
+        ("-l", "only_fakes.txt", True),
+        ("-l", "no_fakes.txt", False),
+        ("--readers", "only_fakes.txt", True),
+        ("--readers", "no_fakes.txt", False),
+    ))
+    def testImportReaders(self, tmpdir, capfd, params):
+        """Test fake image import"""
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        flag, filename, status = params
+        filename = path(__file__).parent / "readers" / filename
+        self.add_client_dir()
+        self.args += ["-f", flag, filename]
+        self.args += [str(fakefile)]
+
+        if status:
+            self.cli.invoke(self.args, strict=True)
+            o, e = capfd.readouterr()
+            outputlines = str(o).split('\n')
+            reader = 'loci.formats.in.FakeReader'
+            assert outputlines[-2] == str(fakefile)
+            assert outputlines[-3] == \
+                "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
+        else:
+            with pytest.raises(NonZeroReturnCode):
+                self.cli.invoke(self.args, strict=True)
+            o, e = capfd.readouterr()
+            assert "parsed into 0 group" in e
+
     @pytest.mark.parametrize('with_ds_store', (True, False))
     def testImportFakeScreen(self, tmpdir, capfd, with_ds_store):
         """Test fake screen import"""
@@ -365,3 +397,48 @@ class TestImport(object):
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
         assert o == '"--name=no-op" "1.fake"\n'
+
+    def testBulkJavaArgs(self):
+        """Test Java arguments"""
+        t = path(__file__).parent / "bulk_import" / "test_javaargs"
+        b = t / "bulk.yml"
+
+        class MockImportControl(ImportControl):
+            def do_import(self, command_args, xargs):
+                assert ("--checksum-algorithm=File-Size-64" in
+                        command_args.java_args())
+                assert "--parallel-upload=10" in command_args.java_args()
+                assert "--parallel-fileset=5" in command_args.java_args()
+                assert "--transfer=ln_s" in command_args.java_args()
+                assert "--exclude=clientpath" in command_args.java_args()
+        self.cli.register("mock-import", MockImportControl, "HELP")
+
+        self.args = ["mock-import", "-f", "---bulk=%s" % b]
+        self.add_client_dir()
+        self.cli.invoke(self.args, strict=True)
+
+    @pytest.mark.parametrize('skip', plugin.SKIP_CHOICES)
+    def testBulkSkip(self, skip):
+        """Test skip arguments"""
+        t = path(__file__).parent / "bulk_import" / "test_skip"
+        b = t / "%s.yml" % skip
+
+        class MockImportControl(ImportControl):
+            def do_import(self, command_args, xargs):
+                if skip in ["all", "checksum"]:
+                    assert ("--checksum-algorithm=File-Size-64" in
+                            command_args.java_args())
+                if skip in ["all", "minmax"]:
+                    assert ("--no-stats-info" in
+                            command_args.java_args())
+                if skip in ["all", "thumbnails"]:
+                    assert ("--no-thumbnails" in
+                            command_args.java_args())
+                if skip in ["all", "upgrade"]:
+                    assert ("--no-upgrade-check" in
+                            command_args.java_args())
+        self.cli.register("mock-import", MockImportControl, "HELP")
+
+        self.args = ["mock-import", "-f", "---bulk=%s" % b]
+        self.add_client_dir()
+        self.cli.invoke(self.args, strict=True)

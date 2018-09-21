@@ -660,8 +660,7 @@ class ImporterComponent
 			ImporterUIElement element;
 			while (i.hasNext()) {
 				element = i.next();
-				if (element.hasImportToCancel())
-					toImport.add(element);
+				toImport.add(element);
 			}
 			if (toImport.size() > 0) {
 				i = toImport.iterator();

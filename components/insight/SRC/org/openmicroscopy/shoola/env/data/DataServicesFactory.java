@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
 import omero.ServerError;
+import omero.api.IConfigPrx;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -67,6 +68,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.svc.proxy.ProxyUtil;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
+import org.openmicroscopy.shoola.util.VersionCompare;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
@@ -586,6 +588,21 @@ public class DataServicesFactory
         	return;
         }
 
+        // TODO: Can be removed for >= 5.5.0 release
+        container.getRegistry().bind(LookupNames.SERVER_5_4_8_OR_LATER, VersionCompare.compare(version, "5.4.8") >= 0);
+        
+        IConfigPrx cs = omeroGateway.getGateway().getConfigService(new SecurityContext(exp.getGroupId()));
+        try {
+            String val = cs.getConfigValue("omero.pixeldata.max_plane_width");
+            if (val != null)
+                container.getRegistry().bind(LookupNames.MAX_PLANE_WIDTH, Integer.parseInt(val));
+            val = cs.getConfigValue("omero.pixeldata.max_plane_height");
+            if (val != null)
+                container.getRegistry().bind(LookupNames.MAX_PLANE_HEIGHT, Integer.parseInt(val));
+        } catch (ServerError e2) {
+            registry.getLogger().warn(this, "Could not access ConfigService");
+        }
+
         //Upgrade check only if client and server are compatible
         omeroGateway.isUpgradeRequired(name);
 
@@ -609,7 +626,7 @@ public class DataServicesFactory
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         registry.bind(LookupNames.IMAGE_QUALITY_LEVEL, 
         		determineImageQuality(uc.getSpeedLevel()));
-        
+
         try {
             // Load the omero client properties from the server
             List agents = (List) registry.lookup(LookupNames.AGENTS);

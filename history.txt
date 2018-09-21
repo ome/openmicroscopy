@@ -5,8 +5,8 @@
 OMERO version history
 =====================
 
-5.4.8-rc1 (August 2018)
------------------------
+5.4.8 (September 2018)
+----------------------
 
 This release focuses on a number of import performance
 improvements while including several other fixes as
@@ -17,6 +17,9 @@ Import improvements include:
 - cli: new experimental `--parallel-upload` and
   `--parallel-fileset` flags to the `import` command
 - cli: new `fs importtime` cli command
+- cli: add support for `--skip`, `--parallel-upload`, 
+  `--parallel-fileset` and `--readers` options in bulk
+  import configuration files
 - insight: new options for skipping various import steps
   to speed up the process (match cli's `--skip` option)
 - insight: supporting imports with thousands of files

@@ -550,13 +550,19 @@ public class IconManager
     public static final int LOOKUP_TABLE_24 = 161;
     
     /** Concatenated lookup table icons, see {@link LookupTableIconUtil} */
-    public static final int        LUTS = 162;
+    public static final int LUTS = 162;
+
+    /** Placeholder icon for thumbnail error state */
+    public static final int THUMBNAIL_ERROR_BLACK= 163;
+
+    /** Placeholder icon for thumbnail loading state */
+    public static final int THUMBNAIL_LOADING_TIMER_BLACK = 164;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing.
      */
-    private static int MAX_ID = 162;
+    private static int MAX_ID = 164;
 
     /** Paths of the icon files. */
     private static String[] relPaths = new String[MAX_ID+1];
@@ -727,6 +733,8 @@ public class IconManager
         relPaths[ROI_FOLDER_NOT_OWNER] = "roi_folder_user_icon.png";
         relPaths[LOOKUP_TABLE_24] = "lookuptable24.png";
         relPaths[LUTS] = "lookuptables.png";
+        relPaths[THUMBNAIL_ERROR_BLACK] = "material_thumbnail_error_black_96px.png";
+        relPaths[THUMBNAIL_LOADING_TIMER_BLACK] = "material_thumbnail_loading_timer_black_96px.png";
     }
 
     /**

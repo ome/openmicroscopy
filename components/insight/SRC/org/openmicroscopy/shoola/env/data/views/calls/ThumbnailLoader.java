@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2017 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,8 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 import ome.conditions.ResourceError;
+import omero.MissingPyramidException;
 import omero.ServerError;
-import omero.api.IConfigPrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.gateway.SecurityContext;
@@ -33,13 +33,16 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PixelsData;
 import omero.log.LogMessage;
+
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import org.openmicroscopy.shoola.util.VersionCompare;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.image.io.EncoderException;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 
 import java.awt.Dimension;
 import java.awt.Image;
@@ -68,11 +71,6 @@ import java.util.HashSet;
  * @since OME2.2
  */
 public class ThumbnailLoader extends BatchCallTree {
-
-    /**
-     * Version of OMERO.server with {@code getThumbnailWithoutDefault}
-     */
-    private static final String VERSION_THUMBNAIL_NO_DEFAULT = "5.4.8";
 
     /**
      * The images for which we need thumbnails.
@@ -110,15 +108,9 @@ public class ThumbnailLoader extends BatchCallTree {
     private SecurityContext ctx;
 
     /**
-     * Use getConfigService() instead of this directly
-     */
-    private IConfigPrx configService;
-
-    /**
      * Load the thumbnail as an full size image.
      */
     private boolean asImage = false;
-
 
     /**
      * Creates a new instance.
@@ -220,13 +212,22 @@ public class ThumbnailLoader extends BatchCallTree {
                 BatchCall call = new BatchCall("Loading thumbnails") {
                     @Override
                     public void doCall() throws Exception {
-                        ThumbnailStorePrx store = getThumbnailStore(pxd);
+                        ThumbnailStorePrx store = null;
                         try {
+                            store = getThumbnailStore(pxd);
                             handleBatchCall(store, pxd, userId);
+                        } catch (DSAccessException | ServerError e) {
+                            currentThumbnail = new ThumbnailData(pxd.getImage().getId(),
+                                    getErrorIcon(), userId, false);
+
+                            LogMessage msg = new LogMessage(
+                                    "Couldn't initialize the ThumbnailStore for pixels id "
+                                            + pxd.getId(), e);
+
+                            context.getLogger().warn(this, msg);
                         } finally {
-                            if (last) {
-                                context.getDataService()
-                                        .closeService(ctx, store);
+                            if (last && store != null) {
+                                context.getDataService().closeService(ctx, store);
                             }
                         }
                     }
@@ -237,35 +238,37 @@ public class ThumbnailLoader extends BatchCallTree {
         }
     }
 
-    private IConfigPrx getConfigService() throws DSOutOfServiceException {
-        if (configService == null) {
-            configService = context.getGateway()
-                    .getConfigService(ctx);
-        }
-        return configService;
-    }
-
-    private void handleBatchCall(ThumbnailStorePrx store, PixelsData pxd, long userId) {
-        // If image has pyramids, check to see if image is ready for loading as a thumbnail.
+    private void handleBatchCall(ThumbnailStorePrx store, PixelsData pxd, long userId) throws DSOutOfServiceException,
+            DSAccessException {
+        Image thumbnail = null;
         try {
-            Image thumbnail;
             byte[] thumbnailData = loadThumbnail(store, pxd, userId);
             if (thumbnailData == null || thumbnailData.length == 0) {
                 // Find out why the thumbnail is not ready on the server
                 if (requiresPixelsPyramid(pxd)) {
                     thumbnail = determineThumbnailState(pxd);
                 } else {
-                    thumbnail = Factory.createDefaultThumbnail("Loading");
+                    thumbnail = getLoadingIcon();
                 }
             } else {
                 thumbnail = WriterImage.bytesToImage(thumbnailData);
             }
-            // Convert thumbnail to whatever
-            currentThumbnail = new ThumbnailData(pxd.getImage().getId(),
-                    thumbnail, userId, true);
-        } catch (Exception e) {
-            context.getLogger().error(this, e.getMessage());
+        } catch (ServerError e) {
+            context.getLogger().error(this,
+                    new LogMessage("API error", e));
+        } catch (EncoderException e) {
+            // Thrown if conversion of bytes to Image fails
+            context.getLogger().error(this,
+                    new LogMessage("Failed to convert thumbnail byte array to BufferedImage", e));
         }
+
+        if (thumbnail == null) {
+            thumbnail = getErrorIcon();
+        }
+
+        // Convert thumbnail to whatever
+        currentThumbnail = new ThumbnailData(pxd.getImage().getId(),
+                thumbnail, userId, true);
     }
 
     private PixelsData dataObjectToPixelsData(DataObject image) {
@@ -282,20 +285,19 @@ public class ThumbnailLoader extends BatchCallTree {
             // This method will throw if there is an issue with the pyramid
             // generation (i.e. it's not finished, corrupt)
             rawPixelStore.setPixelsId(pxd.getId(), false);
-        } catch (omero.MissingPyramidException e) {
+        } catch (MissingPyramidException e) {
             // Thrown if pyramid file is missing, then we know the thumbnail still has
             // to be generated in a short time
-            return Factory.createDefaultThumbnail("Loading");
+            return getLoadingIcon();
         } catch (ResourceError e) {
             context.getLogger().error(this, new LogMessage("Error getting pyramid from server," +
                     " it might be corrupt", e));
         }
-        return Factory.createDefaultThumbnail("Error");
+        return getErrorIcon();
     }
 
     private ThumbnailStorePrx getThumbnailStore(PixelsData pxd) throws DSAccessException,
             DSOutOfServiceException, ServerError {
-        // System.out.println(image.getId());
         ThumbnailStorePrx store = service.createThumbnailStore(ctx);
         if (!store.setPixelsId(pxd.getId())) {
             store.resetDefaults();
@@ -333,9 +335,10 @@ public class ThumbnailLoader extends BatchCallTree {
                 store.setRenderingDefId(rndDefId);
         }
 
-        if (VersionCompare.compare(context.getGateway().getServerVersion(), VERSION_THUMBNAIL_NO_DEFAULT) >= 0) {
+        if ((boolean) context.lookup(LookupNames.SERVER_5_4_8_OR_LATER)) {
             // If the client is connecting to a server with version 5.4.8 or greater, use the thumbnail
             // loading function that doesn't return a clock.
+            // TODO: Can be removed for >= 5.5.0 release
             return store.getThumbnailWithoutDefault(omero.rtypes.rint(sizeX),
                     omero.rtypes.rint(sizeY));
         } else {
@@ -346,18 +349,28 @@ public class ThumbnailLoader extends BatchCallTree {
 
     /**
      * Returns whether a pyramid should be used for the given {@link PixelsData}.
-     * This usually implies that this is a "Big image" and therefore will
-     * need tiling.
+     * This usually implies that this is a "Big image" and therefore will need
+     * tiling.
      *
      * @param pxd
-     * @return
+     * @return See above.
      */
-    private boolean requiresPixelsPyramid(PixelsData pxd) throws ServerError, DSOutOfServiceException {
-        int maxWidth = Integer.parseInt(getConfigService()
-                .getConfigValue("omero.pixeldata.max_plane_width"));
-        int maxHeight = Integer.parseInt(getConfigService()
-                .getConfigValue("omero.pixeldata.max_plane_height"));
+    private boolean requiresPixelsPyramid(PixelsData pxd) {
+        int maxWidth = (Integer) context.lookup(LookupNames.MAX_PLANE_WIDTH);
+        int maxHeight = (Integer) context.lookup(LookupNames.MAX_PLANE_HEIGHT);
         return pxd.getSizeX() * pxd.getSizeY() > maxWidth * maxHeight;
+    }
+
+    private Image getLoadingIcon() {
+        return IconManager.getInstance()
+                .getImageIcon(IconManager.THUMBNAIL_LOADING_TIMER_BLACK)
+                .getImage();
+    }
+
+    private Image getErrorIcon() {
+        return IconManager.getInstance()
+                .getImageIcon(IconManager.THUMBNAIL_ERROR_BLACK)
+                .getImage();
     }
 
 }
