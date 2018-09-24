@@ -1272,8 +1272,8 @@ public class ThumbnailBean extends AbstractLevel2Service
             //Saving of thumbnailMetadata already happened in _createThumbnail
             //if owner != settings but not for owner == settings
             //This could be moved to _createThumbnail
-            if  (thumbnailMetadata.getDetails().getOwner().getId() ==
-                 settings.getDetails().getOwner().getId()) {
+            if (thumbnailMetadata.getDetails().getOwner().getId().equals(
+                 settings.getDetails().getOwner().getId())) {
                 iUpdate.saveObject(thumbnailMetadata);
             }
         } catch (ReadOnlyGroupSecurityViolation | IOException e) {
