@@ -25,7 +25,7 @@ import omero
 from omero.rtypes import rlong, unwrap, wrap
 from django.conf import settings
 from django.http import Http404
-from datetime import datetime
+from datetime import datetime, tzinfo, timedelta
 from copy import deepcopy
 from omero.gateway import _letterGridLabel
 
@@ -454,10 +454,31 @@ def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
     return datasets
 
 
-def _marshal_date(time):
+def _marshal_date(timestamp):
+
+    class Local_tz(tzinfo):
+        def utcoffset(self, dt):
+            # https://stackoverflow.com/questions/1111056/
+            # /get-time-zone-information-of-the-system-in-python
+            offset = time.timezone if (time.localtime().tm_isdst == 0) \
+                else time.altzone
+            return timedelta(0, 0, 0, 0, 0, offset / 60 / 60 * -1)
+
+        def tzname(self, dt):
+            return "Local_tz"
+
+        def dst(self, dt):
+            """What we return here has no effect on usage below."""
+            if (time.localtime().tm_isdst == 0):
+                offset = 0
+            else:
+                offset = (time.altzone - time.timezone) / 60 / 60 * -1
+            offset = 0
+            return timedelta(0, 0, 0, 0, 0, offset)
+
     try:
-        d = datetime.fromtimestamp(time/1000)
-        return d.isoformat() + 'Z'
+        d = datetime.fromtimestamp(timestamp/1000, Local_tz())
+        return d.isoformat()
     except ValueError:
         return ''
 
