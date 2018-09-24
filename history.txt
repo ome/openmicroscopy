@@ -44,10 +44,10 @@ Other client changes include:
 
 Sysadmin improvements include:
 
-- new `%thread%` option for omero.fs.repo.path
+- new `%thread%` option for `omero.fs.repo.path`
   as well as fix a few bugs for dealing with
   parallel imports
-- new omero.threads.background_threads property
+- new `omero.threads.background_threads` property
   to limit the number of simultaneous imports
 
 This release also upgrades the version of Bio-Formats which OMERO
