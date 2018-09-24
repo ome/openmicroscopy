@@ -26,12 +26,17 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
     // line plot
     svg.append("g")
         .append("path")
-        .attr("class", "line");
+        .attr("class", "logline")
+        .attr('opacity', 0.3);
 
     // area fill
     svg.append("path")
-        .attr("class", "area")
-        .attr('opacity', 0.5);
+        .attr("class", "area");
+
+    // another area for log plot
+    svg.append("path")
+        .attr("class", "logarea")
+        .attr('opacity', 0.2);
 
     // Add slider markers
     svg.selectAll("rect")
@@ -40,10 +45,14 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
         .attr("y", 0)
         .attr("height", 300)
         .attr("width", 1)
-        .attr("x", function(d, i) { return d * (graphWidth/2); });
+        .attr("x", function(d, i) { return d * (graphWidth/2); })
+        .attr('fill', '#999999');
 
 
     var plotJson = function(data, color) {
+
+        // Add 1 because log(0) is -Infinity
+        data = data.map(function(d){return(d + 1)});
 
         // cache this for use by chartRange
         colCount = data.length;
@@ -52,6 +61,9 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
             .domain([0, data.length - 1])
             .range([0, graphWidth]);
 
+        var yLog = d3.scale.log()
+            .domain([d3.min(data), d3.max(data)])
+            .range([graphHeight, 0]);
         var y = d3.scale.linear()
             .domain([
                 d3.min(data),
@@ -62,8 +74,8 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
         // line
         var line = d3.svg.line()
             .x(function(d, i) { return x(i); })
-            .y(function(d, i) { return y(d); });
-        svg.selectAll(".line")
+            .y(function(d, i) { return yLog(d); });
+        svg.selectAll(".logline")
             .datum(data)
             .attr("d", line)
             .attr('stroke', color);
@@ -77,6 +89,17 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
             .datum(data)
             .attr("class", "area")
             .attr("d", area)
+            .attr('fill', color);
+
+        // log plot of area
+        var logArea = d3.svg.area()
+            .x(function(d, i) { return x(i); })
+            .y0(graphHeight)
+            .y1(function(d) { return yLog(d); });
+        svg.selectAll(".logarea")
+            .datum(data)
+            .attr("class", "logarea")
+            .attr("d", logArea)
             .attr('fill', color);
     };
 
@@ -126,8 +149,7 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
 
         svg.selectAll("rect")
         .data([s, e])
-        .attr("x", function(d, i) { return d * (graphWidth/colCount); })
-        .attr('fill', color);
+        .attr("x", function(d, i) { return d * (graphWidth/colCount); });
     };
 };
 
@@ -195,6 +217,15 @@ window.OME.createViewportHistogram = function(viewport, chartSelector, checkboxS
             $("#histogram").hide();
         }
     });
+
+    // This checkbox only visible when histogram showing
+    $("#histogramLogPlot").click(function(){
+        if (this.checked) {
+            $(".logline, .logarea").show();
+        } else {
+            $(".logline, .logarea").hide();
+        }
+    })
 
     // on load, check to see if we should show histogram...
     if (OME.getPaneExpanded && OME.getPaneExpanded('histogram')) {
