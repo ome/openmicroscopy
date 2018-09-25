@@ -25,7 +25,7 @@ Import improvements include:
 - insight: supporting imports with thousands of files
   by providing a lightweight UI
 - insight: new loading placeholder when browsing data to
-  to show when an image is busy being processed and not
+  show when an image is busy being processed and not
   ready to generate a thumbnail
 - insight: added error placeholder when browsing data to
   indicate a failed import
@@ -44,10 +44,10 @@ Other client changes include:
 
 Sysadmin improvements include:
 
-- new `%thread%` option for omero.fs.repo.path
+- new `%thread%` option for `omero.fs.repo.path`
   as well as fix a few bugs for dealing with
   parallel imports
-- new omero.threads.background_threads property
+- new `omero.threads.background_threads` property
   to limit the number of simultaneous imports
 
 This release also upgrades the version of Bio-Formats which OMERO
