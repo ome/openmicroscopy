@@ -149,7 +149,37 @@ class OmeroImageServiceImpl
 	
 	/** Lookup tables cache (they are not likely to change during a session) */
 	private static Collection<String> LOOKUP_TABLES;
-	
+
+	/**
+	 * Returns <code>true</code> if the files are put on import queue,
+	 * <code>false</code>.
+	 * 
+	 * @return See above
+	 */
+	private boolean isOfflineImport() {
+        Boolean offline = (Boolean)
+                context.lookup(LookupNames.OFFLINE_IMPORT_ENABLED);
+        return offline != null && offline;
+    }
+
+	/**
+	 * Handles container creation when import happens offline.
+	 * @param importable
+	 * @param ioContainer
+	 */
+    private void setContainerForOfflineImport(
+            ImportableFile importable, IObject ioContainer) {
+        if (isOfflineImport() && ioContainer != null) {
+            DataObject data = PojoMapper.asDataObject(ioContainer);
+            if (data instanceof DatasetData) {
+                importable.setLocation(importable.getParent(),
+                        (DatasetData) data);
+            } else if (data instanceof ScreenData) {
+                importable.setLocation(data, null);
+            }
+        }
+    }
+   
 	/**
 	 * Returns the number of rendering engines to initialize or reload.
 	 * 
@@ -995,8 +1025,6 @@ class OmeroImageServiceImpl
 	public Object importFile(ImportableObject object,
 							 ImportableFile importable, boolean close)
 			throws ImportException, DSAccessException, DSOutOfServiceException {
-	    Boolean offline = (Boolean)
-                context.lookup(LookupNames.OFFLINE_IMPORT_ENABLED);
 		if (importable == null || importable.getFile() == null)
 			throw new IllegalArgumentException("No images to import.");
 		Status status = importable.getStatus();
@@ -1160,14 +1188,8 @@ class OmeroImageServiceImpl
 					}
 				}
 			}
-			if (offline != null && offline.booleanValue() && ioContainer != null) {
-                DataObject data = PojoMapper.asDataObject(ioContainer);
-                if (data instanceof DatasetData) {
-                    importable.setLocation(importable.getParent(),
-                            (DatasetData) data);
-                } else if (data instanceof ScreenData) {
-                    importable.setLocation(data, null);
-                }
+			if (isOfflineImport()) {
+                setContainerForOfflineImport(importable, ioContainer);
             }
 			if (ImportableObject.isArbitraryFile(file)) {
 				if (ic == null) //already check if hcs.
@@ -1200,9 +1222,15 @@ class OmeroImageServiceImpl
 					//Check after scanning
 					if (status.isMarkedAsCancel())
 						return Boolean.valueOf(false);
+					if (isOfflineImport()) {
+					    return Boolean.valueOf(true);
+					}
 					return gateway.importImageFile(ctx, object, ioContainer,
 							importIc, status, close, userName);
 				} else {
+				    if (isOfflineImport()) {
+                        return Boolean.valueOf(true);
+                    }
 					List<ImportContainer> containers = ic.getContainers();
 					hcs = isHCS(containers);
 					Map<File, Status> files =
@@ -1244,6 +1272,9 @@ class OmeroImageServiceImpl
 				//Check after scanning
 				if (status.isMarkedAsCancel())
 					return Boolean.valueOf(false);
+				if (isOfflineImport()) {
+                    return Boolean.valueOf(true);
+                }
 				return gateway.importImageFile(ctx, object, ioContainer,
 						importIc, status, close, userName);
 			}
@@ -1315,8 +1346,12 @@ class OmeroImageServiceImpl
 				} else ioContainer = gateway.findIObject(ctx,
 						container.asIObject());
 			}
-			importCandidates(ctx, hcsFiles, status, object,
-					ioContainer, customAnnotationList, userID, close, true, userName);
+			if (isOfflineImport()) {
+			    setContainerForOfflineImport(importable, ioContainer);
+			} else {
+			    importCandidates(ctx, hcsFiles, status, object,
+	                    ioContainer, customAnnotationList, userID, close, true, userName);
+			}
 		}
 		if (otherFiles.size() > 0) {
 			folder = object.createFolderAsContainer(importable);
@@ -1379,9 +1414,14 @@ class OmeroImageServiceImpl
 					}
 				}
 			}
-			//import the files that are not hcs files.
-			importCandidates(ctx, otherFiles, status, object,
-					ioContainer, customAnnotationList, userID, close, false, userName);
+			if (isOfflineImport()) {
+			    setContainerForOfflineImport(importable, ioContainer);
+			} else {
+		         //import the files that are not hcs files.
+	            importCandidates(ctx, otherFiles, status, object,
+	                    ioContainer, customAnnotationList, userID, close, false,
+	                    userName);
+			}
 		}
 		return Boolean.valueOf(true);
 	}
