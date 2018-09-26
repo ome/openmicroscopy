@@ -995,6 +995,8 @@ class OmeroImageServiceImpl
 	public Object importFile(ImportableObject object,
 							 ImportableFile importable, boolean close)
 			throws ImportException, DSAccessException, DSOutOfServiceException {
+	    Boolean offline = (Boolean)
+                context.lookup(LookupNames.OFFLINE_IMPORT_ENABLED);
 		if (importable == null || importable.getFile() == null)
 			throw new IllegalArgumentException("No images to import.");
 		Status status = importable.getStatus();
@@ -1158,6 +1160,15 @@ class OmeroImageServiceImpl
 					}
 				}
 			}
+			if (offline != null && offline.booleanValue() && ioContainer != null) {
+                DataObject data = PojoMapper.asDataObject(ioContainer);
+                if (data instanceof DatasetData) {
+                    importable.setLocation(importable.getParent(),
+                            (DatasetData) data);
+                } else if (data instanceof ScreenData) {
+                    importable.setLocation(data, null);
+                }
+            }
 			if (ImportableObject.isArbitraryFile(file)) {
 				if (ic == null) //already check if hcs.
 					ic = gateway.getImportCandidates(ctx, object, file, status);
