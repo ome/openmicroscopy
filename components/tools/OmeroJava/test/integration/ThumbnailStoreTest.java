@@ -21,14 +21,11 @@
 package integration;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
-import edu.emory.mathcs.backport.java.util.Collections;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ServerError;
 import omero.api.IRenderingSettingsPrx;
@@ -36,12 +33,12 @@ import omero.api.ThumbnailStorePrx;
 import omero.model.Pixels;
 
 import omero.model.RenderingDef;
+import omero.sys.EventContext;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Collections of tests for the <code>ThumbnailStore</code> service.
@@ -75,14 +72,19 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         /** Reference to the importer store. */
         private OMEROMetadataStoreClient importer;
 
+        private EventContext owner;
+        private File importedFile;
         private Pixels pixels;
 
         @BeforeMethod
         protected void setUpNewUserWithImporter() throws Throwable {
-            newUserAndGroup("rwr-r-");
+            owner = newUserAndGroup("rwr-r-");
             importer = new OMEROMetadataStoreClient();
             importer.initialize(factory);
-            pixels = createSingleFile();
+
+            String format = ModelMockFactory.FORMATS[0];
+            importedFile = createImageFile(format);
+            pixels = importFile(importer, importedFile, format, false).get(0);
         }
 
         /**
@@ -200,6 +202,47 @@ public class ThumbnailStoreTest extends AbstractServerTest {
             svc.close();
         }
 
+        @Test
+        private void testGetThumbnailAsOtherUser() throws Exception {
+            final int sizeX = 96;
+            final int sizeY = 96;
+
+            // Create new user in group and login as that user
+            EventContext newUser = newUserInGroup();
+            loginUser(newUser);
+
+            // Get thumbnail
+            ThumbnailStorePrx svc = getThumbnailStoreForPixels();
+            byte[] values = svc.getThumbnail(
+                    omero.rtypes.rint(sizeX),
+                    omero.rtypes.rint(sizeY));
+            Assert.assertNotNull(values);
+            Assert.assertTrue(values.length > 0);
+            svc.close();
+        }
+
+        @Test
+        private void testGetThumbnailWithoutDefaultAsOtherUser() throws Exception {
+            final int sizeX = 96;
+            final int sizeY = 96;
+
+            // Create new user in group and login as that user
+            EventContext newUser = newUserInGroup();
+            loginUser(newUser);
+
+            // Get thumbnail
+            ThumbnailStorePrx svc = getThumbnailStoreForPixels();
+            byte[] values = svc.getThumbnailWithoutDefault(
+                    omero.rtypes.rint(sizeX),
+                    omero.rtypes.rint(sizeY));
+            Assert.assertNotNull(values);
+            Assert.assertTrue(values.length > 0);
+            svc.close();
+        }
+
+        
+
+
         private void resetRenderingSettingsForPixelsObject(long pixelId) throws ServerError {
             // Reset the rendering settings.
             IRenderingSettingsPrx proxy = factory.getRenderingSettingsService();
@@ -210,26 +253,18 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         private ThumbnailStorePrx getThumbnailStoreForPixels() throws ServerError {
             ThumbnailStorePrx svc = factory.createThumbnailStore();
             long pixelsID = pixels.getId().getValue();
-            if (!(svc.setPixelsId(pixelsID))) {
+            if (!svc.setPixelsId(pixelsID)) {
                 svc.resetDefaults();
                 svc.setPixelsId(pixelsID);
             }
             return svc;
         }
 
-        private Pixels createSingleFile() throws Throwable {
-            File f = null;
-            try {
-                String format = ModelMockFactory.FORMATS[0];
-                f = File.createTempFile("testImportGraphicsImages" + format, "."
-                        + format);
-                mmFactory.createImageFile(f, format);
-                return importFile(importer, f, format, false).get(0);
-            } finally {
-                if (f != null) {
-                    f.delete();
-                }
-            }
+        private File createImageFile(String format) throws Throwable {
+            File f = File.createTempFile("testImportGraphicsImages" + format, "."
+                    + format);
+            mmFactory.createImageFile(f, format);
+            return f;
         }
     }
 
