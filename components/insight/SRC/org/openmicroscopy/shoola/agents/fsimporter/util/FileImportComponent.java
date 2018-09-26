@@ -1478,6 +1478,20 @@ public class FileImportComponent
 		super.setBackground(color);
 	}
 
+	@Override
+    public boolean isOffLineImport()
+    {
+        boolean b = status.isMarkedOffLineImport();
+        if (b || getFile().isFile()) return b;
+        if (components == null) return false;
+        Iterator<FileImportComponent> i = components.values().iterator();
+        while (i.hasNext()) {
+            if (i.next().isOffLineImport())
+                return true;
+        }
+        return false;
+    }
+
 	/* (non-Javadoc)
      * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#propertyChange(java.beans.PropertyChangeEvent)
      */

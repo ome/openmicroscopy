@@ -1032,6 +1032,8 @@ public class LightFileImportComponent implements PropertyChangeListener,
     public void onResultsSaving(String message, boolean busy) {
     }
 
+    public boolean isOffLineImport() { return status.isMarkedOffLineImport(); }
+
     /*
      * (non-Javadoc)
      * 
