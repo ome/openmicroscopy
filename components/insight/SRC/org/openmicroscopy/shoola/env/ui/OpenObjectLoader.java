@@ -137,6 +137,8 @@ public class OpenObjectLoader
                         this); 
     		}
     	} else {
+    	    //Make sure originalImage is set to false in that case
+    	    originalImage = false;
     		FileAnnotationData fa = (FileAnnotationData) object;
     		path += UIUtilities.replaceNonWordCharacters(fa.getFileName());
     		f = new File(path);
