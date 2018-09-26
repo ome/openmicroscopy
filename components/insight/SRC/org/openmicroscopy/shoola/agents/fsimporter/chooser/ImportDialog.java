@@ -1187,7 +1187,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			object.setPixelsSize(size);
 
 		// Add any options for set for skipping server side compute here!
-		object.setSkipChoices(skipComputePanel.getChoices());
+		if (!ImporterAgent.isOfflineImport()) {
+		    object.setSkipChoices(skipComputePanel.getChoices());
+		}
+		
 
 		firePropertyChange(IMPORT_PROPERTY, null, object);
 		table.removeAllFiles();
