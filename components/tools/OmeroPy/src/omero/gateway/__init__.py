@@ -5256,6 +5256,9 @@ class _OriginalFileAsFileObj(object):
     def close(self):
         self.rfs.close()
 
+    def __iter__(self):
+        return self.originalfile.getFileInChunks(self.bufsize)
+
     def __enter__(self):
         return self
 
