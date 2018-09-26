@@ -374,6 +374,13 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Reference to the model.*/
 	private Importer model;
 
+	private boolean isOfflineImport() {
+        Registry context = ImporterAgent.getRegistry();
+        Boolean offline = (Boolean)
+                context.lookup(LookupNames.OFFLINE_IMPORT_ENABLED);
+        return offline != null && offline;
+    }
+
 	/**
 	 * Adds the files to the selection.
 	 *
@@ -1032,8 +1039,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		p.add(buildQuotaPane());
 		p.add(table);
 		tabbedPane.add("Files to import", p);
-		tabbedPane.add("Options", buildOptionsPane());
-
+		if (!isOfflineImport()) {
+            tabbedPane.add("Options", buildOptionsPane());
+        }
 		double[][] tablePanelDesign = {
 				{ TableLayout.PREFERRED, 10, 5, TableLayout.FILL },
 				{ TableLayout.PREFERRED, TableLayout.FILL }
