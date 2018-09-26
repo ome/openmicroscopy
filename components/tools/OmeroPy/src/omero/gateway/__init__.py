@@ -5216,6 +5216,53 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
 AnnotationWrapper._register(FileAnnotationWrapper)
 
 
+class _OriginalFileAsFileObj(object):
+    """
+    Based on
+    https://docs.python.org/2/library/stdtypes.html#file-objects
+    """
+    def __init__(self, originalfile, buf=2621440):
+        self.originalfile = originalfile
+        self.bufsize = buf
+        self.rfs = originalfile._conn.createRawFileStore()
+        self.rfs.setFileId(originalfile.id)
+        self.pos = 0
+
+    def seek(self, n, mode=0):
+        if mode == os.SEEK_SET:
+            self.pos = n
+        elif mode == os.SEEK_CUR:
+            self.pos += n
+        elif mode == os.SEEK_END:
+            self.pos = self.rfs.size() + n
+        else:
+            raise ValueError('Invalid mode: %s' % mode)
+
+    def tell(self):
+        return self.pos
+
+    def read(self, n=-1):
+        buf = ''
+        if n < 0:
+            endpos = self.rfs.size()
+        else:
+            endpos = min(self.pos + n, self.rfs.size())
+        while self.pos < endpos:
+            nread = min(self.bufsize, endpos - self.pos)
+            buf += self.rfs.read(self.pos, nread)
+            self.pos += nread
+        return buf
+
+    def close(self):
+        self.rfs.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+
+
 class _OriginalFileWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     """
     omero_model_OriginalFileI class wrapper extends BlitzObjectWrapper.
@@ -5247,6 +5294,18 @@ class _OriginalFileWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     yield data
         finally:
             store.close()
+
+    def asFileObj(self, buf=2621440):
+        """
+        Return a read-only file-like object.
+        Caller must call close() on the file object after use.
+        This can be done automatically by using the object as a
+        ContextManager.
+
+        :return:    File-like object wrapping the OriginalFile
+        :rtype:     File-like object
+        """
+        return _OriginalFileAsFileObj(self)
 
 
 OriginalFileWrapper = _OriginalFileWrapper
