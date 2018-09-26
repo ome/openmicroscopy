@@ -70,10 +70,14 @@ public class StatusLabel extends JPanel implements PropertyChangeListener {
     /** The text indicating the scanning steps. */
     public static final String CANCELLED_TEXT = "Cancelled";
 
-    /** Text to indicate that the import is off line. */
-    private static final String OFFLINE_TEXT = "The file has been placed "
-            + "in the queue for offline import";
-    
+    /** Text to indicate that an offline import has succeeded. */
+    private static final String OFFLINE_SUCCESS_TEXT =
+            "The file will be imported offline.";
+
+    /** Text to indicate that an offline import has failed. */
+    private static final String OFFLINE_FAIL_TEXT =
+            "Error: The file cannot be imported offline.";
+
     /** The width of the upload bar. */
     private static final int WIDTH = 200;
 
@@ -236,7 +240,12 @@ public class StatusLabel extends JPanel implements PropertyChangeListener {
         } else if(pe.getPropertyName().equals(Status.CANCELLED_PROPERTY)) {
             generalLabel.setText(CANCELLED_TEXT);
         } else if (pe.getPropertyName().equals(Status.OFF_LINE_PROPERTY)) {
-            generalLabel.setText(OFFLINE_TEXT);
+            Boolean b = (Boolean) pe.getNewValue();
+            if (b) {
+                generalLabel.setText(OFFLINE_SUCCESS_TEXT);
+            } else {
+                generalLabel.setText(OFFLINE_FAIL_TEXT);
+            }
         }
     }
 

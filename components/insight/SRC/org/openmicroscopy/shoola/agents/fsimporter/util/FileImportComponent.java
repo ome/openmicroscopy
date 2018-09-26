@@ -1479,19 +1479,31 @@ public class FileImportComponent
 	}
 
 	@Override
-    public boolean isOffLineImport()
-    {
-        boolean b = status.isMarkedOffLineImport();
-        if (b || getFile().isFile()) return b;
-        if (components == null) return false;
-        Iterator<FileImportComponent> i = components.values().iterator();
-        while (i.hasNext()) {
-            if (i.next().isOffLineImport())
-                return true;
+	public void propagateSuccessfulOfflineImportStatus() {
+        if (status != null) {
+            status.notifySuccessfulOfflineImport();
         }
-        return false;
+        setStatus(null);
+        if (hasComponents()) {
+            for (FileImportComponent c : components.values()) {
+                c.propagateSuccessfulOfflineImportStatus();
+            }
+        }
     }
 
+	@Override
+	public void propagateOfflineImportFailureStatus(Exception cause) {
+        if (status != null) {
+            status.notifyOfflineImportFailure(cause);
+        }
+        setStatus(cause);
+        if (hasComponents()) {
+            for (FileImportComponent c : components.values()) {
+                c.propagateOfflineImportFailureStatus(cause);
+            }
+        }
+    }
+	
 	/* (non-Javadoc)
      * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#propertyChange(java.beans.PropertyChangeEvent)
      */

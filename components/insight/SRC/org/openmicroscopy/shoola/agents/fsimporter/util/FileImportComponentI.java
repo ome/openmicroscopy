@@ -399,12 +399,7 @@ public interface FileImportComponentI {
      */
     public abstract void addPropertyChangeListener(PropertyChangeListener l);
 
-    /**
-     * Returns <code>true</code> if the import has been place in the offline
-     * import queue <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    public abstract boolean isOffLineImport();
+    public abstract void propagateSuccessfulOfflineImportStatus();
 
+    public abstract void propagateOfflineImportFailureStatus(Exception cause);
 }

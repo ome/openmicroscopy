@@ -197,8 +197,7 @@ public class Status implements IObserver {
     /** PropertyChangeSupport **/
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
-    /** Flag indicating that the import is an offline import. */
-    private boolean markedAsOffLine;
+    private boolean hasNotifiedOfflineOutcome = false;
 
     /**
      * Add PropertyChangeListener
@@ -680,19 +679,26 @@ public class Status implements IObserver {
         return totalUploadedSize;
     }
 
-    /** Marks the import has offline. */
-    public void markedAsOffLineImport()
-    {
-        //generalLabel.setText(OFFLINE_TEXT);
-        this.markedAsOffLine = true;
+    public void notifySuccessfulOfflineImport() {
+        cancellable = false;
         firePropertyChange(OFF_LINE_PROPERTY, null, Boolean.TRUE);
+        if (!hasNotifiedOfflineOutcome) {
+            hasNotifiedOfflineOutcome = true;  // avoid infinite loops.
+            firePropertyChange(IMPORT_DONE_PROPERTY, null, this);
+        }
     }
 
-    /**
-     * Returns <code>true</code> if the import is marked as an offline import,
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    public boolean isMarkedOffLineImport() { return markedAsOffLine; }
+    public void notifyOfflineImportFailure(Exception cause) {
+        cancellable = false;
+        if (cause instanceof ImportException) {
+            exception = (ImportException) cause;
+        } else {
+            exception = new ImportException(cause);
+        }
+        firePropertyChange(OFF_LINE_PROPERTY, null, Boolean.FALSE);
+        if (!hasNotifiedOfflineOutcome) {
+            hasNotifiedOfflineOutcome = true;  // avoid infinite loops.
+            firePropertyChange(PROCESSING_ERROR_PROPERTY, null, this);
+        }
+    }
 }
