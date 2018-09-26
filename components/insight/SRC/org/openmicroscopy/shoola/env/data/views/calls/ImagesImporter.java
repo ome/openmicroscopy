@@ -111,7 +111,7 @@ public class ImagesImporter
                 }
                 data.targetUri = importable.getOriginalFile().getAbsolutePath();
                 DataObject target = importable.getDataset();
-                if (target != null && target.getId() < 0) {
+                if (target != null && target.getId() > 0) {
                     data.datasetId = ""+target.getId();
                 }
                 target = importable.getParent();
