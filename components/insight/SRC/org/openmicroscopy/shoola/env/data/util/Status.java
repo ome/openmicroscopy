@@ -104,7 +104,10 @@ public class Status implements IObserver {
 
     /** Bound property indicating that the scanning has started. */
     public static final String PROCESSING_ERROR_PROPERTY = "processingError";
-    
+
+    /** Bound property indicating that the import will happen offline. */
+    public static final String OFF_LINE_PROPERTY = "offLine";
+
     /** Bound property indicating that the current import step has changed. */
     public static final String STEP_PROPERTY = "step";
 
@@ -193,6 +196,9 @@ public class Status implements IObserver {
 
     /** PropertyChangeSupport **/
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+
+    /** Flag indicating that the import is an offline import. */
+    private boolean markedAsOffLine;
 
     /**
      * Add PropertyChangeListener
@@ -673,5 +679,20 @@ public class Status implements IObserver {
     public long getTotalUploadedSize() {
         return totalUploadedSize;
     }
-    
+
+    /** Marks the import has offline. */
+    public void markedAsOffLineImport()
+    {
+        //generalLabel.setText(OFFLINE_TEXT);
+        this.markedAsOffLine = true;
+        firePropertyChange(OFF_LINE_PROPERTY, null, Boolean.TRUE);
+    }
+
+    /**
+     * Returns <code>true</code> if the import is marked as an offline import,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isMarkedOffLineImport() { return markedAsOffLine; }
 }
