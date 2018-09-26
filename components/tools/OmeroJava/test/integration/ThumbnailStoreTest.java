@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportConfig;
 import omero.ServerError;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.ThumbnailStorePrx;
@@ -84,7 +85,7 @@ public class ThumbnailStoreTest extends AbstractServerTest {
 
             String format = ModelMockFactory.FORMATS[0];
             importedFile = createImageFile(format);
-            pixels = importFile(importer, importedFile, format, false).get(0);
+            pixels = importFile(importer, importedFile, format).get(0);
         }
 
         /**
@@ -240,9 +241,6 @@ public class ThumbnailStoreTest extends AbstractServerTest {
             svc.close();
         }
 
-        
-
-
         private void resetRenderingSettingsForPixelsObject(long pixelId) throws ServerError {
             // Reset the rendering settings.
             IRenderingSettingsPrx proxy = factory.getRenderingSettingsService();
@@ -258,6 +256,75 @@ public class ThumbnailStoreTest extends AbstractServerTest {
                 svc.setPixelsId(pixelsID);
             }
             return svc;
+        }
+
+        private File createImageFile(String format) throws Throwable {
+            File f = File.createTempFile("testImportGraphicsImages" + format, "."
+                    + format);
+            mmFactory.createImageFile(f, format);
+            return f;
+        }
+    }
+
+
+    public static class SingleThumbnailWithImportOptions extends AbstractServerTest {
+
+        /** Reference to the importer store. */
+        private EventContext owner;
+        private File importedFile;
+        private Pixels pixels;
+
+        @BeforeMethod
+        protected void setUpNewUserWithImporter() throws Throwable {
+            owner = newUserAndGroup("rwr-r-");
+            createImporter();
+        }
+
+        @Test
+        private void testGetThumbnailWithoutRenderingSettingsAsOtherUser() throws Throwable {
+            ImportConfig config = new ImportConfig();
+            config.doThumbnails.set(false); // skip thumbnails
+
+            // Import image without thumbnails
+            pixels = importFile(config);
+
+            // Create new user in group and login as that user
+            EventContext newUser = newUserInGroup();
+            loginUser(newUser);
+
+            final int sizeX = 96;
+            final int sizeY = 96;
+
+            // Try to load image
+            ThumbnailStorePrx svc = getThumbnailStoreForPixels(pixels);
+            byte[] values = svc.getThumbnailWithoutDefault(omero.rtypes.rint(sizeX),
+                    omero.rtypes.rint(sizeY));
+            Assert.assertNotNull(values);
+            Assert.assertTrue(values.length > 0);
+            svc.close();
+        }
+
+        private void resetRenderingSettingsForPixelsObject(long pixelId) throws ServerError {
+            // Reset the rendering settings.
+            IRenderingSettingsPrx proxy = factory.getRenderingSettingsService();
+            RenderingDef settings = proxy.getRenderingSettings(pixelId);
+            proxy.resetDefaults(settings, pixels);
+        }
+
+        private ThumbnailStorePrx getThumbnailStoreForPixels(Pixels pixels) throws ServerError {
+            ThumbnailStorePrx svc = factory.createThumbnailStore();
+            long pixelsID = pixels.getId().getValue();
+            if (!svc.setPixelsId(pixelsID)) {
+                svc.resetDefaults();
+                svc.setPixelsId(pixelsID);
+            }
+            return svc;
+        }
+
+        private Pixels importFile(ImportConfig config) throws Throwable {
+            String format = ModelMockFactory.FORMATS[0];
+            File file = createImageFile(format);
+            return importFile(config, file, format).get(0);
         }
 
         private File createImageFile(String format) throws Throwable {
@@ -288,7 +355,7 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         int thumbNailCount = 20;
         try {
             for (int i = 0; i < thumbNailCount; i++) {
-                List<Pixels> pxls = importFile(importer, f, format, false);
+                List<Pixels> pxls = importFile(importer, f, format);
                 pixelsIds.add(pxls.get(0).getId().getValue());
             }
         } catch (Throwable e) {
@@ -342,7 +409,7 @@ public class ThumbnailStoreTest extends AbstractServerTest {
 
         try {
             /* import the image as one user in one group and get its thumbnail */
-            pixelsIdα = importFile(importer, file, "fake", false).get(0).getId().getValue();
+            pixelsIdα = importFile(importer, file, "fake").get(0).getId().getValue();
             svc = factory.createThumbnailStore();
             svc.setPixelsId(pixelsIdα);
             thumbnail = svc.getThumbnailByLongestSide(null);
@@ -357,7 +424,7 @@ public class ThumbnailStoreTest extends AbstractServerTest {
 
         /* import the image as another user in another group */
         setUpNewUserWithImporter();
-        pixelsIdβ = importFile(importer, file, "fake", false).get(0).getId().getValue();
+        pixelsIdβ = importFile(importer, file, "fake").get(0).getId().getValue();
 
         final Map<Long, byte[]> thumbnails;
 

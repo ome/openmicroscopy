@@ -644,7 +644,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
 
         List<Pixels> list;
         try {
-            list = importFile(importer, f, ModelMockFactory.FORMATS[0], false);
+            list = importFile(importer, f, ModelMockFactory.FORMATS[0]);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -708,7 +708,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
 
         List<Pixels> list;
         try {
-            list = importFile(importer, f, ModelMockFactory.FORMATS[0], false);
+            list = importFile(importer, f, ModelMockFactory.FORMATS[0]);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
