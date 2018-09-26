@@ -13,7 +13,9 @@
 
 """
 
+import Ice
 import omero
+import os
 import pytest
 
 
@@ -155,6 +157,43 @@ class TestWrapper(object):
         assert d.getOwner().omeName == gatewaywrapper.AUTHOR.name
         assert d.getGroup().name == \
             img.getProject().getDetails().getGroup().name
+
+    def testOriginalFileWrapper(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        content = 'abcdefghijklmnopqrstuvwxyz'
+        f = gatewaywrapper.createTestFile(
+            'testOriginalFileWrapper', 'test_wrapper', content)
+
+        assert ''.join(f.getFileInChunks()) == content
+        assert list(f.getFileInChunks(buf=10)) == [
+            'abcdefghij',
+            'klmnopqrst',
+            'uvwxyz',
+        ]
+
+        fobj = f.asFileObj(buf=7)
+        assert fobj.pos == 0
+        assert fobj.read(5) == 'abcde'
+        assert fobj.pos == 5
+        fobj.seek(10)
+        assert fobj.pos == 10
+        assert fobj.read(5) == 'klmno'
+        assert fobj.pos == 15
+        fobj.seek(5, os.SEEK_CUR)
+        assert fobj.pos == 20
+        assert fobj.read(4) == 'uvwx'
+        fobj.seek(-5, os.SEEK_END)
+        assert fobj.pos == 21
+        assert fobj.read(2) == 'vw'
+        assert fobj.read() == 'xyz'
+        assert fobj.read() == ''
+        fobj.close()
+
+        with f.asFileObj() as f2:
+            assert f2.read() == content
+        # Verify closed was automatically called
+        with pytest.raises(omero.ApiUsageException):
+            f2.read()
 
     def testSetters(self, gatewaywrapper):
         """
