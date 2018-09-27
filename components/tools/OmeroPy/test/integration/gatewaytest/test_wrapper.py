@@ -13,6 +13,7 @@
 
 """
 
+import Ice
 import omero
 import os
 import pytest
@@ -196,7 +197,7 @@ class TestWrapper(object):
         with f.asFileObj() as f2:
             assert f2.read() == 'abcdefghijklmnopqrstuvwxyz'
         # Verify close was automatically called
-        with pytest.raises(omero.ApiUsageException):
+        with pytest.raises(Ice.ObjectNotExistException):
             f2.read()
 
     def testOriginalFileWrapperAsFileObjMultiple(self, gatewaywrapper):
