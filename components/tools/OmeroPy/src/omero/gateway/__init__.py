@@ -5224,8 +5224,10 @@ class _OriginalFileAsFileObj(object):
     def __init__(self, originalfile, buf=2621440):
         self.originalfile = originalfile
         self.bufsize = buf
-        self.rfs = originalfile._conn.createRawFileStore()
-        self.rfs.setFileId(originalfile.id)
+        # Can't use BlitzGateway.createRawFileStore as it always returns the
+        # same store https://trello.com/c/lC8hFFix/522
+        self.rfs = originalfile._conn.c.sf.createRawFileStore()
+        self.rfs.setFileId(originalfile.id, originalfile._conn.SERVICE_OPTS)
         self.pos = 0
 
     def seek(self, n, mode=0):
@@ -5257,7 +5259,8 @@ class _OriginalFileAsFileObj(object):
         self.rfs.close()
 
     def __iter__(self):
-        return self.originalfile.getFileInChunks(self.bufsize)
+        while self.pos < self.rfs.size():
+            yield self.read(self.bufsize)
 
     def __enter__(self):
         return self
@@ -5280,23 +5283,9 @@ class _OriginalFileWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :return:    Data from file in chunks
         :rtype:     Generator
         """
-
-        store = self._conn.createRawFileStore()
-        try:
-            store.setFileId(self._obj.id.val, self._conn.SERVICE_OPTS)
-            size = self._obj.size.val
-            if size <= buf:
-                yield store.read(0, long(size))
-            else:
-                for pos in range(0, long(size), buf):
-                    data = None
-                    if size-pos < buf:
-                        data = store.read(pos, size-pos)
-                    else:
-                        data = store.read(pos, buf)
-                    yield data
-        finally:
-            store.close()
+        with self.asFileObj(buf) as f:
+            for chunk in f:
+                yield chunk
 
     def asFileObj(self, buf=2621440):
         """
@@ -5308,7 +5297,7 @@ class _OriginalFileWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :return:    File-like object wrapping the OriginalFile
         :rtype:     File-like object
         """
-        return _OriginalFileAsFileObj(self)
+        return _OriginalFileAsFileObj(self, buf)
 
 
 OriginalFileWrapper = _OriginalFileWrapper
