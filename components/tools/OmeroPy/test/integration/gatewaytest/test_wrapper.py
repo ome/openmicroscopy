@@ -194,11 +194,13 @@ class TestWrapper(object):
         assert fobj.read() == ''
         fobj.close()
 
-        with f.asFileObj() as f2:
-            assert f2.read() == 'abcdefghijklmnopqrstuvwxyz'
+    def testOriginalFileWrapperAsFileObjContextManager(self, gatewaywrapper):
+        f = self.createTestFile(gatewaywrapper)
+        with f.asFileObj() as fobj:
+            assert fobj.read() == 'abcdefghijklmnopqrstuvwxyz'
         # Verify close was automatically called
         with pytest.raises(Ice.ObjectNotExistException):
-            f2.read()
+            fobj.read()
 
     def testOriginalFileWrapperAsFileObjMultiple(self, gatewaywrapper):
         # Test that multiple file objects are allowed
