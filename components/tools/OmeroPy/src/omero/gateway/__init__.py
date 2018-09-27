@@ -2556,10 +2556,8 @@ class _BlitzGateway (object):
 
     def createRawFileStore(self):
         """
-        Creates a new raw file store.
-        This service is special in that it does not get cached inside
-        BlitzGateway so every call to this function returns a new object,
-        avoiding unexpected inherited states.
+        Gets a reference to the raw file store on this connection object or
+        creates a new one if none exists.
 
         :return:    omero.gateway.ProxyObjectWrapper
         """
@@ -2648,10 +2646,8 @@ class _BlitzGateway (object):
 
     def createRawPixelsStore(self):
         """
-        Creates a new raw pixels store.
-        This service is special in that it does not get cached inside
-        BlitzGateway so every call to this function returns a new object,
-        avoiding unexpected inherited states.
+        Gets a reference to the raw pixels store on this connection object or
+        creates a new one if none exists.
 
         :return:    omero.gateway.ProxyObjectWrapper
         """
