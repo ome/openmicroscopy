@@ -5289,6 +5289,10 @@ class _OriginalFileWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Caller must call close() on the file object after use.
         This can be done automatically by using the object as a
         ContextManager.
+        For example:
+
+            with f.asFileObj() as fo:
+                content = fo.read()
 
         :return:    File-like object wrapping the OriginalFile
         :rtype:     File-like object
