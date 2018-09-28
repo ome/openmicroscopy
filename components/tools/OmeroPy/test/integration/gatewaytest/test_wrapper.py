@@ -207,8 +207,9 @@ class TestWrapper(object):
         # https://trello.com/c/lC8hFFix/522
         f1 = self.createTestFile(gatewaywrapper)
         f2 = self.createTestFile(gatewaywrapper)
-        with f1.asFileObj() as fobj1, f2.asFileObj() as fobj2:
-            assert fobj1.rfs.getFileId().val != fobj2.rfs.getFileId().val
+        with f1.asFileObj() as fobj1:
+            with f2.asFileObj() as fobj2:
+                assert fobj1.rfs.getFileId().val != fobj2.rfs.getFileId().val
 
     def testSetters(self, gatewaywrapper):
         """
