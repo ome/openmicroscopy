@@ -266,6 +266,11 @@ public class ThumbnailStoreTest extends AbstractServerTest {
          * Test scenario outlined on:
          * https://trello.com/c/itoDPkxB/24-read-only-settings-and-thumbnails-generation
          *
+         * 1. User 1 import image and skip thumbnail generation (don't view it)
+         * 2. User 2 view the image (create rendering settings)
+         * 3. User 1 view the image and change the rendering settings
+         * 4. User 2 view load their thumbnail and compare to user 1's thumbnail
+         *
          * @throws Throwable
          */
         @Test
