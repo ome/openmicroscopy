@@ -106,7 +106,6 @@
   <!-- Quieting blitz startup -->
   <logger name="net.sf.ehcache" level="ERROR"/>
   <logger name="loci" level="INFO"/><!-- Bio-Formats -->
-  <logger name="loci.formats.Memoizer" level="DEBUG"/>
   <logger name="ucar" level="WARN"/><!-- NetCDF -->
 
   <!-- BUILD ////////////////////////////////////////////////////////////////// -->
