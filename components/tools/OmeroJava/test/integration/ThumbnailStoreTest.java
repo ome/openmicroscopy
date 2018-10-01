@@ -75,6 +75,8 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         @BeforeMethod
         public void setUpNewUserWithImporter() throws Throwable {
             owner = newUserAndGroup("rwr-r-");
+            loginUser(owner);
+
             importer = new OMEROMetadataStoreClient();
             importer.initialize(factory);
 
@@ -146,7 +148,7 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         }
 
         @Test
-        private void testGetThumbnailAsOtherUser() throws Exception {
+        public void testGetThumbnailAsOtherUser() throws Exception {
             // Close current thumbnail store
             svc.close();
 
@@ -165,7 +167,7 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         }
 
         @Test
-        private void testGetThumbnailWithoutDefaultAsOtherUser() throws Exception {
+        public void testGetThumbnailWithoutDefaultAsOtherUser() throws Exception {
             // Close current thumbnail store
             svc.close();
 
@@ -198,12 +200,12 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         }
     }
 
-
     /**
      * Tests utilising single thumbnail loading APIs by users other than the
-     * owner of the image.
+     * owner of the image. In each test an image is imported into OMERO without
+     * thumbnails (--skip thumbnails).
      */
-    public static class SingleThumbnailMultiUser extends AbstractServerTest {
+    public static class SingleThumbnailSkipThumbnailsMultiUser extends AbstractServerTest {
 
         @BeforeMethod
         protected void setUpNewUserWithImporter() throws Throwable {
