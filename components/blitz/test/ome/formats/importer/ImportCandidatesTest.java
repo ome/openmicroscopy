@@ -22,11 +22,14 @@
 package ome.formats.importer;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
 import org.testng.annotations.Test;
+
+import com.google.common.collect.Collections2;
 
 import junit.framework.Assert;
 
@@ -44,12 +47,11 @@ public class ImportCandidatesTest {
     private HashSet<String> expectedFiles = null;
     private HashMap<String, Boolean> results = new HashMap<String, Boolean>();
 
-    public static final String[] files;
+    public static final List<String> files = new ArrayList<String>();
     static {
         File[] list = (new File(folder)).listFiles();
-        files = new String[list.length];
         for (int i = 0; i < list.length; i++) {
-            files[i] = list[i].getAbsolutePath();
+            files.add(list[i].getAbsolutePath());
         }
     }
 
@@ -58,28 +60,31 @@ public class ImportCandidatesTest {
 
     @Test
     public void testOrder() {
-        generatePermutations(files.length, files);
+        for(List<String> imp : Collections2.orderedPermutations(files)) {
+            String[] f = new String[imp.size()];
+            f = imp.toArray(f);
+            testImportCandidates(f);
+        }
+        
         int failed = 0;
         StringBuilder sb = new StringBuilder();
         for (String listing : results.keySet()) {
             if (!results.get(listing)) {
                 failed++;
-                sb.append("Failed:");
+                sb.append("Failed:\n");
                 sb.append(listing);
-                sb.append("----");
+                sb.append("----\n");
             }
         }
         Assert.assertTrue(sb.toString(), failed == 0);
     }
 
     void testImportCandidates(String[] files) {
-        System.out.println("\nTesting:");
         StringBuilder sb = new StringBuilder();
         for (String f : files) {
             sb.append(f);
             sb.append("\n");
         }
-        System.out.println(sb.toString());
 
         ImportConfig config = new ImportConfig();
         OMEROWrapper w = new OMEROWrapper(config);
@@ -101,42 +106,21 @@ public class ImportCandidatesTest {
                 expectedFiles.add(con.getFile().getAbsolutePath());
             }
         } else {
-            results.put(sb.toString(), expectedNumber == cons.size());
-            for (ImportContainer con : cons) {
-                Assert.assertTrue(
-                        con.getFile().getAbsolutePath() + " was not expected!",
-                        expectedFiles
-                                .contains(con.getFile().getAbsolutePath()));
-            }
-        }
-    }
-
-    /**
-     * Generate all possible permutations. See
-     * https://en.wikipedia.org/wiki/Heap's_algorithm
-     * 
-     * @param n
-     *            The number of files (start with files.length)
-     * @param files
-     *            The files
-     */
-    void generatePermutations(int n, String[] files) {
-        if (n > 1) {
-            generatePermutations(n - 1, files);
-            for (int i = 0; i < n - 1; i++) {
-                if (n % 2 == 0) {
-                    String tmp = files[i];
-                    files[i] = files[n - 1];
-                    files[n - 1] = tmp;
-                } else {
-                    String tmp = files[0];
-                    files[0] = files[n - 1];
-                    files[n - 1] = tmp;
+            boolean ok = expectedNumber == cons.size();
+            if (ok) {
+                for (ImportContainer con : cons) {
+                    if (!expectedFiles
+                            .contains(con.getFile().getAbsolutePath())) {
+                        ok = false;
+                        sb.append("Unexpected file "+con.getFile().getAbsolutePath()+"\n");
+                        break;
+                    }
                 }
-                generatePermutations(n - 1, files);
             }
-        } else {
-            testImportCandidates(files);
+            else {
+                sb.append(cons.size()+" containers ("+expectedNumber+" expected)\n");
+            }
+            results.put(sb.toString(), ok);
         }
     }
 }
