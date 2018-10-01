@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import omero.ServerError;
@@ -34,24 +35,23 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.model.Pixels;
-
 import omero.model.RenderingDef;
 import omero.sys.EventContext;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
 
 /**
  * Collections of tests for the <code>ThumbnailStore</code> service.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:donald@lifesci.dundee.ac.uk"
- *         >donald@lifesci.dundee.ac.uk</a>
+ * href="mailto:donald@lifesci.dundee.ac.uk"
+ * >donald@lifesci.dundee.ac.uk</a>
  * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 3.0-Beta4
  */
@@ -62,7 +62,9 @@ public class ThumbnailStoreTest extends AbstractServerTest {
      */
     public static class SingleThumbnail extends AbstractServerTest {
 
-        /** Reference to the importer store. */
+        /**
+         * Reference to the importer store.
+         */
         private OMEROMetadataStoreClient importer;
 
         private EventContext owner;
@@ -93,8 +95,7 @@ public class ThumbnailStoreTest extends AbstractServerTest {
          * Test to retrieve the newly created image. Tests thumbnailService methods:
          * getThumbnail(rint, rint) and getThumbnailByLongestSide(rint)
          *
-         * @throws Exception
-         *             Thrown if an error occurred.
+         * @throws Exception Thrown if an error occurred.
          */
         @Test
         public void testGetThumbnail() throws Exception {
@@ -121,8 +122,7 @@ public class ThumbnailStoreTest extends AbstractServerTest {
          * thumbnailService methods: getThumbnail(rint, rint) and
          * getThumbnailByLongestSide(rint)
          *
-         * @throws Exception
-         *             Thrown if an error occurred.
+         * @throws Exception Thrown if an error occurred.
          */
         @Test
         public void testGetThumbnailAfterReset() throws Exception {
@@ -205,17 +205,17 @@ public class ThumbnailStoreTest extends AbstractServerTest {
      */
     public static class SingleThumbnailMultiUser extends AbstractServerTest {
 
-        /** Reference to the importer store. */
-        private EventContext user1;
-
         @BeforeMethod
         protected void setUpNewUserWithImporter() throws Throwable {
-            user1 = newUserAndGroup("rwr---");
             createImporter();
         }
 
-        @Test
-        private void testGetThumbnail() throws Throwable {
+        @Test(dataProvider = "permissions")
+        public void testGetThumbnail(String permissions) throws Throwable {
+            // Create two users in same group
+            EventContext user1 = newUserAndGroup(permissions);
+            loginUser(user1);
+
             ImportConfig config = new ImportConfig();
             config.doThumbnails.set(false); // skip thumbnails
 
@@ -234,12 +234,25 @@ public class ThumbnailStoreTest extends AbstractServerTest {
 
             // Try to load image
             svc = factory.createThumbnailStore();
-            setThumbnailStoreToPixels(svc, pixels.getId().getValue());
-            getThumbnail(svc);
+            try {
+                setThumbnailStoreToPixels(svc, pixels.getId().getValue());
+                getThumbnail(svc);
+            } catch (omero.ResourceError e) {
+                // With permission rw----, the image is private to user 1.
+                // Expect this to fail for user 2.
+                if (!permissions.equalsIgnoreCase("rw----")) {
+                    throw e;
+                }
+            }
         }
 
-        @Test
-        private void testGetThumbnailWithoutDefault() throws Throwable {
+        @Test(dataProvider = "permissions")
+        public void testGetThumbnailWithoutDefault(String permissions) throws Throwable {
+            // Create two users in same group
+            EventContext user1 = newUserAndGroup(permissions);
+            loginUser(user1);
+
+            // Obtain image
             ImportConfig config = new ImportConfig();
             config.doThumbnails.set(false); // skip thumbnails
 
@@ -258,14 +271,22 @@ public class ThumbnailStoreTest extends AbstractServerTest {
 
             // Try to load image
             svc = factory.createThumbnailStore();
-            setThumbnailStoreToPixels(svc, pixels.getId().getValue());
-            getThumbnailWithoutDefault(svc);
+            try {
+                setThumbnailStoreToPixels(svc, pixels.getId().getValue());
+                getThumbnailWithoutDefault(svc);
+            } catch (omero.ResourceError e) {
+                // With permission rw----, the image is private to user 1.
+                // Expect this to fail for user 2.
+                if (!permissions.equalsIgnoreCase("rw----")) {
+                    throw e;
+                }
+            }
         }
 
         /**
          * Test scenario outlined on:
          * https://trello.com/c/itoDPkxB/24-read-only-settings-and-thumbnails-generation
-         *
+         * <p>
          * 1. User 1 import image and skip thumbnail generation (don't view it)
          * 2. User 2 view the image (create rendering settings)
          * 3. User 1 view the image and change the rendering settings
@@ -273,8 +294,16 @@ public class ThumbnailStoreTest extends AbstractServerTest {
          *
          * @throws Throwable
          */
-        @Test
-        private void testGetThumbnailWithRenderingSettingsChange() throws Throwable {
+        @Test(dataProvider = "permissions")
+        public void testGetThumbnailWithRenderingSettingsChange(String permissions) throws Throwable {
+            // Skip this test for rw---- group
+            if (permissions.equalsIgnoreCase("rw----")) {
+                return;
+            }
+
+            EventContext user1 = newUserAndGroup(permissions);
+            loginUser(user1);
+
             ImportConfig config = new ImportConfig();
             config.doThumbnails.set(false); // skip thumbnails
 
@@ -338,6 +367,11 @@ public class ThumbnailStoreTest extends AbstractServerTest {
             Assert.assertTrue(Arrays.equals(user1Thumbnail, user2Thumbnail));
         }
 
+        @DataProvider(name = "permissions")
+        public Object[][] providePermissions() {
+            return new Object[][]{{"rw----"}, {"rwr---"}, {"rwra--"}, {"rwrw--"}};
+        }
+
         private Pixels importFile(ImportConfig config) throws Throwable {
             String format = ModelMockFactory.FORMATS[0];
             File file = createImageFile(format);
@@ -353,11 +387,14 @@ public class ThumbnailStoreTest extends AbstractServerTest {
     }
 
     public static class BatchOfThumbnails extends AbstractServerTest {
-        /** Reference to the importer store. */
+        /**
+         * Reference to the importer store.
+         */
         private OMEROMetadataStoreClient importer;
 
         /**
          * Set up a new user in a new group and set the local {@code importer} field.
+         *
          * @throws Exception unexpected
          */
         @BeforeMethod
@@ -371,8 +408,7 @@ public class ThumbnailStoreTest extends AbstractServerTest {
          * Tests thumbnailService methods: getThumbnailSet(rint, rint, list<long>)
          * and getThumbnailByLongestSideSet(rint, list<long>)
          *
-         * @throws Exception
-         *             Thrown if an error occurred.
+         * @throws Exception Thrown if an error occurred.
          */
         @Test
         public void testGetThumbnailSet() throws Exception {
@@ -426,6 +462,7 @@ public class ThumbnailStoreTest extends AbstractServerTest {
 
         /**
          * Test that thumbnails can be retrieved from multiple groups at once.
+         *
          * @throws Throwable unexpected
          */
         @Test
@@ -504,7 +541,6 @@ public class ThumbnailStoreTest extends AbstractServerTest {
                 omero.rtypes.rint(sizeX),
                 omero.rtypes.rint(sizeY));
         Assert.assertNotNull(values);
-        Assert.assertTrue(values.length > 0);
 
         // Return the bytes
         return values;
