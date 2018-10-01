@@ -22,6 +22,7 @@
 package ome.formats.importer;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -31,16 +32,17 @@ import junit.framework.Assert;
 
 /**
  * Tests that the order of the files to import doesn't matter.
- * 
+ *
  * * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public class ImportCandidatesTest {
 
-    private static final String folder = "/Users/dlindner/dv_issue";
+    private static final String folder = "/tmp/21768/";
 
     private int expectedNumber = -1;
     private HashSet<String> expectedFiles = null;
+    private HashMap<String, Boolean> results = new HashMap<String, Boolean>();
 
     public static final String[] files;
     static {
@@ -57,12 +59,27 @@ public class ImportCandidatesTest {
     @Test
     public void testOrder() {
         generatePermutations(files.length, files);
+        int failed = 0;
+        StringBuilder sb = new StringBuilder();
+        for (String listing : results.keySet()) {
+            if (!results.get(listing)) {
+                failed++;
+                sb.append("Failed:");
+                sb.append(listing);
+                sb.append("----");
+            }
+        }
+        Assert.assertTrue(sb.toString(), failed == 0);
     }
 
     void testImportCandidates(String[] files) {
         System.out.println("\nTesting:");
-        for (String f : files)
-            System.out.println(f);
+        StringBuilder sb = new StringBuilder();
+        for (String f : files) {
+            sb.append(f);
+            sb.append("\n");
+        }
+        System.out.println(sb.toString());
 
         ImportConfig config = new ImportConfig();
         OMEROWrapper w = new OMEROWrapper(config);
@@ -84,8 +101,7 @@ public class ImportCandidatesTest {
                 expectedFiles.add(con.getFile().getAbsolutePath());
             }
         } else {
-            Assert.assertEquals("Number of ImportContainers is different!",
-                    expectedNumber, cons.size());
+            results.put(sb.toString(), expectedNumber == cons.size());
             for (ImportContainer con : cons) {
                 Assert.assertTrue(
                         con.getFile().getAbsolutePath() + " was not expected!",
