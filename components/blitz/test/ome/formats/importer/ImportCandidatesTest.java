@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Collections2;
@@ -56,7 +56,7 @@ public class ImportCandidatesTest {
     public ImportCandidatesTest() {
     }
 
-    @BeforeMethod
+    @BeforeClass
     public void createFiles() throws Exception {
         testFolder = TempFileManager.create_path("ImportCandidatesTest", "", true);
         
@@ -85,7 +85,7 @@ public class ImportCandidatesTest {
         expectedFilesets.add(f.getAbsolutePath());
     }
 
-    @AfterMethod
+    @AfterClass
     public void deleteFiles() throws Exception {
         FileUtils.deleteQuietly(testFolder);
     }
@@ -98,6 +98,12 @@ public class ImportCandidatesTest {
             f = imp.toArray(f);
             testImportCandidates(f);
         }
+    }
+    
+    @Test
+    public void testFolder() {
+        // test the folder itself
+        testImportCandidates(new String[] {testFolder.getAbsolutePath()});
     }
 
     /**
