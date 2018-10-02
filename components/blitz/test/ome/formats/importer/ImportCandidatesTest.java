@@ -21,71 +21,90 @@
 
 package ome.formats.importer;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Collections2;
 
 import junit.framework.Assert;
+import omero.util.TempFileManager;
 
 /**
- * Tests that the order of the files to import doesn't matter.
+ * Tests that filesets aren't skipped if they reference a common file. 
+ * Also makes sure that the order of these files doesn't matter either.
  *
  * * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public class ImportCandidatesTest {
 
-    private static final String folder = "/tmp/21768/";
-
-    private int expectedNumber = -1;
-    private HashSet<String> expectedFiles = null;
-    private HashMap<String, Boolean> results = new HashMap<String, Boolean>();
-
-    public static final List<String> files = new ArrayList<String>();
-    static {
-        File[] list = (new File(folder)).listFiles();
-        for (int i = 0; i < list.length; i++) {
-            files.add(list[i].getAbsolutePath());
-        }
-    }
-
+    private File testFolder;
+    private final List<String> testFiles = new ArrayList<String>();
+    private final Set<String> expectedFilesets = new HashSet<String>();
+    
     public ImportCandidatesTest() {
     }
 
+    @BeforeMethod
+    public void createFiles() throws Exception {
+        testFolder = TempFileManager.create_path("ImportCandidatesTest", "", true);
+        
+        // Create a test.nhdr / test.raw pair, but also an additional 
+        // test_extra.nhdr referencing the same test.raw file
+        // Expected result: Two filesets test.nhdr and test_extra.nhdr 
+        // should be imported.
+        final String content = "NRRD0001\n" + 
+                         "type: float\n" + 
+                         "sizes: 7 38 39 40\n" + 
+                         "data file: ./test.raw\n" + 
+                         "encoding: raw";
+        
+        File f = new File(testFolder, "test.raw");
+        echo("", f);
+        testFiles.add(f.getAbsolutePath());
+        
+        f = new File(testFolder, "test.nhdr");
+        echo(content, f);
+        testFiles.add(f.getAbsolutePath());
+        expectedFilesets.add(f.getAbsolutePath());
+        
+        f = new File(testFolder, "test_extra.nhdr");
+        echo(content, f);
+        testFiles.add(f.getAbsolutePath());
+        expectedFilesets.add(f.getAbsolutePath());
+    }
+
+    @AfterMethod
+    public void deleteFiles() throws Exception {
+        FileUtils.deleteQuietly(testFolder);
+    }
+    
     @Test
     public void testOrder() {
-        for(List<String> imp : Collections2.orderedPermutations(files)) {
+        // Test all possible permutations; the result should always be the same
+        for(List<String> imp : Collections2.orderedPermutations(testFiles)) {
             String[] f = new String[imp.size()];
             f = imp.toArray(f);
             testImportCandidates(f);
         }
-        
-        int failed = 0;
-        StringBuilder sb = new StringBuilder();
-        for (String listing : results.keySet()) {
-            if (!results.get(listing)) {
-                failed++;
-                sb.append("Failed:\n");
-                sb.append(listing);
-                sb.append("----\n");
-            }
-        }
-        Assert.assertTrue(sb.toString(), failed == 0);
     }
 
+    /**
+     * Test a specific combination of files
+     * @param files The files to check
+     */
     void testImportCandidates(String[] files) {
-        StringBuilder sb = new StringBuilder();
-        for (String f : files) {
-            sb.append(f);
-            sb.append("\n");
-        }
-
         ImportConfig config = new ImportConfig();
         OMEROWrapper w = new OMEROWrapper(config);
         IObserver o = new IObserver() {
@@ -95,32 +114,45 @@ public class ImportCandidatesTest {
         };
 
         ImportCandidates ic = new ImportCandidates(w, files, o);
+        
         List<ImportContainer> cons = ic.getContainers();
-
-        if (expectedFiles == null) {
-            // first import test, set this as the expected result for the
-            // subsequent tests
-            expectedNumber = cons.size();
-            expectedFiles = new HashSet<String>();
-            for (ImportContainer con : cons) {
-                expectedFiles.add(con.getFile().getAbsolutePath());
-            }
-        } else {
-            boolean ok = expectedNumber == cons.size();
-            if (ok) {
-                for (ImportContainer con : cons) {
-                    if (!expectedFiles
-                            .contains(con.getFile().getAbsolutePath())) {
-                        ok = false;
-                        sb.append("Unexpected file "+con.getFile().getAbsolutePath()+"\n");
-                        break;
-                    }
-                }
-            }
-            else {
-                sb.append(cons.size()+" containers ("+expectedNumber+" expected)\n");
-            }
-            results.put(sb.toString(), ok);
+        Assert.assertEquals(info(files, cons), expectedFilesets.size(), cons.size());
+        
+        for(ImportContainer con : cons) {
+            Assert.assertTrue(info(files, cons), expectedFilesets.contains(con.getFile().getAbsolutePath()));
+        }
+    }
+    
+    /**
+     * Just generates a String with detailed information about the 
+     * current test situation
+     * @param files The files array being tested
+     * @param cons The ImportContainer returned from ImportCandidates
+     * @return An informative String
+     */
+    private String info(String[] files, List<ImportContainer> cons) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\nInput:\n");
+        for(String f : files)
+            sb.append(f+"\n");
+        sb.append("\nExpected filesets:\n");
+        for(String s : expectedFilesets)
+            sb.append(s+"\n");
+        sb.append("\nActual filesets:\n");
+        for(ImportContainer c : cons)
+            sb.append(c.getFile().getAbsolutePath()+"\n");
+        return sb.toString();
+    }
+    
+    /**
+     * Simply writes the content into the file
+     * @param content The content
+     * @param file The file
+     * @throws IOException If the file couldn't be wrote
+     */
+    private static void echo(String content, File file) throws IOException {
+        try(BufferedWriter out = new BufferedWriter(new FileWriter(file))) {
+            out.write(content);
         }
     }
 }
