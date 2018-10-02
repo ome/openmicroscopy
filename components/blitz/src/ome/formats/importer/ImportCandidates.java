@@ -621,7 +621,9 @@ public class ImportCandidates extends DirectoryWalker
             public void removeSelfIfSingular() {
                 int users = theyUseMe.size();
                 int used = iUseThem.size();
-                if (used <= 1 && users > 0) {
+                if (used < users) {
+                    // remove only if this file has more users
+                    // than it uses other associated files itself
                     groups.remove(key);
                 }
             }
