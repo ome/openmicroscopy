@@ -46,56 +46,56 @@ import omero.gateway.model.ScreenData;
 public class ModelMockFactory {
 
     /** The default width of an image. */
-    static final int WIDTH = 100;
+    public static final int WIDTH = 100;
 
     /** The default height of an image. */
-    static final int HEIGHT = 100;
+    public static final int HEIGHT = 100;
 
     /** The basic formats tested. */
-    static final String[] FORMATS = { "jpeg", "png" };
+    public static final String[] FORMATS = { "jpeg", "png" };
 
     /** Identifies the laser light source. */
-    static String LASER = Laser.class.getName();
+    public static final String LASER = Laser.class.getName();
 
     /** Identifies the filament light source. */
-    static String FILAMENT = Filament.class.getName();
+    public static final String FILAMENT = Filament.class.getName();
 
     /** Identifies the arc light source. */
-    static String ARC = Arc.class.getName();
+    public static final String ARC = Arc.class.getName();
 
     /** Identifies the arc light source. */
-    static String LIGHT_EMITTING_DIODE = LightEmittingDiode.class.getName();
+    public static final String LIGHT_EMITTING_DIODE = LightEmittingDiode.class.getName();
 
     /** The possible sources of light. */
-    static String[] LIGHT_SOURCES = { LASER, FILAMENT, ARC,
+    public static final String[] LIGHT_SOURCES = { LASER, FILAMENT, ARC,
             LIGHT_EMITTING_DIODE };
 
     /** The default number of channels. */
-    static int DEFAULT_CHANNELS_NUMBER = 3;
+    public static final int DEFAULT_CHANNELS_NUMBER = 3;
 
     /** The default size along the X-axis. */
-    static int SIZE_X = 10;
+    public static final int SIZE_X = 10;
 
     /** The default size along the Y-axis. */
-    static int SIZE_Y = 10;
+    public static final int SIZE_Y = 10;
 
     /** The number of z-sections. */
-    static int SIZE_Z = 10;
+    public static final int SIZE_Z = 10;
 
     /** The number of time points. */
-    static int SIZE_T = 10;
+    public static final int SIZE_T = 10;
 
     /** The dimension order for the pixels type. */
-    static String XYZCT = omero.model.enums.DimensionOrderXYZCT.value;
+    public static final String XYZCT = omero.model.enums.DimensionOrderXYZCT.value;
 
     /** The unsigned int 16 pixels Type. */
-    static String UINT16 = omero.model.enums.PixelsTypeuint16.value;
+    public static final String UINT16 = omero.model.enums.PixelsTypeuint16.value;
 
     /** The unsigned int 8 pixels Type. */
-    static String UINT8 = omero.model.enums.PixelsTypeuint8.value;
+    public static final String UINT8 = omero.model.enums.PixelsTypeuint8.value;
     
     /** The bit pixels Type. */
-    static String BIT =  omero.model.enums.PixelsTypebit.value;
+    public static final String BIT =  omero.model.enums.PixelsTypebit.value;
 
     /** Helper reference to the <code>ITypes</code> service. */
     private ITypesPrx typesService;
