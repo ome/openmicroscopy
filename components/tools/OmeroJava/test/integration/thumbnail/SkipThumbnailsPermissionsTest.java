@@ -6,6 +6,9 @@ import ome.formats.importer.ImportConfig;
 import omero.ServerError;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
+import omero.model.EventI;
+import omero.model.EventLog;
+import omero.model.EventLogI;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.Pixels;
@@ -27,7 +30,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Tests utilising single thumbnail loading APIs by users other than the
@@ -43,13 +45,19 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
     private static final String FORMAT = "png";
 
     /* Total wait time will be WAITS * INTERVAL milliseconds */
-    /** Maximum number of intervals to wait for pyramid **/
-    private static final int WAITS = 100;
+    /**
+     * Maximum number of intervals to wait for pyramid
+     **/
+    private static final int WAITS = 500;
 
-    /** Wait time in milliseconds **/
-    private static final long INTERVAL = TimeUnit.HOURS.toMillis(1);
+    /**
+     * Wait time in milliseconds
+     **/
+    private static final long INTERVAL = 1000L;
 
-    /** The collection of files that have to be deleted. */
+    /**
+     * The collection of files that have to be deleted.
+     */
     private List<File> files;
 
     @BeforeMethod
@@ -163,7 +171,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         // View image as user 1
         ThumbnailStorePrx svc = factory.createThumbnailStore();
         Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
-        Utils.getThumbnailWithoutDefault(svc);
+        Utils.getThumbnail(svc);
         svc.close();
 
         // Create new user in group and login as that user
@@ -173,7 +181,39 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         svc = factory.createThumbnailStore();
         try {
             Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
-            Utils.getThumbnailWithoutDefault(svc);
+            byte[] data = Utils.getThumbnail(svc);
+            Assert.assertTrue(data.length > 0);
+        } catch (omero.ResourceError e) {
+            // With permission rw----, the image is private to user 1.
+            // Expect this to fail for user 2.
+            if (!permissions.equalsIgnoreCase("rw----")) {
+                throw e;
+            }
+        }
+    }
+
+    @Test(dataProvider = "permissions")
+    public void testGetThumbnailLargeAsUser2Only(String permissions, boolean isAdmin, boolean isGroupOwner) throws Throwable {
+        // Create two users in same group
+        EventContext user1 = newUserAndGroup(permissions);
+        loginUser(user1);
+
+        // Obtain image
+        ImportConfig config = new ImportConfig();
+        config.doThumbnails.set(false); // skip thumbnails
+
+        // Create a png file, with all RGB values FFFFFF
+        Pixels pixels = importLargeFile(config);
+
+        // Create new user in group and login as that user
+        addUserAndLogin(user1, isAdmin, isGroupOwner);
+
+        // Try to load image
+        ThumbnailStorePrx svc = factory.createThumbnailStore();
+        try {
+            Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
+            byte[] data = Utils.getThumbnail(svc);
+            Assert.assertTrue(data.length > 0);
         } catch (omero.ResourceError e) {
             // With permission rw----, the image is private to user 1.
             // Expect this to fail for user 2.
@@ -185,8 +225,70 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
 
     @Test(dataProvider = "permissions")
     public void testGetThumbnailWithoutDefaultLarge(String permissions, boolean isAdmin, boolean isGroupOwner) throws Throwable {
+        // Create two users in same group
+        EventContext user1 = newUserAndGroup(permissions);
+        loginUser(user1);
 
+        // Obtain image
+        ImportConfig config = new ImportConfig();
+        config.doThumbnails.set(false); // skip thumbnails
 
+        // Create a png file, with all RGB values FFFFFF
+        Pixels pixels = importLargeFile(config);
+
+        // View image as user 1
+        ThumbnailStorePrx svc = factory.createThumbnailStore();
+        Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
+        Utils.getThumbnailWithoutDefault(svc);
+        svc.close();
+
+        // Create new user in group and login as that user
+        addUserAndLogin(user1, isAdmin, isGroupOwner);
+
+        // Try to load image
+        svc = factory.createThumbnailStore();
+        try {
+            Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
+            byte[] data = Utils.getThumbnailWithoutDefault(svc);
+            Assert.assertTrue(data.length > 0);
+        } catch (omero.ResourceError e) {
+            // With permission rw----, the image is private to user 1.
+            // Expect this to fail for user 2.
+            if (!permissions.equalsIgnoreCase("rw----")) {
+                throw e;
+            }
+        }
+    }
+
+    @Test(dataProvider = "permissions")
+    public void testGetThumbnailWithoutDefaultLargeAsUser2Only(String permissions, boolean isAdmin, boolean isGroupOwner) throws Throwable {
+        // Create two users in same group
+        EventContext user1 = newUserAndGroup(permissions);
+        loginUser(user1);
+
+        // Obtain image
+        ImportConfig config = new ImportConfig();
+        config.doThumbnails.set(false); // skip thumbnails
+
+        // Create a png file, with all RGB values FFFFFF
+        Pixels pixels = importLargeFile(config);
+
+        // Create new user in group and login as that user
+        addUserAndLogin(user1, isAdmin, isGroupOwner);
+
+        // Try to load image
+        ThumbnailStorePrx svc = factory.createThumbnailStore();
+        try {
+            Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
+            byte[] data = Utils.getThumbnailWithoutDefault(svc);
+            Assert.assertEquals(0, data.length);
+        } catch (omero.ResourceError e) {
+            // With permission rw----, the image is private to user 1.
+            // Expect this to fail for user 2.
+            if (!permissions.equalsIgnoreCase("rw----")) {
+                throw e;
+            }
+        }
     }
 
     /**
@@ -332,13 +434,13 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         return importFile(config, file, format).get(0);
     }
 
+//    private Pixels importLargeFile(ImportConfig config) throws Throwable {
+//        File f = File.createTempFile("bigImageFake&pixelType=uint8&sizeX=4096&sizeY=4096", ".fake");
+//        return importAndWaitForPyramid(config, f, "fake");
+//    }
+
     private Pixels importLargeFile(ImportConfig config) throws Throwable {
-        BufferedImage bi = new BufferedImage(4096, 4096, BufferedImage.TYPE_INT_RGB);
-        for (int x = 0; x < bi.getWidth(); x++) {
-            for (int y = 0; y < bi.getHeight(); y++) {
-                bi.setRGB(x, y, Integer.valueOf("FFFFFF", 16));
-            }
-        }
+        BufferedImage bi = new BufferedImage(4096, 4096, BufferedImage.TYPE_USHORT_GRAY);
         File f = createImageFileWithBufferedImage(bi, FORMAT);
         files.add(f);
         return importAndWaitForPyramid(config, f, FORMAT);
@@ -365,29 +467,44 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         return f;
     }
 
+    private void triggerPyramidGeneration(long pixelsId) throws ServerError {
+        // This strange out of place event log is required for triggering
+        // generation of pyramids for imported file.
+        EventLogI el = new EventLogI();
+        el.setAction(omero.rtypes.rstring("PIXELDATA"));
+        el.setEntityId(omero.rtypes.rlong(pixelsId));
+        el.setEntityType(omero.rtypes.rstring(ome.model.core.Pixels.class.getName()));
+        el.setEvent(new EventI(0, false));
+
+        // Need to use root session to save eventlog otherwise you get a
+        // security violiation
+        root.getSession().getUpdateService().saveObject(el);
+    }
+
     /**
      * Import an image file of the given format then wait for a pyramid file to
      * be generated by checking if stats exists.
      */
-    private Pixels importAndWaitForPyramid(ImportConfig config, File f, String format)
+    private Pixels importAndWaitForPyramid(ImportConfig config, File file, String format)
             throws Exception {
-        List<Pixels> pixels = null;
+        Pixels pixels = null;
         try {
-            pixels = importFile(config, f, format);
+            pixels = importFile(config, file, format).get(0);
         } catch (Throwable e) {
-            Assert.fail("Cannot import image file: " + f.getAbsolutePath()
+            Assert.fail("Cannot import image file: " + file.getAbsolutePath()
                     + " Reason: " + e.toString());
         }
+        triggerPyramidGeneration(pixels.getId().getValue());
+
         // Wait for a pyramid to be built (stats will be not null)
-        Pixels p = factory.getPixelsService().retrievePixDescription(
-                pixels.get(0).getId().getValue());
+        Pixels p = factory.getPixelsService().retrievePixDescription(pixels.getId().getValue());
         StatsInfo stats = p.getChannel(0).getStatsInfo();
         int waits = 0;
         while (stats == null && waits < WAITS) {
             Thread.sleep(INTERVAL);
             waits++;
             p = factory.getPixelsService().retrievePixDescription(
-                    pixels.get(0).getId().getValue());
+                    pixels.getId().getValue());
             stats = p.getChannel(0).getStatsInfo();
         }
         if (stats == null) {
