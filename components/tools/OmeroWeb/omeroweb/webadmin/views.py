@@ -1077,7 +1077,7 @@ def email(request, conn=None, **kwargs):
                     'start_time': datetime.datetime.now()}
             form = EmailForm(experimenter_list, group_list, conn, request)
             context['non_field_errors'] = ("Email sent."
-                                           "Check status in activities.")
+                                           " Check status in activities.")
         else:
             context['non_field_errors'] = "Email wasn't sent."
 
