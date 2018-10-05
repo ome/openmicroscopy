@@ -2556,10 +2556,8 @@ class _BlitzGateway (object):
 
     def createRawFileStore(self):
         """
-        Creates a new raw file store.
-        This service is special in that it does not get cached inside
-        BlitzGateway so every call to this function returns a new object,
-        avoiding unexpected inherited states.
+        Gets a reference to the raw file store on this connection object or
+        creates a new one if none exists.
 
         :return:    omero.gateway.ProxyObjectWrapper
         """
@@ -2648,10 +2646,8 @@ class _BlitzGateway (object):
 
     def createRawPixelsStore(self):
         """
-        Creates a new raw pixels store.
-        This service is special in that it does not get cached inside
-        BlitzGateway so every call to this function returns a new object,
-        avoiding unexpected inherited states.
+        Gets a reference to the raw pixels store on this connection object or
+        creates a new one if none exists.
 
         :return:    omero.gateway.ProxyObjectWrapper
         """
@@ -5216,6 +5212,59 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
 AnnotationWrapper._register(FileAnnotationWrapper)
 
 
+class _OriginalFileAsFileObj(object):
+    """
+    Based on
+    https://docs.python.org/2/library/stdtypes.html#file-objects
+    """
+    def __init__(self, originalfile, buf=2621440):
+        self.originalfile = originalfile
+        self.bufsize = buf
+        # Can't use BlitzGateway.createRawFileStore as it always returns the
+        # same store https://trello.com/c/lC8hFFix/522
+        self.rfs = originalfile._conn.c.sf.createRawFileStore()
+        self.rfs.setFileId(originalfile.id, originalfile._conn.SERVICE_OPTS)
+        self.pos = 0
+
+    def seek(self, n, mode=0):
+        if mode == os.SEEK_SET:
+            self.pos = n
+        elif mode == os.SEEK_CUR:
+            self.pos += n
+        elif mode == os.SEEK_END:
+            self.pos = self.rfs.size() + n
+        else:
+            raise ValueError('Invalid mode: %s' % mode)
+
+    def tell(self):
+        return self.pos
+
+    def read(self, n=-1):
+        buf = ''
+        if n < 0:
+            endpos = self.rfs.size()
+        else:
+            endpos = min(self.pos + n, self.rfs.size())
+        while self.pos < endpos:
+            nread = min(self.bufsize, endpos - self.pos)
+            buf += self.rfs.read(self.pos, nread)
+            self.pos += nread
+        return buf
+
+    def close(self):
+        self.rfs.close()
+
+    def __iter__(self):
+        while self.pos < self.rfs.size():
+            yield self.read(self.bufsize)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+
+
 class _OriginalFileWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     """
     omero_model_OriginalFileI class wrapper extends BlitzObjectWrapper.
@@ -5230,23 +5279,25 @@ class _OriginalFileWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :return:    Data from file in chunks
         :rtype:     Generator
         """
+        with self.asFileObj(buf) as f:
+            for chunk in f:
+                yield chunk
 
-        store = self._conn.createRawFileStore()
-        try:
-            store.setFileId(self._obj.id.val, self._conn.SERVICE_OPTS)
-            size = self._obj.size.val
-            if size <= buf:
-                yield store.read(0, long(size))
-            else:
-                for pos in range(0, long(size), buf):
-                    data = None
-                    if size-pos < buf:
-                        data = store.read(pos, size-pos)
-                    else:
-                        data = store.read(pos, buf)
-                    yield data
-        finally:
-            store.close()
+    def asFileObj(self, buf=2621440):
+        """
+        Return a read-only file-like object.
+        Caller must call close() on the file object after use.
+        This can be done automatically by using the object as a
+        ContextManager.
+        For example:
+
+            with f.asFileObj() as fo:
+                content = fo.read()
+
+        :return:    File-like object wrapping the OriginalFile
+        :rtype:     File-like object
+        """
+        return _OriginalFileAsFileObj(self, buf)
 
 
 OriginalFileWrapper = _OriginalFileWrapper
