@@ -20,8 +20,8 @@ Import improvements include:
 Other improvements include:
 
 - BlitzGateway: new API to read ``OriginalFile`` as file-like objects
-- server: add code to dispose of `Graphics` object in the server
-- Javadoc: add links to developer documentations for graph operations
+- server: add code to dispose of `Graphics` objects in the server
+- Javadoc: add links to developer documentation for graph operations
 
 5.4.8 (September 2018)
 ----------------------
