@@ -648,7 +648,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     </target>
 
     <target name="copy-history" depends="init">
-            <copy file="${omero.home}/history.txt" todir="${dist.dir}/"/>
+            <copy file="${omero.home}/history.rst" todir="${dist.dir}/"/>
     </target>
 
     <target name="copy-etc" depends="init">

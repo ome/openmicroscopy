@@ -1,9 +1,27 @@
 .. Content for this page should be opened as a PR against
-.. https://github.com/openmicroscopy/openmicroscopy/blob/develop/history.txt
+.. https://github.com/openmicroscopy/openmicroscopy/blob/develop/history.rst
 .. initially and transferred to this page via the autogen job
 
 OMERO version history
 =====================
+
+5.4.9 (October 2018)
+--------------------
+
+This release addresses a critical import issue where files can be silently
+skipped.
+
+Import improvements include:
+
+- ``ImportCandidates`` returns filesets even when files are shared between
+  several filesets independently of the scanning order
+- insight: bug fixes for the lightweight importer UI
+
+Other improvements include:
+
+- BlitzGateway: new API to read ``OriginalFile`` as file-like objects
+- server: add code to dispose of `Graphics` objects in the server
+- Javadoc: add links to developer documentation for graph operations
 
 5.4.8 (September 2018)
 ----------------------
