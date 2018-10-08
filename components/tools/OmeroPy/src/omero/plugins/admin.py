@@ -1513,18 +1513,9 @@ present, the user will enter a console""")
             self.ctx.die(8, "FATAL: OMERO directory does not exist: %s"
                          % pathobj)
 
-        owner = os.stat(filepath)[stat.ST_UID]
-        if owner == 0:
-            msg = ""
-            msg += "FATAL: OMERO directory which needs to be writeable"\
-                " belongs to root: %s\n" % filepath
-            msg += "Please use \"chown -R NEWUSER %s\" and run as then"\
-                " run %s as NEWUSER" % (filepath, sys.argv[0])
-            self.ctx.die(9, msg)
-        else:
-            if not os.access(filepath, mask):
-                self.ctx.die(10, "FATAL: Cannot access %s, a required"
-                             " file/directory for OMERO" % filepath)
+        if not os.access(filepath, mask):
+            self.ctx.die(10, "FATAL: Cannot access %s, a required"
+                         " file/directory for OMERO" % filepath)
 
     def check_access(self, mask=os.R_OK | os.W_OK, config=None):
         """Check that 'var' is accessible by the current user."""
