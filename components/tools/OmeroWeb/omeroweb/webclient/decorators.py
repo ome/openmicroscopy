@@ -127,6 +127,9 @@ class render_response(omeroweb.decorators.render_response):
         }}
 
         context.setdefault('ome', {})   # don't overwrite existing ome
+        connector = request.session.get('connector')
+        if connector is not None:
+            context['ome']['is_public_user'] = connector.is_public
         context['ome']['eventContext'] = eventContextMarshal(
             conn.getEventContext())
         context['ome']['user'] = conn.getUser
