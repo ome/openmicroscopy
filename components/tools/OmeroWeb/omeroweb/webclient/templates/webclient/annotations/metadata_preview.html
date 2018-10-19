@@ -367,6 +367,14 @@
               window.open(url + "?" + vpQuery, '_blank');
               return false;
             });
+
+            var parent = OME.getParentId();
+            if (parent) {
+              if (parent.split('-')[0] === 'dataset') {
+                var $btn = $("#preview_open_viewer");
+                $btn.prop('href', $btn.prop('href') + '?' + parent.replace('-', '='));
+              }
+            }
         });
     </script>
 
