@@ -727,7 +727,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           ']'),
          json.loads,
          ("Manage Metadata pane accordion. This functionality is limited to"
-          " the exiting sections.")],
+          " the existing sections.")],
     "omero.web.ui.right_plugins":
         ["RIGHT_PLUGINS",
          ('[["Acquisition",'
