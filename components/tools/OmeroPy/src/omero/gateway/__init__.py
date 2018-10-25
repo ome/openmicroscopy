@@ -17,6 +17,7 @@ import os
 
 import warnings
 from collections import defaultdict
+from contextlib import contextmanager
 from types import IntType, LongType, UnicodeType, ListType
 from types import BooleanType, TupleType, StringType, StringTypes
 from datetime import datetime
@@ -2099,6 +2100,22 @@ class _BlitzGateway (object):
         if hasattr(self.c, "setIP"):
             if self.userip is not None:
                 self.c.setIP(self.userip)
+
+    @contextmanager
+    def open(self, sUuid=None):
+        """
+        Wrap connect/closeSession with a contextmanager so that the
+        following usage becomes simple:
+
+            with conn.open() as connected:
+                if connected:
+                    conn.getObject("Image", 1L)
+
+        """
+        try:
+            yield self.connect(sUuid)
+        finally:
+            self.close()
 
     def connect(self, sUuid=None):
         """
