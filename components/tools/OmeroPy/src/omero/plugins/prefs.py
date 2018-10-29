@@ -542,6 +542,8 @@ re-run"""
         config["omero.config.upgraded"] = "4.2.0"
 
     def handle_line(self, line, config, keys):
+        from re import search
+
         line = line.strip()
         if not line or line.startswith("#"):
             return None
@@ -558,6 +560,8 @@ re-run"""
         _new = parts[1]
         if _key in config.keys():
             _old = config[_key]
+        elif search(r'[^A-Za-z0-9._-]', _key):
+            self.ctx.die(506, 'Illegal property name: {}'.format(_key))
         else:
             _old = None
 
