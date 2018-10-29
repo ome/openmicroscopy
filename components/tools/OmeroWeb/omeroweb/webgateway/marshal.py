@@ -51,7 +51,7 @@ def eventContextMarshal(event_context):
               'memberOfGroups', 'leaderOfGroups',
               'adminPrivileges']:
             if (hasattr(event_context, a)):
-                ctx[a] = getattr(event_context, a)
+                ctx[a] = unwrap(getattr(event_context, a))
 
     perms = event_context.groupPermissions
     encoder = get_encoder(perms.__class__)
