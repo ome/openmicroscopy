@@ -1,8 +1,6 @@
 /*
- * org.openmicroscopy.shoola.util.ui.login.ScreenLogin 
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,7 +21,6 @@
 package org.openmicroscopy.shoola.util.ui.login;
 
 
-//Java imports
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -56,7 +53,6 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -70,13 +66,8 @@ import javax.swing.JToolBar;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-//Third-party libraries
-
-
-
-
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.util.StringComparator;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
