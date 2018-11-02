@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -313,7 +313,7 @@ public class MaskData
         if (height == 0) return null;
         int[][] returnArray = new int[(int)width][(int)height];
         int offset = 0;
-        for (int y = (int) height-1 ; y > 0 ; y--)
+        for (int y = (int) height-1 ; y >= 0 ; y--)
         {
             for (int x = 0 ; x < (int)width ; x++)
             {
@@ -334,7 +334,7 @@ public class MaskData
         byte[] data = shape.getBytes();
         return data;
     }
-
+    
     /** 
      * Sets the bit value in a byte array at position bit to be the value
      * value.
@@ -368,5 +368,198 @@ public class MaskData
                 (byte)1 : (byte)0);
     }
 
+    /**
+     * Set the mask
+     * 
+     * @param mask
+     *            The binary mask
+     */
+    public void setMask(int[] mask) {
+        if (getWidth() == 0 || getHeight() == 0)
+            throw new IllegalArgumentException(
+                    "This method requires width and height of the shape");
+        
+        int height = (int) getHeight();
+        setMask(fold(intToBoolean(mask), height));
+    }
 
+    /**
+     * Set the mask
+     * 
+     * @param mask
+     *            The binary mask (int[width][height])
+     */
+    public void setMask(int[][] mask) {
+        setMask(intToBoolean(mask));
+    }
+
+    /**
+     * Set the mask
+     * 
+     * @param mask
+     *            The binary mask
+     */
+    public void setMask(boolean[] mask) {
+        if (getWidth() == 0 || getHeight() == 0)
+            throw new IllegalArgumentException(
+                    "This method requires width and height of the shape");
+
+        int height = (int) getHeight();
+        setMask(fold(mask, height));
+    }
+
+    /**
+     * Set the mask
+     * 
+     * @param mask
+     *            The binary mask (boolean[width][height])
+     */
+    public void setMask(boolean[][] mask) {
+        int width = mask.length;
+        int height = mask[0].length;
+        int offset = 0;
+        byte[] data = new byte[(int)(width * height / 8 + 1)];
+        for (int y = (int) height - 1; y >= 0; y--) {
+            for (int x = 0; x < (int) width; x++) {
+                setBit(data, offset, mask[x][y] ? 1 : 0);
+                offset++;
+            }
+        }
+        setMask(data);
+    }
+    
+    /**
+     * Set the mask; automatically crop to its bounding box.
+     * (sets X, Y, width and height accordingly)
+     * Needs the height initially set to the image height.
+     * 
+     * @param mask
+     *            The binary mask covering the whole
+     *            image
+     */
+    public void setMaskAndCrop(int[] mask) {
+        if (getWidth() == 0 || getHeight() == 0)
+            throw new IllegalArgumentException(
+                    "This method requires width and height of the shape");
+
+        int height = (int) getHeight();
+        setMaskAndCrop(fold(intToBoolean(mask), height));
+    }
+    
+    /**
+     * Set the mask; automatically crop to its bounding box.
+     * (sets X, Y, width and height accordingly)
+     * 
+     * @param mask
+     *            The binary mask (int[width][height]) covering the whole
+     *            image
+     */
+    public void setMaskAndCrop(int[][] mask) {
+        setMaskAndCrop(intToBoolean(mask));
+    }
+    
+    /**
+     * Set the mask; automatically crop to its bounding box.
+     * (sets X, Y, width and height accordingly)
+     * 
+     * @param mask
+     *            The binary mask (boolean[width][height]) covering the whole
+     *            image
+     */
+    public void setMaskAndCrop(boolean[][] mask) {
+        
+        int minx = Integer.MAX_VALUE, miny = Integer.MAX_VALUE;
+        int maxx = 0, maxy = 0;
+        
+        int width = mask.length;
+        int height = mask[0].length;
+        
+        for (int y = height-1 ; y >= 0 ; y--)
+        {
+            for (int x = 0 ; x < width ; x++)
+            {
+                if (mask[x][y]) {
+                    if ( x < minx )
+                        minx = x;
+                    if ( x > maxx)
+                        maxx = x;
+                    if (y < miny)
+                        miny = y;
+                    if (y > maxy)
+                        maxy = y;
+                }
+            }
+        }
+        
+        int neww = maxx - minx + 1;
+        int newh = maxy - miny + 1;
+        boolean[][] newmask = new boolean[neww][newh];
+        for (int y = 0 ; y < newh ; y++)
+        {
+            for (int x = 0 ; x < neww ; x++)
+            {
+                newmask[x][y] = mask[x+minx][y+miny];
+            }
+        }
+        setMask(newmask);
+        setX(minx);
+        setY(miny);
+        setHeight(newh);
+        setWidth(neww);
+    }
+
+    /**
+     * Transforms an integer array to a boolean array,
+     * where 0 == false and !0 == true
+     * @param array The integer array
+     * @return The boolean array
+     */
+    private boolean[][] intToBoolean(int[][] array) {
+        boolean[][] result = new boolean[array.length][array[0].length];
+        for (int i=0; i<array.length; i++)
+            for (int j=0; j<array[0].length; j++)
+                result[i][j] = array[i][j] != 0;
+        return result;
+    }
+    
+    /**
+     * Transforms an integer array to a boolean array,
+     * where 0 == false and !0 == true
+     * @param array The integer array
+     * @return The boolean array
+     */
+    private boolean[] intToBoolean(int[] array) {
+        boolean[] result = new boolean[array.length];
+        for (int i=0; i<array.length; i++)
+            result[i] = array[i] != 0;
+        return result;
+    }
+    
+    
+    /**
+     * Breaks a one-dimensional array into 'length' chunks,
+     * forming a two-dimensional array, e.g.
+     * 
+     * boolean[] x = 0 1 2 3 4 5 6 7 8 9 
+     * 
+     * using length = 4 will be transformed to
+     * 
+     * boolean[][] y = 
+     * [0 1 2 3]
+     * [4 5 6 7]
+     * [8 9 f f]
+     * 
+     * @param input A boolean array
+     * @param length The length of the chunks
+     * @return Two dimensional array
+     */
+    private boolean[][] fold(boolean[] input, int length) {
+        int height = input.length / length;
+        if ( input.length % length != 0) 
+            height++;
+        boolean[][] result = new boolean[height][length];
+        for (int i = 0; i < input.length; i++)
+            result[i / length][i % length] = input[i];
+        return result;
+    }
 }
