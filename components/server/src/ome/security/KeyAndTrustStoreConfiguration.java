@@ -42,9 +42,17 @@ public class KeyAndTrustStoreConfiguration implements InitializingBean {
                 log.warn("Overwriting existing trust store: " + oldTrustStore);
             }
         }
-        System.setProperty(JAVAX_NET_SSL_TRUST_STORE, trustStore);
-        System.setProperty(JAVAX_NET_SSL_TRUST_STORE_PASSWORD,
-                trustStorePassword);
+        if (trustStore == null || trustStore.length() < 1) {
+            log.error("trustStore property is empty, not setting");
+        } else {
+            System.setProperty(JAVAX_NET_SSL_TRUST_STORE, trustStore);
+        }
+        if (trustStorePassword == null || trustStorePassword.length() < 1) {
+            log.error("trustStorePassword property is empty, not setting");
+        } else {
+            System.setProperty(JAVAX_NET_SSL_TRUST_STORE_PASSWORD,
+                               trustStorePassword);
+        }
 
         if (oldKeyStore != null) {
             if (oldKeyStore.equals(keyStore)) {
