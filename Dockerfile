@@ -49,7 +49,7 @@ COPY setup.cfg /src/
 COPY sql /src/sql
 COPY test.xml /src/
 COPY LICENSE.txt /src/
-COPY history.txt /src/
+COPY history.rst /src/
 RUN chown -R omero /src
 USER omero
 WORKDIR /src

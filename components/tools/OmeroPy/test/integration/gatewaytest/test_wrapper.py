@@ -13,7 +13,9 @@
 
 """
 
+import Ice
 import omero
+import os
 import pytest
 
 
@@ -155,6 +157,59 @@ class TestWrapper(object):
         assert d.getOwner().omeName == gatewaywrapper.AUTHOR.name
         assert d.getGroup().name == \
             img.getProject().getDetails().getGroup().name
+
+    def createTestFile(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        content = 'abcdefghijklmnopqrstuvwxyz'
+        f = gatewaywrapper.createTestFile(
+            'testOriginalFileWrapper', 'test_wrapper', content)
+        return f
+
+    def testOriginalFileWrapperGetFileInChunks(self, gatewaywrapper):
+        f = self.createTestFile(gatewaywrapper)
+        assert ''.join(f.getFileInChunks()) == 'abcdefghijklmnopqrstuvwxyz'
+        assert list(f.getFileInChunks(buf=10)) == [
+            'abcdefghij',
+            'klmnopqrst',
+            'uvwxyz',
+        ]
+
+    def testOriginalFileWrapperAsFileObj(self, gatewaywrapper):
+        f = self.createTestFile(gatewaywrapper)
+        fobj = f.asFileObj(buf=7)
+        assert fobj.pos == 0
+        assert fobj.read(5) == 'abcde'
+        assert fobj.pos == 5
+        fobj.seek(10)
+        assert fobj.pos == 10
+        assert fobj.read(5) == 'klmno'
+        assert fobj.pos == 15
+        fobj.seek(5, os.SEEK_CUR)
+        assert fobj.pos == 20
+        assert fobj.read(4) == 'uvwx'
+        fobj.seek(-5, os.SEEK_END)
+        assert fobj.pos == 21
+        assert fobj.read(2) == 'vw'
+        assert fobj.read() == 'xyz'
+        assert fobj.read() == ''
+        fobj.close()
+
+    def testOriginalFileWrapperAsFileObjContextManager(self, gatewaywrapper):
+        f = self.createTestFile(gatewaywrapper)
+        with f.asFileObj() as fobj:
+            assert fobj.read() == 'abcdefghijklmnopqrstuvwxyz'
+        # Verify close was automatically called
+        with pytest.raises(Ice.ObjectNotExistException):
+            fobj.read()
+
+    def testOriginalFileWrapperAsFileObjMultiple(self, gatewaywrapper):
+        # Test that multiple file objects are allowed
+        # https://trello.com/c/lC8hFFix/522
+        f1 = self.createTestFile(gatewaywrapper)
+        f2 = self.createTestFile(gatewaywrapper)
+        with f1.asFileObj() as fobj1:
+            with f2.asFileObj() as fobj2:
+                assert fobj1.rfs.getFileId().val != fobj2.rfs.getFileId().val
 
     def testSetters(self, gatewaywrapper):
         """
