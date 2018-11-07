@@ -443,6 +443,8 @@ class PrefsControl(WriteableConfigControl):
         if not args.q:
             keys = config.keys()
 
+        # Handle all lines before updating config in case of error.
+        new_config = dict(config)
         try:
             for f in args.file:
                 if f == "-":
@@ -455,7 +457,7 @@ class PrefsControl(WriteableConfigControl):
                     for line in f:
                         if previous:
                             line = previous + line
-                        previous = self.handle_line(line, config, keys)
+                        previous = self.handle_line(line, new_config, keys)
                 finally:
                     if f != "-":
                         f.close()
@@ -463,6 +465,8 @@ class PrefsControl(WriteableConfigControl):
             raise
         except Exception, e:
             self.ctx.die(968, "Cannot read %s: %s" % (args.file, e))
+        for key, value in new_config.items():
+            config[key] = value
 
     @with_rw_config
     def edit(self, args, config, edit_path=edit_path):
@@ -500,8 +504,13 @@ class PrefsControl(WriteableConfigControl):
     def upgrade(self, args, config):
         self.ctx.out("Importing pre-4.2 preferences")
         txt = getprefs(["get"], str(self.ctx.dir / "lib"))
+
+        # Handle all lines before updating config in case of error.
+        new_config = dict(config)
         for line in txt.split("\n"):
-            self.handle_line(line, config, None)
+            self.handle_line(line, new_config, None)
+        for key, value in new_config.items():
+            config[key] = value
 
         # Upgrade procedure for 4.2
         MSG = """Manually modify them via "omero config old set ..." and \
