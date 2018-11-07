@@ -992,6 +992,9 @@ public class CommandLineImporter {
                     transfer, exclusions, minutesToWait);
             c.setImportOutput(outputChoice);
             rc = c.start();
+        } catch (Ice.DNSException dnse) {
+            log.error("Failed to look up domain name: {}", dnse.host);
+            rc = 2;
         } catch (Throwable t) {
             log.error("Error during import process.", t);
             rc = 2;
