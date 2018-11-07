@@ -128,12 +128,19 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         try {
             Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
             Utils.getThumbnail(svc);
-        } catch (omero.ResourceError e) {
+        } catch (omero.ResourceError | omero.ReadOnlyGroupSecurityViolation e) {
             // With permission rw----, the image is private to user 1.
             // Expect this to fail for user 2.
             if (!permissions.equalsIgnoreCase("rw----")) {
                 throw e;
             }
+        } catch (omero.ApiUsageException e) {
+            //group member trying to set settings
+            if (!(permissions.equalsIgnoreCase("rwr---") || permissions.equalsIgnoreCase("rw----"))) {
+                throw e;
+            }
+        } finally {
+            svc.close();
         }
     }
 
@@ -164,12 +171,19 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         try {
             Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
             Utils.getThumbnailWithoutDefault(svc);
-        } catch (omero.ResourceError e) {
+        } catch (omero.ResourceError | omero.ReadOnlyGroupSecurityViolation e) {
             // With permission rw----, the image is private to user 1.
             // Expect this to fail for user 2.
             if (!permissions.equalsIgnoreCase("rw----")) {
                 throw e;
             }
+        } catch (omero.ApiUsageException e) {
+            //group member trying to set settings
+            if (!(permissions.equalsIgnoreCase("rwr---") || permissions.equalsIgnoreCase("rw----"))) {
+                throw e;
+            }
+        } finally {
+            svc.close();
         }
     }
 
@@ -201,12 +215,19 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
             Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
             byte[] data = Utils.getThumbnail(svc);
             Assert.assertTrue(data.length > 0);
-        } catch (omero.ResourceError e) {
+        } catch (omero.ResourceError | omero.ReadOnlyGroupSecurityViolation e) {
             // With permission rw----, the image is private to user 1.
             // Expect this to fail for user 2.
             if (!permissions.equalsIgnoreCase("rw----")) {
                 throw e;
             }
+        } catch (omero.ApiUsageException e) {
+            //group member trying to set settings
+            if (!(permissions.equalsIgnoreCase("rwr---") || permissions.equalsIgnoreCase("rw----"))) {
+                throw e;
+            }
+        } finally {
+            svc.close();
         }
     }
 
@@ -232,12 +253,19 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
             Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
             byte[] data = Utils.getThumbnail(svc);
             Assert.assertTrue(data.length > 0);
-        } catch (omero.ResourceError e) {
+        } catch (omero.ResourceError | omero.ReadOnlyGroupSecurityViolation e) {
             // With permission rw----, the image is private to user 1.
             // Expect this to fail for user 2.
             if (!permissions.equalsIgnoreCase("rw----")) {
                 throw e;
             }
+        } catch (omero.ApiUsageException e) {
+            //group member trying to set settings
+            if (!(permissions.equalsIgnoreCase("rwr---") || permissions.equalsIgnoreCase("rw----"))) {
+                throw e;
+            }
+        } finally {
+            svc.close();
         }
     }
 
@@ -269,12 +297,19 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
             Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
             byte[] data = Utils.getThumbnailWithoutDefault(svc);
             Assert.assertTrue(data.length > 0);
-        } catch (omero.ResourceError e) {
+        } catch (omero.ResourceError | omero.ReadOnlyGroupSecurityViolation e) {
             // With permission rw----, the image is private to user 1.
             // Expect this to fail for user 2.
             if (!permissions.equalsIgnoreCase("rw----")) {
                 throw e;
             }
+        } catch (omero.ApiUsageException e) {
+            //group member trying to set settings
+            if (!(permissions.equalsIgnoreCase("rwr---") || permissions.equalsIgnoreCase("rw----"))) {
+                throw e;
+            }
+        } finally {
+            svc.close();
         }
     }
 
@@ -300,12 +335,19 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
             Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
             byte[] data = Utils.getThumbnailWithoutDefault(svc);
             Assert.assertEquals(0, data.length);
-        } catch (omero.ResourceError e) {
+        } catch (omero.ResourceError | omero.ReadOnlyGroupSecurityViolation e) {
             // With permission rw----, the image is private to user 1.
             // Expect this to fail for user 2.
             if (!permissions.equalsIgnoreCase("rw----")) {
                 throw e;
             }
+        } catch (omero.ApiUsageException e) {
+            //group member trying to set settings
+            if (!(permissions.equalsIgnoreCase("rwr---") || permissions.equalsIgnoreCase("rw----"))) {
+                throw e;
+            }
+        } finally {
+            svc.close();
         }
     }
 
