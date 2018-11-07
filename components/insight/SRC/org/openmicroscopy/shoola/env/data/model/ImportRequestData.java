@@ -46,7 +46,7 @@ public class ImportRequestData {
      * For now this is the only supported option, but, going forward, we will
      * implement the means to resolve file locations across a network so that an
      * import server may pull image data from multiple acquisition workstations.
-     * @see <a href="https://en.wikipedia.org/wiki/File_URI_scheme">File_URI_scheme</a>.
+     * @see <a href="https://en.wikipedia.org/wiki/File_URI_scheme">File_URI_scheme</a>
      */
     public String targetUri;
 
