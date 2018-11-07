@@ -277,7 +277,7 @@ public class ROIShape
     }
     
     /**
-     * Set the annoations of the ROIShape from the map provided.
+     * Set the annotations of the ROIShape from the map provided.
      * @param map see above.
      */
     public void setAnnotations(Map<AnnotationKey, Object> map) 

@@ -422,7 +422,7 @@ def testUnlinkAnnotation(author_testimg_generated):
     assert dataset.getAnnotation(TESTANN_NS) is None
 
 
-def testAnnoationCount(author_testimg_generated):
+def testAnnotationCount(author_testimg_generated):
     """ Test get annotations counts """
 
     img = author_testimg_generated

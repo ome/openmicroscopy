@@ -9,6 +9,7 @@
 
 """
 
+from StringIO import StringIO
 import omero
 from omero.rtypes import rstring
 
@@ -272,3 +273,17 @@ class TestDBHelper(object):
             planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT,
             dataset=ds)
         return image
+
+    def createTestFile(self, parentpath, filename, content):
+        """
+        Creates an OriginalFile with the supplied content
+
+        @param parentpath:  Parent directory of the file
+        @param filename:    Filename
+        @param content:     String containing the content of the file
+        @return:            OriginalFileWrapper
+        """
+        sio = StringIO(content)
+        f = self.gateway.createOriginalFileFromFileObj(
+            sio, parentpath, filename, len(content))
+        return f

@@ -1944,6 +1944,8 @@ class GraphControl(CmdControl):
             if exc:
                 opt.excludeType = exc
 
+        if args.obj is None or not args.obj:
+            self.ctx.die(440, "no object targets supplied for graph operation")
         commands, forces = zip(*args.obj)
         show = not (args.force or args.dry_run)
         needsForce = any(forces)

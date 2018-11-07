@@ -8,7 +8,7 @@ function annotations = getAnnotations(session, ids, type, varargin)
 %
 %      annotations = getAnnotations(session, ids, type);
 %      annotations = getAnnotations(session, ids, type, 'group', groupId);
-%        returns annoations from the input group specfied by groupId.
+%        returns annotations from the input group specfied by groupId.
 %
 % See also: GETANNOTATIONTYPES, GETDOUBLEANNOTATIONS, GETCOMMENTANNOTATIONS,
 % GETFILEANNOTATIONS, GETLONGANNOTATIONS, GETTAGANNOTATIONS,

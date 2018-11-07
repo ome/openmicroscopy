@@ -1,8 +1,6 @@
 /*
- * org.openmicroscopy.shoola.util.ui.login.ScreenLogin 
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2018 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,7 +21,6 @@
 package org.openmicroscopy.shoola.util.ui.login;
 
 
-//Java imports
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -59,6 +56,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JProgressBar;
@@ -68,11 +66,8 @@ import javax.swing.JToolBar;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-//Third-party libraries
-
-
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.util.StringComparator;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -267,6 +262,9 @@ public class ScreenLogin
     /** List of components to show or hide depending on connection status.*/
     private List<JComponent> components;
 
+    /** Button popping up an message indicating to use either name or session.*/
+    private JButton helpButton;
+    
 	/** Quits the application. */
 	private void quit()
 	{
@@ -379,6 +377,20 @@ public class ScreenLogin
 		else encryptedButton.setIcon(icons.getIcon(IconManager.DECRYPTED_24));
 	}
 	
+	/**
+	 * Displays a modal dialog indicating that either username or session ID 
+	 * can be used.
+	 */
+	private void help()
+	{
+	    JOptionPane.showMessageDialog(this,
+	            "Username or sessionID can be used to connect.\n"
+	            + "Do not enter a password if a sessionID is entered.",
+	            "Connection Info",
+	            JOptionPane.PLAIN_MESSAGE);
+
+	}
+
 	/** Adds listeners to the UI components. */
 	private void initListeners()
 	{
@@ -387,6 +399,9 @@ public class ScreenLogin
 		login.addActionListener(this);
 		user.addActionListener(this);
 		pass.addActionListener(this);
+		helpButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) { help(); }
+        });
 		cancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { quit(); }
 		});
@@ -498,6 +513,8 @@ public class ScreenLogin
 	 */
 	private void initialize(String userName, String hostName)
 	{
+	    helpButton = new JButton(IconManager.getInstance().getIcon(IconManager.HELP));
+	    helpButton.setBorder(null);
 	    components = new ArrayList<JComponent>();
 		//status update.
 		currentTask = new JLabel();
@@ -698,6 +715,7 @@ public class ScreenLogin
 		row.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
 		row.add(l);
 		row.add(user);
+		row.add(helpButton);
 		group.add(row);
 		
 		//password
@@ -707,6 +725,7 @@ public class ScreenLogin
 		row.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
 		row.add(l);
 		row.add(pass);
+		row.add(Box.createHorizontalStrut(helpButton.getPreferredSize().width));
 		group.add(row);
 		
 		mainPanel.add(group);

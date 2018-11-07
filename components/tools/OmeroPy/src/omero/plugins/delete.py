@@ -17,7 +17,7 @@ HELP = """Delete OMERO data.
 Remove entire graphs of data based on the ID of the top-node.
 
 By default linked tag, file and term annotations are not deleted.
-To delete linked annoations they must be explicitly included.
+To delete linked annotations they must be explicitly included.
 
 Examples:
 
