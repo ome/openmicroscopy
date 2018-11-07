@@ -325,12 +325,14 @@ class ExistingFile(FileType):
     an existing file.
     """
     def __call__(self, s):
-        if s != "-" and not os.path.exists(s):
-            raise ArgumentTypeError("File does not exist: %s" % s)
-        if s != "-":
-            return FileType.__call__(self, s)
-        else:
+        if s == "-":
             return s
+        p = path(s)
+        if not p.exists():
+            raise ArgumentTypeError("File does not exist: %s" % s)
+        elif not p.isfile():
+            raise ArgumentTypeError("Path is not a file: %s" % s)
+        return FileType.__call__(self, s)
 
 
 class DirectoryType(FileType):
