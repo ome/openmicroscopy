@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2018 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 package integration.thumbnail;
 
 import integration.AbstractServerImportTest;
@@ -7,7 +26,6 @@ import omero.ServerError;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.model.EventI;
-import omero.model.EventLog;
 import omero.model.EventLogI;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -32,7 +50,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Tests utilising single thumbnail loading APIs by users other than the
+ * Tests utilizing single thumbnail loading APIs by users other than the
  * owner of the image. In each test an image is imported into OMERO without
  * thumbnails (--skip thumbnails).
  */
@@ -458,8 +476,8 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
      */
     private File createImageFileWithBufferedImage(BufferedImage bi, String format) throws Exception {
         File f = File.createTempFile("testImage", "." + format);
-        Iterator writers = ImageIO.getImageWritersByFormatName(format);
-        ImageWriter writer = (ImageWriter) writers.next();
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(format);
+        ImageWriter writer = writers.next();
         ImageOutputStream ios = ImageIO.createImageOutputStream(f);
         writer.setOutput(ios);
         writer.write(bi);
@@ -477,7 +495,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         el.setEvent(new EventI(0, false));
 
         // Need to use root session to save eventlog otherwise you get a
-        // security violiation
+        // security violation
         root.getSession().getUpdateService().saveObject(el);
     }
 
