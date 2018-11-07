@@ -151,7 +151,7 @@ public class AnnotatedWith extends SearchAction {
                         + annotation);
             }
 
-            // If we have an example of the given annoation, then we can
+            // If we have an example of the given annotation, then we can
             // fetch it directly and don't need to use the fetchAnnotationsCopy
             // collection.
             for (Class ac : values.fetchAnnotations) {

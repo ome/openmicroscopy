@@ -161,8 +161,8 @@ public class FailedImportDialog extends JDialog {
             }
         });
 
-        getRootPane().setLayout(new BorderLayout());
-        getRootPane().add(con, BorderLayout.CENTER);
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(con, BorderLayout.CENTER);
 
         pack();
 

@@ -238,7 +238,7 @@ class ImporterUIElementLight extends ImporterUIElement {
         // if there are many imports to cancel this might take a while; in that
         // case until all cancellations went through there might have been another
         // upload happened so this could sum up to something > super.totalToImport
-        if (uploaded + cancelled + super.countFailure >= super.totalToImport) {
+        if (super.isDone()) {
             uploadBusy.setBusy(false);
             uploadBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY));
         }  else {
@@ -248,7 +248,7 @@ class ImporterUIElementLight extends ImporterUIElement {
         processed.setValue(complete);
         processed.setMaximum(uploaded);
         processedBusy.setText(complete + "/" + uploaded);
-        if (complete + cancelled + super.countFailure >= super.totalToImport) {
+        if (super.isDone()) {
             processedBusy.setBusy(false);
             processedBusy.setIcon(IconManager.getInstance().getIcon(IconManager.APPLY));
         } else {

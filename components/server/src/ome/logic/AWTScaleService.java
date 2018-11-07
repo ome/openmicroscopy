@@ -1,7 +1,5 @@
 /*
- * ome.logic.QueryImpl
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2018 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -58,6 +56,7 @@ public class AWTScaleService implements IScale {
         // graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
         // RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         graphics2D.drawImage(image, 0, 0, thumbWidth, thumbHeight, null);
+        graphics2D.dispose();
         return thumbImage;
     }
 }
