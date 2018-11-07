@@ -334,7 +334,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         try {
             Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
             byte[] data = Utils.getThumbnailWithoutDefault(svc);
-            Assert.assertEquals(0, data.length);
+            Assert.assertTrue(data.length > 0);
         } catch (omero.ResourceError | omero.ReadOnlyGroupSecurityViolation e) {
             // With permission rw----, the image is private to user 1.
             // Expect this to fail for user 2.
