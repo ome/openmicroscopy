@@ -1247,10 +1247,10 @@ public class AbstractServerTest extends AbstractTest {
      * Imports the specified OME-XML file and returns the pixels set if
      * successfully imported.
      *
-     * @param importer
-     *            The metadataStore to use.
      * @param file
      *            The file to import.
+     * @param format
+     *            The format of the file to import.
      * @param target
      *            The container where to import the image.
      * @return The collection of imported pixels set.
@@ -1266,6 +1266,8 @@ public class AbstractServerTest extends AbstractTest {
      * Imports the specified OME-XML file and returns the pixels set if
      * successfully imported.
      *
+     * @param config
+     *            The import configuration.
      * @param file
      *            The file to import.
      * @param format
@@ -1315,6 +1317,22 @@ public class AbstractServerTest extends AbstractTest {
         return importFile(importer, new ImportConfig(), file, format, null);
     }
 
+    /**
+     * Imports the specified OME-XML file and returns the pixels set if
+     * successfully imported.
+     *
+     * @param importer
+     *            The metadataStore to use.
+     * @param config
+     *            The import configuration.
+     * @param file
+     *            The file to import.
+     * @param format
+     *            The format of the file to import.
+     * @return The collection of imported pixels set.
+     * @throws Throwable
+     *             Thrown if an error occurred while encoding the image.
+     */
     protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
                                       ImportConfig config, File file, String format) throws Throwable {
         return importFile(importer, config, file, format, null);
@@ -1327,6 +1345,7 @@ public class AbstractServerTest extends AbstractTest {
      * @param importer
      *            The metadataStore to use.
      * @param config
+     *            The import configuration.
      * @param file
      *            The file to import.
      * @param format
@@ -1336,7 +1355,8 @@ public class AbstractServerTest extends AbstractTest {
      *             Thrown if an error occurred while encoding the image.
      */
     protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
-                                      ImportConfig config, File file, String format, IObject target) throws Throwable {
+                                      ImportConfig config, File file,
+                                      String format, IObject target) throws Throwable {
         if (importer == null) {
             importer = createImporter();
         }
