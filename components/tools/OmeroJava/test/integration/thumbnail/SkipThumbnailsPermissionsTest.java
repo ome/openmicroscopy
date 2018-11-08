@@ -47,6 +47,9 @@ import java.util.List;
  * Tests utilizing single thumbnail loading APIs by users other than the
  * owner of the image. In each test an image is imported into OMERO without
  * thumbnails (--skip thumbnails).
+ * @author Riad Gozim &nbsp;&nbsp;&nbsp;&nbsp; <a
+ * href="mailto:r.gozim@dundee.ac.uk">r.gozim@dundee.ac.uk</a>
+ * @since 5.4.10
  */
 @SuppressWarnings("Duplicates")
 public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
@@ -108,7 +111,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
             ExperimenterGroup systemGroup = new ExperimenterGroupI(iAdmin.getSecurityRoles().systemGroupId, false);
             addUsers(systemGroup, Collections.singletonList(user2.userId), false);
         }
-
+        disconnect();
         // Login as user2
         loginUser(user2);
 
@@ -400,7 +403,8 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         ThumbnailStorePrx svc = factory.createThumbnailStore();
         Utils.setThumbnailStoreToPixels(svc, pixelsId);
         byte[] user2Thumbnail = Utils.getThumbnailWithoutDefault(svc);
-        Utils.checkSize(user2Thumbnail, 96, 96);
+        Utils.checkSize(user2Thumbnail, Utils.DEFAULT_SIZE_X,
+                Utils.DEFAULT_SIZE_Y);
         svc.close();
 
         // Switch to user 1

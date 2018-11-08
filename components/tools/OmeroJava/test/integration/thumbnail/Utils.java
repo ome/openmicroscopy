@@ -35,24 +35,22 @@ import org.testng.Assert;
 /**
  * Collections of tests for the <code>ThumbnailStore</code> service.
  *
- * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
- * href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
- * href="mailto:donald@lifesci.dundee.ac.uk"
- * >donald@lifesci.dundee.ac.uk</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
- * @since 3.0-Beta4
+ * @author Riad Gozim &nbsp;&nbsp;&nbsp;&nbsp; <a
+ * href="mailto:r.gozim@dundee.ac.uk">r.gozim@dundee.ac.uk</a>
+ * @since 5.4.10
  */
 class Utils {
 
+    static final int DEFAULT_SIZE_X = 96;
+
+    static final int DEFAULT_SIZE_Y = 96;
+
     public static byte[] getThumbnail(ThumbnailStorePrx svc) throws ServerError {
-        final int sizeX = 96;
-        final int sizeY = 96;
 
         // Get thumbnail
         byte[] values = svc.getThumbnail(
-                omero.rtypes.rint(sizeX),
-                omero.rtypes.rint(sizeY));
+                omero.rtypes.rint(DEFAULT_SIZE_X),
+                omero.rtypes.rint(DEFAULT_SIZE_Y));
         Assert.assertNotNull(values);
         Assert.assertTrue(values.length > 0);
 
@@ -61,13 +59,11 @@ class Utils {
     }
 
     public static byte[] getThumbnailWithoutDefault(ThumbnailStorePrx svc) throws ServerError {
-        final int sizeX = 96;
-        final int sizeY = 96;
 
         // Get thumbnail
         byte[] values = svc.getThumbnailWithoutDefault(
-                omero.rtypes.rint(sizeX),
-                omero.rtypes.rint(sizeY));
+                omero.rtypes.rint(DEFAULT_SIZE_X),
+                omero.rtypes.rint(DEFAULT_SIZE_Y));
         Assert.assertNotNull(values);
 
         // Return the bytes

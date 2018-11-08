@@ -37,6 +37,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Collections of tests for the <code>ThumbnailStore</code> service.
+ *
+ * @author Riad Gozim &nbsp;&nbsp;&nbsp;&nbsp; <a
+ * href="mailto:r.gozim@dundee.ac.uk">r.gozim@dundee.ac.uk</a>
+ * @since 5.4.10
+ */
 public class BatchLoadingTest extends AbstractServerTest {
 
     /**

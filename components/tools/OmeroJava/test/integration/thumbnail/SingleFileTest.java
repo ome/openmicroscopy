@@ -30,20 +30,17 @@ import omero.model.Pixels;
 import omero.model.RenderingDef;
 import omero.sys.EventContext;
 
-import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
-
-import javax.imageio.ImageIO;
 
 /**
  * Tests utilizing single thumbnail loading APIs
+ * @author Riad Gozim &nbsp;&nbsp;&nbsp;&nbsp; <a
+ * href="mailto:r.gozim@dundee.ac.uk">r.gozim@dundee.ac.uk</a>
+ * @since 5.4.10
  */
 public class SingleFileTest extends AbstractServerTest {
 
