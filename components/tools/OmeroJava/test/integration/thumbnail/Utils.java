@@ -20,6 +20,12 @@
  */
 package integration.thumbnail;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import javax.imageio.ImageIO;
+
 import omero.ServerError;
 import omero.api.ThumbnailStorePrx;
 
@@ -72,6 +78,19 @@ class Utils {
         if (!svc.setPixelsId(pixelsId)) {
             svc.resetDefaults();
             svc.setPixelsId(pixelsId);
+        }
+    }
+
+    public static void checkSize(byte[] values, int sizeX, int sizeY) {
+        Assert.assertNotNull(values);
+        Assert.assertTrue(values.length > 0);
+        // Check width and height
+        try(InputStream in = new ByteArrayInputStream(values)) {
+            BufferedImage buf = ImageIO.read(in);
+            Assert.assertEquals(sizeX, buf.getWidth());
+            Assert.assertEquals(sizeX, buf.getHeight());
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot convert byte array", e);
         }
     }
 }
