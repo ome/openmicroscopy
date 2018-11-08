@@ -38,15 +38,10 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -56,11 +51,6 @@ import java.util.List;
  */
 @SuppressWarnings("Duplicates")
 public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
-
-    /**
-     * The format tested here.
-     */
-    private static final String FORMAT = "png";
 
     /* Total wait time will be WAITS * INTERVAL milliseconds */
     /**
@@ -494,36 +484,15 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         return importFile(config, file, format).get(0);
     }
 
-//    private Pixels importLargeFile(ImportConfig config) throws Throwable {
-//        File f = File.createTempFile("bigImageFake&pixelType=uint8&sizeX=4096&sizeY=4096", ".fake");
-//        return importAndWaitForPyramid(config, f, "fake");
-//    }
-
     private Pixels importLargeFile(ImportConfig config) throws Throwable {
-        BufferedImage bi = new BufferedImage(4096, 4096, BufferedImage.TYPE_USHORT_GRAY);
-        File f = createImageFileWithBufferedImage(bi, FORMAT);
-        files.add(f);
-        return importAndWaitForPyramid(config, f, FORMAT);
+        File f = File.createTempFile("bigImageFake&sizeX=3500&sizeY=3500&little=false", ".fake");
+        return importAndWaitForPyramid(config, f, "fake");
     }
 
     private File createImageFile(String extension) throws Throwable {
         File f = File.createTempFile("testImportGraphicsImages" + extension, "."
                 + extension);
         mmFactory.createImageFile(f, extension);
-        return f;
-    }
-
-    /**
-     * Create an image file from a BufferedImage of the given format.
-     */
-    private File createImageFileWithBufferedImage(BufferedImage bi, String format) throws Exception {
-        File f = File.createTempFile("testImage", "." + format);
-        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(format);
-        ImageWriter writer = writers.next();
-        ImageOutputStream ios = ImageIO.createImageOutputStream(f);
-        writer.setOutput(ios);
-        writer.write(bi);
-        ios.close();
         return f;
     }
 
@@ -560,15 +529,17 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         Pixels p = factory.getPixelsService().retrievePixDescription(pixels.getId().getValue());
         StatsInfo stats = p.getChannel(0).getStatsInfo();
         int waits = 0;
+        Assert.assertEquals(stats, null);
         while (stats == null && waits < WAITS) {
             Thread.sleep(INTERVAL);
             waits++;
+            factory.createRawPixelsStore();
             p = factory.getPixelsService().retrievePixDescription(
                     pixels.getId().getValue());
             stats = p.getChannel(0).getStatsInfo();
         }
         if (stats == null) {
-            Assert.fail("No pyramid after " + WAITS * INTERVAL / 1000.0 + " seconds");
+            Assert.fail("No pyramid after " + WAITS + " seconds");
         }
         return p;
     }
