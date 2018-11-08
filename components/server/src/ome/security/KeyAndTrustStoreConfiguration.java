@@ -44,12 +44,12 @@ public class KeyAndTrustStoreConfiguration implements InitializingBean {
             }
         }
         if (StringUtils.isEmpty(trustStore)) {
-            log.error("trustStore property is empty, not setting");
+            log.warn("trustStore property is empty, not setting");
         } else {
             System.setProperty(JAVAX_NET_SSL_TRUST_STORE, trustStore);
         }
         if (StringUtils.isEmpty(trustStorePassword)) {
-            log.error("trustStorePassword property is empty, not setting");
+            log.warn("trustStorePassword property is empty, not setting");
         } else {
             System.setProperty(JAVAX_NET_SSL_TRUST_STORE_PASSWORD,
                                trustStorePassword);
