@@ -220,7 +220,7 @@ public class SaveResultsDialog
                     + CommonsLangUtils.LINE_SEPARATOR+
                     "saved in OMERO to the OMERO server? "+CommonsLangUtils.LINE_SEPARATOR+
                     "If Yes, the ROIs and results will be saved on the new images. "+CommonsLangUtils.LINE_SEPARATOR+
-                    "If No, the ROIs and resulst will be saved on the original images.");
+                    "If No, the ROIs and results will be saved on the original images.");
             MessageBox box = new MessageBox(this, "Import images", buf.toString());
             if (box.centerMsgBox() == MessageBox.YES_OPTION) {
                  result = new ResultsObject(toImport);
