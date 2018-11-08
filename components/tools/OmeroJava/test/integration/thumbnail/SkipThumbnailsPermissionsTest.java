@@ -20,7 +20,6 @@
 package integration.thumbnail;
 
 import integration.AbstractServerImportTest;
-import integration.ModelMockFactory;
 import ome.formats.importer.ImportConfig;
 import omero.ServerError;
 import omero.api.RenderingEnginePrx;
@@ -479,20 +478,19 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
     }
 
     private Pixels importFile(ImportConfig config) throws Throwable {
-        String format = ModelMockFactory.FORMATS[0];
-        File file = createImageFile(format);
-        return importFile(config, file, format).get(0);
+        File file = createImageFile("fake");
+        return importFile(config, file, "fake").get(0);
     }
 
     private Pixels importLargeFile(ImportConfig config) throws Throwable {
         File f = File.createTempFile("bigImageFake&sizeX=3500&sizeY=3500&little=false", ".fake");
+        f.deleteOnExit();
         return importAndWaitForPyramid(config, f, "fake");
     }
 
     private File createImageFile(String extension) throws Throwable {
-        File f = File.createTempFile("testImportGraphicsImages" + extension, "."
-                + extension);
-        mmFactory.createImageFile(f, extension);
+        File f = File.createTempFile("imageFake&sizeX=256&sizeY=256", "."+ extension);
+        f.deleteOnExit();
         return f;
     }
 
