@@ -94,17 +94,7 @@ public class SingleFileTest extends AbstractServerTest {
         final int sizeX = 48;
         byte[] lsValues = svc.getThumbnailByLongestSide(omero.rtypes
                 .rint(sizeX));
-        Assert.assertNotNull(lsValues);
-        Assert.assertTrue(lsValues.length > 0);
-        // Check width and height
-
-        try(InputStream in = new ByteArrayInputStream(lsValues)) {
-            BufferedImage buf = ImageIO.read(in);
-            Assert.assertEquals(sizeX, buf.getWidth());
-            Assert.assertEquals(sizeX, buf.getHeight());
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot convert byte array", e);
-        }
+        Utils.checkSize(lsValues, sizeX, sizeX);
     }
 
     @Test
