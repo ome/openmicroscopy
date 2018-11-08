@@ -366,9 +366,15 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         config.doThumbnails.set(false); // skip thumbnails
 
         // Import image without thumbnails
-        Pixels pixels = importFile(config);
+        Pixels pixels = importLargeFile(config);
         final long pixelsId = pixels.getId().getValue();
-
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(pixelsId);
+        if (!re.lookupRenderingDef(pixelsId)) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(pixelsId);
+        }
+        disconnect();
         // Create new user in group and login as that user
         EventContext user2 = newUserInGroup(user1, isGroupOwner);
 
@@ -382,28 +388,28 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         loginUser(user2);
 
         // Generate rendering settings for user 2
-        RenderingEnginePrx re = factory.createRenderingEngine();
+        re = factory.createRenderingEngine();
         re.lookupPixels(pixelsId);
         if (!re.lookupRenderingDef(pixelsId)) {
             re.resetDefaultSettings(true);
             re.lookupRenderingDef(pixelsId);
         }
-        // re.load();
         re.close();
 
         // Load thumbnail as user 2 to create thumbnail on disk
         ThumbnailStorePrx svc = factory.createThumbnailStore();
         Utils.setThumbnailStoreToPixels(svc, pixelsId);
-        Utils.getThumbnailWithoutDefault(svc);
+        byte[] user2Thumbnail = Utils.getThumbnailWithoutDefault(svc);
+        Utils.checkSize(user2Thumbnail, 96, 96);
         svc.close();
 
         // Switch to user 1
+        disconnect();
         loginUser(user1);
 
         // Load and change to trigger rendering settings and thumbnail creation for user 1
         svc = factory.createThumbnailStore();
         Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
-        Utils.getThumbnailWithoutDefault(svc);
 
         // Get rendering settings for pixels object as user 1
         re = factory.createRenderingEngine();
@@ -419,18 +425,11 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
 
         // Get thumbnail for user 1
         byte[] user1Thumbnail = Utils.getThumbnailWithoutDefault(svc);
+        Utils.checkSize(user1Thumbnail, 96, 96);
         svc.close();
 
-        // Login as user 2 and get their version of the thumbnail
-        loginUser(user2);
-        svc = factory.createThumbnailStore();
-        Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
-        byte[] user2Thumbnail = Utils.getThumbnailWithoutDefault(svc);
-        svc.close();
-
-        // Quick check
-        Assert.assertEquals(user1Thumbnail.length, user2Thumbnail.length);
-        Assert.assertTrue(Arrays.equals(user1Thumbnail, user2Thumbnail));
+        // Check that the thumbnails are different
+        Assert.assertFalse(Arrays.equals(user1Thumbnail, user2Thumbnail));
     }
 
     @SuppressWarnings("Duplicates")
