@@ -436,6 +436,99 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         Assert.assertFalse(Arrays.equals(user1Thumbnail, user2Thumbnail));
     }
 
+    /**
+     * Test scenario outlined on:
+     * https://trello.com/c/itoDPkxB/24-read-only-settings-and-thumbnails-generation
+     * <p>
+     * 1. User 1 import image and skip thumbnail generation (don't view it)
+     * 2. User 2 view the image (create rendering settings)
+     * 3. User 1 view the image and change the rendering settings
+     * 4. User 2 view load their thumbnail and compare to user 1's thumbnail
+     *
+     * @throws Throwable
+     */
+    @Test(dataProvider = "permissions")
+    public void testGetThumbnailWithRenderingSettingsChangeSmallImage(String permissions, boolean isAdmin,
+                                                            boolean isGroupOwner) throws Throwable {
+        // Skip this test for rw---- group
+        if (permissions.equalsIgnoreCase("rw----")) {
+            return;
+        }
+
+        EventContext user1 = newUserAndGroup(permissions);
+        loginUser(user1);
+
+        ImportConfig config = new ImportConfig();
+        config.doThumbnails.set(false); // skip thumbnails
+
+        // Import image without thumbnails
+        Pixels pixels = importLargeFile(config);
+        final long pixelsId = pixels.getId().getValue();
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(pixelsId);
+        if (!re.lookupRenderingDef(pixelsId)) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(pixelsId);
+        }
+        disconnect();
+        // Create new user in group and login as that user
+        EventContext user2 = newUserInGroup(user1, isGroupOwner);
+
+        // If user is an admin, add them to the system group
+        if (isAdmin) {
+            ExperimenterGroup systemGroup = new ExperimenterGroupI(iAdmin.getSecurityRoles().systemGroupId, false);
+            addUsers(systemGroup, Collections.singletonList(user2.userId), false);
+        }
+
+        // Login as user2
+        loginUser(user2);
+
+        // Generate rendering settings for user 2
+        re = factory.createRenderingEngine();
+        re.lookupPixels(pixelsId);
+        if (!re.lookupRenderingDef(pixelsId)) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(pixelsId);
+        }
+        re.close();
+
+        // Load thumbnail as user 2 to create thumbnail on disk
+        ThumbnailStorePrx svc = factory.createThumbnailStore();
+        Utils.setThumbnailStoreToPixels(svc, pixelsId);
+        byte[] user2Thumbnail = Utils.getThumbnailWithoutDefault(svc);
+        Utils.checkSize(user2Thumbnail, Utils.DEFAULT_SIZE_X,
+                Utils.DEFAULT_SIZE_Y);
+        svc.close();
+
+        // Switch to user 1
+        disconnect();
+        loginUser(user1);
+
+        // Load and change to trigger rendering settings and thumbnail creation for user 1
+        svc = factory.createThumbnailStore();
+        Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
+
+        // Get rendering settings for pixels object as user 1
+        re = factory.createRenderingEngine();
+        re.lookupPixels(pixelsId);
+        if (!re.lookupRenderingDef(pixelsId)) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(pixelsId);
+        }
+        re.load();
+        re.setActive(0, false);
+        re.saveCurrentSettings();
+        re.close();
+
+        // Get thumbnail for user 1
+        byte[] user1Thumbnail = Utils.getThumbnailWithoutDefault(svc);
+        Utils.checkSize(user1Thumbnail, 96, 96);
+        svc.close();
+
+        // Check that the thumbnails are different
+        Assert.assertFalse(Arrays.equals(user1Thumbnail, user2Thumbnail));
+    }
+   
     @SuppressWarnings("Duplicates")
     @DataProvider(name = "permissions")
     public Object[][] providePermissions() {
@@ -492,7 +585,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
     }
 
     private File createImageFile(String extension) throws Throwable {
-        File f = File.createTempFile("imageFake&sizeX=256&sizeY=256", "."+ extension);
+        File f = File.createTempFile("imageFake", "."+ extension);
         f.deleteOnExit();
         return f;
     }
