@@ -20,6 +20,7 @@
 package integration.thumbnail;
 
 import integration.AbstractServerTest;
+
 import integration.ModelMockFactory;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ServerError;
@@ -35,7 +36,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -97,7 +97,7 @@ public class SingleFileTest extends AbstractServerTest {
         Assert.assertNotNull(lsValues);
         Assert.assertTrue(lsValues.length > 0);
         // Check width and height
-        
+
         try(InputStream in = new ByteArrayInputStream(lsValues)) {
             BufferedImage buf = ImageIO.read(in);
             Assert.assertEquals(sizeX, buf.getWidth());
@@ -179,6 +179,12 @@ public class SingleFileTest extends AbstractServerTest {
         Utils.getThumbnailWithoutDefault(svc);
     }
 
+    /**
+     * Resets the settings.
+     *
+     * @param pixels The pixels set to handle.
+     * @throws ServerError
+     */
     private void resetRenderingSettingsForPixelsObject(Pixels pixels) throws ServerError {
         // Reset the rendering settings.
         IRenderingSettingsPrx proxy = factory.getRenderingSettingsService();
@@ -190,6 +196,7 @@ public class SingleFileTest extends AbstractServerTest {
         File f = File.createTempFile("testImportGraphicsImages" + format, "."
                 + format);
         mmFactory.createImageFile(f, format);
+        f.deleteOnExit();
         return f;
     }
 }
