@@ -28,12 +28,19 @@ import omero.api.ThumbnailStorePrx;
 import omero.model.Pixels;
 import omero.model.RenderingDef;
 import omero.sys.EventContext;
+
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
+
+import javax.imageio.ImageIO;
 
 /**
  * Tests utilizing single thumbnail loading APIs
@@ -89,6 +96,15 @@ public class SingleFileTest extends AbstractServerTest {
                 .rint(sizeX));
         Assert.assertNotNull(lsValues);
         Assert.assertTrue(lsValues.length > 0);
+        // Check width and height
+        
+        try(InputStream in = new ByteArrayInputStream(lsValues)) {
+            BufferedImage buf = ImageIO.read(in);
+            Assert.assertEquals(sizeX, buf.getWidth());
+            Assert.assertEquals(sizeX, buf.getHeight());
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot convert byte array", e);
+        }
     }
 
     @Test
