@@ -482,11 +482,18 @@ class PrefsControl(WriteableConfigControl):
             self.ctx.die(954, "%s: Failed to edit %s"
                          % (getattr(re, "pid", "Unknown"), temp_file))
         args.NAME = config.default()
+        old_config = dict(config)
         self.drop(args, config)
         args.file = [open(str(temp_file), "r")]
         args.q = True
-        self.load(args, config)
-        remove_path(temp_file)
+        try:
+            self.load(args, config)
+        except Exception as e:
+            for key, value in old_config.items():
+                config[key] = value
+            raise e
+        finally:
+            remove_path(temp_file)
 
     @with_config
     def version(self, args, config):
