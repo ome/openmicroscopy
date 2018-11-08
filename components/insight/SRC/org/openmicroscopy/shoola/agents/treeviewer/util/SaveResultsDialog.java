@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 
@@ -217,11 +216,11 @@ public class SaveResultsDialog
         ResultsObject result;
         if (toImport.size() > 0) { //ask if they want to import the image
             StringBuffer buf = new StringBuffer();
-            buf.append("Do you wish to import any selected images not already "
+            buf.append("Import any selected images not already "
                     + CommonsLangUtils.LINE_SEPARATOR+
                     "saved in OMERO to the OMERO server? "+CommonsLangUtils.LINE_SEPARATOR+
-                    "The ROI and results will be saved on the new images. "+CommonsLangUtils.LINE_SEPARATOR+
-                    "The ROI and resullst will be saved on the original images.");
+                    "If Yes, the ROIs and results will be saved on the new images. "+CommonsLangUtils.LINE_SEPARATOR+
+                    "If No, the ROIs and resulst will be saved on the original images.");
             MessageBox box = new MessageBox(this, "Import images", buf.toString());
             if (box.centerMsgBox() == MessageBox.YES_OPTION) {
                  result = new ResultsObject(toImport);
