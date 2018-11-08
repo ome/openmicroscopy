@@ -20,11 +20,13 @@
 package integration.thumbnail;
 
 import com.google.common.collect.ImmutableList;
+
 import integration.AbstractServerTest;
 import integration.ModelMockFactory;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.api.ThumbnailStorePrx;
 import omero.model.Pixels;
+
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -78,7 +80,7 @@ public class BatchLoadingTest extends AbstractServerTest {
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
-        f.delete();
+        f.deleteOnExit();
 
         int sizeX = 48;
         int sizeY = 48;
@@ -87,12 +89,9 @@ public class BatchLoadingTest extends AbstractServerTest {
         Map<Long, byte[]> lsThmbs = svc.getThumbnailByLongestSideSet(
                 omero.rtypes.rint(sizeX), pixelsIds);
         Iterator<byte[]> it = thmbs.values().iterator();
-        byte[] t = null;
         int tnCount = 0;
         while (it.hasNext()) {
-            t = it.next();
-            Assert.assertNotNull(t);
-            Assert.assertTrue(t.length > 0);
+            Utils.checkSize(it.next(), sizeX, sizeY);
             tnCount++;
         }
         Assert.assertEquals(thumbNailCount, tnCount);
@@ -100,9 +99,7 @@ public class BatchLoadingTest extends AbstractServerTest {
         it = lsThmbs.values().iterator();
         tnCount = 0;
         while (it.hasNext()) {
-            t = it.next();
-            Assert.assertNotNull(t);
-            Assert.assertTrue(t.length > 0);
+            Utils.checkSize(it.next(), sizeX, sizeY);
             tnCount++;
         }
         Assert.assertEquals(thumbNailCount, tnCount);
@@ -161,7 +158,7 @@ public class BatchLoadingTest extends AbstractServerTest {
         }
 
         /* check that the thumbnails are as expected */
-        Assert.assertTrue(thumbnail.length > 0);
+        Utils.checkSize(thumbnail, 48, 48);
         Assert.assertEquals(thumbnails.get(pixelsIdα), thumbnail);
         Assert.assertEquals(thumbnails.get(pixelsIdβ), thumbnail);
     }
