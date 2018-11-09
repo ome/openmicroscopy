@@ -41,10 +41,20 @@ import org.testng.Assert;
  */
 class Utils {
 
+    /** The default width of the thumbnail.*/
     static final int DEFAULT_SIZE_X = 96;
 
+    /** The default height of the thumbnail.*/
     static final int DEFAULT_SIZE_Y = 96;
 
+    /**
+     * Returns a byte array for the thumbnail of the default size.
+     * It uses the <code>getThumbnail</code> method.
+     *
+     * @param svc The store to use.
+     * @return See above
+     * @throws ServerError Thrown if an error occurred during the thumbnail retrieval.
+     */
     public static byte[] getThumbnail(ThumbnailStorePrx svc) throws ServerError {
 
         // Get thumbnail
@@ -58,6 +68,14 @@ class Utils {
         return values;
     }
 
+    /**
+     * Returns a byte array for the thumbnail of the default size.
+     * It uses the <code>getThumbnailWithoutDefault</code> method.
+     *
+     * @param svc The store to use.
+     * @return See above
+     * @throws ServerError Thrown if an error occurred during the thumbnail retrieval.
+     */
     public static byte[] getThumbnailWithoutDefault(ThumbnailStorePrx svc) throws ServerError {
 
         // Get thumbnail
@@ -70,6 +88,13 @@ class Utils {
         return values;
     }
 
+    /**
+     * Initializes the thumbnail store.
+     *
+     * @param svc The store to use.
+     * @param pixelsId The pixels set to use.
+     * @throws ServerError
+     */
     public static void setThumbnailStoreToPixels(ThumbnailStorePrx svc, long pixelsId) throws ServerError {
         if (!svc.setPixelsId(pixelsId)) {
             svc.resetDefaults();
@@ -77,6 +102,14 @@ class Utils {
         }
     }
 
+    /**
+     * Checks if the array corresponding to a given thumbnail corresponds to the
+     * specified width and height of the thumbnail.
+     *
+     * @param values The array representing the thumbnail.
+     * @param sizeX The width of the thumbnail.
+     * @param sizeY The height of the thumbnail.
+     */
     public static void checkSize(byte[] values, int sizeX, int sizeY) {
         Assert.assertNotNull(values);
         Assert.assertTrue(values.length > 0);
@@ -84,9 +117,10 @@ class Utils {
         try(InputStream in = new ByteArrayInputStream(values)) {
             BufferedImage buf = ImageIO.read(in);
             Assert.assertEquals(sizeX, buf.getWidth());
-            Assert.assertEquals(sizeX, buf.getHeight());
+            Assert.assertEquals(sizeY, buf.getHeight());
         } catch (Exception e) {
             throw new RuntimeException("Cannot convert byte array", e);
         }
     }
+
 }
