@@ -84,6 +84,18 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         files.clear();
     }
 
+    /**
+     * Test:
+     * 1. User1 import an image and skip the thumbnail
+     *    generation during import.
+     * 2. User1 does generate a thumbnail
+     * 3. Create a new user: user2 and log as that user
+     * 4. User2 create a thumbnail for that image using the <code>getThumbnail</code>
+     * @param permissions
+     * @param isAdmin
+     * @param isGroupOwner
+     * @throws Throwable
+     */
     @Test(dataProvider = "permissions")
     public void testGetThumbnail(String permissions, boolean isAdmin,
                                  boolean isGroupOwner) throws Throwable {
@@ -136,6 +148,18 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         }
     }
 
+    /**
+     * Test:
+     * 1. User1 import an image and skip the thumbnail
+     *    generation during import.
+     * 2. User1 does generate a thumbnail
+     * 3. Create a new user: user2 and log as that user
+     * 4. User2 create a thumbnail for that image using the <code>getThumbnailWithoutDefault</code>
+     * @param permissions
+     * @param isAdmin
+     * @param isGroupOwner
+     * @throws Throwable
+     */
     @Test(dataProvider = "permissions")
     public void testGetThumbnailWithoutDefault(String permissions, boolean isAdmin, boolean isGroupOwner) throws Throwable {
         // Create two users in same group
@@ -179,6 +203,18 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         }
     }
 
+    /**
+     * Test:
+     * 1. User1 import an image (pyramid will be created) and skip the thumbnail
+     *    generation during import.
+     * 2. User1 does generate a thumbnail
+     * 3. Create a new user: user2 and log as that user
+     * 4. User2 create a thumbnail for that image using the <code>getThumbnail</code>
+     * @param permissions
+     * @param isAdmin
+     * @param isGroupOwner
+     * @throws Throwable
+     */
     @Test(dataProvider = "permissions")
     public void testGetThumbnailLarge(String permissions, boolean isAdmin, boolean isGroupOwner) throws Throwable {
         // Create two users in same group
@@ -189,7 +225,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         ImportConfig config = new ImportConfig();
         config.doThumbnails.set(false); // skip thumbnails
 
-        // Create a png file, with all RGB values FFFFFF
+        // Create a fake file. A pyramid will be generated
         Pixels pixels = importLargeFile(config);
 
         // View image as user 1
@@ -223,6 +259,18 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         }
     }
 
+    /**
+     * Test:
+     * 1. User1 import an image (pyramid will be created) and skip the thumbnail
+     *    generation during import.
+     * 2. User1 does not generate a thumbnail
+     * 3. Create a new user: user2 and log as that user
+     * 4. User2 create a thumbnail for that image using the <code>getThumbnail</code>
+     * @param permissions
+     * @param isAdmin
+     * @param isGroupOwner
+     * @throws Throwable
+     */
     @Test(dataProvider = "permissions")
     public void testGetThumbnailLargeAsUser2Only(String permissions, boolean isAdmin, boolean isGroupOwner) throws Throwable {
         // Create two users in same group
@@ -233,7 +281,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         ImportConfig config = new ImportConfig();
         config.doThumbnails.set(false); // skip thumbnails
 
-        // Create a png file, with all RGB values FFFFFF
+        // Create a fake file. A pyramid will be generated
         Pixels pixels = importLargeFile(config);
 
         // Create new user in group and login as that user
@@ -261,6 +309,18 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         }
     }
 
+    /**
+     * Test:
+     * 1. User1 import an image (pyramid will be created) and skip the thumbnail
+     *    generation during import.
+     * 2. User1 generates a thumbnail
+     * 3. Create a new user: user2 and log as that user
+     * 4. User2 create a thumbnail for that image using the <code>getThumbnailWithoutDefault</code>
+     * @param permissions
+     * @param isAdmin
+     * @param isGroupOwner
+     * @throws Throwable
+     */
     @Test(dataProvider = "permissions")
     public void testGetThumbnailWithoutDefaultLarge(String permissions, boolean isAdmin, boolean isGroupOwner) throws Throwable {
         // Create two users in same group
@@ -271,7 +331,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         ImportConfig config = new ImportConfig();
         config.doThumbnails.set(false); // skip thumbnails
 
-        // Create a png file, with all RGB values FFFFFF
+        // Create a fake file. A pyramid will be generated
         Pixels pixels = importLargeFile(config);
 
         // View image as user 1
@@ -305,6 +365,18 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         }
     }
 
+    /**
+     * Test:
+     * 1. User1 import an image (pyramid will be created) and skip the thumbnail
+     *    generation during import.
+     * 2. User1 does not generate a thumbnail
+     * 3. Create a new user: user2 and log as that user
+     * 4. User2 create a thumbnail for that image using the <code>getThumbnailWithoutDefault</code>
+     * @param permissions
+     * @param isAdmin
+     * @param isGroupOwner
+     * @throws Throwable
+     */
     @Test(dataProvider = "permissions")
     public void testGetThumbnailWithoutDefaultLargeAsUser2Only(String permissions, boolean isAdmin, boolean isGroupOwner) throws Throwable {
         // Create two users in same group
@@ -315,7 +387,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         ImportConfig config = new ImportConfig();
         config.doThumbnails.set(false); // skip thumbnails
 
-        // Create a png file, with all RGB values FFFFFF
+        // Create a fake file. A pyramid will be generated
         Pixels pixels = importLargeFile(config);
 
         // Create new user in group and login as that user
@@ -368,7 +440,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         ImportConfig config = new ImportConfig();
         config.doThumbnails.set(false); // skip thumbnails
 
-        // Import image without thumbnails
+        // Create a fake file. A pyramid will be generated
         Pixels pixels = importLargeFile(config);
         final long pixelsId = pixels.getId().getValue();
         RenderingEnginePrx re = factory.createRenderingEngine();
@@ -461,7 +533,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         ImportConfig config = new ImportConfig();
         config.doThumbnails.set(false); // skip thumbnails
 
-        // Import image without thumbnails
+        // Create a fake file. A pyramid will be generated
         Pixels pixels = importLargeFile(config);
         final long pixelsId = pixels.getId().getValue();
         RenderingEnginePrx re = factory.createRenderingEngine();
@@ -528,7 +600,12 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         // Check that the thumbnails are different
         Assert.assertFalse(Arrays.equals(user1Thumbnail, user2Thumbnail));
     }
-   
+
+    /**
+     * Sets the group permissions and the user's ones.
+     *
+     * @return
+     */
     @SuppressWarnings("Duplicates")
     @DataProvider(name = "permissions")
     public Object[][] providePermissions() {
@@ -555,35 +632,38 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
-    private EventContext addUser(EventContext user1, boolean isAdmin, boolean isGroupOwner) throws Exception {
-        // Create new user in group and login as that user
-        EventContext newUser = newUserInGroup(user1, isGroupOwner);
-        if (isAdmin) {
-            // If user is an admin, add them to the system group
-            ExperimenterGroup systemGroup = new ExperimenterGroupI(iAdmin.getSecurityRoles().systemGroupId, false);
-            addUsers(systemGroup, Collections.singletonList(newUser.userId), false);
-        }
-        return newUser;
-    }
-
-    private EventContext addUserAndLogin(EventContext user1, boolean isAdmin, boolean isGroupOwner) throws Exception {
-        // Login as new user
-        EventContext newUser = addUser(user1, isAdmin, isGroupOwner);
-        loginUser(newUser);
-        return newUser;
-    }
-
+    /**
+     * Creates a 512x512 fake image.
+     *
+     * @param extension
+     * @return
+     * @throws Throwable
+     */
     private Pixels importFile(ImportConfig config) throws Throwable {
         File file = createImageFile("fake");
         return importFile(config, file, "fake").get(0);
     }
 
+    /**
+     * Creates a large fake image. A pyramid will be generated.
+     *
+     * @param extension
+     * @return
+     * @throws Throwable
+     */
     private Pixels importLargeFile(ImportConfig config) throws Throwable {
         File f = File.createTempFile("bigImageFake&sizeX=3500&sizeY=3500&little=false", ".fake");
         f.deleteOnExit();
         return importAndWaitForPyramid(config, f, "fake");
     }
 
+    /**
+     * Creates a 512x512 fake image.
+     *
+     * @param extension
+     * @return
+     * @throws Throwable
+     */
     private File createImageFile(String extension) throws Throwable {
         File f = File.createTempFile("imageFake", "."+ extension);
         f.deleteOnExit();

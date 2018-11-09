@@ -2447,4 +2447,43 @@ public class AbstractServerTest extends AbstractTest {
             super(-1);
         }
     }
+
+    /**
+     * Convenient method which adds a user to the current group and logs the
+     * user.
+     * Depending on the specified parameters, the user will become a group owner
+     * or an admin.
+     * @param user1
+     * @param isAdmin
+     * @param isGroupOwner
+     * @return
+     * @throws Exception
+     */
+    protected EventContext addUserAndLogin(EventContext user1, boolean isAdmin, boolean isGroupOwner) throws Exception {
+        // Login as new user
+        EventContext newUser = addUser(user1, isAdmin, isGroupOwner);
+        loginUser(newUser);
+        return newUser;
+    }
+
+    /**
+     * Convenient method which adds a user to the current group.
+     * Depending on the specified parameters, the user will become a group owner
+     * or an admin.
+     * @param user1
+     * @param isAdmin
+     * @param isGroupOwner
+     * @return
+     * @throws Exception
+     */
+    protected EventContext addUser(EventContext user1, boolean isAdmin, boolean isGroupOwner) throws Exception {
+        // Create new user in group and login as that user
+        EventContext newUser = newUserInGroup(user1, isGroupOwner);
+        if (isAdmin) {
+            // If user is an admin, add them to the system group
+            ExperimenterGroup systemGroup = new ExperimenterGroupI(iAdmin.getSecurityRoles().systemGroupId, false);
+            addUsers(systemGroup, Collections.singletonList(newUser.userId), false);
+        }
+        return newUser;
+    }
 }
