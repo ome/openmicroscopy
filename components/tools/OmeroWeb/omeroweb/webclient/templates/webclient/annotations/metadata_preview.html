@@ -368,6 +368,9 @@
               return false;
             });
 
+            // Find the current "parent" based on the combined jsTree context
+            // of selected, opened, and related nodes.  This parent will then
+            // be used to provide context when opening image viewers.
             var parent = OME.getParentId();
             if (parent) {
               if (parent.split('-')[0] === 'dataset') {
