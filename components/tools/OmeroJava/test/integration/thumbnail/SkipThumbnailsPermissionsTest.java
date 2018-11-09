@@ -99,6 +99,10 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
     @Test(dataProvider = "permissions")
     public void testGetThumbnail(String permissions, boolean isAdmin,
                                  boolean isGroupOwner) throws Throwable {
+        //member in a private group cannot view other user data.
+        if (permissions.equalsIgnoreCase("rw----") && !isGroupOwner && !isAdmin) {
+            return;
+        }
         // Create two users in same group
         EventContext user1 = newUserAndGroup(permissions);
         loginUser(user1);
@@ -132,17 +136,6 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         try {
             Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
             Utils.getThumbnail(svc);
-        } catch (omero.ResourceError | omero.ReadOnlyGroupSecurityViolation e) {
-            // With permission rw----, the image is private to user 1.
-            // Expect this to fail for user 2.
-            if (!permissions.equalsIgnoreCase("rw----")) {
-                throw e;
-            }
-        } catch (omero.ApiUsageException e) {
-            //group member trying to set settings
-            if (!(permissions.equalsIgnoreCase("rwr---") || permissions.equalsIgnoreCase("rw----"))) {
-                throw e;
-            }
         } finally {
             svc.close();
         }
@@ -162,6 +155,10 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
      */
     @Test(dataProvider = "permissions")
     public void testGetThumbnailWithoutDefault(String permissions, boolean isAdmin, boolean isGroupOwner) throws Throwable {
+        //member in a private group cannot view other user data.
+        if (permissions.equalsIgnoreCase("rw----") && !isGroupOwner && !isAdmin) {
+            return;
+        }
         // Create two users in same group
         EventContext user1 = newUserAndGroup(permissions);
         loginUser(user1);
@@ -187,17 +184,6 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         try {
             Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
             Utils.getThumbnailWithoutDefault(svc);
-        } catch (omero.ResourceError | omero.ReadOnlyGroupSecurityViolation e) {
-            // With permission rw----, the image is private to user 1.
-            // Expect this to fail for user 2.
-            if (!permissions.equalsIgnoreCase("rw----")) {
-                throw e;
-            }
-        } catch (omero.ApiUsageException e) {
-            //group member trying to set settings
-            if (!(permissions.equalsIgnoreCase("rwr---") || permissions.equalsIgnoreCase("rw----"))) {
-                throw e;
-            }
         } finally {
             svc.close();
         }
