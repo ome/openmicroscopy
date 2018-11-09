@@ -395,7 +395,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
     @Test(dataProvider = "permissions")
     public void testGetThumbnailWithRenderingSettingsChange(String permissions, boolean isAdmin,
                                                             boolean isGroupOwner) throws Throwable {
-        // Skip this test for rw---- group
+        //member regardless of their role cannot link to Pixels.
         if (permissions.equalsIgnoreCase("rw----")) {
             return;
         }
@@ -488,7 +488,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
     @Test(dataProvider = "permissions")
     public void testGetThumbnailWithRenderingSettingsChangeSmallImage(String permissions, boolean isAdmin,
                                                             boolean isGroupOwner) throws Throwable {
-        // Skip this test for rw---- group
+        //member regardless of their role cannot link to Pixels.
         if (permissions.equalsIgnoreCase("rw----")) {
             return;
         }
