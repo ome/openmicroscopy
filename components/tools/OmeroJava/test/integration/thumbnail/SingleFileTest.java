@@ -76,8 +76,8 @@ public class SingleFileTest extends AbstractServerTest {
     }
 
     /**
-     * Test to retrieve the newly created image. Tests thumbnailService methods:
-     * getThumbnail(rint, rint) and getThumbnailByLongestSide(rint)
+     * Test to retrieve the thumbnail for the imported image.
+     * Tests thumbnailService method: <code>getThumbnail</code>
      *
      * @throws Exception Thrown if an error occurred.
      */
@@ -86,6 +86,12 @@ public class SingleFileTest extends AbstractServerTest {
         Utils.getThumbnail(svc);
     }
 
+    /**
+     * Test to retrieve the thumbnail for the imported image.
+     * Tests thumbnailService method: <code>getThumbnailByLongestSide</code>
+     *
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test
     public void testGetThumbnailByLongestSide() throws Exception {
         final int sizeX = 48;
@@ -94,6 +100,12 @@ public class SingleFileTest extends AbstractServerTest {
         Utils.checkSize(lsValues, sizeX, sizeX);
     }
 
+    /**
+     * Test to retrieve the thumbnail for the imported image.
+     * Tests thumbnailService method: <code>getThumbnailWithoutDefault</code>
+     *
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test
     public void testGetThumbnailWithoutDefault() throws Exception {
         Utils.getThumbnailWithoutDefault(svc);
@@ -102,8 +114,7 @@ public class SingleFileTest extends AbstractServerTest {
     /**
      * Test to retrieve the thumbnails for images. Load the thumbnails, reset
      * the rendering settings then reload the rendering settings again. Tests
-     * thumbnailService methods: getThumbnail(rint, rint) and
-     * getThumbnailByLongestSide(rint)
+     * thumbnailService method: <code>getThumbnail</code>
      *
      * @throws Exception Thrown if an error occurred.
      */
@@ -118,6 +129,13 @@ public class SingleFileTest extends AbstractServerTest {
         Utils.getThumbnail(svc);
     }
 
+    /**
+     * Test to retrieve the thumbnails for images. Load the thumbnails, reset
+     * the rendering settings then reload the rendering settings again. Tests
+     * thumbnailService method: <code>getThumbnailWithoutDefault</code>
+     *
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test
     public void testGetThumbnailWithoutDefaultAfterReset() throws Exception {
         Utils.getThumbnailWithoutDefault(svc);
@@ -128,6 +146,12 @@ public class SingleFileTest extends AbstractServerTest {
         Utils.getThumbnailWithoutDefault(svc);
     }
 
+    /**
+     * Test to retrieve the thumbnail for the imported image as another user.
+     * Tests thumbnailService method: <code>getThumbnail</code>
+     *
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test
     public void testGetThumbnailAsOtherUser() throws Exception {
         // Close current thumbnail store
@@ -147,6 +171,12 @@ public class SingleFileTest extends AbstractServerTest {
         Utils.getThumbnail(svc);
     }
 
+    /**
+     * Test to retrieve the thumbnail for the imported image as another user.
+     * Tests thumbnailService method: <code>getThumbnailWithoutDefault</code>
+     *
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test
     public void testGetThumbnailWithoutDefaultAsOtherUser() throws Exception {
         // Close current thumbnail store
@@ -179,6 +209,13 @@ public class SingleFileTest extends AbstractServerTest {
         proxy.resetDefaults(settings, pixels);
     }
 
+    /**
+     * Creates an image of the specified format.
+     *
+     * @param format The format.
+     * @return See above
+     * @throws Throwable
+     */
     private File createImageFile(String format) throws Throwable {
         File f = File.createTempFile("testImportGraphicsImages" + format, "."
                 + format);
@@ -186,4 +223,5 @@ public class SingleFileTest extends AbstractServerTest {
         f.deleteOnExit();
         return f;
     }
+
 }
