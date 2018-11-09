@@ -157,8 +157,10 @@ public class SingleFileTest extends AbstractServerTest {
         // Close current thumbnail store
         svc.close();
 
+        
         // Create new user in group and login as that user
         EventContext newUser = newUserInGroup();
+        disconnect();
         loginUser(newUser);
 
         // Create a new thumbnail store
@@ -184,6 +186,7 @@ public class SingleFileTest extends AbstractServerTest {
 
         // Create new user in group and login as that user
         EventContext newUser = newUserInGroup();
+        disconnect();
         loginUser(newUser);
 
         // Create a new thumbnail store
