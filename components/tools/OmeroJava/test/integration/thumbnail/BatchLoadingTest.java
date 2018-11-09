@@ -113,7 +113,6 @@ public class BatchLoadingTest extends AbstractServerTest {
         svc.close();
     }
 
-
     /**
      * Test that thumbnails can be retrieved from multiple groups at once.
      *
@@ -169,4 +168,5 @@ public class BatchLoadingTest extends AbstractServerTest {
         Assert.assertEquals(thumbnails.get(pixelsIdα), thumbnail);
         Assert.assertEquals(thumbnails.get(pixelsIdβ), thumbnail);
     }
+
 }
