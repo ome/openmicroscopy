@@ -158,6 +158,10 @@ class TestPrefs(object):
         self.assertStdoutStderr(capsys)
         self.invoke("keys")
         self.assertStdoutStderr(capsys, out="A")
+        self.invoke("set C D=E")
+        self.assertStdoutStderr(capsys)
+        self.invoke("keys")
+        self.assertStdoutStderr(capsys, out="A\nC")
 
     def testVersion(self, capsys):
         self.invoke("version")
@@ -203,10 +207,18 @@ class TestPrefs(object):
         self.invoke("get")
         self.assertStdoutStderr(capsys, out="A=BC")
 
+    @pytest.mark.parametrize('validkeyvalue',
+        ['A=B','A=B=C', 'A.B=C.D', "A.B='C.D'"])
+    def testLoadWhitelist(self, capsys, validkeyvalue):
+        to_load = create_path()
+        to_load.write_text("%s\n" % validkeyvalue)
+        self.invoke("load %s" % to_load)
+        self.invoke("get")
+        self.assertStdoutStderr(capsys, out="%s" % validkeyvalue)
+
     @pytest.mark.parametrize(
         ('invalidline', 'invalidkey'),
         [('E F G', 'E F G'),
-         ('E=F=G', 'E=F'),
          ('E = F', 'E')])
     def testLoadInvalidKey(self, capsys, invalidline, invalidkey):
         self.invoke("set A B")
