@@ -284,24 +284,29 @@ class MapSetTxAction(NonFieldTxAction):
 
         from omero.model import NamedValue as NV
 
-        if len(self.tx_cmd.arg_list) != 5:
-            ctx.die(335, "usage: map-set OBJ FIELD KEY VALUE")
+        argc = len(self.tx_cmd.arg_list)
+        if argc not in [4, 5]:
+            ctx.die(335, "usage: map-set OBJ FIELD KEY [VALUE]")
 
         field = self.tx_cmd.arg_list[2]
         current = getattr(self.obj, field)
         if current is None:
             setattr(self.obj, field, [])
 
-        name, value = self.tx_cmd.arg_list[3:]
-        state = None
-        for nv in current:
-            if nv and nv.name == name:
-                nv.value = value
-                state = "SET"
-                break
-
-        if state != "SET":
-            current.append(NV(name, value))
+        if argc == 4:
+            name = self.tx_cmd.arg_list[3]
+            current = filter(lambda nv: nv and nv.name != name, current)
+            setattr(self.obj, field, current)
+        else:
+            name, value = self.tx_cmd.arg_list[3:]
+            state = None
+            for nv in current:
+                if nv and nv.name == name:
+                    nv.value = value
+                    state = "SET"
+                    break
+            if state != "SET":
+                current.append(NV(name, value))
 
         self.save_and_return(ctx)
 
@@ -506,6 +511,8 @@ Examples:
     $ bin/omero obj new MapAnnotation ns=example.com
     MapAnnotation:456
     $ bin/omero obj map-set MapAnnotation:456 mapValue foo bar
+    MapAnnotation:456
+    $ bin/omero obj map-set MapAnnotation:456 mapValue foo
     MapAnnotation:456
     $ bin/omero obj map-set MapAnnotation:456 mapValue fu baa
     MapAnnotation:456
