@@ -204,15 +204,20 @@ class TestPrefs(object):
         self.assertStdoutStderr(capsys, out="A=BC")
 
     @pytest.mark.parametrize(
-        'invalidkeys', ['E F G', 'E=F=G', 'A = B'])
-    def testLoadInvalidKey(self, capsys, invalidkeys):
+        ('invalidline', 'invalidkey'),
+        [('E F G', 'E F G'),
+         ('E=F=G', 'E=F'),
+         ('E = F', 'E')])
+    def testLoadInvalidKey(self, capsys, invalidline, invalidkey):
         self.invoke("set A B")
         self.assertStdoutStderr(capsys)
 
         to_load = create_path()
-        to_load.write_text("C=D\n%s\nH=I\n" % invalidkeys)
+        to_load.write_text("C=D\n%s\nH=I\n" % invalidline)
         with pytest.raises(NonZeroReturnCode):
             self.invoke("load %s" % to_load)
+        self.assertStdoutStderr(
+            capsys, err="Illegal property name: %s" % invalidkey)
         self.invoke("get")
         self.assertStdoutStderr(capsys, out="A=B")
 
