@@ -115,9 +115,12 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
 
         // View image as user 1
         ThumbnailStorePrx svc = factory.createThumbnailStore();
-        Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
-        Utils.getThumbnail(svc);
-        svc.close();
+        try {
+            Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
+            Utils.getThumbnail(svc);
+        } finally {
+            svc.close();
+        }
 
         // Create new user in group and login as that user
         EventContext user2 = newUserInGroup(user1, isGroupOwner);
@@ -172,9 +175,12 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
 
         // View image as user 1
         ThumbnailStorePrx svc = factory.createThumbnailStore();
-        Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
-        Utils.getThumbnailWithoutDefault(svc);
-        svc.close();
+        try {
+            Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
+            Utils.getThumbnailWithoutDefault(svc);
+        } finally {
+            svc.close();
+        }
 
         // Create new user in group and login as that user
         addUserAndLogin(user1, isAdmin, isGroupOwner);
@@ -220,9 +226,12 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
 
         // View image as user 1
         ThumbnailStorePrx svc = factory.createThumbnailStore();
-        Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
-        Utils.getThumbnail(svc);
-        svc.close();
+        try {
+            Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
+            Utils.getThumbnail(svc);
+        } finally {
+            svc.close();
+        }
 
         // Create new user in group and login as that user
         addUserAndLogin(user1, isAdmin, isGroupOwner);
@@ -316,9 +325,12 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
 
         // View image as user 1
         ThumbnailStorePrx svc = factory.createThumbnailStore();
-        Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
-        Utils.getThumbnailWithoutDefault(svc);
-        svc.close();
+        try {
+            Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
+            Utils.getThumbnailWithoutDefault(svc);
+        } finally {
+            svc.close();
+        }
 
         // Create new user in group and login as that user
         addUserAndLogin(user1, isAdmin, isGroupOwner);
@@ -410,11 +422,16 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         Pixels pixels = importLargeFile(config);
         final long pixelsId = pixels.getId().getValue();
         RenderingEnginePrx re = factory.createRenderingEngine();
-        re.lookupPixels(pixelsId);
-        if (!re.lookupRenderingDef(pixelsId)) {
-            re.resetDefaultSettings(true);
-            re.lookupRenderingDef(pixelsId);
+        try {
+            re.lookupPixels(pixelsId);
+            if (!re.lookupRenderingDef(pixelsId)) {
+                re.resetDefaultSettings(true);
+                re.lookupRenderingDef(pixelsId);
+            }
+        } finally {
+            re.close();
         }
+
         disconnect();
         // Create new user in group and login as that user
         EventContext user2 = newUserInGroup(user1, isGroupOwner);
@@ -430,20 +447,28 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
 
         // Generate rendering settings for user 2
         re = factory.createRenderingEngine();
-        re.lookupPixels(pixelsId);
-        if (!re.lookupRenderingDef(pixelsId)) {
-            re.resetDefaultSettings(true);
-            re.lookupRenderingDef(pixelsId);
+        try {
+            re.lookupPixels(pixelsId);
+            if (!re.lookupRenderingDef(pixelsId)) {
+                re.resetDefaultSettings(true);
+                re.lookupRenderingDef(pixelsId);
+            }
+        } finally {
+            re.close();
         }
-        re.close();
 
         // Load thumbnail as user 2 to create thumbnail on disk
         ThumbnailStorePrx svc = factory.createThumbnailStore();
-        Utils.setThumbnailStoreToPixels(svc, pixelsId);
-        byte[] user2Thumbnail = Utils.getThumbnailWithoutDefault(svc);
-        Utils.checkSize(user2Thumbnail, Utils.DEFAULT_SIZE_X,
-                Utils.DEFAULT_SIZE_Y);
-        svc.close();
+        byte[] user2Thumbnail = null;
+        try {
+            Utils.setThumbnailStoreToPixels(svc, pixelsId);
+            user2Thumbnail = Utils.getThumbnailWithoutDefault(svc);
+            Assert.assertNotNull(user2Thumbnail);
+            Utils.checkSize(user2Thumbnail, Utils.DEFAULT_SIZE_X,
+                    Utils.DEFAULT_SIZE_Y);
+        } finally {
+            svc.close();
+        }
 
         // Switch to user 1
         disconnect();
@@ -455,20 +480,30 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
 
         // Get rendering settings for pixels object as user 1
         re = factory.createRenderingEngine();
-        re.lookupPixels(pixelsId);
-        if (!re.lookupRenderingDef(pixelsId)) {
-            re.resetDefaultSettings(true);
-            re.lookupRenderingDef(pixelsId);
+        try {
+            re.lookupPixels(pixelsId);
+            if (!re.lookupRenderingDef(pixelsId)) {
+                re.resetDefaultSettings(true);
+                re.lookupRenderingDef(pixelsId);
+            }
+            re.load();
+            re.setActive(0, false);
+            re.saveCurrentSettings();
+        } finally {
+            re.close();
         }
-        re.load();
-        re.setActive(0, false);
-        re.saveCurrentSettings();
-        re.close();
+
+        
 
         // Get thumbnail for user 1
-        byte[] user1Thumbnail = Utils.getThumbnailWithoutDefault(svc);
-        Utils.checkSize(user1Thumbnail, 96, 96);
-        svc.close();
+        byte[] user1Thumbnail = null;
+        try {
+            user1Thumbnail = Utils.getThumbnailWithoutDefault(svc);
+            Assert.assertNotNull(user1Thumbnail);
+            Utils.checkSize(user1Thumbnail, Utils.DEFAULT_SIZE_X, Utils.DEFAULT_SIZE_Y);
+        } finally {
+            svc.close();
+        }
 
         // Check that the thumbnails are different
         Assert.assertFalse(Arrays.equals(user1Thumbnail, user2Thumbnail));
@@ -503,10 +538,14 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
         Pixels pixels = importLargeFile(config);
         final long pixelsId = pixels.getId().getValue();
         RenderingEnginePrx re = factory.createRenderingEngine();
-        re.lookupPixels(pixelsId);
-        if (!re.lookupRenderingDef(pixelsId)) {
-            re.resetDefaultSettings(true);
-            re.lookupRenderingDef(pixelsId);
+        try {
+            re.lookupPixels(pixelsId);
+            if (!re.lookupRenderingDef(pixelsId)) {
+                re.resetDefaultSettings(true);
+                re.lookupRenderingDef(pixelsId);
+            }
+        } finally {
+            re.close();
         }
         disconnect();
         // Create new user in group and login as that user
@@ -523,20 +562,28 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
 
         // Generate rendering settings for user 2
         re = factory.createRenderingEngine();
-        re.lookupPixels(pixelsId);
-        if (!re.lookupRenderingDef(pixelsId)) {
-            re.resetDefaultSettings(true);
-            re.lookupRenderingDef(pixelsId);
+        try {
+            re.lookupPixels(pixelsId);
+            if (!re.lookupRenderingDef(pixelsId)) {
+                re.resetDefaultSettings(true);
+                re.lookupRenderingDef(pixelsId);
+            }
+        } finally {
+            re.close();
         }
-        re.close();
 
         // Load thumbnail as user 2 to create thumbnail on disk
         ThumbnailStorePrx svc = factory.createThumbnailStore();
-        Utils.setThumbnailStoreToPixels(svc, pixelsId);
-        byte[] user2Thumbnail = Utils.getThumbnailWithoutDefault(svc);
-        Utils.checkSize(user2Thumbnail, Utils.DEFAULT_SIZE_X,
-                Utils.DEFAULT_SIZE_Y);
-        svc.close();
+        byte[] user2Thumbnail = null;
+        try {
+            Utils.setThumbnailStoreToPixels(svc, pixelsId);
+            user2Thumbnail = Utils.getThumbnailWithoutDefault(svc);
+            Assert.assertNotNull(user2Thumbnail);
+            Utils.checkSize(user2Thumbnail, Utils.DEFAULT_SIZE_X,
+                    Utils.DEFAULT_SIZE_Y); 
+        } finally {
+            svc.close();
+        }
 
         // Switch to user 1
         disconnect();
@@ -544,24 +591,40 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
 
         // Load and change to trigger rendering settings and thumbnail creation for user 1
         svc = factory.createThumbnailStore();
-        Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
+        try {
+            Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
+        } finally {
+            svc.close();
+        }
+        
 
         // Get rendering settings for pixels object as user 1
         re = factory.createRenderingEngine();
-        re.lookupPixels(pixelsId);
-        if (!re.lookupRenderingDef(pixelsId)) {
-            re.resetDefaultSettings(true);
-            re.lookupRenderingDef(pixelsId);
+        try {
+            re.lookupPixels(pixelsId);
+            if (!re.lookupRenderingDef(pixelsId)) {
+                re.resetDefaultSettings(true);
+                re.lookupRenderingDef(pixelsId);
+            }
+            re.load();
+            re.setActive(0, false);
+            re.saveCurrentSettings();
+        } finally {
+            re.close();
         }
-        re.load();
-        re.setActive(0, false);
-        re.saveCurrentSettings();
-        re.close();
 
         // Get thumbnail for user 1
-        byte[] user1Thumbnail = Utils.getThumbnailWithoutDefault(svc);
-        Utils.checkSize(user1Thumbnail, 96, 96);
-        svc.close();
+        svc = factory.createThumbnailStore();
+        byte[] user1Thumbnail = null;
+        try {
+            Utils.setThumbnailStoreToPixels(svc, pixels.getId().getValue());
+            user1Thumbnail = Utils.getThumbnailWithoutDefault(svc);
+            Assert.assertNotNull(user1Thumbnail);
+            Utils.checkSize(user1Thumbnail, Utils.DEFAULT_SIZE_X,
+                    Utils.DEFAULT_SIZE_Y);
+        } finally {
+            svc.close();
+        }
 
         // Check that the thumbnails are different
         Assert.assertFalse(Arrays.equals(user1Thumbnail, user2Thumbnail));
