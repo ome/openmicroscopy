@@ -18,6 +18,9 @@
  */
 package omero.gateway.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import omero.gateway.model.MaskData;
 
 /**
@@ -79,6 +82,9 @@ public class Mask {
             }
         }
         
+        if (maxx == 0)
+            return null;
+        
         int neww = maxx - minx + 1;
         int newh = maxy - miny + 1;
         boolean[][] newmask = new boolean[neww][newh];
@@ -99,6 +105,55 @@ public class Mask {
         return result;
     }
     
+    /**
+     * Creates mask ROIs from the given integer array where each 
+     * single mask ROI is specified by a specific integer.
+     * 
+     * @param masks The masks (int[width][height]) covering the whole
+     *            image.
+     * @return The mask ROIs
+     */
+    public static List<MaskData> createCroppedMasks(int[][] masks) {
+        int[][] copy = new int[masks.length][masks[0].length];
+        for (int i = 0; i < copy.length; i++)
+            for (int j = 0; j < copy[0].length; j++)
+                copy[i][j] = masks[i][j];
+        
+        List<MaskData> res = new ArrayList<MaskData>();
+        int target = 0;
+        while ((target = getFirstNonZeroInt(copy)) > 0) {
+            boolean[][] binMask = new boolean[copy.length][copy[0].length];
+            for (int i = 0; i < binMask.length; i++)
+                for (int j = 0; j < binMask[0].length; j++) {
+                    if (copy[i][j] == target) {
+                        binMask[i][j] = true;
+                        copy[i][j] = 0;
+                    }
+                }
+            MaskData m = createCroppedMask(binMask);
+            res.add(m);
+        }
+        return res;
+    }
+
+    /**
+     * Simply iterates over the array and returns the first non zero integer
+     * found.
+     * 
+     * @param array
+     *            The integer array
+     * @return The first non zero integer found; zero if there is non.
+     */
+    private static int getFirstNonZeroInt(int[][] array) {
+        for (int i = 0; i < array.length; i++) {
+            for (int j = 0; j < array[0].length; j++) {
+                if (array[i][j] > 0)
+                    return array[i][j];
+            }
+        }
+        return 0;
+    }
+
     /**
      * Transforms an integer array to a boolean array,
      * where 0 == false and !0 == true

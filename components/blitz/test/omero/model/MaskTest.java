@@ -20,6 +20,8 @@ package omero.model;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.testng.Assert;
 
@@ -93,4 +95,69 @@ public class MaskTest {
             }
         }
     }
+    
+    @Test
+    public void testCreateCroppedMasks() {
+         // Test the following scenario:
+         //
+         // Mask:
+         // 0000000000
+         // 0000000000
+         // 0000000000
+         // 0000000000
+         // 0000000000
+         // 0000000000
+         // 0000000000
+         // 0022200000
+         // 0000000000
+         // 0000100000
+         // 0000100000
+         // 0001100000
+         // 0000100000
+         // 0000000000
+         // 0000000000
+         //
+         // Cropped masks:
+         // 01
+         // 01
+         // 11
+         // 01
+         //
+         // x = 3
+         // y = 2 
+         // width = 2
+         // height = 4
+         //
+         // 111
+         // x = 2
+         // y = 7 
+         // width = 3
+         // height = 1
+        
+        
+        int w = 10;
+        int h = 15;
+        
+        int[][] binMask = new int[w][h];
+        
+        binMask[3][3] = 1;
+        binMask[4][3] = 1;
+        binMask[4][4] = 1;
+        binMask[4][5] = 1;
+        binMask[4][2] = 1;
+        
+        binMask[2][7] = 2;
+        binMask[3][7] = 2;
+        binMask[4][7] = 2;
+        
+        List<MaskData> masks = Mask.createCroppedMasks(binMask);
+        Assert.assertEquals(masks.size(), 2);
+        
+        for (MaskData mask : masks) {
+            boolean found = (mask.getX() == 3 && mask.getY() == 2 && mask.getWidth() == 2 && mask.getHeight() == 4) ||
+                    (mask.getX() == 2 && mask.getY() == 7 && mask.getWidth() == 3 && mask.getHeight() == 1);
+            Assert.assertTrue(found);
+        }
+    }
+    
 }
