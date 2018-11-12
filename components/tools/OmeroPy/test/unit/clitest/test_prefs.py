@@ -207,14 +207,16 @@ class TestPrefs(object):
         self.invoke("get")
         self.assertStdoutStderr(capsys, out="A=BC")
 
-    @pytest.mark.parametrize('validkeyvalue',
-        ['A=B','A=B=C', 'A.B=C.D', "A.B='C.D'"])
+    @pytest.mark.parametrize(
+        'validkeyvalue',
+        [('A', 'B'), ('A', 'B=C'), ('A.B', 'C.D'), ('A.B', "'C.D'")])
     def testLoadWhitelist(self, capsys, validkeyvalue):
+        valid_key, valid_value = validkeyvalue
         to_load = create_path()
-        to_load.write_text("%s\n" % validkeyvalue)
+        to_load.write_text("%s=%s\n" % (valid_key, valid_value))
         self.invoke("load %s" % to_load)
-        self.invoke("get")
-        self.assertStdoutStderr(capsys, out="%s" % validkeyvalue)
+        self.invoke("get %s" % valid_key)
+        self.assertStdoutStderr(capsys, out=valid_value)
 
     @pytest.mark.parametrize(
         ('invalidline', 'invalidkey'),
