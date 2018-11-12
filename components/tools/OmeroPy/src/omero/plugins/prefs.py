@@ -576,7 +576,7 @@ re-run"""
         _new = parts[1]
         if _key in config.keys():
             _old = config[_key]
-        elif search(r'[\s=]', _key):
+        elif search(r'[\s]', _key):
             self.ctx.die(506, 'Illegal property name: {}'.format(_key))
         else:
             _old = None
