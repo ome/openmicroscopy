@@ -127,7 +127,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
 
         // If user is an admin, add them to the system group
         if (isAdmin) {
-            ExperimenterGroup systemGroup = new ExperimenterGroupI(iAdmin.getSecurityRoles().systemGroupId, false);
+            ExperimenterGroup systemGroup = new ExperimenterGroupI(roles.systemGroupId, false);
             addUsers(systemGroup, Collections.singletonList(user2.userId), false);
         }
         disconnect();
@@ -438,7 +438,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
 
         // If user is an admin, add them to the system group
         if (isAdmin) {
-            ExperimenterGroup systemGroup = new ExperimenterGroupI(iAdmin.getSecurityRoles().systemGroupId, false);
+            ExperimenterGroup systemGroup = new ExperimenterGroupI(roles.systemGroupId, false);
             addUsers(systemGroup, Collections.singletonList(user2.userId), false);
         }
 
@@ -553,7 +553,7 @@ public class SkipThumbnailsPermissionsTest extends AbstractServerImportTest {
 
         // If user is an admin, add them to the system group
         if (isAdmin) {
-            ExperimenterGroup systemGroup = new ExperimenterGroupI(iAdmin.getSecurityRoles().systemGroupId, false);
+            ExperimenterGroup systemGroup = new ExperimenterGroupI(roles.systemGroupId, false);
             addUsers(systemGroup, Collections.singletonList(user2.userId), false);
         }
 
