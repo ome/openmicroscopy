@@ -203,6 +203,19 @@ class TestPrefs(object):
         self.invoke("get")
         self.assertStdoutStderr(capsys, out="A=BC")
 
+    @pytest.mark.parametrize(
+        'invalidkeys', ['E F G', 'E=F=G', 'A = B'])
+    def testLoadInvalidKey(self, capsys, invalidkeys):
+        self.invoke("set A B")
+        self.assertStdoutStderr(capsys)
+
+        to_load = create_path()
+        to_load.write_text("C=D\n%s\nH=I\n" % invalidkeys)
+        with pytest.raises(NonZeroReturnCode):
+            self.invoke("load %s" % to_load)
+        self.invoke("get")
+        self.assertStdoutStderr(capsys, out="A=B")
+
     def testSetFromFile(self, capsys):
         to_load = create_path()
         to_load.write_text("Test")
