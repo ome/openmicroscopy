@@ -21,6 +21,7 @@
 package omero.gateway.model;
 
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.awt.Color;
 
 import omero.RDouble;
@@ -428,6 +429,28 @@ public class MaskData
         setMask(data);
     }
     
+    
+    @Override
+    public String toString() {
+        if (getWidth() > 50 || getHeight() > 50) 
+            return super.toString();
+        
+        // this might be helpful for debug/test 
+        // purposes (only for small masks)
+        StringBuilder sb = new StringBuilder();
+        int[][] bin = getMaskAsBinaryArray();
+        for (int i=0; i<bin.length; i++) {
+            for (int j=0; j<bin[0].length; j++) {
+                if (bin[i][j] > 0)
+                    sb.append('1');
+                else
+                    sb.append('0');
+            }
+            sb.append('\n');
+        }
+        return sb.toString();
+    }
+
     /**
      * Transforms an integer array to a boolean array,
      * where 0 == false and !0 == true
