@@ -22,11 +22,11 @@ function ma = strToMapAnnotation(session, str, varargin)
 % str         string array | cell array of strings
 %             Number of columns must be 2.
 %
-% iseditable  false (default) | true | 0 | 1 
+% iseditable  false (default) | true | 0 | 1
 %             (Optional) If true or 1, MapAnnotation (Key-Value Pairs) will
 %             be editable via GUI (OMERO.web or OMERO.insight)
 %
-% OPTIONAL PARA<ETER/VALUE PAIRS
+% OPTIONAL PARAMETER/VALUE PAIRS
 % 'description'
 %             char
 %             Description for the MapAnnotation
@@ -36,7 +36,7 @@ function ma = strToMapAnnotation(session, str, varargin)
 % ma          MapAnnotationI object
 %             To link ma to an image in OMERO, identify image ID from OMERO
 %             GUI and execute the following command
-%     
+%
 %               client = loadOmero('demo.openmicroscopy.org', 4064)
 %               session = client.createSession(username, password)
 %
@@ -75,10 +75,10 @@ description = p.Results.description;
 
 %% Job
 
-if ~verLessThan('matlab','9.1.0') && isstring(str) 
-    
+if ~verLessThan('matlab','9.1.0') && isstring(str)
+
    str = cellstr(str);
-    
+
 end
 
 
@@ -97,4 +97,3 @@ ma = writeMapAnnotation(session,...
 
 
 end
-
