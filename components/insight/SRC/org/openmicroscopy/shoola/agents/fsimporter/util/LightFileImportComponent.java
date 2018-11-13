@@ -1032,6 +1032,11 @@ public class LightFileImportComponent implements PropertyChangeListener,
     public void onResultsSaving(String message, boolean busy) {
     }
 
+    @Override
+    public void propagateSuccessfulOfflineImportStatus() {}
+
+    @Override
+    public void propagateOfflineImportFailureStatus(Exception cause) {}
     /*
      * (non-Javadoc)
      * 

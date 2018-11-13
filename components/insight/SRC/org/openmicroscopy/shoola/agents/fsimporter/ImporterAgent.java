@@ -97,6 +97,17 @@ public class ImporterAgent
     public static Registry getRegistry() { return registry; }
 
     /**
+     * Returns <code>true</code> run an offline import
+     * <code>false</code> otherwise.
+     */
+    public static boolean isOfflineImport() { 
+        Registry context = getRegistry(); 
+        Boolean offline = (Boolean) 
+                context.lookup(LookupNames.OFFLINE_IMPORT_ENABLED); 
+        return offline != null && offline;  
+    }
+    
+    /**
      * Returns <code>true</code> if the currently logged in user
      * is an administrator, <code>false</code> otherwise.
      * 

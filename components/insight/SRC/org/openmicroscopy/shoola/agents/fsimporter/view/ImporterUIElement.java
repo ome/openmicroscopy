@@ -205,7 +205,56 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
 
     /** Flag indicating if the upload has started or not. */
     private boolean uploadStarted;
-    
+
+    /**
+     * If we're doing an offline import, we set this flag to true just after
+     * queueing the import data. For regular imports, this flag always stays
+     * false.
+     */
+    private boolean offlineCompleted;
+
+    /**
+     * Handle the settings of the various import counters if this is an offline
+     * import.
+     * @param result the import outcome.
+     * @return true if this is an offline import and the counters have been
+     * updated accordingly; false if this is a regular import and so the
+     * counters have *not* been updated.
+     */
+    private boolean handleOfflineImportOutcome(
+            FileImportComponentI fc, Object result) {
+        // NB submitting an offline batch of files can either be queued, in
+        // which case the submission is successful, or be rejected as a whole.
+        // If the submission is successful, files will be processed offline.
+        // So we set the counters below to reflect all this. (This method
+        // will be called for each and every file in the batch, but it doesn't
+        // matter: the counters are always set to constant values.)
+        if (ImporterAgent.isOfflineImport()) {
+            offlineCompleted = true;
+            countCancelled = 0;
+            countUploadFailure = 0;
+            if (result instanceof Exception) {  // see StatusLabel.notifyOfflineImportFailure
+                countFailure = totalToImport;
+                countUploaded = 0;
+                countImported = 0;
+                // need this too if we're importing directories
+                fc.propagateOfflineImportFailureStatus((Exception) result);
+            } else {  // see StatusLabel.notifySuccessfulOfflineImport
+                countFailure = 0;
+                countUploaded = totalToImport;
+                countImported = totalToImport;
+                // need this too if we're importing directories
+                fc.propagateSuccessfulOfflineImportStatus();
+            }
+            setNumberOfImport();
+            setClosable(true);
+            if (rotationIcon != null) rotationIcon.stopRotation();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Returns the object found by identifier.
      * 
@@ -588,6 +637,8 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
             return null;
         c.uploadComplete(result);
         FileObject file = c.getFile();
+
+        if (handleOfflineImportOutcome(c, result)) return null;
         Object r = null;
         if (file.isFile()) {
             countUploaded++;
@@ -702,6 +753,9 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
      * @return See above.
      */
     boolean isUploadComplete() {
+        if (ImporterAgent.isOfflineImport()) {
+            return offlineCompleted;
+        }
         return (countUploaded + countUploadFailure + cancelled()) >= totalToImport;
     }
 
@@ -712,6 +766,9 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
      * @return See above.
      */
     boolean isDone() {
+        if (ImporterAgent.isOfflineImport()) {
+            return offlineCompleted;
+        }
         return countImported == totalToImport;
     }
 
@@ -722,6 +779,9 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
      * @return See above.
      */
     boolean isLastImport() {
+        if (ImporterAgent.isOfflineImport()) {
+            return offlineCompleted;
+        }
         return countImported == (totalToImport - 1);
     }
 
@@ -1007,6 +1067,10 @@ abstract class ImporterUIElement extends ClosableTabbedPaneComponent implements 
      */
     Icon getImportIcon() {
         if (isDone()) {
+            if (ImporterAgent.isOfflineImport()) {
+                return countFailure > 0 ? IMPORT_FAIL : IMPORT_SUCCESS;
+            }
+
             Iterator<Entry<String, FileImportComponentI>> i = components
                     .entrySet().iterator();
             FileImportComponentI fc;

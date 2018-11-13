@@ -398,4 +398,8 @@ public interface FileImportComponentI {
      * @param l The PropertyChangeListener
      */
     public abstract void addPropertyChangeListener(PropertyChangeListener l);
+
+    public abstract void propagateSuccessfulOfflineImportStatus();
+
+    public abstract void propagateOfflineImportFailureStatus(Exception cause);
 }
