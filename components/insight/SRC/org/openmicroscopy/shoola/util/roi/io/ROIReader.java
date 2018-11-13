@@ -230,9 +230,14 @@ public class ROIReader {
         int t = roi.getTPosition();
 
         ImagePlus image = roi.getImage();
-        int imageC = image.getNChannels();
-        int imageT = image.getNFrames();
-        int imageZ = image.getNSlices();
+        int imageC = 1;
+        int imageT = 1;
+        int imageZ = 1;
+        if (image != null) {
+            imageC = image.getNChannels();
+            imageT = image.getNFrames();
+            imageZ = image.getNSlices();
+        }
         if (imageC == 1 && imageZ == 1) {
             shape.setC(0);
             shape.setZ(0);
