@@ -263,7 +263,7 @@ public class ExporterTest extends AbstractServerTest {
         List<Pixels> pix = null;
         try {
             // method tested in ImporterTest
-            pix = importFile(f, OME_XML, true);
+            pix = importFile(f, OME_XML);
             return pix.get(0).getImage();
         } catch (Throwable e) {
             throw new Exception("Cannot create image to import", e);
@@ -289,7 +289,7 @@ public class ExporterTest extends AbstractServerTest {
         List<Pixels> pix = null;
         try {
             // method tested in ImporterTest
-            pix = importFile(f, OME_XML, true);
+            pix = importFile(f, OME_XML);
             return pix.get(0).getImage();
         } catch (Throwable e) {
             throw new Exception("Cannot create image to import", e);
@@ -315,7 +315,7 @@ public class ExporterTest extends AbstractServerTest {
         List<Pixels> pix = null;
         try {
             // method tested in ImporterTest
-            pix = importFile(f, OME_XML, true);
+            pix = importFile(f, OME_XML);
             return pix.get(0).getImage();
         } catch (Throwable e) {
             throw new Exception("Cannot create image to import", e);
