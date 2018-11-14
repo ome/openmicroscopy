@@ -295,7 +295,7 @@ class MapSetTxAction(NonFieldTxAction):
 
         if argc == 4:
             name = self.tx_cmd.arg_list[3]
-            current = filter(lambda nv: nv and nv.name != name, current)
+            current = [nv for nv in current if nv and nv.name != name]
             setattr(self.obj, field, current)
         else:
             name, value = self.tx_cmd.arg_list[3:]
