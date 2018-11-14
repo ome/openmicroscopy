@@ -5,6 +5,20 @@
 OMERO version history
 =====================
 
+5.4.10 (November 2018)
+----------------------
+
+This is a bug-fix release.
+
+Import improvements include:
+
+- insight: improve saving of ROIs and Measurements when used as a ImageJ plugin
+- insight: allow to import data using omero-smuggler
+- server: do not set issue the trustStore properties if empty
+- cli: improve logging of error when importing data via cli command
+- cli: clearly indicate empty log files when running a diagnostic
+- cli: fix bug when running `config load` passing a directory instead of a file
+
 5.4.9 (October 2018)
 --------------------
 
