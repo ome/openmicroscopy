@@ -1573,6 +1573,26 @@ class _BlitzGateway (object):
         # The properties we are setting through the interface
         self.setIdentity(username, passwd, not clone)
 
+    def __enter__(self):
+        """
+        Enter a context manager, connect if necesaary
+        Raise Exception if not connected
+
+        with BlitzGateway('user', 'password', host='host') as conn:
+            print list(conn.getObjects('Project'))
+        """
+        if not self._connected:
+            r = self.connect()
+            if not r:
+                raise Exception("Connect failed")
+        return self
+
+    def __exit__(self, *args):
+        """
+        Exit a context manager, close connection
+        """
+        self.close()
+
     def _register_service(self, service_string, stack):
         """
         Register the results of traceback.extract_stack() at the time
