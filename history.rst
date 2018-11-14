@@ -13,7 +13,7 @@ This is a bug-fix release.
 Import improvements include:
 
 - insight: improve saving of ROIs and Measurements when used as a ImageJ plugin
-- insight: allow to import data using omero-smuggler
+- insight: allow to import data using ome-smuggler
 - server: do not set issue the trustStore properties if empty
 - cli: improve logging of error when importing data via cli command
 - cli: clearly indicate empty log files when running a diagnostic
