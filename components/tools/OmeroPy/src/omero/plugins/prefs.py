@@ -264,7 +264,7 @@ class PrefsControl(WriteableConfigControl):
         from re import search
 
         if search(r'[\s]', key):
-            self.ctx.die(506, 'Illegal property name: {}'.format(key))
+            self.ctx.die(506, 'Illegal property name: {0}'.format(key))
 
     @with_config
     def all(self, args, config):
