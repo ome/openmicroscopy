@@ -21,9 +21,10 @@ package omero.model;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.RectangleData;
 
-import org.junit.Test;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
+@Test
 public class ROIDataTest {
 
     public ROIDataTest() {

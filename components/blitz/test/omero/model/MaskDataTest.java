@@ -20,8 +20,8 @@ package omero.model;
 
 import static org.testng.Assert.assertEquals;
 
-import org.junit.Test;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import omero.gateway.model.MaskData;
 
@@ -32,6 +32,7 @@ import omero.gateway.model.MaskData;
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  *
  */
+@Test
 public class MaskDataTest {
 
     @Test
