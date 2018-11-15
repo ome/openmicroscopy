@@ -19,6 +19,7 @@ Import improvements include:
 - cli: improve logging of error when importing data via cli command
 - cli: clearly indicate empty log files when running a diagnostic
 - cli: fix bug when running `config load` passing a directory instead of a file
+- cli: add option to delete keys from map annotations
 
 5.4.9 (October 2018)
 --------------------
