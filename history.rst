@@ -21,6 +21,10 @@ Import improvements include:
 - cli: fix bug when running `config load` passing a directory instead of a file
 - cli: add option to delete keys from map annotations
 
+Developer improvements include:
+
+- JavaGateway: add helper method to manipulate ROI masks 
+
 5.4.9 (October 2018)
 --------------------
 
