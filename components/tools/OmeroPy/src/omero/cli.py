@@ -1017,6 +1017,8 @@ OMERO Diagnostics (%s) %s
         else:
             if not p.exists():
                 self.ctx.out("n/a")
+            elif not p.size:
+                self.ctx.out("empty")
             else:
                 warn_regex = ('(-! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
                               'warn(i(ng:)?)?\s')
