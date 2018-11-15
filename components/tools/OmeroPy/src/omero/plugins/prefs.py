@@ -260,6 +260,12 @@ class PrefsControl(WriteableConfigControl):
         except Exception, e:
             self.ctx.die(113, str(e))
 
+    def assert_valid_property_name(self, key):
+        from re import search
+
+        if search(r'[\s]', key):
+            self.ctx.die(506, 'Illegal property name: {}'.format(key))
+
     @with_config
     def all(self, args, config):
         for k, v in config.properties(None, True):
@@ -326,6 +332,7 @@ class PrefsControl(WriteableConfigControl):
             else:
                 f = args.file
             try:
+                self.assert_valid_property_name(args.KEY)
                 config[args.KEY] = (''.join(f)).rstrip()
             finally:
                 f.close()
@@ -334,6 +341,7 @@ class PrefsControl(WriteableConfigControl):
             if args.report:
                 self.ctx.out('Changed: Removed %s' % args.KEY)
         else:
+            self.assert_valid_property_name(args.KEY)
             config[args.KEY] = args.VALUE
             if args.report:
                 self.ctx.out('Changed: Set %s:%s' % (args.KEY, args.VALUE))
@@ -558,8 +566,6 @@ re-run"""
         config["omero.config.upgraded"] = "4.2.0"
 
     def handle_line(self, line, config, keys):
-        from re import search
-
         line = line.strip()
         if not line or line.startswith("#"):
             return None
@@ -576,9 +582,8 @@ re-run"""
         _new = parts[1]
         if _key in config.keys():
             _old = config[_key]
-        elif search(r'[\s]', _key):
-            self.ctx.die(506, 'Illegal property name: {}'.format(_key))
         else:
+            self.assert_valid_property_name(_key)
             _old = None
 
         if keys and _key in keys and _new != _old:
