@@ -992,6 +992,8 @@ OMERO Diagnostics (%s) %s
         """ % ("="*80, control_name, VERSION, "="*80))
 
     def _sz_str(self, sz):
+        if sz < 1000:
+            return "{} bytes".format(sz)
         for x in ["KB", "MB", "GB"]:
             sz /= 1000
             if sz < 1000:
