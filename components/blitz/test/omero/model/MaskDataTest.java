@@ -63,7 +63,7 @@ public class MaskDataTest {
         int[][] binMask = new int[w][h];
         int[] binMask2 = new int[w*h];
         for (int i=0; i<binMask.length; i++) {
-            for(int j=0; j<binMask[i].length; j++) {
+            for (int j=0; j<binMask[i].length; j++) {
                 binMask[i][j] = 0;
                 binMask2[i*h+j] = 0;
             }
@@ -86,7 +86,7 @@ public class MaskDataTest {
         Assert.assertEquals(got.length, 10);
         Assert.assertEquals(got[0].length, 15);
         for (int i=0; i<binMask.length; i++) {
-            for(int j=0; j<binMask[i].length; j++) {
+            for (int j=0; j<binMask[i].length; j++) {
                 assertEquals(got[i][j], binMask[i][j], i+","+j);
             }
         }
@@ -97,7 +97,7 @@ public class MaskDataTest {
         Assert.assertEquals(got.length, 10);
         Assert.assertEquals(got[0].length, 15);
         for (int i=0; i<binMask.length; i++) {
-            for(int j=0; j<binMask[i].length; j++) {
+            for (int j=0; j<binMask[i].length; j++) {
                 assertEquals(got[i][j], binMask[i][j], i+","+j);
             }
         }
@@ -124,7 +124,7 @@ public class MaskDataTest {
         Assert.assertEquals(got.length, 10);
         Assert.assertEquals(got[0].length, 15);
         for (int i=0; i<binMask.length; i++) {
-            for(int j=0; j<binMask[i].length; j++) {
+            for (int j=0; j<binMask[i].length; j++) {
                 assertEquals(got[i][j] == 1 ? true : false, binMask[i][j], i+","+j);
             }
         }

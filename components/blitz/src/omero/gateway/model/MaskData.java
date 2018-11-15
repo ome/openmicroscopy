@@ -492,17 +492,17 @@ public class MaskData
      * [4 5 6 7]
      * [8 9 f f]
      * 
-     * @param input A boolean array
+     * @param array A boolean array
      * @param length The length of the chunks
      * @return Two dimensional array
      */
-    private boolean[][] fold(boolean[] input, int length) {
-        int height = input.length / length;
-        if ( input.length % length != 0) 
+    private boolean[][] fold(boolean[] array, int length) {
+        int height = array.length / length;
+        if ( array.length % length != 0) 
             height++;
         boolean[][] result = new boolean[height][length];
-        for (int i = 0; i < input.length; i++)
-            result[i / length][i % length] = input[i];
+        for (int i = 0; i < array.length; i++)
+            result[i / length][i % length] = array[i];
         return result;
     }
 }

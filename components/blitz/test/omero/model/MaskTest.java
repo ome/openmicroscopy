@@ -90,7 +90,7 @@ public class MaskTest {
         Assert.assertEquals((int)mask.getHeight(), 4);
 
         for (int i=0; i<got.length; i++) {
-            for(int j=0; j<got[i].length; j++) {
+            for (int j=0; j<got[i].length; j++) {
                 assertEquals(got[i][j] == 1 ? true : false, binMask[(int)(i+mask.getX())][(int)(j+mask.getY())], i+","+j);
             }
         }
