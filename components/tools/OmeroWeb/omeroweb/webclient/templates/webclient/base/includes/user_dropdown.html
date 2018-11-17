@@ -18,6 +18,7 @@
 -->
 {% endcomment %}
 
+{% if ome.user_dropdown %}
 {% if ome.is_public_user %}
     <div id="public_login_button">
         <a href="{% url 'weblogin' %}">
@@ -44,4 +45,5 @@
 			<li id="logout">{% include "webclient/base/includes/logout.html" %}</li>
         </ul>
     </div>
-{% endif %}
+{% endif %}{# ome.is_public_user #}
+{% endif %}{# ome.user_dropdown #}

@@ -212,3 +212,5 @@ class render_response(omeroweb.decorators.render_response):
             c_plugins.append({
                 "label": label, "include": include, "plugin_id": plugin_id})
         context['ome']['center_plugins'] = c_plugins
+
+        context['ome']['user_dropdown'] = settings.USER_DROPDOWN
