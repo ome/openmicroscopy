@@ -22,7 +22,7 @@ def upgradeCheck(url):
             check = UpgradeCheck("web", url=url)
             check.run()
             if check.isUpgradeNeeded():
-                logger.error(
+                logger.warn(
                     "Upgrade is available. Please visit"
                     " https://downloads.openmicroscopy.org/latest/omero/.\n")
             else:
