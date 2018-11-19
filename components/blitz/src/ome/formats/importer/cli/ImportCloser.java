@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import loci.formats.in.DefaultMetadataOptions;
+import loci.formats.in.DynamicMetadataOptions;
 import loci.formats.in.MetadataLevel;
 import loci.formats.meta.MetadataStore;
 import ome.formats.OMEROMetadataStoreClient;

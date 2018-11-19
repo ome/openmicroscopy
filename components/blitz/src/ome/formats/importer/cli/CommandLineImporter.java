@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import loci.formats.in.DefaultMetadataOptions;
+import loci.formats.in.DynamicMetadataOptions;
 import loci.formats.in.MetadataLevel;
 import loci.formats.meta.MetadataStore;
 import ome.formats.OMEROMetadataStoreClient;
@@ -170,7 +170,7 @@ public class CommandLineImporter {
             store = config.createStore();
             store.logVersionInfo(config.getIniVersionNumber());
             reader.setMetadataOptions(
-                    new DefaultMetadataOptions(MetadataLevel.ALL));
+                    new DynamicMetadataOptions(MetadataLevel.ALL));
 
             library = new ImportLibrary(store, reader,
                     transfer, exclusions, minutesToWait);
