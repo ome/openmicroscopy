@@ -67,6 +67,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
@@ -74,14 +75,17 @@ import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
+
 //Application-internal dependencies
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -242,27 +246,38 @@ class ImporterUI extends TopWindow
 		}
         personalMenu.show(c, p.x, p.y);
     }
-    
-	/**
-	 * Builds and lays out the controls.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel buildControls()
-	{
-		JPanel p = new JPanel();
-		p.add(new JButton(controller.getAction(ImporterControl.RETRY_BUTTON)));
-		p.add(Box.createHorizontalStrut(5));
-		p.add(new JButton(controller.getAction(ImporterControl.SEND_BUTTON)));
-		p.add(Box.createHorizontalStrut(5));
-		p.add(new JButton(controller.getAction(ImporterControl.CANCEL_BUTTON)));
-		p.add(Box.createHorizontalStrut(5));
-		if (!model.isMaster()) {
-			p.add(new JButton(controller.getAction(
-					ImporterControl.CLOSE_BUTTON)));
-		}
-		return UIUtilities.buildComponentPanelRight(p);
-	}
+
+    /**
+     * Builds and lays out the controls.
+     * 
+     * @return See above.
+     */
+    private JPanel buildControls()
+    {
+        JPanel p = new JPanel();
+        Boolean offline = (Boolean) ImporterAgent.getRegistry().lookup(LookupNames.OFFLINE_IMPORT_ENABLED);
+        boolean visible = offline != null && offline.booleanValue();
+        JButton b = new JButton(controller.getAction(ImporterControl.RETRY_BUTTON));
+        if (visible) {
+            p.add(b);
+            p.add(Box.createHorizontalStrut(5));
+        }
+        b = new JButton(controller.getAction(ImporterControl.SEND_BUTTON));
+        if (visible) {
+            p.add(b);
+            p.add(Box.createHorizontalStrut(5));
+        }
+        b = new JButton(controller.getAction(ImporterControl.CANCEL_BUTTON));
+        if (visible) {
+            p.add(b);
+            p.add(Box.createHorizontalStrut(5));
+        }
+        if (!model.isMaster()) {
+            p.add(new JButton(controller.getAction(
+                    ImporterControl.CLOSE_BUTTON)));
+        }
+        return UIUtilities.buildComponentPanelRight(p);
+    }
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()

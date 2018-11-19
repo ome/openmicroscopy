@@ -325,12 +325,14 @@ class ExistingFile(FileType):
     an existing file.
     """
     def __call__(self, s):
-        if s != "-" and not os.path.exists(s):
-            raise ArgumentTypeError("File does not exist: %s" % s)
-        if s != "-":
-            return FileType.__call__(self, s)
-        else:
+        if s == "-":
             return s
+        p = path(s)
+        if not p.exists():
+            raise ArgumentTypeError("File does not exist: %s" % s)
+        elif not p.isfile():
+            raise ArgumentTypeError("Path is not a file: %s" % s)
+        return FileType.__call__(self, s)
 
 
 class DirectoryType(FileType):
@@ -992,6 +994,8 @@ OMERO Diagnostics (%s) %s
         """ % ("="*80, control_name, VERSION, "="*80))
 
     def _sz_str(self, sz):
+        if sz < 1000:
+            return "{0} B".format(sz)
         for x in ["KB", "MB", "GB"]:
             sz /= 1000
             if sz < 1000:
@@ -1015,6 +1019,8 @@ OMERO Diagnostics (%s) %s
         else:
             if not p.exists():
                 self.ctx.out("n/a")
+            elif not p.size:
+                self.ctx.out("empty")
             else:
                 warn_regex = ('(-! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
                               'warn(i(ng:)?)?\s')
@@ -1944,6 +1950,8 @@ class GraphControl(CmdControl):
             if exc:
                 opt.excludeType = exc
 
+        if args.obj is None or not args.obj:
+            self.ctx.die(440, "no object targets supplied for graph operation")
         commands, forces = zip(*args.obj)
         show = not (args.force or args.dry_run)
         needsForce = any(forces)

@@ -1032,8 +1032,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		p.add(buildQuotaPane());
 		p.add(table);
 		tabbedPane.add("Files to import", p);
-		tabbedPane.add("Options", buildOptionsPane());
-
+		if (!ImporterAgent.isOfflineImport()) {
+            tabbedPane.add("Options", buildOptionsPane());
+        }
 		double[][] tablePanelDesign = {
 				{ TableLayout.PREFERRED, 10, 5, TableLayout.FILL },
 				{ TableLayout.PREFERRED, TableLayout.FILL }
@@ -1186,7 +1187,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			object.setPixelsSize(size);
 
 		// Add any options for set for skipping server side compute here!
-		object.setSkipChoices(skipComputePanel.getChoices());
+		if (!ImporterAgent.isOfflineImport()) {
+		    object.setSkipChoices(skipComputePanel.getChoices());
+		}
+		
 
 		firePropertyChange(IMPORT_PROPERTY, null, object);
 		table.removeAllFiles();

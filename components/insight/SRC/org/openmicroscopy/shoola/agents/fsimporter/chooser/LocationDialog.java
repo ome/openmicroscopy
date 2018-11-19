@@ -21,6 +21,8 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
+import ij.IJ;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -893,11 +895,6 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private void close()
 	{
-		int plugin = ImporterAgent.runAsPlugin();
-		if (plugin == LookupNames.IMAGE_J
-				|| plugin == LookupNames.IMAGE_J_IMPORT) {
-			return;
-		}
 		setVisible(false);
 		dispose();
 	}
@@ -909,7 +906,10 @@ class LocationDialog extends JDialog implements ActionListener,
 	int centerLocation()
 	{
 		UIUtilities.centerAndShow(this);
-		return userSelectedActionCommandId;
+		int settings = userSelectedActionCommandId;
+		//reset 
+		userSelectedActionCommandId = CMD_CLOSE;
+		return settings;
 	}
 
 	/**
@@ -936,7 +936,6 @@ class LocationDialog extends JDialog implements ActionListener,
 			int commandId = Integer.parseInt(actionCommand);
 
 			DataObject newDataObject = null;
-
 			switch (commandId) {
 				case CMD_CREATE_PROJECT:
 					newDataObject = new ProjectData();

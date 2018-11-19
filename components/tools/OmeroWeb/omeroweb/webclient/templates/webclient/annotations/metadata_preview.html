@@ -367,6 +367,17 @@
               window.open(url + "?" + vpQuery, '_blank');
               return false;
             });
+
+            // Find the current "parent" based on the combined jsTree context
+            // of selected, opened, and related nodes.  This parent will then
+            // be used to provide context when opening image viewers.
+            var parent = OME.getParentId();
+            if (parent) {
+              if (parent.split('-')[0] === 'dataset') {
+                var $btn = $("#preview_open_viewer");
+                $btn.prop('href', $btn.prop('href') + '?' + parent.replace('-', '='));
+              }
+            }
         });
     </script>
 

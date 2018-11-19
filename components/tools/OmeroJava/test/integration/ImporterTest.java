@@ -780,7 +780,7 @@ public class ImporterTest extends AbstractServerTest {
         writer.writeFile(f, xml.createImage(), true);
         List<Pixels> pix = null;
         try {
-            pix = importFile(f, OME_FORMAT, true);
+            pix = importFile(f, OME_FORMAT);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -804,7 +804,7 @@ public class ImporterTest extends AbstractServerTest {
         writer.writeFile(f, xml.createImage(), false);
         List<Pixels> pix = null;
         try {
-            pix = importFile(f, OME_FORMAT, true);
+            pix = importFile(f, OME_FORMAT);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }

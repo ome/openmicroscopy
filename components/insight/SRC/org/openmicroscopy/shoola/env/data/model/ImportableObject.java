@@ -274,6 +274,7 @@ public class ImportableObject
 		loadThumbnail = true;
 		newObjects = new ArrayList<DataObject>();
 		projectDatasetMap = new HashMap<Long, List<DatasetData>>();
+		skipChoices = new HashMap<>();
 	}
 
     /**

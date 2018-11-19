@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#
-# Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2014-2018 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -364,6 +363,18 @@ class TestObj(CLITest):
         state = self.go()
         val = state.get_row(0)
         assert val == "bar"
+
+        self.args = self.login_args() + [
+            "obj", "map-set", ann, "mapValue", "foo"]
+        state = self.go()
+        ann2 = state.get_row(0)
+        assert ann == ann2
+
+        self.args = self.login_args() + [
+            "obj", "map-get", ann, "mapValue", "foo"]
+        state = self.go()
+        val = state.get_row(0)
+        assert val is None
 
     def test_nulling(self):
         self.args = self.login_args() + [

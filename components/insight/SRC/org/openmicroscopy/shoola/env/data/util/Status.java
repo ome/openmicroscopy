@@ -104,7 +104,10 @@ public class Status implements IObserver {
 
     /** Bound property indicating that the scanning has started. */
     public static final String PROCESSING_ERROR_PROPERTY = "processingError";
-    
+
+    /** Bound property indicating that the import will happen offline. */
+    public static final String OFF_LINE_PROPERTY = "offLine";
+
     /** Bound property indicating that the current import step has changed. */
     public static final String STEP_PROPERTY = "step";
 
@@ -193,6 +196,8 @@ public class Status implements IObserver {
 
     /** PropertyChangeSupport **/
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+
+    private boolean hasNotifiedOfflineOutcome = false;
 
     /**
      * Add PropertyChangeListener
@@ -673,5 +678,27 @@ public class Status implements IObserver {
     public long getTotalUploadedSize() {
         return totalUploadedSize;
     }
-    
+
+    public void notifySuccessfulOfflineImport() {
+        cancellable = false;
+        firePropertyChange(OFF_LINE_PROPERTY, null, Boolean.TRUE);
+        if (!hasNotifiedOfflineOutcome) {
+            hasNotifiedOfflineOutcome = true;  // avoid infinite loops.
+            firePropertyChange(IMPORT_DONE_PROPERTY, null, this);
+        }
+    }
+
+    public void notifyOfflineImportFailure(Exception cause) {
+        cancellable = false;
+        if (cause instanceof ImportException) {
+            exception = (ImportException) cause;
+        } else {
+            exception = new ImportException(cause);
+        }
+        firePropertyChange(OFF_LINE_PROPERTY, null, Boolean.FALSE);
+        if (!hasNotifiedOfflineOutcome) {
+            hasNotifiedOfflineOutcome = true;  // avoid infinite loops.
+            firePropertyChange(PROCESSING_ERROR_PROPERTY, null, this);
+        }
+    }
 }

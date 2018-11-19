@@ -7,6 +7,7 @@
 
 package ome.security;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -42,9 +43,17 @@ public class KeyAndTrustStoreConfiguration implements InitializingBean {
                 log.warn("Overwriting existing trust store: " + oldTrustStore);
             }
         }
-        System.setProperty(JAVAX_NET_SSL_TRUST_STORE, trustStore);
-        System.setProperty(JAVAX_NET_SSL_TRUST_STORE_PASSWORD,
-                trustStorePassword);
+        if (StringUtils.isEmpty(trustStore)) {
+            log.warn("trustStore property is empty, not setting");
+        } else {
+            System.setProperty(JAVAX_NET_SSL_TRUST_STORE, trustStore);
+        }
+        if (StringUtils.isEmpty(trustStorePassword)) {
+            log.warn("trustStorePassword property is empty, not setting");
+        } else {
+            System.setProperty(JAVAX_NET_SSL_TRUST_STORE_PASSWORD,
+                               trustStorePassword);
+        }
 
         if (oldKeyStore != null) {
             if (oldKeyStore.equals(keyStore)) {

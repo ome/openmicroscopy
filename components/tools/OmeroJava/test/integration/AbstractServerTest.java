@@ -1251,59 +1251,6 @@ public class AbstractServerTest extends AbstractTest {
      *            The file to import.
      * @param format
      *            The format of the file to import.
-     * @return The collection of imported pixels set.
-     * @throws Exception
-     *             Thrown if an error occurred while encoding the image.
-     */
-    protected List<Pixels> importFile(File file, String format)
-            throws Throwable {
-        return importFile(importer, file, format, false, null);
-    }
-
-    /**
-     * Imports the specified OME-XML file and returns the pixels set if
-     * successfully imported.
-     *
-     * @param file
-     *            The file to import.
-     * @param format
-     *            The format of the file to import.
-     * @return The collection of imported pixels set.
-     * @throws Throwable
-     *             Thrown if an error occurred while encoding the image.
-     */
-    protected List<Pixels> importFile(File file, String format, boolean metadata)
-            throws Throwable {
-        return importFile(importer, file, format, metadata, null);
-    }
-
-    /**
-     * Imports the specified OME-XML file and returns the pixels set if
-     * successfully imported.
-     *
-     * @param importer
-     *            The metadataStore to use.
-     * @param file
-     *            The file to import.
-     * @param format
-     *            The format of the file to import.
-     * @return The collection of imported pixels set.
-     * @throws Throwable
-     *             Thrown if an error occurred while encoding the image.
-     */
-    protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
-            File file, String format) throws Throwable {
-        return importFile(importer, file, format, false, null);
-    }
-
-    /**
-     * Imports the specified OME-XML file and returns the pixels set if
-     * successfully imported.
-     *
-     * @param importer
-     *            The metadataStore to use.
-     * @param file
-     *            The file to import.
      * @param target
      *            The container where to import the image.
      * @return The collection of imported pixels set.
@@ -1312,57 +1259,109 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected List<Pixels> importFile(File file, String format, IObject target)
             throws Throwable {
-        return importFile(importer, file, format, false, target);
+        return importFile(importer, new ImportConfig(), file, format, target);
     }
 
     /**
      * Imports the specified OME-XML file and returns the pixels set if
      * successfully imported.
      *
-     * @param importer
-     *            The metadataStore to use.
+     * @param config
+     *            The import configuration.
      * @param file
      *            The file to import.
      * @param format
      *            The format of the file to import.
-     * @param metadata
-     *            Pass <code>true</code> to only import the metadata,
-     *            <code>false</code> otherwise.
      * @return The collection of imported pixels set.
      * @throws Throwable
      *             Thrown if an error occurred while encoding the image.
      */
-    protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
-            File file, String format, boolean metadata) throws Throwable {
-        return importFile(importer, file, format, metadata, null);
-    }
-
-    /**
-     * Imports the specified OME-XML file and returns the pixels set if
-     * successfully imported.
-     *
-     * @param importer
-     *            The metadataStore to use.
-     * @param file
-     *            The file to import.
-     * @param format
-     *            The format of the file to import.
-     * @param metadata
-     *            Pass <code>true</code> to only import the metadata,
-     *            <code>false</code> otherwise.
-     * @return The collection of imported pixels set.
-     * @throws Throwable
-     *             Thrown if an error occurred while encoding the image.
-     */
-    protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
-            File file, String format, boolean metadata, IObject target)
+    protected List<Pixels> importFile(ImportConfig config, File file, String format)
             throws Throwable {
+        return importFile(importer, config, file, format);
+    }
+
+    /**
+     * Imports the specified OME-XML file and returns the pixels set if
+     * successfully imported.
+     *
+     * @param file
+     *            The file to import.
+     * @param format
+     *            The format of the file to import.
+     * @return The collection of imported pixels set.
+     * @throws Exception
+     *             Thrown if an error occurred while encoding the image.
+     */
+    protected List<Pixels> importFile(File file, String format)
+            throws Throwable {
+        return importFile(new ImportConfig(), file, format);
+    }
+
+    /**
+     * Imports the specified OME-XML file and returns the pixels set if
+     * successfully imported.
+     *
+     * @param importer
+     *            The metadataStore to use.
+     * @param file
+     *            The file to import.
+     * @param format
+     *            The format of the file to import.
+     * @return The collection of imported pixels set.
+     * @throws Throwable
+     *             Thrown if an error occurred while encoding the image.
+     */
+    protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
+                                      File file, String format) throws Throwable {
+        return importFile(importer, new ImportConfig(), file, format, null);
+    }
+
+    /**
+     * Imports the specified OME-XML file and returns the pixels set if
+     * successfully imported.
+     *
+     * @param importer
+     *            The metadataStore to use.
+     * @param config
+     *            The import configuration.
+     * @param file
+     *            The file to import.
+     * @param format
+     *            The format of the file to import.
+     * @return The collection of imported pixels set.
+     * @throws Throwable
+     *             Thrown if an error occurred while encoding the image.
+     */
+    protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
+                                      ImportConfig config, File file, String format) throws Throwable {
+        return importFile(importer, config, file, format, null);
+    }
+
+    /**
+     * Imports the specified OME-XML file and returns the pixels set if
+     * successfully imported.
+     *
+     * @param importer
+     *            The metadataStore to use.
+     * @param config
+     *            The import configuration.
+     * @param file
+     *            The file to import.
+     * @param format
+     *            The format of the file to import.
+     * @return The collection of imported pixels set.
+     * @throws Throwable
+     *             Thrown if an error occurred while encoding the image.
+     */
+    protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
+                                      ImportConfig config, File file,
+                                      String format, IObject target) throws Throwable {
         if (importer == null) {
             importer = createImporter();
-        }        
+        }
         String[] paths = new String[1];
         paths[0] = file.getAbsolutePath();
-        ImportConfig config = new ImportConfig();
         OMEROWrapper reader = new OMEROWrapper(config);
         IObserver o = new IObserver() {
             public void update(IObservable importLibrary, ImportEvent event) {
@@ -2447,5 +2446,44 @@ public class AbstractServerTest extends AbstractTest {
         ImplicitAllGroupsContext() {
             super(-1);
         }
+    }
+
+    /**
+     * Convenient method which adds a user to the current group and logs the
+     * user.
+     * Depending on the specified parameters, the user will become a group owner
+     * or an admin.
+     * @param user1
+     * @param isAdmin
+     * @param isGroupOwner
+     * @return
+     * @throws Exception
+     */
+    protected EventContext addUserAndLogin(EventContext user1, boolean isAdmin, boolean isGroupOwner) throws Exception {
+        // Login as new user
+        EventContext newUser = addUser(user1, isAdmin, isGroupOwner);
+        loginUser(newUser);
+        return newUser;
+    }
+
+    /**
+     * Convenient method which adds a user to the current group.
+     * Depending on the specified parameters, the user will become a group owner
+     * or an admin.
+     * @param user1
+     * @param isAdmin
+     * @param isGroupOwner
+     * @return
+     * @throws Exception
+     */
+    protected EventContext addUser(EventContext user1, boolean isAdmin, boolean isGroupOwner) throws Exception {
+        // Create new user in group and login as that user
+        EventContext newUser = newUserInGroup(user1, isGroupOwner);
+        if (isAdmin) {
+            // If user is an admin, add them to the system group
+            ExperimenterGroup systemGroup = new ExperimenterGroupI(iAdmin.getSecurityRoles().systemGroupId, false);
+            addUsers(systemGroup, Collections.singletonList(newUser.userId), false);
+        }
+        return newUser;
     }
 }

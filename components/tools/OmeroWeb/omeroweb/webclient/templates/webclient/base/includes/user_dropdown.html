@@ -18,6 +18,17 @@
 -->
 {% endcomment %}
 
+{% if ome.user_dropdown %}
+{% if ome.is_public_user %}
+    <div id="public_login_button">
+        <a href="{% url 'weblogin' %}">
+            <div id="show_public_login_button">
+                <img src="{% static 'webclient/image/personal32.png' %}"/>
+                <span>Login</span>
+            </div>
+        </a>
+    </div>
+{% else %}
     <div id="user_dropdown">
         <div id="show_user_dropdown">
             <img src="{% url 'wamyphoto' %}" />
@@ -34,3 +45,5 @@
 			<li id="logout">{% include "webclient/base/includes/logout.html" %}</li>
         </ul>
     </div>
+{% endif %}{# ome.is_public_user #}
+{% endif %}{# ome.user_dropdown #}

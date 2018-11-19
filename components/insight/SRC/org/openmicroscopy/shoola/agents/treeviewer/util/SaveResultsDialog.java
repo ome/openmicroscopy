@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2018 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 
@@ -156,7 +155,10 @@ public class SaveResultsDialog
                 img = new FileObject(plus);
                 if (img.getOMEROID() < 0 || img.isNewImage()) {
                     toImport.add(img);
-                  //check if there are associated files
+                    if (img.isNewImage()) {
+                        images.add(img);
+                    }
+                    //check if there are associated files
                     int[] values = WindowManager.getIDList();
                     String path = img.getAbsolutePath();
                     if (path != null) {
@@ -169,7 +171,9 @@ public class SaveResultsDialog
                             }
                         }
                     }
-                } else images.add(img);
+                } else {
+                    images.add(img);
+                }
             }
         } else {
             int[] values = WindowManager.getIDList();
@@ -187,6 +191,9 @@ public class SaveResultsDialog
                             List<FileObject> l = img.getAssociatedFiles();
                             if (CollectionUtils.isEmpty(l)) {
                                 toImport.add(img);
+                                if (img.isNewImage()) {
+                                    images.add(img);
+                                }
                             }
                             int id = plus.getID();
                             for (int j = 0; j < values.length; j++) {
@@ -209,9 +216,11 @@ public class SaveResultsDialog
         ResultsObject result;
         if (toImport.size() > 0) { //ask if they want to import the image
             StringBuffer buf = new StringBuffer();
-            buf.append("Do you wish to import any selected images not already "
+            buf.append("Import any selected images not already "
                     + CommonsLangUtils.LINE_SEPARATOR+
-                    "saved in OMERO to the OMERO server?");
+                    "saved in OMERO to the OMERO server? "+CommonsLangUtils.LINE_SEPARATOR+
+                    "If Yes, the ROIs and results will be saved on the new images. "+CommonsLangUtils.LINE_SEPARATOR+
+                    "If No, the ROIs and results will be saved on the original images.");
             MessageBox box = new MessageBox(this, "Import images", buf.toString());
             if (box.centerMsgBox() == MessageBox.YES_OPTION) {
                  result = new ResultsObject(toImport);
@@ -220,6 +229,7 @@ public class SaveResultsDialog
                  result.setTableName(nameField.getText());
                  TreeViewerAgent.getRegistry().getEventBus().post(
                          new SaveResultsEvent(result, true));
+                 images.clear();
             }
         }
         if (images.size() > 0) {
