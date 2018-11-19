@@ -81,7 +81,7 @@ public class ImportableFile
 		this.folderAsContainer = folderAsContainer;
 		originalFile = file;
 	}
-	
+
 	/**
 	 * Sets the flag indicating to create a container from the folder.
 	 * 

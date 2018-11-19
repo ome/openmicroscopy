@@ -19,11 +19,12 @@
 
 package omero.model;
 
-import org.junit.Test;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import omero.gateway.model.ROICoordinate;
 
+@Test
 public class ROICoordinateTest {
 
     public ROICoordinateTest() {

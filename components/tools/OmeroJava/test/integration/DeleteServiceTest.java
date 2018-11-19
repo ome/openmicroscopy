@@ -3796,7 +3796,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         importer.initialize(factory);
         List<Pixels> list;
         try {
-            list = importFile(importer, f, ImporterTest.OME_FORMAT, false);
+            list = importFile(importer, f, ImporterTest.OME_FORMAT);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }

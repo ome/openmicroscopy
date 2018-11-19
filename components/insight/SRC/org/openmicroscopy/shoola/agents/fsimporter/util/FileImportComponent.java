@@ -1478,6 +1478,32 @@ public class FileImportComponent
 		super.setBackground(color);
 	}
 
+	@Override
+	public void propagateSuccessfulOfflineImportStatus() {
+        if (status != null) {
+            status.notifySuccessfulOfflineImport();
+        }
+        setStatus(null);
+        if (hasComponents()) {
+            for (FileImportComponent c : components.values()) {
+                c.propagateSuccessfulOfflineImportStatus();
+            }
+        }
+    }
+
+	@Override
+	public void propagateOfflineImportFailureStatus(Exception cause) {
+        if (status != null) {
+            status.notifyOfflineImportFailure(cause);
+        }
+        setStatus(cause);
+        if (hasComponents()) {
+            for (FileImportComponent c : components.values()) {
+                c.propagateOfflineImportFailureStatus(cause);
+            }
+        }
+    }
+	
 	/* (non-Javadoc)
      * @see org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponentI#propertyChange(java.beans.PropertyChangeEvent)
      */

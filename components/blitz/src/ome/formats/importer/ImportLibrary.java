@@ -291,6 +291,12 @@ public class ImportLibrary implements IObservable
                                     try {
                                         IObject obj = target.load(store, ic);
                                         if (!(obj instanceof Annotation)) {
+                                            Class <? extends IObject> targetClass = obj.getClass();
+                                            while (targetClass.getSuperclass() != IObject.class) {
+                                                targetClass = targetClass.getSuperclass().asSubclass(IObject.class);
+                                            }
+                                            log.info("Import target specifies container: {}:{}",
+                                                    targetClass.getSimpleName(), obj.getId().getValue());
                                             ic.setTarget(obj);
                                         } else {
                                             // This is likely a "post-processing" annotation

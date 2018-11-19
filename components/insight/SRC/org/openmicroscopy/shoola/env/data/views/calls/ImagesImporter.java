@@ -28,7 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
@@ -48,6 +49,35 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 public class ImagesImporter
     extends BatchCallTree
 {
+
+    private static boolean isOffline(Registry context) {
+        Boolean offline = (Boolean)
+                context.lookup(LookupNames.OFFLINE_IMPORT_ENABLED);
+        return offline != null && offline;
+    }
+
+    /**
+     * Factory method to build an import task depending on weather this client
+     * has been configure to offload imports to the OMERO Import Proxy.
+     *
+     * @param context the configuration store.
+     * @param target the data to import.
+     * @return depending on configuration, either an online importer that calls
+     * OMERO directly to import each image given in the target {@link
+     * ImportableObject} or one that offloads the imports to a proxy that will
+     * carry them out in a separate background process.
+     */
+    public static BatchCallTree newImporter(Registry context,
+                                            ImportableObject target) {
+        if (context == null)
+            throw new NullPointerException("No registry.");
+        if (target == null || CollectionUtils.isEmpty(target.getFiles()))
+            throw new IllegalArgumentException("No files to import.");
+
+        return isOffline(context) ? new OfflineImagesImporter(target) :
+                                    new ImagesImporter(target);
+    }
+
     /** 
      * Map of result, key is the file to import, value is an object or a
      * string.
@@ -60,16 +90,16 @@ public class ImagesImporter
     /**
      * Imports the file.
      *
-     * @param ImportableFile The file to import.
-     * @param Pass <code>true</code> to close the import,
+     * @param importable The file to import.
+     * @param close <code>true</code> to close the import,
      *        <code>false</code> otherwise.
      */
     private void importFile(ImportableFile importable, boolean close)
     {
-        partialResult = new HashMap<ImportableFile, Object>();
+        partialResult = new HashMap<>();
         OmeroImageService os = context.getImageService();
         try {
-            partialResult.put(importable, 
+            partialResult.put(importable,
                     os.importFile(object, importable, close));
         } catch (Exception e) {
             partialResult.put(importable, e);
@@ -89,7 +119,7 @@ public class ImagesImporter
         int index = 0;
         int n = files.size()-1;
         while (i.hasNext()) {
-            io = (ImportableFile) i.next();
+            io = i.next();
             final ImportableFile f = io;
             final boolean b = index == n;
             index++;
@@ -122,10 +152,8 @@ public class ImagesImporter
      *
      * @param object The object hosting all import information.
      */
-    public ImagesImporter(ImportableObject object)
+    private ImagesImporter(ImportableObject object)
     {
-        if (object == null || CollectionUtils.isEmpty(object.getFiles()))
-            throw new IllegalArgumentException("No Files to import.");
         this.object = object;
     }
 
