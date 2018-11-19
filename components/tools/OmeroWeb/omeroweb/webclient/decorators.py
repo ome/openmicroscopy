@@ -127,6 +127,9 @@ class render_response(omeroweb.decorators.render_response):
         }}
 
         context.setdefault('ome', {})   # don't overwrite existing ome
+        connector = request.session.get('connector')
+        if connector is not None:
+            context['ome']['is_public_user'] = connector.is_public
         context['ome']['eventContext'] = eventContextMarshal(
             conn.getEventContext())
         context['ome']['user'] = conn.getUser
@@ -209,3 +212,5 @@ class render_response(omeroweb.decorators.render_response):
             c_plugins.append({
                 "label": label, "include": include, "plugin_id": plugin_id})
         context['ome']['center_plugins'] = c_plugins
+
+        context['ome']['user_dropdown'] = settings.USER_DROPDOWN

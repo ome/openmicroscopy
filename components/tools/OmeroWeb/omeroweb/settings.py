@@ -635,6 +635,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "and link to it with the OMERO logo.")],
     "omero.web.login_view":
         ["LOGIN_VIEW", "weblogin", str, None],
+    "omero.web.user_dropdown":
+        ["USER_DROPDOWN",
+         "true",
+         parse_boolean,
+         ("Whether or not to include a user dropdown in the base template."
+          " Particularly useful when used in combination with the OMERO.web"
+          " public user where logging in may not make sense.")],
     "omero.web.staticfile_dirs":
         ["STATICFILES_DIRS",
          '[]',
