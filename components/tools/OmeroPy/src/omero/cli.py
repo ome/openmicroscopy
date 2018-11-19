@@ -1554,10 +1554,12 @@ def cli_login(*args, **kwargs):
     passed to onecmd
 
     kwargs:
-      - keep_alive
+      - keep_alive (keep alive interval, default 300)
+      - close (close afterwards, default True)
     """
 
     keep_alive = kwargs.get("keep_alive", 300)
+    close_after = kwargs.get("close", True)
     try:
         cli = omero.cli.CLI()
         cli.loadplugins()
@@ -1573,7 +1575,8 @@ def cli_login(*args, **kwargs):
                 raise Exception("Failed to login")
         yield cli
     finally:
-        cli.close()
+        if close_after:
+            cli.close()
 
 
 def argv(args=sys.argv):
