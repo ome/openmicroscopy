@@ -15,6 +15,7 @@ Import improvements include:
 - insight: allow to import data using ome-smuggler
 - insight: indicate in login screen that it is possible to use session ID to connect
 - ImageJ plugin insight-ij: improve saving of ROIs and Measurements
+- web: improve public user support
 - server: do not set the trustStore properties if empty
 - cli: improve logging of error when importing data via cli command
 - cli: clearly indicate empty log files when running a diagnostic
