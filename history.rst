@@ -8,8 +8,8 @@ OMERO version history
 5.4.10 (November 2018)
 ----------------------
 
-This release focuses on improving the Desktop client to ease integration with 3rd party applications e.g. ImageJ/Fiji. The Desktop client is now compatible for offline import using `ome-smuggler <https://github.com/openmicroscopy/omero-ms-queue/>`_.
-Additionally, this release also improves the Web interface when OMERO is opened to the public
+This release focuses on improving the Desktop client to ease integration with third-party applications e.g. ImageJ/Fiji. The Desktop client can now do offline import using `ome-smuggler <https://github.com/openmicroscopy/omero-ms-queue/>`_.
+Additionally, this release improves the Web interface when OMERO is opened to the public
 and contains some useful CLI improvements.
 
 Further improvements include:
