@@ -219,6 +219,16 @@ def parse_boolean(s):
     return False
 
 
+def parse_boolean_or_int(s):
+    # false:0 true:1 int:unchanged
+    s = s.strip().lower()
+    if s in ('true', 't'):
+        return 1
+    if s in ('false', 'f'):
+        return 0
+    return int(s)
+
+
 def parse_paths(s):
     return [os.path.normpath(path) for path in json.loads(s)]
 
@@ -276,7 +286,7 @@ INTERNAL_SETTINGS_MAPPING = {
     "omero.web.upgrades.url":
         ["UPGRADES_URL", None, leave_none_unset, None],
     "omero.web.check_version":
-        ["CHECK_VERSION", "true", parse_boolean, None],
+        ["CHECK_VERSION", "true", parse_boolean_or_int, None],
 
     # Allowed hosts:
     # https://docs.djangoproject.com/en/1.8/ref/settings/#allowed-hosts

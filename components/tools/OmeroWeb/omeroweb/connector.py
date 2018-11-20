@@ -221,7 +221,12 @@ class Connector(object):
         finally:
             connection.close()
 
-    def check_version(self, useragent):
+    def check_version(self, useragent, strict=False):
+        """
+        Check whether the client and server version match.
+        If strict this is an exact match, otherwise only compare major
+        versions
+        """
         connection = self.create_guest_connection(useragent)
         if connection is None:
             return False
@@ -235,7 +240,9 @@ class Connector(object):
                 client_version = client_version.group(1).split('.')
                 logger.info("Client version: '%s'; Server version: '%s'"
                             % (client_version, server_version))
-                return server_version == client_version
+                if strict:
+                    return server_version == client_version
+                return server_version[:2] == client_version[:2]
             except:
                 logger.error('Cannot compare server to client version.',
                              exc_info=True)
