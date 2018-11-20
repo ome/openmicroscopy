@@ -1555,7 +1555,7 @@ def cli_login(*args, **kwargs):
 
     kwargs:
       - keep_alive (keep alive interval, default 300)
-      - close (close afterwards, default True)
+      - close (close session afterwards, default True)
     """
 
     keep_alive = kwargs.get("keep_alive", 300)
@@ -1566,17 +1566,17 @@ def cli_login(*args, **kwargs):
         login = ["-q", "login"]
         login.extend(list(args))
         cli.onecmd(login)
+        client = cli.get_client()
+        if not client:
+            raise Exception("Failed to login")
+        if not close_after:
+            client.getSession().detachOnDestroy()
         if keep_alive is not None:
-            client = cli.get_client()
-            if client is not None:
-                keep_alive = int(keep_alive)
-                client.enableKeepAlive(keep_alive)
-            else:
-                raise Exception("Failed to login")
+            keep_alive = int(keep_alive)
+            client.enableKeepAlive(keep_alive)
         yield cli
     finally:
-        if close_after:
-            cli.close()
+        cli.close()
 
 
 def argv(args=sys.argv):
