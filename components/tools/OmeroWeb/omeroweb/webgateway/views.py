@@ -2959,8 +2959,7 @@ class LoginView(View):
             # TODO: version check should be done on the low level, see #5983
             compatible = True
             if settings.CHECK_VERSION:
-                compatible = connector.check_version(
-                    self.useragent, settings.CHECK_VERSION > 1)
+                compatible = connector.check_version(self.useragent)
             if (server_id is not None and username is not None and
                     password is not None and compatible):
                 conn = connector.create_connection(
