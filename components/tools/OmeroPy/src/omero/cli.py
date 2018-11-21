@@ -2264,6 +2264,12 @@ class UserGroupControl(BaseControl):
 
         return u.id.val, u
 
+    def set_users_default_group_by_user_id(self, admin, group, users):
+        import omero
+        for user in list(users):
+            admin.setDefaultGroup(omero.model.ExperimenterI(user, False), group)
+            self.ctx.out("Set the default group of user %s to group %s" % (user, group.id.val))
+
     def addusersbyid(self, admin, group, users):
         import omero
         for user in list(users):

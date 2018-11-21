@@ -99,6 +99,9 @@ class UserControl(UserGroupControl):
         group.add_argument(
             "--as-owner", action="store_true", default=False,
             help="Join the group(s) as an owner")
+        group.add_argument(
+            "--as-default", action="store_true", default=False,
+            help="Sets the group as the user's default group")
 
         leavegroup = parser.add(
             sub, self.leavegroup, "Leave one or more groups")
@@ -341,6 +344,28 @@ class UserControl(UserGroupControl):
 
         uid, username = self.parse_userid(a, args)
         [gid, groups] = self.list_groups(a, args, use_context=False)
+
+        # The list `groups` has members removed by filter_groups if the uid
+        # is already a member, so counting them here.
+        number_of_groups_passed = len(groups)
+
+        # so doing this logic before that group list filtering.
+        if args.as_default:
+            # check if there's only one group defined
+            if number_of_groups_passed == 1:
+                # If that's the case, set that to be the default group
+                # which will happen in the rest of the function.
+                pass
+            else:
+                if number_of_groups_passed > 1:
+                    # Message to user that we can only set the default group if only one group
+                    # is supplied as an argument.
+                    self.ctx.out("--as-default requires a single group ID to be supplied.")
+                    # Exit the function making no changes.
+                    return None
+
+        # Performing the count and funtion exit above, so we don't even hit this
+        # if we don't need to, since it would print statements about group membership.
         groups = self.filter_groups(groups, uid, args.as_owner, True)
 
         for group in groups:
@@ -348,6 +373,8 @@ class UserControl(UserGroupControl):
                 self.addownersbyid(a, group, [uid])
             else:
                 self.addusersbyid(a, group, [uid])
+            if args.as_default:
+                self.set_users_default_group_by_user_id(a, group, [uid])
 
     def leavegroup(self, args):
         c = self.ctx.conn(args)
