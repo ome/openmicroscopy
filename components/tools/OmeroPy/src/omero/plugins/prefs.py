@@ -260,6 +260,12 @@ class PrefsControl(WriteableConfigControl):
         except Exception, e:
             self.ctx.die(113, str(e))
 
+    def assert_valid_property_name(self, key):
+        from re import search
+
+        if search(r'[\s]', key):
+            self.ctx.die(506, 'Illegal property name: {0}'.format(key))
+
     @with_config
     def all(self, args, config):
         for k, v in config.properties(None, True):
@@ -326,6 +332,7 @@ class PrefsControl(WriteableConfigControl):
             else:
                 f = args.file
             try:
+                self.assert_valid_property_name(args.KEY)
                 config[args.KEY] = (''.join(f)).rstrip()
             finally:
                 f.close()
@@ -334,6 +341,7 @@ class PrefsControl(WriteableConfigControl):
             if args.report:
                 self.ctx.out('Changed: Removed %s' % args.KEY)
         else:
+            self.assert_valid_property_name(args.KEY)
             config[args.KEY] = args.VALUE
             if args.report:
                 self.ctx.out('Changed: Set %s:%s' % (args.KEY, args.VALUE))
@@ -443,6 +451,8 @@ class PrefsControl(WriteableConfigControl):
         if not args.q:
             keys = config.keys()
 
+        # Handle all lines before updating config in case of error.
+        new_config = dict(config)
         try:
             for f in args.file:
                 if f == "-":
@@ -455,7 +465,7 @@ class PrefsControl(WriteableConfigControl):
                     for line in f:
                         if previous:
                             line = previous + line
-                        previous = self.handle_line(line, config, keys)
+                        previous = self.handle_line(line, new_config, keys)
                 finally:
                     if f != "-":
                         f.close()
@@ -463,6 +473,8 @@ class PrefsControl(WriteableConfigControl):
             raise
         except Exception, e:
             self.ctx.die(968, "Cannot read %s: %s" % (args.file, e))
+        for key, value in new_config.items():
+            config[key] = value
 
     @with_rw_config
     def edit(self, args, config, edit_path=edit_path):
@@ -478,11 +490,18 @@ class PrefsControl(WriteableConfigControl):
             self.ctx.die(954, "%s: Failed to edit %s"
                          % (getattr(re, "pid", "Unknown"), temp_file))
         args.NAME = config.default()
+        old_config = dict(config)
         self.drop(args, config)
         args.file = [open(str(temp_file), "r")]
         args.q = True
-        self.load(args, config)
-        remove_path(temp_file)
+        try:
+            self.load(args, config)
+        except Exception as e:
+            for key, value in old_config.items():
+                config[key] = value
+            raise e
+        finally:
+            remove_path(temp_file)
 
     @with_config
     def version(self, args, config):
@@ -500,8 +519,13 @@ class PrefsControl(WriteableConfigControl):
     def upgrade(self, args, config):
         self.ctx.out("Importing pre-4.2 preferences")
         txt = getprefs(["get"], str(self.ctx.dir / "lib"))
+
+        # Handle all lines before updating config in case of error.
+        new_config = dict(config)
         for line in txt.split("\n"):
-            self.handle_line(line, config, None)
+            self.handle_line(line, new_config, None)
+        for key, value in new_config.items():
+            config[key] = value
 
         # Upgrade procedure for 4.2
         MSG = """Manually modify them via "omero config old set ..." and \
@@ -559,6 +583,7 @@ re-run"""
         if _key in config.keys():
             _old = config[_key]
         else:
+            self.assert_valid_property_name(_key)
             _old = None
 
         if keys and _key in keys and _new != _old:

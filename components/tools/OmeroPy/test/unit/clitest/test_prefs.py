@@ -50,7 +50,9 @@ class TestPrefs(object):
                 e.strip() == err)
 
     def invoke(self, s):
-        self.cli.invoke(self.args + s.split(), strict=True)
+        if isinstance(s, basestring):
+            s = s.split()
+        self.cli.invoke(self.args + s, strict=True)
 
     def testHelp(self):
         self.invoke("-h")
@@ -158,6 +160,10 @@ class TestPrefs(object):
         self.assertStdoutStderr(capsys)
         self.invoke("keys")
         self.assertStdoutStderr(capsys, out="A")
+        self.invoke("set C D=E")
+        self.assertStdoutStderr(capsys)
+        self.invoke("keys")
+        self.assertStdoutStderr(capsys, out="A\nC")
 
     def testVersion(self, capsys):
         self.invoke("version")
@@ -202,6 +208,50 @@ class TestPrefs(object):
         self.invoke("load %s" % to_load)
         self.invoke("get")
         self.assertStdoutStderr(capsys, out="A=BC")
+
+    @pytest.mark.parametrize(
+        'validkeyvalue',
+        [('A', 'B'), ('A', 'B=C'), ('A.B', 'C.D'), ('A.B', "'C.D'")])
+    def testLoadWhitelist(self, capsys, validkeyvalue):
+        valid_key, valid_value = validkeyvalue
+        to_load = create_path()
+        to_load.write_text("%s=%s\n" % (valid_key, valid_value))
+        self.invoke("load %s" % to_load)
+        self.invoke("get %s" % valid_key)
+        self.assertStdoutStderr(capsys, out=valid_value)
+
+    @pytest.mark.parametrize(
+        ('invalidline', 'invalidkey'),
+        [('E F G', 'E F G'),
+         ('E = F', 'E')])
+    def testLoadInvalidKey(self, capsys, invalidline, invalidkey):
+        self.invoke("set A B")
+        self.assertStdoutStderr(capsys)
+
+        to_load = create_path()
+        to_load.write_text("C=D\n%s\nH=I\n" % invalidline)
+        with pytest.raises(NonZeroReturnCode):
+            self.invoke("load %s" % to_load)
+        self.assertStdoutStderr(
+            capsys, err="Illegal property name: %s" % invalidkey)
+        self.invoke("get")
+        self.assertStdoutStderr(capsys, out="A=B")
+
+    @pytest.mark.parametrize(
+        'valid_key_value',
+        [('A', 'B'), ('A', 'B=C'), ('A.B', 'C.D'), ('A.B', "'C.D'")])
+    def testSetWhitelist(self, capsys, valid_key_value):
+        valid_key, valid_value = valid_key_value
+        self.invoke(["set", valid_key, valid_value])
+        self.invoke(["get", valid_key])
+        self.assertStdoutStderr(capsys, out=valid_value)
+
+    @pytest.mark.parametrize('invalid_key', ['E F', 'E '])
+    def testSetInvalidKey(self, capsys, invalid_key):
+        with pytest.raises(NonZeroReturnCode):
+            self.invoke(["set", invalid_key, "test"])
+        self.assertStdoutStderr(
+            capsys, err="Illegal property name: %s" % invalid_key.strip())
 
     def testSetFromFile(self, capsys):
         to_load = create_path()
