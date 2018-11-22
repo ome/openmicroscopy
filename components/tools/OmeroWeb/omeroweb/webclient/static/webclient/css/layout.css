@@ -2646,7 +2646,6 @@ button#id_add_new_tag {
     height: 25px;
 }
 div#id_move_tags {
-    float: left;
     width: 40px;
     padding: 120px 0 40px;
     margin: 10px;
@@ -2663,7 +2662,10 @@ div#id_move_tags button {
     -moz-box-shadow: 0px 1px 0px rgba(255,255,255,1);
     -webkit-box-shadow: 0px 1px 0px rgba(255,255,255,1);
     box-shadow: 0px 1px 0px rgba(255,255,255,1);
-    
+}
+
+div.tag_selection_container {
+    display: flex;
 }
 /* wrapper is a hack to make overflow:hidden work with .selectable()
    without it items become deselected when scrollbar is clicked */
