@@ -41,6 +41,9 @@
     <dependency org="${org.bioformats}" name="formats-gpl" rev="${versions.bioformats}" transitive="true">
         <exclude org="org.slf4j"/>
     </dependency>
+
+    <!-- OME Incubator -->
+    <dependency org="org.openmicroscopy" name="bioformats-urlreader" rev="0.1.0-SNAPSHOT"/>
   </dependencies>
 </ivy-module>
 

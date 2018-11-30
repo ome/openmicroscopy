@@ -76,6 +76,11 @@
           m2compatible="true"
           root="https://artifacts.openmicroscopy.org/artifactory/maven/"/>
 
+      <ibiblio name="ome-incubator-bioformats-urlreader" cache="maven"
+          usepoms="true" useMavenMetadata="true"
+          m2compatible="true"
+          root="https://gitlab.com/api/v4/projects/9664262/packages/maven"/>
+
       <ibiblio name="unidata.releases" cache="maven"
           usepoms="true" useMavenMetadata="true"
           m2compatible="true"
@@ -94,6 +99,7 @@
         <resolver ref="user-maven"/>
         <resolver ref="maven"/>
         <resolver ref="ome-artifactory"/>
+        <resolver ref="ome-incubator-bioformats-urlreader"/>
         <resolver ref="zeroc"/>
     </chain>
 

@@ -73,6 +73,10 @@
         <exclude org="org.slf4j"/>
         <exclude org="commons-logging"/>
     </dependency>
+
+    <!-- OME Incubator -->
+    <dependency org="org.openmicroscopy" name="bioformats-urlreader" rev="0.1.0-SNAPSHOT"/>
+
     <!-- importer -->
     <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}"/>
     <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}"/>
