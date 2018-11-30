@@ -6,7 +6,7 @@ set -e
 set -x
 
 if [ -z "$ICE_HOME" ]; then
-  export ICE_HOME=/usr/share/Ice
+  export ICE_HOME=/usr/share/Ice-3.6.4
 fi
 
 fold()
