@@ -263,7 +263,7 @@ class PrefsControl(WriteableConfigControl):
     def assert_valid_property_name(self, key):
         from re import search
 
-        if search(r'[\s]', key):
+        if search(r'[^A-Za-z0-9._-]', key):
             self.ctx.die(506, 'Illegal property name: {0}'.format(key))
 
     @with_config
