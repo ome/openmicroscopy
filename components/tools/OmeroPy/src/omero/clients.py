@@ -187,26 +187,23 @@ class BaseClient(object):
 
         # Strictly necessary for this class to work
         self._optSetProp(id, "Ice.ImplicitContext", "Shared")
-        if Ice.intVersion() >= 30600:
-            self._optSetProp(id, "Ice.ACM.Client.Timeout",
-                             str(omero.constants.ACMCLIENTTIMEOUT))
-            self._optSetProp(id, "Ice.ACM.Client.Heartbeat",
-                             str(omero.constants.ACMCLIENTHEARTBEAT))
-        else:
-            self._optSetProp(id, "Ice.ACM.Client", "0")
+
+        self._optSetProp(id, "Ice.ACM.Client.Timeout",
+            str(omero.constants.ACMCLIENTTIMEOUT))
+        self._optSetProp(id, "Ice.ACM.Client.Heartbeat",
+            str(omero.constants.ACMCLIENTHEARTBEAT))
+
         self._optSetProp(id, "Ice.CacheMessageBuffers", "0")
         self._optSetProp(id, "Ice.RetryIntervals", "-1")
         self._optSetProp(id, "Ice.Default.EndpointSelection", "Ordered")
         self._optSetProp(id, "Ice.Default.PreferSecure", "1")
         self._optSetProp(id, "Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
 
-        if Ice.intVersion() >= 30600:
-            if sys.platform == "darwin":
-                self._optSetProp(id, "IceSSL.Ciphers", "NONE (DH_anon.*AES)")
-            else:
-                self._optSetProp(id, "IceSSL.Ciphers", "ADH")
+        if sys.platform == "darwin":
+            self._optSetProp(id, "IceSSL.Ciphers", "NONE (DH_anon.*AES)")
         else:
             self._optSetProp(id, "IceSSL.Ciphers", "ADH")
+
         self._optSetProp(id, "IceSSL.VerifyPeer", "0")
         self._optSetProp(id, "IceSSL.Protocols", "tls1")
 
@@ -214,11 +211,8 @@ class BaseClient(object):
         self._optSetProp(
             id, "omero.block_size", str(omero.constants.DEFAULTBLOCKSIZE))
 
-        # Set the default encoding if this is Ice 3.5 or later
-        # and none is set.
-        if Ice.intVersion() >= 30500:
-            self._optSetProp(
-                id, "Ice.Default.EncodingVersion", "1.0")
+        # Set the default encoding
+        self._optSetProp(id, "Ice.Default.EncodingVersion", "1.0")
 
         # Setting MessageSizeMax
         self._optSetProp(

@@ -331,14 +331,10 @@ public class client {
 
         // Strictly necessary for this class to work
         optionallySetProperty(id, "Ice.ImplicitContext", "Shared");
-        if (Ice.Util.intVersion() >= 30600) {
-            optionallySetProperty(id, "Ice.ACM.Client.Timeout",
-                    ""+omero.constants.ACMCLIENTTIMEOUT.value);
-            optionallySetProperty(id, "Ice.ACM.Client.Heartbeat", ""+
-                    omero.constants.ACMCLIENTHEARTBEAT.value);
-        } else {
-            optionallySetProperty(id, "Ice.ACM.Client", "0");
-        }
+        optionallySetProperty(id, "Ice.ACM.Client.Timeout",
+                ""+omero.constants.ACMCLIENTTIMEOUT.value);
+        optionallySetProperty(id, "Ice.ACM.Client.Heartbeat", ""+
+                omero.constants.ACMCLIENTHEARTBEAT.value);
         optionallySetProperty(id, "Ice.CacheMessageBuffers", "0");
         optionallySetProperty(id, "Ice.RetryIntervals", "-1");
         optionallySetProperty(id, "Ice.Default.EndpointSelection", "Ordered");
@@ -350,11 +346,8 @@ public class client {
         optionallySetProperty(id, "omero.block_size", Integer
             .toString(omero.constants.DEFAULTBLOCKSIZE.value));
 
-        // Set the default encoding if this is Ice 3.5 or later
-        // and none is set.
-        if (Ice.Util.intVersion() >= 30500) {
-            optionallySetProperty(id, "Ice.Default.EncodingVersion", "1.0");
-        }
+        // Set the default encoding
+        optionallySetProperty(id, "Ice.Default.EncodingVersion", "1.0");
 
         // Setting MessageSizeMax
         optionallySetProperty(id, "Ice.MessageSizeMax", Integer
