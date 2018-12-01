@@ -33,8 +33,9 @@
 
     <h1>{% trans "Select from available tags" %}:</h1>
 
+    <div class="tag_selection_container">
 
-    <div style="float: left;">
+    <div>
 
         <h1>{% trans "Available Tags" %}: <span id="id_tags_selected"></span></h1>
 {% comment %}Spaces in placeholder are important so user can input the actual placeholder text without it getting removed{% endcomment %}
@@ -65,12 +66,14 @@
 
     </div>
 
-    <div style="float: left;">
+    <div>
 
         <h1>{% trans "Selected Tags" %}:</h1>
         <div class="tag_selection_wrapper">
             <div id="id_selected_tags" class="tag_selection"></div>
         </div>
+
+    </div>
 
     </div>
 
