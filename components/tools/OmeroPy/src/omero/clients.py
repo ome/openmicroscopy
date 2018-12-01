@@ -189,9 +189,9 @@ class BaseClient(object):
         self._optSetProp(id, "Ice.ImplicitContext", "Shared")
 
         self._optSetProp(id, "Ice.ACM.Client.Timeout",
-            str(omero.constants.ACMCLIENTTIMEOUT))
+                         str(omero.constants.ACMCLIENTTIMEOUT))
         self._optSetProp(id, "Ice.ACM.Client.Heartbeat",
-            str(omero.constants.ACMCLIENTHEARTBEAT))
+                         str(omero.constants.ACMCLIENTHEARTBEAT))
 
         self._optSetProp(id, "Ice.CacheMessageBuffers", "0")
         self._optSetProp(id, "Ice.RetryIntervals", "-1")

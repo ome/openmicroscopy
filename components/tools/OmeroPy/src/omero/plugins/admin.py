@@ -19,7 +19,6 @@ import sys
 import stat
 import platform
 import datetime
-import Ice
 import time
 
 from glob import glob
