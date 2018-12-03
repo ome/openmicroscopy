@@ -86,7 +86,7 @@ public class RawDataFacilityTest extends GatewayTest {
             int x = i % 100;
             int y = i / 100;
             pixelData[x][y] = plane.getPixelValue(x, y);
-            expPixelData[x][y] = (double) toUnsignedInt(plane
+            expPixelData[x][y] = (double) Byte.toUnsignedInt(plane
                     .getRawValue(y * 100 + x));
         }
 
@@ -171,15 +171,5 @@ public class RawDataFacilityTest extends GatewayTest {
         }
         store.setPlane(rawData, 0, 0, 0);
         gw.closeService(rootCtx, store);
-    }
-    
-    /**
-     * This is basically Byte.toUnsignedInt(byte b) in Java >= 8
-     * (TODO: Remove this method when Java 7 support is dropped)
-     * @param x The byte value
-     * @return The byte as unsigned integer value
-     */
-    private int toUnsignedInt(byte x) {
-        return ((int) x) & 0xff;
     }
 }
