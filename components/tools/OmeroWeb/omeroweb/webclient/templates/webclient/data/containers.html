@@ -732,6 +732,12 @@
         });
 
         $('#refreshButton').click(function() {
+            // Ensure the button cannot be clicked again while we are
+            // performing a refresh.  The "refresh.jstree" event handler
+            // is in ome.tree.js and will be responsible for enabling the
+            // button again.
+            event.target.disabled = true;
+
             // Grab the paths to the items that are currently selected, for restoration later
             var selections = inst.get_selected();
 
