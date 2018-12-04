@@ -147,14 +147,7 @@ public class SessionI implements _SessionOperations {
 
     public void submit_async(AMD_Session_submit __cb, omero.cmd.Request req,
             Ice.Current current) {
-        final Executor.Priority priority;
-        if (req instanceof GraphQuery) {
-            priority = Executor.Priority.BACKGROUND;
-        } else {
-            /* defaults to Priority.USER */
-            priority = null;
-        }
-        submit_async(__cb, req, current, priority);
+        submit_async(__cb, req, current, null); // null == USER priority
     }
 
     public void submit_async(AMD_Session_submit __cb, omero.cmd.Request req,
