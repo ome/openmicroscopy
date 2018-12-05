@@ -1577,6 +1577,7 @@ def cli_login(*args, **kwargs):
         yield cli
     finally:
         cli.close()
+        client.stopKeepAlive()
 
 
 def argv(args=sys.argv):
