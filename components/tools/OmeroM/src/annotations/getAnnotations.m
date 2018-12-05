@@ -10,9 +10,33 @@ function annotations = getAnnotations(session, ids, type, varargin)
 %      annotations = getAnnotations(session, ids, type, 'group', groupId);
 %        returns annotations from the input group specfied by groupId.
 %
+% INPUT ARGUMENTS
+% session     an omero.api.ServiceFactoryPrxHelper Java object
+%
+% ids         a positive integer | a vector of positive integers | []
+%             ID(s) of the annotations you want to retrieve.
+%
+% type        'comment' | 'double' | 'file' | 'long' | 'map' | 'tag' | ...
+%             'timestamp' | 'xml'
+%             Specifies the type of annotation
+%             defined by getAnnotationTypes.m
+%
+%
+% OPTIONAL PARAMETER/VALUE PAIRS
+%
+% 'group'     groupId
+%             (Optional) ID of group.
+%
+% OUTPUT ARGUMENTS
+% annotations Java objects of the following classes:
+%             omero.model.CommentAnnotationI | omero.model.DoubleAnnotationI | 
+%             omero.model.FileAnnotationI | omero.model.LongAnnotationI | 
+%             omero.model.MapAnnotationI | omero.model.TagAnnotationI |
+%             omero.model.TimestampAnnotationI | omero.model.XmlAnnotationI
+%
 % See also: GETANNOTATIONTYPES, GETDOUBLEANNOTATIONS, GETCOMMENTANNOTATIONS,
 % GETFILEANNOTATIONS, GETLONGANNOTATIONS, GETTAGANNOTATIONS,
-% GETTIMESTAMPANNOTATIONS, GETXMLANNOTATIONS
+% GETTIMESTAMPANNOTATIONS, GETXMLANNOTATIONS, getObjectAnnotations
 
 % Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
