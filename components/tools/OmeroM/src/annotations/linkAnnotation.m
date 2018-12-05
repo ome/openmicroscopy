@@ -44,7 +44,7 @@ assert(~strcmp(objectType.class, 'omero.model.Roi'),...
     ['Cannot link annotations to rois. ']);
 
 % Get the parent object
-if isnumeric(parentId),
+if isnumeric(parentId)
     parent = getObjects(session, parentType, parentId);
     assert(~isempty(parent), 'No %s with id %g found', parentType, parentId);
 else
