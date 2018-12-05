@@ -48,9 +48,9 @@ ip = inputParser;
 ip.addRequired('session');
 ip.addRequired('keys', @(x) ischar(x) || iscellstr(x));
 ip.addRequired('values', @(x) ischar(x) || iscellstr(x));
-ip.addParamValue('namespace', '', @ischar);
-ip.addParamValue('description', '', @ischar);
-ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
+ip.addParameter('namespace', '', @ischar);
+ip.addParameter('description', '', @ischar);
+ip.addParameter('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(session, keys, values, varargin{:});
 
 % Convert keys and values into cell arrays
@@ -69,11 +69,11 @@ end
 ma = omero.model.MapAnnotationI();
 ma.setMapValue(nv);
 
-if ~isempty(ip.Results.description),
+if ~isempty(ip.Results.description)
     ma.setDescription(rstring(ip.Results.description));
 end
 
-if ~isempty(ip.Results.namespace),
+if ~isempty(ip.Results.namespace)
     ma.setNs(rstring(ip.Results.namespace))
 end
 
