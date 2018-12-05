@@ -51,8 +51,8 @@ isValidProject = @(x) isscalar(x) && ...
 ip = inputParser;
 ip.addRequired('name', @ischar);
 ip.addOptional('project', [], isValidProject);
-ip.addParamValue('context', java.util.HashMap, @(x) isa(x, 'java.util.HashMap'));
-ip.addParamValue('group', [], @(x) isempty(x) || (isscalar(x) && isnumeric(x)));
+ip.addParameter('context', java.util.HashMap, @(x) isa(x, 'java.util.HashMap'));
+ip.addParameter('group', [], @(x) isempty(x) || (isscalar(x) && isnumeric(x)));
 ip.parse(name, varargin{:});
 
 if ~isempty(ip.Results.project)

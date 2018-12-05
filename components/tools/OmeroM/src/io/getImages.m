@@ -56,8 +56,8 @@ isValidIds =  @(x) isempty(x) || (isvector(x) && isnumeric(x));
 ip = inputParser;
 ip.addRequired('session');
 ip.addOptional('ids', [], isValidIds);
-ip.addParamValue('project', [], isValidIds);
-ip.addParamValue('dataset', [], isValidIds);
+ip.addParameter('project', [], isValidIds);
+ip.addParameter('dataset', [], isValidIds);
 ip.KeepUnmatched = true;
 ip.parse(session, varargin{:});
 
@@ -74,9 +74,9 @@ if isempty(ip.Results.project) && isempty(ip.Results.dataset)
         parameters.exp(rlong(-1));
         defaultContext.put('omero.group', '-1');
     end
-    ip.addParamValue('owner', [], @(x) isscalar(x) && isnumeric(x));
-    ip.addParamValue('context', defaultContext, @(x) isa(x, 'java.util.HashMap'));
-    ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
+    ip.addParameter('owner', [], @(x) isscalar(x) && isnumeric(x));
+    ip.addParameter('context', defaultContext, @(x) isa(x, 'java.util.HashMap'));
+    ip.addParameter('group', [], @(x) isscalar(x) && isnumeric(x));
     ip.KeepUnmatched = false;
     ip.parse(session, varargin{:});
 

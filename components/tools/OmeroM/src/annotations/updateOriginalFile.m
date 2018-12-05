@@ -36,7 +36,7 @@ ip = inputParser;
 ip.addRequired('session');
 ip.addRequired('originalFile', @(x) isa(x, 'omero.model.OriginalFile'));
 ip.addRequired('filePath', @(x) exist(x, 'file') == 2);
-ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
+ip.addParameter('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.KeepUnmatched = true;
 ip.parse(session, originalFile, filePath, varargin{:});
 

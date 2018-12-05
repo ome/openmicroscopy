@@ -45,9 +45,9 @@ function da = writeDoubleAnnotation(session, value, varargin)
 ip = inputParser;
 ip.addRequired('session');
 ip.addRequired('value', @isscalar);
-ip.addParamValue('description', '', @ischar);
-ip.addParamValue('namespace', '', @ischar);
-ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
+ip.addParameter('description', '', @ischar);
+ip.addParameter('namespace', '', @ischar);
+ip.addParameter('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(session, value, varargin{:});
 
 % Create double annotation
@@ -55,10 +55,10 @@ da = omero.model.DoubleAnnotationI;
 
 % Set annotation properties
 da.setDoubleValue(rdouble(value));
-if ~isempty(ip.Results.description),
+if ~isempty(ip.Results.description)
     da.setDescription(rstring(ip.Results.description));
 end
-if ~isempty(ip.Results.namespace),
+if ~isempty(ip.Results.namespace)
     da.setNs(rstring(ip.Results.namespace));
 end
 

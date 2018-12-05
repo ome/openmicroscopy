@@ -49,9 +49,9 @@ ip = inputParser;
 ip.addRequired('session');
 ip.addRequired('type', @(x) ischar(x) && ismember(x, annotationNames));
 ip.addRequired('text', @ischar);
-ip.addParamValue('description', '', @ischar);
-ip.addParamValue('namespace', '', @ischar);
-ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
+ip.addParameter('description', '', @ischar);
+ip.addParameter('namespace', '', @ischar);
+ip.addParameter('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(session, type, text, varargin{:});
 
 % Create text annotation of input type
@@ -59,10 +59,10 @@ ann = annotationTypes(strcmp(type, annotationNames)).Iobject();
 
 % Set annotation properties
 ann.setTextValue(rstring(ip.Results.text));
-if ~isempty(ip.Results.description),
+if ~isempty(ip.Results.description)
     ann.setDescription(rstring(ip.Results.description));
 end
-if ~isempty(ip.Results.namespace),
+if ~isempty(ip.Results.namespace)
     ann.setNs(rstring(ip.Results.namespace));
 end
 

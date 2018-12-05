@@ -77,7 +77,7 @@ assert(~strcmp(objectType.class, 'omero.model.Roi'),...
 % Check optional input parameters
 defaultParameters = omero.sys.ParametersI();
 defaultContext = java.util.HashMap;
-if isempty(ids),
+if isempty(ids)
     % If no input id, return the objects owned by the session user in the
     % current context
     defaultOwner = session.getAdminService().getEventContext().userId;
@@ -89,13 +89,13 @@ else
 end
 ip = inputParser;
 ip.addOptional('parameters', defaultParameters, @(x) isa(x, 'omero.sys.ParametersI'));
-ip.addParamValue('owner', defaultOwner, @(x) isscalar(x) && isnumeric(x));
-ip.addParamValue('context', defaultContext, @(x) isa(x, 'java.util.HashMap'));
-ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
+ip.addParameter('owner', defaultOwner, @(x) isscalar(x) && isnumeric(x));
+ip.addParameter('context', defaultContext, @(x) isa(x, 'java.util.HashMap'));
+ip.addParameter('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(varargin{:});
 
 % Use getImages function if retrieving images
-if strcmp(type, 'image'),
+if strcmp(type, 'image')
     objects = getImages(session, ids, varargin{:});
     return
 end
