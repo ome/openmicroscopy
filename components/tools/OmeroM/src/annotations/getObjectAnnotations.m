@@ -1,5 +1,8 @@
 function annotations = getObjectAnnotations(session, annotationType, parentType, ids, varargin)
-% GETOBJECTANNOTATIONS Retrieve annotations of a given type associated with an object
+% GETOBJECTANNOTATIONS Retrieve annotations of a given type associated with
+% an object
+%
+% SYNTAX
 %
 %    anns = getObjectAnnotations(session, annotationType, parentType, ids)
 %    returns all annotations of type annotationType linked to the object of
@@ -53,8 +56,56 @@ function annotations = getObjectAnnotations(session, annotationType, parentType,
 %        anns = getObjectAnnotations(session, annotationType, parentType,
 %        ids, 'flatten', true, 'uid', -1, 'omero.group', -1)
 %
+%
+% INPUT ARGUMENTS
+% session     an omero.api.ServiceFactoryPrxHelper Java object
+%
+% annotationType     
+%             'comment' | 'double' | 'file' | 'long' | 'map' | 'tag' | ...
+%             'timestamp' | 'xml'
+%             Specifies the type of annotation.
+%             defined by getAnnotationTypes.m
+%
+% parentType     
+%             'project' | 'dataset' | 'image' | 'screen' | 'plate' | ...
+%             'plateacquisition' | 'roi'
+%             Specifies the type of the parent object(s).
+%             defined by getObjectTypes.m
+%
+%
+% ids         a positive integer | a vector of positive integers | []
+%             ID(s) for the parent object(s)
+%
+% parents     an array of parent Java objects
+%
+% OPTIONAL PARAMETER/VALUE PAIRS
+% 'include'   charcters | cell array of characters
+%             (Optional) Namespace of annotations to be included
+%
+% 'exclude'   charcters | cell array of characters
+%             (Optional) Namespace of annotations to be excluded
+%
+% 'flatten'   true (default)| false | 1 | 0
+%             (Optional) If true, all found annotations are returned as a
+%             single array of annotations. If false, they are returned as a
+%             cell array where the i-th element is an array of all the
+%             annotations linked to the i-th object.
+%
+% 'owner'     ownerId
+%             (Optional) ID of owner.
+%
+% 'group'     groupId
+%             (Optional) ID of group.
+%
+% OUTPUT ARGUMENTS
+% anns        Java objects of the following classes:
+%             omero.model.CommentAnnotationI | omero.model.DoubleAnnotationI | 
+%             omero.model.FileAnnotationI | omero.model.LongAnnotationI | 
+%             omero.model.MapAnnotationI | omero.model.TagAnnotationI |
+%             omero.model.TimestampAnnotationI | omero.model.XmlAnnotationI
+%
 % See also: GETIMAGEFILEANNOTATIONS, GETIMAGETAGANNOTATIONS,
-% GETIMAGECOMMENTANNOTATIONS
+% GETIMAGECOMMENTANNOTATIONS, getAnnotations
 
 % Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -81,11 +132,11 @@ ip = inputParser;
 ip.addRequired('annotationType', @(x) ischar(x) && ismember(x, {annotations.name}));
 ip.addRequired('parentType', @(x) ischar(x) && ismember(x, {objects.name}));
 ip.addRequired('ids', @(x) isvector(x) || isempty(x));
-ip.addParamValue('include', [], @(x) iscellstr(x) || ischar(x));
-ip.addParamValue('exclude', [], @(x) iscellstr(x) || ischar(x));
-ip.addParamValue('flatten', true, @(x) isscalar(x) && (x || ~x));
-ip.addParamValue('owner', defaultownerid, @isscalar);
-ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
+ip.addParameter('include', [], @(x) iscellstr(x) || ischar(x));
+ip.addParameter('exclude', [], @(x) iscellstr(x) || ischar(x));
+ip.addParameter('flatten', true, @(x) isscalar(x) && (x || ~x));
+ip.addParameter('owner', defaultownerid, @isscalar);
+ip.addParameter('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.KeepUnmatched = true;
 ip.parse(annotationType, parentType, ids, varargin{:});
 
@@ -93,7 +144,7 @@ ip.parse(annotationType, parentType, ids, varargin{:});
 metadataService = session.getMetadataService();
 
 % Convert input into java.util.ArrayList;
-if ~isnumeric(ids),
+if ~isnumeric(ids)
     ids = arrayfun(@(x) x.getId().getValue(), ids);
 end
 
