@@ -45,8 +45,7 @@ function ma = updateMapAnnotation(session, ma, keyvalue, varargin)
 % 05-Dec-2018 18:23:13
 %
 % See also
-% writeMapAnnotation, strToMapAnnotation
-% https://www.openmicroscopy.org/community/viewtopic.php?f=6&t=8644
+% writeMapAnnotation, strToMapAnnotation, mapAnnotationToCellstr
 
 ip = inputParser;
 ip.addRequired('session',@(x) isscalar(x));
