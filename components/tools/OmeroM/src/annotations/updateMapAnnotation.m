@@ -17,10 +17,8 @@ function ma = updateMapAnnotation(session, ma, keyvalue, varargin)
 %
 % OPTIONAL PARA<ETER/VALUE PAIRS
 % 'namespace' char
-%             Namespace for the MapAnnotation. Use the following value,
-%             if you want to make this MapAnnotation editable via GUI.
-%
-%               char(omero.constants.metadata.NSCLIENTMAPANNOTATION)
+%             Namespace for the MapAnnotation. If you specify this, the
+%             value of 'iseditable' will be ignored.
 %
 % 'description'
 %             char
@@ -32,9 +30,8 @@ function ma = updateMapAnnotation(session, ma, keyvalue, varargin)
 % 'iseditable' 
 %             false (default) | true | 0 | 1 
 %             If true or 1, MapAnnotation (Key-Value Pairs) will
-%             be editable via GUI (OMERO.web or OMERO.insight). If true,
-%             this will overwrite 'namespace'.
-%
+%             be editable via GUI (OMERO.web or OMERO.insight). If you
+%             specify 'namespace', 'iseditable' will be ignored.
 %
 %
 % OUTPUT ARGUMENTS
@@ -87,15 +84,21 @@ if ~isempty(ip.Results.description)
 end
 
 
-if ip.Results.iseditable
-    %NOTE this is required to make it editable from GUI
-    eval('import omero.constants.metadata.NSCLIENTMAPANNOTATION')
-    ma.setNs(rstring(char(NSCLIENTMAPANNOTATION.value)));
-else
-    if ~isempty(ip.Results.namespace)
-        ma.setNs(rstring(ip.Results.namespace))
+if isempty(ip.Results.namespace)
+    
+    if ip.Results.iseditable
+        %NOTE this is required to make it editable from GUI
+        eval('import omero.constants.metadata.NSCLIENTMAPANNOTATION')
+        ma.setNs(rstring(char(NSCLIENTMAPANNOTATION.value)));
+    else
+        ma.setNs(rstring(char('')));
     end
+    
+else
+    ma.setNs(rstring(ip.Results.namespace))
 end
+
+
 
 %update the keys and values of the object
 
