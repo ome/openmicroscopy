@@ -34,15 +34,11 @@ before_install:
     # This will need to be reviewed when the issue above is fixed
     - export PATH=/usr/bin/:$PATH
     - sudo apt-get install -y python-imaging python-numpy python-tables python-yaml
-    - sudo apt-get -y install python-dev build-essential
-    - sudo apt-get -y install db5.3-util
-    - sudo apt-get -y install libssl-dev libbz2-dev libmcpp-dev libdb++-dev libdb-dev
-
     - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 5E6DA83306132997
     - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu`lsb_release -rs` stable main"
     - sudo apt-get update
     - sudo apt-get -y install zeroc-ice-all-runtime zeroc-ice-all-dev
-    - sudo pip install -U "zeroc-ice<3.7"
+    - sudo pip install -U https://github.com/ome/zeroc-ice-py-ubuntu1404/releases/download/0.1.0/zeroc_ice-3.6.4-cp27-none-linux_x86_64.whl
     # upgrade numexpr to fix table test failures
     - sudo pip install -U numexpr
     - pip install --user pytest
