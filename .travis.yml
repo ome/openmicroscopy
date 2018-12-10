@@ -33,7 +33,7 @@ before_install:
     # Changing the value for sudo will also need to be reviewed at the same time
     # This will need to be reviewed when the issue above is fixed
     - export PATH=/usr/bin/:$PATH
-    - sudo apt-get install -y python-imaging python-numpy python-tables python-yaml
+    - sudo apt-get -y install python-imaging python-numpy python-tables python-yaml
     - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 5E6DA83306132997
     - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu`lsb_release -rs` stable main"
     - sudo apt-get update
