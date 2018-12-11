@@ -61,13 +61,13 @@ function annotations = getObjectAnnotations(session, annotationType, parentType,
 % session     an omero.api.ServiceFactoryPrxHelper Java object
 %
 % annotationType     
-%             'comment' | 'double' | 'file' | 'long' | 'map' | 'tag' | ...
+%             'comment' | 'double' | 'file' | 'long' | 'map' | 'tag' | 
 %             'timestamp' | 'xml'
 %             Specifies the type of annotation.
 %             defined by getAnnotationTypes.m
 %
 % parentType     
-%             'project' | 'dataset' | 'image' | 'screen' | 'plate' | ...
+%             'project' | 'dataset' | 'image' | 'screen' | 'plate' | 
 %             'plateacquisition' | 'roi'
 %             Specifies the type of the parent object(s).
 %             defined by getObjectTypes.m
@@ -79,10 +79,10 @@ function annotations = getObjectAnnotations(session, annotationType, parentType,
 % parents     an array of parent Java objects
 %
 % OPTIONAL PARAMETER/VALUE PAIRS
-% 'include'   charcters | cell array of characters
+% 'include'   characters | cell array of characters
 %             (Optional) Namespace of annotations to be included
 %
-% 'exclude'   charcters | cell array of characters
+% 'exclude'   characters | cell array of characters
 %             (Optional) Namespace of annotations to be excluded
 %
 % 'flatten'   true (default)| false | 1 | 0
@@ -105,7 +105,7 @@ function annotations = getObjectAnnotations(session, annotationType, parentType,
 %             omero.model.TimestampAnnotationI | omero.model.XmlAnnotationI
 %
 % See also: GETIMAGEFILEANNOTATIONS, GETIMAGETAGANNOTATIONS,
-% GETIMAGECOMMENTANNOTATIONS, getAnnotations
+% GETIMAGECOMMENTANNOTATIONS, GETANNOTATIONS
 
 % Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
