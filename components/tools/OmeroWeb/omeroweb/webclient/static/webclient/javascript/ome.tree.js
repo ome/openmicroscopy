@@ -351,6 +351,10 @@ $(function() {
         });
         // Clear refreshPathsReverse after selection has been restored
         refreshPathsReverse = [];
+        // Re-enable the refresh button as it may have been disabled to
+        // prevent race conditions occurring from multiple clicks in quick
+        // succession.
+        $('#refreshButton').removeAttr("disabled");
     })
 
     // Setup jstree
