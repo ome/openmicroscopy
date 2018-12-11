@@ -346,9 +346,6 @@ public class client {
         optionallySetProperty(id, "omero.block_size", Integer
             .toString(omero.constants.DEFAULTBLOCKSIZE.value));
 
-        // Set the default encoding
-        optionallySetProperty(id, "Ice.Default.EncodingVersion", "1.0");
-
         // Setting MessageSizeMax
         optionallySetProperty(id, "Ice.MessageSizeMax", Integer
             .toString(omero.constants.MESSAGESIZEMAX.value));

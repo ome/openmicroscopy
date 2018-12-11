@@ -211,9 +211,6 @@ class BaseClient(object):
         self._optSetProp(
             id, "omero.block_size", str(omero.constants.DEFAULTBLOCKSIZE))
 
-        # Set the default encoding
-        self._optSetProp(id, "Ice.Default.EncodingVersion", "1.0")
-
         # Setting MessageSizeMax
         self._optSetProp(
             id, "Ice.MessageSizeMax", str(omero.constants.MESSAGESIZEMAX))
