@@ -72,7 +72,7 @@ print 'eventContext', eventContext
 # Can get our 'default' group
 groupId = eventContext['groupId']
 
-# With succesful login, request.session will contain
+# With successful login, request.session will contain
 # OMERO session details and reconnect to OMERO on
 # each subsequent call...
 
