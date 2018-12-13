@@ -4008,6 +4008,11 @@ class _BlitzGateway (object):
         h.update(fo.read())
         shaHast = h.hexdigest()
         originalFile.setHash(rstring(shaHast))
+
+        chk = omero.model.ChecksumAlgorithmI()
+        chk.setValue(rstring(omero.model.enums.ChecksumAlgorithmSHA1160))
+        originalFile.setHasher(chk)
+
         originalFile = updateService.saveAndReturnObject(
             originalFile, self.SERVICE_OPTS)
 
