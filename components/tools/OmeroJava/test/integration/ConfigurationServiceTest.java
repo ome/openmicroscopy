@@ -359,5 +359,9 @@ public class ConfigurationServiceTest extends AbstractServerTest {
             return original;
         }
 
+        @Override
+        public String toString() {
+            return String.format("TestEnum(type=%s,original_count=%d)", type, original.size());
+        }
     }
 }
