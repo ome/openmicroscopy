@@ -5,6 +5,18 @@
 OMERO version history
 =====================
 
+5.5.0-m2 (December 2018)
+------------------------
+
+This release focuses on dropping support for Java 7 and Ice 3.5
+
+
+Further improvements include:
+
+- web: Do not break display of Tag dialog when large font size is configured in browser
+- web: Disable refresh button while existing refresh in progress
+- server: move clients' graph requests onto background threads
+
 5.5.0-m1 (November 2018)
 ------------------------
 
