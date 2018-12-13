@@ -146,7 +146,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
                 ice.compatibility=ice_version in etc/local.properties
                 or on the command-line, e.g.:
 
-                  ./build.py -Dice.compatibility=3.5
+                  ./build.py -Dice.compatibility=3.6
 
             </fail></then>
         </if>

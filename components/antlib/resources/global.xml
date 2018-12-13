@@ -339,15 +339,6 @@
 
         <if><equals arg1="auto" arg2="${ice.compatibility}"/>
             <then>
-                <if><matches string="${executable.ice.version}" pattern="^3[.]5"/>
-                    <then>
-                        <property name="versions.ice" value="${versions.ice35}"/>
-                        <property name="versions.ice_lib" value="${versions.ice35_lib}"/>
-                        <property name="versions.icedb" value="${versions.icedb35}"/>
-                        <property name="versions.omeromock" value="${versions.omeromock35}"/>
-                        <property name="versions.omeroshares" value="${versions.omeroshares35}"/>
-                    </then>
-                </if>
                 <if><matches string="${executable.ice.version}" pattern="^3[.]6"/>
                     <then>
                         <property name="versions.ice" value="${versions.ice36}"/>
@@ -358,16 +349,6 @@
                     </then>
                 </if>
             </then>
-            <elseif>
-                <equals arg1="3.5" arg2="${ice.compatibility}"/>
-                <then>
-                    <property name="versions.ice" value="${versions.ice35}"/>
-                    <property name="versions.ice_lib" value="${versions.ice35_lib}"/>
-                    <property name="versions.icedb" value="${versions.icedb35}"/>
-                    <property name="versions.omeromock" value="${versions.omeromock35}"/>
-                    <property name="versions.omeroshares" value="${versions.omeroshares35}"/>
-                </then>
-            </elseif>
             <elseif>
                 <equals arg1="3.6" arg2="${ice.compatibility}"/>
                 <then>
