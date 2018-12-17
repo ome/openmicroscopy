@@ -279,6 +279,13 @@ public class ConfigurationServiceTest extends AbstractServerTest {
        String type = param.getType();
        Set<String> original = param.getOriginal();
        List<IObject> fromDB = svc.allEnumerations(type);
+       final Iterator<IObject> dbValues = fromDB.iterator();
+       while (dbValues.hasNext()) {
+           /* Other tests may have added new values. */
+           if (getEnumValue(dbValues.next()).startsWith("test_")) {
+               dbValues.remove();
+           }
+       }
        int total = 0;
        if (type.endsWith("EventTypeI")) {
            //Bootstrap event is added to the DB during the init process
