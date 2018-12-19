@@ -65,13 +65,38 @@ RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
 #
 # RUN sed -i 's/\("IceSSL.Ciphers".*ADH[^"]*\)/\1:@SECLEVEL=0/' /src/components/tools/OmeroPy/src/omero/clients.py /src/etc/templates/grid/templates.xml
 
-RUN components/tools/travis-build
 
-FROM ${RUN_IMAGE} as run
-COPY --from=build /src /src
+# Temp: Build jars locally
+RUN git clone git://github.com/ome/omero-dsl /tmp/omero-dsl
+RUN git clone git://github.com/ome/omero-blitz-plugin /tmp/omero-blitz-plugin
+RUN cd /tmp/omero-dsl && ./gradlew publishToMavenLocal -x test
+RUN cd /tmp/omero-blitz-plugin && ./gradlew publishToMavenLocal -x test
+
+RUN echo bump 2
+RUN git clone git://github.com/ome/omero-build /tmp/omero-build
+WORKDIR /tmp/omero-build
+RUN git submodule update --init
+RUN ./gradlew build -x test
+RUN cd omero-model && ./gradlew publishToMavenLocal
+RUN cd omero-common && ./gradlew publishToMavenLocal
+RUN cd omero-romio && ./gradlew publishToMavenLocal
+RUN cd omero-renderer && ./gradlew publishToMavenLocal
+RUN cd omero-server && ./gradlew publishToMavenLocal
+RUN cd omero-blitz && ./gradlew publishToMavenLocal
+WORKDIR /src
 USER root
-RUN chown -R omero-server:omero-server /src
-RUN rm /opt/omero/server/OMERO.server \
- && ln -s /src/dist /opt/omero/server/OMERO.server
-RUN yum install -y git
-USER omero-server
+RUN apt-get update -y && apt-get install -y vim
+USER omero
+# End Temp
+
+
+#RUN components/tools/travis-build
+
+#FROM ${RUN_IMAGE} as run
+#COPY --from=build /src /src
+#USER root
+#RUN chown -R omero-server:omero-server /src
+#RUN rm /opt/omero/server/OMERO.server \
+# && ln -s /src/dist /opt/omero/server/OMERO.server
+#RUN yum install -y git
+#USER omero-server

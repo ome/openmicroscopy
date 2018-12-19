@@ -56,13 +56,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
             <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**"/>
         </ivy:buildlist>
         <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${omero.home}/components/blitz/" includes="build.xml"/>
-            <fileset dir="${omero.home}/components/common/" includes="build.xml"/>
             <fileset dir="${omero.home}/components/dsl/" includes="build.xml"/>
-            <fileset dir="${omero.home}/components/model/" includes="build.xml"/>
-            <fileset dir="${omero.home}/components/rendering/" includes="build.xml"/>
-            <fileset dir="${omero.home}/components/romio/" includes="build.xml"/>
-            <fileset dir="${omero.home}/components/server/" includes="build.xml"/>
         </ivy:buildlist>
         <ivy:buildlist reference="all-tools.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/tools" includes="*/build.xml"/>
@@ -452,39 +446,10 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
        <iterate buildpathref="tools.buildpath" target="findbugs"/>
     </target>
 
-    <target name="release-docs" depends="release-javadoc,release-sphinx-api,release-slice2html" description="Generate Docs for all components under dist/docs/api">
+    <target name="release-docs" depends="release-javadoc,release-sphinx-api" description="Generate Docs for all components under dist/docs/api">
         <zip destfile="${omero.home}/target/OMERO.apidoc-${omero.version}.zip">
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.apidoc-${omero.version}"/>
         </zip>
-    </target>
-
-    <target name="release-slice2html" description="The Ice API Documentation">
-      <mkdir dir="${omero.home}/target/docs"/>
-      <copy file="${blitz.comp}/resources/header.txt" tofile="${omero.home}/target/docs/header.txt" overwrite="true"/>
-      <copy file="${blitz.comp}/resources/footer.txt" tofile="${omero.home}/target/docs/footer.txt" overwrite="true"/>
-      <replace file="${omero.home}/target/docs/header.txt" token="@VERSION@" value="${omero.version}"/>
-      <replace file="${omero.home}/target/docs/footer.txt" token="@VERSION@" value="${omero.version}"/>
-      <mkdir dir="${dist.dir}/docs/api/slice2html"/>
-      <apply executable="${ice.slice2html}" parallel="true" failonerror="true">
-           <arg value="--hdr"/>
-           <arg value="${omero.home}/target/docs/header.txt"/>
-           <!-- <arg value="-REMOVETHISTEXTBETWEENDASHES-ftr"/> Commented out as causing a crash in slice2html
-           <arg value="${omero.home}/target/docs/footer.txt"/> -->
-           <arg value="-I"/>
-           <arg value="${blitz.comp}/generated"/>
-           <arg value="-I"/>
-           <arg value="${blitz.comp}/resources"/>
-           <arg value="-I"/>
-           <arg value="${ice.slicepath}"/>
-           <arg value="--output-dir"/>
-           <arg value="${dist.dir}/docs/api/slice2html"/>
-        <!-- The order here is important. Later docs overwrite earlier ones -->
-        <fileset dir="${omero.home}/components/tools" includes="**/resources/**/*.ice"/>
-        <fileset dir="${omero.home}/components/server/src" includes="**/*.ice"/>
-        <fileset dir="${omero.home}/components/blitz/generated" includes="**/*.ice"/>
-        <fileset dir="${omero.home}/components/blitz/resources" includes="**/*.ice"/>
-        <fileset dir="${omero.home}/components/blitz/resources" includes="README.ice"/>
-       </apply>
     </target>
 
     <target name="release-sphinx-api" depends="build-py,build-web"
