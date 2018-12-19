@@ -18,44 +18,12 @@ matrix:
 addons:
   apt_packages:
     - git
-    - cmake
-    - libgtest-dev
 
-env:
-    - BUILD="build-python"
-    - BUILD="build-java"
-    - BUILD="integration"
-
-before_install:
-    # The installation of the python dependencies must be done in that level for now
-    # otherwise they are not available in the containers,
-    # see https://github.com/travis-ci/travis-ci/issues/8048
-    # Changing the value for sudo will also need to be reviewed at the same time
-    # This will need to be reviewed when the issue above is fixed
-    - export PATH=/usr/bin/:$PATH
-    - sudo apt-get -y install python-imaging python-numpy python-tables python-yaml
-    - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 5E6DA83306132997
-    - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu`lsb_release -rs` stable main"
-    - sudo apt-get update
-    - sudo apt-get -y install zeroc-ice-all-runtime zeroc-ice-all-dev
-    - sudo pip install -U https://github.com/ome/zeroc-ice-py-ubuntu1404/releases/download/0.1.0/zeroc_ice-3.6.4-cp27-none-linux_x86_64.whl
-    # upgrade numexpr to fix table test failures
-    - sudo pip install -U numexpr
-    - pip install --user pytest
-    - if [[ $BUILD == 'build-python' ]]; then pip install --user -r ./components/tools/OmeroWeb/requirements-py27-all.txt; fi
-    - export PATH=$PATH:$HOME/.local/bin
-    - if [[ $BUILD == 'build-python' ]]; then travis_retry pip install --user flake8==2.4.0 pytest==2.7.3; fi
-    - if [[ $BUILD == 'build-python' ]]; then ./components/tools/travis-build py-flake8; fi
-
-# retries the build due to:
-# https://github.com/travis-ci/travis-ci/issues/2507
 install:
-    - if [[ $BUILD == 'build-python' ]]; then travis_retry ./components/tools/travis-build py-build; fi
-    - if [[ $BUILD == 'build-java' ]]; then travis_retry ./components/tools/travis-build java-build; fi
+    - git clone git://github.com/openmicroscopy/omero-test-infra .omero
 
 script:
-    - if [[ $BUILD == 'build-python' ]]; then ./components/tools/travis-build py-test; fi
-    - if [[ $BUILD == 'build-java' ]]; then ./components/tools/travis-build java-test; fi
+    - .omero/docker srv
 
 notifications:
   slack:
