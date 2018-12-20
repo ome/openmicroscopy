@@ -73,30 +73,22 @@ RUN cd /tmp/omero-dsl && ./gradlew publishToMavenLocal -x test
 RUN cd /tmp/omero-blitz-plugin && ./gradlew publishToMavenLocal -x test
 
 RUN echo bump 2
-RUN git clone git://github.com/ome/omero-build /tmp/omero-build
+RUN git clone -b stable git://github.com/rgozim/omero-build /tmp/omero-build
 WORKDIR /tmp/omero-build
 RUN git submodule update --init
-RUN ./gradlew build -x test
-RUN cd omero-model && ./gradlew publishToMavenLocal
-RUN cd omero-common && ./gradlew publishToMavenLocal
-RUN cd omero-romio && ./gradlew publishToMavenLocal
-RUN cd omero-renderer && ./gradlew publishToMavenLocal
-RUN cd omero-server && ./gradlew publishToMavenLocal
-RUN cd omero-blitz && ./gradlew publishToMavenLocal
+RUN ./gradlew build -x test -x javadoc
+RUN ./gradlew publishToMavenLocal -x test -x javadoc
 WORKDIR /src
 USER root
 RUN apt-get update -y && apt-get install -y vim
 USER omero
 # End Temp
 
+RUN components/tools/travis-build
 
-#RUN components/tools/travis-build
-
-#FROM ${RUN_IMAGE} as run
-#COPY --from=build /src /src
-#USER root
-#RUN chown -R omero-server:omero-server /src
-#RUN rm /opt/omero/server/OMERO.server \
-# && ln -s /src/dist /opt/omero/server/OMERO.server
-#RUN yum install -y git
-#USER omero-server
+########FROM ${RUN_IMAGE} as run
+########RUN rm -rf /opt/omero/server/OMERO.server
+########COPY --chown=omero-server:omero-server --from=build /src /opt/omero/server/OMERO.server
+########USER root
+########RUN yum install -y git
+########USER omero-server

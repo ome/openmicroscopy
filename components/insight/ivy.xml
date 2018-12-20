@@ -23,16 +23,10 @@
   </publications>
   <dependencies defaultconfmapping="build,client->default">
     <!-- Internal -->
-    <dependency org="omero" name="blitz" rev="5.5.0-SNAPSHOT" conf="build->build;client->client">
-        <exclude ext="pom"/>
-    </dependency>
+    <dependency org="org.openmicroscopy" name="omero-blitz" rev="5.5.0-SNAPSHOT"/>
     <!-- For UpgradeCheck -->
-    <dependency org="omero" name="common" rev="5.5.0-SNAPSHOT" conf="build->build;client->client" transitive="false">
-        <exclude ext="pom"/>
-    </dependency>
-    <dependency org="omero" name="model" rev="5.5.0-SNAPSHOT" conf="build->build;client->client" transitive="false">
-        <exclude ext="pom"/>
-    </dependency>
+    <dependency org="org.openmicroscopy" name="omero-common" rev="5.5.0-SNAPSHOT"/>
+    <dependency org="org.openmicroscopy" name="omero-model" rev="5.5.0-SNAPSHOT"/>
     <!-- For build -->
     <dependency org="com.panayotis" name="appbundler" rev="${versions.appbundler}" conf="build->default"/>
     <!-- From classpath -->
