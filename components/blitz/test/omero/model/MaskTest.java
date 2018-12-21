@@ -83,18 +83,10 @@ public class MaskTest {
         
         MaskData mask = Mask.createCroppedMask(binMask);
         
-        int[][] got = mask.getMaskAsBinaryArray();
-        
         Assert.assertEquals((int)mask.getX(), 3);
         Assert.assertEquals((int)mask.getY(), 2);
         Assert.assertEquals((int)mask.getWidth(), 2);
         Assert.assertEquals((int)mask.getHeight(), 4);
-
-        for (int i=0; i<got.length; i++) {
-            for (int j=0; j<got[i].length; j++) {
-                assertEquals(got[i][j] == 1 ? true : false, binMask[(int)(i+mask.getX())][(int)(j+mask.getY())], i+","+j);
-            }
-        }
     }
     
     @Test
@@ -159,6 +151,45 @@ public class MaskTest {
                     (mask.getX() == 2 && mask.getY() == 7 && mask.getWidth() == 3 && mask.getHeight() == 1);
             Assert.assertTrue(found);
         }
+        
+        int binMask2[] = Mask.unfold(binMask);
+        masks = Mask.createCroppedMasks(binMask2, binMask[0].length);
+        Assert.assertEquals(masks.size(), 2);
+        
+        for (MaskData mask : masks) {
+            boolean found = (mask.getX() == 3 && mask.getY() == 2 && mask.getWidth() == 2 && mask.getHeight() == 4) ||
+                    (mask.getX() == 2 && mask.getY() == 7 && mask.getWidth() == 3 && mask.getHeight() == 1);
+            Assert.assertTrue(found);
+        }
+    }
+    
+    @Test
+    public void foldTest() {
+        int w = 10;
+        int h = 15;
+
+        int[][] binMask = new int[w][h];
+
+        binMask[3][3] = 1;
+        binMask[4][3] = 1;
+        binMask[4][4] = 1;
+        binMask[4][5] = 1;
+        binMask[4][2] = 1;
+
+        binMask[2][7] = 2;
+        binMask[3][7] = 2;
+        binMask[4][7] = 2;
+
+        int folded[] = Mask.unfold(binMask);
+        int unfolded[][] = Mask.fold(folded, binMask[0].length);
+
+        Assert.assertEquals(unfolded.length, binMask.length);
+        Assert.assertEquals(unfolded[0].length, binMask[0].length);
+
+        for (int i = 0; i < unfolded.length; i++)
+            for (int j = 0; j < unfolded[0].length; j++)
+                assertEquals(unfolded[i][j], binMask[i][j],
+                        "Position i=" + i + " j=" + j + " differs.");
     }
     
 }

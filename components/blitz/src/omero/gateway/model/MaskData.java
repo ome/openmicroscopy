@@ -439,9 +439,9 @@ public class MaskData
         // purposes (only for small masks)
         StringBuilder sb = new StringBuilder();
         int[][] bin = getMaskAsBinaryArray();
-        for (int i=0; i<bin.length; i++) {
-            for (int j=0; j<bin[0].length; j++) {
-                if (bin[i][j] > 0)
+        for (int i=0; i<bin[0].length; i++) {
+            for (int j=0; j<bin.length; j++) {
+                if (bin[j][i] > 0)
                     sb.append('1');
                 else
                     sb.append('0');

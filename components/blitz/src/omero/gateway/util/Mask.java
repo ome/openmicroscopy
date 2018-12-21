@@ -92,7 +92,7 @@ public class Mask {
         {
             for (int x = 0 ; x < neww ; x++)
             {
-                newmask[x][y] = mask[x+minx][y+miny];
+                newmask[x][y] = mask[x+minx][maxy-y];
             }
         }
         
@@ -137,6 +137,19 @@ public class Mask {
     }
 
     /**
+     * Creates mask ROIs from the given integer array where each 
+     * single mask ROI is specified by a specific integer.
+     * 
+     * @param masks The masks covering the whole image.
+     * @param width The width of the image
+     * @return The mask ROIs
+     */
+    public static List<MaskData> createCroppedMasks(int[] masks, int width) {
+        int[][] folded = fold(masks, width);
+        return createCroppedMasks(folded);
+    }
+    
+    /**
      * Simply iterates over the array and returns the first non zero integer
      * found.
      * 
@@ -168,4 +181,60 @@ public class Mask {
         return result;
     }
     
+    /**
+     * Breaks a one-dimensional array into 'length' chunks,
+     * forming a two-dimensional array, e.g.
+     * 
+     * int[] x = 0 1 2 3 4 5 6 7 8 9 
+     * 
+     * using length = 4 will be transformed to
+     * 
+     * int[][] y = 
+     * [0 1 2 3]
+     * [4 5 6 7]
+     * [8 9 0 0]
+     * 
+     * @param array An int array
+     * @param length The length of the chunks
+     * @return Two dimensional array
+     */
+    public static int[][] fold(int[] array, int length) {
+        int height = array.length / length;
+        if ( array.length % length != 0) 
+            height++;
+        int[][] result = new int[height][length];
+        for (int i = 0; i < array.length; i++)
+            result[i / length][i % length] = array[i];
+        return result;
+    }
+    
+    /**
+     * Transforms a 2 dimensional array into a one dimensional
+     * array; the opposite of the fold method.
+     * 
+     * E. g. 
+     * int[][] y = 
+     * [0 1 2 3]
+     * [4 5 6 7]
+     * [8 9 0 0]
+     * 
+     * would transformed into
+     * 
+     * int[] x = 0 1 2 3 4 5 6 7 8 9 0 0
+     * 
+     * @param array An int array
+     * @return The one dimensional array
+     */
+    public static int[] unfold(int[][] array) {
+        
+        int w = array.length;
+        int h = array[0].length;
+        
+        int[] result = new int[w*h];
+        
+        for (int i = 0; i < w; i++)
+            for (int j = 0; j < h; j++)
+                result[i * h + j] = array[i][j];
+        return result;
+    }
 }
