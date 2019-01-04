@@ -231,20 +231,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <antcall target="copy-sql" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-model" description="Generate model code for all language bindings" depends="init">
-        <ant antfile="${blitz.comp}/build.xml" dir="${blitz.comp}" target="icegen" inheritAll="false"/>
-        <!-- Parts of build-dist: updates both server and client -->
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
-    </target>
-
-    <target name="build-matlab" description="Provides a matlab toolbox under target. May required 'build-java'" depends="init">
-        <iterate buildpathref="OmeroMatlab.buildpath" target="tools-dist"/>
-        <iterate buildpathref="tools.buildpath" target="dist"/>
-        <!-- Parts of build-dist -->
-        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
-        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
-    </target>
-
     <target name="eclipse" depends="init">
         <tryEclipse settingsRef="ivy.toplevel" filter="true"/>
     </target>
@@ -392,11 +378,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
             <zipfileset dir="${blitz.comp}/generated"   prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${insight.comp}/SRC"       prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
-        </zip>
-
-        <iterate buildpathref="OmeroMatlab.buildpath" target="release-zip"/>
-        <zip destfile="${omero.home}/target/OMERO.matlab-${omero.version}.zip">
-            <zipfileset dir="components/tools/OmeroM/target/matlab/" prefix="OMERO.matlab-${omero.version}" includes="**/*"/>
         </zip>
 
 	<copy todir="target">
