@@ -72,7 +72,6 @@ RUN git clone git://github.com/ome/omero-blitz-plugin /tmp/omero-blitz-plugin
 RUN cd /tmp/omero-dsl && ./gradlew publishToMavenLocal -x test
 RUN cd /tmp/omero-blitz-plugin && ./gradlew publishToMavenLocal -x test
 
-RUN echo bump 2
 RUN git clone -b stable git://github.com/rgozim/omero-build /tmp/omero-build
 WORKDIR /tmp/omero-build
 RUN git submodule update --init
@@ -84,7 +83,7 @@ RUN apt-get update -y && apt-get install -y vim
 USER omero
 # End Temp
 
-RUN components/tools/travis-build
+RUN components/tools/travis-build || echo oops
 
 ########FROM ${RUN_IMAGE} as run
 ########RUN rm -rf /opt/omero/server/OMERO.server

@@ -58,7 +58,7 @@
           checkmodified="true" changingMatcher="regexp"
           changingPattern=".*SNAPSHOT.*"
           cache="local" descriptor="required">
-        <artifact pattern="${maven.repo.local}/[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+        <artifact pattern="${maven.repo.local}/[orgPath]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
         <ivy pattern="${maven.repo.local}/[orgPath]/[module]/[revision]/[artifact]-[revision].xml"/>
         <!-- Ivy pattern for artifacts installed locally via Maven -->
         <ivy pattern="${maven.repo.local}/[orgPath]/[module]/[revision]/[module]-[revision].pom"/>
