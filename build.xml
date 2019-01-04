@@ -582,7 +582,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     Top-level helpers (shared helpers are in components/antlib/resources)
     =====================================================================
     -->
-    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,copy-web-requirements,update-version,create-workdirs, copy-luts"
+    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-client,copy-web-requirements,update-version,create-workdirs, copy-luts"
         description="Copy all components to dist/; called at the end of build-* targets"/>
 
     <target name="copy-licenses" depends="init">
