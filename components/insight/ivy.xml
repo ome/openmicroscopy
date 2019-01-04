@@ -54,7 +54,6 @@
     <dependency org="net.java.dev.jna" name="jna" rev="${versions.jna}"/>
     <dependency org="net.java.dev.jna" name="platform" rev="${versions.platform}"/>
     <dependency org="edu.ucar" name="grib" rev="${versions.grib}" transitive="false"/>
-    <dependency org="edu.ucar" name="bufr" rev="${versions.bufr}" transitive="false"/>
     <!-- from Java 9 on javax.activation is not included any longer -->
     <dependency org="javax.activation" name="activation" rev="${versions.activation}"/>
     <!-- Bioformats -->
