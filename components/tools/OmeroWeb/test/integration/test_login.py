@@ -20,7 +20,6 @@
 """
 Tests webclient login
 """
-import sys
 from django.conf import settings
 from django.conf.urls import url
 from django.utils.importlib import import_module
@@ -43,9 +42,11 @@ class CustomWebclientLoginView(WebclientLoginView):
 
 urlpatterns = import_module(settings.ROOT_URLCONF).urlpatterns
 urlpatterns += [
-    url(r'^test_login/$', CustomWebclientLoginView.as_view(), name="test_weblogin"),
+    url(r'^test_login/$',
+        CustomWebclientLoginView.as_view(), name="test_weblogin"),
 ]
-    
+
+
 class TestLogin(IWebTest):
     """
     Tests login
