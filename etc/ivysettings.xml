@@ -79,7 +79,7 @@
       <ibiblio name="unidata.releases" cache="maven"
           usepoms="true" useMavenMetadata="true"
           m2compatible="true"
-          root="https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/"/>
+          root="https://artifacts.unidata.ucar.edu/repository/unidata-releases"/>
 
       <ibiblio name="zeroc" cache="maven"
           usepoms="true" useMavenMetadata="true"
