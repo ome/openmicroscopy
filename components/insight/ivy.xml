@@ -56,16 +56,6 @@
     <dependency org="edu.ucar" name="grib" rev="${versions.grib}" transitive="false"/>
     <!-- from Java 9 on javax.activation is not included any longer -->
     <dependency org="javax.activation" name="activation" rev="${versions.activation}"/>
-    <!-- Bioformats -->
-    <dependency org="${org.bioformats}" name="formats-bsd" rev="${versions.bioformats}">
-        <exclude org="com.jgoodies"/>
-        <exclude org="org.slf4j"/>
-        <exclude org="xml-apis"/>
-    </dependency>
-    <dependency org="${org.bioformats}" name="formats-gpl" rev="${versions.bioformats}">
-        <exclude org="org.slf4j"/>
-        <exclude org="commons-logging"/>
-    </dependency>
     <!-- importer -->
     <dependency org="org.slf4j" name="slf4j-api" rev="${versions.slf4j}"/>
     <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}"/>
