@@ -122,16 +122,6 @@
 
     <target name="test-compile" depends="lifecycle.test-compile"
         description="Unzips test dependencies and then calls lifecycle.test">
-        <unjar src="${target.dir}/libs/test/common-test.jar"
-            dest="${classes.dir}">
-            <patternset>
-                <include name="tiny*dv"/>
-                <include name="test.bmp"/>
-                <include name="test.jpg"/>
-                <include name="test.txt"/>
-                <include name="minimal-script.py"/>
-            </patternset>
-        </unjar>
     </target>
 
     <target name="broken" depends="test-compile" unless="test.skip"

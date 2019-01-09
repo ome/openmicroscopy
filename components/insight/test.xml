@@ -11,6 +11,5 @@
   </publications>
   <dependencies defaultconfmapping="test->*">
     <dependency name="insight" rev="${omero.version}" changing="true"/>
-    <dependency name="common-test" rev="${omero.version}" changing="true"/>
   </dependencies>
 </ivy-module>

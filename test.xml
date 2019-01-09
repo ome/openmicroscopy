@@ -7,7 +7,6 @@
     <artifact name="main" type="zip"/>
   </publications>
   <dependencies>
-    <dependency name="blitz-test" rev="${omero.version}" changing="true" conf="test->test"/>
     <dependency name="insight-test" rev="${omero.version}" changing="true" conf="test->test"/>
   </dependencies>
 </ivy-module>
