@@ -1094,7 +1094,6 @@ present, the user will enter a console""")
             '@omero.ports.ssl@': config.get('omero.ports.ssl', '4064'),
             '@omero.ports.tcp@': config.get('omero.ports.tcp', '4063'),
             '@omero.ports.wss@': config.get('omero.ports.wss', '4443'),
-            '@omero.ports.ws@': config.get('omero.ports.ws', '4480'),
             '@omero.ports.registry@': config.get(
                 'omero.ports.registry', '4061'),
             '@omero.master.host@': config.get('omero.master.host', config.get(
