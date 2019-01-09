@@ -223,6 +223,7 @@ class TestPrefs(object):
     @pytest.mark.parametrize(
         ('invalidline', 'invalidkey'),
         [('E F G', 'E F G'),
+         ('E!F=G', 'E!F'),
          ('E = F', 'E')])
     def testLoadInvalidKey(self, capsys, invalidline, invalidkey):
         self.invoke("set A B")
@@ -246,7 +247,7 @@ class TestPrefs(object):
         self.invoke(["get", valid_key])
         self.assertStdoutStderr(capsys, out=valid_value)
 
-    @pytest.mark.parametrize('invalid_key', ['E F', 'E '])
+    @pytest.mark.parametrize('invalid_key', ['E F', 'E!F', 'E '])
     def testSetInvalidKey(self, capsys, invalid_key):
         with pytest.raises(NonZeroReturnCode):
             self.invoke(["set", invalid_key, "test"])
