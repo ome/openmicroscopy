@@ -61,5 +61,7 @@
     <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}"/>
     <!-- offline importer -->
     <dependency org="com.google.code.gson" name="gson" rev="${versions.gson}"/>
+    <!-- Testing -->
+    <dependency org="org.testng" name="testng" rev="${versions.testng}"/>
   </dependencies>
 </ivy-module>
