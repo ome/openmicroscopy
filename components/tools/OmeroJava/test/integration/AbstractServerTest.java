@@ -6,6 +6,7 @@ package integration;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +32,7 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.SimpleBackOff;
 import ome.services.blitz.repo.path.FsFile;
+import ome.services.scripts.ScriptRepoHelper;
 import ome.system.Login;
 import omero.ApiUsageException;
 import omero.RLong;
@@ -55,6 +57,7 @@ import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
+import omero.grid.RawAccessRequest;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.Annotation;
@@ -136,7 +139,9 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.ResourceUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 
 import com.google.common.collect.ImmutableMap;
@@ -301,6 +306,44 @@ public class AbstractServerTest extends AbstractTest {
                 c.__del__();
             }
         }
+    }
+
+    /**
+     * Ask the server to log the given message.
+     * @param message a message
+     */
+    @SuppressWarnings("deprecation")
+    private void logOnServer(String... message) {
+        final RawAccessRequest rar = new RawAccessRequest();
+        rar.command = "log";
+        rar.path = "info";
+        rar.repoUuid = ScriptRepoHelper.SCRIPT_REPO;
+        rar.args = Arrays.asList(message);
+        try {
+            doChange(root, root.getSession(), rar, true);
+        } catch (Throwable t) {
+            /* We tried but no sense causing further clutter around root cause. */
+        }
+    }
+
+    /**
+     * Log on the server that the given test method will start.
+     * @param testMethod a test method
+     */
+    @BeforeMethod
+    public void logTestStart(Method testMethod) {
+        logOnServer(String.format("%s.%s - test starts",
+                testMethod.getDeclaringClass().getSimpleName(), testMethod.getName()));
+    }
+
+    /**
+     * Log on the server that the given test method has finished.
+     * @param testMethod a test method
+     */
+    @AfterMethod
+    public void logTestEnd(Method testMethod) {
+        logOnServer(String.format("%s.%s - test ends",
+                testMethod.getDeclaringClass().getSimpleName(), testMethod.getName()));
     }
 
     /**
