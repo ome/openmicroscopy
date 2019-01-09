@@ -11,6 +11,9 @@
   </publications>
   <dependencies defaultconfmapping="test->*">
     <dependency org="omero" name="omero_client" rev="${omero.version}" changing="true"/>
+    <dependency org="org.openmicroscopy" name="omero-blitz" rev="${omero.version}"/>
+    <dependency org="org.openmicroscopy" name="omero-common" rev="${omero.version}"/>
     <dependency org="velocity" name="velocity-dep" rev="${versions.velocity}"/>
+    <dependency org="org.testng" name="testng" rev="${versions.testng}"/>
   </dependencies>
 </ivy-module>
