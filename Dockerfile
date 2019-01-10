@@ -83,7 +83,6 @@ USER omero
 # End Temp
 
 RUN components/tools/travis-build
-RUN ./build.py copy-server
 
 FROM ${RUN_IMAGE} as run
 RUN rm -rf /opt/omero/server/OMERO.server
