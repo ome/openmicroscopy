@@ -67,14 +67,23 @@ RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
 
 
 # Temp: Build jars locally
-RUN git clone git://github.com/ome/omero-dsl /tmp/omero-dsl
-RUN git clone git://github.com/ome/omero-blitz-plugin /tmp/omero-blitz-plugin
-RUN cd /tmp/omero-dsl && ./gradlew publishToMavenLocal -x test
-RUN cd /tmp/omero-blitz-plugin && ./gradlew publishToMavenLocal -x test
+RUN git clone git://github.com/ome/omero-gradle-plugins /tmp/omero-gradle-plugins
+RUN cd /tmp/omero-gradle-plugins && git submodule update --init
+RUN cd /tmp/omero-gradle-plugins/ice-builder-gradle && git checkout develop
+RUN cd /tmp/omero-gradle-plugins/ice-builder-gradle && \
+    git remote add riad git://github.com/rgozim/ice-builder-gradle && \
+    git config user.email "you@example.com" && \
+    git config user.name "Your Name" && \
+    git fetch riad && \
+    git merge -m "test" riad/develop
+RUN cd /tmp/omero-gradle-plugins && ./build.sh
 
 RUN git clone -b stable git://github.com/rgozim/omero-build /tmp/omero-build
 WORKDIR /tmp/omero-build
 RUN git submodule update --init
+RUN cd omero-blitz \
+ && git remote add riad git://github.com/rgozim/omero-blitz \
+ && git fetch riad && git checkout riad/feature/local-zeroc
 RUN ./gradlew build -x test -x javadoc
 RUN ./gradlew publishToMavenLocal -x test -x javadoc
 WORKDIR /src
