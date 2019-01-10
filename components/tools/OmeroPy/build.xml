@@ -35,7 +35,13 @@
     <target name="integration" depends="python-integration" unless="env.NOPYTHON"/>
 
     <target name="tools-init" depends="retrieve" unless="env.NOPYTHON">
-	<unzip src="${basedir}/target/libs/omero-blitz-python.zip" dest="${copy.dir}/"/>
+        <unzip src="${basedir}/target/libs/omero-blitz-python.zip" dest="target/tmp"/>
+	<copy todir="${copy.dir}">
+            <fileset dir="target/tmp" includes="**/*.py">
+                <present present="srconly" targetdir="src"/>
+            </fileset>
+        </copy>
+	<delete dir="target/tmp"/>
         <copy todir="${copy.dir}">
             <fileset dir="src" includes="**/*.py"/>
             <fileset dir="src" includes="omero/gateway/pilfonts/*"/>
