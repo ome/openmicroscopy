@@ -9,7 +9,7 @@
     <artifact name="main" type="zip"/>
   </publications>
   <dependencies>
-    <dependency org="org.openmicroscopy" name="omero-blitz" rev="5.5.0-SNAPSHOT"/>
+    <dependency org="org.openmicroscopy" name="omero-blitz" rev="${omero.version}"/>
     <dependency name="insight" rev="${omero.version}" changing="true" conf="build,client->client"/>
   </dependencies>
 </ivy-module>
