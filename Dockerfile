@@ -67,7 +67,6 @@ RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
 
 
 # Temp: Build jars locally
-RUN echo 11
 RUN git clone git://github.com/ome/omero-gradle-plugins /tmp/omero-gradle-plugins
 RUN cd /tmp/omero-gradle-plugins && git submodule update --init
 RUN cd /tmp/omero-gradle-plugins && ./build.sh
@@ -75,7 +74,6 @@ RUN cd /tmp/omero-gradle-plugins && ./build.sh
 RUN git clone -b stable git://github.com/rgozim/omero-build /tmp/omero-build
 WORKDIR /tmp/omero-build
 RUN git submodule update --init
-RUN echo 11
 RUN cd omero-blitz \
  && git remote add riad git://github.com/rgozim/omero-blitz \
  && git fetch riad && git checkout riad/feature/local-zeroc
@@ -87,11 +85,12 @@ RUN apt-get update -y && apt-get install -y vim
 USER omero
 # End Temp
 
-RUN components/tools/travis-build || echo oops
+RUN components/tools/travis-build
 
-########FROM ${RUN_IMAGE} as run
-########RUN rm -rf /opt/omero/server/OMERO.server
-########COPY --chown=omero-server:omero-server --from=build /src /opt/omero/server/OMERO.server
-########USER root
-########RUN yum install -y git
-########USER omero-server
+FROM ${RUN_IMAGE} as run
+RUN rm -rf /opt/omero/server/OMERO.server
+COPY --chown=omero-server:omero-server --from=build /src/dist /opt/omero/server/OMERO.server
+COPY --chown=omero-server:omero-server components/tools/OmeroPy/src/omero/plugins/db.py /opt/omero/server/OMERO.server/lib/python/omero/plugins/db.py
+USER root
+RUN yum install -y git
+USER omero-server
