@@ -121,11 +121,11 @@ class DatabaseControl(BaseControl):
             prompt += "root user"
         root_pass = self._ask_for_password(prompt, root_pass)
 
-        server_jar = self.ctx.dir / "lib" / "server" / "omero-server.jar"
+        jars = str(self.ctx.dir / "lib" / "server") + "/*"
         cmd = ["ome.security.auth.PasswordUtil", root_pass]
         if not args.no_salt and self._has_user_id(args):
             cmd.append(args.user_id)
-        p = omero.java.popen(["-cp", str(server_jar)] + cmd)
+        p = omero.java.popen(["-cp", jars] + cmd)
         rc = p.wait()
         if rc != 0:
             out, err = p.communicate()
