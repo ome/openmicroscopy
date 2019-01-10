@@ -71,12 +71,9 @@ RUN git clone git://github.com/ome/omero-gradle-plugins /tmp/omero-gradle-plugin
 RUN cd /tmp/omero-gradle-plugins && git submodule update --init
 RUN cd /tmp/omero-gradle-plugins && ./build.sh
 
-RUN git clone -b stable git://github.com/rgozim/omero-build /tmp/omero-build
+RUN git clone git://github.com/ome/omero-build /tmp/omero-build
 WORKDIR /tmp/omero-build
 RUN git submodule update --init
-RUN cd omero-blitz \
- && git remote add riad git://github.com/rgozim/omero-blitz \
- && git fetch riad && git checkout riad/feature/local-zeroc
 RUN ./gradlew build -x test -x javadoc
 RUN ./gradlew publishToMavenLocal -x test -x javadoc
 WORKDIR /src
