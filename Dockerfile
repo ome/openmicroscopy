@@ -86,6 +86,7 @@ RUN components/tools/travis-build
 
 FROM ${RUN_IMAGE} as run
 RUN rm -rf /opt/omero/server/OMERO.server
+COPY --chown=omero-server:omero-server --from=build /src /src
 COPY --chown=omero-server:omero-server --from=build /src/dist /opt/omero/server/OMERO.server
 USER root
 RUN yum install -y git
