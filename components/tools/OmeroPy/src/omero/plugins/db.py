@@ -160,11 +160,12 @@ class DatabaseControl(BaseControl):
         return replace_method
 
     def _db_profile(self):
+        return "psql"  # Quick fix
         import re
         server_lib = self.ctx.dir / "lib" / "server"
-        model_jars = server_lib.glob("model-*.jar")
+        model_jars = server_lib.glob("omero-model.jar")
         if len(model_jars) != 1:
-            self.ctx.die(200, "Invalid model-*.jar state: %s"
+            self.ctx.die(200, "Invalid omero-model.jar state: %s"
                          % ",".join(model_jars))
         model_jar = model_jars[0]
         model_jar = str(model_jar.basename())
