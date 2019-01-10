@@ -205,7 +205,7 @@ class Strategy(object):
 
         # Copied from db.py. Needs better dir detection
         cwd = omero.cli.CLI().dir
-        server_jar = cwd / "lib" / "server" / "server.jar"
+        server_jar = cwd / "lib" / "server" / "omero-server.jar"
         cmd = ["ome.services.util.JvmSettingsCheck", "--psutil"]
         p = omero.java.popen(["-cp", str(server_jar)] + cmd)
         o, e = p.communicate()

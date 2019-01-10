@@ -88,7 +88,6 @@ RUN ./build.py copy-server
 FROM ${RUN_IMAGE} as run
 RUN rm -rf /opt/omero/server/OMERO.server
 COPY --chown=omero-server:omero-server --from=build /src/dist /opt/omero/server/OMERO.server
-COPY --chown=omero-server:omero-server components/tools/OmeroPy/src/omero/plugins/db.py /opt/omero/server/OMERO.server/lib/python/omero/plugins/db.py
 USER root
 RUN yum install -y git
 USER omero-server
