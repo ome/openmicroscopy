@@ -11,5 +11,7 @@
   <dependencies>
     <dependency org="org.openmicroscopy" name="omero-blitz" rev="${omero.version}"/>
     <dependency name="insight" rev="${omero.version}" changing="true" conf="build,client->client"/>
+    <!-- runtime dependencies from dsl/ivy.xml -->
+    <dependency org="janino" name="janino" rev="${versions.janino}"/>
   </dependencies>
 </ivy-module>

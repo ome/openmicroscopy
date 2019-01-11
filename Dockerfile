@@ -91,3 +91,4 @@ COPY --chown=omero-server:omero-server --from=build /src/dist /opt/omero/server/
 USER root
 RUN yum install -y git
 USER omero-server
+WORKDIR /opt/omero/server/OMERO.server
