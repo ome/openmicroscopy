@@ -25,8 +25,10 @@
   <publications>
     <artifact name="omero_client" type="jar"/>
     <artifact name="omero_client" type="pom"/>
+    <!-- To be reviewed
     <artifact name="omero_client" type="source" ext="jar" m:classifier="sources"/>
     <artifact name="omero_client" type="javadoc" ext="jar" m:classifier="javadoc"/>
+    -->
   </publications>
   <dependencies>
     <dependency org="org.openmicroscopy" name="omero-blitz" rev="${omero.version}"/>
