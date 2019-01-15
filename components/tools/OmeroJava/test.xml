@@ -15,5 +15,6 @@
     <dependency org="org.openmicroscopy" name="omero-common" rev="${omero.version}"/>
     <dependency org="velocity" name="velocity-dep" rev="${versions.velocity}"/>
     <dependency org="org.testng" name="testng" rev="${versions.testng}"/>
+    <dependency org="org.uncommons" name="reportng" rev="${versions.reportng}"/>
   </dependencies>
 </ivy-module>
