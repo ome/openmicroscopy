@@ -25,8 +25,7 @@ sys = __import__("sys")
 
 import xml.dom.minidom
 
-from xml.etree.ElementTree import XML, Element, SubElement, Comment
-from xml.etree.ElementTree import tostring
+from xml.etree.ElementTree import XML, Element, ElementTree, SubElement, Comment
 from omero_ext import portalocker
 import json
 
@@ -329,7 +328,9 @@ class ConfigXml(object):
     def write_element(self, icegrid):
         temp_file = path.path(self.filename + ".temp")
         try:
-            temp_file.write_text(tostring(icegrid, "utf-8"))
+            # Copying etree usage from ome-model
+            with open(temp_file, "w") as o:
+                ElementTree(icegrid).write(o, encoding="UTF-8")
             if sys.platform == "win32":
                 os.remove(self.filename)
             temp_file.rename(self.filename)
@@ -417,6 +418,9 @@ class ConfigXml(object):
         if props is None:
             props = SubElement(self.XML, "properties", {"id": default})
             SubElement(props, "property", name=self.KEY, value=self.VERSION)
+
+        if not isinstance(value, unicode):
+           value = value.decode("utf-8")
 
         for x in props.findall("./property"):
             if x.attrib["name"] == key:

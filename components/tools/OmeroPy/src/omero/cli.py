@@ -500,7 +500,9 @@ class Context:
         Prints text to a given string, capturing any exceptions.
         """
         try:
-            stream.write(str(text))
+            if isinstance(text, unicode):
+                text = text.encode("utf-8")
+            stream.write(text)
             if newline:
                 stream.write("\n")
             else:
