@@ -49,7 +49,6 @@ import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.util.ResourceUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -1016,8 +1015,11 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         int fileCount = 0;
 
         /* import a small image to discover a suitable location in the repository for further testing */
-        final File imageFile = ResourceUtils.getFile("classpath:tinyTest.d3d.dv");
-        final long filesetId = importFile(imageFile, "dv").get(0).getImage().getFileset().getId().getValue();
+        String name = "testDV&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeT=6&sizeC=1.fake";
+        final File imageFile = new File(System.getProperty("java.io.tmpdir"), name);
+        imageFile.deleteOnExit();
+        imageFile.createNewFile();
+        final long filesetId = importFile(imageFile, "fake").get(0).getImage().getFileset().getId().getValue();
         fileCount += 2;  /* for image file and import log */
 
         /* find the managed repository directory for the imported image file */
