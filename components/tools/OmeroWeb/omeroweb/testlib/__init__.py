@@ -93,11 +93,11 @@ class IWebTest(ITest):
 
     def import_image_with_metadata(self, client=None):
         """
-        Imports tinyTest. This should be replaced.
+        Imports fake image replacing tinyTest. Wavelength not supported yet
         """
-        filename = self.omero_dist / ".." / \
-            "components" / "common" / "test" / "tinyTest.d3d.dv"
-        return self.import_image(filename=filename, client=client, skip=None)
+        name = "DV&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeT=6.fake"
+        images = self.import_fake_file(name=name, client=client)
+        return images[0]
 
 
 # Helpers
