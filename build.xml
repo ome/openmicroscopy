@@ -55,9 +55,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**"/>
         </ivy:buildlist>
-        <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${omero.home}/components/dsl/" includes="build.xml"/>
-        </ivy:buildlist>
         <ivy:buildlist reference="all-tools.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/tools" includes="*/build.xml"/>
         </ivy:buildlist>
@@ -219,16 +216,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
         <antcall target="copy-web-requirements" inheritRefs="true" inheritAll="true"/>
         <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
-    </target>
-
-    <target name="build-schema" description="Build new DB schema and copy to sql/" depends="init">
-        <iterate buildpathref="dsl.buildpath" target="clean"/>
-        <iterate buildpathref="model.buildpath" target="clean"/>
-        <iterate buildpathref="dsl.buildpath" target="install"/>
-        <iterate buildpathref="model.buildpath" target="install"/>
-        <iterate buildpathref="model.buildpath" target="publish-schema"/>
-        <!-- Parts of build-dist -->
-        <antcall target="copy-sql" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="eclipse" depends="init">
@@ -700,64 +687,6 @@ omero.version=${omero.version}
         </then>
         </if>
     </target>
-
-    <target name="hot-blitz" depends="init" description="Re-launch running server with new blitz.jar">
-        <property name="targets" value="install"/>
-        <hotdeploy component="${blitz.comp}" targets="${targets}"/>
-    </target>
-
-    <target name="hot-common" depends="init" description="Re-launch running server with new common.jar">
-        <property name="targets" value="install"/>
-        <hotdeploy component="${common.comp}" targets="${targets}"/>
-    </target>
-
-    <target name="hot-model" depends="init" description="Re-launch running server with new model.jar">
-        <ant antfile="${dsl.comp}/build.xml" dir="${dsl.comp}" target="install" inheritAll="false"/>
-        <ant antfile="${model.comp}/build.xml" dir="${model.comp}" target="clean" inheritAll="false"/>
-        <property name="targets" value="install"/>
-        <hotdeploy component="${model.comp}" targets="${targets}"/>
-    </target>
-
-    <target name="hot-romio" depends="init" description="Re-launch running server with new romio.jar">
-        <property name="targets" value="install"/>
-        <hotdeploy component="${romio.comp}" targets="${targets}"/>
-    </target>
-
-    <target name="hot-server" depends="init" description="Re-launch running server with new server.jar">
-        <property name="targets" value="install"/>
-        <hotdeploy component="${server.comp}" targets="${targets}"/>
-    </target>
-
-
-    <macrodef name="hotdeploy">
-        <attribute name="targets"/>
-        <attribute name="component"/>
-        <sequential>
-            <for list="@{targets}" param="target">
-                <sequential>
-                    <ant antfile="@{component}/build.xml" dir="@{component}" target="@{target}" inheritAll="false"/>
-                </sequential>
-            </for>
-            <antcall target="copy-client" inheritRefs="true" inheritAll="true"/>
-            <antcall target="copy-server" inheritRefs="true" inheritAll="true"/>
-            <ice-admin>
-                <arg value="server"/>
-                <arg value="stop"/>
-                <arg value="Blitz-0"/>
-            </ice-admin>
-            <ice-admin>
-                <arg value="server"/>
-                <arg value="stop"/>
-                <arg value="Indexer-0"/>
-            </ice-admin>
-            <ice-admin>
-                <arg value="server"/>
-                <arg value="stop"/>
-                <arg value="PixelData-0"/>
-            </ice-admin>
-        </sequential>
-    </macrodef>
-
     <macrodef name="ice-admin">
         <element name="args" implicit="yes"/>
         <sequential>

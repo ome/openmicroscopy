@@ -34,7 +34,7 @@ java_build()
 java_test()
 {
     NAME=java_test
-    for dir in dsl model common rendering server blitz tools/OmeroJava
+    for dir in tools/OmeroJava
     do
         fold start $dir
         ant -f components/$dir/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
@@ -42,7 +42,7 @@ java_test()
     done
 
     # Check for the use of '%' in the SQL templates. Since they are later passed through a python
-    # format statement, any use must be escaped as '%%'.
+    # format statement, any use must be escaped as '%%'.  FIXME: this needs migrating
     if [[ "2" -ne $(git grep -E '[^%]%[^%]' components/dsl/resources/ome/dsl/  | wc -l) ]]; then exit 2; fi
 
     # Check for IDE auto-import of certainly unintended Java package.

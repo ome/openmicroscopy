@@ -32,8 +32,7 @@
           <format property="now" pattern="yyyyMMddHHmmss"/>
         </tstamp>
 
-        <!-- Patterns -->
-        <property name="dsl.pat" value="**/*.ome.xml"/>
+        <!-- Patterns: TODO remove?  -->
         <property name="hbm.pat" value="**/*.hbm.xml"/>
         <property name="api.pat" value="**/*.java"/>
         <property name="ice.pat" value="**/*.ice"/>
@@ -57,10 +56,6 @@
         <property name="dist.dir"      value="${root.dir}/dist" />
 
         <!-- Components -->
-        <property name="dsl.comp"       value="${components.dir}/dsl"/>
-        <property name="nio.comp"       value="${components.dir}/romio"/>
-        <property name="import.comp"    value="${components.dir}/importer"/>
-        <property name="blitz.comp"     value="${components.dir}/blitz"/>
         <property name="tools.comp"     value="${components.dir}/tools"/>
         <property name="insight.comp"   value="${components.dir}/insight"/>
         <property name="OmeroJava.comp"     value="${tools.comp}/OmeroJava"/>
@@ -72,9 +67,6 @@
 
 
         <!-- Build Path References -->
-        <path id="dsl.buildpath">
-            <pathelement location="${dsl.comp}/build.xml"/>
-        </path>
         <path id="insight.buildpath">
             <pathelement location="${insight.comp}/build.xml"/>
         </path>
