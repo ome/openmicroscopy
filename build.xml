@@ -373,9 +373,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
                 includes="bin/omero" filemode="755"/>
         </zip>
         <zip destfile="${omero.home}/target/OMERO.java-${omero.version}.zip">
-            <zipfileset dir="${blitz.comp}/src"         prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
-            <zipfileset dir="${blitz.comp}/target"      prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
-            <zipfileset dir="${blitz.comp}/generated"   prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${insight.comp}/SRC"       prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
         </zip>
