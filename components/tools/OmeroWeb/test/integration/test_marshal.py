@@ -46,7 +46,6 @@ class TestImgDetail(IWebTest):
         img_data = get_json(self.django_client, json_url, data,
                             status_code=200)
 
-        print img_data
         # Not a big image - tiles should be False with no other tiles metadata
         assert img_data['tiles'] is False
         assert 'levels' not in img_data
