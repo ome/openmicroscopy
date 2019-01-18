@@ -36,7 +36,7 @@ class TestPrefs(object):
         self.cli = CLI()
         self.cli.register("config", PrefsControl, HELP)
         self.p = create_path()
-        self.args = ["config", "--source", "%s" % self.p]
+        self.args = ["-d1", "config", "--source", "%s" % self.p]
 
     def config(self):
         return ConfigXml(filename=str(self.p))

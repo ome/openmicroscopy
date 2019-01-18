@@ -25,7 +25,9 @@ sys = __import__("sys")
 
 import xml.dom.minidom
 
-from xml.etree.ElementTree import XML, Element, ElementTree, SubElement, Comment
+from xml.etree.ElementTree import (
+    XML, Element, ElementTree, SubElement, Comment, tostring
+)
 from omero_ext import portalocker
 import json
 
@@ -420,7 +422,7 @@ class ConfigXml(object):
             SubElement(props, "property", name=self.KEY, value=self.VERSION)
 
         if not isinstance(value, unicode):
-           value = value.decode("utf-8")
+            value = value.decode("utf-8")
 
         for x in props.findall("./property"):
             if x.attrib["name"] == key:
