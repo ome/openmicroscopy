@@ -1,9 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.init.LoginServiceInit
- *
- *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2019 University of Dundee. All rights reserved.
- *
  *
  * 	This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,8 +13,6 @@
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- *------------------------------------------------------------------------------
  */
 
 package org.openmicroscopy.shoola.env.init;
@@ -49,9 +43,6 @@ import com.google.common.base.Splitter;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public final class LoginServiceInit
