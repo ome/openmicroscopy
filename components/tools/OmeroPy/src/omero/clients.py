@@ -24,6 +24,7 @@ import threading
 import logging
 import IceImport
 import Ice
+import re
 import uuid
 
 IceImport.load("Glacier2_Router_ice")
@@ -118,6 +119,13 @@ class BaseClient(object):
                 if isinstance(arg, unicode):
                     arg = arg.encode("utf-8")
                 args[idx] = arg
+
+        # hosturl overrides all other args
+        hosturl = self._check_for_hosturl(host, port, pmap)
+        if hosturl:
+            host = None
+            port = hosturl['port']
+            args.append(self._get_endpoint_from_hosturl(hosturl))
 
         # Equiv to multiple constructors. #######################
         if id is None:
@@ -287,6 +295,51 @@ class BaseClient(object):
 
         finally:
             self.__lock.release()
+
+    def _check_for_hosturl(self, host, port, pmap):
+        """
+        Checks whether the host is a URL, returns a dict of parameters if so
+        """
+        # omero/util/sessions.py may initialise this class with a property-map
+        if not host and pmap and 'omero.host' in pmap:
+            host = pmap['omero.host']
+        if not host:
+            return {}
+
+        hostmatch = re.match(
+            '(?P<protocol>\\w+)://'
+            '(?P<server>\\w+)'
+            '(:(?P<port>\\d+))?'
+            '(?P<path>/.*)?$',
+            host)
+
+        if hostmatch:
+            hosturl = hostmatch.groupdict()
+            if not hosturl['port']:
+                hosturl['port'] = port
+            if not hosturl['port']:
+                if hosturl['protocol'] == 'ws':
+                    hosturl['port'] = 80
+                elif hosturl['protocol'] == 'wss':
+                    hosturl['port'] = 443
+                else:
+                    raise omero.ClientError(
+                        "Port required for protocol: " + hosturl['protocol'])
+        else:
+            hosturl = {}
+        return hosturl
+
+    def _get_endpoint_from_hosturl(self, hosturl):
+        """
+        Gets Ice.Default.Router from a dictionary of hosturl parameters
+        """
+        ice_router = (
+            '--Ice.Default.Router=OMERO.Glacier2/router:{protocol} '
+            '-p {port} '
+            '-h {server}'.format(**hosturl))
+        if hosturl['path']:
+            ice_router += ' -r {path}'.format(**hosturl)
+        return ice_router
 
     def setAgent(self, agent):
         """
