@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2009-2018 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2009-2019 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -13,6 +13,7 @@ import gnu.getopt.LongOpt;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,9 +41,13 @@ import omero.grid.ImportProcessPrx;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 
 /**
  * The base entry point for the CLI version of the OMERO importer.
@@ -980,6 +985,25 @@ public class CommandLineImporter {
             annotations.add(unloadedAnnotation);
         }
         config.annotations.set(annotations);
+
+        /* Ensure that <q>anon</q> is not included among {@code jdk.tls.disabledAlgorithms}. */
+        /* TODO: Duplicates code from Insight's LoginServiceInit.configure(): should instead reuse. */
+        final String property = "jdk.tls.disabledAlgorithms";
+        final String value = Security.getProperty(property);
+        if (StringUtils.isNotBlank(value)) {
+            final List<String> algorithms = new ArrayList<>();
+            boolean isChanged = false;
+            for (final String algorithm : Splitter.on(',').trimResults().split(value)) {
+                if ("anon".equals(algorithm.toLowerCase())) {
+                    isChanged = true;
+                } else {
+                    algorithms.add(algorithm);
+                }
+            }
+            if (isChanged) {
+                Security.setProperty(property, Joiner.on(", ").join(algorithms));
+            }
+        }
 
         CommandLineImporter c = null;
         int rc = 0;
