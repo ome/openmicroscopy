@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.init.LoginServiceInit
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2019 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,16 +23,18 @@
 
 package org.openmicroscopy.shoola.env.init;
 
+import java.security.Security;
+import java.util.ArrayList;
+import java.util.List;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginManager;
 import org.openmicroscopy.shoola.env.data.login.LoginServiceImpl;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 
 /** 
  * This task initializes the 
@@ -66,10 +68,27 @@ public final class LoginServiceInit
     String getName() { return "Initializing Login Service"; }
 
     /** 
-     * Does nothing, as this task requires no set up.
+     * Ensure that <q>anon</q> is not included among {@code jdk.tls.disabledAlgorithms}.
      * @see InitializationTask#configure()
      */
-    void configure() {}
+    void configure() {
+        final String property = "jdk.tls.disabledAlgorithms";
+        final String value = Security.getProperty(property);
+        if (CommonsLangUtils.isNotBlank(value)) {
+            final List<String> algorithms = new ArrayList<>();
+            boolean isChanged = false;
+            for (final String algorithm : Splitter.on(',').trimResults().split(value)) {
+                if ("anon".equals(algorithm.toLowerCase())) {
+                    isChanged = true;
+                } else {
+                    algorithms.add(algorithm);
+                }
+            }
+            if (isChanged) {
+                Security.setProperty(property, Joiner.on(", ").join(algorithms));
+            }
+        }
+    }
 
     /**
      * Carries out this task.
