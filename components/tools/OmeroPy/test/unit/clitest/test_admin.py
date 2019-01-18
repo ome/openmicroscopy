@@ -233,7 +233,7 @@ def check_ice_config(topdir, prefix='', ssl=4064, **kwargs):
     assert matches == ["omero.port=%s%s" % (prefix, ssl)]
 
 
-def check_default_xml(topdir, prefix='', tcp=4063, ssl=4064, wss=4443,
+def check_default_xml(topdir, prefix='', tcp=4063, ssl=4064, ws=4065, wss=4066,
                       **kwargs):
     routerport = (
         '<variable name="ROUTERPORT"    value="%s%s"/>' % (prefix, ssl))
@@ -241,8 +241,9 @@ def check_default_xml(topdir, prefix='', tcp=4063, ssl=4064, wss=4443,
         '<variable name="INSECUREROUTER" value="OMERO.Glacier2'
         '/router:tcp -p %s%s -h @omero.host@"/>' % (prefix, tcp))
     client_endpoints = (
-        'client-endpoints="ssl -p ${ROUTERPORT}:tcp -p %s%s:wss -p %s%s"'
-        % (prefix, tcp, prefix, wss))
+        'client-endpoints='
+        '"ssl -p ${ROUTERPORT}:tcp -p %s%s:wss -p %s%s:ws -p %s%s"'
+        % (prefix, tcp, prefix, wss, prefix, ws))
     for key in ['default.xml', 'windefault.xml']:
         s = path(topdir / "etc" / "grid" / key).text()
         assert routerport in s
@@ -336,8 +337,10 @@ class TestRewrite(object):
     @pytest.mark.parametrize('registry', [None, 111])
     @pytest.mark.parametrize('tcp', [None, 222])
     @pytest.mark.parametrize('ssl', [None, 333])
-    @pytest.mark.parametrize('wss', [None, 444])
-    def testExplicitPorts(self, registry, ssl, tcp, wss, prefix, monkeypatch):
+    @pytest.mark.parametrize('ws', [None, 444])
+    @pytest.mark.parametrize('wss', [None, 555])
+    def testExplicitPorts(self, registry, ssl, tcp, ws, wss, prefix,
+                          monkeypatch):
         """
         Test the omero.ports.xxx configuration properties during the generation
         of the configuration files
@@ -355,6 +358,8 @@ class TestRewrite(object):
             kwargs["tcp"] = tcp
         if ssl:
             kwargs["ssl"] = ssl
+        if ws:
+            kwargs["ws"] = ws
         if wss:
             kwargs["wss"] = wss
         for (k, v) in kwargs.iteritems():
