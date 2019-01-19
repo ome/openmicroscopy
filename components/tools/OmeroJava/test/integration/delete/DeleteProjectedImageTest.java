@@ -55,6 +55,8 @@ public class DeleteProjectedImageTest extends AbstractServerTest {
     {
         String name = "testDV&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeT=6&sizeC=1.fake";
         final File srcFile = new File(System.getProperty("java.io.tmpdir"), name);
+        srcFile.deleteOnExit();
+        srcFile.createNewFile();
         List<Pixels> pixels = null;
         try {
             pixels = importFile(srcFile, "fake");
