@@ -35,8 +35,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     <import file="${import.dir}/global.xml"/>
 
     <target name="init" depends="check-ivy,check-scons,check-ice">
-        <mkdir dir="${blitz.comp}/generated"/>
-        <mkdir dir="${blitz.comp}/target/generated/src"/>
     </target>
 
     <target name="check-git">
@@ -269,10 +267,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     </target>
 
     <target name="test-fs" description="Run all FS related unit and integration tests" depends="init">
-        <ant antfile="${blitz.comp}/build.xml" dir="${blitz.comp}" target="test-suite" inheritAll="false">
-            <property name="test.dir" value="${blitz.comp}/test"/>
-            <property name="unit.suite" value="fs.testng.xml"/>
-        </ant>
         <ant antfile="${tools.comp}/OmeroJava/build.xml" dir="${tools.comp}/OmeroJava" target="test-suite" inheritall="false">
             <property name="test.dir" value="${tools.comp}/OmeroJava/test"/>
             <property name="unit.suite" value="fs.testng.xml"/>
