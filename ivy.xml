@@ -13,5 +13,6 @@
     <dependency name="insight" rev="${omero.version}" changing="true" conf="build,client->client"/>
     <!-- runtime dependencies from dsl/ivy.xml -->
     <dependency org="janino" name="janino" rev="${versions.janino}"/>
+    <dependency org="org.perf4j" name="perf4j" rev="${versions.perf4j}"/>
   </dependencies>
 </ivy-module>
