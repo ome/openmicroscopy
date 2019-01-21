@@ -1101,6 +1101,16 @@ present, the user will enter a console""")
                 'Ice.Default.Host', '127.0.0.1'))
             }
 
+        client_transports = config.get('omero.client.icetransports', 'ssl,tcp')
+        client_endpoints = [
+            '{tp} -p {prefix}{port}'.format(
+                tp=clienttp,
+                prefix=substitutions['@omero.ports.prefix@'],
+                port=substitutions['@omero.ports.{tp}@'.format(tp=clienttp)],
+            )
+            for clienttp in client_transports.split(',')]
+        substitutions['@omero.client.endpoints@'] = ':'.join(client_endpoints)
+
         def copy_template(input_file, output_dir):
             """Replace templates"""
 
