@@ -234,16 +234,26 @@ def check_ice_config(topdir, prefix='', ssl=4064, **kwargs):
 
 
 def check_default_xml(topdir, prefix='', tcp=4063, ssl=4064, ws=4065, wss=4066,
-                      **kwargs):
+                      transports=None, **kwargs):
+    if transports is None:
+        transports = ['ssl', 'tcp']
     routerport = (
         '<variable name="ROUTERPORT"    value="%s%s"/>' % (prefix, ssl))
     insecure_routerport = (
         '<variable name="INSECUREROUTER" value="OMERO.Glacier2'
         '/router:tcp -p %s%s -h @omero.host@"/>' % (prefix, tcp))
-    client_endpoints = (
-        'client-endpoints='
-        '"ssl -p ${ROUTERPORT}:tcp -p %s%s:wss -p %s%s:ws -p %s%s"'
-        % (prefix, tcp, prefix, wss, prefix, ws))
+    client_endpoint_list = []
+    for tp in transports:
+        if tp == 'tcp':
+            client_endpoint_list.append('tcp -p %s%s' % (prefix, tcp))
+        if tp == 'ssl':
+            client_endpoint_list.append('ssl -p %s%s' % (prefix, ssl))
+        if tp == 'ws':
+            client_endpoint_list.append('ws -p %s%s' % (prefix, ws))
+        if tp == 'wss':
+            client_endpoint_list.append('wss -p %s%s' % (prefix, wss))
+
+    client_endpoints = 'client-endpoints="%s"' % ':'.join(client_endpoint_list)
     for key in ['default.xml', 'windefault.xml']:
         s = path(topdir / "etc" / "grid" / key).text()
         assert routerport in s
@@ -339,10 +349,12 @@ class TestRewrite(object):
     @pytest.mark.parametrize('ssl', [None, 333])
     @pytest.mark.parametrize('ws', [None, 444])
     @pytest.mark.parametrize('wss', [None, 555])
+    @pytest.mark.parametrize('transports', [None, ('ssl', 'tcp', 'wss', 'ws')])
     def testExplicitPorts(self, registry, ssl, tcp, ws, wss, prefix,
-                          monkeypatch):
+                          transports, monkeypatch):
         """
-        Test the omero.ports.xxx configuration properties during the generation
+        Test the omero.ports.xxx and omero.client.icetransports
+        configuration properties during the generation
         of the configuration files
         """
 
@@ -366,6 +378,13 @@ class TestRewrite(object):
             self.cli.invoke(
                 ["config", "set", "omero.ports.%s" % k, "%s" % v],
                 strict=True)
+
+        if transports:
+            self.cli.invoke(
+                ["config", "set", "omero.client.icetransports", "%s" %
+                 ','.join(transports)], strict=True)
+            kwargs["transports"] = transports
+
         self.cli.invoke(self.args, strict=True)
 
         check_ice_config(self.cli.dir, **kwargs)
