@@ -347,11 +347,13 @@ class TestRewrite(object):
     @pytest.mark.parametrize('registry', [None, 111])
     @pytest.mark.parametrize('tcp', [None, 222])
     @pytest.mark.parametrize('ssl', [None, 333])
-    @pytest.mark.parametrize('ws', [None, 444])
-    @pytest.mark.parametrize('wss', [None, 555])
-    @pytest.mark.parametrize('transports', [None, ('ssl', 'tcp', 'wss', 'ws')])
-    def testExplicitPorts(self, registry, ssl, tcp, ws, wss, prefix,
-                          transports, monkeypatch):
+    @pytest.mark.parametrize('ws_wss_transports', [
+        (None, None, None),
+        (444, None, ('ssl', 'tcp', 'wss', 'ws')),
+        (None, 555, ('ssl', 'tcp', 'wss', 'ws')),
+    ])
+    def testExplicitPorts(self, registry, ssl, tcp, prefix,
+                          ws_wss_transports, monkeypatch):
         """
         Test the omero.ports.xxx and omero.client.icetransports
         configuration properties during the generation
@@ -359,8 +361,7 @@ class TestRewrite(object):
         """
 
         # Skip the JVM settings calculation for this test
-        monkeypatch.setattr(omero.install.jvmcfg, "adjust_settings",
-                            lambda x, y: {})
+        ws, wss, transports = ws_wss_transports
         kwargs = {}
         if prefix:
             kwargs["prefix"] = prefix
