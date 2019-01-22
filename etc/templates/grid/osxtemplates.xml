@@ -292,7 +292,7 @@
         <option>-Domero.name=Repository-${index}</option>
         <option>-Domero.repo.dir=${dir}</option>
         <option>-jar</option>
-        <option>${OMERO_JARS}omeroblitz.jar</option>
+        <option>${OMERO_JARS}omero-blitz.jar</option>
         <option>OMERO.repository</option>
         <adapter name="RepositoryAdapter" endpoints="tcp">
           <object identity="Repository-${index}" type="::omero::grid::InternalRepository"/>
