@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2014-2018 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2014-2019 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -816,6 +816,54 @@ class TestImport(CLITest):
         obj = self.get_object(o, importType)
         container = self.get_container(obj.id.val, spw=spw)
         assert container is None
+
+    # Check that the dataset chosen for import is the newest
+    # to which the user actually has permission to link.
+    @pytest.mark.broken(reason="import target does not yet filter by canLink")
+    @pytest.mark.parametrize("is_owns_oldest", [False, True])
+    @pytest.mark.parametrize("is_owns_newest", [False, True])
+    def testImportLinkableTarget(self, tmpdir, capfd,
+                                 is_owns_oldest, is_owns_newest):
+        name = "ImportLinkableTarget-Test-" + self.uuid()
+        fakefile = tmpdir.join(name + ".fake")
+        fakefile.write('')
+
+        group = self.new_group(perms='rwr---')
+        my_client, my_user = self.new_client_and_user(group=group)
+        other_client, other_user = self.new_client_and_user(group=group)
+
+        client = (other_client, my_client)[is_owns_oldest]
+        update_svc = client.sf.getUpdateService()
+        dataset_oldest = self.new_dataset(name=name)
+        dataset_oldest = update_svc.saveAndReturnObject(dataset_oldest)
+
+        client = (other_client, my_client)[is_owns_newest]
+        update_svc = client.sf.getUpdateService()
+        dataset_newest = self.new_dataset(name=name)
+        dataset_newest = update_svc.saveAndReturnObject(dataset_newest)
+
+        assert dataset_oldest.id.val < dataset_newest.id.val
+
+        self.args = self.login_args(client=my_client)
+        self.args += ["import", "-T", "Dataset:name:" + name, str(tmpdir)]
+        self.add_client_dir()
+        o, e = self.do_import(capfd)
+
+        query_svc = my_client.sf.getQueryService()
+        image = self.get_object(o, 'Image', query=query_svc)
+
+        params = omero.sys.ParametersI()
+        params.addId(image.id)
+        dataset = query_svc.findByQuery(
+            "SELECT link.parent FROM DatasetImageLink AS link "
+            "WHERE link.child.id = :id", params)
+
+        if is_owns_newest:
+            assert dataset.id.val == dataset_newest.id.val
+        elif is_owns_oldest:
+            assert dataset.id.val == dataset_oldest.id.val
+        else:
+            assert dataset.id.val > dataset_newest.id.val
 
     @pytest.mark.parametrize("kls", ("Project", "Plate", "Image"))
     def testBadTargetArgument(self, kls, tmpdir, capfd):
