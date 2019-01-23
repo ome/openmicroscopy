@@ -864,6 +864,7 @@ class TestImport(CLITest):
             assert dataset.id.val == dataset_oldest.id.val
         else:
             assert dataset.id.val > dataset_newest.id.val
+            assert dataset.name.val == name
 
     @pytest.mark.parametrize("kls", ("Project", "Plate", "Image"))
     def testBadTargetArgument(self, kls, tmpdir, capfd):
