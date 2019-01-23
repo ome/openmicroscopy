@@ -453,7 +453,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "sessions/#using-cached-sessions>` for more details.")],
     "omero.web.secure":
         ["SECURE",
-         "false",
+         "true",
          parse_boolean,
          ("Force all backend OMERO.server connections to use SSL.")],
     "omero.web.session_cookie_age":
