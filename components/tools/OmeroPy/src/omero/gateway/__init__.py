@@ -1488,7 +1488,7 @@ class _BlitzGateway (object):
 
     def __init__(self, username=None, passwd=None, client_obj=None, group=None,
                  clone=False, try_super=False, host=None, port=None,
-                 extra_config=None, secure=False, anonymous=True,
+                 extra_config=None, secure=True, anonymous=True,
                  useragent=None, userip=None):
         """
         Create the connection wrapper.
