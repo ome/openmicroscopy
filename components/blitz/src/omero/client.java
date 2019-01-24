@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -68,6 +69,11 @@ import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 import Glacier2.SessionNotExistException;
 import Ice.Current;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Central client-side blitz entry point. This class uses solely Ice
@@ -394,6 +400,24 @@ public class client {
             for (String key : propertyMap.keySet()) {
                 System.out.println(String.format("%s=%s", key,
                         propertyMap.get(key)));
+            }
+        }
+
+        // Ensure that anonymous cipher suites are enabled in JRE
+        final String property = "jdk.tls.disabledAlgorithms";
+        final String value = Security.getProperty(property);
+        if (StringUtils.isNotBlank(value)) {
+            final List<String> algorithms = new ArrayList<>();
+            boolean isChanged = false;
+            for (final String algorithm : Splitter.on(',').trimResults().split(value)) {
+                if ("anon".equals(algorithm.toLowerCase())) {
+                    isChanged = true;
+                } else {
+                    algorithms.add(algorithm);
+                }
+            }
+            if (isChanged) {
+                Security.setProperty(property, Joiner.on(", ").join(algorithms));
             }
         }
 
