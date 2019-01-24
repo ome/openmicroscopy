@@ -24,11 +24,77 @@ Tests adding & removing annotations
 import omero
 import omero.clients
 from time import sleep
+import json
 
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get, post, get_json
 
 from django.core.urlresolvers import reverse
+
+
+class TestMapAnnotations(IWebTest):
+
+    def annotate_dataset(self, django_client, dsId, keyValues, ns=None):
+        """
+        Adds a new Map Annotation to Dataset.
+
+        @param keyValues - List of [key: value] pairs.
+        """
+        request_url = reverse('annotate_map')
+        data = {
+            'dataset': dsId,
+            'mapAnnotation': json.dumps(keyValues),
+        }
+        if ns is not None:
+            data['ns'] = ns
+        post(django_client, request_url, data)
+
+    def test_annotate_map(self):
+        """Test we can create and retrieve map annotations, filter by ns."""
+
+        # Create User in a Read-Annotate group
+        client1, user1 = self.new_client_and_user(perms='rwrw--')
+        omeName = client1.sf.getAdminService().getEventContext().userName
+        django_client = self.new_django_client(omeName, omeName)
+
+        # User1 creates Dataset
+        ds = self.make_dataset("user1_Dataset", client=client1)
+
+        # Add 2 map annotations, one with ns specfied (default is 'client' ns)
+        ns = 'test.annotate.map.ns'
+        map_data_ns = [['testKey', 'someValue'], ['ns', ns]]
+        self.annotate_dataset(django_client, ds.id.val, map_data_ns, ns)
+        client_map_data = [['expect', 'client'], ['ns', 'to be used']]
+        self.annotate_dataset(django_client, ds.id.val, client_map_data)
+
+        # check maps got added
+        request_url = reverse('api_annotations')
+        data = {
+            "dataset": ds.id.val,
+            "type": "map",
+        }
+        # get both map annotations
+        rsp = get_json(django_client, request_url, data)
+        assert len(rsp['annotations']) == 2
+
+        # now filter by custom ns
+        data['ns'] = ns
+        rsp = get_json(django_client, request_url, data)
+        assert len(rsp['annotations']) == 1
+        # check essential values
+        ann = rsp['annotations'][0]
+        assert ann["values"] == map_data_ns
+        assert ann["ns"] == ns
+        assert ann["link"]["parent"]["id"] == ds.id.val
+
+        # and client ns
+        client_ns = omero.constants.metadata.NSCLIENTMAPANNOTATION
+        data['ns'] = client_ns
+        rsp = get_json(django_client, request_url, data)
+        assert len(rsp['annotations']) == 1
+        ann = rsp['annotations'][0]
+        assert ann["values"] == client_map_data
+        assert ann["ns"] == client_ns
 
 
 class TestTagging(IWebTest):
