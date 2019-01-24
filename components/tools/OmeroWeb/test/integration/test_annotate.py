@@ -50,7 +50,7 @@ class TestMapAnnotations(IWebTest):
         if ds_id is not None:
             data['dataset'] = ds_id
         if ann_id is not None:
-            data['annId'] = ann_id;
+            data['annId'] = ann_id
         post(django_client, request_url, data)
 
     def test_annotate_map(self):
