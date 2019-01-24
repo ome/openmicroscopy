@@ -34,19 +34,23 @@ from django.core.urlresolvers import reverse
 
 class TestMapAnnotations(IWebTest):
 
-    def annotate_dataset(self, django_client, dsId, keyValues, ns=None):
+    def annotate_dataset(self, django_client, keyValues,
+                         ds_id=None, ns=None, ann_id=None):
         """
-        Adds a new Map Annotation to Dataset.
+        Adds a new Map Annotation to Dataset or edits existing annotation
 
         @param keyValues - List of [key: value] pairs.
         """
         request_url = reverse('annotate_map')
         data = {
-            'dataset': dsId,
             'mapAnnotation': json.dumps(keyValues),
         }
         if ns is not None:
             data['ns'] = ns
+        if ds_id is not None:
+            data['dataset'] = ds_id
+        if ann_id is not None:
+            data['annId'] = ann_id;
         post(django_client, request_url, data)
 
     def test_annotate_map(self):
@@ -63,9 +67,9 @@ class TestMapAnnotations(IWebTest):
         # Add 2 map annotations, one with ns specfied (default is 'client' ns)
         ns = 'test.annotate.map.ns'
         map_data_ns = [['testKey', 'someValue'], ['ns', ns]]
-        self.annotate_dataset(django_client, ds.id.val, map_data_ns, ns)
+        self.annotate_dataset(django_client, map_data_ns, ds.id.val, ns)
         client_map_data = [['expect', 'client'], ['ns', 'to be used']]
-        self.annotate_dataset(django_client, ds.id.val, client_map_data)
+        self.annotate_dataset(django_client, client_map_data, ds.id.val)
 
         # check maps got added
         request_url = reverse('api_annotations')
@@ -83,13 +87,23 @@ class TestMapAnnotations(IWebTest):
         assert len(rsp['annotations']) == 1
         # check essential values
         ann = rsp['annotations'][0]
+        ann_id = ann['id']
         assert ann["values"] == map_data_ns
         assert ann["ns"] == ns
         assert ann["link"]["parent"]["id"] == ds.id.val
 
-        # and client ns
+        # update map annotation
+        new_data = [['new', 'data']]
+        self.annotate_dataset(django_client, new_data, None, None, ann_id)
+        rsp = get_json(django_client, request_url, data)
+        assert rsp['annotations'][0]['values'] == new_data
+
+        # delete map annotation (set data as empty list)
+        self.annotate_dataset(django_client, [], None, None, ann_id)
+
+        # only one left
         client_ns = omero.constants.metadata.NSCLIENTMAPANNOTATION
-        data['ns'] = client_ns
+        del data['ns']
         rsp = get_json(django_client, request_url, data)
         assert len(rsp['annotations']) == 1
         ann = rsp['annotations'][0]
