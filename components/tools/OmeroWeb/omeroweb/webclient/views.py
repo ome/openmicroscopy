@@ -2287,7 +2287,9 @@ def annotate_map(request, conn=None, **kwargs):
     if annId is None and len(data) > 0:
         ann = omero.gateway.MapAnnotationWrapper(conn)
         ann.setValue(data)
-        ann.setNs(omero.constants.metadata.NSCLIENTMAPANNOTATION)
+        ns = request.POST.get('ns',
+                              omero.constants.metadata.NSCLIENTMAPANNOTATION)
+        ann.setNs(ns)
         ann.save()
         for k, objs in oids.items():
             for obj in objs:
