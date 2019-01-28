@@ -159,14 +159,6 @@ public class CommandLineImporter {
                 // config.requestFromUser(); // stdin if anything missing.
                 usage(); // EXITS TODO this should check for a "quiet" flag
             }
-
-            if (config.checkUpgrade.get()) {
-                config.isUpgradeNeeded();
-            }
-            else
-            {
-                log.debug("UpgradeCheck disabled.");
-            }
             store = config.createStore();
             store.logVersionInfo(config.getIniVersionNumber());
             reader.setMetadataOptions(
@@ -174,6 +166,12 @@ public class CommandLineImporter {
 
             library = new ImportLibrary(store, reader,
                     transfer, exclusions, minutesToWait);
+
+            if (config.checkUpgrade.get()) {
+                config.isUpgradeNeeded();
+            } else {
+                log.debug("UpgradeCheck disabled.");
+            }
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
