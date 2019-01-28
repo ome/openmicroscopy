@@ -203,6 +203,28 @@ public class client {
     // Creation
     // =========================================================================
 
+    /**
+     * Ensure that anonymous cipher suites are enabled in the JRE.
+     */
+    static {
+        final String property = "jdk.tls.disabledAlgorithms";
+        final String value = Security.getProperty(property);
+        if (StringUtils.isNotBlank(value)) {
+            final List<String> algorithms = new ArrayList<>();
+            boolean isChanged = false;
+            for (final String algorithm : Splitter.on(',').trimResults().split(value)) {
+                if ("anon".equals(algorithm.toLowerCase())) {
+                    isChanged = true;
+                } else {
+                    algorithms.add(algorithm);
+                }
+            }
+            if (isChanged) {
+                Security.setProperty(property, Joiner.on(", ").join(algorithms));
+            }
+        }
+    }
+
     private static Properties defaultRouter(String host, int port) {
         Properties p = new Properties();
         p.setProperty("omero.host", host);
@@ -400,24 +422,6 @@ public class client {
             for (String key : propertyMap.keySet()) {
                 System.out.println(String.format("%s=%s", key,
                         propertyMap.get(key)));
-            }
-        }
-
-        // Ensure that anonymous cipher suites are enabled in JRE
-        final String property = "jdk.tls.disabledAlgorithms";
-        final String value = Security.getProperty(property);
-        if (StringUtils.isNotBlank(value)) {
-            final List<String> algorithms = new ArrayList<>();
-            boolean isChanged = false;
-            for (final String algorithm : Splitter.on(',').trimResults().split(value)) {
-                if ("anon".equals(algorithm.toLowerCase())) {
-                    isChanged = true;
-                } else {
-                    algorithms.add(algorithm);
-                }
-            }
-            if (isChanged) {
-                Security.setProperty(property, Joiner.on(", ").join(algorithms));
             }
         }
 
