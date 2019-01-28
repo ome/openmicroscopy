@@ -5,14 +5,21 @@
 OMERO version history
 =====================
 
+5.4.11 (January 2019)
+---------------------
+
+This release extends the OMERO 5.4.10 fix for the login issue for Java
+clients. It addresses the problem for users of the command-line importer
+such as the ``bin/omero import`` Python plugin.
+
 5.4.10 (January 2019)
 ---------------------
 
-This release addresses a login issue for Java clients such as Insight
-and ``bin/omero import``. New releases of Java include a change to the
+This release addresses a login issue for Java clients such as OMERO.insight.
+New releases of Java include a change to the
 ``java.security`` file that disables anonymous cipher suites. This
 change causes ``SSLHandshakeException`` when the client attempts to
-authenticate to OMERO.blitz. The OMERO 5.4.10 release has clients check
+authenticate to OMERO.blitz. The OMERO 5.4.10 release has some clients check
 the security property ``jdk.tls.disabledAlgorithms`` for the value
 "anon" and remove it if present thus allowing authentication to proceed.
 
