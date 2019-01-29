@@ -70,11 +70,6 @@ import Glacier2.PermissionDeniedException;
 import Glacier2.SessionNotExistException;
 import Ice.Current;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-
-import org.apache.commons.lang.StringUtils;
-
 /**
  * Central client-side blitz entry point. This class uses solely Ice
  * functionality to provide access to blitz (as opposed to also using Spring)
@@ -209,18 +204,31 @@ public class client {
     static {
         final String property = "jdk.tls.disabledAlgorithms";
         final String value = Security.getProperty(property);
-        if (StringUtils.isNotBlank(value)) {
+        if (!(value == null || value.trim().isEmpty())) {
             final List<String> algorithms = new ArrayList<>();
             boolean isChanged = false;
-            for (final String algorithm : Splitter.on(',').trimResults().split(value)) {
-                if ("anon".equals(algorithm.toLowerCase())) {
+            for (String algorithm : value.split(",")) {
+                algorithm = algorithm.trim();
+                if (algorithm.isEmpty()) {
+                    /* ignore */
+                } else if ("anon".equals(algorithm.toLowerCase())) {
                     isChanged = true;
                 } else {
                     algorithms.add(algorithm);
                 }
             }
             if (isChanged) {
-                Security.setProperty(property, Joiner.on(", ").join(algorithms));
+                boolean needsComma = false;
+                final StringBuilder newValue = new StringBuilder();
+                for (final String algorithm : algorithms) {
+                    if (needsComma) {
+                        newValue.append(", ");
+                    } else {
+                        needsComma = true;
+                    }
+                    newValue.append(algorithm);
+                }
+                Security.setProperty(property, newValue.toString());
             }
         }
     }
