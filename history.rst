@@ -5,13 +5,6 @@
 OMERO version history
 =====================
 
-5.4.11 (???? 2019)
-------------------
-
-This release extends the OMERO 5.4.10 fix for the login issue for Java
-clients. It addresses the problem for users of the command-line importer
-such as the ``bin/omero import`` Python plugin.
-
 5.4.10 (January 2019)
 ---------------------
 
