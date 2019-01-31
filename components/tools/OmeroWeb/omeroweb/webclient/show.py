@@ -61,7 +61,7 @@ class Show(object):
     # List of supported object types
     SUPPORTED_OBJECT_TYPES = (
         'project', 'dataset', 'image', 'screen', 'plate', 'tag',
-        'acquisition', 'run', 'well', 'tagset'
+        'acquisition', 'run', 'well', 'tagset', 'roi'
     )
 
     # Regular expression which declares the format for a "path" used either
@@ -270,7 +270,10 @@ class Show(object):
                 first_obj, attributes=attributes
             )
 
-        if first_obj == "well":
+        if first_obj == "roi" and first_selected is not None:
+            first_obj = "image"
+            first_selected = first_selected.getImage()
+        elif first_obj == "well":
             # Wells aren't in the tree, so we need to look up the parent
             well_sample = first_selected.getWellSample()
             parent_node = None
