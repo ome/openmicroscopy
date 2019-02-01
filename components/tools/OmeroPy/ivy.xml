@@ -26,7 +26,7 @@
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency org="org.openmicroscopy" name="omero-blitz" rev="${omero.version}" transitive="false">
+    <dependency org="org.openmicroscopy" name="omero-blitz" rev="${versions.omero-blitz}" transitive="false">
 	    <artifact name="omero-blitz" ext="zip" e:classifier="python"/>
     </dependency>
   </dependencies>

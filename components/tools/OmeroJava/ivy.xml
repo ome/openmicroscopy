@@ -31,9 +31,8 @@
     -->
   </publications>
   <dependencies>
-    <dependency org="org.openmicroscopy" name="omero-blitz" rev="${omero.version}"/>
-    <dependency org="org.openmicroscopy" name="omero-common-test" rev="${omero.version}"/>
-    <dependency org="org.openmicroscopy" name="omero-model" rev="${omero.version}"/>
+    <dependency org="org.openmicroscopy" name="omero-blitz" rev="${versions.omero-blitz}"/>
+    <dependency org="org.openmicroscopy" name="omero-common-test" rev="${versions.omero-common-test}"/>
   </dependencies>
 </ivy-module>
 
