@@ -270,10 +270,7 @@ class Show(object):
                 first_obj, attributes=attributes
             )
 
-        if first_obj == "roi" and first_selected is not None:
-            first_obj = "image"
-            first_selected = first_selected.getImage()
-        elif first_obj == "well":
+        if first_obj == "well":
             # Wells aren't in the tree, so we need to look up the parent
             well_sample = first_selected.getWellSample()
             parent_node = None
@@ -303,6 +300,11 @@ class Show(object):
             ]
             first_selected = parent_node
         else:
+            # If show=roi, selected object will be Image
+            if first_obj == "roi":
+                first_obj = "image"
+                first_selected = first_selected.getImage()
+
             # Tree hierarchy open to first selected object.
             self._initially_open = [
                 '%s-%s' % (first_obj, first_selected.getId())
