@@ -129,6 +129,15 @@
 
     </form>
 
+    {% if show_download_links %}
+    <div id="client-downloads">
+      <p>Download OMERO.insight:<p>
+      <div><a href="{{ download_client_mac }}">Mac OS X</a></div>
+      <div><a href="{{ download_client_win }}">Windows</a></div>
+      <div><a href="{{ download_client_linux }}">Linux</a></div>
+    </div>
+    {% endif %}
+
     {% endblock %}
 </div>
 
