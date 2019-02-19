@@ -524,7 +524,7 @@ class TestRDefs (object):
 
     @pytest.mark.parametrize('set_inactive', [True, False])
     def test_set_active_channels_set_inactive(
-        self, gatewaywrapper, set_inactive):
+            self, gatewaywrapper, set_inactive):
         """
         Tests set_active_channels method with rendering engine
         """
