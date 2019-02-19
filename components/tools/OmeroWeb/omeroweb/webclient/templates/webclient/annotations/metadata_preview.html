@@ -363,8 +363,8 @@
               var vpQuery = OME.preview_viewport.getQuery();
               // remove &zm=50
               vpQuery = vpQuery.replace("&zm=" + OME.preview_viewport.getZoom(), "");
-
-              window.open(url + "?" + vpQuery, '_blank');
+              var hasQuery = url.indexOf('?') > -1;
+              window.open(url + (hasQuery ? "&" : "?") + vpQuery, '_blank');
               return false;
             });
 
