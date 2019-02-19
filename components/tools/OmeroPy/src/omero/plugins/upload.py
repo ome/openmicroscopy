@@ -14,6 +14,7 @@
 import sys
 import re
 import path
+import os
 import mimetypes
 
 from omero.cli import BaseControl, CLI
@@ -49,6 +50,10 @@ class UploadControl(BaseControl):
         parser.add_login_arguments()
 
     def upload(self, args):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.5.0. Use the module"
+            " available from https://pypi.org/project/omero-cli-upload/"
+            " instead.", DeprecationWarning)
         client = self.ctx.conn(args)
         objIds = []
         for file in args.file:
@@ -66,7 +71,13 @@ class UploadControl(BaseControl):
         self.ctx.out("OriginalFile:%s" % objIds)
 
 try:
-    register("upload", UploadControl, HELP)
+    if "OMERO_DEV_PLUGINS" in os.environ:
+        warnings.warn(
+            "This plugin is deprecated as of OMERO 5.5.0. Use the upload"
+            " CLI plugin available from"
+            " https://pypi.org/project/omero-cli-upload/ instead.",
+            DeprecationWarning)
+        register("upload", UploadControl, HELP)
 except NameError:
     if __name__ == "__main__":
         cli = CLI()
