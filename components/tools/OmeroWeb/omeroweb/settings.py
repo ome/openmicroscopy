@@ -642,13 +642,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Whether or not to include a user dropdown in the base template."
           " Particularly useful when used in combination with the OMERO.web"
           " public user where logging in may not make sense.")],
-    "omero.web.feedback.comment.enable":
+    "omero.web.feedback.comment.enabled":
         ["FEEDBACK_COMMENT_ENABLE",
          "true",
          parse_boolean,
          ("Enable the feedback form for comments. "
           "These comments are sent directly to the OME team.")],
-    "omero.web.feedback.error.enable":
+    "omero.web.feedback.error.enabled":
         ["FEEDBACK_ERROR_ENABLE",
          "true",
          parse_boolean,
