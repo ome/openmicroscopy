@@ -67,16 +67,14 @@ RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
 
 
 # Temp: Build jars locally
-RUN git clone -b wip git://github.com/jburel/omero-gradle-plugins /tmp/omero-gradle-plugins
+RUN git clone git://github.com/ome/omero-gradle-plugins /tmp/omero-gradle-plugins
 RUN cd /tmp/omero-gradle-plugins && git submodule update --init
 RUN cd /tmp/omero-gradle-plugins && ./build.sh
 
-RUN git clone -b wip git://github.com/jburel/omero-build /tmp/omero-build
+RUN git clone git://github.com/ome/omero-build /tmp/omero-build
 WORKDIR /tmp/omero-build
 RUN git submodule update --init
 RUN ./build.sh
-#RUN ./gradlew build -x test -x javadoc
-#RUN ./gradlew publishToMavenLocal -x test -x javadoc
 WORKDIR /src
 USER root
 RUN apt-get update -y && apt-get install -y vim
