@@ -61,6 +61,9 @@ def get_user_agent(request):
 
 ###############################################################################
 def send_feedback(request):
+    if not settings.FEEDBACK_ERROR_ENABLE:
+        return HttpResponseRedirect(reverse("feedback_disabled"))
+
     error = None
     form = ErrorForm(data=request.POST.copy())
     if form.is_valid():
@@ -101,6 +104,9 @@ def send_feedback(request):
 
 
 def send_comment(request):
+    if not settings.FEEDBACK_COMMENT_ENABLE:
+        return HttpResponseRedirect(reverse("feedback_disabled"))
+
     error = None
     form = CommentForm()
 
