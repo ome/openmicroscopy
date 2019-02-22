@@ -179,9 +179,13 @@ def handler500(request):
     if request.is_ajax():
         return HttpResponseServerError(error500)
 
-    form = ErrorForm(initial={'error': error500})
-    context = {'form': form}
-    t = template_loader.get_template('500.html')
+    if settings.FEEDBACK_ERROR_ENABLED:
+        form = ErrorForm(initial={'error': error500})
+        context = {'form': form}
+        t = template_loader.get_template('500.html')
+    else:
+        context = {'error500': error500}
+        t = template_loader.get_template('500-nosubmit.html')
     c = RequestContext(request, context)
     return HttpResponseServerError(t.render(c))
 
