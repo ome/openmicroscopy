@@ -140,8 +140,7 @@ class TestSearch(ITest):
                  "test", "tag", "ta*", "search_test",
                  "s .tif", ".tif", "tif", "*tif")
 
-        # Commented out to pass flake8 but these patterns may no longer
-        # be broken with recent chnages to search. (cgb)
+        # Commented out to pass flake8.
         # BROKEN = ("*test*.tif", "search*tif", "s*.tif", "*.tif")
 
         search = searcher.sf.createSearchService()
