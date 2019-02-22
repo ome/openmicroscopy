@@ -154,18 +154,17 @@ class TestSearch(ITest):
         search.addOrderByAsc("name")
         search.setAllowLeadingWildcard(True)
 
-            failed = {}
-            for text in texts:
-                search.byFullText(str(text))
-                if search.hasNext():
-                    sz = len(search.results())
-                else:
-                    sz = 0
-                if 5 != sz:
-                    failed[text] = sz
-            if failed:
-                print "%i fails" % len(failed)
-
+        failed = {}
+        for text in texts:
+            search.byFullText(str(text))
+            if search.hasNext():
+                sz = len(search.results())
+            else:
+                sz = 0
+            if 5 != sz:
+                failed[text] = sz
+        if failed:
+            print "%i fails" % len(failed)
         return failed
 
     def _3164_assert(self, failed):
