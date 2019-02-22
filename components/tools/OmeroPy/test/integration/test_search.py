@@ -131,14 +131,11 @@ class TestSearch(ITest):
             self.index(images[-1])
         time.sleep(self.wait)
 
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oids"] = omero.rtypes.rlist(im.id for im in images)
+        p = omero.sys.ParametersI()
+        p.addIds(im.id for im in images)
 
-        sql = "select im from Image im "\
-            "where im.id in (:oids) " \
-            "order by im.id asc"
-        res = owner.sf.getQueryService().findAllByQuery(sql, p)
+        hql = "FROM Image WHERE id IN (:ids)"
+        res = owner.sf.getQueryService().findAllByQuery(hql, p)
         assert 5 == len(res)
 
     def _3164_search(self, searcher):
