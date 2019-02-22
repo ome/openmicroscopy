@@ -71,7 +71,7 @@ public class SearchFacilityTest extends GatewayTest {
         super.setUp();
         initData();
         // wait a little bit for the search indexer
-        Thread.sleep(30000);
+        Thread.sleep(3000);
     }
 
     @Test
