@@ -135,7 +135,7 @@ class TestSearch(ITest):
         res = owner.sf.getQueryService().findAllByQuery(sql, p)
         assert 5 == len(res)
 
-    def _3164_search(self, searcher, runs=10, pause=1):
+    def _3164_search(self, searcher):
         texts = ("*earch", "*rch", "search tif", "search",
                  "test", "tag", "ta*", "search_test",
                  "s .tif", ".tif", "tif", "*tif")
@@ -148,7 +148,6 @@ class TestSearch(ITest):
         search.addOrderByAsc("name")
         search.setAllowLeadingWildcard(True)
 
-        for r in range(runs):
             failed = {}
             for text in texts:
                 search.byFullText(str(text))
@@ -158,10 +157,8 @@ class TestSearch(ITest):
                     sz = 0
                 if 5 != sz:
                     failed[text] = sz
-            if not failed:
-                break
-            print "Failed run %i with %i fails" % (r + 1, len(failed))
-            time.sleep(pause)
+            if failed:
+                print "%i fails" % len(failed)
 
         return failed
 
