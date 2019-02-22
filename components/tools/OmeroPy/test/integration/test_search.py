@@ -18,6 +18,9 @@ import time
 
 class TestSearch(ITest):
 
+    # Compare with the configured value of omero.search.cron.
+    wait = 3
+
     def test2541(self):
         """
         Search for private data from another user
@@ -29,6 +32,7 @@ class TestSearch(ITest):
         tag.ns = omero.rtypes.rstring(uuid)
         tag = self.update.saveAndReturnObject(tag)
         self.root.sf.getUpdateService().indexObject(tag)
+        time.sleep(self.wait)
         q = searcher.sf.getQueryService()
         r = q.findAllByFullText("TagAnnotation", uuid, None)
         assert 0 == len(r)
@@ -86,6 +90,7 @@ class TestSearch(ITest):
             tag = self.update.saveAndReturnObject(tag)
             self.index(tag)
             tags.append(tag.ns.val)
+        time.sleep(self.wait)
 
         search = self.client.sf.createSearchService()
         search.onlyType("TagAnnotation")
@@ -124,6 +129,7 @@ class TestSearch(ITest):
 
             images.append(owner.sf.getUpdateService().saveAndReturnObject(img))
             self.index(images[-1])
+        time.sleep(self.wait)
 
         p = omero.sys.Parameters()
         p.map = {}
@@ -194,6 +200,7 @@ class TestSearch(ITest):
             t.setTextValue(omero.rtypes.rstring(uuid))
             t = u.sf.getUpdateService().saveAndReturnObject(t)
             self.root.sf.getUpdateService().indexObject(t)  # Index
+            time.sleep(self.wait)
 
             # And try to read it back as the leader and the admin
             for sf, who in ((a.sf, "grp-admin"), (self.root.sf, "sys-admin")):
@@ -226,6 +233,7 @@ class TestSearch(ITest):
         cann.textValue = omero.rtypes.rstring(uuid)
         cann = update.saveAndReturnObject(cann)
         self.root.sf.getUpdateService().indexObject(cann)
+        time.sleep(self.wait)
 
         rv = query.findAllByFullText(
             "CommentAnnotation", "%s" % uuid, None)
@@ -244,6 +252,7 @@ class TestSearch(ITest):
         images = self.import_fake_file(name=uuid, client=client)
         image = images[0]
         self.root.sf.getUpdateService().indexObject(image)
+        time.sleep(self.wait)
         search = client.sf.createSearchService()
         search.onlyType("Image")
         search.setAllowLeadingWildcard(True)
@@ -294,6 +303,7 @@ class TestSearch(ITest):
         csv.write("Header1,Header2\nGFP\n100.0\n")
         image = self.attached_image(
             uuid, client, str(csv), "text/csv")
+        time.sleep(self.wait)
 
         search = client.sf.createSearchService()
         try:
@@ -313,6 +323,7 @@ class TestSearch(ITest):
         txt.write("crazy")
         image = self.attached_image(
             uuid, client, str(txt), "text/plain")
+        time.sleep(self.wait)
 
         search = client.sf.createSearchService()
         try:
@@ -333,6 +344,7 @@ class TestSearch(ITest):
         tag.textValue = omero.rtypes.rstring(word)
         tag = client.sf.getUpdateService().saveAndReturnObject(tag)
         self.root.sf.getUpdateService().indexObject(tag)
+        time.sleep(self.wait)
 
         search = client.sf.createSearchService()
         search.onlyType("TagAnnotation")
@@ -373,6 +385,7 @@ class TestSearch(ITest):
         client = self.new_client()
         proj = self.make_project(name, client=client)
         self.root.sf.getUpdateService().indexObject(proj)
+        time.sleep(self.wait)
 
         search = client.sf.createSearchService()
         search.onlyType("Project")
@@ -398,6 +411,7 @@ class TestSearch(ITest):
         proj.linkAnnotation(ann)
         proj = client.sf.getUpdateService().saveAndReturnObject(proj)
         self.root.sf.getUpdateService().indexObject(proj)
+        time.sleep(self.wait)
 
         search = client.sf.createSearchService()
         search.onlyType("Project")
