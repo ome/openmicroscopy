@@ -261,8 +261,10 @@ class WebclientLoginView(LoginView):
 
         context['show_download_links'] = settings.SHOW_CLIENT_DOWNLOADS
         if settings.SHOW_CLIENT_DOWNLOADS:
-            ver = '.'.join(omero_version.split('.', 2)[:2])
-            latest = settings.CLIENT_DOWNLOAD_LATEST_BASE + ver
+            ver = re.match('(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+).*',
+                           omero_version)
+            latest = settings.CLIENT_DOWNLOAD_LATEST_BASE.format(
+                **ver.groupdict())
             context['download_client_mac'] = latest + '/insight-mac.zip'
             context['download_client_win'] = latest + '/insight-win.zip'
             context['download_client_linux'] = latest + '/insight-linux.zip'
