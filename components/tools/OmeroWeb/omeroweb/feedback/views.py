@@ -61,7 +61,7 @@ def get_user_agent(request):
 
 ###############################################################################
 def send_feedback(request):
-    if not settings.FEEDBACK_ERROR_ENABLE:
+    if not settings.FEEDBACK_ERROR_ENABLED:
         return HttpResponseRedirect(reverse("feedback_disabled"))
 
     error = None
@@ -104,7 +104,7 @@ def send_feedback(request):
 
 
 def send_comment(request):
-    if not settings.FEEDBACK_COMMENT_ENABLE:
+    if not settings.FEEDBACK_COMMENT_ENABLED:
         return HttpResponseRedirect(reverse("feedback_disabled"))
 
     error = None

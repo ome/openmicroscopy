@@ -643,17 +643,19 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " Particularly useful when used in combination with the OMERO.web"
           " public user where logging in may not make sense.")],
     "omero.web.feedback.comment.enabled":
-        ["FEEDBACK_COMMENT_ENABLE",
+        ["FEEDBACK_COMMENT_ENABLED",
          "true",
          parse_boolean,
          ("Enable the feedback form for comments. "
-          "These comments are sent directly to the OME team.")],
+          "These comments are sent to the URL in ``omero.qa.feedback`` "
+          "(OME team by default).")],
     "omero.web.feedback.error.enabled":
-        ["FEEDBACK_ERROR_ENABLE",
+        ["FEEDBACK_ERROR_ENABLED",
          "true",
          parse_boolean,
          ("Enable the feedback form for errors. "
-          "These errors are sent directly to the OME team.")],
+          "These errors are sent to the URL in ``omero.qa.feedback`` "
+          "(OME team by default).")],
     "omero.web.staticfile_dirs":
         ["STATICFILES_DIRS",
          '[]',
