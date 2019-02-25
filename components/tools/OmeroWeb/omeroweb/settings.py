@@ -678,6 +678,20 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "For example: ``'{\"redirect\": [\"webindex\"], \"viewname\":"
           " \"load_template\", \"args\":[\"userdata\"], \"query_string\":"
           " {\"experimenter\": -1}}'``")],
+
+    "omero.web.login.show_client_downloads":
+        ["SHOW_CLIENT_DOWNLOADS",
+         "true",
+         parse_boolean,
+         ("Whether to link to official client downloads on the login page")],
+    "omero.web.login.client_downloads_base":
+        ["CLIENT_DOWNLOAD_LATEST_BASE",
+         'https://downloads.openmicroscopy.org/latest/omero{major}.{minor}',
+         str,
+         ("Base URL for latest client downloads. "
+          "Template parameters ``{major}`` ``{minor}`` ``{patch}`` will be "
+          "substituted with the current OMERO.web version.")],
+
     "omero.web.apps":
         ["ADDITIONAL_APPS",
          '[]',
