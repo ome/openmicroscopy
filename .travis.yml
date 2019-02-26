@@ -15,6 +15,11 @@ cache:
 matrix:
       fast_finish: true
 
+env:
+ - BUILD_STYLE=release
+ - BUILD_STYLE=latest
+ - BUILD_STYLE=merge
+
 addons:
   apt_packages:
     - git
