@@ -379,7 +379,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
        <iterate buildpathref="tools.buildpath" target="findbugs"/>
     </target>
 
-    <target name="release-docs" depends="release-javadoc,release-sphinx-api" description="Generate Docs for all components under dist/docs/api">
+    <target name="release-docs" depends="release-sphinx-api" description="Generate Docs for all components under dist/docs/api">
         <zip destfile="${omero.home}/target/OMERO.apidoc-${omero.version}.zip">
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.apidoc-${omero.version}"/>
         </zip>
@@ -397,108 +397,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <copy todir="${dist.dir}/docs/api/python">
             <fileset dir="docs/sphinx-api/_build/html"/>
         </copy>
-    </target>
-
-    <target name="release-javadoc" description="Generate Javadocs for all components under dist/docs/api">
-        <mkdir dir="${dist.dir}/docs/api"/>
-        <patternset id="all.java.files">
-            <!-- Includes prefixed with "**" in order to pick up
-            tools/ components -->
-            <include name="src/**/*.java"/>
-            <include name="target/generated/src/**/*.java"/>
-            <exclude name="xxx/**"/>
-        </patternset>
-        <mkdir dir="target/docs"/>
-        <copy file="docs/overview.html" tofile="target/docs/overview.html" overwrite="true"/>
-        <replace file="target/docs/overview.html" token="@VERSION@" value="${omero.version}"/>
-        <presetdef name="nomemoryjavadoc">
-            <javadoc
-                failonerror="true"
-                Verbose="false"
-                destdir="${dist.dir}/docs/api"
-                author="true"
-                version="true"
-                use="true"
-                breakiterator="true"
-                encoding="UTF-8"
-                docencoding="UTF-8"
-                windowtitle="OMERO API"
-                overview="target/docs/overview.html"
-                additionalparam="${javadoc.doclint}">
-
-                <classpath>
-                    <fileset dir="lib">
-                        <include name="**/*.jar"/>
-                        <exclude name="repository/org.springframework.*.jar"/>
-                        <exclude name="repository/omero/**"/>
-                        <exclude name="repository/omero-tools/**"/>
-                        <exclude name="cache/omero/omero_client/jars/**"/>
-                    </fileset>
-                </classpath>
-
-                <fileset dir="components/tools/OmeroJava" defaultexcludes="yes">
-                    <patternset refid="all.java.files"/>
-                </fileset>
-
-                <doctitle><![CDATA[<h1> OMERO API </h1>]]></doctitle>
-                <bottom><![CDATA[
-                <div id="ome-logo-for-top" style="display:none"><div id="ome-logo-inner"><img src="http://downloads.openmicroscopy.org/resources/ome_docs_trac_banner.png" alt="OME Docs"></div></div>
-                <div id="doc-name-right" style="position: absolute;top: 90px;right: 20px;"><b>OmeroJava API</b></div>
-                <p><i>Version: ${omero.version}</i></p>
-                <p><b><i>Copyright &#169; @@YEAR@@ The University of Dundee &amp; Open Microscopy Environment. All Rights Reserved.</i></b></p>
-                ]]></bottom>
-
-                <group title="A. Core System"
-                        packages="ome.api:ome.conditions*:ome.parameters*:ome.system*"/>
-                <group title="B. Model"
-                        packages="ome.model*"/>
-                <group title="C. Client Packages"
-                        packages="ome.client*:ome.adapters*:omero.gateway*"/>
-                <group title="D. Server Packages"
-                        packages="ome.api.local*:ome.services*:ome.logic*:ome.tools*:ome.security*:ome.io*:ome.annotations*"/>
-                <group title="E. Blitz Server"
-                        packages="ome.services.blitz*"/>
-                <group title="E. Blitz Client"
-                        packages="omero*:omeroj*"/>
-                <group title="G. Rendering Engine"
-                        packages="omeis*"/>
-                <group title="H. Utilities"
-                        packages="ome.util*"/>
-                <group title="I. Deprecated"
-                        packages="ome.dynamic*:ome.rules*"/>
-
-                <link href="http://docs.oracle.com/javase/8/docs/api/"/>
-                <link href="http://docs.spring.io/spring/docs/${versions.spring}/api/"/>
-                <link href="http://aopalliance.sourceforge.net/doc/"/>
-                <link href="http://downloads.openmicroscopy.org/bio-formats/${versions.bioformats}/api/"/>
-
-            </javadoc>
-        </presetdef>
-
-        <if>
-            <isset property="javadoc.maxmem"/>
-            <then>
-                <nomemoryjavadoc
-                    maxmemory="${javadoc.maxmem}"/>
-            </then>
-            <else>
-                <nomemoryjavadoc/>
-            </else>
-        </if>
-
-        <replace dir="${dist.dir}/docs/api">
-            <replacetoken><![CDATA[<HEAD>]]></replacetoken>
-            <replacevalue><![CDATA[<HEAD profile="http://www.w3.org/2005/10/profile">
-<link rel="icon"
-      type="image/vnd.microsoft.icon"
-      href="https://downloads.openmicroscopy.org/resources/favicon.ico">]]></replacevalue>
-        </replace>
-        <tstamp>
-            <format property="yearvalue" pattern="yyyy"/>
-        </tstamp>
-        <replace dir="${dist.dir}/docs/api" value="${yearvalue}">
-            <replacetoken><![CDATA[@@YEAR@@]]></replacetoken>
-        </replace>
     </target>
 
     <target name="release-hudson" depends="check-ivy"
