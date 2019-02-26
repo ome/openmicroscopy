@@ -163,7 +163,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     <target name="build-blitz" description="Alias for 'build-server'" depends="build-server"/>
 
     <target name="build-server" description="Build blitz and copy to dist/blitz" depends="init">
-        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <!-- Must also build python since it provides our command lines -->
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroFs.buildpath" target="tools-dist"/>
@@ -179,13 +178,11 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     </target>
 
     <target name="build-java" description="Build Java bindings to the OMERO server" depends="init">
-        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
     <target name="build-py" description="Build Python bindings to the OMERO server" depends="init">
-        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>

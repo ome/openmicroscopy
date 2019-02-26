@@ -25,7 +25,7 @@ FROM ${BUILD_IMAGE} as build
 RUN apt-get update \
  && apt-get install -y ant \
       python-pip python-tables python-virtualenv python-yaml python-jinja2 \
-      zlib1g-dev python-pillow python-numpy \
+      zlib1g-dev python-pillow python-numpy python-sphinx \
       libssl-dev libbz2-dev libmcpp-dev libdb++-dev libdb-dev \
       zeroc-ice-all-dev \
  && pip install --upgrade 'pip<10' setuptools
@@ -82,7 +82,7 @@ RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
 # End Temp
 
 # Reproduce jenkins build
-RUN env OMERO_BRANCH=develop bash docs/hudson/OMERO.sh
+RUN env BUILD_NUMBER=1 OMERO_BRANCH=develop bash docs/hudson/OMERO.sh
 
 FROM ${RUN_IMAGE} as run
 RUN rm -rf /opt/omero/server/OMERO.server
