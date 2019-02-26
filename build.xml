@@ -436,23 +436,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
                     </fileset>
                 </classpath>
 
-                <fileset dir="components/model/" defaultexcludes="yes">
-                    <patternset refid="all.java.files"/>
-                </fileset>
-                <fileset dir="components/common/" defaultexcludes="yes">
-                    <patternset refid="all.java.files"/>
-                </fileset>
-                <fileset dir="components/server/" defaultexcludes="yes">
-                    <patternset refid="all.java.files"/>
-                </fileset>
-                <fileset dir="components/romio/" defaultexcludes="yes">
-                    <patternset refid="all.java.files"/>
-                </fileset>
-                <fileset dir="components/rendering/" defaultexcludes="yes">
-                    <patternset refid="all.java.files"/>
-                </fileset>
-                <!-- Skipping generated files for blitz. Just too many -->
-                <fileset dir="components/blitz/src" defaultexcludes="yes" includes="**/*.java"/>
                 <fileset dir="components/tools/OmeroJava" defaultexcludes="yes">
                     <patternset refid="all.java.files"/>
                 </fileset>
