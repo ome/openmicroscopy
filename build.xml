@@ -198,15 +198,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-insight" description="Build insight and copy to dist/lib and dist/bin. May require 'build-java'" depends="init">
-        <iterate buildpathref="tools.buildpath" target="dist"/>
-        <iterate buildpathref="insight.buildpath" target="dist"/>
-        <!-- Parts of build-dist -->
-        <antcall target="copy-client" inheritRefs="true" inheritAll="true"/>
-        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
-        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
-    </target>
-
     <target name="build-web" description="Build OmeroWeb and copy to dist. May require 'build-py'" depends="init">
         <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
@@ -222,7 +213,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
 
     <target name="build-eclipse" description="Creates all source directories needed by eclipse in case default build is failing." depends="init">
         <iterate buildpathref="all.buildpath" target="eclipse"/>
-        <iterate buildpathref="insight.buildpath" target="eclipse"/>
         <iterate buildpathref="OmeroJava.buildpath" target="eclipse"/>
         <tryEclipse settingsRef="ivy.toplevel" filter="true"/>
     </target>
@@ -233,7 +223,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <sequential>
         <ivy:settings id="ivy.@{suite}"  file="${etc.dir}/ivysettings.xml"/>
         <ivy:buildlist reference="@{suite}.buildpath" settingsRef="ivy.@{suite}" ivyfilepath="test.xml">
-            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/insight/*/**/*.xml,@{excludes}"/>
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="@{excludes}"/>
             <fileset dir="${omero.home}/components/tools" includes="*/build.xml"/>
             <fileset dir="${omero.home}/components/tests" includes="*/build.xml"/>
         </ivy:buildlist>
@@ -354,7 +344,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
                 includes="bin/omero" filemode="755"/>
         </zip>
         <zip destfile="${omero.home}/target/OMERO.java-${omero.version}.zip">
-            <zipfileset dir="${insight.comp}/SRC"       prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
         </zip>
 
@@ -362,21 +351,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
             <fileset dir="components/tools/OmeroPy/dist" includes="*.egg"/>
             <fileset dir="components/tools/OmeroFS/dist" includes="*.egg"/>
         </copy>
-
-        <!-- These should eventually be removed in favor of an ivy-based approach -->
-
-        <!-- Moving zip targets out of main build for `./build.py` performance -->
-        <iterate buildpathref="insight.buildpath" target="zips"/>
-
-        <copy todir="target">
-            <fileset dir="components/insight/target" includes="insight*.zip" excludes="*-ij*.zip"/>
-            <mapper type="regexp" from="insight(.*).zip"  to="OMERO.insight-${omero.version}\1.zip"/>
-        </copy>
-		<copy todir="target">
-            <fileset dir="components/insight/target" includes="importer*.zip"/>
-            <mapper type="regexp" from="importer(.*).zip"  to="OMERO.importer-${omero.version}\1.zip"/>
-        </copy>
-       	<copy file="components/insight/target/insight-ij.zip" tofile="target/OMERO.insight-ij-${omero.version}.zip"/>
     </target>
 
     <target name="release-tar" description="Tar the dist directory into ${product-name}-${omero.version}.tar.bz2">

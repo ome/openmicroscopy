@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="examples/Delete"/>
-	<classpathentry kind="src" output="target/eclipse-insight" path="components/insight/SRC"/>
-	<classpathentry kind="src" output="target/eclipse-insight" path="components/insight/TEST"/>
 	<classpathentry kind="src" path="components/tools/OmeroJava/test"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>

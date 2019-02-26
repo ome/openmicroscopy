@@ -57,7 +57,6 @@
 
         <!-- Components -->
         <property name="tools.comp"     value="${components.dir}/tools"/>
-        <property name="insight.comp"   value="${components.dir}/insight"/>
         <property name="OmeroJava.comp"     value="${tools.comp}/OmeroJava"/>
         <property name="OmeroWeb.comp"     value="${tools.comp}/OmeroWeb"/>
         <property name="OmeroPy.comp"     value="${tools.comp}/OmeroPy"/>
@@ -67,9 +66,6 @@
 
 
         <!-- Build Path References -->
-        <path id="insight.buildpath">
-            <pathelement location="${insight.comp}/build.xml"/>
-        </path>
         <path id="OmeroWeb.buildpath">
             <pathelement location="${OmeroWeb.comp}/build.xml"/>
         </path>
