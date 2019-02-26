@@ -81,7 +81,8 @@ RUN apt-get update -y && apt-get install -y vim
 USER omero
 # End Temp
 
-RUN components/tools/travis-build
+# Reproduce jenkins build
+RUN env OMERO_BRANCH=develop bash docs/hudson/OMERO.sh
 
 FROM ${RUN_IMAGE} as run
 RUN rm -rf /opt/omero/server/OMERO.server
