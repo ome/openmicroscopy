@@ -21,7 +21,6 @@ import omero.api.RawPixelsStorePrx;
 import omero.model.Pixels;
 
 import org.apache.commons.io.FileUtils;
-import org.springframework.util.ResourceUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -38,10 +37,11 @@ public class BfPixelBufferTest extends AbstractServerTest {
 
     private void setUpTestFile(String fileName) throws Throwable,
             NoSuchAlgorithmException {
-        File srcFile = ResourceUtils.getFile("classpath:" + fileName);
-
+        File srcFile = new File(System.getProperty("java.io.tmpdir"), fileName);
+        srcFile.deleteOnExit();
+        srcFile.createNewFile();
         // Import file
-        List<Pixels> pixList = importFile(srcFile, fileName);
+        List<Pixels> pixList = importFile(srcFile, "fake");
         log.debug(String.format("Imported: %s, pixid: %d", srcFile, pixList
                 .get(0).getId().getValue()));
 
@@ -61,7 +61,8 @@ public class BfPixelBufferTest extends AbstractServerTest {
 
     public void testDV() throws Throwable {
         log.debug(String.format("DV test."));
-        setUpTestFile("tinyTest.d3d.dv");
+        String name = "testDV&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeT=6&sizeC=1.fake";
+        setUpTestFile(name);
         testOtherGetters();
         testDimensionGetters();
         testSizeGetters();
@@ -73,7 +74,8 @@ public class BfPixelBufferTest extends AbstractServerTest {
 
     public void testDVpixels() throws Throwable {
         log.debug(String.format("DV pixels test."));
-        setUpTestFile("tinyTest.d3d.dv");
+        String name = "testDVpixels&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeT=6&sizeC=1.fake";
+        setUpTestFile(name);
         testgetTimepointDirect();
         testgetStackDirect();
         testgetPlaneDirect();
@@ -85,7 +87,8 @@ public class BfPixelBufferTest extends AbstractServerTest {
 
     public void testJPG() throws Throwable {
         log.debug(String.format("JPG test."));
-        setUpTestFile("test.jpg");
+        String name = "testJPG&pixelType=uint8&sizeX=256&sizeY=256&sizeZ=1&sizeT=1&sizeC=3.fake";
+        setUpTestFile(name);
         testOtherGetters();
         testDimensionGetters();
         testSizeGetters();
@@ -97,7 +100,8 @@ public class BfPixelBufferTest extends AbstractServerTest {
 
     public void testJPGpixels() throws Throwable {
         log.debug(String.format("JPG pixels test."));
-        setUpTestFile("test.jpg");
+        String name = "testJPGpixels&pixelType=uint8&sizeX=256&sizeY=256&sizeZ=1&sizeT=1&sizeC=3.fake";
+        setUpTestFile(name);
         testgetTimepointDirect();
         testgetStackDirect();
         testgetPlaneDirect();
@@ -109,7 +113,8 @@ public class BfPixelBufferTest extends AbstractServerTest {
 
     public void testBMP() throws Throwable {
         log.debug(String.format("BMP test."));
-        setUpTestFile("test.bmp");
+        String name = "testBMP&pixelType=uint8&sizeX=256&sizeY=256&sizeZ=1&sizeT=1&sizeC=4.fake";
+        setUpTestFile(name);
         testOtherGetters();
         testDimensionGetters();
         testSizeGetters();
@@ -121,7 +126,8 @@ public class BfPixelBufferTest extends AbstractServerTest {
 
     public void testBMPpixels() throws Throwable {
         log.debug(String.format("BMP pixels test."));
-        setUpTestFile("test.bmp");
+        String name = "testBMPpixels&pixelType=uint8&sizeX=256&sizeY=256&sizeZ=1&sizeT=1&sizeC=4.fake";
+        setUpTestFile(name);
         testgetTimepointDirect();
         testgetStackDirect();
         testgetPlaneDirect();

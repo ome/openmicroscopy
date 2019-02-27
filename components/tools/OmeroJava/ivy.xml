@@ -25,22 +25,14 @@
   <publications>
     <artifact name="omero_client" type="jar"/>
     <artifact name="omero_client" type="pom"/>
+    <!-- To be reviewed
     <artifact name="omero_client" type="source" ext="jar" m:classifier="sources"/>
     <artifact name="omero_client" type="javadoc" ext="jar" m:classifier="javadoc"/>
+    -->
   </publications>
   <dependencies>
-    <!-- Internal -->
-    <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" conf="build->build"/>
-    <!-- Bio-Formats -->
-    <dependency org="${org.bioformats}" name="formats-bsd" rev="${versions.bioformats}" transitive="true">
-        <exclude org="org.perf4j"/>
-        <exclude org="org.slf4j"/>
-        <exclude org="xml-apis"/>
-        <exclude org="xml-apis"/>
-    </dependency>
-    <dependency org="${org.bioformats}" name="formats-gpl" rev="${versions.bioformats}" transitive="true">
-        <exclude org="org.slf4j"/>
-    </dependency>
+    <dependency org="org.openmicroscopy" name="omero-blitz" rev="${versions.omero-blitz}"/>
+    <dependency org="org.openmicroscopy" name="omero-common-test" rev="${versions.omero-common-test}"/>
   </dependencies>
 </ivy-module>
 

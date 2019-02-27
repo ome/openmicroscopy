@@ -238,9 +238,14 @@
         <option>-Dlogback.configurationFile=${OMERO_ETC}logback-indexing.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
         <option>-Domero.name=Indexer-${index}</option>
+        <!-- TODO: review when omero-blitz has a manifest
         <option>-jar</option>
-        <option>${OMERO_JARS}blitz.jar</option>
+        <option>${OMERO_JARS}omero-blitz.jar</option>
         <option>ome.fulltext</option>
+        -->
+        <option>ome.services.blitz.Entry</option>
+        <option>ome.fulltext</option>
+        <env>CLASSPATH=${OMERO_JARS}*</env>
         <adapter name="IndexerAdapter" endpoints="tcp"/>
         <properties>
           <properties refid="Basics"/>
@@ -264,9 +269,14 @@
         <option>-Dlogback.configurationFile=${OMERO_ETC}logback-indexing.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
         <option>-Domero.name=PixelData-${index}</option>
+        <!-- TODO: review when omero-blitz has a manifest
         <option>-jar</option>
-        <option>${OMERO_JARS}blitz.jar</option>
+        <option>${OMERO_JARS}omero-blitz.jar</option>
         <option>ome.pixeldata</option>
+        -->
+        <option>ome.services.blitz.Entry</option>
+        <option>ome.pixeldata</option>
+        <env>CLASSPATH=${OMERO_JARS}*</env>
         <adapter name="PixelDataAdapter" endpoints="tcp"/>
         <properties>
           <properties refid="Basics"/>
@@ -292,7 +302,7 @@
         <option>-Domero.name=Repository-${index}</option>
         <option>-Domero.repo.dir=${dir}</option>
         <option>-jar</option>
-        <option>${OMERO_JARS}blitz.jar</option>
+        <option>${OMERO_JARS}omero-blitz.jar</option>
         <option>OMERO.repository</option>
         <adapter name="RepositoryAdapter" endpoints="tcp">
           <object identity="Repository-${index}" type="::omero::grid::InternalRepository"/>

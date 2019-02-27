@@ -25,12 +25,13 @@ FROM ${BUILD_IMAGE} as build
 RUN apt-get update \
  && apt-get install -y ant \
       python-pip python-tables python-virtualenv python-yaml python-jinja2 \
-      zlib1g-dev python-pillow python-numpy \
+      zlib1g-dev python-pillow python-numpy python-sphinx \
       libssl-dev libbz2-dev libmcpp-dev libdb++-dev libdb-dev \
       zeroc-ice-all-dev \
- && pip install --upgrade 'pip<10' setuptools \
- && pip install tables "zeroc-ice>3.5,<3.7"
+ && pip install --upgrade 'pip<10' setuptools
 # TODO: unpin pip when possible
+# openjdk:8 is "stretch" or Debian 9
+RUN pip install https://github.com/ome/zeroc-ice-py-debian9/releases/download/0.1.0/zeroc_ice-3.6.4-cp27-cp27mu-linux_x86_64.whl
 RUN adduser omero
 
 # TODO: would be nice to not need to copy .git since it invalidates the build frequently and takes more time
@@ -64,13 +65,29 @@ RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
 #
 # RUN sed -i 's/\("IceSSL.Ciphers".*ADH[^"]*\)/\1:@SECLEVEL=0/' /src/components/tools/OmeroPy/src/omero/clients.py /src/etc/templates/grid/templates.xml
 
-RUN components/tools/travis-build
+
+# Temp: Build jars locally
+########RUN git clone git://github.com/ome/omero-gradle-plugins /tmp/omero-gradle-plugins
+########RUN cd /tmp/omero-gradle-plugins && git submodule update --init
+########RUN cd /tmp/omero-gradle-plugins && ./build.sh
+
+########RUN git clone git://github.com/ome/omero-build /tmp/omero-build
+########WORKDIR /tmp/omero-build
+########RUN git submodule update --init
+########RUN ./build.sh
+########WORKDIR /src
+########USER root
+########RUN apt-get update -y && apt-get install -y vim
+########USER omero
+# End Temp
+
+# Reproduce jenkins build
+RUN env BUILD_NUMBER=1 OMERO_BRANCH=develop bash docs/hudson/OMERO.sh
 
 FROM ${RUN_IMAGE} as run
-COPY --from=build /src /src
+RUN rm -rf /opt/omero/server/OMERO.server
+COPY --chown=omero-server:omero-server --from=build /src/dist /opt/omero/server/OMERO.server
 USER root
-RUN chown -R omero-server:omero-server /src
-RUN rm /opt/omero/server/OMERO.server \
- && ln -s /src/dist /opt/omero/server/OMERO.server
 RUN yum install -y git
 USER omero-server
+WORKDIR /opt/omero/server/OMERO.server

@@ -10,7 +10,6 @@
     <artifact name="java-ui-libraries-test" type="jar"/>
   </publications>
   <dependencies defaultconfmapping="test->*">
-    <dependency name="common-test" rev="${omero.version}" changing="true"/>
     <dependency name="java-ui-libraries" rev="${omero.version}" changing="true"/>
   </dependencies>
 </ivy-module>

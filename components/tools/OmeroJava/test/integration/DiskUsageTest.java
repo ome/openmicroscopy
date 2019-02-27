@@ -63,7 +63,6 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.springframework.util.ResourceUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -182,10 +181,13 @@ public class DiskUsageTest extends AbstractServerTest {
     public void setup() throws Throwable {
         ec = iAdmin.getEventContext();
 
-        final File imageFile = ResourceUtils.getFile("classpath:tinyTest.d3d.dv");
+        String name = "testDV&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeT=6&sizeC=1.fake";
+        final File imageFile = new File(System.getProperty("java.io.tmpdir"), name);
+        imageFile.deleteOnExit();
+        imageFile.createNewFile();
         fileSize = imageFile.length();
 
-        final Pixels pixels = importFile(imageFile, "dv").get(0);
+        final Pixels pixels = importFile(imageFile, "fake").get(0);
         pixelsId = pixels.getId().getValue();
         imageId = pixels.getImage().getId().getValue();
 

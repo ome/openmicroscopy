@@ -1202,8 +1202,19 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected String getPythonScript() throws IOException {
         if (pythonScript == null) {
-            final File scriptFile = ResourceUtils.getFile("classpath:minimal-script.py");
-            pythonScript = Files.toString(scriptFile, StandardCharsets.UTF_8);
+            StringBuffer buffer = new StringBuffer();
+            buffer.append("import omero.scripts as s");
+            buffer.append("\n");
+            buffer.append("import uuid");
+            buffer.append("\n");
+            buffer.append("\n");
+            buffer.append("uuid = str(uuid.uuid4())");
+            buffer.append("\n");
+            buffer.append("print(\"I am the script named %s.\" % uuid)");
+            buffer.append("\n");
+            buffer.append("client = s.client(uuid, \"simple script\")");
+            buffer.append("\n");
+            pythonScript = buffer.toString();
         }
         return pythonScript;
     }

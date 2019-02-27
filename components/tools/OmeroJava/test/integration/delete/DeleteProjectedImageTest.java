@@ -19,7 +19,6 @@ import omero.model.Image;
 import omero.model.Pixels;
 import omero.sys.EventContext;
 
-import org.springframework.util.ResourceUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
@@ -54,10 +53,13 @@ public class DeleteProjectedImageTest extends AbstractServerTest {
      */
     private Pixels importImage() throws Exception
     {
-        File srcFile = ResourceUtils.getFile("classpath:tinyTest.d3d.dv");
+        String name = "testDV&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeT=6&sizeC=1.fake";
+        final File srcFile = new File(System.getProperty("java.io.tmpdir"), name);
+        srcFile.deleteOnExit();
+        srcFile.createNewFile();
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(srcFile, "dv");
+            pixels = importFile(srcFile, "fake");
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }

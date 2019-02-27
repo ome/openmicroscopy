@@ -121,11 +121,11 @@ class DatabaseControl(BaseControl):
             prompt += "root user"
         root_pass = self._ask_for_password(prompt, root_pass)
 
-        server_jar = self.ctx.dir / "lib" / "server" / "server.jar"
+        jars = str(self.ctx.dir / "lib" / "server") + "/*"
         cmd = ["ome.security.auth.PasswordUtil", root_pass]
         if not args.no_salt and self._has_user_id(args):
             cmd.append(args.user_id)
-        p = omero.java.popen(["-cp", str(server_jar)] + cmd)
+        p = omero.java.popen(["-cp", jars] + cmd)
         rc = p.wait()
         if rc != 0:
             out, err = p.communicate()
@@ -160,11 +160,12 @@ class DatabaseControl(BaseControl):
         return replace_method
 
     def _db_profile(self):
+        return "psql"  # Quick fix
         import re
         server_lib = self.ctx.dir / "lib" / "server"
-        model_jars = server_lib.glob("model-*.jar")
+        model_jars = server_lib.glob("omero-model.jar")
         if len(model_jars) != 1:
-            self.ctx.die(200, "Invalid model-*.jar state: %s"
+            self.ctx.die(200, "Invalid omero-model.jar state: %s"
                          % ",".join(model_jars))
         model_jar = model_jars[0]
         model_jar = str(model_jar.basename())
