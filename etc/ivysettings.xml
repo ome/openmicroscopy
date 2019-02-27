@@ -23,9 +23,6 @@
 
   <settings defaultResolver="${omero.resolver}"/>
 
-  <credentials host="artifacts.openmicroscopy.org" realm="Artifactory Realm"
-        username="${artifactory.username}" passwd="${artifactory.password}"/>
-
   <caches default="local" defaultCacheDir="${ivy.settings.dir}/../lib/cache">
       <!-- local is intended for all products built from this repository,
            while maven is for any stable, unchanging jar that is being
