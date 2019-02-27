@@ -19,7 +19,7 @@
 
 """Tests querying of ROIs and Shapes with json api."""
 
-from omeroweb.testlib import IWebTest, get_json
+from omeroweb.testlib import IWebTest, get_json, delete_json
 from django.core.urlresolvers import reverse
 from omeroweb.api import api_settings
 import pytest
@@ -38,6 +38,7 @@ from omero.model import EllipseI, \
 
 from omero.model.enums import UnitsLength
 from omero.rtypes import rstring, rint, rdouble
+from omero import ValidationException
 
 
 def build_url(client, url_name, url_kwargs):
@@ -177,3 +178,34 @@ class TestContainers(IWebTest):
         rsp = get_json(client, rois_url, {'image': image.id.val})
         assert_objects(conn, rsp['data'], rois[:2], dtype="Roi",
                        opts={'load_shapes': True})
+
+    def test_roi_delete(self, user1, image_rois):
+        """Test GET and DELETE of a single ROI."""
+        image, rois = image_rois
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        client = self.new_django_client(user_name, user_name)
+        version = api_settings.API_VERSIONS[-1]
+
+        # Before delete, we can read
+        roi_id = rois[0].id.val
+        roi_url = reverse('api_roi', kwargs={'api_version': version,
+                                             'object_id': roi_id})
+        rsp = get_json(client, roi_url)
+        assert_objects(conn, [rsp['data']], rois[:1], dtype="Roi",
+                       opts={'load_shapes': True})
+        shape_json = rsp['data']['shapes'][0]
+        shape_id = shape_json['@id']
+        shape_class = shape_json['@type'].split('#')[1]     # e.g. Ellipse
+        shape = conn.getQueryService().get(shape_class, shape_id)
+        assert shape.id.val == shape_id
+
+        # Delete
+        delete_json(client, roi_url, {})
+        # Get should now return 404
+        rsp = get_json(client, roi_url, status_code=404)
+        assert rsp['message'] == 'Roi %s not found' % roi_id
+
+        # Check that Shape has also been deleted
+        with pytest.raises(ValidationException):
+            shape = conn.getQueryService().get(shape_class, shape_id)
