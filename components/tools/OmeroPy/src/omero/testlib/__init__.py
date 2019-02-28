@@ -172,7 +172,7 @@ class ITest(object):
                     # find OMERO dist by searching for bin/omero
                     # exclude OmeroPy as is a source
                     if (str(t.dirname().dirname().basename())
-                            not in ('OmeroPy', 'build', 'target') and
+                            not in ('OmeroPy', 'build', 'target', '.git') and
                             str(t.basename()) == 'omero' and
                             str(t.dirname().basename()) == 'bin'):
                         dist = t.dirname().dirname()
