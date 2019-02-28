@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=postgres
+  omero:
+    build:
+      context: .
+      args:
+        BUILD_STYLE: ${BUILD_STYLE}
+    environment:
+      - CONFIG_omero_db_user=postgres
+      - CONFIG_omero_db_name=postgres
+      - CONFIG_omero_db_pass=postgres
+      - ROOTPASS=omero
