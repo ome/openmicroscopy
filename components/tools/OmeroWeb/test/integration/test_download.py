@@ -150,9 +150,9 @@ class TestDownload(IWebTest):
         }
         get(self.django_client, request_url, data, status_code=404)
 
-    def test_attachement_download(self):
+    def test_attachment_download(self):
         """
-        Download of attachement.
+        Download of attachment.
         """
 
         images = self.import_fake_file()
