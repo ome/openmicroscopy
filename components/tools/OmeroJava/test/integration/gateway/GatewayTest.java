@@ -37,6 +37,7 @@ import omero.gateway.facility.AdminFacility;
 import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.Facility;
+import omero.gateway.facility.MetadataFacility;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.RawDataFacility;
 import omero.gateway.facility.ROIFacility;
@@ -83,6 +84,7 @@ public class GatewayTest {
     SearchFacility searchFacility = null;
     TransferFacility transferFacility = null;
     DataManagerFacility datamanagerFacility = null;
+    MetadataFacility metadataFacility = null;
     ROIFacility roiFacility = null;
     TablesFacility tablesFacility = null;
 
@@ -124,6 +126,8 @@ public class GatewayTest {
         searchFacility = Facility.getFacility(SearchFacility.class, gw);
         transferFacility = Facility.getFacility(TransferFacility.class, gw);
         datamanagerFacility = Facility.getFacility(DataManagerFacility.class,
+                gw);
+        metadataFacility = Facility.getFacility(MetadataFacility.class,
                 gw);
         roiFacility = Facility.getFacility(ROIFacility.class,
                 gw);
