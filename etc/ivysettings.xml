@@ -144,7 +144,7 @@
     <module organisation="zeroc" resolver="ome-resolver"/>
     <module organisation="ome" name="jxrlib-all" resolver="ome-resolver"/>
     <module organisation="ome" resolver="${ome.resolver}"/>
-    <module organisation="org.openmicroscopy" resolver="ome-artifactory"/>
+    <module organisation="org.openmicroscopy" resolver="ome-resolver"/>
   </modules>
 
   <triggers/>

@@ -22,6 +22,7 @@ ARG RUN_IMAGE=openmicroscopy/omero-${COMPONENT}:latest
 
 
 FROM ${BUILD_IMAGE} as build
+USER root
 RUN apt-get update \
  && apt-get install -y ant \
       python-pip python-tables python-virtualenv python-yaml python-jinja2 \
@@ -32,7 +33,7 @@ RUN apt-get update \
 # TODO: unpin pip when possible
 # openjdk:8 is "stretch" or Debian 9
 RUN pip install https://github.com/ome/zeroc-ice-py-debian9/releases/download/0.1.0/zeroc_ice-3.6.4-cp27-cp27mu-linux_x86_64.whl
-RUN adduser omero
+RUN id 1000 || useradd -u 1000 -ms /bin/bash build
 
 # TODO: would be nice to not need to copy .git since it invalidates the build frequently and takes more time
 COPY .git /src/.git
@@ -51,8 +52,8 @@ COPY sql /src/sql
 COPY test.xml /src/
 COPY LICENSE.txt /src/
 COPY history.rst /src/
-RUN chown -R omero /src
-USER omero
+RUN chown -R 1000 /src
+USER 1000
 WORKDIR /src
 ENV ICE_CONFIG=/src/etc/ice.config
 RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
