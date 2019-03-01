@@ -27,7 +27,8 @@
       <!-- local is intended for all products built from this repository,
            while maven is for any stable, unchanging jar that is being
            downloaded -->
-      <cache name="local" basedir="${ivy.settings.dir}/../lib/cache"/>
+      <cache name="local" basedir="${ivy.settings.dir}/../lib/cache"
+        artifactPattern="[orgPath]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
       <cache name="maven" basedir="${maven.repo.local}"
         artifactPattern="[orgPath]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
         ivyPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].xml"
@@ -71,6 +72,7 @@
       <ibiblio name="ome-artifactory" cache="maven"
           usepoms="true" useMavenMetadata="true"
           m2compatible="true"
+          pattern="[orgPath]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
           root="https://artifacts.openmicroscopy.org/artifactory/maven/"/>
 
       <ibiblio name="unidata.releases" cache="maven"
@@ -95,7 +97,7 @@
     </chain>
 
     <!-- Resolver for OME dependencies-->
-    <chain name="ome-resolver" returnFirst="true">
+    <chain name="ome-resolver">
         <resolver ref="user-maven"/>
         <resolver ref="ome-artifactory"/>
     </chain>
