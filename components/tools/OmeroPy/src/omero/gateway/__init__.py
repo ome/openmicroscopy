@@ -4545,7 +4545,7 @@ class _BlitzGateway (object):
 
         # Matching OMEROGateway.search()
         search.setAllowLeadingWildcard(True)
-        search.setCaseSentivice(False)
+        search.setCaseSensitive(False)
 
         def parse_time(c, i):
             try:
