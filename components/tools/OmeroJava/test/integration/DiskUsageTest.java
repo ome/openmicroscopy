@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2019 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,6 +19,8 @@
 package integration;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -184,12 +186,23 @@ public class DiskUsageTest extends AbstractServerTest {
         String name = "testDV&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeT=6&sizeC=1.fake";
         final File imageFile = new File(System.getProperty("java.io.tmpdir"), name);
         imageFile.deleteOnExit();
-        imageFile.createNewFile();
+        try (final Writer out = new FileWriter(imageFile)) {
+            for (int index = 0; index < 100; index ++) {
+                out.append("fake" + index);
+            }
+        }
         fileSize = imageFile.length();
 
         final Pixels pixels = importFile(imageFile, "fake").get(0);
+        final Image image = pixels.getImage();
         pixelsId = pixels.getId().getValue();
-        imageId = pixels.getImage().getId().getValue();
+        imageId = image.getId().getValue();
+
+        final Instrument instrument = mmFactory.createInstrument();
+        final Objective objective = mmFactory.createObjective();
+        image.setInstrument(instrument);
+        objective.setInstrument(instrument);
+        iUpdate.saveArray(ImmutableList.of(image, objective));
 
         final ManageImageBinaries mibRequest = new ManageImageBinaries();
         mibRequest.imageId = imageId;
