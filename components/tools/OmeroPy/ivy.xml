@@ -27,7 +27,7 @@
   <dependencies>
     <!-- Internal -->
     <dependency org="org.openmicroscopy" name="omero-blitz" rev="${versions.omero-blitz}" transitive="false">
-	    <artifact name="omero-blitz" ext="zip" e:classifier="python"/>
+	    <artifact name="omero-blitz" type="zip" ext="zip" e:classifier="python"/>
     </dependency>
   </dependencies>
 </ivy-module>
