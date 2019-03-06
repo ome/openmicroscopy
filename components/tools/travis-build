@@ -155,9 +155,7 @@ do
             py_build ;;
         py-test)
             py_test ;;
-        integration)
-            py_flake8 && py_test && java_test;;
-        all)
+        integration | all)
             py_flake8 java_build java_test py_test ;;
         *)
             echo "Invalid argument: \"$arg\"" >&2
