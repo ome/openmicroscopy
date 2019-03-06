@@ -156,7 +156,7 @@ do
         py-test)
             py_test ;;
         integration)
-            integration ;;
+            py_flake8 && py_test && java_test;;
         all)
             py_flake8 java_build java_test py_test ;;
         *)
