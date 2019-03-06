@@ -64,7 +64,7 @@ RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
 #
 #     https://trello.com/c/rPstbt4z/216-open-ssl-110
 #
-RUN sed -i 's/\("IceSSL.Ciphers".*ADH[^"]*\)/\1:@SECLEVEL=0/' /src/components/tools/OmeroPy/src/omero/clients.py /src/etc/templates/grid/templates.xml
+# RUN sed -i 's/\("IceSSL.Ciphers".*ADH[^"]*\)/\1:@SECLEVEL=0/' /src/components/tools/OmeroPy/src/omero/clients.py /src/etc/templates/grid/templates.xml
 
 # Reproduce jenkins build
 RUN env BUILD_NUMBER=1 OMERO_BRANCH=develop bash docs/hudson/OMERO.sh
