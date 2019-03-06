@@ -123,18 +123,7 @@ build_cpp()
 integration()
 {
     fold start integration
-    if [ "x$TRAVIS_BRANCH" == "x" ]; then
-        FILES=$(git diff --name-only origin/develop...HEAD)
-    else
-        FILES=$(git diff --name-only HEAD...$TRAVIS_BRANCH)
-    fi
-    for x in $(echo "$FILES" | grep OmeroPy/test/integration); do
-        TEST=${x#components/tools/OmeroPy/}
-        export PYTHONPATH=$PYTHONPATH:../target/lib/python
-        ( cd components/tools/OmeroPy/;
-          python setup.py test -t $TEST -m "not broken"
-        )
-    done
+    ./build.py test-integration
     fold end integration
 }
 
@@ -166,9 +155,7 @@ do
             py_build ;;
         py-test)
             py_test ;;
-        integration)
-            integration ;;
-        all)
+        integration | all)
             py_flake8 java_build java_test py_test ;;
         *)
             echo "Invalid argument: \"$arg\"" >&2
