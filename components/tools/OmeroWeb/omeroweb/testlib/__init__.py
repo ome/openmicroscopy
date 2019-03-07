@@ -95,7 +95,7 @@ class IWebTest(ITest):
         """
         Imports fake image replacing tinyTest. Wavelength not supported yet
         """
-        name = "DV&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeT=6.fake"
+        name = "DV&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeT=6"
         images = self.import_fake_file(name=name, client=client)
         return images[0]
 
