@@ -39,8 +39,9 @@ class TestImgDetail(IWebTest):
         user_name = "%s %s" % (self.user.firstName.val, self.user.lastName.val)
 
         # Import image with metadata and get ImageID
-        image = self.import_image_with_metadata(client=self.client)
-        iid = image.id.val
+        images = self.import_fake_file(client=client,
+            pixelType=int16, sizeX=20, sizeY=20, sizeZ=5, sizeT=6)
+        iid = images[0].id.val
         json_url = reverse('webgateway.views.imageData_json', args=[iid])
         data = {}
         img_data = get_json(self.django_client, json_url, data,
