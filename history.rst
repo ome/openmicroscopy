@@ -58,6 +58,17 @@ Developer improvements include:
 
 - JavaGateway: add helper method to manipulate ROI masks 
 
+5.4.10 (January 2019)
+---------------------
+
+This release addresses a login issue for Java clients such as
+OMERO.insight. New releases of Java include a change to the
+``java.security`` file that disables anonymous cipher suites. This
+change causes ``SSLHandshakeException`` when the client attempts to
+authenticate to OMERO.blitz. The OMERO 5.4.10 release has some clients
+check the security property ``jdk.tls.disabledAlgorithms`` for the value
+"anon" and remove it if present thus allowing authentication to proceed.
+
 5.4.9 (October 2018)
 --------------------
 
