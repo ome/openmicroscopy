@@ -40,7 +40,7 @@ class TestImgDetail(IWebTest):
 
         # Import image with metadata and get ImageID
         images = self.import_fake_file(
-            client=client, pixelType="int16", sizeX=20, sizeY=20, sizeZ=5,
+            client=self.client, pixelType="int16", sizeX=20, sizeY=20, sizeZ=5,
             sizeT=6)
         iid = images[0].id.val
         json_url = reverse('webgateway.views.imageData_json', args=[iid])
