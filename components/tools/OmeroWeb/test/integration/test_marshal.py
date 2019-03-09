@@ -60,13 +60,13 @@ class TestImgDetail(IWebTest):
             'color': "808080",
             'active': True,
             'window': {
-                'max': 29,
-                'end': 29,
-                'start': -32768,
-                'min': -32768
+                'max': 32767.0,
+                'end': 12.0,
+                'start': -32768.0,
+                'min': -32768.0
             },
             'family': 'linear',
-            'coefficient': 1,
+            'coefficient': 1.0,
             'reverseIntensity': False,
             'inverted': False,
             'emissionWave': None,
