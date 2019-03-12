@@ -53,10 +53,22 @@ COPY test.xml /src/
 COPY LICENSE.txt /src/
 COPY history.rst /src/
 RUN chown -R 1000 /src
+
+# TODO: Required to download snapshot omero-build artifacts
+COPY download-repo-jars /src/download-repo-jars
+RUN chown -R 1000 /src/download-repo-jars && \
+    apt-get install -y maven
+
 USER 1000
 WORKDIR /src
 ENV ICE_CONFIG=/src/etc/ice.config
 RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
+
+# TODO: Required to download snapshot omero-build artifacts
+# E.g. http://nexus:8081/nexus/repository/maven-internal/
+ARG MAVEN_SNAPSHOTS_REPO_URL
+RUN mvn -f download-repo-jars/pom1.xml dependency:copy-dependencies && \
+    mvn -f download-repo-jars/pom2.xml dependency:copy-dependencies
 
 # The following may be necessary depending on
 # which images you are using. See the following
