@@ -22,7 +22,7 @@ pipeline {
                 // (Moving to Docker should fix this)
                 sh 'mvn -Dmaven.repo.local="$PWD/m2/repository" -f download-repo-jars/pom1.xml dependency:copy-dependencies'
                 sh 'mvn -Dmaven.repo.local="$PWD/m2/repository" -f download-repo-jars/pom2.xml dependency:copy-dependencies'
-                sh 'OMERO_BRANCH=$GIT_BRANCH BUILD_PY_ARGS-Dmaven.repo.local="$PWD/m2/repository" bash docs/hudson/OMERO.sh'
+                sh 'OMERO_BRANCH=$GIT_BRANCH BUILD_PY_ARGS=-Dmaven.repo.local="$PWD/m2/repository" bash docs/hudson/OMERO.sh'
                 archiveArtifacts artifacts: './target/*.zip,./target/*.egg,./target/*.log,./target/*INFO'
             }
         }
