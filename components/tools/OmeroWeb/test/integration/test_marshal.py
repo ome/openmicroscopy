@@ -39,8 +39,10 @@ class TestImgDetail(IWebTest):
         user_name = "%s %s" % (self.user.firstName.val, self.user.lastName.val)
 
         # Import image with metadata and get ImageID
-        image = self.import_image_with_metadata(client=self.client)
-        iid = image.id.val
+        images = self.import_fake_file(
+            client=self.client, pixelType="int16", sizeX=20, sizeY=20, sizeZ=5,
+            sizeT=6)
+        iid = images[0].id.val
         json_url = reverse('webgateway.views.imageData_json', args=[iid])
         data = {}
         img_data = get_json(self.django_client, json_url, data,
@@ -55,16 +57,16 @@ class TestImgDetail(IWebTest):
         # Channels metadata
         assert len(img_data['channels']) == 1
         assert img_data['channels'][0] == {
-            'color': "000000",
+            'color': "808080",
             'active': True,
             'window': {
-                'max': 32767,
-                'end': 12,
-                'start': -32768,
-                'min': -32768
+                'max': 32767.0,
+                'end': 12.0,
+                'start': -32768.0,
+                'min': -32768.0
             },
             'family': 'linear',
-            'coefficient': 1,
+            'coefficient': 1.0,
             'reverseIntensity': False,
             'inverted': False,
             'emissionWave': None,

@@ -95,8 +95,13 @@ class IWebTest(ITest):
         """
         Imports fake image replacing tinyTest. Wavelength not supported yet
         """
-        name = "DV&pixelType=int16&sizeX=20&sizeY=20&sizeZ=5&sizeT=6.fake"
-        images = self.import_fake_file(name=name, client=client)
+        warnings.warn(
+            "This method is deprecated as of OMERO 5.5.0. Use"
+            " omero.test_lib.import_fake_file",
+            DeprecationWarning)
+        images = self.import_fake_file(
+            client=client, pixelType="int16", sizeX=20, sizeY=20, sizeZ=5,
+            sizeT=6)
         return images[0]
 
 
