@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Download dependencies to local m2 by running
+
+    export MAVEN_SNAPSHOTS_REPO_URL=http://example.org/maven-snapshots
+    export MAVEN_RELEASES_REPO_URL=http://example.org/maven-releases
+    # export MAVEN_SNAPSHOTS_REPO_URL=http://10.0.17.106/nexus/repository/maven-internal/
+    mvn dependency:copy-dependencies
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.openmicroscopy.temporary-bodge</groupId>
+  <artifactId>tmp</artifactId>
+  <version>5.5.0-SNAPSHOT</version>
+  <licenses>
+    <license>
+      <name>GNU General Public License, Version 2</name>
+      <url>https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <dependencies>
+
+    <!--
+      More OMERO dependencies which should be automatically included but
+      aren't, and aren't installed properly when included with other
+      dependencies in pom1.xml
+    -->
+
+    <!-- https://mvnrepository.com/artifact/commons-collections/commons-collections -->
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.2.2</version>
+    </dependency>
+
+  </dependencies>
+
+</project>

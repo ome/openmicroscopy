@@ -4,6 +4,7 @@ Download dependencies to local m2 by running
 
     export MAVEN_SNAPSHOTS_REPO_URL=http://example.org/maven-snapshots
     export MAVEN_RELEASES_REPO_URL=http://example.org/maven-releases
+    # export MAVEN_SNAPSHOTS_REPO_URL=http://10.0.17.106/nexus/repository/maven-internal/
     mvn dependency:copy-dependencies
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -43,6 +44,62 @@ Download dependencies to local m2 by running
       <version>5.5.0-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
+
+    <!--
+      OMERO dependencies which should be automatically included but aren't
+      so are included here
+    -->
+
+    <!-- https://mvnrepository.com/artifact/org.springframework/spring-context-support -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+      <version>4.3.22.RELEASE</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>4.3.14.RELEASE</version>
+    </dependency>
+
+
+    <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.1.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.openmicroscopy/ome-common -->
+    <dependency>
+      <groupId>org.openmicroscopy</groupId>
+      <artifactId>ome-common</artifactId>
+      <version>5.3.6</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/javax.activation/activation -->
+    <dependency>
+      <groupId>javax.activation</groupId>
+      <artifactId>activation</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/commons-collections/commons-collections -->
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.2</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.25</version>
+    </dependency>
+
   </dependencies>
 
   <repositories>
