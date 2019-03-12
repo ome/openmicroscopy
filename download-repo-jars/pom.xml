@@ -19,10 +19,22 @@ Download dependencies to local m2 by running
     </license>
   </licenses>
   <dependencies>
+    <!--
+      OMERO dependencies built with the new build system, current ivy
+      configuration can't downlaod them
+    -->
     <dependency>
       <groupId>org.openmicroscopy</groupId>
       <artifactId>omero-blitz</artifactId>
       <version>5.5.0-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.openmicroscopy</groupId>
+      <artifactId>omero-blitz</artifactId>
+      <version>5.5.0-SNAPSHOT</version>
+      <type>zip</type>
+      <classifier>python</classifier>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -32,6 +44,7 @@ Download dependencies to local m2 by running
       <scope>compile</scope>
     </dependency>
   </dependencies>
+
   <repositories>
     <repository>
       <id>maven-release</id>
