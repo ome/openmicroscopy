@@ -9,13 +9,14 @@ set -e
 set -u
 set -x
 
+BUILD_PY_ARGS=${BUILD_PY_ARGS:-}
 source docs/hudson/functions.sh
 echo Building $OMERO_BRANCH
 
-./build.py build-dev release-all
+./build.py $BUILD_PY_ARGS build-dev release-all
 if [ -d .git ]
 then
-  ./build.py release-src
+  ./build.py $BUILD_PY_ARGS release-src
 fi
 
 # Log information
