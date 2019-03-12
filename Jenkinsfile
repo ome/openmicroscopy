@@ -1,12 +1,13 @@
 pipeline {
     agent {
-        // Use docker to ensure we have a clean m2 repository
-        docker {
-            // Node label
-            label 'docker'
+        label 'testintegration'
 
-            image 'docker.io/manics/omero-buildenv-docker:latest'
-        }
+        // docker {
+        //     // Node label
+        //     label 'docker'
+        //
+        //     image 'docker.io/manics/omero-buildenv-docker:latest'
+        // }
     }
 
     environment {
@@ -17,9 +18,11 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'mvn -f download-repo-jars/pom1.xml dependency:copy-dependencies'
-                sh 'mvn -f download-repo-jars/pom2.xml dependency:copy-dependencies'
-                sh 'bash docs/hudson/OMERO.sh'
+                // Currently running on a build node with multiple jobs so incorrect jar may be cached so override local m2 repository
+                // (Moving to Docker should fix this)
+                sh 'mvn -Dmaven.repo.local="$PWD/m2/repository" -f download-repo-jars/pom1.xml dependency:copy-dependencies'
+                sh 'mvn -Dmaven.repo.local="$PWD/m2/repository" -f download-repo-jars/pom2.xml dependency:copy-dependencies'
+                sh 'OMERO_BRANCH=$GIT_BRANCH BUILD_PY_ARGS-Dmaven.repo.local="$PWD/m2/repository" bash docs/hudson/OMERO.sh'
                 archiveArtifacts artifacts: './target/*.zip,./target/*.egg,./target/*.log,./target/*INFO'
             }
         }
