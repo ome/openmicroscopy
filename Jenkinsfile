@@ -18,11 +18,9 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                // Currently running on a build node with multiple jobs so incorrect jar may be cached so override local m2 repository
-                // (Moving to Docker should fix this)
-                sh 'rm -rf $HOME/.m2/'
-                sh 'mvn -f download-repo-jars/pom1.xml dependency:copy-dependencies'
-                sh 'mvn -f download-repo-jars/pom2.xml dependency:copy-dependencies'
+                // Currently relying on ~/.m2/repository being populated by preceding jobs
+                //sh 'mvn -f download-repo-jars/pom1.xml dependency:copy-dependencies'
+                //sh 'mvn -f download-repo-jars/pom2.xml dependency:copy-dependencies'
                 sh '''
                     export OMERO_BRANCH=$GIT_BRANCH
                     virtualenv venv --system-site-packages
