@@ -20,10 +20,11 @@ pipeline {
             steps {
                 // Currently running on a build node with multiple jobs so incorrect jar may be cached so override local m2 repository
                 // (Moving to Docker should fix this)
-                sh 'mvn -Dmaven.repo.local="$PWD/m2/repository" -f download-repo-jars/pom1.xml dependency:copy-dependencies'
-                sh 'mvn -Dmaven.repo.local="$PWD/m2/repository" -f download-repo-jars/pom2.xml dependency:copy-dependencies'
+                sh 'rm -rf $HOME/.m2/'
+                sh 'mvn -f download-repo-jars/pom1.xml dependency:copy-dependencies'
+                sh 'mvn -f download-repo-jars/pom2.xml dependency:copy-dependencies'
                 sh '''
-                    export OMERO_BRANCH=$GIT_BRANCH BUILD_PY_ARGS=-Dmaven.repo.local="$PWD/m2/repository"
+                    export OMERO_BRANCH=$GIT_BRANCH
                     virtualenv venv --system-site-packages
                     . venv/bin/activate
                     pip install --upgrade 'pip<10' setuptools
