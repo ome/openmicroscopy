@@ -2100,6 +2100,8 @@ def annotate_file(request, conn=None, **kwargs):
             break
 
     obj_count = sum([len(selected[types]) for types in selected])
+    if obj_count == 0:
+        raise Http404('Need to specify objects via e.g. ?image=1')
 
     # Get appropriate manager, either to list available Files to add to single
     # object, or list ALL Files (multiple objects)
