@@ -35,4 +35,6 @@ urlpatterns = patterns(
     url(r'^comment/', views.send_comment, name="csend"),
     url(r'^thanks/', TemplateView.as_view(template_name='thanks.html'),
         name="fthanks"),
+    url(r'^disabled/', TemplateView.as_view(template_name='disabled.html'),
+        name="feedback_disabled"),
 )
