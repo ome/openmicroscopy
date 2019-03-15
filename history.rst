@@ -5,6 +5,15 @@
 OMERO version history
 =====================
 
+5.5.0-m4 (March 2019)
+---------------------
+
+New plugins like omero-artifact-plugin allow reducing the boilerplate
+code in the build scripts of the decoupled repositories. This will be
+the last version where all of the dependencies are released together
+with the same tag. Following releases will focuses on the decoupled
+client repositories like omero-insight and omero-matlab.
+
 5.5.0-m3 (February 2019)
 ------------------------
 
