@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -196,6 +197,41 @@ public class client {
 
     // Creation
     // =========================================================================
+
+    /**
+     * Ensure that anonymous cipher suites are enabled in the JRE.
+     */
+    static {
+        final String property = "jdk.tls.disabledAlgorithms";
+        final String value = Security.getProperty(property);
+        if (!(value == null || value.trim().isEmpty())) {
+            final List<String> algorithms = new ArrayList<>();
+            boolean isChanged = false;
+            for (String algorithm : value.split(",")) {
+                algorithm = algorithm.trim();
+                if (algorithm.isEmpty()) {
+                    /* ignore */
+                } else if ("anon".equals(algorithm.toLowerCase())) {
+                    isChanged = true;
+                } else {
+                    algorithms.add(algorithm);
+                }
+            }
+            if (isChanged) {
+                boolean needsComma = false;
+                final StringBuilder newValue = new StringBuilder();
+                for (final String algorithm : algorithms) {
+                    if (needsComma) {
+                        newValue.append(", ");
+                    } else {
+                        needsComma = true;
+                    }
+                    newValue.append(algorithm);
+                }
+                Security.setProperty(property, newValue.toString());
+            }
+        }
+    }
 
     private static Properties defaultRouter(String host, int port) {
         Properties p = new Properties();

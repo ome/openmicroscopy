@@ -253,6 +253,7 @@ class TestHdfStorage(TestCase):
     #
     # ROIs
     #
+    @pytest.mark.broken
     def testMaskColumn(self):
         hdf = HdfStorage(self.hdfpath(), self.lock)
         mask = omero.columns.MaskColumnI('mask', 'desc', None)
