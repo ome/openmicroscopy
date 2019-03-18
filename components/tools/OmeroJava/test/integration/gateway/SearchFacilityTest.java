@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2019 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,6 +18,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package integration.gateway;
 
 import java.util.ArrayList;
@@ -25,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import omero.ServerError;
+import omero.api.IUpdatePrx;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -70,8 +73,7 @@ public class SearchFacilityTest extends GatewayTest {
     protected void setUp() throws Exception {
         super.setUp();
         initData();
-        // wait a little bit for the search indexer
-        Thread.sleep(30000);
+        indexData();
     }
 
     @Test
@@ -145,5 +147,12 @@ public class SearchFacilityTest extends GatewayTest {
         this.screen = createScreen(ctx);
         this.plate = createPlate(ctx, screen);
         this.img = createImage(ctx, ds);
+    }
+
+    private void indexData() throws DSOutOfServiceException, ServerError {
+        final IUpdatePrx iUpdate = gw.getUpdateService(rootCtx);
+        for (final DataObject obj : new DataObject[] {proj, ds, screen, plate, img}) {
+            iUpdate.indexObject(obj.asIObject());
+        }
     }
 }
