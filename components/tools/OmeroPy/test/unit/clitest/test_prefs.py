@@ -36,7 +36,7 @@ class TestPrefs(object):
         self.cli = CLI()
         self.cli.register("config", PrefsControl, HELP)
         self.p = create_path()
-        self.args = ["config", "--source", "%s" % self.p]
+        self.args = ["-d1", "config", "--source", "%s" % self.p]
 
     def config(self):
         return ConfigXml(filename=str(self.p))
@@ -466,3 +466,18 @@ class TestPrefs(object):
         self.assertStdoutStderr(capsys, out=defaults)
         self.invoke("parse --file=%s --keys --no-web" % cfg)
         self.assertStdoutStderr(capsys, out=keys)
+
+    @pytest.mark.parametrize("data", (
+        (u"omero.ldap.base=ou=ascii\n", "ascii2"),
+        (u"omero.ldap.base=ou=ascii\n", "unicodé"),
+        (u"omero.ldap.base=ou=unicodé\n", "ascii"),
+        (u"omero.ldap.base=ou=unicodé\n", "unicodé2"),
+    ))
+    def testUnicode(self, tmpdir, capsys, data):
+        input, update = data
+        cfg = tmpdir.join("test.cfg")
+        cfg.write(input.encode("utf-8"), "wb")
+        self.invoke("load %s" % cfg)
+        self.invoke("get omero.ldap.base")
+        self.invoke("set omero.ldap.base %s" % update)
+        self.invoke("get omero.ldap.base")

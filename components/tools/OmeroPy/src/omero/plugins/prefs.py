@@ -472,6 +472,7 @@ class PrefsControl(WriteableConfigControl):
         except NonZeroReturnCode:
             raise
         except Exception, e:
+            self.ctx.dbg(traceback.format_exc())
             self.ctx.die(968, "Cannot read %s: %s" % (args.file, e))
         for key, value in new_config.items():
             config[key] = value

@@ -859,6 +859,9 @@ def edit_path(path_or_obj, start_text):
             editor = "Notepad.exe"
         else:
             editor = "vi"
+
+    if isinstance(start_text, unicode):
+        start_text = start_text.encode("utf-8")
     f.write_text(start_text)
 
     # If absolute, then use the path
