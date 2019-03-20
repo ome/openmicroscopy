@@ -13,7 +13,6 @@ from omero.testlib import ITest
 import pytest
 import omero
 import os
-import time
 
 
 class TestSearch(ITest):
@@ -27,8 +26,10 @@ class TestSearch(ITest):
         uuid = self.uuid().replace("-", "")
         tag = omero.model.TagAnnotationI()
         tag.ns = omero.rtypes.rstring(uuid)
-        tag = self.update.saveAndReturnObject(tag)
-        self.root.sf.getUpdateService().indexObject(tag)
+        proj = self.new_project(name="test_search")
+        proj.linkAnnotation(tag)
+        proj = self.update.saveAndReturnObject(proj)
+        self.index(proj)
         q = searcher.sf.getQueryService()
         r = q.findAllByFullText("TagAnnotation", uuid, None)
         assert 0 == len(r)
@@ -79,36 +80,40 @@ class TestSearch(ITest):
         with tag1 first, and the reverse should
         hold as well.
         """
-        tags = list()
+        proj_by_ns = {}
         for x in range(2):
+            ns = self.uuid()
             tag = omero.model.TagAnnotationI()
-            tag.ns = omero.rtypes.rstring(self.uuid())
-            tag = self.update.saveAndReturnObject(tag)
-            self.index(tag)
-            tags.append(tag.ns.val)
+            tag.ns = omero.rtypes.rstring(ns)
+            proj = self.new_project(name="test_search")
+            proj.linkAnnotation(tag)
+            proj = self.update.saveAndReturnObject(proj)
+            proj_by_ns[ns] = proj
+            self.index(proj)
+        all_ns = proj_by_ns.keys()
 
         search = self.client.sf.createSearchService()
-        search.onlyType("TagAnnotation")
+        search.onlyType("Project")
 
         # Sanity check
-        for tag in tags:
-            search.byFullText(tag)
+        for ns in all_ns:
+            search.byFullText(ns)
             res = search.results()
-            assert tag == res[0].ns.val
+            assert proj_by_ns[ns].id.val == res[0].id.val
 
         boost_query = "%s^10 OR %s^1"
 
         # Boosted
-        search.byFullText(boost_query % tuple(tags))
+        search.byFullText(boost_query % tuple(all_ns))
         res = search.results()
-        assert tags[0] == res[0].ns.val
-        assert tags[1] == res[1].ns.val
+        assert proj_by_ns[all_ns[0]].id.val == res[0].id.val
+        assert proj_by_ns[all_ns[1]].id.val == res[1].id.val
 
         # Reversed
-        search.byFullText(boost_query % tuple(reversed(tags)))
+        search.byFullText(boost_query % tuple(reversed(all_ns)))
         res = search.results()
-        assert tags[0] == res[1].ns.val
-        assert tags[1] == res[0].ns.val
+        assert proj_by_ns[all_ns[0]].id.val == res[1].id.val
+        assert proj_by_ns[all_ns[1]].id.val == res[0].id.val
 
     #
     # Helpers
@@ -184,8 +189,10 @@ class TestSearch(ITest):
             # Create a comment as the user
             t = omero.model.CommentAnnotationI()
             t.setTextValue(omero.rtypes.rstring(uuid))
-            t = u.sf.getUpdateService().saveAndReturnObject(t)
-            self.root.sf.getUpdateService().indexObject(t)  # Index
+            proj = self.new_project(name="test_search")
+            proj.linkAnnotation(t)
+            proj = u.sf.getUpdateService().saveAndReturnObject(proj)
+            self.index(proj)  # Index
 
             # And try to read it back as the leader and the admin
             for sf, who in ((a.sf, "grp-admin"), (self.root.sf, "sys-admin")):
@@ -193,7 +200,7 @@ class TestSearch(ITest):
                 # First see if IQuery.findAllByFullText works
                 # Note: it's necessary to pass {"omero.group":"-1"}
                 q = sf.getQueryService()
-                t = q.findAllByFullText("CommentAnnotation", uuid, None, all)
+                t = q.findAllByFullText("Project", uuid, None, all)
                 if not t or len(t) != 1:
                     assert False, msg % ("IQueryPrx", uuid, who, x)
 
@@ -201,7 +208,7 @@ class TestSearch(ITest):
                 # Note: it's necessary to pass {"omero.group":"-1"}
                 # during hasNext and next/results
                 s = sf.createSearchService()
-                s.onlyType("CommentAnnotation")
+                s.onlyType("Project")
                 s.byFullText(uuid)
                 if not s.hasNext(all) or len(s.results(all)) != 1:
                     assert False, msg % ("SearchPrx", uuid, who, x)
@@ -216,13 +223,15 @@ class TestSearch(ITest):
         uuid = self.uuid().replace("-", "")
         cann = omero.model.CommentAnnotationI()
         cann.textValue = omero.rtypes.rstring(uuid)
-        cann = update.saveAndReturnObject(cann)
-        self.root.sf.getUpdateService().indexObject(cann)
+        proj = self.new_project(name="test_search")
+        proj.linkAnnotation(cann)
+        proj = update.saveAndReturnObject(proj)
+        self.index(proj)
 
         rv = query.findAllByFullText(
-            "CommentAnnotation", "%s" % uuid, None)
+            "Project", "%s" % uuid, None)
         # "CommentAnnotation", "%s*" % uuid[0:6], None)
-        assert cann.id.val == rv[0].id.val
+        assert proj.id.val == rv[0].id.val
 
     def simple_uuid(self):
         uuid = self.uuid()
@@ -235,7 +244,7 @@ class TestSearch(ITest):
         uuid = self.simple_uuid()
         images = self.import_fake_file(name=uuid, client=client)
         image = images[0]
-        self.root.sf.getUpdateService().indexObject(image)
+        self.index(image)
         search = client.sf.createSearchService()
         search.onlyType("Image")
         search.setAllowLeadingWildcard(True)
@@ -275,7 +284,7 @@ class TestSearch(ITest):
         fa = omero.model.FileAnnotationI()
         fa.file = ofile.proxy()
         self.link(image, fa, client=client)
-        self.root.sf.getUpdateService().indexObject(image)
+        self.index(image)
         return image
 
     def test_csv_attachment(self, tmpdir):
@@ -305,6 +314,7 @@ class TestSearch(ITest):
         txt.write("crazy")
         image = self.attached_image(
             uuid, client, str(txt), "text/plain")
+        self.index(image)
 
         search = client.sf.createSearchService()
         try:
@@ -323,11 +333,13 @@ class TestSearch(ITest):
         client = self.new_client()
         tag = omero.model.TagAnnotationI()
         tag.textValue = omero.rtypes.rstring(word)
-        tag = client.sf.getUpdateService().saveAndReturnObject(tag)
-        self.root.sf.getUpdateService().indexObject(tag)
+        proj = self.new_project(name="test_search")
+        proj.linkAnnotation(tag)
+        proj = client.sf.getUpdateService().saveAndReturnObject(proj)
+        self.index(proj)
 
         search = client.sf.createSearchService()
-        search.onlyType("TagAnnotation")
+        search.onlyType("Project")
 
         try:
             for idx in range(len(word) - 1, 6, -1):
@@ -336,7 +348,7 @@ class TestSearch(ITest):
                     q = pattern % base
                     search.byFullText(q)
                     assert search.hasNext(), "Nothing for " + q
-                    assert [tag.id.val] == \
+                    assert [proj.id.val] == \
                            [x.id.val for x in search.results()]
 
         finally:
@@ -364,7 +376,7 @@ class TestSearch(ITest):
     def test_hyphen_underscore(self, name, test):
         client = self.new_client()
         proj = self.make_project(name, client=client)
-        self.root.sf.getUpdateService().indexObject(proj)
+        self.index(proj)
 
         search = client.sf.createSearchService()
         search.onlyType("Project")
@@ -389,7 +401,7 @@ class TestSearch(ITest):
         proj = self.new_project(name="test_map_annotations")
         proj.linkAnnotation(ann)
         proj = client.sf.getUpdateService().saveAndReturnObject(proj)
-        self.root.sf.getUpdateService().indexObject(proj)
+        self.index(proj)
 
         search = client.sf.createSearchService()
         search.onlyType("Project")
