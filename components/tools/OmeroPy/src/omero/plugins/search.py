@@ -122,7 +122,7 @@ class SearchControl(HqlControl):
                 try:
                     # Matching OMEROGateway.search()
                     search.setAllowLeadingWildcard(True)
-                    search.setCaseSentivice(False)
+                    search.setCaseSensitive(False)
                     search.onlyType(args.type)
 
                     if args.no_parse:
