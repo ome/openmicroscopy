@@ -93,6 +93,8 @@
   <!-- Adapters are also too so is a bit verbose -->
   <logger name="ome.adapters" level="ERROR"/>
 
+  <logger name="ome.logic.UpdateImpl" level="DEBUG"/>
+
   <!-- THIRD PARTY //////////////////////////////////////////////////////////// -->
   <logger name="org.apache" level="WARN"/>
   <logger name="org.jgroups" level="WARN"/>
