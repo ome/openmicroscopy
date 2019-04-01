@@ -24,6 +24,7 @@ ImportControl = plugin.ImportControl
 from omero.testlib.cli import CLITest
 import pytest
 import stat
+import os
 import re
 import yaml
 import omero
@@ -1317,3 +1318,47 @@ path: test.tsv
         images = self.get_objects(out, 'Image')
         imagenames = set([image.name.val for image in images])
         assert filenames == imagenames
+
+    @pytest.mark.parametrize("method", ['ln_s'])
+    def testReadOnlyAfterward(self, tmpdir, capfd, method):
+        """Test setting read-only with some transfer methods."""
+
+        fakefile = tmpdir.join("ro_{}.fake".format(method))
+        fakefile.write('')
+        filename = str(fakefile)
+
+        assert os.access(filename, os.R_OK)
+        assert os.access(filename, os.W_OK)
+
+        self.args += [filename]
+        self.args += ['--', '--transfer', method]
+
+        o, e = self.do_import(capfd)
+        obj = self.get_object(o, 'Image')
+
+        assert obj
+
+        assert os.access(filename, os.R_OK)
+        assert not os.access(filename, os.W_OK)
+
+    @pytest.mark.parametrize("method", ['cp', 'upload'])
+    def testReadWriteAfterward(self, tmpdir, capfd, method):
+        """Test not setting read-only with some transfer methods."""
+
+        fakefile = tmpdir.join("rw_{}.fake".format(method))
+        fakefile.write('')
+        filename = str(fakefile)
+
+        assert os.access(filename, os.R_OK)
+        assert os.access(filename, os.W_OK)
+
+        self.args += [filename]
+        self.args += ['--', '--transfer', method]
+
+        o, e = self.do_import(capfd)
+        obj = self.get_object(o, 'Image')
+
+        assert obj
+
+        assert os.access(filename, os.R_OK)
+        assert os.access(filename, os.W_OK)
