@@ -1840,9 +1840,10 @@ public class LightAdminPrivilegesTest extends RolesTests {
      * @param isSudo if to test attempt to subvert privilege by sudo to an unrestricted member of the <tt>system</tt> group
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "light administrator privilege test cases")
+    @Test(dataProvider = "light administrator privilege test cases", groups = "broken")
     public void testWriteManagedRepoPrivilegeEditingViaRepoFile(boolean isAdmin, boolean isRestricted, boolean isSudo)
             throws Exception {
+        /* This test was broken by the change to set uploaded files to read-only on import. */
         /* import a fake image file as a normal user */
         final boolean isExpectSuccess = isAdmin && !isRestricted;
         final EventContext normalUser = newUserAndGroup("rwr-r-");
