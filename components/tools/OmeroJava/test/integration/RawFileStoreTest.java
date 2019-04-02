@@ -113,7 +113,7 @@ public class RawFileStoreTest extends AbstractServerTest {
      * Test that a sensible exception is thrown when a bad file ID is set.
      * @throws Exception for bad file ID
      */
-    @Test(expectedExceptions = ServerError.class, groups = "broken")
+    @Test(expectedExceptions = ServerError.class)
     public void testBadFileId() throws Exception {
         newUserAndGroup("rw----");
         final RawFileStorePrx rfs = factory.createRawFileStore();
