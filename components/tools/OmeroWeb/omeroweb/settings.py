@@ -389,7 +389,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '{"index": 4, '
           '"class": "django.middleware.csrf.CsrfViewMiddleware"},'
           '{"index": 5, '
-          '"class": "django.contrib.messages.middleware.MessageMiddleware"}'
+          '"class": "django.contrib.messages.middleware.MessageMiddleware"},'
+          '{"index": 6, '
+          '"class": "django.middleware.clickjacking.XFrameOptionsMiddleware"}'
           ']'),
          json.loads,
          ('Warning: Only system administrators should use this feature. '
@@ -817,6 +819,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
          parse_boolean,
          ("If True, cors_origin_whitelist will not be used and all origins "
           "will be authorized to make cross-site HTTP requests.")],
+
+    "omero.web.x_frame_options":
+        ["X_FRAME_OPTIONS",
+         "SAMEORIGIN",
+         str,
+         "Whether to allow OMERO.web to be loaded in a frame."
+         ],
 
     "omero.web.django_additional_settings":
         ["DJANGO_ADDITIONAL_SETTINGS",
