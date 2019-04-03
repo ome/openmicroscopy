@@ -20,22 +20,6 @@
         keywords.
     </description>
 
-    <!-- run jybot with various arguments. Used to run insight tests.-->
-    <macrodef name="run_jybot">
-        <attribute name="failonerror" default="true"/>
-        <attribute name="filename"/>
-        <attribute name="output"/>
-        <sequential>
-            <exec executable="jybot" failonerror="@{failonerror}" dir="${reports.insight}">
-                <env key="CLASSPATH" value="${insight.dir}/app/libs/*:${insight.dir}/dist/omero.insight.jar:${target.dir}/java-ui-libraries-${omero.version}.jar:${lib.dir}/repository/swinglibrary-${versions.robotframework.swinglibrary}.jar:${lib.dir}/repository/xercesImpl-${versions.xercesImpl}.jar"/>
-                    <arg value="-d"/>
-                    <arg value="@{output}"/>
-                    <arg value="--loglevel"/>
-                    <arg value="debug"/>
-                    <arg value="${basedir}/testcases/insight/${filename}"/>
-            </exec>
-        </sequential>
-    </macrodef>
 
     <!-- run pybot with various arguments. Used to run web/cli tests.-->
     <macrodef name="run_pybot">
@@ -63,15 +47,6 @@
         </sequential>
     </macrodef>
 
-    <!-- point the build file used to generate the ui libraries -->
-    <macrodef name="librarybuild">
-        <attribute name="target"/>
-        <sequential>
-            <ant antfile="${basedir}/library/java/build.xml" inheritAll="false" inheritRefs="false" target="@{target}">
-            </ant>
-        </sequential>
-    </macrodef>
-
     <!-- The number of processes if run using pabot. -->
     <property name="pabot.processes" value="3"/>
 
@@ -87,12 +62,6 @@
     <!-- reports for the web tests. -->
     <property name="reports.web" value="${reports}/web"/>
 
-    <!-- reports for the insight tests. -->
-    <property name="reports.insight" value="${reports}/insight"/>
-
-    <!-- reports for the cli tests. -->
-    <property name="reports.cli" value="${reports}/cli"/>
-
     <!-- reports for the cli tests. -->
     <property name="target.images" value="${basedir}/target/images"/>
 
@@ -103,32 +72,11 @@
 
     <property name="target.dir" value="${basedir}/../../../target/repository"/>
 
-    <property name="insight.dir" value="${basedir}/../../insight/OUT"/>
-
     <!-- file created while running the web-browser -DBROWSER=chrome target -->
     <property name="google.log" value="${basedir}/libpeerconnection.log"/>
 
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
-
-    <!-- set up the directory for insight reports. -->
-    <target name="setup-dir">
-        <echo message="deprecated. insight tests are no longer run"/>
-        <mkdir dir="${reports.insight}" />
-        <!-- copy the config folder. This should be modified later -->
-        <mkdir dir="${reports.insight}/config"/>
-        <copy todir="${reports.insight}/config" verbose="yes" flatten="yes" failonerror="no">
-            <fileset dir="${insight.dir}/../config"/>
-        </copy>
-    </target>
-
-    <!--  run the web, insight and CLI tests -->
-    <target name="test-all" unless="env.NOPYTHON">
-        <echo message="deprecated. Use ui-test-web instead"/>
-        <antcall target="ui-test-insight" inheritRefs="true" inheritAll="true"/>
-        <antcall target="ui-test-web" inheritRefs="true" inheritAll="true"/>
-        <antcall target="test-cli" inheritRefs="true" inheritAll="true"/>
-    </target>
 
 
     <!-- aggregate the results to publish them -->
@@ -200,84 +148,6 @@
 	    <fail unless="hasconfig" message="The configuration file ${basedir}/resources/config.txt does not exist. Please follow instructions under ${basedir}/README.md." />
 	</target>
 
-    <!-- run the cli tests. -->
-    <target name="test-cli" depends="check-config-file">
-        <echo message="deprecated. The insight tests are no longer run"/>
-        <mkdir dir="${reports.cli}" />
-        <!--<touch file="${reports.cli}/error.log"/>-->
-        <var name="target" value="cli/"/>
-        <if><isset property="TEST"/>
-            <then>
-                <var name="target" value="cli/${TEST}"/>
-            </then>
-        </if>
-        <exec executable="pybot" failonerror="${test.with.fail}" dir="../../../dist/">
-            <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>    
-            <redirector error="${reports.cli}/cli.log" alwayslog="false"/>       
-            <arg value="-d"/>
-            <arg value="${reports.cli}"/>
-            <arg value="--loglevel"/>
-            <arg value="debug"/>
-            <arg value="${basedir}/testcases/${target}"/>
-        </exec>
-    </target>
-    <!-- run all the tests for insight -->
-    <target name="run_all_insight" depends="setup-dir">
-        <echo message="deprecated. The insight tests are no longer run"/>
-        <!-- execute sub-directory per sub-directory -->
-        <for param="file">
-            <path>
-                <dirset dir="${basedir}/testcases/insight" includes="*"/>
-            </path>
-            <sequential>
-                <local name="filename" />
-                <basename property="filename" file="@{file}"/>
-                <var name="output" value="${reports.insight}/${filename}"/>
-                <mkdir dir="${output}" />
-                <run_jybot failonerror="${test.with.fail}" filename="${filename}" output="${output}"/>
-            </sequential>
-        </for>
-    </target>
-
-    <!-- run the tests in the specified folder or run the speficied test. -->
-    <target name="run_folder_insight" depends="setup-dir">
-        <echo message="deprecated. The insight tests are no longer run"/>
-        <var name="filename" value="${TEST}"/>
-        <if>
-            <available file="${basedir}/testcases/insight/${filename}" type="dir"/>
-            <then>
-                <var name="output" value="${reports.insight}/${filename}"/>
-                <mkdir dir="${output}" />
-                <run_jybot failonerror="${test.with.fail}" filename="testcases/insight/${filename}" output="${output}"/>
-            </then>
-            <else>
-                <antcall target="run_single_insight" inheritRefs="true" inheritAll="true"/>
-            </else>
-        </if>
-    </target>
-
-    <!-- run the specified test -->
-    <target name="run_single_insight" depends="setup-dir">
-        <echo message="deprecated. The insight tests are no longer run"/>
-        <var name="filename" value="${TEST}"/>
-        <dirname file="${filename}" property="filename.parent" />
-        <basename property="parent" file="${filename.parent}"/>
-        <var name="output" value="${reports.insight}/${parent}"/>
-        <mkdir dir="${output}" />
-        <run_jybot failonerror="${test.with.fail}" filename="testcases/insight/${filename}" output="${output}"/>
-    </target>
-
-    <!--  run the insight tests -->
-    <target name="ui-test-insight" depends="check-config-file">
-        <echo message="deprecated. The insight tests are no longer run"/>
-        <if><isset property="TEST"/><then>
-            <antcall target="run_folder_insight" inheritRefs="true" inheritAll="true"/></then>
-            <else>
-                <antcall target="run_all_insight" inheritRefs="true" inheritAll="true"/>
-            </else>
-        </if>
-    </target>
-
     <!--  run all the web tests -->
     <target name="ui-test-web">
         <antcall target="web-browser" inheritRefs="true" inheritAll="true"/>
@@ -290,22 +160,6 @@
     <target name="ui-test-web-pabot">
         <antcall target="web-browser-pabot" inheritRefs="true" inheritAll="true"/>
         <antcall target="web-browser-pabot" inheritRefs="true" inheritAll="true">
-            <param name="BROWSER" value="chrome"/>
-        </antcall>
-    </target>
-
-    <!-- test with firefox -->
-    <!-- deprecated use web-browser instead -->
-    <target name="web-firefox" depends="check-config-file">
-        <echo message="deprecated use web-browser instead"/>
-        <antcall target="web-browser" inheritRefs="true" inheritAll="true"/>
-    </target>
-
-    <!-- test with chrome. The chrome driver has to be installed -->
-    <!-- deprecated use web-browser -DBROWSER=chrome instead -->
-    <target name="web-chrome" depends="check-config-file">
-        <echo message="deprecated use web-browser -DBROWSER=chrome instead"/>
-        <antcall target="web-browser" inheritRefs="true" inheritAll="true">
             <param name="BROWSER" value="chrome"/>
         </antcall>
     </target>
@@ -479,13 +333,9 @@
         </if>
     </target>
 
-    <target name="tests-dist">
-        <librarybuild target="dist"/>
-    </target>
+    <target name="tests-dist" />
 
-    <target name="package" depends="lifecycle.package">
-        <librarybuild target="jar"/>
-    </target>
+    <target name="package" depends="lifecycle.package" />
 
     <!-- delete the reports directory -->
     <target name="tests-clean" depends="clean">
@@ -499,7 +349,5 @@
     <!-- no-operation -->
     <target name="integration" description=""/>
 
-    <target name="test">
-        <librarybuild target="test"/>
-    </target>
+    <target name="test" />
 </project>
