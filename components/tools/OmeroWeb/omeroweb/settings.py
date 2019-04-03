@@ -471,6 +471,18 @@ CUSTOM_SETTINGS_MAPPINGS = {
          None,
          leave_none_unset,
          "The name to use for session cookies"],
+    "omero.web.session_cookie_secure":
+        ["SESSION_COOKIE_SECURE",
+         "false",
+         parse_boolean,
+         ("Restrict session cookies to HTTPS only, you are strongly "
+          "recommended to set this to ``true`` in production.")],
+    "omero.web.csrf_cookie_secure":
+        ["CSRF_COOKIE_SECURE",
+         "false",
+         parse_boolean,
+         ("Restrict CSRF cookies to HTTPS only, you are strongly "
+          "recommended to set this to ``true`` in production.")],
     "omero.web.logdir":
         ["LOGDIR", LOGDIR, str, "A path to the custom log directory."],
     "omero.web.secure_proxy_ssl_header":
@@ -1247,6 +1259,10 @@ PIPELINE_JS = {
         'output_filename': 'omeroweb.viewer.min.js',
     }
 }
+
+SESSION_COOKIE_HTTPONLY = True
+# TODO: CSRF_COOKIE_HTTPONLY breaks OMERO.web javascript POSTs
+# CSRF_COOKIE_HTTPONLY = True
 
 CSRF_FAILURE_VIEW = "omeroweb.feedback.views.csrf_failure"
 
