@@ -10,6 +10,7 @@
 
 import traceback
 from datetime import datetime
+from jinja2 import Template
 from omero.cli import DiagnosticsControl
 from omero.cli import CLI
 import platform
@@ -301,9 +302,9 @@ class WebControl(DiagnosticsControl):
                          "Web template configuration requires"
                          "wsgi or wsgi-tcp.")
 
-        template_file = "%s.conf.template" % server
+        template_file = "%s.conf.j2" % server
         c = file(self._get_web_templates_dir() / template_file).read()
-        self.ctx.out(c % d)
+        self.ctx.out(Template(c).render(d))
 
     def syncmedia(self, args):
         self.collectstatic()
