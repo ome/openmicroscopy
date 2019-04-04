@@ -1293,7 +1293,7 @@ def load_plate(request, o1_type=None, o1_id=None, conn=None, **kwargs):
                 index = fields[0]
 
         # Show parameter will be well-1|well-2
-        show = request.REQUEST.get('show')
+        show = request.GET.get('show')
         if show is not None:
             wells_to_select = []
             for w in show.split("|"):
