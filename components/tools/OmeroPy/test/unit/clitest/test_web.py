@@ -27,7 +27,10 @@ from path import path
 import getpass
 import Ice
 import omero.cli
-from omero.plugins.web import WebControl
+from omero.plugins.web import (
+    APACHE_MOD_WSGI_ERR,
+    WebControl
+)
 from omeroweb import settings
 
 
@@ -185,13 +188,8 @@ class TestWeb(object):
         csout = "Clearing expired sessions. This may take some time... [OK]"
         assert csout == o.split(os.linesep)[0]
         if app_server in ('wsgi',):
-            stderr0 = ("[ERROR] You are deploying OMERO.web using Apache and"
-                       " mod_wsgi. OMERO.web does not provide any management"
-                       " for the daemon process which communicates"
-                       " with Apache child processes using UNIX sockets"
-                       " to handle a request.")
-            assert stderr0 == e.split(os.linesep)[0]
-            assert 2 == len(e.split(os.linesep))-1
+            assert APACHE_MOD_WSGI_ERR == e.split(os.linesep)[0]
+            assert 1 == len(e.split(os.linesep))-1
         elif app_server in ('wsgi-tcp',):
             startout = "Starting OMERO.web... [OK]"
             assert startout == o.split(os.linesep)[1]
@@ -211,9 +209,7 @@ class TestWeb(object):
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
         if app_server in ('wsgi',):
-            stderr = ("You are deploying OMERO.web using apache and mod_wsgi."
-                      " Cannot check status.")
-            assert stderr in e.split(os.linesep)[0]
+            assert APACHE_MOD_WSGI_ERR in e.split(os.linesep)[0]
             assert 1 == len(e.split(os.linesep))-1
         elif app_server in ('wsgi-tcp',):
             stdout = (

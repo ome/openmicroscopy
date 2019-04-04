@@ -103,8 +103,7 @@ def assert_config_argtype(func):
                     "nginx-location",
                 ):
                     mismatch = True
-            if (settings.APPLICATION_SERVER in (settings.WSGI,) and
-                    argtype not in ("apache22", "apache24", "apache")):
+            if (settings.APPLICATION_SERVER in (settings.WSGI,)):
                 mismatch = True
             if mismatch:
                 self.ctx.die(680,
@@ -119,14 +118,10 @@ def assert_config_argtype(func):
 
 class WebControl(DiagnosticsControl):
 
-    # DEPRECATED: apache
     config_choices = (
         "nginx",
         "nginx-development",
         "nginx-location",
-        "apache22",
-        "apache24",
-        "apache",
     )
 
     def _configure(self, parser):
@@ -171,8 +166,7 @@ class WebControl(DiagnosticsControl):
             "  nginx: Nginx system configuration for inclusion\n"
             "  nginx-development: Standalone user-run Nginx server\n"
             "  nginx-location: Minimal location blocks (experts only)\n"
-            "  apache22: Apache 2.2 with mod_wsgi\n"
-            "  apache24: Apache 2.4+ with mod_wsgi\n")
+        )
         config.add_argument("type", choices=self.config_choices)
         nginx_group = config.add_argument_group(
             'Nginx arguments', 'Optional arguments for nginx templates.')
@@ -255,41 +249,11 @@ class WebControl(DiagnosticsControl):
     def _get_web_templates_dir(self):
         return self.ctx.dir / "etc" / "templates" / "web"
 
-    def _set_apache_wsgi(self, d, settings):
-        # WSGIDaemonProcess requires python-path and user
-        try:
-            import pwd
-            d["OMEROUSER"] = pwd.getpwuid(os.getuid()).pw_name
-        except ImportError:
-            import getpass
-            d["OMEROUSER"] = getpass.getuser()
-        try:
-            import Ice
-            d["ICEPYTHONROOT"] = os.path.dirname(Ice.__file__)
-        except:
-            print traceback.print_exc()
-            self.ctx.err(
-                "Cannot import Ice.")
-        try:
-            pythonpath = os.pathsep.join([
-                self._get_python_dir(),
-                os.environ.get("PYTHONPATH", None)])
-        except:
-            pythonpath = self._get_python_dir()
-        d["OMEROPYTHONROOT"] = pythonpath
-        d["OMEROFALLBACKROOT"] = self._get_fallback_dir()
-
     @config_required
     @assert_config_argtype
     def config(self, args, settings):
         """Generate a configuration file from a template"""
         server = args.type
-        # DEPRECATED: apache
-        if server == "apache":
-            server = "apache22"
-        if server in ("apache22", "apache24"):
-            self.ctx.err(("WARNING: Apache and mod_wsgi are deprecated."
-                          " Please use nginx."))
         if args.http:
             port = args.http
         elif server in ('nginx-development',):
@@ -312,11 +276,8 @@ class WebControl(DiagnosticsControl):
             "STATIC_URL": settings.STATIC_URL.rstrip("/"),
             "NOW": str(datetime.now())}
 
-        if server in ("nginx", "nginx-development",
-                      "apache22", "apache24"):
+        if server in ("nginx", "nginx-development"):
             d["HTTPPORT"] = port
-
-        if server in ("nginx", "nginx-development",):
             d["MAX_BODY_SIZE"] = args.max_body_size
             d["SERVERNAME"] = servername
 
@@ -332,24 +293,6 @@ class WebControl(DiagnosticsControl):
             d["FORCE_SCRIPT_NAME"] = "/"
             d["PREFIX_NAME"] = ""
 
-        if server in ("apache22", "apache24"):
-            try:
-                d["WEB_PREFIX"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
-            except:
-                d["WEB_PREFIX"] = "/"
-            try:
-                d["PROCESSES"] = settings.WSGI_WORKERS
-            except:
-                d["PROCESSES"] = 5
-            try:
-                d["THREADS"] = settings.WSGI_THREADS
-            except:
-                d["THREADS"] = 1
-            try:
-                d["MAX_REQUESTS"] = settings.APPLICATION_SERVER_MAX_REQUESTS
-            except:
-                d["MAX_REQUESTS"] = 0
-
         d["FASTCGI_EXTERNAL"] = '%s:%s' % (
             settings.APPLICATION_SERVER_HOST, settings.APPLICATION_SERVER_PORT)
 
@@ -357,9 +300,6 @@ class WebControl(DiagnosticsControl):
             self.ctx.die(679,
                          "Web template configuration requires"
                          "wsgi or wsgi-tcp.")
-
-        if server in ("apache22", "apache24"):
-            self._set_apache_wsgi(d, settings)
 
         template_file = "%s.conf.template" % server
         c = file(self._get_web_templates_dir() / template_file).read()
@@ -659,8 +599,7 @@ class WebControl(DiagnosticsControl):
                 self.ctx.out("[NOT STARTED]")
                 return True
         elif deploy in (settings.WSGI,):
-            self.ctx.err("You are deploying OMERO.web using apache and"
-                         " mod_wsgi. Cannot check status.")
+            self.ctx.err(APACHE_MOD_WSGI_ERR)
             return False
         elif deploy in settings.DEVELOPMENT:
             self.ctx.err(
