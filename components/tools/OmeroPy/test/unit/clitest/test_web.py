@@ -190,11 +190,7 @@ class TestWeb(object):
                        " for the daemon process which communicates"
                        " with Apache child processes using UNIX sockets"
                        " to handle a request.")
-            stderr1 = ("Generate apache config using"
-                       " 'omero web config apache' or"
-                       " 'omero web config apache24' and reload web server.")
             assert stderr0 == e.split(os.linesep)[0]
-            assert stderr1 == e.split(os.linesep)[1]
             assert 2 == len(e.split(os.linesep))-1
         elif app_server in ('wsgi-tcp',):
             startout = "Starting OMERO.web... [OK]"

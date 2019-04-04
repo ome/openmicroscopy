@@ -530,10 +530,7 @@ class WebControl(DiagnosticsControl):
         deploy = getattr(settings, 'APPLICATION_SERVER')
 
         if deploy in (settings.WSGI,):
-            self.ctx.die(609, "%s\nGenerate apache config using"
-                         " 'omero web config apache' or"
-                         " 'omero web config apache24' and reload"
-                         " web server." % APACHE_MOD_WSGI_ERR)
+            self.ctx.die(609, APACHE_MOD_WSGI_ERR)
 
         else:
             self.ctx.out("Starting OMERO.web... ", newline=False)
@@ -628,8 +625,7 @@ class WebControl(DiagnosticsControl):
             else:
                 self.ctx.err("[NOT STARTED]")
         elif deploy in (settings.WSGI,):
-            self.ctx.err("%s Please check Apache "
-                         "directly." % APACHE_MOD_WSGI_ERR)
+            self.ctx.err(APACHE_MOD_WSGI_ERR)
         elif deploy in (settings.DEVELOPMENT,):
             self.ctx.err(
                 "DEVELOPMENT: You will have to kill processes by hand!")
