@@ -19,6 +19,7 @@ import sys
 import stat
 import platform
 import datetime
+import json
 import time
 
 from glob import glob
@@ -1041,6 +1042,17 @@ present, the user will enter a console""")
                 sb += " # %s" % settings
             self.ctx.out("%s=%s" % (k, sb))
 
+    def _glacier2_icessl_xml(self, jsonpropstr):
+        glacier2_icessl = {
+            "IceSSL.ProtocolVersionMax": "tls1_1",  # mac bug
+            "IceSSL.Ciphers": "ADH:!LOW:!MD5:!EXP:!3DES:@STRENGTH",
+            "IceSSL.VerifyPeer": "0",
+            "IceSSL.Protocols": "tls1",
+        }
+        glacier2_icessl.update(json.loads(jsonpropstr))
+        return ['<property name="%s" value="%s"/>' % kv
+                for kv in glacier2_icessl.items()]
+
     @with_config
     def rewrite(self, args, config, force=False):
         """
@@ -1067,7 +1079,14 @@ present, the user will enter a console""")
         if generated.exists():
             generated.remove()
         config2 = omero.config.ConfigXml(str(generated))
-        template_xml = XML(templates.text())
+
+        glacier2_icessl_overrides = config.as_map().get(
+            'omero.glacier2.IceSSL', '{}')
+        template_xml_text = templates.text().replace(
+            '@omero.glacier2.icessl@',
+            '\n'.join(self._glacier2_icessl_xml(glacier2_icessl_overrides)))
+        template_xml = XML(template_xml_text)
+
         try:
             rv = adjust_settings(config, template_xml)
         except Exception, e:
