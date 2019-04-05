@@ -134,7 +134,7 @@ public class PermissionsTest extends AbstractServerTest {
      * @param annotateeClass the class of which to try annotating an instance
      * @throws Exception unexpected
      */
-    @Test(dataProvider = "annotation classes", groups = "broken")
+    @Test(dataProvider = "annotation classes")
     public void testCanAnnotateConsistency(Class<? extends IObject> annotateeClass)
             throws Exception {
         final Parameters params = new ParametersI().page(0, 1);
