@@ -128,7 +128,7 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                     var html = "";
                     var showHead = true;
                     // If not batch_annotate, add placeholder to create map ann
-                    if (canAnnotate && !batchAnn) {
+                    if (canAnnotate) {
                         if (my_client_map_annotations.length === 0) {
                             showHead = false;
                             my_client_map_annotations = [{}];   // placeholder
@@ -136,13 +136,22 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                     }
                     // In batch_annotate view, we show which object each map is linked to
                     var showParent = batchAnn;
-                    html = mapAnnsTempl({'anns': my_client_map_annotations,
+                    if (batchAnn && canAnnotate) {
+                        html += mapAnnsTempl({'anns': [{}],
+                        'showTableHead': showHead, 'showNs': false, 'clientMapAnn': true, 'showParent': showParent});
+                    }
+                    html = html + mapAnnsTempl({'anns': my_client_map_annotations,
                         'showTableHead': showHead, 'showNs': false, 'clientMapAnn': true, 'showParent': showParent});
                     html = html + mapAnnsTempl({'anns': client_map_annotations,
                         'showTableHead': false, 'showNs': false, 'clientMapAnn': true, 'showParent': showParent});
                     html = html + mapAnnsTempl({'anns': map_annotations,
                         'showTableHead': false, 'showNs': true, 'clientMapAnn': false, 'showParent': showParent});
                     $mapAnnContainer.html(html);
+
+                    // re-use the ajaxdata to set Object IDS data on the parent container
+                    // removing unwanted keys first
+                    delete ajaxdata['type'];
+                    $mapAnnContainer.data('objIds', ajaxdata);
 
                     // Finish up...
                     OME.linkify_element($( "table.keyValueTable" ));
