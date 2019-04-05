@@ -368,6 +368,18 @@ class WellView(ObjectView):
         return marshalled
 
 
+class RoiView(ObjectView):
+    """Handle access to an individual ROI to GET or DELETE it."""
+
+    OMERO_TYPE = 'Roi'
+
+    def get_opts(self, request, **kwargs):
+        """Add extra parameters to the opts dict."""
+        opts = super(RoiView, self).get_opts(request, **kwargs)
+        opts['load_shapes'] = True
+        return opts
+
+
 class ObjectsView(ApiView):
     """Base class for listing objects."""
 
@@ -668,6 +680,12 @@ class RoisView(ObjectsView):
     """Handles GET for /rois/ to list available ROIs with Shapes."""
 
     OMERO_TYPE = 'Roi'
+
+    # Urls to add to marshalled object. See ProjectsView for more details
+    urls = {
+        'url:roi': {'name': 'api_roi',
+                    'kwargs': {'object_id': 'OBJECT_ID'}}
+    }
 
     def get_opts(self, request, **kwargs):
         """Add extra parameters to the opts dict."""

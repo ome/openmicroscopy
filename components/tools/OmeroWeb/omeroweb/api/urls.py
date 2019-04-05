@@ -283,6 +283,14 @@ api_rois = url(r'^v(?P<api_version>%s)/m/rois/$' % versions,
 GET all rois, using omero-marshal to generate json
 """
 
+api_roi = url(
+    r'^v(?P<api_version>%s)/m/rois/(?P<object_id>[0-9]+)/$' % versions,
+    views.RoiView.as_view(),
+    name='api_roi')
+"""
+ROI url to GET or DELETE a single ROI
+"""
+
 api_image_rois = url(
     r'^v(?P<api_version>%s)/m/images/'
     '(?P<image_id>[0-9]+)/rois/$' % versions,
@@ -326,5 +334,6 @@ urlpatterns = patterns(
     api_well,
     api_plate_screens,
     api_rois,
+    api_roi,
     api_image_rois,
 )
