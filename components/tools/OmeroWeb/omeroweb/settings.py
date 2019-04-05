@@ -362,10 +362,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["APPLICATION_SERVER",
          DEFAULT_SERVER_TYPE,
          check_server_type,
-         ("OMERO.web is configured to run in Gunicorn as a generic WSGI "
-          "application by default. If you are using Apache change this "
-          "to \"wsgi\" before generating your web server configuration. "
-          "Available options: \"wsgi-tcp\" (Gunicorn), \"wsgi\" (Apache)")],
+         ("OMERO.web is configured to run in Gunicorn as a generic WSGI (TCP)"
+          "application by default. Available options: ``wsgi-tcp`` "
+          "(Gunicorn, default), ``wsgi`` (Advanced users only, e.g. manual "
+          "Apache configuration with ``mod_wsgi``).")],
     "omero.web.application_server.host":
         ["APPLICATION_SERVER_HOST",
          "127.0.0.1",
