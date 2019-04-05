@@ -18,7 +18,7 @@ from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper, \
     ImageWrapper, TagAnnotationWrapper, ScreenWrapper, PlateWrapper, \
     PlateAcquisitionWrapper
 from omero.model import ProjectI, DatasetI, TagAnnotationI, ScreenI, PlateI, \
-    WellI, WellSampleI, PlateAcquisitionI
+    WellI, WellSampleI, PlateAcquisitionI, RoiI, ImageI
 from omero.rtypes import rstring, rint
 from omeroweb.webclient.show import Show, IncorrectMenuError, \
     paths_to_object, get_image_ids
@@ -127,6 +127,30 @@ class TestShow(IWebTest):
         dataset.linkImage(image)
         project.linkDataset(dataset)
         return self.update.saveAndReturnObject(project)
+
+    @pytest.fixture
+    def project_dataset_image_roi(self):
+        """
+        Returns a new OMERO Project, linked Dataset, Image and ROI.
+        """
+        project = ProjectI()
+        project.name = rstring(self.uuid())
+        dataset = DatasetI()
+        dataset.name = rstring(self.uuid())
+        image = self.new_image(name=self.uuid())
+        image = self.update.saveAndReturnObject(image)
+
+        dataset.linkImage(ImageI(image.id.val, False))
+        project.linkDataset(dataset)
+        project = self.update.saveAndReturnObject(project)
+
+        print "Fixture project_dataset_image_roi image", image.id.val
+        roi = RoiI()
+        roi.image = ImageI(image.id.val, False)
+        roi = self.update.saveAndReturnObject(roi)
+
+        return (project, roi)
+
 
     @pytest.fixture(params=[1, 2])
     def tag(self, request):
@@ -526,6 +550,30 @@ class TestShow(IWebTest):
                 self.path, data={'show': as_string}),
             'initially_select': initially_select,
             'initially_open': initially_open
+        }
+
+    @pytest.fixture
+    def project_dataset_image_roi_show_request(self, project_dataset_image_roi):
+        """
+        Returns a simple GET request object with the 'show' query string
+        variable set in the form ("roi-id").
+        """
+        project, roi = project_dataset_image_roi
+        dataset, = project.linkedDatasetList()
+        image, = dataset.linkedImageList()
+
+        as_string = 'roi-%d' % roi.id.val
+        initially_select = ['image-%d' % image.id.val]
+        initially_open = [
+            'project-%d' % project.id.val,
+            'dataset-%d' % dataset.id.val,
+            'image-%d' % image.id.val
+        ]
+        return {
+            'request': self.request_factory.get(
+                self.path, data={'show': as_string}),
+            'initially_select': initially_select,
+            'initially_open': initially_open,
         }
 
     @pytest.fixture
@@ -942,6 +990,27 @@ class TestShow(IWebTest):
         assert show._first_selected == first_selected
         assert show.initially_select == \
             project_dataset_image_show_request['initially_select']
+
+    def test_project_dataset_image_roi_show(
+            self, project_dataset_image_roi_show_request,
+            project_dataset_image_roi):
+        """For ?show=roi-id we expect to select the Image."""
+        show = Show(
+            self.conn, project_dataset_image_roi_show_request['request'], None)
+        self.assert_instantiation(show)
+        project, roi = project_dataset_image_roi
+        dataset, = project.linkedDatasetList()
+        image, = dataset.linkedImageList()
+        first_selected = show.first_selected
+        assert first_selected is not None
+        assert isinstance(first_selected, ImageWrapper)
+        assert first_selected.getId() == image.id.val
+        assert show.initially_open == \
+            project_dataset_image_roi_show_request['initially_open']
+        assert show.initially_open_owner == project.details.owner.id.val
+        assert show._first_selected == first_selected
+        assert show.initially_select == \
+            project_dataset_image_roi_show_request['initially_select']
 
     def test_project_by_id(self, project_by_id_path_request, project):
         show = Show(self.conn, project_by_id_path_request['request'], None)
