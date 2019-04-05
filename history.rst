@@ -11,7 +11,7 @@ OMERO version history
  - test: fix and update tests following the migrations
  - web: remove usage of deprecated calls
  - web: remove apache config
- - doc: fix broken following migration
+ - doc: fix broken links following migration
 
 5.5.0-m4 (March 2019)
 ---------------------
