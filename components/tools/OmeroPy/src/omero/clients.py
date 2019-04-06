@@ -303,12 +303,14 @@ class BaseClient(object):
         # omero/util/sessions.py may initialise this class with a property-map
         if not host and pmap and 'omero.host' in pmap:
             host = pmap['omero.host']
+        if not port and pmap and 'omero.port' in pmap:
+            port = pmap['omero.port']
         if not host:
             return {}
 
         hostmatch = re.match(
             '(?P<protocol>\\w+)://'
-            '(?P<server>\\w+)'
+            '(?P<server>[^:/]+)'
             '(:(?P<port>\\d+))?'
             '(?P<path>/.*)?$',
             host)
