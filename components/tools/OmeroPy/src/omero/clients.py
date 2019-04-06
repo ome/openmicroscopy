@@ -123,7 +123,10 @@ class BaseClient(object):
         # hosturl overrides all other args
         hosturl = self._check_for_hosturl(host, port, pmap)
         if hosturl:
-            host = hosturl['server']
+            # omero.clients does a lot of mysterious magic autodetection.
+            # If host is set it overrides the endpoint so instead set host to
+            # None and store the host in a separate property omero.url.host
+            host = None
             port = hosturl['port']
             args.append(self._get_endpoint_from_hosturl(hosturl))
 
@@ -137,6 +140,8 @@ class BaseClient(object):
         id.properties.parseCommandLineOptions("omero", args)
         if host:
             id.properties.setProperty("omero.host", str(host))
+        if hosturl:
+            id.properties.setProperty("omero.url.host", hosturl['server'])
         if not port:
             port = id.properties.getPropertyWithDefault(
                 "omero.port", str(omero.constants.GLACIER2PORT))
