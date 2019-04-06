@@ -38,8 +38,11 @@ from omero.cli import NonZeroReturnCode
 from omero.cli import DiagnosticsControl
 from omero.cli import UserGroupControl
 
-from omero.plugins.prefs import \
-    WriteableConfigControl, with_config
+from omero.plugins.prefs import (
+    parse_omero_properties,
+    with_config,
+    WriteableConfigControl,
+)
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
 from omero_ext import portalocker

@@ -15,6 +15,7 @@
 
 import sys
 import traceback
+from ConfigParser import SafeConfigParser
 
 from path import path
 from omero.cli import CLI
@@ -91,6 +92,43 @@ def with_rw_config(func):
     Requires that the returned config be writeable
     """
     return wraps(func)(_make_open_and_close_config(func, False))
+
+
+class _OmeroPropertiesFileObj(object):
+    """
+    Wraps a java properties file so that it can be read by ConfigParser
+    """
+    def __init__(self, fp):
+        self.started = False
+        self.fp = fp
+
+    def readline(self):
+        """
+        Inserts a fake section header, joins lines ending with backslash
+        """
+        if not self.started:
+            self.started = True
+            return '[default]\n'
+        line = self.fp.readline()
+        while line.endswith('\\\n'):
+            next = self.fp.readline()
+            if not next:
+                break
+            line = line[:-1] + next
+        return line
+
+
+def parse_omero_properties(propsfile):
+    """
+    Reads a java properties file
+
+    :param propsfile str: The path to the properties file
+    :returns dict: A dictionary of properties
+    """
+    with open(propsfile) as f:
+        cp = SafeConfigParser()
+        cp.readfp(_OmeroPropertiesFileObj(f))
+    return dict(cp.items('default'))
 
 
 class WriteableConfigControl(BaseControl):
