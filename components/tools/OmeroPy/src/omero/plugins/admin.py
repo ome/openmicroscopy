@@ -19,7 +19,6 @@ import sys
 import stat
 import platform
 import datetime
-import json
 import time
 
 from glob import glob
