@@ -123,7 +123,7 @@ class BaseClient(object):
         # hosturl overrides all other args
         hosturl = self._check_for_hosturl(host, port, pmap)
         if hosturl:
-            host = None
+            host = hosturl['server']
             port = hosturl['port']
             args.append(self._get_endpoint_from_hosturl(hosturl))
 
