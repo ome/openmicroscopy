@@ -15,7 +15,7 @@
 
 import sys
 import traceback
-from ConfigParser import SafeConfigParser
+from ConfigParser import RawConfigParser
 
 from path import path
 from omero.cli import CLI
@@ -126,7 +126,9 @@ def parse_omero_properties(propsfile):
     :returns dict: A dictionary of properties
     """
     with open(propsfile) as f:
-        cp = SafeConfigParser()
+        cp = RawConfigParser()
+        # Don't lower-case properties
+        cp.optionxform = str
         cp.readfp(_OmeroPropertiesFileObj(f))
     return dict(cp.items('default'))
 

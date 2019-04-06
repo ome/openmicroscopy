@@ -1045,16 +1045,12 @@ present, the user will enter a console""")
                 sb += " # %s" % settings
             self.ctx.out("%s=%s" % (k, sb))
 
-    def _glacier2_icessl_xml(self, jsonpropstr):
-        glacier2_icessl = {
-            "IceSSL.ProtocolVersionMax": "tls1_1",  # mac bug
-            "IceSSL.Ciphers": "ADH:!LOW:!MD5:!EXP:!3DES:@STRENGTH",
-            "IceSSL.VerifyPeer": "0",
-            "IceSSL.Protocols": "tls1",
-        }
-        glacier2_icessl.update(json.loads(jsonpropstr))
+    def _glacier2_icessl_xml(self, config_props):
+        # Convert omero.glacier2.IceSSL.* properties to IceSSL.*
+        glacier2_icessl = [(k[15:], v) for (k, v) in config_props.items()
+                           if k.startswith('omero.glacier2.IceSSL.')]
         return ['<property name="%s" value="%s"/>' % kv
-                for kv in glacier2_icessl.items()]
+                for kv in glacier2_icessl]
 
     @with_config
     def rewrite(self, args, config, force=False):
@@ -1078,16 +1074,20 @@ present, the user will enter a console""")
         else:
             templates = self._get_templates_dir()/"grid"/"templates.xml"
 
+        # Get some defaults from omero.properties
+        omero_props_file = self._get_etc_dir() / "omero.properties"
+        omero_props = parse_omero_properties(omero_props_file)
+
         generated = self._get_grid_dir() / "templates.xml"
         if generated.exists():
             generated.remove()
         config2 = omero.config.ConfigXml(str(generated))
 
-        glacier2_icessl_overrides = config.as_map().get(
-            'omero.glacier2.IceSSL', '{}')
+        config_props = omero_props.copy()
+        config_props.update(config.as_map())
         template_xml_text = templates.text().replace(
             '@omero.glacier2.icessl@',
-            '\n'.join(self._glacier2_icessl_xml(glacier2_icessl_overrides)))
+            '\n'.join(self._glacier2_icessl_xml(config_props)))
         template_xml = XML(template_xml_text)
 
         try:
