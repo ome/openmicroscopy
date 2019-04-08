@@ -1072,10 +1072,7 @@ present, the user will enter a console""")
             self.ctx.rv = 0
 
         # JVM configuration regeneration
-        if sys.platform == "darwin":
-            templates = self._get_templates_dir()/"grid"/"osxtemplates.xml"
-        else:
-            templates = self._get_templates_dir()/"grid"/"templates.xml"
+        templates = self._get_templates_dir()/"grid"/"templates.xml"
 
         # Get some defaults from omero.properties
         omero_props_file = self._get_etc_dir() / "omero.properties"
