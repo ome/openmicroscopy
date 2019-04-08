@@ -1042,16 +1042,22 @@ present, the user will enter a console""")
                 sb += " # %s" % settings
             self.ctx.out("%s=%s" % (k, sb))
 
+    def _get_omero_properties(self):
+        omero_props_file = self._get_etc_dir() / "omero.properties"
+        pp = PropertyParser()
+        omero_props = dict(
+            (p.key, p.val) for p in pp.parse_file(omero_props_file))
+        if sys.platform == "darwin":
+            # Override xxx.yyy properties with value of darwin.xxx.yyy
+            for key in omero_props:
+                if key.startswith('darwin.'):
+                    omero_props[key[7:]] = omero_props[key]
+        return omero_props
+
     def _glacier2_icessl_xml(self, config_props):
         # Convert omero.glacier2.IceSSL.* properties to IceSSL.*
         glacier2_icessl = dict((k[15:], v) for (k, v) in config_props.items()
                                if k.startswith('omero.glacier2.IceSSL.'))
-        if sys.platform == "darwin":
-            # Convert omero.darwin.glacier2.IceSSL.* properties to IceSSL.*
-            glacier2_icessl_darwin = dict(
-                (k[22:], v) for (k, v) in config_props.items()
-                if k.startswith('omero.darwin.glacier2.IceSSL.'))
-            glacier2_icessl.update(glacier2_icessl_darwin)
         return ['<property name="%s" value="%s"/>' % kv
                 for kv in glacier2_icessl.items()]
 
@@ -1075,16 +1081,13 @@ present, the user will enter a console""")
         templates = self._get_templates_dir()/"grid"/"templates.xml"
 
         # Get some defaults from omero.properties
-        omero_props_file = self._get_etc_dir() / "omero.properties"
-        pp = PropertyParser()
-        omero_props = pp.parse_file(omero_props_file)
+        config_props = self._get_omero_properties()
 
         generated = self._get_grid_dir() / "templates.xml"
         if generated.exists():
             generated.remove()
         config2 = omero.config.ConfigXml(str(generated))
 
-        config_props = dict((p.key, p.val) for p in omero_props)
         config_props.update(config.as_map())
         template_xml_text = templates.text().replace(
             '@omero.glacier2.icessl@',
