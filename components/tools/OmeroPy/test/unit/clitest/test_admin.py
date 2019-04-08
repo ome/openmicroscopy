@@ -11,6 +11,7 @@
 
 import os
 import re
+import sys
 import pytest
 
 from path import path
@@ -43,7 +44,10 @@ def tmpadmindir(tmpdir):
     templates_dir = etc_dir.mkdir('templates')
     templates_dir.mkdir('grid')
 
-    old_templates_dir = path() / ".." / ".." / ".." / "etc" / "templates"
+    old_etc_dir = path() / ".." / ".." / ".." / "etc"
+    old_templates_dir = old_etc_dir / "templates"
+    for f in glob(old_etc_dir / "*.properties"):
+        path(f).copy(path(etc_dir))
     for f in glob(old_templates_dir / "*.cfg"):
         path(f).copy(path(templates_dir))
     for f in glob(old_templates_dir / "grid" / "*.xml"):
@@ -249,6 +253,13 @@ def check_default_xml(topdir, prefix='', tcp=4063, ssl=4064, **kwargs):
         assert client_endpoints in s
 
 
+def check_templates_xml(topdir, glacier2props):
+    s = path(topdir / "etc" / "grid" / "templates.xml").text()
+    for k, v in glacier2props:
+        expected = '<property name="%s" value="%s" />' % (k, v)
+        assert expected in s
+
+
 class TestJvmCfg(object):
     """Test template files regeneration"""
 
@@ -361,4 +372,28 @@ class TestRewrite(object):
 
         check_ice_config(self.cli.dir, **kwargs)
         check_registry(self.cli.dir, **kwargs)
-        check_default_xml(self.cli.dir, **kwargs)
+
+    def testGlacier2Icessl(self, monkeypatch):
+        """
+        Test the omero.glacier2.IceSSL.* properties during the generation
+        of the configuration files
+        """
+
+        # Skip the JVM settings calculation for this test
+        # monkeypatch.setattr(omero.install.jvmcfg, "adjust_settings",
+        #                     lambda x, y: {})
+
+        if sys.platform == "darwin":
+            expected_ciphers = '(AES)'
+        else:
+            expected_ciphers = 'ADH:!LOW:!MD5:!EXP:!3DES:@STRENGTH'
+        glacier2 = [
+            ("IceSSL.Ciphers", expected_ciphers),
+            ("IceSSL.TestKey", "TestValue"),
+        ]
+        self.cli.invoke([
+            "config", "set",
+            "omero.glacier2." + glacier2[1][0], glacier2[1][1]],
+            strict=True)
+        self.cli.invoke(self.args, strict=True)
+        check_templates_xml(self.cli.dir, glacier2)
