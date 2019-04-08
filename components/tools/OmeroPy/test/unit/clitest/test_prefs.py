@@ -12,6 +12,7 @@
 import pytest
 from omero.cli import CLI, NonZeroReturnCode
 from omero.config import ConfigXml
+from omero.install.config_parser import PropertyParser
 from omero.plugins.prefs import PrefsControl, HELP
 from omero.util.temp_files import create_path
 
@@ -481,3 +482,23 @@ class TestPrefs(object):
         self.invoke("get omero.ldap.base")
         self.invoke("set omero.ldap.base %s" % update)
         self.invoke("get omero.ldap.base")
+
+    @pytest.mark.xfail
+    def testConfigPropertyParser(self, tmpdir):
+        cfg = tmpdir.join("test.properties")
+        s = "a=1\nb.c=a b <!> c\nd.e=line1\\\nline2\nf.g=\\n\n"
+        cfg.write(s)
+        pp = PropertyParser()
+        props = pp.parse_file(str(cfg))
+
+        # Fails, the last two properties are parsed as one:
+        # 'd.e' = 'line1line2f.g=\\n'
+        assert len(props) == 4
+        assert props[0].key == 'a'
+        assert props[0].val == '1'
+        assert props[1].key == 'b.c'
+        assert props[1].val == 'a b <!> c'
+        assert props[2].key == 'd.e'
+        assert props[2].val == 'line1line2'
+        assert props[3].key == 'f.g'
+        assert props[3].val == '\\n'
