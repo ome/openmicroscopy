@@ -68,7 +68,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <antcall target="check-scons" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="all.buildpath"   target="clean"/>
         <iterate buildpathref="tools.buildpath" target="clean"/>
-        <iterate buildpathref="tests.buildpath" target="clean"/>
         <delete dir="${dist.dir}"/>
         <delete dir="${lib.dir}/cache"/>
         <delete includeemptydirs="true">

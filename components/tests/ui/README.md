@@ -8,8 +8,6 @@ testing of user interface behavior and detection of regressions.
 **Requirements**:
  * [Robot Framework](http://robotframework.org)
  * Python 2.x and [pip](https://pip.pypa.io/en/stable/) (Python 3.x is not supported)
- * [Jython](http://www.jython.org/) 2.5.x (Insight tests)
-    + higher versions may not be supported, we use 2.5.4rc1
  * one or both of these web browsers (Web tests)
     + Firefox - [requires geckodriver](#web-browser-drivers)
     + Chrome - [requires chromedriver](#web-browser-drivers)
@@ -17,19 +15,6 @@ testing of user interface behavior and detection of regressions.
 
 Before installing please visit
 https://github.com/robotframework/robotframework/blob/master/INSTALL.rst
-
-Note that the script jybot, required for the Insight tests, is not
-installed by default when using pip install, see the above page for
-more details.
-
-Jython can be installed using the installer JAR at
-http://www.jython.org/downloads.html. You may need to set `JYTHON_HOME`
-and `JYTHONPATH` depending on your installation.
-
-If you are planning to run the OMERO.insight and OMERO.web tests,
-you will have to run robotframework with Python and with Jython.
-In that case it is easier to install robotframework using the
-`setup.py` scripts provided.
 
 Testing frameworks
 ------------------
@@ -100,93 +85,6 @@ Note this command will create the Robot configuration file using the
 configuration properties of the server as well as the Ice configuration file
 read from the `ICE_CONFIG` environment variable.
 
-All components
---------------
-
-To run the entire test suite for Insight, Web and CLI you should use
-
-```
-./build.py -f components/tests/ui/build.xml test-all
-```
-
-The results can then be aggregated using
-
-```
-./build.py -f components/tests/ui/build.xml aggregate-results
-```
-
-The aggregated output of the tests can be found under
-
-```
-components/tests/ui/target/reports/
-```
-
-OMERO.insight
--------------
-
-If you use Eclipse, then for developing test scripts you may find the
-Swing Explorer plug-in helpful
-https://github.com/robotframework/swingexplorer/
-
-Read about SwingLibrary at
-http://github.com/robotframework/SwingLibrary
-
-Note that the convention in Insight is to name Swing components for
-the kind of component that they are. For instance, the first window to
-pop up is the "server window" and it includes a "username field" and a
-"config server button" and similar.
-
-The version of the SwingLibrary library has an issue with Java 7. The script
-from http://github.com/Rethought/swinglibrary_package provides an adjustement
-to the JAR correcting this issue. Those  wishing to repeat the fix on a Mac
-may wish to review the adjustment script and use Homebrew to install wget
-and GNU sed: when the script runs correctly, no errors should be glimpsed.
-In the long term, those maintaining our Insight testing framework should
-periodically review
-https://github.com/robotframework/SwingLibrary/issues?state=open and
-watch issues like #41 and #47 whose resolution may suggest changes to
-our code.
-
-To run all the Insight tests, use
-
-```
-./build.py -f components/tests/ui/build.xml ui-test-insight
-```
-
-The output of the tests can be found under
-
-```
-components/tests/ui/target/reports/insight/
-```
-
-with one output directory created for each testcase directory.
-
-To run the tests in a given directory, those under `testcases/insight/icons`
-for example, use
-
-```
-./build.py -f components/tests/ui/build.xml ui-test-insight -DTEST=icons
-```
-
-The output of the tests can be found under
-
-```
-components/tests/ui/target/reports/insight/icons/
-```
-
-To run the tests in a given test
-
-```
-./build.py -f components/tests/ui/build.xml ui-test-insight -DTEST=menus/context-menus.txt
-```
-
-The output of the test can be found under
-
-```
-components/tests/ui/target/reports/insight/menus/
-```
-
-i.e. the parent directory of the test itself.
 
 OMERO.web
 ---------
@@ -277,19 +175,4 @@ To run all the web tests in parallel using robotframework-pabot on Firefox or Ch
 ```
 ./build.py -f components/tests/ui/build.xml web-browser-pabot
 ./build.py -f components/tests/ui/build.xml web-browser-pabot -DBROWSER=chrome
-```
-
-OMERO CLI
----------
-
-To run all the CLI tests, from the top level
-
-```
-./build.py -f components/tests/ui/build.xml test-cli
-```
-
-The output of the tests can be found under
-
-```
-components/tests/ui/target/reports/cli/
 ```
