@@ -711,7 +711,7 @@ OME.formatDate = function formatDate(date) {
         return n;
     }
     var d = new Date(date),
-        dt = [d.getFullYear(), padZero(d.getMonth()+1), (d.getDate())].join("-"),
+        dt = [d.getFullYear(), padZero(d.getMonth()+1), padZero(d.getDate())].join("-"),
         tm = [padZero(d.getHours()), padZero(d.getMinutes()), padZero(d.getSeconds())].join(":");
     return dt + " " + tm;
 };
