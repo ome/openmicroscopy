@@ -114,10 +114,8 @@ class BaseClient(object):
             # See ticket:5516 To prevent issues on systems where the base
             # class of path.path is unicode, we will encode all unicode
             # strings here.
-            for idx, arg in enumerate(args):
-                if isinstance(arg, unicode):
-                    arg = arg.encode("utf-8")
-                args[idx] = arg
+            args = [arg.encode("utf-8") if isinstance(arg, unicode)
+                    else arg for arg in args]
 
         # Equiv to multiple constructors. #######################
         if id is None:
