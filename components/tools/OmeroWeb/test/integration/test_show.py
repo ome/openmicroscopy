@@ -151,7 +151,6 @@ class TestShow(IWebTest):
 
         return (project, roi)
 
-
     @pytest.fixture(params=[1, 2])
     def tag(self, request):
         """Returns a new OMERO TagAnnotation with required fields set."""
@@ -553,7 +552,8 @@ class TestShow(IWebTest):
         }
 
     @pytest.fixture
-    def project_dataset_image_roi_show_request(self, project_dataset_image_roi):
+    def project_dataset_image_roi_show_request(self,
+                                               project_dataset_image_roi):
         """
         Returns a simple GET request object with the 'show' query string
         variable set in the form ("roi-id").
