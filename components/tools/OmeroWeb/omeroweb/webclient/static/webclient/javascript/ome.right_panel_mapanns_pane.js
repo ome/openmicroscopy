@@ -49,6 +49,19 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
         return isClientMapAnn(ann) && ann.owner.id == WEBCLIENT.USER.id;
     };
 
+    var annsEqual = function(annA, annB) {
+        var valuesA = annA.values;
+        var valuesB = annB.values;
+        if (annA.id === annB.id) return true;
+        if (valuesA.length != valuesB.length) return false;
+        for (var i=0; i<valuesA.length; i++) {
+            if (valuesA[i][0] !== valuesB[i][0] || valuesA[i][1] !== valuesB[i][1]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     this.apiAnnotationUrl = function apiAnnotationUrl(url) {
         if (!url) { return WEBCLIENT.URLS.webindex + "api/annotations/";}
         return url;
@@ -110,11 +123,6 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                     var map_annotations = [];
 
                     anns.forEach(function(ann){
-                        if (batchAnn) {
-                            // Don't allow editing in batch annotate panel
-                            // Get error if all rows are deleted then try to add new map
-                            ann.permissions.canEdit = false;
-                        }
                         if (isMyClientMapAnn(ann)) {
                             my_client_map_annotations.push(ann);
                         } else if (isClientMapAnn(ann)) {
@@ -123,6 +131,31 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                             map_annotations.push(ann);
                         }
                     });
+
+                    if (batchAnn) {
+                        var unique_anns = [];
+                        // Try to collapse any IDENTICAL map anns...
+                        my_client_map_annotations.forEach(function(ann){
+                            var duplicate = false;
+                            for (var u=0; u<unique_anns.length; u++) {
+                                var unique_ann = unique_anns[u];
+                                if (annsEqual(unique_ann, ann)) {
+                                    // combine anns
+                                    unique_ann.id = unique_ann.id + "," + ann.id;
+                                    if (!unique_ann.parentNames) {
+                                        unique_ann.parentNames = [unique_ann.link.parent.name];
+                                    }
+                                    unique_ann.parentNames.push(ann.link.parent.name);
+                                    duplicate = true;
+                                    break;
+                                }
+                            }
+                            if (!duplicate) {
+                                unique_anns.push(ann);
+                            }
+                        });
+                        my_client_map_annotations = unique_anns;
+                    }
 
                     // Update html...
                     var html = "";

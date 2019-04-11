@@ -22,11 +22,17 @@
             <% if (ann.id) { %>
                 Added by: <%= ann.owner.firstName %> <%= ann.owner.lastName %>
                 <% if (showParent && ann.link.parent.name){ %>
-                  <br> To: <%= ann.link.parent.name %>
+                  <br>To: <%= ann.parentNames ? (ann.parentNames.length + " objects") : ann.link.parent.name %>
                 <% } %>
 
                 <span class="tooltip_html" style='display:none'>
                     <b>ID:</b> <%= ann.id %><br />
+                    <% if (ann.parentNames) { %>
+                        <b>Linked to:</b><br>
+                        <% _.each(ann.parentNames, function(pName) { %>
+                            &nbsp <%= pName %><br />
+                        <% }) %>
+                    <% } %>
                     <% if (ann.owner) { %>
                         <b>Owner:</b> <%= ann.owner.firstName %> <%= ann.owner.lastName %>
                     <% } %>
