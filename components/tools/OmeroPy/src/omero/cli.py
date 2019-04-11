@@ -650,6 +650,34 @@ def admin_only(*fargs, **fkwargs):
     return _admin_only
 
 
+class Error(object):
+    """
+    Wrapper for error messages which can be registered by an BaseControl
+    subclass in its _configure method. Example:
+
+        class MyControl(BaseControl):
+            def _configure(self, parser):
+                self.add_error("NAME", 100, "some message: %s")
+                ...
+            def __call__(self, *args):
+                self.raise_error("NAME", "my text")
+    """
+
+    def __init__(self, ctx, rcode, msg):
+        self.ctx = ctx
+        self.rcode = rcode
+        self.msg = msg
+
+    def die(self, *args):
+        """
+        Call ctx.die passing the return code and the message for this instance
+        """
+        self.ctx.die(self.rcode, self.msg % tuple(args))
+
+    def __str__(self):
+        return "Error(%d, '%s')" % (self.rcode, self.msg)
+
+
 class BaseControl(object):
     """Controls get registered with a CLI instance on loadplugins().
 
@@ -679,6 +707,32 @@ class BaseControl(object):
         self.ctx = ctx
         if self.ctx is None:
             self.ctx = Context()  # Prevents unncessary stop_event creation
+        self.__errors = {}
+
+    def add_error(self, name, rcode, msg):
+        """
+        Register an Error by name both for discovery via the ErrorsControl
+        as well as for raising an exception via raise_error.
+        """
+        err = self.__errors.get(name)
+        if err is not None:
+            self.ctx.die(2, "Error already exists: %s (%s)" % (name, err))
+        self.__errors[name] = Error(self.ctx, rcode, msg)
+
+    def get_errors(self):
+        """
+        Returns a mapping from name to Error object
+        """
+        return dict(self.__errors)
+
+    def raise_error(self, name, *args):
+        """
+        Call die on the named Error using the arguments to format the message
+        """
+        err = self.__errors.get(name)
+        if err is None:
+            self.ctx.die(2, "Error doesn't exist: %s" % name)
+        err.die(*args)
 
     def _isWindows(self):
         p_s = platform.system()
