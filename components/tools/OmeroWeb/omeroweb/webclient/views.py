@@ -2297,7 +2297,7 @@ def annotate_map(request, conn=None, **kwargs):
 
     # Create a new annotation
     if len(annIds) == 0 and len(data) > 0:
-        duplicate = request.POST.get('duplicate', 'false');
+        duplicate = request.POST.get('duplicate', 'false')
         duplicate.lower() == 'true'
         # For 'client' map annotations, we enforce 1 annotation per object
         if (ns == omero.constants.metadata.NSCLIENTMAPANNOTATION):
