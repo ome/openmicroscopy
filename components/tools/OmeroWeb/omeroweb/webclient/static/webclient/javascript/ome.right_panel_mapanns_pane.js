@@ -127,19 +127,15 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                     // Update html...
                     var html = "";
                     var showHead = true;
-                    // If not batch_annotate, add placeholder to create map ann
+                    // If no annotations OR in batch_annotate, add placeholder to create map ann(s)
                     if (canAnnotate) {
-                        if (my_client_map_annotations.length === 0) {
+                        if (my_client_map_annotations.length === 0 || batchAnn) {
                             showHead = false;
-                            my_client_map_annotations = [{}];   // placeholder
+                            my_client_map_annotations.unshift({});   // placeholder
                         }
                     }
                     // In batch_annotate view, we show which object each map is linked to
                     var showParent = batchAnn;
-                    if (batchAnn && canAnnotate) {
-                        html += mapAnnsTempl({'anns': [{}],
-                        'showTableHead': showHead, 'showNs': false, 'clientMapAnn': true, 'showParent': showParent});
-                    }
                     html = html + mapAnnsTempl({'anns': my_client_map_annotations,
                         'showTableHead': showHead, 'showNs': false, 'clientMapAnn': true, 'showParent': showParent});
                     html = html + mapAnnsTempl({'anns': client_map_annotations,
