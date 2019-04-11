@@ -35,6 +35,7 @@
 	    <artifact name="omero-blitz" type="jar" ext="jar"/>
 	    <artifact name="omero-blitz" type="zip" ext="zip" e:classifier="python"/>
     </dependency>
+    <dependency org="org.openmicroscopy" name="omero-gateway" rev="${versions.omero-gateway}"/>
     <dependency org="org.openmicroscopy" name="omero-common-test" rev="${versions.omero-common-test}"/>
   </dependencies>
 </ivy-module>
