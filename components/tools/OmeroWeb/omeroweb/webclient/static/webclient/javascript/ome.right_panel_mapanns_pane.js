@@ -169,7 +169,7 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                     }
                     // In batch_annotate view, we show which object each map is linked to
                     var showParent = batchAnn;
-                    html = html + mapAnnsTempl({'anns': my_client_map_annotations,
+                    html = html + mapAnnsTempl({'anns': my_client_map_annotations, 'objCount': objects.length,
                         'showTableHead': showHead, 'showNs': false, 'clientMapAnn': true, 'showParent': showParent});
                     html = html + mapAnnsTempl({'anns': client_map_annotations,
                         'showTableHead': false, 'showNs': false, 'clientMapAnn': true, 'showParent': showParent});
