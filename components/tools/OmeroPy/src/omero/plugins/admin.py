@@ -1048,10 +1048,10 @@ present, the user will enter a console""")
         omero_props = dict(
             (p.key, p.val) for p in pp.parse_file(omero_props_file))
         if sys.platform == "darwin":
-            # Override xxx.yyy properties with value of darwin.xxx.yyy
+            # Override xxx.yyy properties with value of _xxx.yyy.darwin
             for key in omero_props:
-                if key.startswith('darwin.'):
-                    omero_props[key[7:]] = omero_props[key]
+                if key.startswith('_') and key.endswith('.darwin'):
+                    omero_props[key[1:-7]] = omero_props[key]
         return omero_props
 
     def _glacier2_icessl_xml(self, config_props):
