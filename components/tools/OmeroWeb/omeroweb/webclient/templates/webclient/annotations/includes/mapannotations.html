@@ -95,7 +95,7 @@
                 $mapAnnotationSpinner = $(".mapAnnotationSpinner", $table.parent()),
                 tableData = [],
                 // objIds = {'project': [1, 2]}
-                data = $("#mapAnnContainer").data('objIds');
+                data = Object.assign({}, $("#mapAnnContainer").data('objIds'));
 
             {% if index %}
             // for wells, we need to know index
@@ -128,7 +128,11 @@
                 success: function( data ) {
                     saveInProgress = false;
                     $mapAnnotationSpinner.hide();
-                    $table.attr('data-annId', data.annId);
+                    if (data.annId != null) {
+                        $table.attr('data-annId', data.annId);
+                    } else {
+                        $table.removeAttr('data-annId');
+                    }
                 }
             });
         };
