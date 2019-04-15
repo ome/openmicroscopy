@@ -325,13 +325,18 @@ class BaseClient(object):
             if not hosturl['port']:
                 hosturl['port'] = port
             if not hosturl['port']:
-                if hosturl['protocol'] == 'ws':
-                    hosturl['port'] = 80
-                elif hosturl['protocol'] == 'wss':
-                    hosturl['port'] = 443
-                else:
+                default_ports = {
+                    'ws': 80,
+                    'wss': 443,
+                    'tcp': 4063,
+                    'ssl': 4064,
+                }
+                try:
+                    hosturl['port'] = default_ports[hosturl['protocol']]
+                except KeyError:
                     raise omero.ClientError(
                         "Port required for protocol: " + hosturl['protocol'])
+            hosturl['port'] = int(hosturl['port'])
         else:
             hosturl = {}
         return hosturl
