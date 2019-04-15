@@ -36,6 +36,9 @@
 	    <artifact name="omero-blitz" type="zip" ext="zip" e:classifier="python"/>
     </dependency>
     <dependency org="org.openmicroscopy" name="omero-common-test" rev="${versions.omero-common-test}"/>
+    <dependency org="org.jdom" name="jdom2" rev="2.0.4"/>
+    <dependency org="c3p0" name="c3p0" rev="0.9.1"/>
+    <dependency org="com.google.protobuf" name="protobuf-java" rev="2.5.0"/>
   </dependencies>
 </ivy-module>
 
