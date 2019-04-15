@@ -74,6 +74,11 @@
           m2compatible="true"
           pattern="[orgPath]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
           root="https://artifacts.openmicroscopy.org/artifactory/maven/"/>
+      <ibiblio name="ome-staging" cache="maven"
+          usepoms="true" useMavenMetadata="true"
+          m2compatible="true"
+          pattern="[orgPath]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+          root="https://artifacts.openmicroscopy.org/artifactory/ome.staging"/>
 
       <ibiblio name="unidata.releases" cache="maven"
           usepoms="true" useMavenMetadata="true"
@@ -100,6 +105,7 @@
     <chain name="ome-resolver">
         <resolver ref="user-maven"/>
         <resolver ref="ome-artifactory"/>
+        <resolver ref="ome-staging"/>
     </chain>
 
     <!-- Resolver for Unidata dependencies-->
