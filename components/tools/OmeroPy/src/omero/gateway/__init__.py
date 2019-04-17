@@ -5789,6 +5789,17 @@ class _RoiWrapper (BlitzObjectWrapper):
             params.add('image_id', rlong(opts['image']))
         return (query, clauses, params)
 
+    def getImage(self):
+        """
+        Returns the Image for this ROI.
+
+        :return:    The Image
+        :rtype:     :class:`ImageWrapper`
+        """
+
+        if self._obj.image is not None:
+            return ImageWrapper(self._conn, self._obj.image)
+
 RoiWrapper = _RoiWrapper
 
 
