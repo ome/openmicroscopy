@@ -243,6 +243,18 @@ def identity(x):
     return x
 
 
+def json_or_plain_str(s):
+    """
+    Most omero.web properties are JSON objects but some are plain strings.
+    Use this to allow both JSON objects/strings and plain strings. Obviously
+    this can only be used when the plain string can't also be a JSON object.
+    """
+    try:
+        return json.loads(s)
+    except ValueError:
+        return s
+
+
 def str_slash(s):
     if s is not None:
         s = str(s)
@@ -835,6 +847,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
          "Whether to allow OMERO.web to be loaded in a frame."
          ],
 
+    "omero.web.timezone":
+        ["TIME_ZONE",
+         "UTC",
+         json_or_plain_str,
+         ("Local time zone for this installation. Choices can be found here: "
+          "http://www.postgresql.org/docs/8.1/static/datetime-keywords.html"
+          "#DATETIME-TIMEZONE-SET-TABLE although not all variations may be "
+          "possible on all operating systems. Default ``\"UTC\"``")],
+
     "omero.web.django_additional_settings":
         ["DJANGO_ADDITIONAL_SETTINGS",
          "[]",
@@ -1064,10 +1085,6 @@ report_settings(sys.modules[__name__])
 
 SITE_ID = 1
 
-# Local time zone for this installation. Choices can be found here:
-# http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
-# although not all variations may be possible on all operating systems.
-TIME_ZONE = 'Europe/London'
 FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 
 # LANGUAGE_CODE: A string representing the language code for this
