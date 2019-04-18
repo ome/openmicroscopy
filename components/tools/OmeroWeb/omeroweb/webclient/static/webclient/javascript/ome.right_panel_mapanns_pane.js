@@ -50,9 +50,12 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
     };
 
     var annsEqual = function(annA, annB) {
+        // equal if all key-value pairs are identical and have same owner and namespace
         var valuesA = annA.values;
         var valuesB = annB.values;
         if (annA.id === annB.id) return true;
+        if (annA.owner.id != annB.owner.id) return false;
+        if (annA.ns != annB.ns) return false;
         if (valuesA.length != valuesB.length) return false;
         for (var i=0; i<valuesA.length; i++) {
             if (valuesA[i][0] !== valuesB[i][0] || valuesA[i][1] !== valuesB[i][1]) {
@@ -60,6 +63,31 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
             }
         }
         return true;
+    }
+
+    var groupDuplicateAnns = function(annList) {
+        // Try to collapse any IDENTICAL map anns that also have same owner and ns...
+        var unique_anns = [];
+        annList.forEach(function(ann){
+            var duplicate = false;
+            for (var u=0; u<unique_anns.length; u++) {
+                var unique_ann = unique_anns[u];
+                if (annsEqual(unique_ann, ann)) {
+                    // combine anns
+                    unique_ann.id = unique_ann.id + "," + ann.id;
+                    if (!unique_ann.parentNames) {
+                        unique_ann.parentNames = [unique_ann.link.parent.name];
+                    }
+                    unique_ann.parentNames.push(ann.link.parent.name);
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (!duplicate) {
+                unique_anns.push(ann);
+            }
+        });
+        return unique_anns;
     }
 
     this.apiAnnotationUrl = function apiAnnotationUrl(url) {
@@ -133,28 +161,9 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                     });
 
                     if (batchAnn) {
-                        var unique_anns = [];
-                        // Try to collapse any IDENTICAL map anns...
-                        my_client_map_annotations.forEach(function(ann){
-                            var duplicate = false;
-                            for (var u=0; u<unique_anns.length; u++) {
-                                var unique_ann = unique_anns[u];
-                                if (annsEqual(unique_ann, ann)) {
-                                    // combine anns
-                                    unique_ann.id = unique_ann.id + "," + ann.id;
-                                    if (!unique_ann.parentNames) {
-                                        unique_ann.parentNames = [unique_ann.link.parent.name];
-                                    }
-                                    unique_ann.parentNames.push(ann.link.parent.name);
-                                    duplicate = true;
-                                    break;
-                                }
-                            }
-                            if (!duplicate) {
-                                unique_anns.push(ann);
-                            }
-                        });
-                        my_client_map_annotations = unique_anns;
+                        my_client_map_annotations = groupDuplicateAnns(my_client_map_annotations);
+                        client_map_annotations = groupDuplicateAnns(client_map_annotations);
+                        map_annotations = groupDuplicateAnns(map_annotations);
                     }
 
                     // Update html...

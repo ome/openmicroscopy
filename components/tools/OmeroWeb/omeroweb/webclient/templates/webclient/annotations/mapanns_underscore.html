@@ -27,7 +27,9 @@
 
                 <span class="tooltip_html" style='display:none'>
                     <% if (ann.parentNames) { %>
-                      You are editing <b><%= ann.parentNames.length %></b> identical Key-Value annotations:
+                      You are
+                      <% print (ann.permissions.canEdit && clientMapAnn ? 'editing' : 'viewing') %>
+                      <b><%= ann.parentNames.length %></b> identical Key-Value annotations:
                     <% } %>
                     <b>Annotation ID<% if (ann.parentNames) { %>s<% } %>:</b> <%= ann.id %><br />
                     <% if (ann.parentNames) { %>
