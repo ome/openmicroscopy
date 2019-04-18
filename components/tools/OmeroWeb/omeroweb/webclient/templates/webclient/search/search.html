@@ -136,9 +136,14 @@
                 $("#searching_form").ajaxForm({
                     beforeSubmit: function(fields) {
 
+                        var q = '';
+                        if ($('input[name="advanced"]').prop('checked')) {
+                            q = $("input[name='advanced_search']").val();
+                        } else {
+                            q = $("input[name='query']").val();
+                        }
                         // check we have some search query...
-                        var $query = $("input[name='query']"),
-                            q = $.trim($query.val());
+                        q = $.trim(q);
                         if (q.length <= 0) {
                             OME.alert_dialog("Search must contain some text.");
                             return false;
