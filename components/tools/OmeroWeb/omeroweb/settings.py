@@ -856,6 +856,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "https://en.wikipedia.org/wiki/List_of_tz_database_time_zones "
           "Default ``\"UTC\"``")],
 
+    "omero.web.server_returns_utc":
+        ["OMERO_SERVER_RETURNS_UTC",
+         "true",
+         parse_boolean,
+         ("Should OMERO.server date-times be treated as UTC. If ``true`` "
+          "attempt to do client side local time-zone conversion, If "
+          "``false`` assumes date-times returned by OMERO.server are already "
+          "in localtime.")],
+
     "omero.web.django_additional_settings":
         ["DJANGO_ADDITIONAL_SETTINGS",
          "[]",
