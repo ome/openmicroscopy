@@ -851,10 +851,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["TIME_ZONE",
          "UTC",
          json_or_plain_str,
-         ("Local time zone for this installation. Choices can be found here: "
-          "http://www.postgresql.org/docs/8.1/static/datetime-keywords.html"
-          "#DATETIME-TIMEZONE-SET-TABLE although not all variations may be "
-          "possible on all operating systems. Default ``\"UTC\"``")],
+         ("Time zone for this installation. Choices can be found in the "
+          "``TZ database name`` column of: "
+          "https://en.wikipedia.org/wiki/List_of_tz_database_time_zones "
+          "Default ``\"UTC\"``")],
 
     "omero.web.django_additional_settings":
         ["DJANGO_ADDITIONAL_SETTINGS",
