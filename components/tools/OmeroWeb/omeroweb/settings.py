@@ -847,7 +847,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          "Whether to allow OMERO.web to be loaded in a frame."
          ],
 
-    "omero.web.timezone":
+    "omero.web.time_zone":
         ["TIME_ZONE",
          "UTC",
          json_or_plain_str,
