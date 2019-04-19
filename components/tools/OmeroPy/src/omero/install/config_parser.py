@@ -239,7 +239,14 @@ class PropertyParser(object):
     def parse_file(self, argv=None):
         """Parse the properties from the input configuration file"""
         try:
-            for line in fileinput.input(argv):
+            self.parse_lines(fileinput.input(argv))
+        finally:
+            fileinput.close()
+        return self.properties
+
+    def parse_lines(self, lines):
+        """Parse the properties from the given configuration file lines"""
+            for line in lines:
                 if line.endswith("\n"):
                     line = line[:-1]
 
@@ -261,8 +268,6 @@ class PropertyParser(object):
                 else:
                     self.cont(line)
             self.cleanup()  # Handle no newline at end of file
-        finally:
-            fileinput.close()
         return self.properties
 
     def black_list(self, line):
