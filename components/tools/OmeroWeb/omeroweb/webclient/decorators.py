@@ -214,3 +214,8 @@ class render_response(omeroweb.decorators.render_response):
         context['ome']['center_plugins'] = c_plugins
 
         context['ome']['user_dropdown'] = settings.USER_DROPDOWN
+
+        if settings.OMERO_SERVER_RETURNS_UTC:
+            context['ome']['datetime_suffix'] = 'Z'
+        else:
+            context['ome']['datetime_suffix'] = ''

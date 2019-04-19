@@ -30,6 +30,11 @@
     <!-- required for the script_launch html below -->
     {% include "webclient/base/includes/script_launch_head.html" %}
 
+    <!-- Required for client-side javascript timezone calculations -->
+    <script type="text/javascript">
+        var OMERO_DATETIME_SUFFIX = "{{ ome.datetime_suffix }}";
+    </script>
+
     <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js"|add:url_suffix %}"></script>
 
     <!-- The following are required by the right-hand panel, E.g. annotations/metadata_general.html -->

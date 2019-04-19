@@ -710,7 +710,8 @@ OME.formatDate = function formatDate(date) {
         }
         return n;
     }
-    var d = new Date(date),
+    // OMERO_DATETIME_SUFFIX: "Z" for UTC, "" for localtime
+    var d = new Date(date + OMERO_DATETIME_SUFFIX),
         dt = [d.getFullYear(), padZero(d.getMonth()+1), padZero(d.getDate())].join("-"),
         tm = [padZero(d.getHours()), padZero(d.getMinutes()), padZero(d.getSeconds())].join(":");
     return dt + " " + tm;

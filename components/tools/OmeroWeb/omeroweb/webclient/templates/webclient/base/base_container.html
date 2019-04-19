@@ -49,6 +49,11 @@
     <!-- required for the script_launch html below -->
     {% include "webclient/base/includes/script_launch_head.html" %}
 
+    <!-- Required for client-side javascript timezone calculations -->
+    <script type="text/javascript">
+        var OMERO_DATETIME_SUFFIX = "{{ ome.datetime_suffix }}";
+    </script>
+
     <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js"|add:url_suffix %}"></script>
     <script src="{% static 'webclient/javascript/jquery.infieldlabel-0.1.js' %}" type="text/javascript"></script>
 
