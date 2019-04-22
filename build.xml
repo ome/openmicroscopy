@@ -165,7 +165,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <!-- Must also build python since it provides our command lines -->
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroFs.buildpath" target="tools-dist"/>
-        <!-- TODO: importer too?? -->
         <iterate buildpathref="tools.buildpath" target="dist"/>
         <!-- Parts of build-dist -->
         <antcall target="copy-licenses" inheritRefs="true" inheritAll="true"/>
@@ -184,14 +183,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     <target name="build-py" description="Build Python bindings to the OMERO server" depends="init">
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
-    </target>
-
-    <target name="build-importer" description="Build importer and copy to dist/lib and dist/bin. May require 'build-java'" depends="init">
-        <iterate buildpathref="tools.buildpath" target="dist"/>
-        <!-- Parts of build-dist -->
-        <antcall target="copy-client" inheritRefs="true" inheritAll="true"/>
-        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
-        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-web" description="Build OmeroWeb and copy to dist. May require 'build-py'" depends="init">
