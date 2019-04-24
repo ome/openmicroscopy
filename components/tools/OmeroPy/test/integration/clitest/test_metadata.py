@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2013-2019 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -120,7 +120,7 @@ class TestMetadata(MetadataTestBase):
         origmd = self.md.get_original()
         assert len(origmd) == 3
         assert origmd[0] is None
-        assert len(origmd[1]) == 2
+        assert len(origmd[1]) == 1
         assert len(origmd[2]) == 0
 
     @pytest.mark.parametrize('annotations', [False, True])
