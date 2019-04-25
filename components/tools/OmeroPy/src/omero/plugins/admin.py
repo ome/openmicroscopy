@@ -277,6 +277,7 @@ Examples:
 
   # 3. Run indexer in the foreground. Disable the background first
   bin/omero admin reindex --foreground
+  # Foreground indexing is NOT currently working.
 
 Other commands (usually unnecessary):
 
@@ -337,7 +338,7 @@ dt_socket,address=8787,suspend=y" \\
                   "NO INDEXING OCCURS"))
         group.add_argument(
             "--foreground", action="store_true",
-            help=("Run indexer in the foreground (suggested)"))
+            help=("Run indexer in the foreground"))
         group.add_argument(
             "--class", nargs="+",
             help="Reindexes the given classes sequentially")
@@ -1734,6 +1735,7 @@ present, the user will enter a console""")
             cmd.append("dryrun")
         elif args.foreground:
             cmd.append("foreground")
+            self.ctx.die(877, "foreground indexing is not available")
         elif args.reset is not None:
             cmd.append("reset")
             cmd.append(args.reset)
