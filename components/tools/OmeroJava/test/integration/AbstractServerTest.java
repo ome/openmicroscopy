@@ -144,6 +144,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
@@ -2404,27 +2405,8 @@ public class AbstractServerTest extends AbstractTest {
      * @see ome.testing.DataProviderBuilder#addBoolean(boolean)
      */
     private static Boolean[][] provideEveryBooleanCombination(int argCount) {
-        // TODO: Once we use Guava 19 we can use Collections.nCopies and Lists.cartesianProduct instead of this manual approach.
-        if (argCount < 1) {
-            throw new IllegalArgumentException("argument count must be strictly positive");
-        }
-        final Boolean[][] testArguments = new Boolean[1 << argCount][];
-        int testNum = 0;
-        testArguments[testNum] = new Boolean[argCount];
-        Arrays.fill(testArguments[testNum], false);
-        while (++testNum < testArguments.length) {
-            testArguments[testNum] = Arrays.copyOf(testArguments[testNum - 1], argCount);
-            int argNum = argCount - 1;
-            while (true) {
-                if (testArguments[testNum][argNum]) {
-                    testArguments[testNum][argNum--] = false;
-                } else {
-                    testArguments[testNum][argNum] = true;
-                    break;
-                }
-            }
-        }
-        return testArguments;
+        return Lists.cartesianProduct(Collections.nCopies(argCount, ImmutableList.of(false, true)))
+                .stream().map(args -> args.stream().toArray(Boolean[]::new)).toArray(Boolean[][]::new);
     }
 
     /**
