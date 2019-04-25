@@ -414,15 +414,13 @@ class PrefsControl(WriteableConfigControl):
                 self.ctx.out(k)
 
     def parse(self, args):
-        if args.file:
-            args.file.close()
-            cfg = path(args.file.name)
-        else:
-            cfg = self.dir / "etc" / "omero.properties"
-
         from omero.install.config_parser import PropertyParser
         pp = PropertyParser()
-        pp.parse_file(str(cfg.abspath()))
+        if args.file:
+            args.file.close()
+            pp.parse_file(str(path(args.file.name).abspath()))
+        else:
+            pp.parse_lines(self.ctx.get_config_property_lines(self.dir))
 
         # Parse PSQL profile file
         for p in pp:
