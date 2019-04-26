@@ -66,17 +66,6 @@ RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
 #
 # RUN sed -i 's/\("IceSSL.Ciphers".*ADH[^"]*\)/\1:@SECLEVEL=0/' /src/components/tools/OmeroPy/src/omero/clients.py /src/etc/templates/grid/templates.xml
 
-# Temp: Build jars locally
-USER root
-RUN apt-get install -y gradle
-USER 1000
-RUN git clone -b api_dep git://github.com/dominikl/omero-java-gateway /tmp/omero-gateway
-WORKDIR /tmp/omero-gateway
-RUN DIR=$PWD; (cd /tmp; gradle wrapper --gradle-version=5.2.1; mv .gradle gradle gradlew $DIR)
-RUN ./gradlew publishToMavenLocal
-RUN find ~/.m2 -name omero-gateway*.jar
-WORKDIR /src
-
 # Reproduce jenkins build
 RUN env BUILD_NUMBER=1 OMERO_BRANCH=develop bash docs/hudson/OMERO.sh
 
