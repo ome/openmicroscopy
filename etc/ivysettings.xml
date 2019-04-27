@@ -74,7 +74,6 @@
           m2compatible="true"
           pattern="[orgPath]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
           root="https://artifacts.openmicroscopy.org/artifactory/maven/"/>
-
       <ibiblio name="unidata.releases" cache="maven"
           usepoms="true" useMavenMetadata="true"
           m2compatible="true"
