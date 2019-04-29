@@ -512,9 +512,6 @@ omero.version=${omero.version}
             <jar_update_if destfile="${dist.dir}/lib/server/omero-blitz.jar">
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
-            <jar_update_if destfile="${dist.dir}/lib/client/omero_client.jar">
-                <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
-            </jar_update_if>
         </then>
         </if>
     </target>
