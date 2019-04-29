@@ -508,10 +508,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
 omero.version=${omero.version}
             </echo>
 
-            <!-- Must update the jars with the modified omero.properties file in order for the version to be updated -->
-            <jar_update_if destfile="${dist.dir}/lib/server/omero-blitz.jar">
-                <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
-            </jar_update_if>
         </then>
         </if>
     </target>
