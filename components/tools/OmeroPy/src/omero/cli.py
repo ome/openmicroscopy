@@ -1360,10 +1360,10 @@ class CLI(cmd.Cmd, Context):
         property files from OMERO components then from the top level.
         Trailing whitespace is stripped from each line.
         """
-        jar_root = root_path / 'lib' / 'server'
+        jar_root = os.path.join(root_path, 'lib', 'server')
         for component in OMERO_COMPONENTS:
             from zipfile import ZipFile, is_zipfile, BadZipfile
-            jar_name = jar_root / 'omero-{}.jar'.format(component)
+            jar_name = os.path.join(jar_root, 'omero-{}.jar'.format(component))
             if is_zipfile(jar_name):
                 config_name = 'omero-{}.properties'.format(component)
                 try:
@@ -1375,7 +1375,7 @@ class CLI(cmd.Cmd, Context):
                     pass
         # etc/omero.properties comes last because it may contain "### END"
         try:
-            file_path = root_path / 'etc' / 'omero.properties'
+            file_path = os.path.join(root_path,'etc','omero.properties')
             with open(file_path, 'r') as config:
                 for line in iter(config.readline, ''):
                     yield line.rstrip()
