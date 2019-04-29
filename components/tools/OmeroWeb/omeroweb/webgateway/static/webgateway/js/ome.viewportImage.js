@@ -42,12 +42,12 @@ jQuery.fn.viewportImage = function(options) {
     var panbars = options == null || options.panbars;
     var mediaroot = options == null ? null : options.mediaroot;
     mediaroot = mediaroot || '/appmedia';
-    
-    var $wb_zoomIn = $('<span class="wb_zoomIn" style="top: 10px;"><img src="'+mediaroot+'/3rdparty/panojs-2.0.0/images/32px_plus.png" title="Zoom in" style="width: 20px;"></span>')
+
+    var $wb_zoomIn = $('<span class="wb_zoomIn" style="top: 10px;"><img src="'+mediaroot+'3rdparty/panojs-2.0.0/images/32px_plus.png" title="Zoom in" style="width: 20px;"></span>')
                       .prependTo(wrapdiv);
-    var $wb_zoom11 = $('<span class="wb_zoom11" style="top: 40px;"><img src="'+mediaroot+'/3rdparty/panojs-2.0.0/images/32px_11.png" title="Zoom 1:1" style="width: 20px;"></span>')
+    var $wb_zoom11 = $('<span class="wb_zoom11" style="top: 40px;"><img src="'+mediaroot+'3rdparty/panojs-2.0.0/images/32px_11.png" title="Zoom 1:1" style="width: 20px;"></span>')
                       .prependTo(wrapdiv);
-    var $wb_zoomOut = $('<span class="wb_zoomOut" style="top: 70px;"><img src="'+mediaroot+'/3rdparty/panojs-2.0.0/images/32px_minus.png" title="Zoom out" style="width: 20px;"></span>')
+    var $wb_zoomOut = $('<span class="wb_zoomOut" style="top: 70px;"><img src="'+mediaroot+'3rdparty/panojs-2.0.0/images/32px_minus.png" title="Zoom out" style="width: 20px;"></span>')
                       .prependTo(wrapdiv);
 
     if (panbars) {
