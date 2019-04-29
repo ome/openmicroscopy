@@ -1375,7 +1375,7 @@ class CLI(cmd.Cmd, Context):
                     pass
         # etc/omero.properties comes last because it may contain "### END"
         try:
-            file_path = os.path.join(root_path,'etc','omero.properties')
+            file_path = os.path.join(root_path, 'etc', 'omero.properties')
             with open(file_path, 'r') as config:
                 for line in iter(config.readline, ''):
                     yield line.rstrip()
