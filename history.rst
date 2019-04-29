@@ -5,6 +5,14 @@
 OMERO version history
 =====================
 
+5.5.0-m6 (April 2019)
+---------------------
+
+ - build: use omero-java-gateway instead of omero-blitz
+ - build: move omero.properties to omero-* repositories
+ - web: fix date display
+ - cli: disable foreground indexing
+
 5.5.0-m5 (April 2019)
 ---------------------
 
