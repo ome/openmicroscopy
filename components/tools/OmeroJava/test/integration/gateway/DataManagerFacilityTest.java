@@ -418,7 +418,7 @@ public class DataManagerFacilityTest extends GatewayTest {
                 try {
                     attached.add(datamanagerFacility.attachAnnotation(rootCtx, anno, src));
                 } catch (DSOutOfServiceException | DSAccessException e) {
-                    e.printStackTrace();
+                    Assert.fail("Couldn't attach annotations.");
                 }
             });
             
@@ -431,7 +431,6 @@ public class DataManagerFacilityTest extends GatewayTest {
             
             List<IObject> del = attached.stream().map(obj -> obj.asIObject()).collect(Collectors.toList());
             datamanagerFacility.delete(rootCtx, del);
-            Thread.sleep(100);
         }
     }
 
