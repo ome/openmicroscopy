@@ -710,9 +710,13 @@ OME.formatDate = function formatDate(date) {
         }
         return n;
     }
+    // For consistency with the datetimes in metadata_general.html we have to
+    // assume dates should not be converted using the local timezone. This is
+    // because the datetime returned by OMERO may already be in "localtime",
+    // treating it as UTC ensures no local timezone adjustment is made.
     var d = new Date(date),
-        dt = [d.getFullYear(), padZero(d.getMonth()+1), padZero(d.getDate())].join("-"),
-        tm = [padZero(d.getHours()), padZero(d.getMinutes()), padZero(d.getSeconds())].join(":");
+        dt = [d.getUTCFullYear(), padZero(d.getUTCMonth()+1), padZero(d.getUTCDate())].join("-"),
+        tm = [padZero(d.getUTCHours()), padZero(d.getUTCMinutes()), padZero(d.getUTCSeconds())].join(":");
     return dt + " " + tm;
 };
 
