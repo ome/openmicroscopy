@@ -485,6 +485,14 @@ CUSTOM_SETTINGS_MAPPINGS = {
          parse_boolean,
          ("Restrict CSRF cookies to HTTPS only, you are strongly "
           "recommended to set this to ``true`` in production.")],
+    "omero.web.csrf_cookie_httponly":
+        ["CSRF_COOKIE_HTTPONLY",
+         "false",
+         parse_boolean,
+         ("Prevent CSRF cookie from being accessed in JavaScript. "
+          "Currently disabled as it breaks background JavaScript POSTs in "
+          "OMERO.web.")],
+
     "omero.web.logdir":
         ["LOGDIR", LOGDIR, str, "A path to the custom log directory."],
     "omero.web.secure_proxy_ssl_header":
@@ -1269,9 +1277,8 @@ PIPELINE_JS = {
     }
 }
 
+# Prevent scripting attacks from obtaining session cookie
 SESSION_COOKIE_HTTPONLY = True
-# TODO: CSRF_COOKIE_HTTPONLY breaks OMERO.web javascript POSTs
-# CSRF_COOKIE_HTTPONLY = True
 
 CSRF_FAILURE_VIEW = "omeroweb.feedback.views.csrf_failure"
 
