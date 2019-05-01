@@ -10,7 +10,6 @@
     <artifact name="OmeroJava-test" type="jar"/>
   </publications>
   <dependencies defaultconfmapping="test->*">
-    <dependency org="omero" name="omero_client" rev="${omero.version}" changing="true"/>
     <dependency org="org.openmicroscopy" name="omero-blitz" rev="${versions.omero-blitz}"/>
     <dependency org="org.openmicroscopy" name="omero-common" rev="${versions.omero-common-test}"/>
     <dependency org="org.openmicroscopy" name="omero-java-gateway" rev="${versions.omero-java-gateway}"/>
