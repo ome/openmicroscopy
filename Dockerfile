@@ -58,6 +58,15 @@ WORKDIR /src
 ENV ICE_CONFIG=/src/etc/ice.config
 RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
 
+
+ARG DO_BUILD=yes
+RUN sh -c "[ ${DO_BUILD} = yes ]" \
+ && git clone -b quick-gradle git://github.com/joshmoore/build-infra .build \
+ && export PATH=$PATH:$PWD/.build \
+ && quick-gradle version.properties \
+ && cat version.properties >> etc/omero.properties
+
+
 # The following may be necessary depending on
 # which images you are using. See the following
 # card for more info:
