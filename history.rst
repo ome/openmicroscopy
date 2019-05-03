@@ -41,7 +41,7 @@ separate repositories:
 - https://github.com/ome/omero-model
 - https://github.com/ome/omero-common
 - https://github.com/ome/omero-romio
-- https://github.com/ome/omero-rendering
+- https://github.com/ome/omero-renderer
 - https://github.com/ome/omero-server
 - https://github.com/ome/omero-blitz
 - https://github.com/ome/omero-insight
