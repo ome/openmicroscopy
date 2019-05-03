@@ -441,7 +441,7 @@ public class DataManagerFacilityTest extends GatewayTest {
 
     @Test
     /**
-     * Test the move method by moving an image from one dataset to another
+     * Test the move method by moving images from one dataset to another
      * 
      * @throws Exception
      */
@@ -484,7 +484,7 @@ public class DataManagerFacilityTest extends GatewayTest {
 
     @Test
     /**
-     * Test the move method by moving a dataset from one project to another
+     * Test the move method by moving datasets from one project to another
      * 
      * @throws Exception
      */
