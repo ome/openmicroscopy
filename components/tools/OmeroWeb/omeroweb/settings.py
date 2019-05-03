@@ -389,7 +389,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '{"index": 4, '
           '"class": "django.middleware.csrf.CsrfViewMiddleware"},'
           '{"index": 5, '
-          '"class": "django.contrib.messages.middleware.MessageMiddleware"}'
+          '"class": "django.contrib.messages.middleware.MessageMiddleware"},'
+          '{"index": 6, '
+          '"class": "django.middleware.clickjacking.XFrameOptionsMiddleware"}'
           ']'),
          json.loads,
          ('Warning: Only system administrators should use this feature. '
@@ -471,6 +473,26 @@ CUSTOM_SETTINGS_MAPPINGS = {
          None,
          leave_none_unset,
          "The name to use for session cookies"],
+    "omero.web.session_cookie_secure":
+        ["SESSION_COOKIE_SECURE",
+         "false",
+         parse_boolean,
+         ("Restrict session cookies to HTTPS only, you are strongly "
+          "recommended to set this to ``true`` in production.")],
+    "omero.web.csrf_cookie_secure":
+        ["CSRF_COOKIE_SECURE",
+         "false",
+         parse_boolean,
+         ("Restrict CSRF cookies to HTTPS only, you are strongly "
+          "recommended to set this to ``true`` in production.")],
+    "omero.web.csrf_cookie_httponly":
+        ["CSRF_COOKIE_HTTPONLY",
+         "false",
+         parse_boolean,
+         ("Prevent CSRF cookie from being accessed in JavaScript. "
+          "Currently disabled as it breaks background JavaScript POSTs in "
+          "OMERO.web.")],
+
     "omero.web.logdir":
         ["LOGDIR", LOGDIR, str, "A path to the custom log directory."],
     "omero.web.secure_proxy_ssl_header":
@@ -805,6 +827,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
          parse_boolean,
          ("If True, cors_origin_whitelist will not be used and all origins "
           "will be authorized to make cross-site HTTP requests.")],
+
+    "omero.web.x_frame_options":
+        ["X_FRAME_OPTIONS",
+         "SAMEORIGIN",
+         str,
+         "Whether to allow OMERO.web to be loaded in a frame."
+         ],
 
     "omero.web.django_additional_settings":
         ["DJANGO_ADDITIONAL_SETTINGS",
@@ -1247,6 +1276,9 @@ PIPELINE_JS = {
         'output_filename': 'omeroweb.viewer.min.js',
     }
 }
+
+# Prevent scripting attacks from obtaining session cookie
+SESSION_COOKIE_HTTPONLY = True
 
 CSRF_FAILURE_VIEW = "omeroweb.feedback.views.csrf_failure"
 
