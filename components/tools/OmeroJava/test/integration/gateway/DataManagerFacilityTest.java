@@ -423,12 +423,17 @@ public class DataManagerFacilityTest extends GatewayTest {
             });
             
             datamanagerFacility.move(rootCtx, attached, src, tar);
+
+            // check all annotations are attached to tar
             List<AnnotationData> loaded = metadataFacility.getAnnotations(rootCtx, tar);
-            
             Assert.assertEquals(attached.size(), loaded.size());
             Set<Long> check = attached.stream().map(a -> a.getId()).collect(Collectors.toSet());
             loaded.forEach(a -> Assert.assertTrue(check.contains(a.getId())));
-            
+
+            // check none of the annotations are still attached to src
+            loaded = metadataFacility.getAnnotations(rootCtx, src);
+            Assert.assertEquals(loaded.size(), 0);
+
             List<IObject> del = attached.stream().map(obj -> obj.asIObject()).collect(Collectors.toList());
             datamanagerFacility.delete(rootCtx, del);
         }
@@ -453,17 +458,19 @@ public class DataManagerFacilityTest extends GatewayTest {
 
         long imgId = createImage(rootCtx);
         ImageData img = browseFacility.getImage(rootCtx, imgId);
+        long imgId2 = createImage(rootCtx);
+        ImageData img2 = browseFacility.getImage(rootCtx, imgId2);
 
         datamanagerFacility.addImagesToDataset(rootCtx,
-                Collections.singleton(img), ds1);
+                Arrays.asList(img, img2), ds1);
 
         ds1 = browseFacility
                 .getDatasets(rootCtx, Collections.singleton(ds1.getId()))
                 .iterator().next();
 
-        Assert.assertEquals(ds1.getImages().size(), 1);
+        Assert.assertEquals(ds1.getImages().size(), 2);
 
-        datamanagerFacility.move(rootCtx, Collections.singletonList(img), ds1, ds2);
+        datamanagerFacility.move(rootCtx, Arrays.asList(img, img2), ds1, ds2);
 
         ds1 = browseFacility
                 .getDatasets(rootCtx, Collections.singleton(ds1.getId()))
@@ -472,7 +479,7 @@ public class DataManagerFacilityTest extends GatewayTest {
                 .getDatasets(rootCtx, Collections.singleton(ds2.getId()))
                 .iterator().next();
         Assert.assertTrue(ds1.getImages().isEmpty());
-        Assert.assertEquals(ds2.getImages().size(), 1);
+        Assert.assertEquals(ds2.getImages().size(), 2);
     }
 
     @Test
@@ -490,13 +497,21 @@ public class DataManagerFacilityTest extends GatewayTest {
         DatasetData ds = new DatasetData();
         ds.setName(UUID.randomUUID().toString());
         ds = datamanagerFacility.createDataset(rootCtx, ds, proj1);
+        proj1 = browseFacility.getProjects(rootCtx, Collections.singleton(proj1.getId())).iterator().next();
+
+        DatasetData ds2 = new DatasetData();
+        ds2.setName(UUID.randomUUID().toString());
+        ds2 = datamanagerFacility.createDataset(rootCtx, ds2, proj1);
+
+        proj1 = browseFacility.getProjects(rootCtx, Collections.singleton(proj1.getId())).iterator().next();
+        Assert.assertEquals(proj1.getDatasets().size(), 2);
 
         ProjectData proj2 = new ProjectData();
         proj2.setName(UUID.randomUUID().toString());
         proj2 = (ProjectData) datamanagerFacility.saveAndReturnObject(rootCtx,
                 proj2);
 
-        datamanagerFacility.move(rootCtx, Collections.singletonList(ds), proj1, proj2);
+        datamanagerFacility.move(rootCtx, Arrays.asList(ds, ds2), proj1, proj2);
 
         proj1 = browseFacility
                 .getProjects(rootCtx, Collections.singleton(proj1.getId()))
@@ -504,8 +519,10 @@ public class DataManagerFacilityTest extends GatewayTest {
         proj2 = browseFacility
                 .getProjects(rootCtx, Collections.singleton(proj2.getId()))
                 .iterator().next();
-        DatasetData dsLoaded = proj2.getDatasets().iterator().next();
-        Assert.assertEquals(dsLoaded.getId(), ds.getId());
+        Set<DatasetData> dsLoaded = proj2.getDatasets();
+        Assert.assertEquals(dsLoaded.size(), 2);
+        for (DatasetData d : dsLoaded)
+            Assert.assertTrue(d.getId() == ds.getId() || d.getId() == ds2.getId());
         Assert.assertTrue(proj1.getDatasets().isEmpty());
     }
     
