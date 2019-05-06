@@ -336,7 +336,7 @@ def logout(request, conn=None, **kwargs):
         return HttpResponseRedirect(reverse(settings.LOGIN_VIEW))
     else:
         context = {
-            'url': reverse(settings.LOGIN_VIEW),
+            'url': reverse('weblogout'),
             'submit': "Do you want to log out?"}
         t = template_loader.get_template(
             'webgateway/base/includes/post_form.html')
