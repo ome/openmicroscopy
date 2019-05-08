@@ -481,7 +481,7 @@ class WebControl(DiagnosticsControl):
         if pid:
             if not self._check_pid(pid, pid_path):
                 pid_path.remove()
-                self.ctx.die(608, "Removed stale %s" % pid_path)
+                self.ctx.err("WARNING: Removed stale %s" % pid_path)
             else:
                 self.ctx.die(606,
                              "[FAILED] OMERO.web already started. "
