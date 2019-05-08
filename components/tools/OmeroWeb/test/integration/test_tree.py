@@ -1910,7 +1910,7 @@ class TestTree(ITest):
             i.setAcquisitionDate(rtime(utcAcq))
         images = conn.getUpdateService().saveAndReturnArray(images)
         # All images created at same time
-        utcCreate = datetime.fromtimestamp(utcCreate/1000).isoformat() + 'Z'
+        utcCreate = datetime.fromtimestamp(utcCreate/1000).isoformat()
         extraValues = {'acqDate': acqDate,
                        'date': utcCreate}
         expected = expected_images(userA, images,
