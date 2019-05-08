@@ -1867,7 +1867,7 @@ class TestTree(ITest):
         dataset = project_hierarchy_userA_groupA[2]
         images = project_hierarchy_userA_groupA[4:6]
         utcAcq = 1444129810716
-        acqDate = '2015-10-06T12:10:10Z'
+        acqDate = '2015-10-06T11:10:10'
         for i in images:
             # get Creation date and set Acquisition Date.
             utcCreate = i.details.creationEvent._time.val
