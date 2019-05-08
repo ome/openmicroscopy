@@ -165,7 +165,7 @@ def annotate_project(ann, project, user):
 
 def expected_date(time):
     d = datetime.fromtimestamp(old_div(time, 1000))
-    return d.isoformat() + 'Z'
+    return d.isoformat()
 
 
 def expected_experimenter(experimenter):
