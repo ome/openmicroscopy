@@ -510,21 +510,21 @@ CUSTOM_SETTINGS_MAPPINGS = {
          leave_none_unset,
          ("A string representing Gunicorn additional arguments. "
           "Check Gunicorn Documentation "
-          "http://docs.gunicorn.org/en/latest/settings.html")],
+          "https://docs.gunicorn.org/en/latest/settings.html")],
     "omero.web.wsgi_workers":
         ["WSGI_WORKERS",
          5,
          int,
          ("The number of worker processes for handling requests. "
           "Check Gunicorn Documentation "
-          "http://docs.gunicorn.org/en/stable/settings.html#workers")],
+          "https://docs.gunicorn.org/en/stable/settings.html#workers")],
     "omero.web.wsgi_timeout":
         ["WSGI_TIMEOUT",
          60,
          int,
          ("Workers silent for more than this many seconds are killed "
           "and restarted. Check Gunicorn Documentation "
-          "http://docs.gunicorn.org/en/stable/settings.html#timeout")],
+          "https://docs.gunicorn.org/en/stable/settings.html#timeout")],
 
     # Public user
     "omero.web.public.enabled":
@@ -643,7 +643,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          str,
          ("The file storage engine to use when collecting static files with"
           " the collectstatic management command. See `the documentation "
-          "<http://django-pipeline.readthedocs.org/en/latest/storages.html>`_"
+          "<https://django-pipeline.readthedocs.org/en/latest/storages.html>`_"
           " for more details.")],
 
     # Customisation
@@ -753,7 +753,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Number of thumbnails retrieved to prevent from loading them"
           " all at once. Make sure the size is not too big, otherwise"
           " you may exceed limit request line, see"
-          " http://docs.gunicorn.org/en/latest/settings.html"
+          " https://docs.gunicorn.org/en/latest/settings.html"
           "?highlight=limit_request_line")],
     "omero.web.ui.top_links":
         ["TOP_LINKS",
@@ -943,13 +943,13 @@ DEVELOPMENT_SETTINGS_MAPPINGS = {
          check_worker_class,
          ("The default OMERO.web uses sync workers to handle most “normal” "
           "types of workloads. Check Gunicorn Design Documentation "
-          "http://docs.gunicorn.org/en/stable/design.html")],
+          "https://docs.gunicorn.org/en/stable/design.html")],
     "omero.web.wsgi_worker_connections":
         ["WSGI_WORKER_CONNECTIONS",
          1000,
          int,
          ("(ASYNC WORKERS only) The maximum number of simultaneous clients. "
-          "Check Gunicorn Documentation http://docs.gunicorn.org"
+          "Check Gunicorn Documentation https://docs.gunicorn.org"
           "/en/stable/settings.html#worker-connections")],
     "omero.web.wsgi_threads":
         ["WSGI_THREADS",
@@ -957,7 +957,7 @@ DEVELOPMENT_SETTINGS_MAPPINGS = {
          check_threading,
          ("(SYNC WORKERS only) The number of worker threads for handling "
           "requests. Check Gunicorn Documentation "
-          "http://docs.gunicorn.org/en/stable/settings.html#threads")],
+          "https://docs.gunicorn.org/en/stable/settings.html#threads")],
 }
 
 
