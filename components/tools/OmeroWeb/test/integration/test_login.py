@@ -20,6 +20,12 @@
 """
 Tests webclient login
 """
+from django.conf import settings
+from django.conf.urls import url
+from django.utils.importlib import import_module
+from django.test.utils import override_settings
+
+from omeroweb.webclient.views import WebclientLoginView
 
 from omeroweb.testlib import IWebTest, post, get
 from django.core.urlresolvers import reverse
@@ -28,6 +34,17 @@ from random import random
 import pytest
 
 tag_url = reverse('load_template', kwargs={'menu': 'usertags'})
+
+
+class CustomWebclientLoginView(WebclientLoginView):
+    pass
+
+
+urlpatterns = import_module(settings.ROOT_URLCONF).urlpatterns
+urlpatterns += [
+    url(r'^test_login/$',
+        CustomWebclientLoginView.as_view(), name="test_weblogin"),
+]
 
 
 class TestLogin(IWebTest):
@@ -83,3 +100,21 @@ class TestLogin(IWebTest):
         if len(redirect) == 0:
             redirect = reverse('webindex')
         assert rsp['Location'].endswith(redirect)
+
+    @override_settings(ROOT_URLCONF=__name__, LOGIN_VIEW='test_weblogin')
+    def test_login_view(self):
+        """
+        Test that a successful logout redirects to custom login view
+        """
+        django_client = self.django_root_client
+        request_url = reverse('test_weblogin')
+        data = {
+            'server': 1,
+            'username': self.ctx.userName,
+            'password': self.ctx.userName,
+        }
+        rsp = post(django_client, request_url, data, status_code=302)
+        request_url = reverse('weblogout')
+        rsp = post(django_client, request_url, {}, status_code=302)
+        assert rsp['Location'].endswith(reverse('test_weblogin'))
+        assert not rsp['Location'].endswith(reverse('weblogin'))

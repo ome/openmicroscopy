@@ -656,7 +656,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "the OMERO logo. You will need to host the image somewhere else "
           "and link to it with the OMERO logo.")],
     "omero.web.login_view":
-        ["LOGIN_VIEW", "weblogin", str, None],
+        ["LOGIN_VIEW",
+         "weblogin",
+         str,
+         ("The Django view name used for login. Use this to provide an "
+          "alternative login workflow.")],
     "omero.web.user_dropdown":
         ["USER_DROPDOWN",
          "true",
