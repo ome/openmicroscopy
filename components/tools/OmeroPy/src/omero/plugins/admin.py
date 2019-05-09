@@ -1093,11 +1093,23 @@ present, the user will enter a console""")
             '@omero.ports.prefix@': config.get('omero.ports.prefix', ''),
             '@omero.ports.ssl@': config.get('omero.ports.ssl', '4064'),
             '@omero.ports.tcp@': config.get('omero.ports.tcp', '4063'),
+            '@omero.ports.wss@': config.get('omero.ports.wss', '4066'),
+            '@omero.ports.ws@': config.get('omero.ports.ws', '4065'),
             '@omero.ports.registry@': config.get(
                 'omero.ports.registry', '4061'),
             '@omero.master.host@': config.get('omero.master.host', config.get(
                 'Ice.Default.Host', '127.0.0.1'))
             }
+
+        client_transports = config.get('omero.client.icetransports', 'ssl,tcp')
+        client_endpoints = [
+            '{tp} -p {prefix}{port}'.format(
+                tp=clienttp,
+                prefix=substitutions['@omero.ports.prefix@'],
+                port=substitutions['@omero.ports.{tp}@'.format(tp=clienttp)],
+            )
+            for clienttp in client_transports.split(',')]
+        substitutions['@omero.client.endpoints@'] = ':'.join(client_endpoints)
 
         def copy_template(input_file, output_dir):
             """Replace templates"""

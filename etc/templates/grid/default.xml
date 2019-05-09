@@ -48,7 +48,7 @@
 
     <node name="master">
       <server-instance template="Glacier2Template"
-        client-endpoints="ssl -p ${ROUTERPORT}:tcp -p @omero.ports.prefix@@omero.ports.tcp@"
+        client-endpoints="@omero.client.endpoints@"
         server-endpoints="tcp -h @omero.master.host@"/>
       <server-instance template="BlitzTemplate" index="0" config="default"/>
       <server-instance template="IndexerTemplate" index="0"/>
