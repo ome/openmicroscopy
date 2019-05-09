@@ -28,6 +28,12 @@ from omero.util import get_omero_userdir, make_logname
 from omero.rtypes import rlong
 from path import path
 
+try:
+    from urllib.parse import quote, unquote
+except ImportError:
+    # Python2
+    from urllib import quote, unquote
+
 import logging
 
 """
@@ -46,6 +52,10 @@ from omero.cli import Arguments, BaseControl, VERSION
 from path import path
 
 """
+
+
+def _escape_host(host):
+    return quote(host, safe='')
 
 
 class SessionsStore(object):
@@ -104,7 +114,7 @@ class SessionsStore(object):
         for k, v in props.items():
             lines.append("%s=%s" % (k, v))
 
-        dhn = self.dir / host / name
+        dhn = self.dir / _escape_host(host) / name
         if not dhn.exists():
             dhn.makedirs()
 
@@ -149,7 +159,7 @@ class SessionsStore(object):
         if uuid is None:
             self.logger.debug("No uuid provided")
             return
-        d = self.dir / host / name
+        d = self.dir / _escape_host(host) / name
         if d.exists():
             f = d / uuid
             if f.exists():
@@ -165,7 +175,7 @@ class SessionsStore(object):
         Checks if the given file exists.
         """
         d = self.dir
-        for x in (host, name, uuid):
+        for x in (_escape_host(host), name, uuid):
             d = d / x
             if not d.exists():
                 return False
@@ -175,14 +185,14 @@ class SessionsStore(object):
         """
         Returns the properties stored in the given session file
         """
-        return self.props(self.dir / host / name / uuid)
+        return self.props(self.dir / _escape_host(host) / name / uuid)
 
     def available(self, host, name):
         """
         Returns the path to property files which are stored.
         Internal accounting files are not returned.
         """
-        d = self.dir / host / name
+        d = self.dir / _escape_host(host) / name
         if not d.exists():
             return []
         return [x.basename() for x in self.non_dot(d)]
@@ -279,7 +289,7 @@ class SessionsStore(object):
         rv = {}
         Dhosts = self.dir.dirs()
         for Dhost in Dhosts:
-            host = str(Dhost.basename())
+            host = unquote(str(Dhost.basename()))
             if host not in rv:
                 rv[host] = {}
             Dnames = Dhost.dirs()
@@ -439,14 +449,14 @@ class SessionsStore(object):
 
     def user_file(self, host):
         """ Returns the path-object which stores the last active user """
-        d = self.dir / host
+        d = self.dir / _escape_host(host)
         if not d.exists():
             d.makedirs()
         return d / "._LASTUSER_"
 
     def sess_file(self, host, user):
         """ Returns the path-object which stores the last active session """
-        d = self.dir / host / user
+        d = self.dir / _escape_host(host) / user
         if not d.exists():
             d.makedirs()
         return d / "._LASTSESS_"
