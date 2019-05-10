@@ -156,9 +156,9 @@ do
         py-test)
             py_test ;;
         integration)
-            py_flake8 java_build java_test py_test integration ;;
+            py_flake8 && java_build && java_test && py_test && integration ;;
         all)
-            py_flake8 java_build java_test py_test ;;
+            py_flake8 && java_build && java_test && py_test ;;
         *)
             echo "Invalid argument: \"$arg\"" >&2
             exit 1
