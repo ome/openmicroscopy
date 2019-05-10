@@ -5,6 +5,12 @@
 OMERO version history
 =====================
 
+5.5.0-m7 (May 2019)
+-------------------
+
+ - build: remove unused client jar
+ - build: use Bio-Formats 6.1.0-m1 
+
 5.5.0-m6 (April 2019)
 ---------------------
 
