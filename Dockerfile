@@ -63,7 +63,7 @@ ARG DO_BUILD=yes
 RUN sh -c "[ ${DO_BUILD} = yes ]" \
  && git clone -b quick-gradle git://github.com/joshmoore/build-infra .build \
  && export PATH=$PATH:$PWD/.build \
- && quick-gradle version.properties \
+ && quick-build version.properties \
  && cat version.properties >> etc/omero.properties
 
 
