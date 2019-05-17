@@ -25,6 +25,7 @@ import logging
 import IceImport
 import Ice
 import re
+import ssl
 import uuid
 
 IceImport.load("Glacier2_Router_ice")
@@ -212,6 +213,8 @@ class BaseClient(object):
 
         if sys.platform == "darwin":
             self._optSetProp(id, "IceSSL.Ciphers", "(AES_256) (DH_anon.*AES)")
+        elif ssl.OPENSSL_VERSION_INFO >= (1, 1):
+            self._optSetProp(id, "IceSSL.Ciphers", "HIGH:ADH:@SECLEVEL=0")
         else:
             self._optSetProp(id, "IceSSL.Ciphers", "HIGH:ADH")
 
