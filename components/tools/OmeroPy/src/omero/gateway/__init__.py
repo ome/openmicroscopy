@@ -4578,7 +4578,8 @@ class _BlitzGateway (object):
                 def actualSearch():
                     search.onlyType(t().OMERO_CLASS, ctx)
                     if rawQuery:
-                        # TODO: need to handle dates: d_from, d_to, d_type
+                        if created is not None and len(created) > 1:
+                            search.onlyCreatedBetween(created[0], created[1])
                         search.byFullText(text, ctx)
                     else:
                         search.byLuceneQueryBuilder(
