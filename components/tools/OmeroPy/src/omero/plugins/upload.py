@@ -51,7 +51,7 @@ class UploadControl(BaseControl):
         parser.add_login_arguments()
 
     def upload(self, args):
-        warnings.warn(
+        self.ctx.err(
             "This module is deprecated as of OMERO 5.5.0. Use the module"
             " available from https://pypi.org/project/omero-cli-upload/"
             " instead.", DeprecationWarning)
@@ -72,7 +72,7 @@ class UploadControl(BaseControl):
         self.ctx.out("OriginalFile:%s" % objIds)
 
 try:
-    if "OMERO_DEV_PLUGINS" in os.environ:
+    if "OMERO_NO_DEPRECATED_PLUGINS" not in os.environ:
         warnings.warn(
             "This plugin is deprecated as of OMERO 5.5.0. Use the upload"
             " CLI plugin available from"
