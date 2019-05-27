@@ -11,3 +11,4 @@ gunicorn>=19.3
 
 omero-marshal==0.5.4
 django-redis>=4.4,<4.9
+Jinja2
