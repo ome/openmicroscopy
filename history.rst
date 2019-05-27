@@ -38,9 +38,15 @@ and contains some useful CLI improvements.
 -build:
   - Remove the generation of Ivy dependencies.html files
 
+<<<<<<< HEAD
 - web: 
   - Add support for advanced search
   - Support creation of new Map Annotations for multiple selected objects at once
+=======
+- web:
+  - Introduce Advanced Search to allow and/or search options
+  - Allow user to create new Map Annotations for multiple selected objects at once
+>>>>>>> add new entries for web
   - Fix date display
   - Remove / from 3rdparty in ome.viewportImage.js
   - Remove usage of deprecated calls
@@ -49,7 +55,7 @@ and contains some useful CLI improvements.
   - Disable refresh button while existing refresh in progress
   - Improve public user support
 
-- cli: 
+- cli:
   - Disable foreground indexing
   - Improve logging of error when importing data via cli command
   - Clearly indicate empty log files when running a diagnostic
