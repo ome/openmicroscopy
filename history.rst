@@ -5,107 +5,56 @@
 OMERO version history
 =====================
 
-5.5.0-rc2 (May 2019)
---------------------
+5.5.0 (June 2019)
+-----------------
 
-- Remove the generation of Ivy dependencies.html files.
-- build: use release versions of omero-* dependencies
-- web: add support for advanced search
-- web: support creation of new Map Annotations for multiple selected objects at once
-
-5.5.0-rc1 (May 2019)
---------------------
-
-- build: use Bio-Formats 6.1.0
-- build: use release versions of omero-* dependencies
-
-5.5.0-m7 (May 2019)
--------------------
-
-- build: remove unused client jar
-- build: use Bio-Formats 6.1.0-m1 
-
-5.5.0-m6 (April 2019)
----------------------
-
-- build: use omero-gateway instead of omero-blitz
-- build: move omero.properties to omero-* repositories
-- web: fix date display
-- web: remove / from 3rdparty in ome.viewportImage.js
-- cli: disable foreground indexing
-
-5.5.0-m5 (April 2019)
----------------------
-
-- test: fix and update tests following the migrations
-- web: remove usage of deprecated calls
-- web: remove apache config
-- doc: fix broken links following migration
-
-5.5.0-m4 (March 2019)
----------------------
-
-New plugins like omero-artifact-plugin allow reducing the boilerplate
-code in the build scripts of the decoupled repositories. This will be
-the last version where all of the dependencies are released together
-with the same tag. Following releases will focuses on the decoupled
-client repositories like omero-insight and omero-matlab.
-
-5.5.0-m3 (February 2019)
-------------------------
-
-This release focuses on decoupling the Java components to new,
+This release focuses on dropping support for Java 7, Python 2.6 and Ice 3.5.
+and on decoupling the Java components to new,
 separate repositories:
 
 - https://github.com/ome/omero-dsl
 - https://github.com/ome/omero-model
 - https://github.com/ome/omero-common
 - https://github.com/ome/omero-romio
-- https://github.com/ome/omero-rendering
+- https://github.com/ome/omero-renderer
 - https://github.com/ome/omero-server
 - https://github.com/ome/omero-blitz
+- https://github.com/ome/omero-blitz-plugin
 - https://github.com/ome/omero-insight
 - https://github.com/ome/omero-matlab
+- https://github.com/ome/omero-javapackager-plugin
+- https://github.com/ome/omero-api-plugin
 
 This has the goal of enabling more fine-grained releases.
-
 A new restriction is that the names of server configuration properties
 may include only letters, numbers and the symbols ".", "_", "-".
 
-5.5.0-m2 (December 2018)
-------------------------
+New plugins like omero-artifact-plugin allow reducing the boilerplate
+code in the build scripts of the decoupled repositories.
 
-This release focuses on dropping support for Java 7 and Ice 3.5
-
-
-Further improvements include:
-
-- web: Do not break display of Tag dialog when large font size is configured in browser
-- web: Disable refresh button while existing refresh in progress
-- server: move clients' graph requests onto background threads
-
-5.5.0-m1 (November 2018)
-------------------------
-
-This release focuses on improving the Desktop client to ease integration with third-party applications e.g. ImageJ/Fiji. The Desktop client can now do offline imports using `ome-smuggler <https://github.com/openmicroscopy/omero-ms-queue/>`_.
 Additionally, this release improves the Web interface when OMERO is opened to the public
 and contains some useful CLI improvements.
 
-Further improvements include:
+-build:
+  - Remove the generation of Ivy dependencies.html files
 
-- insight: allow to import data using ome-smuggler
-- insight: indicate in login screen that it is possible to use session ID to connect
-- ImageJ plugin insight-ij: improve saving of ROIs and Measurements
-- web: improve public user support
-- server: do not set the trustStore properties if empty
-- cli: improve logging of error when importing data via cli command
-- cli: clearly indicate empty log files when running a diagnostic
-- cli: fix bug when running `config load` passing a directory instead of a file
-- cli: add option to delete keys from map annotations
+- web: 
+  - Add support for advanced search
+  - Support creation of new Map Annotations for multiple selected objects at once
+  - Fix date display
+  - Remove / from 3rdparty in ome.viewportImage.js
+  - Remove usage of deprecated calls
+  - Remove apache config
+  - Do not break display of Tag dialog when large font size is configured in browser
+  - Disable refresh button while existing refresh in progress
+  - Improve public user support
 
-Developer improvements include:
-
-- JavaGateway: add helper method to manipulate ROI masks 
+- cli: 
+  - Disable foreground indexing
+  - Improve logging of error when importing data via cli command
+  - Clearly indicate empty log files when running a diagnostic
+  - Fix bug when running `config load` passing a directory instead of a file
+  - Add option to delete keys from map annotations
 
 5.4.10 (January 2019)
 ---------------------
