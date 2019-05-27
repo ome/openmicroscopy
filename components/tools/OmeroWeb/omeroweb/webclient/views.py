@@ -2294,36 +2294,56 @@ def annotate_map(request, conn=None, **kwargs):
     data = request.POST.get('mapAnnotation')
     data = json.loads(data)
 
-    annId = request.POST.get('annId')
-    # Create a new annotation
-    if annId is None and len(data) > 0:
-        ann = omero.gateway.MapAnnotationWrapper(conn)
-        ann.setValue(data)
-        ns = request.POST.get('ns',
-                              omero.constants.metadata.NSCLIENTMAPANNOTATION)
-        ann.setNs(ns)
-        ann.save()
-        for k, objs in oids.items():
-            for obj in objs:
-                obj.linkAnnotation(ann)
-        annId = ann.getId()
-    # Or update existing annotation
-    elif annId is not None:
-        ann = conn.getObject("MapAnnotation", annId)
-        if len(data) > 0:
-            ann.setValue(data)
-            ann.save()
-            annId = ann.getId()
-        else:
-            # Delete if no data
-            handle = conn.deleteObjects('/Annotation', [annId])
-            try:
-                conn._waitOnCmd(handle)
-            finally:
-                handle.close()
-            annId = None
+    annIds = request.POST.getlist('annId')
+    ns = request.POST.get('ns', omero.constants.metadata.NSCLIENTMAPANNOTATION)
 
-    return {"annId": annId}
+    # Create a new annotation
+    if len(annIds) == 0 and len(data) > 0:
+        duplicate = request.POST.get('duplicate', 'false')
+        duplicate.lower() == 'true'
+        # For 'client' map annotations, we enforce 1 annotation per object
+        if (ns == omero.constants.metadata.NSCLIENTMAPANNOTATION):
+            duplicate = True
+        if duplicate:
+            # Create a new Map Annotation for each object:
+            for k, objs in oids.items():
+                for obj in objs:
+                    ann = omero.gateway.MapAnnotationWrapper(conn)
+                    ann.setValue(data)
+                    ann.setNs(ns)
+                    ann.save()
+                    annIds.append(ann.getId())
+                    obj.linkAnnotation(ann)
+        else:
+            # Create single Map Annotation and link to all objects
+            ann = omero.gateway.MapAnnotationWrapper(conn)
+            ann.setValue(data)
+            ann.setNs(ns)
+            ann.save()
+            annIds.append(ann.getId())
+            for k, objs in oids.items():
+                for obj in objs:
+                    obj.linkAnnotation(ann)
+    # Or update existing annotations
+    else:
+        for annId in annIds:
+            ann = conn.getObject("MapAnnotation", annId)
+            if ann is None:
+                continue
+            if len(data) > 0:
+                ann.setValue(data)
+                ann.save()
+            else:
+                # Delete if no data
+                handle = conn.deleteObjects('/Annotation', [annId])
+                try:
+                    conn._waitOnCmd(handle)
+                finally:
+                    handle.close()
+        if len(data) == 0:
+            annIds = None
+
+    return {"annId": annIds}
 
 
 @login_required()

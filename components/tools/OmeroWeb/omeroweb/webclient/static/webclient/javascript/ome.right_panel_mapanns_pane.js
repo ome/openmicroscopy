@@ -49,6 +49,47 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
         return isClientMapAnn(ann) && ann.owner.id == WEBCLIENT.USER.id;
     };
 
+    var annsEqual = function(annA, annB) {
+        // equal if all key-value pairs are identical and have same owner and namespace
+        var valuesA = annA.values;
+        var valuesB = annB.values;
+        if (annA.id === annB.id) return true;
+        if (annA.owner.id != annB.owner.id) return false;
+        if (annA.ns != annB.ns) return false;
+        if (valuesA.length != valuesB.length) return false;
+        for (var i=0; i<valuesA.length; i++) {
+            if (valuesA[i][0] !== valuesB[i][0] || valuesA[i][1] !== valuesB[i][1]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    var groupDuplicateAnns = function(annList) {
+        // Try to collapse any IDENTICAL map anns that also have same owner and ns...
+        var unique_anns = [];
+        annList.forEach(function(ann){
+            var duplicate = false;
+            for (var u=0; u<unique_anns.length; u++) {
+                var unique_ann = unique_anns[u];
+                if (annsEqual(unique_ann, ann)) {
+                    // combine anns
+                    unique_ann.id = unique_ann.id + "," + ann.id;
+                    if (!unique_ann.parentNames) {
+                        unique_ann.parentNames = [unique_ann.link.parent.name];
+                    }
+                    unique_ann.parentNames.push(ann.link.parent.name);
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (!duplicate) {
+                unique_anns.push(ann);
+            }
+        });
+        return unique_anns;
+    }
+
     this.apiAnnotationUrl = function apiAnnotationUrl(url) {
         if (!url) { return WEBCLIENT.URLS.webindex + "api/annotations/";}
         return url;
@@ -110,11 +151,6 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                     var map_annotations = [];
 
                     anns.forEach(function(ann){
-                        if (batchAnn) {
-                            // Don't allow editing in batch annotate panel
-                            // Get error if all rows are deleted then try to add new map
-                            ann.permissions.canEdit = false;
-                        }
                         if (isMyClientMapAnn(ann)) {
                             my_client_map_annotations.push(ann);
                         } else if (isClientMapAnn(ann)) {
@@ -124,25 +160,36 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                         }
                     });
 
+                    if (batchAnn) {
+                        my_client_map_annotations = groupDuplicateAnns(my_client_map_annotations);
+                        client_map_annotations = groupDuplicateAnns(client_map_annotations);
+                        map_annotations = groupDuplicateAnns(map_annotations);
+                    }
+
                     // Update html...
                     var html = "";
                     var showHead = true;
-                    // If not batch_annotate, add placeholder to create map ann
-                    if (canAnnotate && !batchAnn) {
-                        if (my_client_map_annotations.length === 0) {
+                    // If no annotations OR in batch_annotate, add placeholder to create map ann(s)
+                    if (canAnnotate) {
+                        if (my_client_map_annotations.length === 0 || batchAnn) {
                             showHead = false;
-                            my_client_map_annotations = [{}];   // placeholder
+                            my_client_map_annotations.unshift({});   // placeholder
                         }
                     }
                     // In batch_annotate view, we show which object each map is linked to
                     var showParent = batchAnn;
-                    html = mapAnnsTempl({'anns': my_client_map_annotations,
+                    html = html + mapAnnsTempl({'anns': my_client_map_annotations, 'objCount': objects.length,
                         'showTableHead': showHead, 'showNs': false, 'clientMapAnn': true, 'showParent': showParent});
                     html = html + mapAnnsTempl({'anns': client_map_annotations,
                         'showTableHead': false, 'showNs': false, 'clientMapAnn': true, 'showParent': showParent});
                     html = html + mapAnnsTempl({'anns': map_annotations,
                         'showTableHead': false, 'showNs': true, 'clientMapAnn': false, 'showParent': showParent});
                     $mapAnnContainer.html(html);
+
+                    // re-use the ajaxdata to set Object IDS data on the parent container
+                    // removing unwanted keys first
+                    delete ajaxdata['type'];
+                    $mapAnnContainer.data('objIds', ajaxdata);
 
                     // Finish up...
                     OME.linkify_element($( "table.keyValueTable" ));

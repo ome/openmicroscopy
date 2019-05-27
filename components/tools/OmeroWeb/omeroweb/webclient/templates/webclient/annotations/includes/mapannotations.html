@@ -92,9 +92,10 @@
 
             var annId = $table.attr('data-annId'),
                 url = "{% url 'annotate_map' %}",
-                data = {"{{ manager.obj_type }}": "{{ manager.obj_id }}" },
                 $mapAnnotationSpinner = $(".mapAnnotationSpinner", $table.parent()),
-                tableData = [];
+                tableData = [],
+                // objIds = {'project': [1, 2]}
+                data = Object.assign({}, $("#mapAnnContainer").data('objIds'));
 
             {% if index %}
             // for wells, we need to know index
@@ -109,21 +110,31 @@
                 if ((k == "" || k == "Add Key") && (v == "" || v == "Add Value")) return;
                 tableData.push(rowData);
             });
-            // If we are editing a saved map annotation...
+            // If we are editing a saved map annotation(s)...
             if (annId) {
-                data.annId = annId;
+                data.annId = annId.split(",");
             }
 
             data.mapAnnotation = JSON.stringify(tableData);
 
             saveInProgress = true;
             $mapAnnotationSpinner.show();
-            $.post( url, data)
-                .done(function( data ) {
+            $.ajax({
+                url: url,
+                type: "POST",
+                traditional: true,  // allows multiple values for key. E.g. 'project':1, 'project:2' for objIds
+                data: data,
+                dataType: 'json',
+                success: function( data ) {
                     saveInProgress = false;
                     $mapAnnotationSpinner.hide();
-                    $table.attr('data-annId', data.annId);
-                });
+                    if (data.annId != null) {
+                        $table.attr('data-annId', data.annId);
+                    } else {
+                        $table.removeAttr('data-annId');
+                    }
+                }
+            });
         };
 
         // start editing a td
