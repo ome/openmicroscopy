@@ -94,23 +94,22 @@ class TestTickets3000(ITest):
         # Only IQuery.projection can return non-IObject types
         q.projection(sql, p1)
 
-    @pytest.mark.broken(ticket="11539")
     def test2952(self):
-
         la = omero.model.LongAnnotationI()
         la.longValue = rlong(123456789)
-        la = self.client.sf.getUpdateService().saveAndReturnObject(la)
-        self.index(la)
+        proj = self.new_project(name="test_ticket_2952")
+        proj.linkAnnotation(la)
+        proj = self.update.saveAndReturnObject(proj)
+        self.index(proj)
 
         search = self.client.sf.createSearchService()
-        search.onlyType("LongAnnotation")
-        s = "%s" % la.longValue.val
+        search.onlyType("Project")
+        s = str(la.longValue.val)
         search.byFullText(s)
         res = search.results()
 
-        assert la.id.val in [x.id.val for x in res]
+        assert proj.id.val in [x.id.val for x in res]
 
-    @pytest.mark.broken(ticket="11539")
     def test2762(self):
         """
         Test that the page (limit/offset) settings on a ParametersI
@@ -118,18 +117,20 @@ class TestTickets3000(ITest):
         """
 
         uuid = self.uuid().replace("-", "")
-        tas = []
+        projs = []
         for x in range(15):
             ta = omero.model.TagAnnotationI()
             ta.setNs(rstring(uuid))
-            ta = self.update.saveAndReturnObject(ta)
-            tas.append(ta)
-            self.root.sf.getUpdateService().indexObject(ta)
+            proj = self.new_project(name="test_ticket_2762")
+            proj.linkAnnotation(ta)
+            proj = self.update.saveAndReturnObject(proj)
+            projs.append(proj)
+            self.index(proj)
 
-        results = self.query.findAllByFullText("TagAnnotation", uuid, None)
-        assert len(tas) == len(results)
+        results = self.query.findAllByFullText("Project", uuid, None)
+        assert len(projs) == len(results)
 
         params = omero.sys.ParametersI()
         params.page(0, 10)
-        results = self.query.findAllByFullText("TagAnnotation", uuid, params)
+        results = self.query.findAllByFullText("Project", uuid, params)
         assert 10 == len(results)

@@ -35,8 +35,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     <import file="${import.dir}/global.xml"/>
 
     <target name="init" depends="check-ivy,check-scons,check-ice">
-        <mkdir dir="${blitz.comp}/generated"/>
-        <mkdir dir="${blitz.comp}/target/generated/src"/>
     </target>
 
     <target name="check-git">
@@ -55,15 +53,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**"/>
         </ivy:buildlist>
-        <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${omero.home}/components/blitz/" includes="build.xml"/>
-            <fileset dir="${omero.home}/components/common/" includes="build.xml"/>
-            <fileset dir="${omero.home}/components/dsl/" includes="build.xml"/>
-            <fileset dir="${omero.home}/components/model/" includes="build.xml"/>
-            <fileset dir="${omero.home}/components/rendering/" includes="build.xml"/>
-            <fileset dir="${omero.home}/components/romio/" includes="build.xml"/>
-            <fileset dir="${omero.home}/components/server/" includes="build.xml"/>
-        </ivy:buildlist>
         <ivy:buildlist reference="all-tools.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/tools" includes="*/build.xml"/>
         </ivy:buildlist>
@@ -79,7 +68,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <antcall target="check-scons" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="all.buildpath"   target="clean"/>
         <iterate buildpathref="tools.buildpath" target="clean"/>
-        <iterate buildpathref="tests.buildpath" target="clean"/>
         <delete dir="${dist.dir}"/>
         <delete dir="${lib.dir}/cache"/>
         <delete includeemptydirs="true">
@@ -174,11 +162,9 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     <target name="build-blitz" description="Alias for 'build-server'" depends="build-server"/>
 
     <target name="build-server" description="Build blitz and copy to dist/blitz" depends="init">
-        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <!-- Must also build python since it provides our command lines -->
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroFs.buildpath" target="tools-dist"/>
-        <!-- TODO: importer too?? -->
         <iterate buildpathref="tools.buildpath" target="dist"/>
         <!-- Parts of build-dist -->
         <antcall target="copy-licenses" inheritRefs="true" inheritAll="true"/>
@@ -190,32 +176,13 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     </target>
 
     <target name="build-java" description="Build Java bindings to the OMERO server" depends="init">
-        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
     <target name="build-py" description="Build Python bindings to the OMERO server" depends="init">
-        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
-    </target>
-
-    <target name="build-importer" description="Build importer and copy to dist/lib and dist/bin. May require 'build-java'" depends="init">
-        <iterate buildpathref="tools.buildpath" target="dist"/>
-        <!-- Parts of build-dist -->
-        <antcall target="copy-client" inheritRefs="true" inheritAll="true"/>
-        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
-        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
-    </target>
-
-    <target name="build-insight" description="Build insight and copy to dist/lib and dist/bin. May require 'build-java'" depends="init">
-        <iterate buildpathref="tools.buildpath" target="dist"/>
-        <iterate buildpathref="insight.buildpath" target="dist"/>
-        <!-- Parts of build-dist -->
-        <antcall target="copy-client" inheritRefs="true" inheritAll="true"/>
-        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
-        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-web" description="Build OmeroWeb and copy to dist. May require 'build-py'" depends="init">
@@ -227,37 +194,12 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-schema" description="Build new DB schema and copy to sql/" depends="init">
-        <iterate buildpathref="dsl.buildpath" target="clean"/>
-        <iterate buildpathref="model.buildpath" target="clean"/>
-        <iterate buildpathref="dsl.buildpath" target="install"/>
-        <iterate buildpathref="model.buildpath" target="install"/>
-        <iterate buildpathref="model.buildpath" target="publish-schema"/>
-        <!-- Parts of build-dist -->
-        <antcall target="copy-sql" inheritRefs="true" inheritAll="true"/>
-    </target>
-
-    <target name="build-model" description="Generate model code for all language bindings" depends="init">
-        <ant antfile="${blitz.comp}/build.xml" dir="${blitz.comp}" target="icegen" inheritAll="false"/>
-        <!-- Parts of build-dist: updates both server and client -->
-        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
-    </target>
-
-    <target name="build-matlab" description="Provides a matlab toolbox under target. May required 'build-java'" depends="init">
-        <iterate buildpathref="OmeroMatlab.buildpath" target="tools-dist"/>
-        <iterate buildpathref="tools.buildpath" target="dist"/>
-        <!-- Parts of build-dist -->
-        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
-        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
-    </target>
-
     <target name="eclipse" depends="init">
         <tryEclipse settingsRef="ivy.toplevel" filter="true"/>
     </target>
 
     <target name="build-eclipse" description="Creates all source directories needed by eclipse in case default build is failing." depends="init">
         <iterate buildpathref="all.buildpath" target="eclipse"/>
-        <iterate buildpathref="insight.buildpath" target="eclipse"/>
         <iterate buildpathref="OmeroJava.buildpath" target="eclipse"/>
         <tryEclipse settingsRef="ivy.toplevel" filter="true"/>
     </target>
@@ -268,7 +210,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <sequential>
         <ivy:settings id="ivy.@{suite}"  file="${etc.dir}/ivysettings.xml"/>
         <ivy:buildlist reference="@{suite}.buildpath" settingsRef="ivy.@{suite}" ivyfilepath="test.xml">
-            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/insight/*/**/*.xml,@{excludes}"/>
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="@{excludes}"/>
             <fileset dir="${omero.home}/components/tools" includes="*/build.xml"/>
             <fileset dir="${omero.home}/components/tests" includes="*/build.xml"/>
         </ivy:buildlist>
@@ -302,10 +244,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     </target>
 
     <target name="test-fs" description="Run all FS related unit and integration tests" depends="init">
-        <ant antfile="${blitz.comp}/build.xml" dir="${blitz.comp}" target="test-suite" inheritAll="false">
-            <property name="test.dir" value="${blitz.comp}/test"/>
-            <property name="unit.suite" value="fs.testng.xml"/>
-        </ant>
         <ant antfile="${tools.comp}/OmeroJava/build.xml" dir="${tools.comp}/OmeroJava" target="test-suite" inheritall="false">
             <property name="test.dir" value="${tools.comp}/OmeroJava/test"/>
             <property name="unit.suite" value="fs.testng.xml"/>
@@ -385,7 +323,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     <target name="release-src" description="Package the git source tree into openmicroscopy-${omero.plainversion}.zip"
             depends="release-src-embed,release-src-git"/>
 
-    <target name="release-clients" description="Zip the Python, Java, and Matlab zips">
+    <target name="release-clients" description="Zip the Python and Java zips">
         <zip destfile="${omero.home}/target/OMERO.py-${omero.version}.zip">
             <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"
                 includes="bin/**,etc/**,lib/python/**,lib/fallback/**,sql/**,share/web/**" excludes="bin/omero"/>
@@ -393,37 +331,13 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
                 includes="bin/omero" filemode="755"/>
         </zip>
         <zip destfile="${omero.home}/target/OMERO.java-${omero.version}.zip">
-            <zipfileset dir="${blitz.comp}/src"         prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
-            <zipfileset dir="${blitz.comp}/target"      prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
-            <zipfileset dir="${blitz.comp}/generated"   prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
-            <zipfileset dir="${insight.comp}/SRC"       prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
-        </zip>
-
-        <iterate buildpathref="OmeroMatlab.buildpath" target="release-zip"/>
-        <zip destfile="${omero.home}/target/OMERO.matlab-${omero.version}.zip">
-            <zipfileset dir="components/tools/OmeroM/target/matlab/" prefix="OMERO.matlab-${omero.version}" includes="**/*"/>
         </zip>
 
 	<copy todir="target">
             <fileset dir="components/tools/OmeroPy/dist" includes="*.egg"/>
             <fileset dir="components/tools/OmeroFS/dist" includes="*.egg"/>
         </copy>
-
-        <!-- These should eventually be removed in favor of an ivy-based approach -->
-
-        <!-- Moving zip targets out of main build for `./build.py` performance -->
-        <iterate buildpathref="insight.buildpath" target="zips"/>
-
-        <copy todir="target">
-            <fileset dir="components/insight/target" includes="insight*.zip" excludes="*-ij*.zip"/>
-            <mapper type="regexp" from="insight(.*).zip"  to="OMERO.insight-${omero.version}\1.zip"/>
-        </copy>
-		<copy todir="target">
-            <fileset dir="components/insight/target" includes="importer*.zip"/>
-            <mapper type="regexp" from="importer(.*).zip"  to="OMERO.importer-${omero.version}\1.zip"/>
-        </copy>
-       	<copy file="components/insight/target/insight-ij.zip" tofile="target/OMERO.insight-ij-${omero.version}.zip"/>
     </target>
 
     <target name="release-tar" description="Tar the dist directory into ${product-name}-${omero.version}.tar.bz2">
@@ -452,39 +366,10 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
        <iterate buildpathref="tools.buildpath" target="findbugs"/>
     </target>
 
-    <target name="release-docs" depends="release-javadoc,release-sphinx-api,release-slice2html" description="Generate Docs for all components under dist/docs/api">
+    <target name="release-docs" depends="release-sphinx-api" description="Generate Docs for all components under dist/docs/api">
         <zip destfile="${omero.home}/target/OMERO.apidoc-${omero.version}.zip">
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.apidoc-${omero.version}"/>
         </zip>
-    </target>
-
-    <target name="release-slice2html" description="The Ice API Documentation">
-      <mkdir dir="${omero.home}/target/docs"/>
-      <copy file="${blitz.comp}/resources/header.txt" tofile="${omero.home}/target/docs/header.txt" overwrite="true"/>
-      <copy file="${blitz.comp}/resources/footer.txt" tofile="${omero.home}/target/docs/footer.txt" overwrite="true"/>
-      <replace file="${omero.home}/target/docs/header.txt" token="@VERSION@" value="${omero.version}"/>
-      <replace file="${omero.home}/target/docs/footer.txt" token="@VERSION@" value="${omero.version}"/>
-      <mkdir dir="${dist.dir}/docs/api/slice2html"/>
-      <apply executable="${ice.slice2html}" parallel="true" failonerror="true">
-           <arg value="--hdr"/>
-           <arg value="${omero.home}/target/docs/header.txt"/>
-           <!-- <arg value="-REMOVETHISTEXTBETWEENDASHES-ftr"/> Commented out as causing a crash in slice2html
-           <arg value="${omero.home}/target/docs/footer.txt"/> -->
-           <arg value="-I"/>
-           <arg value="${blitz.comp}/generated"/>
-           <arg value="-I"/>
-           <arg value="${blitz.comp}/resources"/>
-           <arg value="-I"/>
-           <arg value="${ice.slicepath}"/>
-           <arg value="--output-dir"/>
-           <arg value="${dist.dir}/docs/api/slice2html"/>
-        <!-- The order here is important. Later docs overwrite earlier ones -->
-        <fileset dir="${omero.home}/components/tools" includes="**/resources/**/*.ice"/>
-        <fileset dir="${omero.home}/components/server/src" includes="**/*.ice"/>
-        <fileset dir="${omero.home}/components/blitz/generated" includes="**/*.ice"/>
-        <fileset dir="${omero.home}/components/blitz/resources" includes="**/*.ice"/>
-        <fileset dir="${omero.home}/components/blitz/resources" includes="README.ice"/>
-       </apply>
     </target>
 
     <target name="release-sphinx-api" depends="build-py,build-web"
@@ -499,130 +384,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <copy todir="${dist.dir}/docs/api/python">
             <fileset dir="docs/sphinx-api/_build/html"/>
         </copy>
-    </target>
-
-    <target name="release-javadoc" description="Generate Javadocs for all components under dist/docs/api">
-        <mkdir dir="${dist.dir}/docs/api"/>
-        <patternset id="all.java.files">
-            <!-- Includes prefixed with "**" in order to pick up
-            tools/ components -->
-            <include name="src/**/*.java"/>
-            <include name="target/generated/src/**/*.java"/>
-            <exclude name="xxx/**"/>
-        </patternset>
-        <mkdir dir="target/docs"/>
-        <copy file="docs/overview.html" tofile="target/docs/overview.html" overwrite="true"/>
-        <replace file="target/docs/overview.html" token="@VERSION@" value="${omero.version}"/>
-        <presetdef name="nomemoryjavadoc">
-            <javadoc
-                failonerror="true"
-                Verbose="false"
-                destdir="${dist.dir}/docs/api"
-                author="true"
-                version="true"
-                use="true"
-                breakiterator="true"
-                encoding="UTF-8"
-                docencoding="UTF-8"
-                windowtitle="OMERO API"
-                overview="target/docs/overview.html"
-                additionalparam="${javadoc.doclint}">
-
-                <classpath>
-                    <fileset dir="lib">
-                        <include name="**/*.jar"/>
-                        <exclude name="repository/org.springframework.*.jar"/>
-                        <exclude name="repository/omero/**"/>
-                        <exclude name="repository/omero-tools/**"/>
-                        <exclude name="cache/omero/omero_client/jars/**"/>
-                    </fileset>
-                </classpath>
-
-                <fileset dir="components/model/" defaultexcludes="yes">
-                    <patternset refid="all.java.files"/>
-                </fileset>
-                <fileset dir="components/common/" defaultexcludes="yes">
-                    <patternset refid="all.java.files"/>
-                </fileset>
-                <fileset dir="components/server/" defaultexcludes="yes">
-                    <patternset refid="all.java.files"/>
-                </fileset>
-                <fileset dir="components/romio/" defaultexcludes="yes">
-                    <patternset refid="all.java.files"/>
-                </fileset>
-                <fileset dir="components/rendering/" defaultexcludes="yes">
-                    <patternset refid="all.java.files"/>
-                </fileset>
-                <!-- Skipping generated files for blitz. Just too many -->
-                <fileset dir="components/blitz/src" defaultexcludes="yes" includes="**/*.java"/>
-                <fileset dir="components/tools/OmeroJava" defaultexcludes="yes">
-                    <patternset refid="all.java.files"/>
-                </fileset>
-
-                <doctitle><![CDATA[<h1> OMERO API </h1>]]></doctitle>
-                <bottom><![CDATA[
-                <div id="ome-logo-for-top" style="display:none"><div id="ome-logo-inner"><img src="http://downloads.openmicroscopy.org/resources/ome_docs_trac_banner.png" alt="OME Docs"></div></div>
-                <div id="doc-name-right" style="position: absolute;top: 90px;right: 20px;"><b>OmeroJava API</b></div>
-                <p><i>Version: ${omero.version}</i></p>
-                <p><b><i>Copyright &#169; @@YEAR@@ The University of Dundee &amp; Open Microscopy Environment. All Rights Reserved.</i></b></p>
-                ]]></bottom>
-
-                <group title="A. Core System"
-                        packages="ome.api:ome.conditions*:ome.parameters*:ome.system*"/>
-                <group title="B. Model"
-                        packages="ome.model*"/>
-                <group title="C. Client Packages"
-                        packages="ome.client*:ome.adapters*:omero.gateway*"/>
-                <group title="D. Server Packages"
-                        packages="ome.api.local*:ome.services*:ome.logic*:ome.tools*:ome.security*:ome.io*:ome.annotations*"/>
-                <group title="E. Blitz Server"
-                        packages="ome.services.blitz*"/>
-                <group title="E. Blitz Client"
-                        packages="omero*:omeroj*"/>
-                <group title="G. Rendering Engine"
-                        packages="omeis*"/>
-                <group title="H. Utilities"
-                        packages="ome.util*"/>
-                <group title="I. Deprecated"
-                        packages="ome.dynamic*:ome.rules*"/>
-
-                <link href="http://docs.oracle.com/javase/8/docs/api/"/>
-                <link href="http://docs.spring.io/spring/docs/${versions.spring}/api/"/>
-                <link href="http://aopalliance.sourceforge.net/doc/"/>
-                <link href="http://downloads.openmicroscopy.org/bio-formats/${versions.bioformats}/api/"/>
-
-            </javadoc>
-        </presetdef>
-
-        <if>
-            <isset property="javadoc.maxmem"/>
-            <then>
-                <nomemoryjavadoc
-                    maxmemory="${javadoc.maxmem}"/>
-            </then>
-            <else>
-                <nomemoryjavadoc/>
-            </else>
-        </if>
-
-        <replace dir="${dist.dir}/docs/api">
-            <replacetoken><![CDATA[<HEAD>]]></replacetoken>
-            <replacevalue><![CDATA[<HEAD profile="http://www.w3.org/2005/10/profile">
-<link rel="icon"
-      type="image/vnd.microsoft.icon"
-      href="https://downloads.openmicroscopy.org/resources/favicon.ico">]]></replacevalue>
-        </replace>
-        <tstamp>
-            <format property="yearvalue" pattern="yyyy"/>
-        </tstamp>
-        <replace dir="${dist.dir}/docs/api" value="${yearvalue}">
-            <replacetoken><![CDATA[@@YEAR@@]]></replacetoken>
-        </replace>
-    </target>
-
-    <target name="release-hudson" depends="check-ivy"
-            description="Saves to the hudson repository for dependent builds">
-        <iterate buildpathref="all.buildpath" target="artifactory"/>
     </target>
 
     <target name="release-training" description="Produces a zip with the examples/Training files">
@@ -683,7 +444,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     <target name="copy-client" depends="init">
         <mkdir dir="${dist.dir}/lib/client"/>
         <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
-        <ivy:resolve file="ivy.xml" type="jar,egg,bundle" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
+        <ivy:resolve file="ivy.xml" type="jar,egg,bundle,zip" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
         <ivy:retrieve conf="client" pattern="${dist.dir}/lib/client/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
         <mkdir dir="${dist.dir}/share/client"/>
         <ivy:report conf="client" todir="${dist.dir}/share/client"
@@ -694,7 +455,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     <target name="copy-server" depends="init">
         <mkdir dir="${dist.dir}/lib/server"/>
         <!-- sync="true" deletes any other files like services.jar or extensions.jar which may be under lib -->
-        <ivy:resolve file="ivy.xml" type="jar,egg,bundle" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
+        <ivy:resolve file="ivy.xml" type="jar,egg,bundle,zip" conf="server" settingsRef="ivy.toplevel" log="quiet"/>
         <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[artifact].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
         <mkdir dir="${dist.dir}/share/server"/>
         <ivy:report conf="server" todir="${dist.dir}/share/server"
@@ -747,77 +508,9 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
 omero.version=${omero.version}
             </echo>
 
-            <!-- Must update the jars with the modified omero.properties file in order for the version to be updated -->
-            <jar_update_if destfile="${dist.dir}/lib/server/blitz.jar">
-                <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
-            </jar_update_if>
-            <jar_update_if destfile="${dist.dir}/lib/client/omero_client.jar">
-                <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
-            </jar_update_if>
-            <jar_update_if destfile="${dist.dir}/lib/insight/blitz.jar">
-                <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
-            </jar_update_if>
         </then>
         </if>
     </target>
-
-    <target name="hot-blitz" depends="init" description="Re-launch running server with new blitz.jar">
-        <property name="targets" value="install"/>
-        <hotdeploy component="${blitz.comp}" targets="${targets}"/>
-    </target>
-
-    <target name="hot-common" depends="init" description="Re-launch running server with new common.jar">
-        <property name="targets" value="install"/>
-        <hotdeploy component="${common.comp}" targets="${targets}"/>
-    </target>
-
-    <target name="hot-model" depends="init" description="Re-launch running server with new model.jar">
-        <ant antfile="${dsl.comp}/build.xml" dir="${dsl.comp}" target="install" inheritAll="false"/>
-        <ant antfile="${model.comp}/build.xml" dir="${model.comp}" target="clean" inheritAll="false"/>
-        <property name="targets" value="install"/>
-        <hotdeploy component="${model.comp}" targets="${targets}"/>
-    </target>
-
-    <target name="hot-romio" depends="init" description="Re-launch running server with new romio.jar">
-        <property name="targets" value="install"/>
-        <hotdeploy component="${romio.comp}" targets="${targets}"/>
-    </target>
-
-    <target name="hot-server" depends="init" description="Re-launch running server with new server.jar">
-        <property name="targets" value="install"/>
-        <hotdeploy component="${server.comp}" targets="${targets}"/>
-    </target>
-
-
-    <macrodef name="hotdeploy">
-        <attribute name="targets"/>
-        <attribute name="component"/>
-        <sequential>
-            <for list="@{targets}" param="target">
-                <sequential>
-                    <ant antfile="@{component}/build.xml" dir="@{component}" target="@{target}" inheritAll="false"/>
-                </sequential>
-            </for>
-            <antcall target="copy-client" inheritRefs="true" inheritAll="true"/>
-            <antcall target="copy-server" inheritRefs="true" inheritAll="true"/>
-            <ice-admin>
-                <arg value="server"/>
-                <arg value="stop"/>
-                <arg value="Blitz-0"/>
-            </ice-admin>
-            <ice-admin>
-                <arg value="server"/>
-                <arg value="stop"/>
-                <arg value="Indexer-0"/>
-            </ice-admin>
-            <ice-admin>
-                <arg value="server"/>
-                <arg value="stop"/>
-                <arg value="PixelData-0"/>
-            </ice-admin>
-        </sequential>
-    </macrodef>
-
     <macrodef name="ice-admin">
         <element name="args" implicit="yes"/>
         <sequential>

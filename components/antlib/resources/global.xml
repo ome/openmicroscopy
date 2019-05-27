@@ -32,8 +32,7 @@
           <format property="now" pattern="yyyyMMddHHmmss"/>
         </tstamp>
 
-        <!-- Patterns -->
-        <property name="dsl.pat" value="**/*.ome.xml"/>
+        <!-- Patterns: TODO remove?  -->
         <property name="hbm.pat" value="**/*.hbm.xml"/>
         <property name="api.pat" value="**/*.java"/>
         <property name="ice.pat" value="**/*.ice"/>
@@ -57,53 +56,21 @@
         <property name="dist.dir"      value="${root.dir}/dist" />
 
         <!-- Components -->
-        <property name="dsl.comp"       value="${components.dir}/dsl"/>
-        <property name="model.comp"     value="${components.dir}/model"/>
-        <property name="common.comp"    value="${components.dir}/common"/>
-        <property name="server.comp"    value="${components.dir}/server"/>
-        <property name="nio.comp"       value="${components.dir}/romio"/>
-        <property name="romio.comp"     value="${components.dir}/romio"/>
-        <property name="render.comp"    value="${components.dir}/rendering"/>
-        <property name="import.comp"    value="${components.dir}/importer"/>
-        <property name="blitz.comp"     value="${components.dir}/blitz"/>
         <property name="tools.comp"     value="${components.dir}/tools"/>
-        <property name="insight.comp"   value="${components.dir}/insight"/>
         <property name="OmeroJava.comp"     value="${tools.comp}/OmeroJava"/>
         <property name="OmeroWeb.comp"     value="${tools.comp}/OmeroWeb"/>
         <property name="OmeroPy.comp"     value="${tools.comp}/OmeroPy"/>
         <property name="OmeroFs.comp"     value="${tools.comp}/OmeroFS"/>
-        <property name="OmeroMatlab.comp"     value="${tools.comp}/OmeroM"/>
         <property name="uiLibrary.comp"     value="${tests.comp}/ui/library/java"/>
         <property name="tests.comp"     value="${components.dir}/tests"/>
 
 
         <!-- Build Path References -->
-        <path id="blitz.buildpath">
-            <pathelement location="${blitz.comp}/build.xml"/>
-        </path>
-        <path id="dsl.buildpath">
-            <pathelement location="${dsl.comp}/build.xml"/>
-        </path>
-        <path id="common.buildpath">
-            <pathelement location="${common.comp}/build.xml"/>
-        </path>
-        <path id="model.buildpath">
-            <pathelement location="${model.comp}/build.xml"/>
-        </path>
-        <path id="server.buildpath">
-            <pathelement location="${server.comp}/build.xml"/>
-        </path>
-        <path id="insight.buildpath">
-            <pathelement location="${insight.comp}/build.xml"/>
-        </path>
         <path id="OmeroWeb.buildpath">
             <pathelement location="${OmeroWeb.comp}/build.xml"/>
         </path>
         <path id="OmeroJava.buildpath">
             <pathelement location="${OmeroJava.comp}/build.xml"/>
-        </path>
-        <path id="OmeroMatlab.buildpath">
-            <pathelement location="${OmeroMatlab.comp}/build.xml"/>
         </path>
         <path id="OmeroPy.buildpath">
             <pathelement location="${OmeroPy.comp}/build.xml"/>

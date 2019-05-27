@@ -87,6 +87,8 @@ if OMERODIR is not None:
 else:
     OMERODIR = OMEROCLI.dirname().dirname().dirname()
 
+OMERO_COMPONENTS = ['common', 'model', 'romio', 'renderer', 'server', 'blitz']
+
 COMMENT = re.compile("^\s*#")
 RELFILE = re.compile("^\w")
 LINEWSP = re.compile("^\s*\w+\s+")
@@ -500,7 +502,9 @@ class Context:
         Prints text to a given string, capturing any exceptions.
         """
         try:
-            stream.write(str(text))
+            if isinstance(text, unicode):
+                text = text.encode("utf-8")
+            stream.write(text)
             if newline:
                 stream.write("\n")
             else:
@@ -1350,18 +1354,40 @@ class CLI(cmd.Cmd, Context):
         return subprocess.Popen(args, env=env, cwd=self._cwd(cwd),
                                 stdout=stdout, stderr=stderr)
 
-    def readDefaults(self):
+    def get_config_property_lines(self, root_path):
+        """
+        Construct a generator providing each line of the configuration
+        property files from OMERO components then from the top level.
+        Trailing whitespace is stripped from each line.
+        """
+        jar_root = root_path / 'lib' / 'server'
+        for component in OMERO_COMPONENTS:
+            from zipfile import ZipFile, is_zipfile, BadZipfile
+            jar_name = jar_root / 'omero-{}.jar'.format(component)
+            if is_zipfile(jar_name):
+                config_name = 'omero-{}.properties'.format(component)
+                try:
+                    with ZipFile(jar_name, 'r') as jar_file:
+                        with jar_file.open(config_name, 'r') as config:
+                            for line in iter(config.readline, ''):
+                                yield line.rstrip()
+                except (BadZipfile, IOError, KeyError):
+                    pass
+        # etc/omero.properties comes last because it may contain "### END"
         try:
-            f = path(self._cwd(None)) / "etc" / "omero.properties"
-            f = f.open()
-            output = "".join(f.readlines())
-            f.close()
-        except:
-            if self.isdebug:
-                raise
-            print "No omero.properties found"
-            output = ""
-        return output
+            file_path = root_path / 'etc' / 'omero.properties'
+            with open(file_path, 'r') as config:
+                for line in iter(config.readline, ''):
+                    yield line.rstrip()
+        except IOError:
+            pass
+
+    def readDefaults(self):
+        lines = self.get_config_property_lines(path(self._cwd(None)))
+        defaults = "".join([line + '\n' for line in lines])
+        if not defaults:
+            print "No properties files found for OMERO default configuration."
+        return defaults
 
     def parsePropertyFile(self, data, output):
         for line in output.splitlines():

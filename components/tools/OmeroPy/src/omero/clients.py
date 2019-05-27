@@ -24,6 +24,8 @@ import threading
 import logging
 import IceImport
 import Ice
+import re
+import ssl
 import uuid
 
 IceImport.load("Glacier2_Router_ice")
@@ -114,10 +116,18 @@ class BaseClient(object):
             # See ticket:5516 To prevent issues on systems where the base
             # class of path.path is unicode, we will encode all unicode
             # strings here.
-            for idx, arg in enumerate(args):
-                if isinstance(arg, unicode):
-                    arg = arg.encode("utf-8")
-                args[idx] = arg
+            args = [arg.encode("utf-8") if isinstance(arg, unicode)
+                    else arg for arg in args]
+
+        # hosturl overrides all other args
+        hosturl = self._check_for_hosturl(host, port, pmap)
+        if hosturl:
+            # omero.clients does a lot of mysterious magic autodetection.
+            # If host is set it overrides the endpoint so instead set host to
+            # None and store the host in a separate property omero.url.host
+            host = None
+            port = hosturl['port']
+            args.append(self._get_endpoint_from_hosturl(hosturl))
 
         # Equiv to multiple constructors. #######################
         if id is None:
@@ -129,6 +139,8 @@ class BaseClient(object):
         id.properties.parseCommandLineOptions("omero", args)
         if host:
             id.properties.setProperty("omero.host", str(host))
+        if hosturl:
+            id.properties.setProperty("omero.url.host", hosturl['server'])
         if not port:
             port = id.properties.getPropertyWithDefault(
                 "omero.port", str(omero.constants.GLACIER2PORT))
@@ -200,9 +212,11 @@ class BaseClient(object):
         self._optSetProp(id, "Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
 
         if sys.platform == "darwin":
-            self._optSetProp(id, "IceSSL.Ciphers", "NONE (DH_anon.*AES)")
+            self._optSetProp(id, "IceSSL.Ciphers", "(AES_256) (DH_anon.*AES)")
+        elif ssl.OPENSSL_VERSION_INFO >= (1, 1):
+            self._optSetProp(id, "IceSSL.Ciphers", "HIGH:ADH:@SECLEVEL=0")
         else:
-            self._optSetProp(id, "IceSSL.Ciphers", "ADH")
+            self._optSetProp(id, "IceSSL.Ciphers", "HIGH:ADH")
 
         self._optSetProp(id, "IceSSL.VerifyPeer", "0")
         self._optSetProp(id, "IceSSL.Protocols", "tls1")
@@ -287,6 +301,58 @@ class BaseClient(object):
 
         finally:
             self.__lock.release()
+
+    def _check_for_hosturl(self, host, port, pmap):
+        """
+        Checks whether the host is a URL, returns a dict of parameters if so
+        """
+        # omero/util/sessions.py may initialise this class with a property-map
+        if not host and pmap and 'omero.host' in pmap:
+            host = pmap['omero.host']
+        if not port and pmap and 'omero.port' in pmap:
+            port = pmap['omero.port']
+        if not host:
+            return {}
+
+        hostmatch = re.match(
+            '(?P<protocol>\\w+)://'
+            '(?P<server>[^:/]+)'
+            '(:(?P<port>\\d+))?'
+            '(?P<path>/.*)?$',
+            host)
+
+        if hostmatch:
+            hosturl = hostmatch.groupdict()
+            if not hosturl['port']:
+                hosturl['port'] = port
+            if not hosturl['port']:
+                default_ports = {
+                    'ws': 80,
+                    'wss': 443,
+                    'tcp': 4063,
+                    'ssl': 4064,
+                }
+                try:
+                    hosturl['port'] = default_ports[hosturl['protocol']]
+                except KeyError:
+                    raise omero.ClientError(
+                        "Port required for protocol: " + hosturl['protocol'])
+            hosturl['port'] = int(hosturl['port'])
+        else:
+            hosturl = {}
+        return hosturl
+
+    def _get_endpoint_from_hosturl(self, hosturl):
+        """
+        Gets Ice.Default.Router from a dictionary of hosturl parameters
+        """
+        ice_router = (
+            '--Ice.Default.Router=OMERO.Glacier2/router:{protocol} '
+            '-p {port} '
+            '-h {server}'.format(**hosturl))
+        if hosturl['path']:
+            ice_router += ' -r {path}'.format(**hosturl)
+        return ice_router
 
     def setAgent(self, agent):
         """

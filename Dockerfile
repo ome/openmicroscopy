@@ -22,16 +22,18 @@ ARG RUN_IMAGE=openmicroscopy/omero-${COMPONENT}:latest
 
 
 FROM ${BUILD_IMAGE} as build
+USER root
 RUN apt-get update \
  && apt-get install -y ant \
       python-pip python-tables python-virtualenv python-yaml python-jinja2 \
-      zlib1g-dev python-pillow python-numpy \
+      zlib1g-dev python-pillow python-numpy python-sphinx \
       libssl-dev libbz2-dev libmcpp-dev libdb++-dev libdb-dev \
       zeroc-ice-all-dev \
- && pip install --upgrade 'pip<10' setuptools \
- && pip install tables "zeroc-ice>3.5,<3.7"
+ && pip install --upgrade 'pip<10' setuptools flake8==2.4.0 pytest==2.7.3
 # TODO: unpin pip when possible
-RUN adduser omero
+# openjdk:8 is "stretch" or Debian 9
+RUN pip install https://github.com/ome/zeroc-ice-py-debian9/releases/download/0.1.0/zeroc_ice-3.6.4-cp27-cp27mu-linux_x86_64.whl
+RUN id 1000 || useradd -u 1000 -ms /bin/bash build
 
 # TODO: would be nice to not need to copy .git since it invalidates the build frequently and takes more time
 COPY .git /src/.git
@@ -50,8 +52,8 @@ COPY sql /src/sql
 COPY test.xml /src/
 COPY LICENSE.txt /src/
 COPY history.rst /src/
-RUN chown -R omero /src
-USER omero
+RUN chown -R 1000 /src
+USER 1000
 WORKDIR /src
 ENV ICE_CONFIG=/src/etc/ice.config
 RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
@@ -64,13 +66,13 @@ RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
 #
 # RUN sed -i 's/\("IceSSL.Ciphers".*ADH[^"]*\)/\1:@SECLEVEL=0/' /src/components/tools/OmeroPy/src/omero/clients.py /src/etc/templates/grid/templates.xml
 
-RUN components/tools/travis-build
+# Reproduce jenkins build
+RUN env BUILD_NUMBER=1 OMERO_BRANCH=develop bash docs/hudson/OMERO.sh
 
 FROM ${RUN_IMAGE} as run
-COPY --from=build /src /src
+RUN rm -rf /opt/omero/server/OMERO.server
+COPY --chown=omero-server:omero-server --from=build /src/dist /opt/omero/server/OMERO.server
 USER root
-RUN chown -R omero-server:omero-server /src
-RUN rm /opt/omero/server/OMERO.server \
- && ln -s /src/dist /opt/omero/server/OMERO.server
 RUN yum install -y git
 USER omero-server
+WORKDIR /opt/omero/server/OMERO.server

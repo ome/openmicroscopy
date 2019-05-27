@@ -1,4 +1,4 @@
-<ivy-module version="1.0">
+<ivy-module version="2.0" xmlns:e="http://ant.apache.org/ivy/extra">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -26,7 +26,9 @@
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" conf="client->client"/>
+    <dependency org="org.openmicroscopy" name="omero-blitz" rev="${versions.omero-blitz}" transitive="false">
+	    <artifact name="omero-blitz" type="zip" ext="zip" e:classifier="python"/>
+    </dependency>
   </dependencies>
 </ivy-module>
 

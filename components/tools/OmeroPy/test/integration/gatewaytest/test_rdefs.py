@@ -522,6 +522,46 @@ class TestRDefs (object):
         g = gatewaywrapper.gateway
         assert not g._assert_unregistered("testSetActiveChannelsWithRE")
 
+    @pytest.mark.parametrize('set_inactive', [True, False])
+    def test_set_active_channels_set_inactive(
+            self, gatewaywrapper, set_inactive):
+        """
+        Tests set_active_channels method with rendering engine
+        """
+        # Clean potentially customized default
+        self.image.clearDefaults()
+        self.image._closeRE()
+        self.image = gatewaywrapper.getTestImage()
+        c0wmin = self.image.getChannels()[0].getWindowMin()
+        self.channels = self.image.getChannels()
+        assert self.c0color != 'F0F000'
+        assert self.c1color != '000F0F'
+        assert c0wmin != 0
+        self.image.set_active_channels(
+            [1, -2], windows=[[0.0, 1631.0], [409.0, 5015.0]],
+            colors=[u'F0F000', u'000F0F'], set_inactive=set_inactive)
+        self.channels = self.image.getChannels()
+        assert len(self.channels) == 2, 'bad channel count on image #%d' \
+            % self.TESTIMG_ID
+        assert self.channels[0].isActive()
+        assert not self.channels[1].isActive()
+        assert self.channels[0].getColor().getHtml() == 'F0F000'
+        if set_inactive:
+            assert self.channels[1].getColor().getHtml() == '000F0F'
+        else:
+            assert self.channels[1].getColor().getHtml() != '000F0F'
+        assert self.channels[0].getWindowStart() == 0
+        assert self.channels[0].getWindowEnd() == 1631.0
+        if set_inactive:
+            assert self.channels[1].getWindowStart() == 409.0
+            assert self.channels[1].getWindowEnd() == 5015.0
+        else:
+            assert self.channels[1].getWindowStart() != 409.0
+            assert self.channels[1].getWindowEnd() != 5015.0
+        self.image._closeRE()
+        g = gatewaywrapper.gateway
+        assert not g._assert_unregistered("testSetActiveChannelsWithRE")
+
     def testUnregisterService(self, gatewaywrapper):
         """
         Tests if the service is unregistered after closing the

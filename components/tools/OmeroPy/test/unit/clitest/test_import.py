@@ -111,7 +111,7 @@ class TestImport(object):
                      'b0742975-03a1-4f6d-b0ac-639943f1a147']
         self.args += ['mock-import', '---errs=/tmp/dropbox.err']
         self.args += ['---file=/tmp/dropbox.out']
-        self.args += ['--', '/OMERO/DropBox/root/tinyTest.d3d.dv']
+        self.args += ['--', '/OMERO/DropBox/root/test.fake']
 
         self.cli.invoke(self.args)
 

@@ -219,7 +219,7 @@
             <option>-Djava.rmi.server.hostname=${jmxhost}</option>
         </target>
         <option>-jar</option>
-        <option>${OMERO_JARS}blitz.jar</option>
+        <option>${OMERO_JARS}omero-blitz.jar</option>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" endpoints="tcp"/>
         <properties>
           <properties refid="JavaServer"/>
@@ -248,7 +248,7 @@
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
         <option>-Domero.name=Indexer-${index}</option>
         <option>-jar</option>
-        <option>${OMERO_JARS}blitz.jar</option>
+        <option>${OMERO_JARS}omero-blitz.jar</option>
         <option>ome.fulltext</option>
         <adapter name="IndexerAdapter" endpoints="tcp"/>
         <properties>
@@ -279,7 +279,7 @@
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
         <option>-Domero.name=PixelData-${index}</option>
         <option>-jar</option>
-        <option>${OMERO_JARS}blitz.jar</option>
+        <option>${OMERO_JARS}omero-blitz.jar</option>
         <option>ome.pixeldata</option>
         <adapter name="PixelDataAdapter" endpoints="tcp"/>
         <properties>
@@ -312,7 +312,7 @@
         <option>-Domero.name=Repository-${index}</option>
         <option>-Domero.repo.dir=${dir}</option>
         <option>-jar</option>
-        <option>${OMERO_JARS}blitz.jar</option>
+        <option>${OMERO_JARS}omero-blitz.jar</option>
         <option>OMERO.repository</option>
         <adapter name="RepositoryAdapter" endpoints="tcp">
           <object identity="Repository-${index}" type="::omero::grid::InternalRepository"/>

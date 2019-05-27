@@ -37,6 +37,7 @@ from omero.cli import NonZeroReturnCode
 from omero.cli import DiagnosticsControl
 from omero.cli import UserGroupControl
 
+from omero.install.config_parser import PropertyParser
 from omero.plugins.prefs import \
     WriteableConfigControl, with_config
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
@@ -277,6 +278,7 @@ Examples:
 
   # 3. Run indexer in the foreground. Disable the background first
   bin/omero admin reindex --foreground
+  # Foreground indexing is NOT currently working.
 
 Other commands (usually unnecessary):
 
@@ -337,7 +339,7 @@ dt_socket,address=8787,suspend=y" \\
                   "NO INDEXING OCCURS"))
         group.add_argument(
             "--foreground", action="store_true",
-            help=("Run indexer in the foreground (suggested)"))
+            help=("Run indexer in the foreground"))
         group.add_argument(
             "--class", nargs="+",
             help="Reindexes the given classes sequentially")
@@ -1040,6 +1042,25 @@ present, the user will enter a console""")
                 sb += " # %s" % settings
             self.ctx.out("%s=%s" % (k, sb))
 
+    def _get_omero_properties(self):
+        omero_props_file = self._get_etc_dir() / "omero.properties"
+        pp = PropertyParser()
+        omero_props = dict(
+            (p.key, p.val) for p in pp.parse_file(omero_props_file))
+        if sys.platform == "darwin":
+            # Override xxx.yyy properties with value of _xxx.yyy.darwin
+            for key in omero_props:
+                if key.startswith('_') and key.endswith('.darwin'):
+                    omero_props[key[1:-7]] = omero_props[key]
+        return omero_props
+
+    def _glacier2_icessl_xml(self, config_props):
+        # Convert omero.glacier2.IceSSL.* properties to IceSSL.*
+        glacier2_icessl = dict((k[15:], v) for (k, v) in config_props.items()
+                               if k.startswith('omero.glacier2.IceSSL.'))
+        return ['<property name="%s" value="%s"/>' % kv
+                for kv in glacier2_icessl.items()]
+
     @with_config
     def rewrite(self, args, config, force=False):
         """
@@ -1057,16 +1078,22 @@ present, the user will enter a console""")
             self.ctx.rv = 0
 
         # JVM configuration regeneration
-        if sys.platform == "darwin":
-            templates = self._get_templates_dir()/"grid"/"osxtemplates.xml"
-        else:
-            templates = self._get_templates_dir()/"grid"/"templates.xml"
+        templates = self._get_templates_dir()/"grid"/"templates.xml"
+
+        # Get some defaults from omero.properties
+        config_props = self._get_omero_properties()
 
         generated = self._get_grid_dir() / "templates.xml"
         if generated.exists():
             generated.remove()
         config2 = omero.config.ConfigXml(str(generated))
-        template_xml = XML(templates.text())
+
+        config_props.update(config.as_map())
+        template_xml_text = templates.text().replace(
+            '@omero.glacier2.icessl@',
+            '\n'.join(self._glacier2_icessl_xml(config_props)))
+        template_xml = XML(template_xml_text)
+
         try:
             rv = adjust_settings(config, template_xml)
         except Exception, e:
@@ -1092,11 +1119,23 @@ present, the user will enter a console""")
             '@omero.ports.prefix@': config.get('omero.ports.prefix', ''),
             '@omero.ports.ssl@': config.get('omero.ports.ssl', '4064'),
             '@omero.ports.tcp@': config.get('omero.ports.tcp', '4063'),
+            '@omero.ports.wss@': config.get('omero.ports.wss', '4066'),
+            '@omero.ports.ws@': config.get('omero.ports.ws', '4065'),
             '@omero.ports.registry@': config.get(
                 'omero.ports.registry', '4061'),
             '@omero.master.host@': config.get('omero.master.host', config.get(
                 'Ice.Default.Host', '127.0.0.1'))
             }
+
+        client_transports = config.get('omero.client.icetransports', 'ssl,tcp')
+        client_endpoints = [
+            '{tp} -p {prefix}{port}'.format(
+                tp=clienttp,
+                prefix=substitutions['@omero.ports.prefix@'],
+                port=substitutions['@omero.ports.{tp}@'.format(tp=clienttp)],
+            )
+            for clienttp in client_transports.split(',')]
+        substitutions['@omero.client.endpoints@'] = ':'.join(client_endpoints)
 
         def copy_template(input_file, output_dir):
             """Replace templates"""
@@ -1734,6 +1773,7 @@ present, the user will enter a console""")
             cmd.append("dryrun")
         elif args.foreground:
             cmd.append("foreground")
+            self.ctx.die(877, "foreground indexing is not available")
         elif args.reset is not None:
             cmd.append("reset")
             cmd.append(args.reset)

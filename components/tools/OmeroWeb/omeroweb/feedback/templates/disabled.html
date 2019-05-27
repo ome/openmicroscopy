@@ -1,0 +1,32 @@
+{% extends "webgateway/core_html.html" %}
+{% load i18n %}
+
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "feedback/css/layout.css" %}" type="text/css" />
+{% endblock %}
+
+{% block title %}
+    {% trans "OMERO.web - support" %}
+{% endblock %}
+
+{% block head %}
+    {{ block.super }}
+    {% include "webgateway/base/includes/shortcut_icon.html" %}
+{% endblock %}
+
+{% block body %}
+<div class="bodyWrapper">
+    <div><h1>
+        <a href="#" onClick="window.close()">{% trans "Close" %}</a>
+    </h1>
+    {% block content %}
+      <div>
+        <h1>Feedback is disabled on this server</h1>
+        <p>Please contact your system administrator or the <a href="https://www.openmicroscopy.org/support/">Open Microscopy Environment</a></p>
+    {% endblock %}
+    </div>
+
+    </div>
+</div>
+{% endblock %}

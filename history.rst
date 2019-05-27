@@ -5,6 +5,59 @@
 OMERO version history
 =====================
 
+5.5.0-m7 (May 2019)
+-------------------
+
+ - build: remove unused client jar
+ - build: use Bio-Formats 6.1.0-m1 
+
+5.5.0-m6 (April 2019)
+---------------------
+
+ - build: use omero-gateway instead of omero-blitz
+ - build: move omero.properties to omero-* repositories
+ - web: fix date display
+ - web: remove / from 3rdparty in ome.viewportImage.js
+ - cli: disable foreground indexing
+
+5.5.0-m5 (April 2019)
+---------------------
+
+ - test: fix and update tests following the migrations
+ - web: remove usage of deprecated calls
+ - web: remove apache config
+ - doc: fix broken links following migration
+
+5.5.0-m4 (March 2019)
+---------------------
+
+New plugins like omero-artifact-plugin allow reducing the boilerplate
+code in the build scripts of the decoupled repositories. This will be
+the last version where all of the dependencies are released together
+with the same tag. Following releases will focuses on the decoupled
+client repositories like omero-insight and omero-matlab.
+
+5.5.0-m3 (February 2019)
+------------------------
+
+This release focuses on decoupling the Java components to new,
+separate repositories:
+
+- https://github.com/ome/omero-dsl
+- https://github.com/ome/omero-model
+- https://github.com/ome/omero-common
+- https://github.com/ome/omero-romio
+- https://github.com/ome/omero-rendering
+- https://github.com/ome/omero-server
+- https://github.com/ome/omero-blitz
+- https://github.com/ome/omero-insight
+- https://github.com/ome/omero-matlab
+
+This has the goal of enabling more fine-grained releases.
+
+A new restriction is that the names of server configuration properties
+may include only letters, numbers and the symbols ".", "_", "-".
+
 5.5.0-m2 (December 2018)
 ------------------------
 
@@ -39,6 +92,17 @@ Further improvements include:
 Developer improvements include:
 
 - JavaGateway: add helper method to manipulate ROI masks 
+
+5.4.10 (January 2019)
+---------------------
+
+This release addresses a login issue for Java clients such as
+OMERO.insight. New releases of Java include a change to the
+``java.security`` file that disables anonymous cipher suites. This
+change causes ``SSLHandshakeException`` when the client attempts to
+authenticate to OMERO.blitz. The OMERO 5.4.10 release has some clients
+check the security property ``jdk.tls.disabledAlgorithms`` for the value
+"anon" and remove it if present thus allowing authentication to proceed.
 
 5.4.9 (October 2018)
 --------------------

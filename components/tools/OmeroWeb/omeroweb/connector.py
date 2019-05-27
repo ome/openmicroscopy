@@ -222,6 +222,9 @@ class Connector(object):
             connection.close()
 
     def check_version(self, useragent):
+        """
+        Check whether the server version is compatible with this client
+        """
         connection = self.create_guest_connection(useragent)
         if connection is None:
             return False
@@ -235,7 +238,10 @@ class Connector(object):
                 client_version = client_version.group(1).split('.')
                 logger.info("Client version: '%s'; Server version: '%s'"
                             % (client_version, server_version))
-                return server_version == client_version
+                # Compatibility is determined by matching the major version
+                # If OMERO moves to semver only the first element will need
+                # to be checked
+                return server_version[:2] == client_version[:2]
             except:
                 logger.error('Cannot compare server to client version.',
                              exc_info=True)

@@ -1,3 +1,0 @@
-       <div id="version-bottom"><p>Version: @VERSION@</p><div/>
-    </body>
-</html>

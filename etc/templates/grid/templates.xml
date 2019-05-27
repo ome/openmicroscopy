@@ -238,9 +238,14 @@
         <option>-Dlogback.configurationFile=${OMERO_ETC}logback-indexing.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
         <option>-Domero.name=Indexer-${index}</option>
+        <!-- TODO: review when omero-blitz has a manifest
         <option>-jar</option>
-        <option>${OMERO_JARS}blitz.jar</option>
+        <option>${OMERO_JARS}omero-blitz.jar</option>
         <option>ome.fulltext</option>
+        -->
+        <option>ome.services.blitz.Entry</option>
+        <option>ome.fulltext</option>
+        <env>CLASSPATH=${OMERO_JARS}*</env>
         <adapter name="IndexerAdapter" endpoints="tcp"/>
         <properties>
           <properties refid="Basics"/>
@@ -264,9 +269,9 @@
         <option>-Dlogback.configurationFile=${OMERO_ETC}logback-indexing.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
         <option>-Domero.name=PixelData-${index}</option>
-        <option>-jar</option>
-        <option>${OMERO_JARS}blitz.jar</option>
+        <option>ome.services.blitz.Entry</option>
         <option>ome.pixeldata</option>
+        <env>CLASSPATH=${OMERO_JARS}*</env>
         <adapter name="PixelDataAdapter" endpoints="tcp"/>
         <properties>
           <properties refid="Basics"/>
@@ -291,9 +296,14 @@
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
         <option>-Domero.name=Repository-${index}</option>
         <option>-Domero.repo.dir=${dir}</option>
+        <!-- TODO: review when omero-blitz has a manifest
         <option>-jar</option>
-        <option>${OMERO_JARS}blitz.jar</option>
+        <option>${OMERO_JARS}omero-blitz.jar</option>
+        <option>ome.pixeldata</option>
+        -->
+        <option>ome.services.blitz.Entry</option>
         <option>OMERO.repository</option>
+        <env>CLASSPATH=${OMERO_JARS}*</env>
         <adapter name="RepositoryAdapter" endpoints="tcp">
           <object identity="Repository-${index}" type="::omero::grid::InternalRepository"/>
         </adapter>
@@ -472,10 +482,7 @@
           <properties refid="CppServer"/>
           <properties refid="Profile"/>
           <property name="Ice.Plugin.IceSSL" value="IceSSL:createIceSSL"/>
-          <property name="IceSSL.ProtocolVersionMax" value="tls1_1"/><!-- mac bug -->
-          <property name="IceSSL.Ciphers" value="ADH:!LOW:!MD5:!EXP:!3DES:@STRENGTH"/>
-          <property name="IceSSL.VerifyPeer" value="0"/>
-          <property name="IceSSL.Protocols" value="tls1"/>
+          @omero.glacier2.icessl@
           <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
           <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
           <property name="Glacier2.InstanceName" value="${instance-name}"/>

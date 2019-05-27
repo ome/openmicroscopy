@@ -259,6 +259,16 @@ class WebclientLoginView(LoginView):
                 context['public_enabled'] = True
                 context['public_login_redirect'] = redirect
 
+        context['show_download_links'] = settings.SHOW_CLIENT_DOWNLOADS
+        if settings.SHOW_CLIENT_DOWNLOADS:
+            ver = re.match('(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+).*',
+                           omero_version)
+            latest = settings.CLIENT_DOWNLOAD_LATEST_BASE.format(
+                **ver.groupdict())
+            context['download_client_mac'] = latest + '/insight-mac.zip'
+            context['download_client_win'] = latest + '/insight-win.zip'
+            context['download_client_linux'] = latest + '/insight-linux.zip'
+
         t = template_loader.get_template(self.template)
         c = Context(request, context)
         rsp = t.render(c)
@@ -333,7 +343,7 @@ def logout(request, conn=None, **kwargs):
                 logger.error('Exception during logout.', exc_info=True)
         finally:
             request.session.flush()
-        return HttpResponseRedirect(reverse("weblogin"))
+        return HttpResponseRedirect(reverse(settings.LOGIN_VIEW))
     else:
         context = {
             'url': reverse('weblogout'),
@@ -1283,7 +1293,7 @@ def load_plate(request, o1_type=None, o1_id=None, conn=None, **kwargs):
                 index = fields[0]
 
         # Show parameter will be well-1|well-2
-        show = request.REQUEST.get('show')
+        show = request.GET.get('show')
         if show is not None:
             wells_to_select = []
             for w in show.split("|"):
@@ -2100,6 +2110,8 @@ def annotate_file(request, conn=None, **kwargs):
             break
 
     obj_count = sum([len(selected[types]) for types in selected])
+    if obj_count == 0:
+        raise Http404('Need to specify objects via e.g. ?image=1')
 
     # Get appropriate manager, either to list available Files to add to single
     # object, or list ALL Files (multiple objects)

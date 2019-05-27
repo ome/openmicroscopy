@@ -121,11 +121,11 @@ class DatabaseControl(BaseControl):
             prompt += "root user"
         root_pass = self._ask_for_password(prompt, root_pass)
 
-        server_jar = self.ctx.dir / "lib" / "server" / "server.jar"
+        jars = str(self.ctx.dir / "lib" / "server") + "/*"
         cmd = ["ome.security.auth.PasswordUtil", root_pass]
         if not args.no_salt and self._has_user_id(args):
             cmd.append(args.user_id)
-        p = omero.java.popen(["-cp", str(server_jar)] + cmd)
+        p = omero.java.popen(["-cp", jars] + cmd)
         rc = p.wait()
         if rc != 0:
             out, err = p.communicate()
@@ -160,16 +160,12 @@ class DatabaseControl(BaseControl):
         return replace_method
 
     def _db_profile(self):
-        import re
-        server_lib = self.ctx.dir / "lib" / "server"
-        model_jars = server_lib.glob("model-*.jar")
-        if len(model_jars) != 1:
-            self.ctx.die(200, "Invalid model-*.jar state: %s"
-                         % ",".join(model_jars))
-        model_jar = model_jars[0]
-        model_jar = str(model_jar.basename())
-        match = re.search("model-(.*?).jar", model_jar)
-        return match.group(1)
+        from omero.install.config_parser import PropertyParser
+        property_lines = self.ctx.get_config_property_lines(self.dir)
+        for property in PropertyParser().parse_lines(property_lines):
+            if property.key == 'omero.db.profile':
+                return property.val
+        raise KeyError('Configuration key not set: omero.db.profile')
 
     def _sql_directory(self, db_vers, db_patch):
         """

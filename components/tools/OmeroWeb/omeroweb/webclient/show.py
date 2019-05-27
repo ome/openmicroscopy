@@ -61,7 +61,7 @@ class Show(object):
     # List of supported object types
     SUPPORTED_OBJECT_TYPES = (
         'project', 'dataset', 'image', 'screen', 'plate', 'tag',
-        'acquisition', 'run', 'well', 'tagset'
+        'acquisition', 'run', 'well', 'tagset', 'roi'
     )
 
     # Regular expression which declares the format for a "path" used either
@@ -300,6 +300,11 @@ class Show(object):
             ]
             first_selected = parent_node
         else:
+            # If show=roi, selected object will be Image
+            if first_obj == "roi":
+                first_obj = "image"
+                first_selected = first_selected.getImage()
+
             # Tree hierarchy open to first selected object.
             self._initially_open = [
                 '%s-%s' % (first_obj, first_selected.getId())

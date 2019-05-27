@@ -58,7 +58,7 @@ class TestCoreMetadata(IWebTest):
         p.setPhysicalSizeY(u)
         conn.getUpdateService().saveObject(p)
 
-        # Should now be showning pixels
+        # Should now be showing pixels
         rsp = get(self.django_client, request_url, data, status_code=200)
         html = rsp.content
         assert "Pixels Size (XYZ):" in html

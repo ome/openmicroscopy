@@ -38,11 +38,11 @@ class TestImgDetail(IWebTest):
         """
         user_name = "%s %s" % (self.user.firstName.val, self.user.lastName.val)
 
-        # Import "tinyTest.d3d.dv" and get ImageID
-        pids = self.import_image_with_metadata(client=self.client)
-        pixels = self.query.get("Pixels", long(pids[0]))
-        iid = pixels.image.id.val
-
+        # Import image with metadata and get ImageID
+        images = self.import_fake_file(
+            client=self.client, pixelType="int16", sizeX=20, sizeY=20, sizeZ=5,
+            sizeT=6)
+        iid = images[0].id.val
         json_url = reverse('webgateway.views.imageData_json', args=[iid])
         data = {}
         img_data = get_json(self.django_client, json_url, data,
@@ -60,20 +60,19 @@ class TestImgDetail(IWebTest):
             'color': "808080",
             'active': True,
             'window': {
-                'max': 651,
-                'end': 651,
-                'start': 88,
-                'min': 88
+                'max': 32767.0,
+                'end': 12.0,
+                'start': -32768.0,
+                'min': -32768.0
             },
             'family': 'linear',
-            'coefficient': 1,
+            'coefficient': 1.0,
             'reverseIntensity': False,
             'inverted': False,
-            'emissionWave': 500,
-            'label': "500"
+            'emissionWave': None,
+            'label': "0"  # to be reviewed when wavelength is supported
         }
         assert img_data['pixel_range'] == [-32768, 32767]
-        assert img_data['nominalMagnification'] == 100
         assert img_data['rdefs'] == {
             'defaultT': 0,
             'model': "greyscale",
@@ -99,10 +98,9 @@ class TestImgDetail(IWebTest):
         assert img_data['meta']['datasetName'] == "Multiple"
         assert img_data['meta']['wellSampleId'] == ""
         assert img_data['meta']['projectId'] is None
-        assert img_data['meta']['imageDescription'] == \
-            "X:(88 107) Y:(169 188) Z:(9 13 1) T:(2 7 1)"
+        assert img_data['meta']['imageDescription'] == ""
         assert img_data['meta']['wellId'] == ""
-        assert img_data['meta']['imageName'] == "tinyTest.d3d.dv"
+        assert img_data['meta']['imageName'].endswith(".fake")
         assert img_data['meta']['datasetDescription'] == ""
         # Don't know exact timestamp of import
         assert 'imageTimestamp' in img_data['meta']

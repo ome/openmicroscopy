@@ -61,6 +61,9 @@ def get_user_agent(request):
 
 ###############################################################################
 def send_feedback(request):
+    if not settings.FEEDBACK_ERROR_ENABLED:
+        return HttpResponseRedirect(reverse("feedback_disabled"))
+
     error = None
     form = ErrorForm(data=request.POST.copy())
     if form.is_valid():
@@ -101,6 +104,9 @@ def send_feedback(request):
 
 
 def send_comment(request):
+    if not settings.FEEDBACK_COMMENT_ENABLED:
+        return HttpResponseRedirect(reverse("feedback_disabled"))
+
     error = None
     form = CommentForm()
 
@@ -173,9 +179,13 @@ def handler500(request):
     if request.is_ajax():
         return HttpResponseServerError(error500)
 
-    form = ErrorForm(initial={'error': error500})
-    context = {'form': form}
-    t = template_loader.get_template('500.html')
+    if settings.FEEDBACK_ERROR_ENABLED:
+        form = ErrorForm(initial={'error': error500})
+        context = {'form': form}
+        t = template_loader.get_template('500.html')
+    else:
+        context = {'error500': error500}
+        t = template_loader.get_template('500-nosubmit.html')
     c = RequestContext(request, context)
     return HttpResponseServerError(t.render(c))
 

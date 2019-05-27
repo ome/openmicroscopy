@@ -7,7 +7,6 @@ package integration;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -136,7 +135,6 @@ import omero.sys.Roles;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.util.ResourceUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -144,9 +142,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.io.Files;
 
 /**
  * Base test for integration tests.
@@ -1202,8 +1200,19 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected String getPythonScript() throws IOException {
         if (pythonScript == null) {
-            final File scriptFile = ResourceUtils.getFile("classpath:minimal-script.py");
-            pythonScript = Files.toString(scriptFile, StandardCharsets.UTF_8);
+            StringBuffer buffer = new StringBuffer();
+            buffer.append("import omero.scripts as s");
+            buffer.append("\n");
+            buffer.append("import uuid");
+            buffer.append("\n");
+            buffer.append("\n");
+            buffer.append("uuid = str(uuid.uuid4())");
+            buffer.append("\n");
+            buffer.append("print(\"I am the script named %s.\" % uuid)");
+            buffer.append("\n");
+            buffer.append("client = s.client(uuid, \"simple script\")");
+            buffer.append("\n");
+            pythonScript = buffer.toString();
         }
         return pythonScript;
     }
@@ -2393,27 +2402,8 @@ public class AbstractServerTest extends AbstractTest {
      * @see ome.testing.DataProviderBuilder#addBoolean(boolean)
      */
     private static Boolean[][] provideEveryBooleanCombination(int argCount) {
-        // TODO: Once we use Guava 19 we can use Collections.nCopies and Lists.cartesianProduct instead of this manual approach.
-        if (argCount < 1) {
-            throw new IllegalArgumentException("argument count must be strictly positive");
-        }
-        final Boolean[][] testArguments = new Boolean[1 << argCount][];
-        int testNum = 0;
-        testArguments[testNum] = new Boolean[argCount];
-        Arrays.fill(testArguments[testNum], false);
-        while (++testNum < testArguments.length) {
-            testArguments[testNum] = Arrays.copyOf(testArguments[testNum - 1], argCount);
-            int argNum = argCount - 1;
-            while (true) {
-                if (testArguments[testNum][argNum]) {
-                    testArguments[testNum][argNum--] = false;
-                } else {
-                    testArguments[testNum][argNum] = true;
-                    break;
-                }
-            }
-        }
-        return testArguments;
+        return Lists.cartesianProduct(Collections.nCopies(argCount, ImmutableList.of(false, true)))
+                .stream().map(args -> args.stream().toArray(Boolean[]::new)).toArray(Boolean[][]::new);
     }
 
     /**

@@ -362,10 +362,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["APPLICATION_SERVER",
          DEFAULT_SERVER_TYPE,
          check_server_type,
-         ("OMERO.web is configured to run in Gunicorn as a generic WSGI "
-          "application by default. If you are using Apache change this "
-          "to \"wsgi\" before generating your web server configuration. "
-          "Available options: \"wsgi-tcp\" (Gunicorn), \"wsgi\" (Apache)")],
+         ("OMERO.web is configured to run in Gunicorn as a generic WSGI (TCP)"
+          "application by default. Available options: ``wsgi-tcp`` "
+          "(Gunicorn, default), ``wsgi`` (Advanced users only, e.g. manual "
+          "Apache configuration with ``mod_wsgi``).")],
     "omero.web.application_server.host":
         ["APPLICATION_SERVER_HOST",
          "127.0.0.1",
@@ -389,7 +389,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '{"index": 4, '
           '"class": "django.middleware.csrf.CsrfViewMiddleware"},'
           '{"index": 5, '
-          '"class": "django.contrib.messages.middleware.MessageMiddleware"}'
+          '"class": "django.contrib.messages.middleware.MessageMiddleware"},'
+          '{"index": 6, '
+          '"class": "django.middleware.clickjacking.XFrameOptionsMiddleware"}'
           ']'),
          json.loads,
          ('Warning: Only system administrators should use this feature. '
@@ -471,6 +473,26 @@ CUSTOM_SETTINGS_MAPPINGS = {
          None,
          leave_none_unset,
          "The name to use for session cookies"],
+    "omero.web.session_cookie_secure":
+        ["SESSION_COOKIE_SECURE",
+         "false",
+         parse_boolean,
+         ("Restrict session cookies to HTTPS only, you are strongly "
+          "recommended to set this to ``true`` in production.")],
+    "omero.web.csrf_cookie_secure":
+        ["CSRF_COOKIE_SECURE",
+         "false",
+         parse_boolean,
+         ("Restrict CSRF cookies to HTTPS only, you are strongly "
+          "recommended to set this to ``true`` in production.")],
+    "omero.web.csrf_cookie_httponly":
+        ["CSRF_COOKIE_HTTPONLY",
+         "false",
+         parse_boolean,
+         ("Prevent CSRF cookie from being accessed in JavaScript. "
+          "Currently disabled as it breaks background JavaScript POSTs in "
+          "OMERO.web.")],
+
     "omero.web.logdir":
         ["LOGDIR", LOGDIR, str, "A path to the custom log directory."],
     "omero.web.secure_proxy_ssl_header":
@@ -488,21 +510,21 @@ CUSTOM_SETTINGS_MAPPINGS = {
          leave_none_unset,
          ("A string representing Gunicorn additional arguments. "
           "Check Gunicorn Documentation "
-          "http://docs.gunicorn.org/en/latest/settings.html")],
+          "https://docs.gunicorn.org/en/latest/settings.html")],
     "omero.web.wsgi_workers":
         ["WSGI_WORKERS",
          5,
          int,
          ("The number of worker processes for handling requests. "
           "Check Gunicorn Documentation "
-          "http://docs.gunicorn.org/en/stable/settings.html#workers")],
+          "https://docs.gunicorn.org/en/stable/settings.html#workers")],
     "omero.web.wsgi_timeout":
         ["WSGI_TIMEOUT",
          60,
          int,
          ("Workers silent for more than this many seconds are killed "
           "and restarted. Check Gunicorn Documentation "
-          "http://docs.gunicorn.org/en/stable/settings.html#timeout")],
+          "https://docs.gunicorn.org/en/stable/settings.html#timeout")],
 
     # Public user
     "omero.web.public.enabled":
@@ -621,7 +643,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          str,
          ("The file storage engine to use when collecting static files with"
           " the collectstatic management command. See `the documentation "
-          "<http://django-pipeline.readthedocs.org/en/latest/storages.html>`_"
+          "<https://django-pipeline.readthedocs.org/en/latest/storages.html>`_"
           " for more details.")],
 
     # Customisation
@@ -634,7 +656,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "the OMERO logo. You will need to host the image somewhere else "
           "and link to it with the OMERO logo.")],
     "omero.web.login_view":
-        ["LOGIN_VIEW", "weblogin", str, None],
+        ["LOGIN_VIEW",
+         "weblogin",
+         str,
+         ("The Django view name used for login. Use this to provide an "
+          "alternative login workflow.")],
     "omero.web.user_dropdown":
         ["USER_DROPDOWN",
          "true",
@@ -642,6 +668,20 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Whether or not to include a user dropdown in the base template."
           " Particularly useful when used in combination with the OMERO.web"
           " public user where logging in may not make sense.")],
+    "omero.web.feedback.comment.enabled":
+        ["FEEDBACK_COMMENT_ENABLED",
+         "true",
+         parse_boolean,
+         ("Enable the feedback form for comments. "
+          "These comments are sent to the URL in ``omero.qa.feedback`` "
+          "(OME team by default).")],
+    "omero.web.feedback.error.enabled":
+        ["FEEDBACK_ERROR_ENABLED",
+         "true",
+         parse_boolean,
+         ("Enable the feedback form for errors. "
+          "These errors are sent to the URL in ``omero.qa.feedback`` "
+          "(OME team by default).")],
     "omero.web.staticfile_dirs":
         ["STATICFILES_DIRS",
          '[]',
@@ -678,6 +718,20 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "For example: ``'{\"redirect\": [\"webindex\"], \"viewname\":"
           " \"load_template\", \"args\":[\"userdata\"], \"query_string\":"
           " {\"experimenter\": -1}}'``")],
+
+    "omero.web.login.show_client_downloads":
+        ["SHOW_CLIENT_DOWNLOADS",
+         "true",
+         parse_boolean,
+         ("Whether to link to official client downloads on the login page")],
+    "omero.web.login.client_downloads_base":
+        ["CLIENT_DOWNLOAD_LATEST_BASE",
+         'https://downloads.openmicroscopy.org/latest/omero{major}.{minor}',
+         str,
+         ("Base URL for latest client downloads. "
+          "Template parameters ``{major}`` ``{minor}`` ``{patch}`` will be "
+          "substituted with the current OMERO.web version.")],
+
     "omero.web.apps":
         ["ADDITIONAL_APPS",
          '[]',
@@ -699,7 +753,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Number of thumbnails retrieved to prevent from loading them"
           " all at once. Make sure the size is not too big, otherwise"
           " you may exceed limit request line, see"
-          " http://docs.gunicorn.org/en/latest/settings.html"
+          " https://docs.gunicorn.org/en/latest/settings.html"
           "?highlight=limit_request_line")],
     "omero.web.ui.top_links":
         ["TOP_LINKS",
@@ -777,6 +831,21 @@ CUSTOM_SETTINGS_MAPPINGS = {
          parse_boolean,
          ("If True, cors_origin_whitelist will not be used and all origins "
           "will be authorized to make cross-site HTTP requests.")],
+
+    "omero.web.x_frame_options":
+        ["X_FRAME_OPTIONS",
+         "SAMEORIGIN",
+         str,
+         "Whether to allow OMERO.web to be loaded in a frame."
+         ],
+
+    "omero.web.django_additional_settings":
+        ["DJANGO_ADDITIONAL_SETTINGS",
+         "[]",
+         json.loads,
+         ("Additional Django settings as list of key-value tuples. "
+          "Use this to set or override Django settings that aren't managed by "
+          "OMERO.web. E.g. ``[\"CUSTOM_KEY\", \"CUSTOM_VALUE\"]``")],
 }
 
 DEPRECATED_SETTINGS_MAPPINGS = {
@@ -874,13 +943,13 @@ DEVELOPMENT_SETTINGS_MAPPINGS = {
          check_worker_class,
          ("The default OMERO.web uses sync workers to handle most “normal” "
           "types of workloads. Check Gunicorn Design Documentation "
-          "http://docs.gunicorn.org/en/stable/design.html")],
+          "https://docs.gunicorn.org/en/stable/design.html")],
     "omero.web.wsgi_worker_connections":
         ["WSGI_WORKER_CONNECTIONS",
          1000,
          int,
          ("(ASYNC WORKERS only) The maximum number of simultaneous clients. "
-          "Check Gunicorn Documentation http://docs.gunicorn.org"
+          "Check Gunicorn Documentation https://docs.gunicorn.org"
           "/en/stable/settings.html#worker-connections")],
     "omero.web.wsgi_threads":
         ["WSGI_THREADS",
@@ -888,7 +957,7 @@ DEVELOPMENT_SETTINGS_MAPPINGS = {
          check_threading,
          ("(SYNC WORKERS only) The number of worker threads for handling "
           "requests. Check Gunicorn Documentation "
-          "http://docs.gunicorn.org/en/stable/settings.html#threads")],
+          "https://docs.gunicorn.org/en/stable/settings.html#threads")],
 }
 
 
@@ -1212,6 +1281,9 @@ PIPELINE_JS = {
     }
 }
 
+# Prevent scripting attacks from obtaining session cookie
+SESSION_COOKIE_HTTPONLY = True
+
 CSRF_FAILURE_VIEW = "omeroweb.feedback.views.csrf_failure"
 
 # Configuration for django-cors-headers app
@@ -1277,6 +1349,9 @@ SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 # Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
 # MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
 MIDDLEWARE_CLASSES = sort_properties_to_tuple(MIDDLEWARE_CLASSES_LIST)  # noqa
+
+for k, v in DJANGO_ADDITIONAL_SETTINGS:  # noqa
+    setattr(sys.modules[__name__], k, v)
 
 
 # Load server list and freeze

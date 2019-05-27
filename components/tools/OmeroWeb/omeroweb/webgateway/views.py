@@ -2632,14 +2632,12 @@ def histogram_json(request, iid, theC, conn=None, **kwargs):
                % (maxW, maxH))
         return JsonResponse({"error": msg})
 
-    theZ = int(request.REQUEST.get('theZ', 0))
-    theT = int(request.REQUEST.get('theT', 0))
+    theZ = int(request.GET.get('theZ', 0))
+    theT = int(request.GET.get('theT', 0))
     theC = int(theC)
-    binCount = int(request.REQUEST.get('bins', 256))
+    binCount = int(request.GET.get('bins', 256))
 
     # TODO: handle projection when supported by OMERO
-    # proj = request.REQUEST.get('p', None)
-
     data = image.getHistogram([theC], binCount, theZ=theZ, theT=theT)
     histogram = data[theC]
 

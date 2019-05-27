@@ -11,6 +11,7 @@
 
 import os
 import re
+import sys
 import pytest
 
 from path import path
@@ -43,7 +44,10 @@ def tmpadmindir(tmpdir):
     templates_dir = etc_dir.mkdir('templates')
     templates_dir.mkdir('grid')
 
-    old_templates_dir = path() / ".." / ".." / ".." / "etc" / "templates"
+    old_etc_dir = path() / ".." / ".." / ".." / "etc"
+    old_templates_dir = old_etc_dir / "templates"
+    for f in glob(old_etc_dir / "*.properties"):
+        path(f).copy(path(etc_dir))
     for f in glob(old_templates_dir / "*.cfg"):
         path(f).copy(path(templates_dir))
     for f in glob(old_templates_dir / "grid" / "*.xml"):
@@ -233,20 +237,39 @@ def check_ice_config(topdir, prefix='', ssl=4064, **kwargs):
     assert matches == ["omero.port=%s%s" % (prefix, ssl)]
 
 
-def check_default_xml(topdir, prefix='', tcp=4063, ssl=4064, **kwargs):
+def check_default_xml(topdir, prefix='', tcp=4063, ssl=4064, ws=4065, wss=4066,
+                      transports=None, **kwargs):
+    if transports is None:
+        transports = ['ssl', 'tcp']
     routerport = (
         '<variable name="ROUTERPORT"    value="%s%s"/>' % (prefix, ssl))
     insecure_routerport = (
         '<variable name="INSECUREROUTER" value="OMERO.Glacier2'
         '/router:tcp -p %s%s -h @omero.host@"/>' % (prefix, tcp))
-    client_endpoints = (
-        'client-endpoints="ssl -p ${ROUTERPORT}:tcp -p %s%s"'
-        % (prefix, tcp))
+    client_endpoint_list = []
+    for tp in transports:
+        if tp == 'tcp':
+            client_endpoint_list.append('tcp -p %s%s' % (prefix, tcp))
+        if tp == 'ssl':
+            client_endpoint_list.append('ssl -p %s%s' % (prefix, ssl))
+        if tp == 'ws':
+            client_endpoint_list.append('ws -p %s%s' % (prefix, ws))
+        if tp == 'wss':
+            client_endpoint_list.append('wss -p %s%s' % (prefix, wss))
+
+    client_endpoints = 'client-endpoints="%s"' % ':'.join(client_endpoint_list)
     for key in ['default.xml', 'windefault.xml']:
         s = path(topdir / "etc" / "grid" / key).text()
         assert routerport in s
         assert insecure_routerport in s
         assert client_endpoints in s
+
+
+def check_templates_xml(topdir, glacier2props):
+    s = path(topdir / "etc" / "grid" / "templates.xml").text()
+    for k, v in glacier2props:
+        expected = '<property name="%s" value="%s" />' % (k, v)
+        assert expected in s
 
 
 class TestJvmCfg(object):
@@ -335,15 +358,21 @@ class TestRewrite(object):
     @pytest.mark.parametrize('registry', [None, 111])
     @pytest.mark.parametrize('tcp', [None, 222])
     @pytest.mark.parametrize('ssl', [None, 333])
-    def testExplicitPorts(self, registry, ssl, tcp, prefix, monkeypatch):
+    @pytest.mark.parametrize('ws_wss_transports', [
+        (None, None, None),
+        (444, None, ('ssl', 'tcp', 'wss', 'ws')),
+        (None, 555, ('ssl', 'tcp', 'wss', 'ws')),
+    ])
+    def testExplicitPorts(self, registry, ssl, tcp, prefix,
+                          ws_wss_transports, monkeypatch):
         """
-        Test the omero.ports.xxx configuration properties during the generation
+        Test the omero.ports.xxx and omero.client.icetransports
+        configuration properties during the generation
         of the configuration files
         """
 
         # Skip the JVM settings calculation for this test
-        monkeypatch.setattr(omero.install.jvmcfg, "adjust_settings",
-                            lambda x, y: {})
+        ws, wss, transports = ws_wss_transports
         kwargs = {}
         if prefix:
             kwargs["prefix"] = prefix
@@ -353,12 +382,47 @@ class TestRewrite(object):
             kwargs["tcp"] = tcp
         if ssl:
             kwargs["ssl"] = ssl
+        if ws:
+            kwargs["ws"] = ws
+        if wss:
+            kwargs["wss"] = wss
         for (k, v) in kwargs.iteritems():
             self.cli.invoke(
                 ["config", "set", "omero.ports.%s" % k, "%s" % v],
                 strict=True)
+
+        if transports:
+            self.cli.invoke(
+                ["config", "set", "omero.client.icetransports", "%s" %
+                 ','.join(transports)], strict=True)
+            kwargs["transports"] = transports
+
         self.cli.invoke(self.args, strict=True)
 
         check_ice_config(self.cli.dir, **kwargs)
         check_registry(self.cli.dir, **kwargs)
-        check_default_xml(self.cli.dir, **kwargs)
+
+    def testGlacier2Icessl(self, monkeypatch):
+        """
+        Test the omero.glacier2.IceSSL.* properties during the generation
+        of the configuration files
+        """
+
+        # Skip the JVM settings calculation for this test
+        # monkeypatch.setattr(omero.install.jvmcfg, "adjust_settings",
+        #                     lambda x, y: {})
+
+        if sys.platform == "darwin":
+            expected_ciphers = '(AES)'
+        else:
+            expected_ciphers = 'ADH:!LOW:!MD5:!EXP:!3DES:@STRENGTH'
+        glacier2 = [
+            ("IceSSL.Ciphers", expected_ciphers),
+            ("IceSSL.TestKey", "TestValue"),
+        ]
+        self.cli.invoke([
+            "config", "set",
+            "omero.glacier2." + glacier2[1][0], glacier2[1][1]],
+            strict=True)
+        self.cli.invoke(self.args, strict=True)
+        check_templates_xml(self.cli.dir, glacier2)

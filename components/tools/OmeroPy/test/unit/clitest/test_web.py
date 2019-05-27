@@ -27,7 +27,10 @@ from path import path
 import getpass
 import Ice
 import omero.cli
-from omero.plugins.web import WebControl
+from omero.plugins.web import (
+    APACHE_MOD_WSGI_ERR,
+    WebControl
+)
 from omeroweb import settings
 
 
@@ -185,17 +188,8 @@ class TestWeb(object):
         csout = "Clearing expired sessions. This may take some time... [OK]"
         assert csout == o.split(os.linesep)[0]
         if app_server in ('wsgi',):
-            stderr0 = ("[ERROR] You are deploying OMERO.web using Apache and"
-                       " mod_wsgi. OMERO.web does not provide any management"
-                       " for the daemon process which communicates"
-                       " with Apache child processes using UNIX sockets"
-                       " to handle a request.")
-            stderr1 = ("Generate apache config using"
-                       " 'omero web config apache' or"
-                       " 'omero web config apache24' and reload web server.")
-            assert stderr0 == e.split(os.linesep)[0]
-            assert stderr1 == e.split(os.linesep)[1]
-            assert 2 == len(e.split(os.linesep))-1
+            assert APACHE_MOD_WSGI_ERR == e.split(os.linesep)[0]
+            assert 1 == len(e.split(os.linesep))-1
         elif app_server in ('wsgi-tcp',):
             startout = "Starting OMERO.web... [OK]"
             assert startout == o.split(os.linesep)[1]
@@ -215,9 +209,7 @@ class TestWeb(object):
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
         if app_server in ('wsgi',):
-            stderr = ("You are deploying OMERO.web using apache and mod_wsgi."
-                      " Cannot check status.")
-            assert stderr in e.split(os.linesep)[0]
+            assert APACHE_MOD_WSGI_ERR in e.split(os.linesep)[0]
             assert 1 == len(e.split(os.linesep))-1
         elif app_server in ('wsgi-tcp',):
             stdout = (
@@ -417,133 +409,11 @@ class TestWeb(object):
                 ], lines)
         assert not missing, 'Line not found: ' + str(missing)
 
-    @pytest.mark.parametrize('server_type', ["apache", "apache22", "apache24"])
-    @pytest.mark.parametrize('prefix', [None, '/test'])
-    @pytest.mark.parametrize('app_server', ['wsgi'])
-    @pytest.mark.parametrize('max_requests', [0, 100])
-    @pytest.mark.parametrize('processes', [5, 10])
-    @pytest.mark.parametrize('threads', [1, 5])
-    @pytest.mark.parametrize('http', [False, 8081])
-    def testApacheWSGIConfig(self, server_type, prefix, app_server,
-                             max_requests, processes, threads, http, capsys,
-                             monkeypatch):
-
-        self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
-        self.mock_django_setting('APPLICATION_SERVER_MAX_REQUESTS',
-                                 max_requests, monkeypatch)
-        self.mock_django_setting('WSGI_WORKERS', processes, monkeypatch)
-        self.mock_django_setting('WSGI_THREADS', threads, monkeypatch)
-        self.set_python_path(monkeypatch)
-        static_prefix = self.add_prefix(prefix, monkeypatch)
-        upstream_name = self.add_upstream_name(prefix, monkeypatch)
-
-        try:
-            import pwd
-            username = pwd.getpwuid(os.getuid()).pw_name
-        except ImportError:
-            import getpass
-            username = getpass.getuser()
-        icepath = os.path.dirname(Ice.__file__)
-
-        self.args += ["config", server_type]
-        if http:
-            self.args += ["--http", str(http)]
-
-        self.set_templates_dir(monkeypatch)
-        self.cli.invoke(self.args, strict=True)
-        o, e = capsys.readouterr()
-
-        lines = self.clean_generated_file(o)
-
-        # Note: the differences between the generated apache22 and apache24
-        # configurations are in unchanged parts of the template
-        if prefix:
-            missing = self.required_lines_in([
-                ("<VirtualHost _default_:%s>" % (http or 80)),
-                ('WSGIDaemonProcess %s ' % upstream_name +
-                 'processes=%s threads=%s ' % (processes, threads) +
-                 'maximum-requests=%s ' % (max_requests) +
-                 'display-name=%%{GROUP} user=%s ' % username +
-                 'python-path=%s' % icepath, 'lib/python/omeroweb'),
-                ('WSGIScriptAlias %s ' % prefix,
-                 'lib/python/omeroweb/wsgi.py ' +
-                 'process-group=omeroweb_%s' % prefix.strip("/")),
-                ('WSGIProcessGroup omeroweb_%s' % prefix.strip("/")),
-                ('Alias %s ' % static_prefix[:-1],
-                 'lib/python/omeroweb/static'),
-                ], lines)
-        else:
-            missing = self.required_lines_in([
-                ("<VirtualHost _default_:%s>" % (http or 80)),
-                ('WSGIDaemonProcess %s ' % upstream_name +
-                 'processes=%s threads=%s ' % (processes, threads) +
-                 'maximum-requests=%s ' % (max_requests) +
-                 'display-name=%%{GROUP} user=%s ' % username +
-                 'python-path=%s' % icepath, 'lib/python/omeroweb'),
-                ('WSGIScriptAlias / ', 'lib/python/omeroweb/wsgi.py ' +
-                 'process-group=omeroweb'),
-                ('WSGIProcessGroup omeroweb'),
-                ('Alias /static ', 'lib/python/omeroweb/static'),
-                ], lines)
-        assert not missing, 'Line not found: ' + str(missing)
-
-    @pytest.mark.parametrize('server_type', ["apache", "apache22", "apache24"])
-    @pytest.mark.parametrize('app_server', ['wsgi'])
-    @pytest.mark.parametrize('python_path', [None, '/python/path/location'])
-    def testApacheWSGIConfigPythonPath(self, server_type, app_server,
-                                       python_path, capsys, monkeypatch):
-        self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
-        self.set_python_path(monkeypatch, python_path)
-
-        try:
-            import pwd
-            username = pwd.getpwuid(os.getuid()).pw_name
-        except ImportError:
-            import getpass
-            username = getpass.getuser()
-        icepath = os.path.dirname(Ice.__file__)
-        ctx = self.cli.controls["web"]
-        pythondir = ctx.dir / "lib" / "python"
-        fallbackdir = ctx.dir / "lib" / "fallback"
-
-        self.args += ["config", server_type]
-
-        self.set_templates_dir(monkeypatch)
-        self.cli.invoke(self.args, strict=True)
-        o, e = capsys.readouterr()
-
-        lines = self.clean_generated_file(o)
-        # Note: the differences between the generated apache22 and apache24
-        # configurations are in unchanged parts of the template
-        if python_path:
-            pp = os.pathsep.join([icepath, pythondir,
-                                  python_path, fallbackdir])
-            missing = self.required_lines_in([
-                ("<VirtualHost _default_:%s>" % (80)),
-                ('WSGIDaemonProcess omeroweb ' +
-                 'processes=5 threads=1 maximum-requests=0 '
-                 'display-name=%%{GROUP} user=%s ' % username +
-                 'python-path=%s' % pp,
-                 'lib/python/omeroweb'),
-                ], lines)
-        else:
-            pp = os.pathsep.join([icepath, pythondir, fallbackdir])
-            missing = self.required_lines_in([
-                ("<VirtualHost _default_:%s>" % (80)),
-                ('WSGIDaemonProcess omeroweb ' +
-                 'processes=5 threads=1 maximum-requests=0 '
-                 'display-name=%%{GROUP} user=%s ' % username +
-                 'python-path=%s' % pp,
-                 'lib/python/omeroweb'),
-                ], lines)
-        assert not missing, 'Line not found: ' + str(missing)
-
     @pytest.mark.parametrize('server_type', [
         ["nginx", 'wsgi-tcp'],
         ["nginx-development", 'wsgi-tcp'],
         ["nginx-location", 'wsgi-tcp'],
-        ["apache22", 'wsgi'],
-        ["apache24", 'wsgi']])
+    ])
     @pytest.mark.parametrize('static_root', [
         '/home/omero/OMERO.server/lib/python/omeroweb/static'])
     def testFullTemplateDefaults(self, server_type, static_root,
@@ -572,8 +442,7 @@ class TestWeb(object):
         ['nginx-location', '--http', '1234',
          '--servername', 'omeroweb.host',
          '--max-body-size', '2m', 'wsgi-tcp'],
-        ['apache22', '--http', '1234', 'wsgi'],
-        ['apache24', '--http', '1234', 'wsgi']])
+    ])
     @pytest.mark.parametrize('static_root', [
         '/home/omero/OMERO.server/lib/python/omeroweb/static'])
     def testFullTemplateWithOptions(self, server_type, static_root,

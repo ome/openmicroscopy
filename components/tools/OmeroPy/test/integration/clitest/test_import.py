@@ -819,7 +819,6 @@ class TestImport(CLITest):
 
     # Check that the dataset chosen for import is the newest
     # to which the user actually has permission to link.
-    @pytest.mark.broken(reason="import target does not yet filter by canLink")
     @pytest.mark.parametrize("is_owns_oldest", [False, True])
     @pytest.mark.parametrize("is_owns_newest", [False, True])
     def testImportLinkableTarget(self, tmpdir, capfd,

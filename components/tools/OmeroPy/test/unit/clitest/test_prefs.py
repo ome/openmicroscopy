@@ -12,6 +12,7 @@
 import pytest
 from omero.cli import CLI, NonZeroReturnCode
 from omero.config import ConfigXml
+from omero.install.config_parser import PropertyParser
 from omero.plugins.prefs import PrefsControl, HELP
 from omero.util.temp_files import create_path
 
@@ -36,7 +37,7 @@ class TestPrefs(object):
         self.cli = CLI()
         self.cli.register("config", PrefsControl, HELP)
         self.p = create_path()
-        self.args = ["config", "--source", "%s" % self.p]
+        self.args = ["-d1", "config", "--source", "%s" % self.p]
 
     def config(self):
         return ConfigXml(filename=str(self.p))
@@ -466,3 +467,38 @@ class TestPrefs(object):
         self.assertStdoutStderr(capsys, out=defaults)
         self.invoke("parse --file=%s --keys --no-web" % cfg)
         self.assertStdoutStderr(capsys, out=keys)
+
+    @pytest.mark.parametrize("data", (
+        (u"omero.ldap.base=ou=ascii\n", "ascii2"),
+        (u"omero.ldap.base=ou=ascii\n", "unicodé"),
+        (u"omero.ldap.base=ou=unicodé\n", "ascii"),
+        (u"omero.ldap.base=ou=unicodé\n", "unicodé2"),
+    ))
+    def testUnicode(self, tmpdir, capsys, data):
+        input, update = data
+        cfg = tmpdir.join("test.cfg")
+        cfg.write(input.encode("utf-8"), "wb")
+        self.invoke("load %s" % cfg)
+        self.invoke("get omero.ldap.base")
+        self.invoke("set omero.ldap.base %s" % update)
+        self.invoke("get omero.ldap.base")
+
+    @pytest.mark.xfail
+    def testConfigPropertyParser(self, tmpdir):
+        cfg = tmpdir.join("test.properties")
+        s = "a=1\nb.c=a b <!> c\nd.e=line1\\\nline2\nf.g=\\n\n"
+        cfg.write(s)
+        pp = PropertyParser()
+        props = pp.parse_file(str(cfg))
+
+        # Fails, the last two properties are parsed as one:
+        # 'd.e' = 'line1line2f.g=\\n'
+        assert len(props) == 4
+        assert props[0].key == 'a'
+        assert props[0].val == '1'
+        assert props[1].key == 'b.c'
+        assert props[1].val == 'a b <!> c'
+        assert props[2].key == 'd.e'
+        assert props[2].val == 'line1line2'
+        assert props[3].key == 'f.g'
+        assert props[3].val == '\\n'

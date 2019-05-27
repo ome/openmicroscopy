@@ -239,30 +239,35 @@ class PropertyParser(object):
     def parse_file(self, argv=None):
         """Parse the properties from the input configuration file"""
         try:
-            for line in fileinput.input(argv):
-                if line.endswith("\n"):
-                    line = line[:-1]
-
-                if line.startswith(STOP):
-                    self.cleanup()
-                    break
-                if self.black_list(line):
-                    self.cleanup()
-                    continue
-                elif not line.strip():
-                    self.cleanup()
-                    continue
-                elif line.startswith("#"):
-                    self.append(line)
-                elif "=" in line and self.curr_a != ESCAPED:
-                    self.detect(line)
-                elif line.endswith("\\"):
-                    self.cont(line[:-1])
-                else:
-                    self.cont(line)
-            self.cleanup()  # Handle no newline at end of file
+            self.parse_lines(fileinput.input(argv))
         finally:
             fileinput.close()
+        return self.properties
+
+    def parse_lines(self, lines):
+        """Parse the properties from the given configuration file lines"""
+        for line in lines:
+            if line.endswith("\n"):
+                line = line[:-1]
+
+            if line.startswith(STOP):
+                self.cleanup()
+                break
+            if self.black_list(line):
+                self.cleanup()
+                continue
+            elif not line.strip():
+                self.cleanup()
+                continue
+            elif line.startswith("#"):
+                self.append(line)
+            elif "=" in line and self.curr_a != ESCAPED:
+                self.detect(line)
+            elif line.endswith("\\"):
+                self.cont(line[:-1])
+            else:
+                self.cont(line)
+        self.cleanup()  # Handle no newline at end of file
         return self.properties
 
     def black_list(self, line):

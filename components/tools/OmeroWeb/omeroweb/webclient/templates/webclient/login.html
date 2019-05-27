@@ -139,6 +139,13 @@
 		OMERO is distributed under the terms of the GNU GPL.
 		For more information, visit <a href="https://www.openmicroscopy.org">openmicroscopy.org</a><br/>
 
+        {% if show_download_links %}
+            Download OMERO.insight for
+            <a href="{{ download_client_mac }}">Mac OS X</a>,
+            <a href="{{ download_client_win }}">Windows</a>,
+            <a href="{{ download_client_linux }}">Linux</a><br>
+        {% endif %}
+
         <img src="{% static 'webgateway/img/OME_logo_grey_110.png' %}"/>
     </p>
 </div>
