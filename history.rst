@@ -12,7 +12,7 @@ This release focuses on dropping support for Java 7, Python 2.6 and Ice 3.5.
 and on decoupling the Java components to new,
 separate repositories:
 
-- https://github.com/ome/omero-dsl
+- https://github.com/ome/omero-dsl-plugin
 - https://github.com/ome/omero-model
 - https://github.com/ome/omero-common
 - https://github.com/ome/omero-romio
