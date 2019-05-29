@@ -51,8 +51,9 @@ class BaseSearch(BaseController):
         BaseController.__init__(self, conn)
 
     def search(self, query, onlyTypes, fields, searchGroup, ownedBy,
-               useAcquisitionDate, date=None):
-
+               useAcquisitionDate, date=None, rawQuery=False):
+        # If rawQuery, the raw lucene query is used in search.byFullText()
+        # and fields is ignored.
         # If fields contains 'annotation', we really want to search files too
         # docs.openmicroscopy.org/latest/omero/developers/Modules/Search.html
         fields = set(fields)
@@ -99,7 +100,9 @@ class BaseSearch(BaseController):
                 batchSize=batchSize,
                 searchGroup=searchGroup,
                 ownedBy=ownedBy,
-                useAcquisitionDate=useAcquisitionDate))
+                useAcquisitionDate=useAcquisitionDate,
+                rawQuery=rawQuery),
+                )
             return obj_list
 
         self.containers = {}

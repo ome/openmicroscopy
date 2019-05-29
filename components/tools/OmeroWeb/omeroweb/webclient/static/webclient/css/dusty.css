@@ -561,13 +561,13 @@ button::-moz-focus-inner {
 	    }
 	    
 		.standard_form label {
-			width:25%;
+			padding-right: 5px;
 			display:inline-block;
 			color:hsl(210,10%,50%);
 			font-size:1.2em;
 			text-shadow: 0 1px 0 white;
 			vertical-align: top;
-			margin-top: 3px;
+			margin-top: 4px;
 		}
 		
 		.standard_form input, .standard_form select, .standard_form textarea {

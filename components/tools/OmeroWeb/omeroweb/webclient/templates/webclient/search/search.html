@@ -136,9 +136,14 @@
                 $("#searching_form").ajaxForm({
                     beforeSubmit: function(fields) {
 
+                        var q = '';
+                        if ($('input[name="advanced"]').prop('checked')) {
+                            q = $("input[name='advanced_search']").val();
+                        } else {
+                            q = $("input[name='query']").val();
+                        }
                         // check we have some search query...
-                        var $query = $("input[name='query']"),
-                            q = $.trim($query.val());
+                        q = $.trim(q);
                         if (q.length <= 0) {
                             OME.alert_dialog("Search must contain some text.");
                             return false;
@@ -208,6 +213,14 @@
                         $("#search_ann_type input[type='radio']").prop('checked',false);
                     }
                 });
+
+                $("#searching_tabs").tabs({
+                    activate: function( event, ui ) {
+                        // Checkk hidden checkbox if we're on the 'advanced search' tab
+                        // This will be included in search submitted data
+                        $('input[name="advanced"]').prop('checked', ui.newPanel.attr('id') === 'advanced_search');
+                    }
+                });
         });
     </script>
 
@@ -226,47 +239,97 @@
 
     <form id="searching_form" class="search_panel standard_form" action="{% url 'load_searching' 'form' %}">
 
-        <div class="search_panel_header">
+        <div id="searching_tabs">
+            <ul id="left_panel_tab_list" class="ui-tabs-nav">
+                <li id="explore_tab" class="ui-state-default">
+                    <a href="#basic_search" class="ui-tabs-anchor" title="Explore">Search</a>
+                </li>
+                <li id="tags_tab" class="ui-state-default">
+                    <a href="#advanced_search" class="ui-tabs-anchor" title="Advanced Search">Advanced</a>
+                </li>
+            </ul>
 
-            <div class="search_panel_header__text" >
 
-                <div class="search_panel_header__text--title">
-                    <!-- h2 style has a bottom margin -->
-                    <h2 style="margin-bottom: 0">{% trans "General Search" %}</h2>
+            <div class="search_panel_header">
+
+                <div id="basic_search">
+                    <div class="search_panel_header__text" >
+
+                        <div class="search_panel_header__text--hints" >
+                            <a id="showSearchHints" class="search_tips__button" href="#">Show search hints</a>
+                            <span class="searching_info" data-content="? Single character wildcard<br>* Multiple character wildcard<br>'AND' Results will contain both terms. E.g: GFP AND H2B">
+                                <img class="search_tips__image" src="{% static "webgateway/img/help16.png" %}"/>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style="clear: both; height: 10px;"></div>
+                    <!-- Hidden hints box shown when the user clicks to show hints -->
+                    <div id="searchHints" style="display: none">
+                        <ul>
+                            <li> <strong> ? </strong> Single character wildcard</li>
+                            <li> <strong> * </strong> Multiple character wildcard</li>
+                            <li> <strong> AND </strong> Results will contain both terms. E.g: GFP AND H2B</li>
+                        </ul>
+                        <br>
+                        <div>
+                            For more info, see the
+                            <a title="Open link in new Tab" target="new" href="http://help.openmicroscopy.org/search.html">
+                                User Help</a>
+                            pages.
+                        </div>
+                    </div>
+
+
+                    <label for="query">{% trans "Search" %}:</label>
+                    <input class="search" name="query" value="{{ init.query }}" size="35"/>
+                    <hr>
+
+                    <label style="white-space:nowrap;">
+                        Restrict by Field:
+                        <span class="searching_info" data-content="Restrict search to specified fields.<br>If none chosen, we search across all fields">
+                            <img src="{% static "webgateway/img/help16.png" %}" />
+                        </span>
+                    </label>
+
+                    <ul class="criteria">
+                        <li><input type="checkbox" name="field" value="name" />{% trans "Name" %}</li>
+                        <li><input type="checkbox" name="field" value="description" />{% trans "Description" %}</li>
+                        <li style="white-space:nowrap;">
+                            <input id="show_annotations" type="checkbox" />{% trans "Annotations" %}
+                            <span class="searching_info" data-content="Includes file attachments, tags, comments etc">
+                               <img src="{% static "webgateway/img/help16.png" %}" />
+                            </span>
+                        </li>
+                    </ul>
+
+                    <ul id="search_ann_type" class="criteria criteria_right hide">
+                        <li><input type="radio" name="field" value="annotation">All Annotations</li>
+                        <li><input type="radio" name="field" value="file">Files</li>
+                        <li><input type="radio" name="field" value="tag">Tags</li>
+                    </ul>
+
                 </div>
 
-                <div class="search_panel_header__text--hints" >
-                    <a id="showSearchHints" class="search_tips__button" href="#">Show search hints</a>
-                    <span class="searching_info" data-content="? Single character wildcard<br>* Multiple character wildcard<br>'AND' Results will contain both terms. E.g: GFP AND H2B">
-                        <img class="search_tips__image" src="{% static "webgateway/img/help16.png" %}"/>
-                    </span>
+                <div id="advanced_search">
+                    <label for="advanced_search">Advanced:</label>
+                    <!-- Checkbox is checked when user switches to Advanced tab -->
+                    <input type="checkbox" name="advanced" style="visibility: hidden" />
+                    <input class="advanced_search" name="advanced_search" value="{{ init.query }}" size="35"/>
+                    <p>Enter raw search term, for example:</p>
+                    <code>name:Control AND tag:"GFP H2B"</code>
+                    <p>
+                        See the
+                        <a target="_blank" href="https://help.openmicroscopy.org/search.html#advanced">
+                            Advanced Search documentation
+                        </a>
+                    </p>
                 </div>
-
             </div>
-
-            <!-- Hidden hints box shown when the user clicks to show hints -->
-            <div id="searchHints" style="display: none">
-                <ul>
-                    <li> <strong> ? </strong> Single character wildcard</li>
-                    <li> <strong> * </strong> Multiple character wildcard</li>
-                    <li> <strong> AND </strong> Results will contain both terms. E.g: GFP AND H2B</li>
-                </ul>
-                <br>
-                <div>
-                    For more info, see the
-                    <a title="Open link in new Tab" target="new" href="https://help.openmicroscopy.org/search.html">
-                        User Help</a>
-                    pages.
-                </div>
-            </div>
-
         </div>
 
         <div style="clear:both"></div>
-
-            <label for="query">{% trans "Search" %}:</label>
-            <input class="search" name="query" value="{{ init.query }}" size="35"/>
-
+        <div style="padding: 0 10px">
             <hr>
 
             <label id="criteria">Search for:</label>
@@ -280,32 +343,6 @@
                 <li><input type="checkbox" name="datatype" value="screens" CHECKED />{% trans "Screens" %}</li>
             </ul>
 
-            <hr>
-
-            <label style="white-space:nowrap;">
-                Restrict by Field:
-                <span class="searching_info" data-content="Restrict search to specified fields.<br>If none chosen, we search across all fields">
-                    <img src="{% static "webgateway/img/help16.png" %}" />
-                </span>
-            </label>
-
-            <ul class="criteria">
-                <li><input type="checkbox" name="field" value="name" />{% trans "Name" %}</li>
-                <li><input type="checkbox" name="field" value="description" />{% trans "Description" %}</li>
-                <!-- The Annotations checkbox has no name (not submitted in form). Just shows radio buttons below -->
-                <li style="white-space:nowrap;">
-                    <input id="show_annotations" type="checkbox" />{% trans "Annotations" %}
-                    <span class="searching_info" data-content="Includes file attachments, tags, comments etc">
-                       <img src="{% static "webgateway/img/help16.png" %}" />
-                    </span>
-                </li>
-            </ul>
-
-            <ul id="search_ann_type" class="criteria criteria_right hide">
-                <li><input type="radio" name="field" value="annotation">All Annotations</li>
-                <li><input type="radio" name="field" value="file">Files</li>
-                <li><input type="radio" name="field" value="tag">Tags</li>
-            </ul>
             <hr>
 
             <label>Scope:</label>
@@ -389,7 +426,8 @@
 
             <hr>
 
-        <input id="search_button" type="submit" value="Search" />
+            <input id="search_button" type="submit" value="Search" />
+        </div>
 
     </form>
 
