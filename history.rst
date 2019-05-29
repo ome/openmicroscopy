@@ -8,6 +8,7 @@ OMERO version history
 5.5.0-rc2 (May 2019)
 --------------------
 
+- Remove the generation of Ivy dependencies.html files.
 - build: use release versions of omero-* dependencies
 - web: add support for advanced search
 - web: support creation of new Map Annotations for multiple selected objects at once
