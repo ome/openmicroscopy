@@ -682,6 +682,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 c.ns = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
         else:
             c.name = rstring(str(name))
+            c.description = rstring(str(description))
 
         oid = self.saveAndReturnId(c, owner=owner)
         return oid
