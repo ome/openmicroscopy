@@ -8,9 +8,9 @@ OMERO version history
 5.5.0 (June 2019)
 -----------------
 
-This release focuses on dropping support for Java 7, Python 2.6 and Ice 3.5.
-and on decoupling the Java components to new,
-separate repositories:
+This release focuses on dropping support for Java 7, Python 2.6 and Ice 3.5,
+adding support for Java 11 and PostgreSQL 10, and on decoupling the Java components to new,
+separate repositories, each with a new [Gradle](https://gradle.org) build system:
 
 - https://github.com/ome/omero-dsl-plugin
 - https://github.com/ome/omero-model
@@ -19,6 +19,7 @@ separate repositories:
 - https://github.com/ome/omero-renderer
 - https://github.com/ome/omero-server
 - https://github.com/ome/omero-blitz
+- https://github.com/ome/omero-gateway-java
 - https://github.com/ome/omero-blitz-plugin
 - https://github.com/ome/omero-insight
 - https://github.com/ome/omero-matlab
@@ -31,6 +32,9 @@ may include only letters, numbers and the symbols ".", "_", "-".
 
 New plugins like omero-artifact-plugin allow reducing the boilerplate
 code in the build scripts of the decoupled repositories.
+Though initially disruptive, we hope this modernization and modularization will ease participation in the development of OMERO.
+
+To find out more of the aim and future plan, please read [Link to blog post]
 
 Additionally, this release improves the Web interface when OMERO is opened to the public
 and contains some useful CLI improvements.
@@ -40,6 +44,7 @@ and contains some useful CLI improvements.
 
 - web:
   - Introduce Advanced Search to allow and/or search options
+  - Fix description in new Project, Dataset etc.
   - Allow user to create new Map Annotations for multiple selected objects at once
   - Fix date display
   - Remove / from 3rdparty in ome.viewportImage.js
