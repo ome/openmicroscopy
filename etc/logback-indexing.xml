@@ -57,6 +57,7 @@
   <!-- Adapters are also too so is a bit verbose -->
   <logger name="ome.adapters" level="ERROR"/>
 
+  <logger name="ome.services.fulltext.ConfiguredAnalyzer" level="DEBUG"/>
   <logger name="ome.services.fulltext.FullTextIndexer2" level="DEBUG"/>
 
   <!-- THIRD PARTY //////////////////////////////////////////////////////////// -->
