@@ -8,6 +8,10 @@ OMERO version history
 5.5.0 (June 2019)
 -----------------
 
+This version **does not** require a database upgrade.
+
+For more information about the aim of the 5.5 series and future plan, please read our [blog post](http://blog.openmicroscopy.org/)
+
 This release focuses on dropping support for Java 7, Python 2.6 and Ice 3.5,
 adding support for Java 11 and PostgreSQL 10, and on decoupling the Java components to new,
 separate repositories, each with a new [Gradle](https://gradle.org) build system:
@@ -34,12 +38,10 @@ New plugins like omero-artifact-plugin allow reducing the boilerplate
 code in the build scripts of the decoupled repositories.
 Though initially disruptive, we hope this modernization and modularization will ease participation in the development of OMERO.
 
-To find out more of the aim and future plan, please read [Link to blog post]
-
 Additionally, this release improves the Web interface when OMERO is opened to the public
 and contains some useful CLI improvements.
 
--build:
+- build:
   - Remove the generation of Ivy dependencies.html files
 
 - web:
