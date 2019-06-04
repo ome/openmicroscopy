@@ -61,6 +61,10 @@ class BaseSearch(BaseController):
             fields = fields.union(("file.name", "file.path", "file.format",
                                    "file.contents"))
             fields.discard("file")      # Not supported
+        # workaround indexing bug in OMERO 5.5.0. Image Name is not indexed
+        # If no fields are specified, also search by Name
+        if len(fields) == 0 and "images" in onlyTypes and ':' not in query:
+            query += ' OR name:' + query
         fields = list(fields)
 
         if 'plates' in onlyTypes:
