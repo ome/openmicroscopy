@@ -72,6 +72,8 @@
   <logger name="loci" level="INFO"/><!-- Bio-Formats -->
   <logger name="ucar" level="WARN"/><!-- NetCDF -->
 
+  <logger name="org.hibernate.search.backend.impl.lucene" level="TRACE"/>
+
   <!-- DATABASE /////////////////////////////////////////////////////////////// -->
   <logger name="bitronix" level="WARN"/>
   <!-- Limit memory WARNing -->
