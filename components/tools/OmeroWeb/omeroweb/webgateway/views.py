@@ -2990,8 +2990,7 @@ class LoginView(View):
                     error = ("Client version does not match server,"
                              " please contact administrator.")
                 else:
-                    error = ("Connection not available, please check your"
-                             " user name and password.")
+                    error = (settings.LOGIN_INCORRECT_CREDENTIALS_TEXT)
         return self.handle_not_logged_in(request, error, form)
 
 
