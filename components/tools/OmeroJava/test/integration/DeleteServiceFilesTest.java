@@ -48,7 +48,6 @@ import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -289,11 +288,11 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         }
 
         if (klass.equals(REF_ORIGINAL_FILE)) {
-            prefix = FilenameUtils.concat(dataDir, "Files");
+            prefix = dataDir+File.separator+"Files";
         } else if (klass.equals(REF_PIXELS)) {
-            prefix = FilenameUtils.concat(dataDir, "Pixels");
+            prefix = dataDir+File.separator+"Pixels";
         } else if (klass.equals(REF_THUMBNAIL)) {
-            prefix = FilenameUtils.concat(dataDir, "Thumbnails");
+            prefix = dataDir+File.separator+"Thumbnails";
         } else {
             throw new Exception("Unknown class: " + klass);
         }
@@ -312,8 +311,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
 
         formatter.close();
 
-        String path = FilenameUtils.concat(prefix, suffix + id);
-        return path;
+        return prefix + File.separator + suffix + id;
     }
 
     /**
@@ -359,9 +357,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
                     + desc.getName().getValue();
             s += "\nFound repository:" + desc.getPath().getValue()
                     + desc.getName().getValue();
-            if (FilenameUtils.equals(
-                    FilenameUtils.normalizeNoEndSeparator(dataDir),
-                    FilenameUtils.normalizeNoEndSeparator(repoPath))) {
+            if (removeEndSeparator(dataDir).equals(removeEndSeparator(repoPath))) {
                 legacy = rm.proxies.get(repoCount);
                 break;
             }
@@ -371,6 +367,13 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
             throw new Exception("Unable to find legacy repository: " + s);
         }
         return legacy;
+    }
+
+    private String removeEndSeparator(String path) {
+        if (path.endsWith(File.separator)) {
+            return path.substring(0, path.length() - File.separator.length());
+        }
+        return path;
     }
 
     /**
