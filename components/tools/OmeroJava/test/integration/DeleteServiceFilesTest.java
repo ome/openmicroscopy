@@ -5,6 +5,7 @@
 package integration;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -288,11 +289,11 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         }
 
         if (klass.equals(REF_ORIGINAL_FILE)) {
-            prefix = dataDir+File.separator+"Files";
+            prefix = Paths.get(dataDir, "Files").toString();
         } else if (klass.equals(REF_PIXELS)) {
-            prefix = dataDir+File.separator+"Pixels";
+            prefix = Paths.get(dataDir, "Pixels").toString();
         } else if (klass.equals(REF_THUMBNAIL)) {
-            prefix = dataDir+File.separator+"Thumbnails";
+            prefix = Paths.get(dataDir, "Thumbnails").toString();
         } else {
             throw new Exception("Unknown class: " + klass);
         }
@@ -311,7 +312,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
 
         formatter.close();
 
-        return prefix + File.separator + suffix + id;
+        return Paths.get(prefix, suffix + id).toString();
     }
 
     /**
