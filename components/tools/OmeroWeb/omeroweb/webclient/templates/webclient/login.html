@@ -71,7 +71,7 @@
     {% block login %}
     <form class="standard_form inlined" action="{% url 'weblogin' %}{% if url %}?{{url}}{% endif %}" method="post">{% csrf_token %}
             {% if error %}
-				<span class="error">{% trans "Error:" %} {{ error }}</span>
+				<span class="error">{% trans "Error:" %} {{ error | urlize }}</span>
 			{% endif %}
 			
 			<div id="choose_server">
