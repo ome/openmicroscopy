@@ -85,7 +85,8 @@ for app in settings.ADDITIONAL_APPS:
     except ImportError:
         pass
     else:
-        # see https://stackoverflow.com/questions/7580220/django-urls-how-to-map-root-to-app
+        # see https://stackoverflow.com
+        #                 /questions/7580220/django-urls-how-to-map-root-to-app
         if label == 'gallery':
             regex = r'^'
         else:
