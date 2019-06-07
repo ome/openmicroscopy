@@ -358,7 +358,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
                     + desc.getName().getValue();
             s += "\nFound repository:" + desc.getPath().getValue()
                     + desc.getName().getValue();
-            if (removeEndSeparator(dataDir).equals(removeEndSeparator(repoPath))) {
+            if (Paths.get(dataDir).normalize().equals(Paths.get(repoPath).normalize())) {
                 legacy = rm.proxies.get(repoCount);
                 break;
             }
@@ -368,13 +368,6 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
             throw new Exception("Unable to find legacy repository: " + s);
         }
         return legacy;
-    }
-
-    private String removeEndSeparator(String path) {
-        if (path.endsWith(File.separator)) {
-            return path.substring(0, path.length() - File.separator.length());
-        }
-        return path;
     }
 
     /**
