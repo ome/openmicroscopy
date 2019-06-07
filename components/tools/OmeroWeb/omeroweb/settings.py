@@ -661,6 +661,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
          str,
          ("The Django view name used for login. Use this to provide an "
           "alternative login workflow.")],
+    "omero.web.login_incorrect_credentials_text":
+        ["LOGIN_INCORRECT_CREDENTIALS_TEXT",
+         "Connection not available, please check your user name and password.",
+         str,
+         ("The error message shown to users who enter an incorrect username "
+          "or password.")],
+
     "omero.web.user_dropdown":
         ["USER_DROPDOWN",
          "true",
