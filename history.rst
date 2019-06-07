@@ -55,6 +55,7 @@ and contains some useful CLI improvements.
   - Do not break display of Tag dialog when large font size is configured in browser
   - Disable refresh button while existing refresh in progress
   - Improve public user support
+  - Add ability to customise incorrect login text
 
 - cli:
   - Disable foreground indexing
