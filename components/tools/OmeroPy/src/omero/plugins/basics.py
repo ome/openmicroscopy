@@ -20,6 +20,8 @@
 
 import sys
 
+from collections import defaultdict
+
 from omero_ext.argparse import FileType
 
 from omero.cli import BaseControl
@@ -240,9 +242,44 @@ class HelpControl(BaseControl):
         elif args.topic:
             self.print_single_command_or_topic(args)
 
+
+class ErrorsControl(BaseControl):
+
+    def _configure(self, parser):
+        parser.set_defaults(func=self.__call__)
+        parser.add_argument("--length", default=50, type=int,
+                            help="Length of message to print")
+        parser.add_argument("plugins", nargs="*", default=(),
+                            help="Limit to these plugins; otherwise all")
+
+    def __call__(self, args):
+        arranged = defaultdict(lambda: defaultdict(
+            lambda: defaultdict(list)))
+        for name, control in self.ctx.controls.items():
+            if not args.plugins or name in args.plugins:
+                combined = []
+                if hasattr(control, "get_errors"):
+                    combined.extend(control.get_errors().items())
+                    combined.sort(lambda a, b: cmp(a[1].rcode, b[1].rcode))
+                    for key, err in combined:
+                        arranged[err.rcode][name][key].append(err)
+
+        for rcode, names in sorted(arranged.items()):
+            for name, keys in sorted(names.items()):
+                for key, errors in sorted(keys.items()):
+                    for err in errors:
+                        msg = err.msg
+                        if len(msg) > (args.length+1):
+                            msg = msg[:args.length] + "..."
+                        msg = msg.replace("\n", " ")
+                        msg = msg.strip()
+                        t = (err.rcode, name, key, msg)
+                        self.ctx.out("%5d\t%10s\t%10s\t'%s'" % t)
+
 controls = {
     "help": (HelpControl, "Syntax help for all commands"),
     "quit": (QuitControl, "Quit application"),
+    "errors": (ErrorsControl, "Display all plugin error codes"),
     "shell": (ShellControl, """Starts an IPython interpreter session
 
 All arguments not understood vi %(prog)s will be passed to the shell.

@@ -34,6 +34,7 @@ class ServerControl(BaseControl):
         parser.add(sub, self.indexer, help="Start OMERO.indexer")
         # web = parser.add(sub, self.web, help = "Start OMERO.web")
         # web.add_argument("arg", nargs="*")
+        self.add_error("NO_CONFIG", 201, "No --Ice.Config provided")
 
     def _prop(self, data, key):
         return data.properties.getProperty("omero."+key)
@@ -43,7 +44,7 @@ class ServerControl(BaseControl):
         try:
             args["--Ice.Config"]
         except KeyError:
-            self.ctx.die(201, "No --Ice.Config provided")
+            self.raise_error("NO_CONFIG")
         pre = []
         post = []
         for arg in args.args:

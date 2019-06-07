@@ -103,6 +103,34 @@ class AdminControl(DiagnosticsControl,
     def _configure(self, parser):
         sub = parser.sub()
         self._add_diagnostics(parser, sub)
+        self.add_error(
+            "NOT_WINDOWS", 123,
+            "Not Windows")
+        self.add_error(
+            "SETUP", 200,
+            "Error during service user set up:  (%s) %s")
+        self.add_error(
+            "RUNNING", 201,
+            "%s is already running. Use stop first")
+        self.add_error(
+            "NO_SERVICE", 202,
+            "%s service deleted.")
+        self.add_error(
+            "BAD_CONFIG", 300,
+            "Bad configuration: No IceGrid.Node.Data property")
+        self.add_error(
+            "WIN_CONFIG", 400, """
+
+            %s is not in this directory. Aborting...
+
+            Please see the installation instructions on modifying
+            the files for your installation (%s)
+            with bin\winconfig.bat
+
+            """)
+        self.add_error(
+            "NO_WIN32", 666,
+            "Could not import win32service and/or win32evtlogutil")
         self.actions = {}
 
         class Action(object):
@@ -553,8 +581,7 @@ present, the user will enter a console""")
                             policy_handle, sid_obj, ('SeServiceLogonRight',))
                         win32security.LsaClose(policy_handle)
                     except pywintypes.error, details:
-                        self.ctx.die(200, "Error during service user set up:"
-                                     " (%s) %s" % (details[0], details[2]))
+                        self.raise_error("SETUP", details[0], details[2])
                     if not pasw:
                         try:
                             pasw = config.as_map()["omero.windows.pass"]
@@ -583,8 +610,7 @@ present, the user will enter a console""")
 
             # Then check if the server is already running
             if 0 <= output.find("RUNNING"):
-                self.ctx.die(201, "%s is already running. Use stop first"
-                                  % svc_name)
+                self.raise_error("RUNNING", svc_name)
 
             # Finally, try to start the service - delete if startup fails
             hscm = win32service.OpenSCManager(
@@ -599,7 +625,7 @@ present, the user will enter a console""")
                     self.ctx.out("%s service startup failed: (%s) %s"
                                  % (svc_name, details[0], details[2]))
                     win32service.DeleteService(hs)
-                    self.ctx.die(202, "%s service deleted." % svc_name)
+                    self.raise_error("NO_SERVICE", svc_name)
             finally:
                 win32service.CloseServiceHandle(hs)
                 win32service.CloseServiceHandle(hscm)
@@ -617,20 +643,17 @@ present, the user will enter a console""")
     else:
 
         def events(self, svc_name):
-            self.ctx.die(
-                666, "Could not import win32service and/or win32evtlogutil")
+            self.raise_error("NO_WIN32")
 
         def _query_service(self, svc_name):
-            self.ctx.die(
-                666, "Could not import win32service and/or win32evtlogutil")
+            self.raise_error("NO_WIN32")
 
         def _start_service(self, config, descript, svc_name, pasw, user):
-            self.ctx.die(
-                666, "Could not import win32service and/or win32evtlogutil")
+            self.raise_error("NO_WIN32")
 
         def _stop_service(self, svc_name):
-            self.ctx.die(
-                666, "Could not import win32service and/or win32evtlogutil")
+            self.raise_error("NO_WIN32")
+
     #
     # End Windows Methods
     #
@@ -695,15 +718,14 @@ present, the user will enter a console""")
         """
         self.check_access(os.R_OK)
         if not self._isWindows():
-            self.ctx.die(123, "Not Windows")
+            self.raise_error("NOT_WINDOWS")
 
         import Ice
         key = "IceGrid.Node.Data"
         properties = Ice.createProperties([self._icecfg()])
         nodedata = properties.getProperty(key)
         if not nodedata:
-            self.ctx.die(300,
-                         "Bad configuration: No IceGrid.Node.Data property")
+            self.raise_error("BAD_CONFIG")
         nodepath = path(nodedata)
         pp = nodepath.parpath(self.ctx.dir)
         if pp:
@@ -715,15 +737,7 @@ present, the user will enter a console""")
             count = win_set_path(dir=self.ctx.dir)
             if count:
                 return
-        self.ctx.die(400, """
-
-            %s is not in this directory. Aborting...
-
-            Please see the installation instructions on modifying
-            the files for your installation (%s)
-            with bin\winconfig.bat
-
-            """ % (nodedata, self.ctx.dir))
+        self.raise_error("WIN_CONFIG", nodedata, self.ctx.dir)
 
     ##############################################
     #

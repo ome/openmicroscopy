@@ -43,13 +43,19 @@ class HqlControl(BaseControl):
         parser.add_limit_arguments()
         parser.add_style_argument()
         parser.add_login_arguments()
+        self.add_error("NO_QUIET", 67,
+                       "Can't ask for query with --quiet option")
+        self.add_error("NOT_ADMIN", 53,
+                       ("SecurityViolation: Current user is not an"
+                        " admin and cannot use '--admin'"))
+        self.add_error("BAD_QUERY", 52, "Bad query: %s")
 
     def __call__(self, args):
         if args.query:
             self.hql(args)
         else:
             if self.ctx.isquiet:
-                self.ctx.die(67, "Can't ask for query with --quiet option")
+                self.raise_error("NO_QUIET")
             while True:
                 args.query = self.ctx.input("Enter query:")
                 if not args.query:
@@ -246,13 +252,12 @@ To quit, enter 'q' or just enter.
             return rv
         except omero.SecurityViolation, sv:
             if "omero.group" in ice_map:
-                self.ctx.die(53, "SecurityViolation: Current user is not an"
-                                 " admin and cannot use '--admin'")
+                self.raise_error("NOT_ADMIN")
             else:
                 self.ctx.die(54, "SecurityViolation: %s" % sv)
         except omero.QueryException, qe:
             self.ctx.set("last.hql.rv", [])
-            self.ctx.die(52, "Bad query: %s" % qe.message)
+            self.raise_error("BAD_QUERY", qe.message)
 
 try:
     register("hql", HqlControl, HELP)
