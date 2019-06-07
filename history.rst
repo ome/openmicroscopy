@@ -5,8 +5,8 @@
 OMERO version history
 =====================
 
-5.5.0 (June 2019)
------------------
+5.5.0-rc3 (June 2019)
+---------------------
 
 This version **does not** require a database upgrade.
 
