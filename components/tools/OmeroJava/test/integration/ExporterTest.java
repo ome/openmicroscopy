@@ -213,7 +213,7 @@ public class ExporterTest extends AbstractServerTest {
         }
         File f = File.createTempFile(
                 RandomStringUtils.random(100, false, true), "."+ OME_XML);
-        Files.copy(inputXML.toPath(), Paths.get(f.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(inputXML.toPath(), f.toPath(), StandardCopyOption.REPLACE_EXISTING);
         return f;
     }
 
@@ -987,12 +987,12 @@ public class ExporterTest extends AbstractServerTest {
             TiffParser parser = new TiffParser(path);
             inputXML = File.createTempFile(RandomStringUtils.random(100, false,
                     true),"." + OME_XML);
-            Files.write(Paths.get(inputXML.getAbsolutePath()), parser.getComment().getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+            Files.write(inputXML.toPath(), parser.getComment().getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
 
             //transform XML
             transformed = applyTransforms(inputXML, target.getTransforms());
             validate(transformed);
-            String comment = new String(Files.readAllBytes(Paths.get(transformed.getAbsolutePath())));
+            String comment = new String(Files.readAllBytes(transformed.toPath()));
 
             tiffOutput = new RandomAccessOutputStream(path);
             TiffSaver saver = new TiffSaver(tiffOutput, path);

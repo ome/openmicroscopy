@@ -2633,7 +2633,7 @@ public class LightAdminRolesTest extends RolesTests {
         testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         File file = new File(testScriptName);
         file.deleteOnExit();
-        Files.write(Paths.get(file.getAbsolutePath()), getPythonScript().getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+        Files.write(file.toPath(), getPythonScript().getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
         final OriginalFile scriptFile = (OriginalFile) iQuery.get("OriginalFile", scriptId);
         client.upload(file, scriptFile);
     }
@@ -2661,7 +2661,7 @@ public class LightAdminRolesTest extends RolesTests {
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         File file = new File(testScriptName);
         file.deleteOnExit();
-        Files.write(Paths.get(file.getAbsolutePath()), "test".getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+        Files.write(file.toPath(), "test".getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
         client.upload(file, of);
     }
 
