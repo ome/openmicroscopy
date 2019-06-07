@@ -10,7 +10,7 @@ OMERO version history
 
 This version **does not** require a database upgrade.
 
-For more information about the aim of the 5.5 series and future plan, please read our [blog post](http://blog.openmicroscopy.org/)
+For more information about the aim of the 5.5 series and future plan, please read our [blog post](https://blog.openmicroscopy.org/)
 
 This release focuses on dropping support for Java 7, Python 2.6 and Ice 3.5,
 adding support for Java 11 and PostgreSQL 10, and on decoupling the Java components to new,
