@@ -62,6 +62,8 @@ and contains some useful CLI improvements.
   - Clearly indicate empty log files when running a diagnostic
   - Fix bug when running `config load` passing a directory instead of a file
   - Add option to delete keys from map annotations
+  - Add error code discovery
+  - Deprecate the CLI upload module and plugin
 
 5.4.10 (January 2019)
 ---------------------
