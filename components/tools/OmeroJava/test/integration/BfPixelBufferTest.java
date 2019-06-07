@@ -30,8 +30,6 @@ public class BfPixelBufferTest extends AbstractServerTest {
 
     private RawPixelsStorePrx rps;
 
-    private File destPath;
-
     private String destFileName;
 
     private void setUpTestFile(String fileName) throws Throwable,
@@ -54,7 +52,6 @@ public class BfPixelBufferTest extends AbstractServerTest {
     }
 
     private void tidyUp() throws Throwable {
-        destPath.deleteOnExit();
         rps.close();
     }
 
