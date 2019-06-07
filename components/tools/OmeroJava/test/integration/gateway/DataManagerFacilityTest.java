@@ -39,6 +39,7 @@ import java.util.UUID;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import omero.LockTimeout;
 import omero.RLong;
@@ -353,6 +354,178 @@ public class DataManagerFacilityTest extends GatewayTest {
             }
         }
     }
+    
+    @Test
+    /**
+     * Test the move method by moving annotations from one dataset, project,
+     * etc. to another.
+     * 
+     * @throws Exception
+     */
+    public void testMoveAnnotation() throws Exception {
+        List<DataObject> sources = new ArrayList<DataObject>();
+        DatasetData ds = new DatasetData();
+        ds.setName(UUID.randomUUID().toString());
+        sources.add(datamanagerFacility.saveAndReturnObject(rootCtx, ds));
+        ProjectData proj = new ProjectData();
+        proj.setName(UUID.randomUUID().toString());
+        sources.add(datamanagerFacility.saveAndReturnObject(rootCtx, proj));
+        ScreenData s = new ScreenData();
+        s.setName(UUID.randomUUID().toString());
+        sources.add(datamanagerFacility.saveAndReturnObject(rootCtx, s));
+        PlateData p = new PlateData();
+        p.setName(UUID.randomUUID().toString());
+        sources.add(datamanagerFacility.saveAndReturnObject(rootCtx, p));
+        long imgId = createImage(rootCtx);
+        List<Long> ids = new ArrayList<Long>(1);
+        ids.add(imgId);
+        sources.add(browseFacility.getImages(rootCtx, ids).iterator().next());
+
+        List<DataObject> targets = new ArrayList<DataObject>();
+        ds = new DatasetData();
+        ds.setName(UUID.randomUUID().toString());
+        targets.add(datamanagerFacility.saveAndReturnObject(rootCtx, ds));
+        proj = new ProjectData();
+        proj.setName(UUID.randomUUID().toString());
+        targets.add(datamanagerFacility.saveAndReturnObject(rootCtx, proj));
+        s = new ScreenData();
+        s.setName(UUID.randomUUID().toString());
+        targets.add(datamanagerFacility.saveAndReturnObject(rootCtx, s));
+        p = new PlateData();
+        p.setName(UUID.randomUUID().toString());
+        targets.add(datamanagerFacility.saveAndReturnObject(rootCtx, p));
+        imgId = createImage(rootCtx);
+        ids = new ArrayList<Long>(1);
+        ids.add(imgId);
+        targets.add(browseFacility.getImages(rootCtx, ids).iterator().next());
+
+        Collection<AnnotationData> annos = new ArrayList<AnnotationData>();
+        annos.add(new BooleanAnnotationData(true));
+        annos.add(new DoubleAnnotationData(5d));
+        annos.add(new LongAnnotationData(1));
+        annos.add(new MapAnnotationData());
+        annos.add(new RatingAnnotationData(3));
+        annos.add(new TagAnnotationData("test"));
+        annos.add(new TermAnnotationData("test2"));
+        annos.add(new TextualAnnotationData("test3"));
+        annos.add(new XMLAnnotationData("<test4/>"));
+
+        for (int i = 0; i < sources.size(); i++) {
+            DataObject src = sources.get(i);
+            DataObject tar = targets.get(i);
+            List<AnnotationData> attached = new ArrayList<AnnotationData>();
+            annos.forEach(anno -> {
+                try {
+                    attached.add(datamanagerFacility.attachAnnotation(rootCtx, anno, src));
+                } catch (DSOutOfServiceException | DSAccessException e) {
+                    Assert.fail("Couldn't attach annotations.");
+                }
+            });
+            
+            datamanagerFacility.move(rootCtx, attached, src, tar);
+
+            // check all annotations are attached to tar
+            List<AnnotationData> loaded = metadataFacility.getAnnotations(rootCtx, tar);
+            Assert.assertEquals(attached.size(), loaded.size());
+            Set<Long> check = attached.stream().map(a -> a.getId()).collect(Collectors.toSet());
+            loaded.forEach(a -> Assert.assertTrue(check.contains(a.getId())));
+
+            // check none of the annotations are still attached to src
+            loaded = metadataFacility.getAnnotations(rootCtx, src);
+            Assert.assertEquals(loaded.size(), 0);
+
+            List<IObject> del = attached.stream().map(obj -> obj.asIObject()).collect(Collectors.toList());
+            datamanagerFacility.delete(rootCtx, del);
+        }
+    }
+
+    @Test
+    /**
+     * Test the move method by moving images from one dataset to another
+     * 
+     * @throws Exception
+     */
+    public void testMoveImage() throws Exception {
+        DatasetData ds1 = new DatasetData();
+        ds1.setName(UUID.randomUUID().toString());
+        ds1 = (DatasetData) datamanagerFacility.saveAndReturnObject(rootCtx,
+                ds1);
+
+        DatasetData ds2 = new DatasetData();
+        ds2.setName(UUID.randomUUID().toString());
+        ds2 = (DatasetData) datamanagerFacility.saveAndReturnObject(rootCtx,
+                ds2);
+
+        long imgId = createImage(rootCtx);
+        ImageData img = browseFacility.getImage(rootCtx, imgId);
+        long imgId2 = createImage(rootCtx);
+        ImageData img2 = browseFacility.getImage(rootCtx, imgId2);
+
+        datamanagerFacility.addImagesToDataset(rootCtx,
+                Arrays.asList(img, img2), ds1);
+
+        ds1 = browseFacility
+                .getDatasets(rootCtx, Collections.singleton(ds1.getId()))
+                .iterator().next();
+
+        Assert.assertEquals(ds1.getImages().size(), 2);
+
+        datamanagerFacility.move(rootCtx, Arrays.asList(img, img2), ds1, ds2);
+
+        ds1 = browseFacility
+                .getDatasets(rootCtx, Collections.singleton(ds1.getId()))
+                .iterator().next();
+        ds2 = browseFacility
+                .getDatasets(rootCtx, Collections.singleton(ds2.getId()))
+                .iterator().next();
+        Assert.assertTrue(ds1.getImages().isEmpty());
+        Assert.assertEquals(ds2.getImages().size(), 2);
+    }
+
+    @Test
+    /**
+     * Test the move method by moving datasets from one project to another
+     * 
+     * @throws Exception
+     */
+    public void testMoveContainer() throws Exception {
+        ProjectData proj1 = new ProjectData();
+        proj1.setName(UUID.randomUUID().toString());
+        proj1 = (ProjectData) datamanagerFacility.saveAndReturnObject(rootCtx,
+                proj1);
+
+        DatasetData ds = new DatasetData();
+        ds.setName(UUID.randomUUID().toString());
+        ds = datamanagerFacility.createDataset(rootCtx, ds, proj1);
+        proj1 = browseFacility.getProjects(rootCtx, Collections.singleton(proj1.getId())).iterator().next();
+
+        DatasetData ds2 = new DatasetData();
+        ds2.setName(UUID.randomUUID().toString());
+        ds2 = datamanagerFacility.createDataset(rootCtx, ds2, proj1);
+
+        proj1 = browseFacility.getProjects(rootCtx, Collections.singleton(proj1.getId())).iterator().next();
+        Assert.assertEquals(proj1.getDatasets().size(), 2);
+
+        ProjectData proj2 = new ProjectData();
+        proj2.setName(UUID.randomUUID().toString());
+        proj2 = (ProjectData) datamanagerFacility.saveAndReturnObject(rootCtx,
+                proj2);
+
+        datamanagerFacility.move(rootCtx, Arrays.asList(ds, ds2), proj1, proj2);
+
+        proj1 = browseFacility
+                .getProjects(rootCtx, Collections.singleton(proj1.getId()))
+                .iterator().next();
+        proj2 = browseFacility
+                .getProjects(rootCtx, Collections.singleton(proj2.getId()))
+                .iterator().next();
+        Set<DatasetData> dsLoaded = proj2.getDatasets();
+        Assert.assertEquals(dsLoaded.size(), 2);
+        for (DatasetData d : dsLoaded)
+            Assert.assertTrue(d.getId() == ds.getId() || d.getId() == ds2.getId());
+        Assert.assertTrue(proj1.getDatasets().isEmpty());
+    }
+    
     
     @Test
     public void testCreateDataset() throws DSOutOfServiceException, DSAccessException {
