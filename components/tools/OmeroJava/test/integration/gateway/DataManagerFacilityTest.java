@@ -578,6 +578,21 @@ public class DataManagerFacilityTest extends GatewayTest {
                 break;
             }
         Assert.assertTrue(found, "Project and Dataset not successfully linked!");
+
+        proj = new ProjectData();
+        proj.setName(UUID.randomUUID().toString());
+        proj = (ProjectData)datamanagerFacility.saveAndReturnObject(rootCtx, proj);
+        // add one dataset
+        ds = new DatasetData();
+        ds.setName(UUID.randomUUID().toString());
+        datamanagerFacility.createDataset(rootCtx, ds, proj);
+        // do not reload and add another one
+        ds = new DatasetData();
+        ds.setName(UUID.randomUUID().toString());
+        datamanagerFacility.createDataset(rootCtx, ds, proj);
+        // check that the project contains the two datasets
+        proj = browseFacility.getProjects(rootCtx, Arrays.asList(new Long[]{proj.getId()})).iterator().next();
+        Assert.assertEquals(2, proj.getDatasets().size());
     }
     
     private long createImage(SecurityContext ctx) throws Exception {
