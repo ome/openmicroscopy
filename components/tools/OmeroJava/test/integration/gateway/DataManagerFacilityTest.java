@@ -515,8 +515,8 @@ public class DataManagerFacilityTest extends GatewayTest {
         DatasetData ds2 = new DatasetData();
         ds2.setName(UUID.randomUUID().toString());
         ds2 = datamanagerFacility.createDataset(rootCtx, ds2, proj);
-        Assert.assertEquals(rootCtx.getGroupID(), ds.getGroupId());
-        Assert.assertEquals(rootCtx.getGroupID(), ds2.getGroupId());
+        Assert.assertEquals(ds.getGroupId(), rootCtx.getGroupID());
+        Assert.assertEquals(ds2.getGroupId(), rootCtx.getGroupID());
         List<DatasetData> l = new ArrayList<>();
         l.add(ds);
         l.add(ds2);
@@ -594,7 +594,7 @@ public class DataManagerFacilityTest extends GatewayTest {
         datamanagerFacility.createDataset(rootCtx, ds, proj);
         // check that the project contains the two datasets
         proj = browseFacility.getProjects(rootCtx, Arrays.asList(new Long[]{proj.getId()})).iterator().next();
-        Assert.assertEquals(2, proj.getDatasets().size());
+        Assert.assertEquals(proj.getDatasets().size(), 2);
     }
     
     private long createImage(SecurityContext ctx) throws Exception {
