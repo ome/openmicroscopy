@@ -77,7 +77,7 @@ def send_feedback(request):
         except Exception, e:
             logger.error('handler500: Feedback could not be sent')
             logger.error(traceback.format_exc())
-            error = ("Feedback could not been sent. Please contact"
+            error = ("Feedback could not be sent. Please contact"
                      " administrator. %s" % e)
             fileObj = open(
                 ("%s/error500-%s.html"
@@ -122,7 +122,7 @@ def send_comment(request):
             except:
                 logger.error('handler500: Feedback could not be sent')
                 logger.error(traceback.format_exc())
-                error = ("Feedback could not been sent."
+                error = ("Feedback could not be sent."
                          " Please contact administrator.")
             else:
                 return HttpResponseRedirect(reverse("fthanks"))
