@@ -49,6 +49,7 @@ import omero.cmd.CmdCallbackI;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.model.*;
 import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.PixelsType;
@@ -58,27 +59,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import omero.gateway.model.AnnotationData;
-import omero.gateway.model.BooleanAnnotationData;
-import omero.gateway.model.DataObject;
-import omero.gateway.model.DatasetData;
-import omero.gateway.model.DoubleAnnotationData;
-import omero.gateway.model.FileAnnotationData;
-import omero.gateway.model.FolderData;
-import omero.gateway.model.ImageData;
-import omero.gateway.model.LongAnnotationData;
-import omero.gateway.model.MapAnnotationData;
-import omero.gateway.model.PlateData;
-import omero.gateway.model.ProjectData;
-import omero.gateway.model.ROIData;
-import omero.gateway.model.RatingAnnotationData;
-import omero.gateway.model.RectangleData;
-import omero.gateway.model.ScreenData;
-import omero.gateway.model.TagAnnotationData;
-import omero.gateway.model.TermAnnotationData;
-import omero.gateway.model.TextualAnnotationData;
-import omero.gateway.model.XMLAnnotationData;
 
 /**
  *
@@ -525,7 +505,29 @@ public class DataManagerFacilityTest extends GatewayTest {
             Assert.assertTrue(d.getId() == ds.getId() || d.getId() == ds2.getId());
         Assert.assertTrue(proj1.getDatasets().isEmpty());
     }
-    
+
+    @Test
+    public void testChangeGroup() throws DSOutOfServiceException, DSAccessException {
+        GroupData group = createGroup();
+        DatasetData ds = new DatasetData();
+        ds.setName(UUID.randomUUID().toString());
+        ds = datamanagerFacility.createDataset(rootCtx, ds, proj);
+        DatasetData ds2 = new DatasetData();
+        ds2.setName(UUID.randomUUID().toString());
+        ds2 = datamanagerFacility.createDataset(rootCtx, ds2, proj);
+        Assert.assertEquals(rootCtx.getGroupID(), ds.getGroupId());
+        Assert.assertEquals(rootCtx.getGroupID(), ds2.getGroupId());
+        List<DatasetData> l = new ArrayList<>();
+        l.add(ds);
+        l.add(ds2);
+        datamanagerFacility.changeGroup(rootCtx, l, group.getId());
+        SecurityContext ctx2 = new SecurityContext(group.getId());
+        Collection<Long> ids = l.stream().map(d -> d.getId()).collect(Collectors.toList());
+        Collection<DatasetData> res = browseFacility.getDatasets(ctx2, ids);
+        Assert.assertEquals(res.size(), 2);
+        for (DatasetData d : res)
+            Assert.assertEquals(group.getId(), d.getGroupId());
+    }
     
     @Test
     public void testCreateDataset() throws DSOutOfServiceException, DSAccessException {
