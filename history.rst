@@ -5,8 +5,8 @@
 OMERO version history
 =====================
 
-5.5.0-rc3 (June 2019)
----------------------
+5.5.0 (June 2019)
+-----------------
 
 This version **does not** require a database upgrade.
 
@@ -55,7 +55,7 @@ and contains some useful CLI improvements.
   - Do not break display of Tag dialog when large font size is configured in browser
   - Disable refresh button while existing refresh in progress
   - Improve public user support
-  - Add ability to customise incorrect login text
+  - Add ability to customize incorrect login text
 
 - cli:
   - Disable foreground indexing
