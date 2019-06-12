@@ -1658,7 +1658,7 @@ present, the user will enter a console""")
         vers = popen.communicate()[1]
         _check("icegridnode version", vers)
 
-    def open_config(self, unused):
+    def open_config(self, unused=None):
         """
         Callers are responsible for closing the
         returned ConfigXml object.
