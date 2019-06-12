@@ -10,11 +10,11 @@ OMERO version history
 
 This version **does not** require a database upgrade.
 
-For more information about the aim of the 5.5 series and future plan, please read our [blog post](https://blog.openmicroscopy.org/)
+For more information about the aim of the 5.5 series and future plan, please read our `blog post <https://blog.openmicroscopy.org/>`_.
 
 This release focuses on dropping support for Java 7, Python 2.6 and Ice 3.5,
 adding support for Java 11 and PostgreSQL 10, and on decoupling the Java components to new,
-separate repositories, each with a new [Gradle](https://gradle.org) build system:
+separate repositories, each with a new `Gradle <https://gradle.org>`_ build system:
 
 - https://github.com/ome/omero-dsl-plugin
 - https://github.com/ome/omero-model
@@ -31,6 +31,7 @@ separate repositories, each with a new [Gradle](https://gradle.org) build system
 - https://github.com/ome/omero-api-plugin
 
 This has the goal of enabling more fine-grained releases.
+
 A new restriction is that the names of server configuration properties
 may include only letters, numbers and the symbols ".", "_", "-".
 
@@ -42,29 +43,29 @@ Additionally, this release improves the Web interface when OMERO is opened to th
 and contains some useful CLI improvements.
 
 - build:
-  - Remove the generation of Ivy dependencies.html files
+   - Remove the generation of Ivy dependencies.html files
 
 - web:
-  - Introduce Advanced Search to allow and/or search options
-  - Fix description in new Project, Dataset etc.
-  - Allow user to create new Map Annotations for multiple selected objects at once
-  - Fix date display
-  - Remove / from 3rdparty in ome.viewportImage.js
-  - Remove usage of deprecated calls
-  - Remove apache config
-  - Do not break display of Tag dialog when large font size is configured in browser
-  - Disable refresh button while existing refresh in progress
-  - Improve public user support
-  - Add ability to customize incorrect login text
+   - Introduce Advanced Search to allow and/or search options
+   - Fix description in new Project, Dataset etc.
+   - Allow user to create new Map Annotations for multiple selected objects at once
+   - Fix date display
+   - Remove / from 3rdparty in ome.viewportImage.js
+   - Remove usage of deprecated calls
+   - Remove apache config
+   - Do not break display of Tag dialog when large font size is configured in browser
+   - Disable refresh button while existing refresh in progress
+   - Improve public user support
+   - Add ability to customize incorrect login text
 
 - cli:
-  - Disable foreground indexing
-  - Improve logging of error when importing data via cli command
-  - Clearly indicate empty log files when running a diagnostic
-  - Fix bug when running `config load` passing a directory instead of a file
-  - Add option to delete keys from map annotations
-  - Add error code discovery
-  - Deprecate the CLI upload module and plugin
+   - Disable foreground indexing
+   - Improve logging of error when importing data via cli command
+   - Clearly indicate empty log files when running a diagnostic
+   - Fix bug when running `config load` passing a directory instead of a file
+   - Add option to delete keys from map annotations
+   - Add error code discovery
+   - Deprecate the CLI upload module and plugin
 
 5.4.10 (January 2019)
 ---------------------
