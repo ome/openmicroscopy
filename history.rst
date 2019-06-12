@@ -31,6 +31,7 @@ separate repositories, each with a new `Gradle <https://gradle.org>`_ build syst
 - https://github.com/ome/omero-api-plugin
 
 This has the goal of enabling more fine-grained releases.
+
 A new restriction is that the names of server configuration properties
 may include only letters, numbers and the symbols ".", "_", "-".
 
