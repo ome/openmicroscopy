@@ -45,13 +45,12 @@ from collections import defaultdict
 
 from omero.cmd import DoAll, State, ERR, OK, Chmod2, Chgrp2, Delete2
 from omero.callbacks import CmdCallbackI
-from omero.model import DatasetI, DatasetImageLinkI, ImageI, ProjectI
+from omero.model import DatasetI, ImageI, ProjectI
 from omero.model import Annotation, FileAnnotationI, TagAnnotationI
 from omero.model import OriginalFileI
 from omero.model import DimensionOrderI, PixelsI, PixelsTypeI
 from omero.model import Experimenter, ExperimenterI
 from omero.model import ExperimenterGroup, ExperimenterGroupI
-from omero.model import ProjectDatasetLinkI, ImageAnnotationLinkI
 from omero.model import PermissionsI
 from omero.model import ChecksumAlgorithmI
 from omero.model import NamedValue
@@ -1207,6 +1206,7 @@ class ProjectionFixture(object):
             else:
                 name += "member"
         return name
+
 
 PF = ProjectionFixture
 PFS = (
