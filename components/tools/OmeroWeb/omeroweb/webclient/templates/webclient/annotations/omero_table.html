@@ -1,0 +1,27 @@
+
+<html>
+    <head>
+        <style>
+            td {
+                border: solid #ddd 1px;
+            }
+        </style>
+    </head>
+    <body>
+
+    <table>
+        <tr>
+        {% for col in columns %}
+            <th>{{ col }}</th>
+        {% endfor %}
+        </tr>
+
+        {% for row in rows %}
+        <tr>
+            {% for col in row %}
+                <td>{{ col }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </body>
+</html>

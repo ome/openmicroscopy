@@ -2937,6 +2937,40 @@ def get_original_file(request, fileId, download=False, conn=None, **kwargs):
     return rsp
 
 
+@login_required()
+@render_response()
+def omero_table(request, file_id, mtype, download=False, conn=None, **kwargs):
+    # e.g. mtype = csv or json
+
+    r = conn.getSharedResources()
+    t = r.openTable(omero.model.OriginalFileI(file_id), conn.SERVICE_OPTS)
+    if not t:
+        raise Http404('table not found')
+
+    cols = t.getHeaders()
+    rows = t.getNumberOfRows()
+
+    hits = range(rows)
+    
+    col_names = [col.name for col in cols]
+    rows = []
+    for hit in hits:
+        row = [col.values[0] for col in t.read(range(len(cols)), hit, hit+1).columns]
+        rows.append(row)
+
+    context = {
+        'columns': col_names,
+        'rows': rows,
+    }
+    print 'mtype', mtype
+    if mtype == 'html':
+        context['template'] = 'webclient/annotations/omero_table.html'
+    elif mtype == 'csv':
+        context['template'] = 'webclient/annotations/omero_table.csv'
+
+    return context
+
+
 @login_required(doConnectionCleanup=False)
 def download_annotation(request, annId, conn=None, **kwargs):
     """ Returns the file annotation as an http response for download """
