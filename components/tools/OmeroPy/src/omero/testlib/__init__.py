@@ -1031,12 +1031,10 @@ class ITest(object):
     def link(self, obj1, obj2, client=None):
         """
         Links two linkable model entities together by creating an instance of
-        the correct link entity (e.g. ProjectDatasetLinkI) and persisting it
+        the correct link entity (e.g. ProjectDatasetLinkI,
+        ScreenAnnotationLinkI etc) and persisting it
         in the DB. Accepts client instance to allow calls to happen in correct
-        user contexts. Currently support links are:
-          * project/dataset
-          * dataset/image
-          * image/annotation
+        user contexts.
 
         :param obj1: parent object
         :param obj2: child object
@@ -1044,17 +1042,18 @@ class ITest(object):
         """
         if client is None:
             client = self.client
-        if isinstance(obj1, ProjectI):
-            if isinstance(obj2, DatasetI):
-                link = ProjectDatasetLinkI()
-        elif isinstance(obj1, DatasetI):
-            if isinstance(obj2, ImageI):
-                link = DatasetImageLinkI()
-        elif isinstance(obj1, ImageI):
-            if isinstance(obj2, Annotation):
-                link = ImageAnnotationLinkI()
+
+        otype1 = obj1.ice_staticId().split("::")[-1]
+        if isinstance(obj2, Annotation):
+            otype2 = "Annotation"
         else:
+            otype2 = obj2.ice_staticId().split("::")[-1]
+        try:
+            linktype = getattr(omero.model, "%s%sLinkI" % (otype1, otype2))
+        except AttributeError:
             assert False, "Object type not supported."
+
+        link = linktype()
 
         """check if object exist or not"""
         if obj1.id is None:
