@@ -2958,11 +2958,26 @@ def omero_table(request, file_id, mtype=None, download=False, conn=None, **kwarg
     context = {
         'columns': table_data.get('columns'),
         'rows': table_data.get('rows'),
+        'name': orig_file.name.val,
+        'path': orig_file.path.val,
+        'id': file_id,
     }
-    print 'mtype', mtype
 
+    # by default, return context as JSON data
+    # OR, return as csv or html
     if mtype == 'csv':
         context['template'] = 'webclient/annotations/omero_table.csv'
+        csv_rows = [",".join(table_data.get('columns'))]
+        for row in table_data.get('rows'):
+            csv_rows.append(",".join([str(r).replace(',','.') for r in row]))
+        csv_data = '\n'.join(csv_rows)
+        rsp = HttpResponse(csv_data, content_type='text/csv')
+        rsp['Content-Type'] = 'application/force-download'
+        rsp['Content-Length'] = len(csv_data)
+        downloadName = orig_file.name.val.replace(" ", "_").replace(",", ".")
+        downloadName = downloadName + ".csv"
+        rsp['Content-Disposition'] = 'attachment; filename=%s' % downloadName
+        return rsp
     elif mtype == None:
         context['template'] = 'webclient/annotations/omero_table.html'
 
