@@ -2765,7 +2765,7 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
 annotations = login_required()(jsonp(_annotations))
 
 
-def _table_query(request, fileid, conn=None, **kwargs):
+def _table_query(request, fileid, query=None, conn=None, **kwargs):
     """
     Query a table specified by fileid
     Returns a dictionary with query result if successful, error information
@@ -2784,7 +2784,8 @@ def _table_query(request, fileid, conn=None, **kwargs):
                         'columns' (an array of column names) and 'rows'
                         (an array of rows, each an array of values)
     """
-    query = request.GET.get('query')
+    if query is None:
+        query = request.GET.get('query')
     if not query:
         return dict(
             error='Must specify query parameter, use * to retrieve all')

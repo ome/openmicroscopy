@@ -246,7 +246,7 @@ urlpatterns = patterns(
     url(r'^get_original_file/(?:(?P<fileId>[0-9]+)/)?$',
         views.get_original_file,
         name="get_original_file"),  # for stderr, stdout etc
-    url(r'^omero_table/(?P<file_id>[0-9]+)/(?P<mtype>((?i)json|csv))/$',
+    url(r'^omero_table/(?P<file_id>[0-9]+)/(?:(?P<mtype>((?i)json|csv))/)?$',
         views.omero_table,
         name="omero_table"),
     url(r'^download_original_file/(?:(?P<fileId>[0-9]+)/)?$',
