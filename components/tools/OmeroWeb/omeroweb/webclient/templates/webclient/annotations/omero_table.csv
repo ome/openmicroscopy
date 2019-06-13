@@ -1,2 +1,0 @@
-{% for col in columns %}{{ col }},{% endfor %}
-{% for row in rows %}{% for col in row %}{{ col }},{% endfor %}\n{% endfor %}
