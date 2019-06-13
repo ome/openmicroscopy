@@ -2966,7 +2966,6 @@ def omero_table(request, file_id, mtype=None, download=False, conn=None, **kwarg
     # by default, return context as JSON data
     # OR, return as csv or html
     if mtype == 'csv':
-        context['template'] = 'webclient/annotations/omero_table.csv'
         csv_rows = [",".join(table_data.get('columns'))]
         for row in table_data.get('rows'):
             csv_rows.append(",".join([str(r).replace(',','.') for r in row]))
@@ -2980,6 +2979,9 @@ def omero_table(request, file_id, mtype=None, download=False, conn=None, **kwarg
         return rsp
     elif mtype == None:
         context['template'] = 'webclient/annotations/omero_table.html'
+    else:
+        # json: nest everything in 'data'
+        context = {'data': context}
 
     return context
 
