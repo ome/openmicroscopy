@@ -2942,6 +2942,12 @@ def get_original_file(request, fileId, download=False, conn=None, **kwargs):
 def omero_table(request, file_id, mtype=None, download=False, conn=None, **kwargs):
     # e.g. mtype = csv or json
 
+    # Check if file exists since _table_query() doesn't check
+    file_id = long(file_id)
+    orig_file = conn.getQueryService().find('OriginalFile', file_id)
+    if orig_file is None:
+        raise Http404("OriginalFile %s not found" % file_id);
+
     result = webgateway_views._table_query(request, file_id,
                                            query="*", conn=conn)
 
