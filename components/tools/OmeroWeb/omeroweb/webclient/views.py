@@ -2939,14 +2939,20 @@ def get_original_file(request, fileId, download=False, conn=None, **kwargs):
 
 @login_required()
 @render_response()
-def omero_table(request, file_id, mtype=None, download=False, conn=None, **kwargs):
-    # e.g. mtype = csv or json
+def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
+    """
+    Download OMERO.table as CSV or show as HTML table
+
+    @param file_id:     OriginalFile ID
+    @param mtype:       None for html table or 'csv' or 'json'
+    @param conn:        BlitzGateway connection
+    """
 
     # Check if file exists since _table_query() doesn't check
     file_id = long(file_id)
     orig_file = conn.getQueryService().find('OriginalFile', file_id)
     if orig_file is None:
-        raise Http404("OriginalFile %s not found" % file_id);
+        raise Http404("OriginalFile %s not found" % file_id)
 
     result = webgateway_views._table_query(request, file_id,
                                            query="*", conn=conn)
@@ -2968,7 +2974,7 @@ def omero_table(request, file_id, mtype=None, download=False, conn=None, **kwarg
     if mtype == 'csv':
         csv_rows = [",".join(table_data.get('columns'))]
         for row in table_data.get('rows'):
-            csv_rows.append(",".join([str(r).replace(',','.') for r in row]))
+            csv_rows.append(",".join([str(r).replace(',', '.') for r in row]))
         csv_data = '\n'.join(csv_rows)
         rsp = HttpResponse(csv_data, content_type='text/csv')
         rsp['Content-Type'] = 'application/force-download'
@@ -2977,7 +2983,7 @@ def omero_table(request, file_id, mtype=None, download=False, conn=None, **kwarg
         downloadName = downloadName + ".csv"
         rsp['Content-Disposition'] = 'attachment; filename=%s' % downloadName
         return rsp
-    elif mtype == None:
+    elif mtype is None:
         context['template'] = 'webclient/annotations/omero_table.html'
     else:
         # json: nest everything in 'data'

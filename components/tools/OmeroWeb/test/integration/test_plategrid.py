@@ -474,5 +474,6 @@ class TestScreenPlateTables(object):
         rsp = get(django_client, request_url)
         csv_data = rsp.content
         cols_csv = ','.join(cols)
-        rows_csv = '/n'.join([','.join([str(td) for td in row]) for row in rows])
+        rows_csv = '/n'.join([','.join(
+            [str(td) for td in row]) for row in rows])
         assert csv_data == '%s\n%s' % (cols_csv, rows_csv)
