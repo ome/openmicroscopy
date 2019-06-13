@@ -2,13 +2,27 @@
 <html>
     <head>
         <style>
+            h2, p {
+                text-align: center;
+            }
+            table {
+                border-collapse: collapse;
+                border-spacing: 0;
+            }
             td {
                 border: solid #ddd 1px;
+                padding: 5px;
             }
         </style>
     </head>
     <body>
 
+    <h2>Table: {{ name }}</h2>
+    <p>
+        <a href="{% url 'omero_table' id 'csv' %}">Download as CSV</a>
+        |
+        <a href="{% url 'omero_table' id 'json' %}">View as JSON</a>
+    </p>
     <table>
         <tr>
         {% for col in columns %}
