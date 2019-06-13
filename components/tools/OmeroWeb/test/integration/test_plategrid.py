@@ -10,7 +10,7 @@
 """
 
 import pytest
-from omeroweb.testlib import IWebTest
+from omeroweb.testlib import IWebTest, get, get_json
 
 from omero.model import PlateI, WellI, WellSampleI
 from omero.model import FileAnnotationI, OriginalFileI, PlateAnnotationLinkI
@@ -432,3 +432,47 @@ class TestScreenPlateTables(object):
         assert rspJson['addedBy'] == userName
         assert rspJson['owner'] == userName
         assert rspJson['parentType'] == "Plate"
+
+    def test_table_html(self, django_client, plate_well_table, conn):
+        """
+        Do a simple GET request to query the metadata for a single well
+        attached to the plate in JSON form
+        """
+        plate, wellIds = plate_well_table
+        wellId = wellIds[0]
+
+        request_url = reverse("webgateway_annotations",
+                              args=["Plate", plate.id.val])
+        rsp = get_json(django_client, request_url)
+        assert len(rsp['data']) == 1
+        file_id = rsp['data'][0]['file']
+
+        # expected table data
+        cols = ['Well', 'TestColumn']
+        rows = [[wellId, 'foobar']]
+
+        # GET json
+        request_url = reverse("omero_table", args=[file_id, 'json'])
+        rsp = get_json(django_client, request_url)
+        assert rsp['data']['rows'] == rows
+        assert rsp['data']['columns'] == cols
+        assert rsp['data']['name'].startswith('plate_well_table_test')
+        assert rsp['data']['id'] == file_id
+
+        # GET html
+        request_url = reverse("omero_table", args=[file_id])
+        rsp = get(django_client, request_url)
+        html = rsp.content
+        for col in cols:
+            assert ('<th>%s</th>' % col) in html
+        for row in rows:
+            for td in row:
+                assert ('<td>%s</td>' % td) in html
+
+        # GET csv
+        request_url = reverse("omero_table", args=[file_id, 'csv'])
+        rsp = get(django_client, request_url)
+        csv_data = rsp.content
+        cols_csv = ','.join(cols)
+        rows_csv = '/n'.join([','.join([str(td) for td in row]) for row in rows])
+        assert csv_data == '%s\n%s' % (cols_csv, rows_csv)
