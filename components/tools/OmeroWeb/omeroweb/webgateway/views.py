@@ -2765,7 +2765,7 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
 annotations = login_required()(jsonp(_annotations))
 
 
-def _table_query(request, fileid, query=None, conn=None, **kwargs):
+def _table_query(request, fileid, conn=None, query=None, **kwargs):
     """
     Query a table specified by fileid
     Returns a dictionary with query result if successful, error information
