@@ -2948,6 +2948,7 @@ def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
     @param conn:        BlitzGateway connection
     """
 
+    query = request.GET.get('query', '*')
     # Check if file exists since _table_query() doesn't check
     file_id = long(file_id)
     orig_file = conn.getQueryService().find('OriginalFile', file_id)
@@ -2955,7 +2956,7 @@ def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
         raise Http404("OriginalFile %s not found" % file_id)
 
     result = webgateway_views._table_query(request, file_id,
-                                           query="*", conn=conn)
+                                           conn=conn, query=query)
 
     if result.get('error') or not result.get('data'):
         return JsonResponse(result)
