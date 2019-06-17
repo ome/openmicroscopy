@@ -118,6 +118,79 @@ public class GatewayUsageTest extends AbstractServerTest
             Assert.fail("Gateway credentials login failed.", e1);
         }
     }
+
+    @Test
+    public void testPreserveSession() throws DSOutOfServiceException {
+        omero.client client = new omero.client();
+        String[] args = new String[4];
+        args[0] = "--omero.host=" + client.getProperty("omero.host");
+        args[1] = "--omero.port=" + client.getProperty("omero.port");
+        args[2] = "--omero.user=root";
+        args[3] = "--omero.pass=" + client.getProperty("omero.rootpass");
+        LoginCredentials c = new LoginCredentials(args);
+
+        String sessionId = "";
+        // create a session
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
+            gw.closeSessionOnExit(false); // do not close the session when disconnecting
+            ExperimenterData user = gw.connect(c);
+            sessionId = gw.getSessionId(user);
+            System.out.println(sessionId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // join session
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
+            JoinSessionCredentials c2= new JoinSessionCredentials(
+                    sessionId, client.getProperty("omero.host"),
+                    Integer.parseInt(client.getProperty("omero.port")));
+            gw.connect(c2);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // make sure the session is still active
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
+            JoinSessionCredentials c2= new JoinSessionCredentials(
+                    sessionId, client.getProperty("omero.host"),
+                    Integer.parseInt(client.getProperty("omero.port")));
+            gw.addPropertyChangeListener(new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+                    System.out.println(propertyChangeEvent);
+                }
+            });
+            gw.connect(c2);
+            gw.closeSessionOnExit(true); // force the session to be closed
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Thread.sleep(70000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // make sure the session was closed
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
+            JoinSessionCredentials c2= new JoinSessionCredentials(
+                    sessionId, client.getProperty("omero.host"),
+                    Integer.parseInt(client.getProperty("omero.port")));
+            gw.addPropertyChangeListener(new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+                    System.out.println(propertyChangeEvent);
+                }
+            });
+            ExperimenterData exp = gw.connect(c2);
+            System.out.println(gw.getSessionId(exp));
+            Assert.fail("The session should have been closed.");
+        } catch (Exception e) {
+            // expected to fail
+        }
+    }
     
     Boolean sessionActive = null;
 
