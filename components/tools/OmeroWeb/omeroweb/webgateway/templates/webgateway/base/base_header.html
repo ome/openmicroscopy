@@ -52,11 +52,13 @@
         {% block middle_header %}
         <div id="middle_header">
 
-            <a id="logo">
-                <img src="{% static "webgateway/img/logo2.png" %}"/>
-            </a>
+            <div id="middle_header_logo">
+				{% block middle_header_logo %}
+				    {% include "webclient/base/includes/logo.html" %}
+				{% endblock %}
+            </div>
 
-            
+
             <div id="middle_header_left">
 				{% block middle_header_left %}
 				    {% include "webclient/base/includes/menu.html" %}
