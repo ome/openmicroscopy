@@ -268,7 +268,7 @@ class TestSearch(ITest):
     def testFilename(self):
         client = self.new_client()
         uuid = self.simple_uuid()
-        images = self.import_fake_file(name=uuid, client=client)
+        images = self.import_fake_file(name=uuid + ';', client=client)
         image = images[0]
         self.index(image)
         search = client.sf.createSearchService()
@@ -288,11 +288,11 @@ class TestSearch(ITest):
         for x, m in (
                 (".fake", supported),
                 ("fake", supported),
-                ("%s*" % uuid, supported),
+                ("%s*" % uuid[:-1], supported),
+                (uuid, supported),
                 #
-                (uuid, unsupported),
                 ("*.fake", unsupported),
-                ("%s*.fake" % uuid, unsupported)):
+                ("%s*.fake" % uuid[:-1], unsupported)):
 
             m(x)
 
