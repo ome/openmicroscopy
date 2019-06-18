@@ -2954,8 +2954,7 @@ def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
 
     # Check if file exists since _table_query() doesn't check
     file_id = long(file_id)
-    orig_file = conn.getQueryService().find('OriginalFile', file_id,
-                                            conn.SERVICE_OPTS)
+    orig_file = conn.getObject('OriginalFile', file_id)
     if orig_file is None:
         raise Http404("OriginalFile %s not found" % file_id)
 
@@ -2966,8 +2965,8 @@ def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
     if context.get('error') or not context.get('data'):
         return JsonResponse(context)
 
-    context['data']['name'] = orig_file.name.val
-    context['data']['path'] = orig_file.path.val
+    context['data']['name'] = orig_file.name
+    context['data']['path'] = orig_file.path
     context['data']['id'] = file_id
     context['meta']['query'] = query
 
