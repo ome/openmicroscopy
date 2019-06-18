@@ -2825,6 +2825,7 @@ def _table_query(request, fileid, conn=None, query=None, **kwargs):
 
     return {
         'data': {
+            'column_types': [col.__class__.__name__ for col in cols],
             'columns': [col.name for col in cols],
             'rows': [[col.values[0] for col in t.read(range(len(cols)), hit,
                                                       hit+1).columns]
@@ -2837,6 +2838,7 @@ def _table_query(request, fileid, conn=None, query=None, **kwargs):
             'offset': offset,
         }
     }
+
 
 table_query = login_required()(jsonp(_table_query))
 
