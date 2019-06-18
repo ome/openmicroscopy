@@ -132,10 +132,10 @@ public class GatewayUsageTest extends AbstractServerTest
         String sessionId = "";
         // create a session
         try (Gateway gw = new Gateway(new SimpleLogger())) {
-            gw.closeSessionOnExit(false); // do not close the session when disconnecting
             ExperimenterData user = gw.connect(c);
+            gw.closeSessionOnExit(false); // do not close the session when disconnecting
             sessionId = gw.getSessionId(user);
-            System.out.println(sessionId);
+            Assert.assertNotNull(sessionId);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -146,6 +146,8 @@ public class GatewayUsageTest extends AbstractServerTest
                     sessionId, client.getProperty("omero.host"),
                     Integer.parseInt(client.getProperty("omero.port")));
             gw.connect(c2);
+            Assert.assertTrue(gw.isConnected());
+            // JoinSessionCredentials by default should not close the server session
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -155,21 +157,10 @@ public class GatewayUsageTest extends AbstractServerTest
             JoinSessionCredentials c2= new JoinSessionCredentials(
                     sessionId, client.getProperty("omero.host"),
                     Integer.parseInt(client.getProperty("omero.port")));
-            gw.addPropertyChangeListener(new PropertyChangeListener() {
-                @Override
-                public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-                    System.out.println(propertyChangeEvent);
-                }
-            });
             gw.connect(c2);
+            Assert.assertTrue(gw.isConnected());
             gw.closeSessionOnExit(true); // force the session to be closed
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try {
-            Thread.sleep(70000);
-        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
@@ -178,15 +169,8 @@ public class GatewayUsageTest extends AbstractServerTest
             JoinSessionCredentials c2= new JoinSessionCredentials(
                     sessionId, client.getProperty("omero.host"),
                     Integer.parseInt(client.getProperty("omero.port")));
-            gw.addPropertyChangeListener(new PropertyChangeListener() {
-                @Override
-                public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-                    System.out.println(propertyChangeEvent);
-                }
-            });
             ExperimenterData exp = gw.connect(c2);
-            System.out.println(gw.getSessionId(exp));
-            Assert.fail("The session should have been closed.");
+            Assert.fail("The session "+sessionId+" should have been closed.");
         } catch (Exception e) {
             // expected to fail
         }
