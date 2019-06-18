@@ -17,9 +17,14 @@
     </head>
     <body>
 
-    <h2>
-        <b>{{ data.name }}</b> &nbsp;
-    </h2>
+    <h2>{{ data.name }}</h2>
+    {% if query_eg %}
+        <p>
+            NB: query rows via URL query. E.g.
+            <a href="{{ url }}?query={{ query_eg }}">{{ query_eg }}</a>
+            or <a href="{{ url }}?query={{ eg2_url }}">{{ query_eg2 }}</a>
+        </p>
+    {% endif %}
     <p><a href="{% url 'omero_table' data.id 'csv' %}">Download table as CSV</a></p>
     <p>
         {% if meta.query == '*' %}

@@ -2974,12 +2974,15 @@ def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
     if offset == 0 or float(offset)/limit == offset/limit:
         context['meta']['page'] = (offset/limit) + 1 if offset > 0 else 1
 
+    # pagination links
     url = reverse('omero_table', args=[file_id])
+    context['meta']['url'] = url
     url += '?query=%s&limit=%s' % (query, limit)
     if (offset + limit) < context['meta']['rowCount']:
         context['meta']['next'] = url + '&offset=%s' % (offset + limit)
     if offset > 0:
         context['meta']['prev'] = url + '&offset=%s' % (max(0, offset - limit))
+
 
     # by default, return context as JSON data
     # OR, return as csv or html
@@ -2998,6 +3001,23 @@ def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
         return rsp
     elif mtype is None:
         context['template'] = 'webclient/annotations/omero_table.html'
+        # provide example queries - pick first DoubleColumn...
+        for idx, c_type in enumerate(context['data']['column_types']):
+            if c_type == 'DoubleColumn':
+                col_name = context['data']['columns'][idx]
+                if ' ' in col_name:
+                    # Don't support queries on columns with spaces
+                    continue
+                col_val1 = context['data']['rows'][0][idx]
+                col_val2 = context['data']['rows'][1][idx]
+                context['query_eg'] = '%s>%s' % (col_name,
+                                                 min(col_val1, col_val2))
+                greater = '(%s>=%s)' % (col_name, min(col_val1, col_val2))
+                lower = '(%s<%s)' % (col_name, max(col_val1, col_val2))
+                context['query_eg2'] = greater + '&' + lower
+                # Need to replace '&' for this to be valid query string
+                context['eg2_url'] = greater + '%26' + lower
+                break
 
     return context
 
