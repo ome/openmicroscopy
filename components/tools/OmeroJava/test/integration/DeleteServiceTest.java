@@ -109,7 +109,7 @@ import omero.model.Well;
 import omero.model.WellSample;
 import omero.sys.ParametersI;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;

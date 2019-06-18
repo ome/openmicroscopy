@@ -133,7 +133,7 @@ import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import omero.sys.Roles;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;

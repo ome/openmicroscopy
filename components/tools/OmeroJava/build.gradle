@@ -10,6 +10,7 @@ ext {
     // Load omero.properties
     Properties omeroProps = loadOmeroProperties()
     omeroCommonTestVersion = omeroProps.getProperty("versions.omero-common-test")
+    omeroBlitzVersion = omeroProps.getProperty("versions.omero-blitz")
     omeroGatewayVersion = omeroProps.getProperty("versions.omero-gateway")
 }
 
@@ -34,8 +35,9 @@ sourceSets {
 dependencies {
     testImplementation("junit:junit:4.12")
     testImplementation("org.testng:testng:6.14.2")
-    testImplementation('org.apache.commons:commons-collections4:4.3')
+    testImplementation('commons-collections:commons-collections3.2.2')
     testImplementation("org.openmicroscopy:omero-common-test:$omeroCommonTestVersion")
+    testImplementation("org.openmicroscopy:omero-gateway:$omeroBlitzVersion")
     testImplementation("org.openmicroscopy:omero-gateway:$omeroGatewayVersion")
 }
 
