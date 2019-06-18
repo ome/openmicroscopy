@@ -2960,8 +2960,8 @@ def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
         raise Http404("OriginalFile %s not found" % file_id)
 
     context = webgateway_views._table_query(request, file_id, conn=conn,
-                                           query=query, offset=offset,
-                                           limit=limit)
+                                            query=query, offset=offset,
+                                            limit=limit)
 
     if context.get('error') or not context.get('data'):
         return JsonResponse(context)
@@ -2972,7 +2972,7 @@ def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
     context['meta']['query'] = query
 
     # if we're on an exact page:
-    if offset==0 or float(offset)/limit == offset/limit:
+    if offset == 0 or float(offset)/limit == offset/limit:
         context['meta']['page'] = (offset/limit) + 1 if offset > 0 else 1
 
     url = reverse('omero_table', args=[file_id])
@@ -2981,7 +2981,6 @@ def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
         context['meta']['next'] = url + '&offset=%s' % (offset + limit)
     if offset > 0:
         context['meta']['prev'] = url + '&offset=%s' % (max(0, offset - limit))
-
 
     # by default, return context as JSON data
     # OR, return as csv or html
