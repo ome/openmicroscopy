@@ -58,3 +58,4 @@ eclipse.log
 velocity.log*
 .idea
 .vscode
+.gradle

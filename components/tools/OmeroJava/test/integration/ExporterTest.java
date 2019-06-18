@@ -55,7 +55,7 @@ import omero.model.Shape;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;

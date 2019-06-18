@@ -64,7 +64,7 @@ import omero.romio.RegionDef;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.Assert;

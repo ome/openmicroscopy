@@ -1,0 +1,53 @@
+plugins {
+    id "java"
+    id "org.openmicroscopy.project" version "5.5.3"
+}
+
+group = "org.openmicroscopy"
+version = "5.5.1"
+
+ext {
+    // Load omero.properties
+    Properties omeroProps = loadOmeroProperties()
+    omeroCommonTestVersion = omeroProps.getProperty("versions.omero-common-test")
+    omeroGatewayVersion = omeroProps.getProperty("versions.omero-gateway")
+}
+
+repositories {
+    jcenter()
+    mavenLocal()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+sourceSets {
+    test {
+        java {
+            srcDirs = ['test']
+        }
+    }
+}
+
+dependencies {
+    testImplementation("junit:junit:4.12")
+    testImplementation("org.testng:testng:6.14.2")
+    testImplementation('org.apache.commons:commons-collections4:4.3')
+    testImplementation("org.openmicroscopy:omero-common-test:$omeroCommonTestVersion")
+    testImplementation("org.openmicroscopy:omero-gateway:$omeroGatewayVersion")
+}
+
+test {
+    // enable TestNG support (default is JUnit)
+    useTestNG() {
+        suites "test/unit.testng.xml"
+    }
+}
+
+Properties loadOmeroProperties() {
+    Properties props = new Properties()
+    file("../../../etc/omero.properties").withInputStream { props.load(it) }
+    props
+}
