@@ -2801,24 +2801,42 @@ def _table_query(request, fileid, conn=None, query=None, **kwargs):
     cols = t.getHeaders()
     rows = t.getNumberOfRows()
 
+    offset = kwargs.get('offset', 0)
+    limit = kwargs.get('limit', None)
+
+    range_start = offset
+    range_end = kwargs.get('limit', rows)
+    range_end = min(rows, range_start + range_end)
+
     if query == '*':
-        hits = range(rows)
+        hits = range(range_start, range_end)
+        totalCount = rows
     else:
         match = re.match(r'^(\w+)-(\d+)', query)
         if match:
             query = '(%s==%s)' % (match.group(1), match.group(2))
         try:
             hits = t.getWhereList(query, None, 0, rows, 1)
+            totalCount = len(hits)
+            # paginate the hits
+            hits = hits[range_start: range_end]
         except Exception:
             return dict(error='Error executing query: %s' % query)
 
-    return dict(data=dict(
-        columns=[col.name for col in cols],
-        rows=[[col.values[0] for col in t.read(range(len(cols)), hit,
-                                               hit+1).columns]
-              for hit in hits],
-        )
-    )
+    return {
+        'data': {
+            'columns': [col.name for col in cols],
+            'rows': [[col.values[0] for col in t.read(range(len(cols)), hit,
+                                                      hit+1).columns]
+                     for hit in hits]
+        },
+        'meta': {
+            'rowCount': rows,
+            'totalCount': totalCount,
+            'limit': limit,
+            'offset': offset,
+        }
+    }
 
 table_query = login_required()(jsonp(_table_query))
 
