@@ -51,7 +51,6 @@
             if (insighttag) {
                 var insight_base = "https://github.com/" + "{{ client_download_repo }}" +
                     "/releases/download/" + insighttag + "/OMERO.insight-" + insighttag.substring(1);
-                console.log(insight_base);
                 $("#download-insight-mac").attr("href", insight_base + ".dmg");
                 $("#download-insight-win").attr("href", insight_base + ".exe");
                 $("#download-insight-linux").attr("href", insight_base + ".zip");
