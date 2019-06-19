@@ -10,7 +10,7 @@
 """
 
 import pytest
-from omeroweb.testlib import IWebTest, get, get_json
+from omeroweb.testlib import IWebTest
 
 from omero.model import PlateI, WellI, WellSampleI
 from omero.model import FileAnnotationI, OriginalFileI, PlateAnnotationLinkI
