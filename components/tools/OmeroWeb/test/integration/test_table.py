@@ -23,7 +23,7 @@ import pytest
 from omeroweb.testlib import IWebTest, get, get_json
 from test_api_projects import get_connection
 
-from omero.grid import WellColumn, StringColumn
+from omero.grid import WellColumn, StringColumn, DoubleColumn
 
 from django.core.urlresolvers import reverse
 from random import random
@@ -46,50 +46,71 @@ class TestOmeroTables(IWebTest):
         return self.new_django_client(user_name, user_name)
 
     @pytest.fixture()
-    def omero_table_file(self, user1):
+    def table_data(self):
+        """Return column classes, column names & row data."""
+        col_types = [
+            WellColumn, StringColumn, DoubleColumn, DoubleColumn
+        ]
+        col_names = ["Well", "TestColumn", "SmallNumbers", "BigNumbers"]
+        rows = [
+            [1, 'test', 0.5, 135345.0],
+            [2, 'string', 1.0, 345345.121],
+            [3, 'column', 0.75, 356575.012],
+            [4, 'data', 0.12345, 13579.0]
+        ]
+        return (col_types, col_names, rows)
+
+    @pytest.fixture()
+    def omero_table_file(self, user1, table_data):
         """Create a new OMERO Table and returns the original file ID."""
         client = user1[0]
-        col1 = WellColumn('Well', '', [])
-        col2 = StringColumn('TestColumn', '', 64, [])
+        col_types, col_names, rows = table_data
 
-        columns = [col1, col2]
-        tablename = "plate_well_table_test:%s" % str(random())
+        columns = []
+        for col_type, name in zip(col_types, col_names):
+            if col_type == StringColumn:
+                columns.append(StringColumn(name, '', 64, []))
+            else:
+                columns.append(col_type(name, '', []))
+
+        tablename = "omero_table_test:%s" % str(random())
         table = client.sf.sharedResources().newTable(1, tablename)
         table.initialize(columns)
 
-        wellIds = [1]
+        data = []
+        for col_type, name, idx in zip(col_types, col_names, range(len(col_names))):
+            col_data = [row[idx] for row in rows]
+            if col_type == StringColumn:
+                data.append(StringColumn(name, '', 64, col_data))
+            else:
+                data.append(col_type(name, '', col_data))
 
-        data1 = WellColumn('Well', '', wellIds)
-        data2 = StringColumn('TestColumn', '', 64, ["foobar"])
-        data = [data1, data2]
         table.addData(data)
         table.close()
 
         orig_file = table.getOriginalFile()
         return orig_file.id.val
 
-    def test_table_html(self, omero_table_file, django_client):
+    def test_table_html(self, omero_table_file, django_client, table_data):
         """Do a GET request to query table data."""
         file_id = omero_table_file
-        wellId = 1
 
         # expected table data
-        cols = ['Well', 'TestColumn']
-        rows = [[wellId, 'foobar']]
+        col_types, col_names, rows = table_data
 
         # GET json
         request_url = reverse("omero_table", args=[file_id, 'json'])
         rsp = get_json(django_client, request_url)
         assert rsp['data']['rows'] == rows
-        assert rsp['data']['columns'] == cols
-        assert rsp['data']['name'].startswith('plate_well_table_test')
+        assert rsp['data']['columns'] == col_names
+        assert rsp['data']['name'].startswith('omero_table_test')
         assert rsp['data']['id'] == file_id
 
         # GET html
         request_url = reverse("omero_table", args=[file_id])
         rsp = get(django_client, request_url)
         html = rsp.content
-        for col in cols:
+        for col in col_names:
             assert ('<th>%s</th>' % col) in html
         for row in rows:
             for td in row:
@@ -99,7 +120,7 @@ class TestOmeroTables(IWebTest):
         request_url = reverse("omero_table", args=[file_id, 'csv'])
         rsp = get(django_client, request_url)
         csv_data = rsp.content
-        cols_csv = ','.join(cols)
-        rows_csv = '/n'.join([','.join(
+        cols_csv = ','.join(col_names)
+        rows_csv = '\n'.join([','.join(
             [str(td) for td in row]) for row in rows])
         assert csv_data == '%s\n%s' % (cols_csv, rows_csv)
