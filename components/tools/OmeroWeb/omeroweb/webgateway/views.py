@@ -16,6 +16,7 @@
 import re
 import json
 import base64
+import warnings
 import omero
 import omero.clients
 
@@ -2678,6 +2679,12 @@ def su(request, user, conn=None, **kwargs):
             'webgateway/base/includes/post_form.html')
         c = Context(request, context)
         return HttpResponse(t.render(c))
+
+
+def _annotations(request, objtype, objid, conn=None, **kwargs):
+    warnings.warn("Deprecated. Use _bulk_file_annotations()",
+                  DeprecationWarning)
+    return _bulk_file_annotations(request, objtype, objid, conn, **kwargs)
 
 
 def _bulk_file_annotations(request, objtype, objid, conn=None, **kwargs):
