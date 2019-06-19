@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.UUID;
 
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -383,6 +384,41 @@ public class BrowseFacilityTest extends GatewayTest {
         }
         Collections.sort(loadedIds);
         Assert.assertEquals(loadedIds, wellIds);
+     }
+
+     @Test
+     public void testGetByName() throws Exception {
+         ProjectData p = createProject(rootCtx);
+         String aDatasetName = createDataset(rootCtx, p).getName();
+         String aProjectName = p.getName();
+
+         ScreenData s = createScreen(rootCtx);
+         String aPlateName = createPlate(rootCtx, s).getName();
+         String aScreenName = s.getName();
+         String anImageName = UUID.randomUUID().toString();
+         ImageData i = createImage(rootCtx, null);
+         i.setName(anImageName);
+         datamanagerFacility.saveAndReturnObject(rootCtx, i);
+
+         Collection res = browseFacility.getScreens(rootCtx, aScreenName);
+         Assert.assertEquals(res.size(), 1);
+         Assert.assertEquals(((ScreenData)res.iterator().next()).getName(), aScreenName);
+
+         res = browseFacility.getPlates(rootCtx, aPlateName);
+         Assert.assertEquals(res.size(), 1);
+         Assert.assertEquals(((PlateData)res.iterator().next()).getName(), aPlateName);
+
+         res = browseFacility.getProjects(rootCtx, aProjectName);
+         Assert.assertEquals(res.size(), 1);
+         Assert.assertEquals(((ProjectData)res.iterator().next()).getName(), aProjectName);
+
+         res = browseFacility.getDatasets(rootCtx, aDatasetName);
+         Assert.assertEquals(res.size(), 1);
+         Assert.assertEquals(((DatasetData)res.iterator().next()).getName(), aDatasetName);
+
+         res = browseFacility.getImages(rootCtx, anImageName);
+         Assert.assertEquals(res.size(), 1);
+         Assert.assertEquals(((ImageData)res.iterator().next()).getName(), anImageName);
      }
     
     private void initData() throws Exception {
