@@ -732,12 +732,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
          parse_boolean,
          ("Whether to link to official client downloads on the login page")],
     "omero.web.login.client_downloads_base":
-        ["CLIENT_DOWNLOAD_LATEST_BASE",
-         'https://downloads.openmicroscopy.org/latest/omero{major}.{minor}',
+        ["CLIENT_DOWNLOAD_GITHUB_REPO",
+         'ome/omero-insight',
          str,
-         ("Base URL for latest client downloads. "
-          "Template parameters ``{major}`` ``{minor}`` ``{patch}`` will be "
-          "substituted with the current OMERO.web version.")],
+         ("GitHub repository containing the Desktop client downloads")],
 
     "omero.web.apps":
         ["ADDITIONAL_APPS",
