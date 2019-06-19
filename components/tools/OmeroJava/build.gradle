@@ -35,7 +35,7 @@ sourceSets {
 dependencies {
     testImplementation("junit:junit:4.12")
     testImplementation("org.testng:testng:6.14.2")
-    testImplementation('commons-collections:commons-collections3.2.2')
+    testImplementation('commons-collections:commons-collections:3.2.2')
     testImplementation("org.openmicroscopy:omero-common-test:$omeroCommonTestVersion")
     testImplementation("org.openmicroscopy:omero-blitz:$omeroBlitzVersion")
     testImplementation("org.openmicroscopy:omero-gateway:$omeroGatewayVersion")
