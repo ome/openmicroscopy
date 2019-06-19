@@ -2996,7 +2996,7 @@ def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
         rsp = HttpResponse(csv_data, content_type='text/csv')
         rsp['Content-Type'] = 'application/force-download'
         rsp['Content-Length'] = len(csv_data)
-        downloadName = orig_file.name.val.replace(" ", "_").replace(",", ".")
+        downloadName = orig_file.name.replace(" ", "_").replace(",", ".")
         downloadName = downloadName + ".csv"
         rsp['Content-Disposition'] = 'attachment; filename=%s' % downloadName
         return rsp
