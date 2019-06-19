@@ -92,9 +92,13 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
 
         idname = 'UNKNOWN'
         try:
+            # Quietly loading the session will mean that the last access
+            # time will not be incremented so that dangling files can be
+            # cleaned up. Note: this is different that the strategy of a
+            # script which *wants* to keep its session alive.
             idname = self.factory.ice_getIdentity().name
             clientSession = self.ctx.getSession().getSessionService() \
-                .getSession(idname)
+                .getSession(idname, {"quietly": "true"})
             if clientSession.getClosed():
                 self.logger.debug("Client session closed: %s" % idname)
                 return False
