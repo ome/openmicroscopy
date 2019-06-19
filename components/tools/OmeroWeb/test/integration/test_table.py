@@ -56,7 +56,8 @@ class TestOmeroTables(IWebTest):
             [1, 'test', 0.5, 135345.0],
             [2, 'string', 1.0, 345345.121],
             [3, 'column', 0.75, 356575.012],
-            [4, 'data', 0.12345, 13579.0]
+            [4, 'data', 0.12345, 13579.0],
+            [5, 'five', 0.01, 500.05]
         ]
         return (col_types, col_names, rows)
 
@@ -78,7 +79,8 @@ class TestOmeroTables(IWebTest):
         table.initialize(columns)
 
         data = []
-        for col_type, name, idx in zip(col_types, col_names, range(len(col_names))):
+        for col_type, name, idx in zip(col_types, col_names,
+                                       range(len(col_names))):
             col_data = [row[idx] for row in rows]
             if col_type == StringColumn:
                 data.append(StringColumn(name, '', 64, col_data))
@@ -124,3 +126,39 @@ class TestOmeroTables(IWebTest):
         rows_csv = '\n'.join([','.join(
             [str(td) for td in row]) for row in rows])
         assert csv_data == '%s\n%s' % (cols_csv, rows_csv)
+
+    def test_table_pagination(self, omero_table_file, django_client,
+                              table_data):
+        """Test pagination of table data as JSON."""
+        file_id = omero_table_file
+
+        # expected table data
+        col_types, col_names, rows = table_data
+
+        # GET json
+        limit = 2
+        request_url = reverse("omero_table", args=[file_id, 'json'])
+        for offset in [0, 2, 4]:
+            request_url += '?limit=%s&offset=%s' % (limit, offset)
+            rsp = get_json(django_client, request_url)
+            assert rsp['data']['rows'] == rows[offset: offset + limit]
+
+    def test_table_query(self, omero_table_file, django_client, table_data):
+        """Test pagination of table data as JSON."""
+        file_id = omero_table_file
+
+        # expected table data
+        col_types, col_names, rows = table_data
+        queries = ['SmallNumbers>0.5',
+                   '(SmallNumbers>=0.75)%26(BigNumbers<350000.5)',
+                   'SmallNumbers==0.01']
+        filtered_rows = [
+            [r for r in rows if r[2] > 0.5],
+            [r for r in rows if r[2] >= 0.75 and r[3] < 350000.5],
+            [r for r in rows if r[2] == 0.01]]
+
+        for query, expected in zip(queries, filtered_rows):
+            request_url = reverse("omero_table", args=[file_id, 'json'])
+            request_url += '?query=%s' % query
+            rsp = get_json(django_client, request_url)
+            assert rsp['data']['rows'] == expected
