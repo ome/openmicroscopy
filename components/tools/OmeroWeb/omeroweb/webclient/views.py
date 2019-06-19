@@ -2983,7 +2983,6 @@ def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
     if offset > 0:
         context['meta']['prev'] = url + '&offset=%s' % (max(0, offset - limit))
 
-
     # by default, return context as JSON data
     # OR, return as csv or html
     if mtype == 'csv':
