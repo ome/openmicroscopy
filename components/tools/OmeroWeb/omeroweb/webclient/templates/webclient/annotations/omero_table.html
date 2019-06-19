@@ -13,19 +13,41 @@
                 border: solid #ddd 1px;
                 padding: 5px;
             }
+            .download {
+                position: absolute;
+                top: 10px;
+                right: 20px;
+            }
+            .back {
+                position: absolute;
+                top: 10px;
+                left: 20px;
+            }
         </style>
     </head>
     <body>
 
-    <h2>{{ data.name }}</h2>
-    {% if query_eg %}
-        <p>
-            NB: query rows via URL query. E.g.
-            <a href="{{ url }}?query={{ query_eg }}">{{ query_eg }}</a>
-            or <a href="{{ url }}?query={{ eg2_url }}">{{ query_eg2 }}</a>
-        </p>
+    <div class="download">
+        <a href="{% url 'omero_table' data.id 'csv' %}">Download table as CSV</a>
+    </div>
+    {% if meta.query != '*' %}
+        <div class="back">
+            <a href="{{ meta.url }}">< Remove query</a>
+        </div>
     {% endif %}
-    <p><a href="{% url 'omero_table' data.id 'csv' %}">Download table as CSV</a></p>
+    <h2>{{ data.name }}</h2>
+    <p>
+        To filter rows you can use a query based on named columns.
+        For example, to filter for rows where <b>{{ example_column }}</b>
+        is greater than <b>{{ example_min_value }}</b> add 
+        <a href="{{ meta.url }}?query={{ example_column }}>{{ example_min_value }}">
+            ?query={{ example_column }}>{{ example_min_value }}
+        </a> to the URL. <br>
+        For a more complex example, try
+        <a href="{{ meta.url }}?query=({{ example_column }}>{{ example_min_value }})%26({{ example_column }}<{{ example_max_value }})">
+            ?query=({{ example_column }}>{{ example_min_value }})&({{ example_column }}<{{ example_max_value }})
+        </a>
+    </p>
     <p>
         {% if meta.query == '*' %}
             Table rows: <b>{{ meta.rowCount }}</b>.
@@ -33,21 +55,26 @@
             Query "<b>{{ meta.query }}</b>" returned
             <b>{{ meta.totalCount }}</b>/<b>{{ meta.rowCount }}</b> rows.
         {% endif %}
-        {% if meta.page %}
-            Page <b>{{ meta.page }}</b> (<b>{{ meta.limit }}</b> rows).
-        {% else %}
-            Pagination offset: <b>{{ meta.offset }}</b> limit: <b>{{ meta.limit }}</b>.
-        {% endif %}
-        {% if meta.prev %}
-            <a href="{{ meta.prev }}">Prev</a>
-        {% else %}
-            Prev
-        {% endif %}
-        |
-        {% if meta.next %}
-            <a href="{{ meta.next }}">Next</a>
-        {% else %}
-            Next
+
+        <!-- Only show pagination if needed -->
+        <br>
+        {% if meta.prev or meta.next %}
+            {% if meta.page %}
+                Showing page <b>{{ meta.page }}</b> (<b>{{ data.rows | length }}</b> rows).
+            {% else %}
+                Pagination offset: <b>{{ meta.offset }}</b> limit: <b>{{ meta.limit }}</b>.
+            {% endif %}
+            {% if meta.prev %}
+                <a href="{{ meta.prev }}">Prev</a>
+            {% else %}
+                Prev
+            {% endif %}
+            |
+            {% if meta.next %}
+                <a href="{{ meta.next }}">Next</a>
+            {% else %}
+                Next
+            {% endif %}
         {% endif %}
     </p>
     <table>

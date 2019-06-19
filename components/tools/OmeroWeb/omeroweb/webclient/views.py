@@ -2977,8 +2977,10 @@ def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
     # pagination links
     url = reverse('omero_table', args=[file_id])
     context['meta']['url'] = url
-    url += '?query=%s&limit=%s' % (query, limit)
-    if (offset + limit) < context['meta']['rowCount']:
+    url += '?limit=%s' % limit
+    if query != '*':
+        url += '&query=%s' % query
+    if (offset + limit) < context['meta']['totalCount']:
         context['meta']['next'] = url + '&offset=%s' % (offset + limit)
     if offset > 0:
         context['meta']['prev'] = url + '&offset=%s' % (max(0, offset - limit))
@@ -3009,13 +3011,9 @@ def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
                     continue
                 col_val1 = context['data']['rows'][0][idx]
                 col_val2 = context['data']['rows'][1][idx]
-                context['query_eg'] = '%s>%s' % (col_name,
-                                                 min(col_val1, col_val2))
-                greater = '(%s>=%s)' % (col_name, min(col_val1, col_val2))
-                lower = '(%s<%s)' % (col_name, max(col_val1, col_val2))
-                context['query_eg2'] = greater + '&' + lower
-                # Need to replace '&' for this to be valid query string
-                context['eg2_url'] = greater + '%26' + lower
+                context['example_column'] = col_name
+                context['example_min_value'] = min(col_val1, col_val2)
+                context['example_max_value'] = max(col_val1, col_val2)
                 break
 
     return context
