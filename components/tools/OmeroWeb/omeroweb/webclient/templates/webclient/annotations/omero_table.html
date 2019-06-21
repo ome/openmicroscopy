@@ -2,6 +2,9 @@
 <html>
     <head>
         <style>
+            body {
+                font-family: 'Arial';
+            }
             h2, p {
                 text-align: center;
             }
@@ -36,18 +39,20 @@
         </div>
     {% endif %}
     <h2>{{ data.name }}</h2>
-    <p>
-        To filter rows you can use a query based on named columns.
-        For example, to filter for rows where <b>{{ example_column }}</b>
-        is greater than <b>{{ example_min_value }}</b> add 
-        <a href="{{ meta.url }}?query={{ example_column }}>{{ example_min_value }}">
-            ?query={{ example_column }}>{{ example_min_value }}
-        </a> to the URL. <br>
-        For a more complex example, try
-        <a href="{{ meta.url }}?query=({{ example_column }}>{{ example_min_value }})%26({{ example_column }}<{{ example_max_value }})">
-            ?query=({{ example_column }}>{{ example_min_value }})&({{ example_column }}<{{ example_max_value }})
-        </a>
-    </p>
+    {% if example_column %}
+        <p>
+            To filter rows you can use a query based on named columns.
+            For example, to filter for rows where <b>{{ example_column }}</b>
+            is greater than <b>{{ example_min_value }}</b> add 
+            <a href="{{ meta.url }}?query={{ example_column }}>{{ example_min_value }}">
+                ?query={{ example_column }}>{{ example_min_value }}
+            </a> to the URL. <br>
+            For a more complex example, try
+            <a href="{{ meta.url }}?query=({{ example_column }}>{{ example_min_value }})%26({{ example_column }}<{{ example_max_value }})">
+                ?query=({{ example_column }}>{{ example_min_value }})&({{ example_column }}<{{ example_max_value }})
+            </a>
+        </p>
+    {% endif %}
     <p>
         {% if meta.query == '*' %}
             Table rows: <b>{{ meta.rowCount }}</b>.

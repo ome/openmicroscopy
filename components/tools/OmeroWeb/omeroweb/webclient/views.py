@@ -3006,14 +3006,19 @@ def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
         for idx, c_type in enumerate(context['data']['column_types']):
             if c_type == 'DoubleColumn':
                 col_name = context['data']['columns'][idx]
-                if ' ' in col_name:
+                # find first few non-empty cells...
+                vals = []
+                for row in context['data']['rows']:
+                    if row[idx]:
+                        vals.append(row[idx])
+                    if len(vals) > 3:
+                        break
+                if ' ' in col_name or len(vals) < 2:
                     # Don't support queries on columns with spaces
                     continue
-                col_val1 = context['data']['rows'][0][idx]
-                col_val2 = context['data']['rows'][1][idx]
                 context['example_column'] = col_name
-                context['example_min_value'] = min(col_val1, col_val2)
-                context['example_max_value'] = max(col_val1, col_val2)
+                context['example_min_value'] = min(vals)
+                context['example_max_value'] = max(vals)
                 break
 
     return context
