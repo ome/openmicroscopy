@@ -58,12 +58,12 @@ data1 = omero.grid.LongColumn('Uid', 'test Long', ids)
 data2 = omero.grid.StringColumn('MyStringColumn', '', 64, strings)
 data = [data1, data2]
 table.addData(data)
+orig_file = table.getOriginalFile()
 table.close()           # when we are done, close.
 
 
-# Get the table as an original file
-# =================================
-orig_file = table.getOriginalFile()
+# Load the table as an original file
+# ==================================
 orig_file_id = orig_file.id.val
 # ...so you can attach this data to an object e.g. Dataset
 file_ann = omero.model.FileAnnotationI()
