@@ -46,10 +46,8 @@
     <div class="attachment_actions">
         <input type="checkbox" style="display:none;"/>
         <% if (ann.ns && ann.ns === 'openmicroscopy.org/omero/bulk_annotations'){ %>
-            <a class='action' title="View OMERO.table" target="_blank"
-            href='<%= webindex %>omero_table/<%= ann.file.id %>/'>
-                <img src="/static/webgateway/img/icon_view.png" />
-            </a>
+            <a class='action btn_view' title="View OMERO.table" target="_blank"
+            href='<%= webindex %>omero_table/<%= ann.file.id %>/'>&nbsp;</a>
         <% } %>
 
         <% if (ann.link.permissions.canDelete) { %> <!-- and not ann.isOriginalMetadata -->
