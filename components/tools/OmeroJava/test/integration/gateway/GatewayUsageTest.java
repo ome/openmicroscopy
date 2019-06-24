@@ -133,7 +133,8 @@ public class GatewayUsageTest extends AbstractServerTest
         // create a session
         try (Gateway gw = new Gateway(new SimpleLogger())) {
             ExperimenterData user = gw.connect(c);
-            gw.closeSessionOnExit(false); // do not close the session when disconnecting
+            SecurityContext ctx = new SecurityContext(user.getGroupId());
+            gw.closeSessionOnExit(ctx, false); // do not close the session when disconnecting
             sessionId = gw.getSessionId(user);
             Assert.assertNotNull(sessionId);
         } catch (Exception e) {
@@ -157,9 +158,10 @@ public class GatewayUsageTest extends AbstractServerTest
             JoinSessionCredentials c2= new JoinSessionCredentials(
                     sessionId, client.getProperty("omero.host"),
                     Integer.parseInt(client.getProperty("omero.port")));
-            gw.connect(c2);
+            ExperimenterData user = gw.connect(c2);
             Assert.assertTrue(gw.isConnected());
-            gw.closeSessionOnExit(true); // force the session to be closed
+            SecurityContext ctx = new SecurityContext(user.getGroupId());
+            gw.closeSessionOnExit(ctx, true); // force the session to be closed
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -169,7 +171,7 @@ public class GatewayUsageTest extends AbstractServerTest
             JoinSessionCredentials c2= new JoinSessionCredentials(
                     sessionId, client.getProperty("omero.host"),
                     Integer.parseInt(client.getProperty("omero.port")));
-            ExperimenterData exp = gw.connect(c2);
+            gw.connect(c2);
             Assert.fail("The session "+sessionId+" should have been closed.");
         } catch (Exception e) {
             // expected to fail
@@ -309,7 +311,7 @@ public class GatewayUsageTest extends AbstractServerTest
 
         /* now do the rest of the test as the root user via the gateway */
         final LoginCredentials credentials = new LoginCredentials(
-                roles.rootName, client.getProperty("omero.rootpass"), 
+                roles.rootName, client.getProperty("omero.rootpass"),
                 client.getProperty("omero.host"), Integer.valueOf(client.getProperty("omero.port")));
         try (final Gateway gateway = new Gateway(new SimpleLogger())) {
             gateway.connect(credentials);
