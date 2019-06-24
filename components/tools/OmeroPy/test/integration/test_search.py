@@ -290,9 +290,8 @@ class TestSearch(ITest):
                 ("fake", supported),
                 ("%s*" % uuid[:-1], supported),
                 (uuid, supported),
-                #
-                ("*.fake", unsupported),
-                ("%s*.fake" % uuid[:-1], unsupported)):
+                ("*.fake", supported),
+                ("%s*.fake" % uuid[:-1], supported)):
 
             m(x)
 
