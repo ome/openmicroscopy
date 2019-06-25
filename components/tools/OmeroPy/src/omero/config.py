@@ -30,6 +30,11 @@ from xml.etree.ElementTree import (
 )
 from omero_ext import portalocker
 import json
+try:
+    import yaml
+    YAML_ENABLED = True
+except ImportError:
+    YAML_ENABLED = False
 
 
 class Environment(object):
@@ -439,3 +444,61 @@ class ConfigXml(object):
                 to_remove.append(p)
         for x in to_remove:
             props.remove(x)
+
+
+def load_json_config_dir(configdir):
+    """
+    Load a directory of .json, .yaml or .yml configuration files.
+    """
+    files = (f for f in os.listdir(configdir) if
+             not f.startswith('.') and
+             os.path.splitext(f)[1].lower() in ('.json', '.yaml', '.yml'))
+    config = load_json_configs(os.path.join(configdir, f) for f in sorted(files))
+    return config
+
+
+def load_json_configs(configfiles):
+    """
+    Load a set of configuration files in the given order. Each file is a single
+    set of key-value pairs which will be merged as follows:
+    - a null value will unset the configuration key
+    - an empty list [] or dictionary {} will set the property to [] or {}
+    - a non-empty list will be appended to the existing property if set
+    - a non-empty dictionary will be merged non-recursively to the existing
+      property if set
+    - if none of the above are true the property will be set to the new value
+    """
+    config = {}
+
+    for f in configfiles:
+        with open(f) as fh:
+            try:
+                if f.lower().endswith('.yaml') or f.lower().endswith('.yml'):
+                    if not YAML_ENABLED:
+                        raise Exception(
+                            'PyYAML module required to load {}'.format(f))
+                    d = yaml.load(fh)
+                else:
+                    d = json.load(fh)
+            except Exception as e:
+                raise Exception('Failed to load file {}'.format(f))
+            for k, v in d.items():
+                if v is None:
+                    config.pop(k, None)
+                elif k not in config or v == [] or v == {}:
+                    config[k] = v
+                elif isinstance(v, list):
+                    if not isinstance(config[k], list):
+                        raise Exception(
+                            'Incompatible types for key {}: {} {}'.format(
+                                k, config[k], v))
+                    config[k].extend(v)
+                elif isinstance(v, dict):
+                    if not isinstance(config[k], dict):
+                        raise Exception(
+                            'Incompatible types for key {}: {} {}'.format(
+                                k, config[k], v))
+                    config[k].update(v)
+                else:
+                    config[k] = v
+    return config
