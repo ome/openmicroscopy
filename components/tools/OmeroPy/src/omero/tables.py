@@ -523,7 +523,8 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
             p.makedirs()
 
         storage = self._storage_factory.getOrCreate(file_path, self.read_only)
-        table = TableI(self.ctx, file_obj, factory, storage, uuid=Ice.generateUUID(),
+        table = TableI(self.ctx, file_obj, factory, storage,
+                       uuid=Ice.generateUUID(),
                        call_context=current.ctx)
         self.resources.add(table)
 
