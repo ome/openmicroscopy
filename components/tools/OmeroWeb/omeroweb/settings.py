@@ -166,6 +166,7 @@ LOGGING = {
 }
 
 
+JSON_CONFIG_DIR = os.getenv('OMERO_WEB_CONFIG_DIR')
 CONFIG_XML = os.path.join(OMERO_HOME, 'etc', 'grid', 'config.xml')
 count = 10
 event = get_event("websettings")
@@ -173,7 +174,10 @@ event = get_event("websettings")
 while True:
     try:
         CUSTOM_SETTINGS = dict()
-        if os.path.exists(CONFIG_XML):
+        if JSON_CONFIG_DIR:
+            CUSTOM_SETTINGS = omero.config.load_json_config_dir(
+                JSON_CONFIG_DIR)
+        elif os.path.exists(CONFIG_XML):
             CONFIG_XML = omero.config.ConfigXml(CONFIG_XML, read_only=True)
             CUSTOM_SETTINGS = CONFIG_XML.as_map()
             CONFIG_XML.close()
@@ -213,6 +217,8 @@ SESSION_ENGINE_VALUES = ('omeroweb.filesessionstore',
 
 
 def parse_boolean(s):
+    if JSON_CONFIG_DIR:
+        return s
     s = s.strip().lower()
     if s in ('true', '1', 't'):
         return True
@@ -220,7 +226,7 @@ def parse_boolean(s):
 
 
 def parse_paths(s):
-    return [os.path.normpath(path) for path in json.loads(s)]
+    return [os.path.normpath(path) for path in parse_json(s)]
 
 
 def check_server_type(s):
@@ -241,6 +247,12 @@ def check_session_engine(s):
 
 def identity(x):
     return x
+
+
+def parse_json(j):
+    if JSON_CONFIG_DIR:
+        return j
+    return json.loads(j)
 
 
 def str_slash(s):
@@ -281,7 +293,7 @@ INTERNAL_SETTINGS_MAPPING = {
     # Allowed hosts:
     # https://docs.djangoproject.com/en/1.8/ref/settings/#allowed-hosts
     "omero.web.allowed_hosts":
-        ["ALLOWED_HOSTS", '["*"]', json.loads, None],
+        ["ALLOWED_HOSTS", '["*"]', parse_json, None],
 
     # Do not show WARNING (1_8.W001): The standalone TEMPLATE_* settings
     # were deprecated in Django 1.8 and the TEMPLATES dictionary takes
@@ -289,7 +301,7 @@ INTERNAL_SETTINGS_MAPPING = {
     # into your default TEMPLATES dict:
     # TEMPLATE_DIRS, TEMPLATE_CONTEXT_PROCESSORS.
     "omero.web.system_checks":
-        ["SILENCED_SYSTEM_CHECKS", '["1_8.W001"]', json.loads, None],
+        ["SILENCED_SYSTEM_CHECKS", '["1_8.W001"]', parse_json, None],
 
     # Internal email notification for omero.web.admins,
     # loaded from config.xml directly
@@ -351,7 +363,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.admins":
         ["ADMINS",
          '[]',
-         json.loads,
+         parse_json,
          ("A list of people who get code error notifications whenever the "
           "application identifies a broken link or raises an unhandled "
           "exception that results in an internal server error. This gives "
@@ -393,7 +405,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '{"index": 6, '
           '"class": "django.middleware.clickjacking.XFrameOptionsMiddleware"}'
           ']'),
-         json.loads,
+         parse_json,
          ('Warning: Only system administrators should use this feature. '
           'List of Django middleware classes in the form '
           '[{"class": "class.name", "index": FLOAT}]. '
@@ -448,7 +460,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["CACHES",
          ('{"default": {"BACKEND":'
           ' "django.core.cache.backends.dummy.DummyCache"}}'),
-         json.loads,
+         parse_json,
          ("OMERO.web offers alternative session backends to automatically"
           " delete stale data using the cache session store backend, see "
           ":djangodoc:`Django cached session documentation <topics/http/"
@@ -498,7 +510,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.secure_proxy_ssl_header":
         ["SECURE_PROXY_SSL_HEADER",
          '[]',
-         json.loads,
+         parse_json,
          ("A tuple representing a HTTP header/value combination that "
           "signifies a request is secure. Example "
           "``'[\"HTTP_X_FORWARDED_PROTO_OMERO_WEB\", \"https\"]'``. "
@@ -567,14 +579,14 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.sharing.twitter":
         ["SHARING_TWITTER",
          '{}',
-         json.loads,
+         parse_json,
          ("Dictionary of `server-name: @twitter-site-username`, where "
           "server-name matches a name from `omero.web.server_list`. "
           "For example: ``'{\"omero\": \"@openmicroscopy\"}'``")],
     "omero.web.sharing.opengraph":
         ["SHARING_OPENGRAPH",
          '{}',
-         json.loads,
+         parse_json,
          ("Dictionary of `server-name: site-name`, where "
           "server-name matches a name from `omero.web.server_list`. "
           "For example: ``'{\"omero\": \"Open Microscopy\"}'``")],
@@ -583,7 +595,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.server_list":
         ["SERVER_LIST",
          '[["%s", 4064, "omero"]]' % CUSTOM_HOST,
-         json.loads,
+         parse_json,
          "A list of servers the Web client can connect to."],
     "omero.web.ping_interval":
         ["PING_INTERVAL",
@@ -611,7 +623,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["OPEN_WITH",
          ('[["Image viewer", "webgateway", {"supported_objects": ["image"],'
           '"script_url": "webclient/javascript/ome.openwith_viewer.js"}]]'),
-         json.loads,
+         parse_json,
          ("A list of viewers that can be used to display selected Images "
           "or other objects. Each viewer is defined as "
           "``[\"Name\", \"url\", options]``. Url is reverse(url). "
@@ -704,7 +716,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.staticfile_dirs":
         ["STATICFILES_DIRS",
          '[]',
-         json.loads,
+         parse_json,
          ("Defines the additional locations the staticfiles app will traverse"
           " if the FileSystemFinder finder is enabled, e.g. if you use the"
           " collectstatic or findstatic management command or use the static"
@@ -712,7 +724,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.template_dirs":
         ["TEMPLATE_DIRS",
          '[]',
-         json.loads,
+         parse_json,
          ("List of locations of the template source files, in search order. "
           "Note that these paths should use Unix-style forward slashes.")],
     "omero.web.index_template":
@@ -730,7 +742,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.login_redirect":
         ["LOGIN_REDIRECT",
          '{}',
-         json.loads,
+         parse_json,
          ("Redirect to the given location after logging in. It only supports "
           "arguments for :djangodoc:`Django reverse function"
           " <ref/urlresolvers/#django.core.urlresolvers.reverse>`. "
@@ -752,11 +764,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.apps":
         ["ADDITIONAL_APPS",
          '[]',
-         json.loads,
+         parse_json,
          ("Add additional Django applications. For example, see"
           " :doc:`/developers/Web/CreateApp`")],
     "omero.web.databases":
-        ["DATABASES", '{}', json.loads, None],
+        ["DATABASES", '{}', parse_json, None],
     "omero.web.page_size":
         ["PAGE",
          200,
@@ -781,7 +793,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '["Help", "https://help.openmicroscopy.org/",'
           '{"title":"Open OMERO user guide in a new tab", "target":"new"}]'
           ']'),
-         json.loads,
+         parse_json,
          ("Add links to the top header: links are ``['Link Text', "
           "'link|lookup_view', options]``, where the url is reverse('link'), "
           "simply 'link' (for external urls) or lookup_view is a detailed "
@@ -803,7 +815,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '{"name": "rating", "label": "Ratings", "index": 6},'
           '{"name": "other", "label": "Others", "index": 7}'
           ']'),
-         json.loads,
+         parse_json,
          ("Manage Metadata pane accordion. This functionality is limited to"
           " the existing sections.")],
     "omero.web.ui.right_plugins":
@@ -815,7 +827,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           # "image_roi_tab"],'
           '["Preview", "webclient/data/includes/right_plugin.preview.js.html"'
           ', "preview_tab"]]'),
-         json.loads,
+         parse_json,
          ("Add plugins to the right-hand panel. "
           "Plugins are ``['Label', 'include.js', 'div_id']``. "
           "The javascript loads data into ``$('#div_id')``.")],
@@ -826,7 +838,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           # "webtest/webclient_plugins/center_plugin.splitview.js.html",
           # "split_view_panel"],'
           ']'),
-         json.loads,
+         parse_json,
          ("Add plugins to the center panels. Plugins are "
           "``['Channel overlay',"
           " 'webtest/webclient_plugins/center_plugin.overlay.js.html',"
@@ -837,7 +849,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.cors_origin_whitelist":
         ["CORS_ORIGIN_WHITELIST",
          '[]',
-         json.loads,
+         parse_json,
          ("A list of origin hostnames that are authorized to make cross-site "
           "HTTP requests. "
           "Used by the django-cors-headers app as described at "
@@ -859,7 +871,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.django_additional_settings":
         ["DJANGO_ADDITIONAL_SETTINGS",
          "[]",
-         json.loads,
+         parse_json,
          ("Additional Django settings as list of key-value tuples. "
           "Use this to set or override Django settings that aren't managed by "
           "OMERO.web. E.g. ``[\"CUSTOM_KEY\", \"CUSTOM_VALUE\"]``")],
