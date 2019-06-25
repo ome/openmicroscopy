@@ -47,7 +47,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     """
 
     def __init__(self, ctx, file_obj, factory, storage, uuid="unknown",
-                 call_context=None):
+                 call_context=None, adapter=None):
         self.id = Ice.Identity()
         self.id.name = uuid
         self.uuid = uuid
@@ -55,6 +55,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         self.factory = factory
         self.storage = storage
         self.call_context = call_context
+        self.adapter = adapter
         self.can_write = factory.getAdminService().canUpdate(
             file_obj, call_context)
         omero.util.SimpleServant.__init__(self, ctx)
@@ -126,7 +127,9 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         try:
             self.__close_file()
         finally:
-            current.adapter.remove(self.id)
+            if self.adapter is not None:
+                self.adapter.remove(self.id)
+            self.adapter = None
 
     def __close_file(self):
         if self._closed:
@@ -525,8 +528,8 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         storage = self._storage_factory.getOrCreate(file_path, self.read_only)
         table = TableI(self.ctx, file_obj, factory, storage,
                        uuid=Ice.generateUUID(),
-                       call_context=current.ctx)
+                       call_context=current.ctx,
+                       adapter=current.adapter)
         self.resources.add(table)
-
         prx = current.adapter.add(table, table.id)
         return self._table_cast(prx)
