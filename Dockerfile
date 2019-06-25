@@ -24,7 +24,7 @@ ARG RUN_IMAGE=openmicroscopy/omero-${COMPONENT}:latest
 FROM ${BUILD_IMAGE} as build
 USER root
 RUN apt-get update \
- && apt-get install -y ant \
+ && apt-get install -y gradle ant \
       python-pip python-tables python-virtualenv python-yaml python-jinja2 \
       zlib1g-dev python-pillow python-numpy python-sphinx \
       libssl-dev libbz2-dev libmcpp-dev libdb++-dev libdb-dev \
@@ -57,6 +57,10 @@ USER 1000
 WORKDIR /src
 ENV ICE_CONFIG=/src/etc/ice.config
 RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
+
+RUN git clone git://github.com/ome/build-infra .build \
+ && env PATH=$PATH:$PWD/.build quick-build /tmp/properties \
+ && cat /tmp/properties >> etc/omero.properties
 
 # The following may be necessary depending on
 # which images you are using. See the following
