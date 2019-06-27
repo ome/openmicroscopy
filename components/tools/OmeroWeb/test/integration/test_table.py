@@ -88,9 +88,9 @@ class TestOmeroTables(IWebTest):
                 data.append(col_type(name, '', col_data))
 
         table.addData(data)
-        table.close()
 
         orig_file = table.getOriginalFile()
+        table.close()
         return orig_file.id.val
 
     def test_table_html(self, omero_table_file, django_client, table_data):
