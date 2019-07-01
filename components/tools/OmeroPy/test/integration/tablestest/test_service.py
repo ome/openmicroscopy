@@ -314,10 +314,6 @@ class TestTables(ITest):
         assert table
         ofile = table.getOriginalFile()
         table.close()
-        for x in range(10):
-            # Give closer some time to complete
-            if not client.getStatefulServices():
-                break
 
         # Add the user to another group
         # and try to load the table
