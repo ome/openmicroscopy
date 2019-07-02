@@ -16,6 +16,7 @@
 import re
 import json
 import base64
+import warnings
 import omero
 import omero.clients
 
@@ -2681,9 +2682,15 @@ def su(request, user, conn=None, **kwargs):
 
 
 def _annotations(request, objtype, objid, conn=None, **kwargs):
+    warnings.warn("Deprecated. Use _bulk_file_annotations()",
+                  DeprecationWarning)
+    return _bulk_file_annotations(request, objtype, objid, conn, **kwargs)
+
+
+def _bulk_file_annotations(request, objtype, objid, conn=None, **kwargs):
     """
-    Retrieve annotations for object specified by object type and identifier,
-    optionally traversing object model graph.
+    Retrieve Bulk FileAnnotations for object specified by object type and
+    identifier optionally traversing object model graph.
     Returns dictionary containing annotations in NSBULKANNOTATIONS namespace
     if successful, otherwise returns error information.
     If the graph has multiple parents, we return annotations from all parents.
@@ -2745,7 +2752,8 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     links = [l for obj in objs for l in obj.copyAnnotationLinks()]
     for link in links:
         annotation = link.child
-        if unwrap(annotation.getNs()) != NSBULKANNOTATIONS:
+        if (not isinstance(annotation, omero.model.FileAnnotation) or
+                unwrap(annotation.getNs()) != NSBULKANNOTATIONS):
             continue
         owner = annotation.details.owner
         ownerName = "%s %s" % (unwrap(owner.firstName), unwrap(owner.lastName))
@@ -2762,7 +2770,7 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     return dict(data=data)
 
 
-annotations = login_required()(jsonp(_annotations))
+annotations = login_required()(jsonp(_bulk_file_annotations))
 
 
 def _table_query(request, fileid, conn=None, **kwargs):
@@ -2853,7 +2861,7 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
                         'columns' (an array of column names) and 'rows'
                         (an array of rows, each an array of values)
     """
-    a = _annotations(request, objtype, objid, conn, **kwargs)
+    a = _bulk_file_annotations(request, objtype, objid, conn, **kwargs)
     if 'error' in a:
         return a
 
