@@ -14,6 +14,8 @@ import pytest
 import omero
 import os
 
+from omero.util.temp_files import create_path
+
 
 class TestSearch(ITest):
 
@@ -238,6 +240,30 @@ class TestSearch(ITest):
         uuid = uuid.replace("-", "")
         uuid = "t" + self.uuid().replace("-", "")[0:8]
         return uuid
+
+    def testClientPath(self):
+
+        # Create a fake file whose client path we'll search for
+        uuid = self.uuid().replace("-", "")
+        fake = create_path(uuid, ".fake")
+        proc_id = fake.split("/")[-2]
+
+        # Import the image and index it
+        client = self.new_client()
+        query = client.sf.getQueryService()
+        pixel_ids = self.import_image(
+            filename=fake.abspath(), client=client)
+        assert len(pixel_ids) == 1
+        pixels = query.get("Pixels", long(pixel_ids[0]))
+        image = pixels.getImage()
+        self.index(image)
+
+        search = client.sf.createSearchService()
+        search.onlyType("Image")
+        search.byFullText(proc_id)
+        assert search.hasNext()
+        assert [image.id.val] == [i.id.val for i in search.results()]
+        assert not search.hasNext()
 
     def testFilename(self):
         client = self.new_client()
