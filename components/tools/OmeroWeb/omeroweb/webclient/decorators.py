@@ -190,6 +190,11 @@ class render_response(omeroweb.decorators.render_response):
             links.append(l)
         context['ome']['top_links'] = links
 
+        if settings.TOP_LOGO:
+            context['ome']['logo_src'] = settings.TOP_LOGO
+        if settings.TOP_LOGO_LINK:
+            context['ome']['logo_href'] = settings.TOP_LOGO_LINK
+
         metadata_panes = settings.METADATA_PANES
         context['ome']['metadata_panes'] = metadata_panes
 

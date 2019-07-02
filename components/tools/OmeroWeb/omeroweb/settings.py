@@ -668,6 +668,18 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("The error message shown to users who enter an incorrect username "
           "or password.")],
 
+    "omero.web.top_logo":
+        ["TOP_LOGO",
+         "",
+         str,
+         ("Customize the webclient top bar logo. The recommended image height "
+          "is 23 pixels and it must be hosted outside of OMERO.web.")],
+    "omero.web.top_logo_link":
+        ["TOP_LOGO_LINK",
+         "",
+         str,
+         ("The target location of the webclient top logo, default unlinked.")],
+
     "omero.web.user_dropdown":
         ["USER_DROPDOWN",
          "true",
