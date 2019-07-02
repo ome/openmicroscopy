@@ -9,6 +9,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,8 +57,12 @@ import omero.model.Shape;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.testng.Assert;
@@ -209,7 +215,7 @@ public class ExporterTest extends AbstractServerTest {
         }
         File f = File.createTempFile(
                 RandomStringUtils.random(100, false, true), "."+ OME_XML);
-        FileUtils.copyFile(inputXML, f);
+        Files.copy(inputXML.toPath(), f.toPath(), StandardCopyOption.REPLACE_EXISTING);
         return f;
     }
 
@@ -983,13 +989,13 @@ public class ExporterTest extends AbstractServerTest {
             TiffParser parser = new TiffParser(path);
             inputXML = File.createTempFile(RandomStringUtils.random(100, false,
                     true),"." + OME_XML);
-            FileUtils.writeStringToFile(inputXML, parser.getComment(),
-                    Constants.ENCODING);
+            Files.write(inputXML.toPath(), Arrays.asList(parser.getComment()),
+                StandardCharsets.UTF_8, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+
             //transform XML
             transformed = applyTransforms(inputXML, target.getTransforms());
             validate(transformed);
-            String comment = FileUtils.readFileToString(transformed,
-                    Constants.ENCODING);
+            String comment = new String(Files.readAllBytes(transformed.toPath()), StandardCharsets.UTF_8);
 
             tiffOutput = new RandomAccessOutputStream(path);
             TiffSaver saver = new TiffSaver(tiffOutput, path);

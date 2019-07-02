@@ -20,7 +20,6 @@ import omero.ServerError;
 import omero.api.RawPixelsStorePrx;
 import omero.model.Pixels;
 
-import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -30,8 +29,6 @@ public class BfPixelBufferTest extends AbstractServerTest {
     private BfPixelBuffer bf;
 
     private RawPixelsStorePrx rps;
-
-    private File destPath;
 
     private String destFileName;
 
@@ -55,7 +52,6 @@ public class BfPixelBufferTest extends AbstractServerTest {
     }
 
     private void tidyUp() throws Throwable {
-        FileUtils.deleteQuietly(destPath);
         rps.close();
     }
 
