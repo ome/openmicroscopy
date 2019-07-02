@@ -51,8 +51,8 @@ def parse_url(lookup_view):
     try:
         url = reverse_with_params(
             viewname=lookup_view['viewname'],
-            args=lookup_view['args'],
-            query_string=lookup_view['query_string']
+            args=lookup_view.get('args', []),
+            query_string=lookup_view.get('query_string', None)
         )
     except KeyError:
         # assume we've been passed a url
