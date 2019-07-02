@@ -1257,6 +1257,7 @@ present, the user will enter a console""")
         version(["icegridnode",  "--version"])
         iga = version(["icegridadmin", "--version"])
         version(["psql",         "--version"])
+        version(["openssl",      "version"])
 
         def get_ports(input):
             router_lines = [line for line in input.split("\n")
