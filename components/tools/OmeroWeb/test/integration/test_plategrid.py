@@ -230,9 +230,9 @@ def plate_well_table(itest, well_grid_factory, update_service, conn):
     data2 = StringColumn('TestColumn', '', 64, ["foobar"])
     data = [data1, data2]
     table.addData(data)
+    orig_file = table.getOriginalFile()
     table.close()
 
-    orig_file = table.getOriginalFile()
     fileAnn = FileAnnotationI()
     fileAnn.ns = rstring('openmicroscopy.org/omero/bulk_annotations')
     fileAnn.setFile(OriginalFileI(orig_file.id.val, False))
