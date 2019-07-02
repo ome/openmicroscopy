@@ -58,10 +58,6 @@ WORKDIR /src
 ENV ICE_CONFIG=/src/etc/ice.config
 RUN sed -i "s/^\(omero\.host\s*=\s*\).*\$/\1omero/" /src/etc/ice.config
 
-RUN git clone -b build-bf git://github.com/joshmoore/build-infra .build \
- && env PATH=$PATH:$PWD/.build quick-build /tmp/properties \
- && cat /tmp/properties >> etc/omero.properties
-
 # The following may be necessary depending on
 # which images you are using. See the following
 # card for more info:
