@@ -5,6 +5,7 @@
 package integration;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,7 +49,6 @@ import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -289,11 +289,11 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         }
 
         if (klass.equals(REF_ORIGINAL_FILE)) {
-            prefix = FilenameUtils.concat(dataDir, "Files");
+            prefix = Paths.get(dataDir, "Files").toString();
         } else if (klass.equals(REF_PIXELS)) {
-            prefix = FilenameUtils.concat(dataDir, "Pixels");
+            prefix = Paths.get(dataDir, "Pixels").toString();
         } else if (klass.equals(REF_THUMBNAIL)) {
-            prefix = FilenameUtils.concat(dataDir, "Thumbnails");
+            prefix = Paths.get(dataDir, "Thumbnails").toString();
         } else {
             throw new Exception("Unknown class: " + klass);
         }
@@ -312,8 +312,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
 
         formatter.close();
 
-        String path = FilenameUtils.concat(prefix, suffix + id);
-        return path;
+        return Paths.get(prefix, suffix + id).toString();
     }
 
     /**
@@ -359,9 +358,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
                     + desc.getName().getValue();
             s += "\nFound repository:" + desc.getPath().getValue()
                     + desc.getName().getValue();
-            if (FilenameUtils.equals(
-                    FilenameUtils.normalizeNoEndSeparator(dataDir),
-                    FilenameUtils.normalizeNoEndSeparator(repoPath))) {
+            if (Paths.get(dataDir).normalize().equals(Paths.get(repoPath).normalize())) {
                 legacy = rm.proxies.get(repoCount);
                 break;
             }

@@ -668,6 +668,18 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("The error message shown to users who enter an incorrect username "
           "or password.")],
 
+    "omero.web.top_logo":
+        ["TOP_LOGO",
+         "",
+         str,
+         ("Customize the webclient top bar logo. The recommended image height "
+          "is 23 pixels and it must be hosted outside of OMERO.web.")],
+    "omero.web.top_logo_link":
+        ["TOP_LOGO_LINK",
+         "",
+         str,
+         ("The target location of the webclient top logo, default unlinked.")],
+
     "omero.web.user_dropdown":
         ["USER_DROPDOWN",
          "true",
@@ -732,12 +744,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
          parse_boolean,
          ("Whether to link to official client downloads on the login page")],
     "omero.web.login.client_downloads_base":
-        ["CLIENT_DOWNLOAD_LATEST_BASE",
-         'https://downloads.openmicroscopy.org/latest/omero{major}.{minor}',
+        ["CLIENT_DOWNLOAD_GITHUB_REPO",
+         'ome/omero-insight',
          str,
-         ("Base URL for latest client downloads. "
-          "Template parameters ``{major}`` ``{minor}`` ``{patch}`` will be "
-          "substituted with the current OMERO.web version.")],
+         ("GitHub repository containing the Desktop client downloads")],
 
     "omero.web.apps":
         ["ADDITIONAL_APPS",

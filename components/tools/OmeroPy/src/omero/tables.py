@@ -47,12 +47,15 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     """
 
     def __init__(self, ctx, file_obj, factory, storage, uuid="unknown",
-                 call_context=None):
+                 call_context=None, adapter=None):
+        self.id = Ice.Identity()
+        self.id.name = uuid
         self.uuid = uuid
         self.file_obj = file_obj
         self.factory = factory
         self.storage = storage
         self.call_context = call_context
+        self.adapter = adapter
         self.can_write = factory.getAdminService().canUpdate(
             file_obj, call_context)
         omero.util.SimpleServant.__init__(self, ctx)
@@ -125,7 +128,14 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @remoted
     @perf
     def close(self, current=None):
+        try:
+            self.__close_file()
+        finally:
+            if self.adapter is not None:
+                self.adapter.remove(self.id)
+            self.adapter = None
 
+    def __close_file(self):
         if self._closed:
             self.logger.warn(
                 "File object %d already closed",
@@ -520,11 +530,10 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
             p.makedirs()
 
         storage = self._storage_factory.getOrCreate(file_path, self.read_only)
-        id = Ice.Identity()
-        id.name = Ice.generateUUID()
-        table = TableI(self.ctx, file_obj, factory, storage, uuid=id.name,
-                       call_context=current.ctx)
+        table = TableI(self.ctx, file_obj, factory, storage,
+                       uuid=Ice.generateUUID(),
+                       call_context=current.ctx,
+                       adapter=current.adapter)
         self.resources.add(table)
-
-        prx = current.adapter.add(table, id)
+        prx = current.adapter.add(table, table.id)
         return self._table_cast(prx)

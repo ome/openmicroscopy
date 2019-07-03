@@ -20,7 +20,8 @@ addons:
     - git
 
 install:
-    - git clone git://github.com/openmicroscopy/omero-test-infra .omero
+    - git clone git://github.com/ome/omero-test-infra .omero
+
 
 script:
     - .omero/docker srv

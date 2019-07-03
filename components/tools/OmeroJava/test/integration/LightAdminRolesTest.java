@@ -93,7 +93,9 @@ import omero.model.enums.AdminPrivilegeWriteScriptRepo;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
-import org.apache.commons.io.FileUtils;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
@@ -2631,7 +2633,7 @@ public class LightAdminRolesTest extends RolesTests {
         testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         File file = new File(testScriptName);
         file.deleteOnExit();
-        FileUtils.writeStringToFile(file, getPythonScript());
+        Files.write(file.toPath(), getPythonScript().getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
         final OriginalFile scriptFile = (OriginalFile) iQuery.get("OriginalFile", scriptId);
         client.upload(file, scriptFile);
     }
@@ -2659,7 +2661,7 @@ public class LightAdminRolesTest extends RolesTests {
         final String testScriptName = "Test_" + getClass().getName() + '_' + UUID.randomUUID() + ".py";
         File file = new File(testScriptName);
         file.deleteOnExit();
-        FileUtils.writeStringToFile(file, "test");
+        Files.write(file.toPath(), "test".getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
         client.upload(file, of);
     }
 
