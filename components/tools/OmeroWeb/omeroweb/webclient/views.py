@@ -1505,48 +1505,21 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
 
     context = dict()
 
-    # we only expect a single object, but forms can take multiple objects
-    images = (c_type == "image" and
-              list(conn.getObjects("Image", [c_id])) or
-              list())
-    datasets = (c_type == "dataset" and
-                list(conn.getObjects("Dataset", [c_id])) or list())
-    projects = (c_type == "project" and
-                list(conn.getObjects("Project", [c_id])) or list())
-    screens = (c_type == "screen" and
-               list(conn.getObjects("Screen", [c_id])) or
-               list())
-    plates = (c_type == "plate" and
-              list(conn.getObjects("Plate", [c_id])) or list())
-    acquisitions = (c_type == "acquisition" and
-                    list(conn.getObjects("PlateAcquisition", [c_id])) or
-                    list())
-    shares = ((c_type == "share" or c_type == "discussion") and
-              [conn.getShare(c_id)] or list())
-    wells = (c_type == "well" and
-             list(conn.getObjects("Well", [c_id])) or list())
-
-    # we simply set up the annotation form, passing the objects to be
-    # annotated.
-    selected = {
-        'images': c_type == "image" and [c_id] or [],
-        'datasets': c_type == "dataset" and [c_id] or [],
-        'projects': c_type == "project" and [c_id] or [],
-        'screens': c_type == "screen" and [c_id] or [],
-        'plates': c_type == "plate" and [c_id] or [],
-        'acquisitions': c_type == "acquisition" and [c_id] or [],
-        'wells': c_type == "well" and [c_id] or [],
-        'shares': ((c_type == "share" or c_type == "discussion") and [c_id] or
-                   [])}
-
-    initial = {
-        'selected': selected, 'images': images,  'datasets': datasets,
-        'projects': projects, 'screens': screens, 'plates': plates,
-        'acquisitions': acquisitions, 'wells': wells, 'shares': shares}
-
     form_comment = None
     figScripts = None
     if c_type in ("share", "discussion"):
+        shares = [conn.getShare(c_id)]
+        # we simply set up the annotation form, passing the objects to be
+        # annotated.
+        selected = {
+            'images': [], 'datasets': [], 'projects': [], 'screens': [],
+            'plates': [], 'acquisitions': [], 'wells': [],
+            'shares': [c_id]}
+
+        initial = {
+        'selected': selected, 'images': [],  'datasets': [],
+        'projects': [], 'screens': [], 'plates': [],
+        'acquisitions': [], 'wells': [], 'shares': shares}
         template = "webclient/annotations/annotations_share.html"
         manager = BaseShare(conn, c_id)
         manager.getAllUsers(c_id)
