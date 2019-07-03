@@ -131,6 +131,26 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         super(OmeroWebGateway, self).__init__(*args, **kwargs)
         self._shareId = None
+    
+    def getObject(self, *args, **kwargs):
+        """
+        We override this to handle cases where the Object is not found
+        due to the group context being incorrect. We repeat the query
+        with group context '-1' to avoid 404 errors.
+        This allows us to use @login_required(setGroupContext=True) which
+        results in much faster queries in groups with many users.
+        """
+        obj = super(OmeroWebGateway, self).getObject(*args, **kwargs)
+        if obj is None:
+            self.SERVICE_OPTS.setOmeroGroup('-1')
+            obj = super(OmeroWebGateway, self).getObject(*args, **kwargs)
+        if obj is not None:
+            # set the group context for subsequent queries
+            group = obj.getDetails().group
+            if group is not None:
+                gid = group.id.val
+                self.SERVICE_OPTS.setOmeroGroup(gid)
+        return obj
 
     def getShareId(self):
         """
