@@ -131,7 +131,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         super(OmeroWebGateway, self).__init__(*args, **kwargs)
         self._shareId = None
-    
+
     def getObject(self, *args, **kwargs):
         """
         We override this to handle cases where the Object is not found

@@ -71,7 +71,8 @@ import time
 import zipfile
 import shutil
 
-from omeroweb.decorators import login_required, ConnCleaningHttpResponse
+from omeroweb.webclient.decorators import login_required
+from omeroweb.decorators import ConnCleaningHttpResponse
 from omeroweb.connector import Connector
 from omeroweb.webgateway.util import zip_archived_files, LUTS_IN_PNG
 from omeroweb.webgateway.util import get_longs, getIntOrDefault
@@ -1452,7 +1453,7 @@ def render_col_plot(request, iid, z, t, x, w=1, conn=None, **kwargs):
     return rsp
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @jsonp
 def imageData_json(request, conn=None, _internal=False, **kwargs):
     """

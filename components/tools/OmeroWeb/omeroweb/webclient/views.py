@@ -1580,7 +1580,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
     return context
 
 
-@login_required()
+@login_required(setGroupContext=True)
 @render_response()
 def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
                           **kwargs):
