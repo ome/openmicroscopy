@@ -1517,9 +1517,9 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
             'shares': [c_id]}
 
         initial = {
-        'selected': selected, 'images': [],  'datasets': [],
-        'projects': [], 'screens': [], 'plates': [],
-        'acquisitions': [], 'wells': [], 'shares': shares}
+            'selected': selected, 'images': [],  'datasets': [],
+            'projects': [], 'screens': [], 'plates': [],
+            'acquisitions': [], 'wells': [], 'shares': shares}
         template = "webclient/annotations/annotations_share.html"
         manager = BaseShare(conn, c_id)
         manager.getAllUsers(c_id)
