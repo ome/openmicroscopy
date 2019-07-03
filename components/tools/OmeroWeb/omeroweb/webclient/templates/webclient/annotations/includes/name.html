@@ -59,7 +59,7 @@
     </table>
 
     {% if not manager.tag %}
-    <select id="annotationFilter" title="Filter annotations by user" data-userId="{{ ome.user_id }}"
+    <select id="annotationFilter" title="Filter annotations by user" data-userId="{{ ome.getUserId }}"
             style="position:absolute; right:0; bottom:3px; width:80px">
         <option value="all">Show all</option>
         <option value="me">Show added by me</option>
