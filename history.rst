@@ -5,6 +5,34 @@
 OMERO version history
 =====================
 
+5.5.1 (July 2019)
+-----------------
+
+Bug fix release focusing on installation issues that were seen with 5.5.0 as
+well as an upgrade of Bio-Formats to 6.1.1.
+
+- web:
+   - Allow the customization of the web logo
+   - Allow overriding server configuration
+   - Dynamically look up client download links
+   - Fix description in new Project, Dataset etc.
+   - Fix layout of the user account form
+
+- Java gateway:
+   - New methods added to allow change group of objects
+   - New methods added to load objects (datasets, etc.) by name
+   - New methods added to get original and repository paths of images
+   - Minor fixes in createDataset and getPixelSize methods
+
+- server:
+   - Fix SSL cipher issue to allow Insight to be used from Fedora 30
+   - Properly close OMERO.tables which kept sessions alive
+   - Fix issue with loading Hibernate’s DTD when offline
+
+- cli
+   - Add -T Project:name:A/Dataset:name:B support
+
+
 5.5.0 (June 2019)
 -----------------
 
