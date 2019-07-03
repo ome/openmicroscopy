@@ -24,13 +24,16 @@ well as an upgrade of Bio-Formats to 6.1.1.
    - New methods added to get original and repository paths of images
    - Minor fixes in createDataset and getPixelSize methods
 
+- import:
+   - Add import target support for creating Projects
+
 - server:
    - Fix SSL cipher issue to allow Insight to be used from Fedora 30
-   - Properly close OMERO.tables which kept sessions alive
    - Fix issue with loading Hibernate’s DTD when offline
+   - Properly close OMERO.tables which kept sessions alive
 
-- cli
-   - Add -T Project:name:A/Dataset:name:B support
+Note: Due to the stricter closing of OMERO.tables, it may be necessary to
+update plugins like omero-metadata which previously were leaking files.
 
 
 5.5.0 (June 2019)
