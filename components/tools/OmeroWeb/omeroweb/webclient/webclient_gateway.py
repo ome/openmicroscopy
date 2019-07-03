@@ -144,12 +144,12 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         if obj is None:
             self.SERVICE_OPTS.setOmeroGroup('-1')
             obj = super(OmeroWebGateway, self).getObject(*args, **kwargs)
-        if obj is not None:
             # set the group context for subsequent queries
-            group = obj.getDetails().group
-            if group is not None:
-                gid = group.id.val
-                self.SERVICE_OPTS.setOmeroGroup(gid)
+            if obj is not None:
+                group = obj.getDetails().group
+                if group is not None:
+                    gid = group.id.val
+                    self.SERVICE_OPTS.setOmeroGroup(gid)
         return obj
 
     def getShareId(self):
