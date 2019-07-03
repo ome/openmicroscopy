@@ -1529,6 +1529,11 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
         try:
             manager = BaseContainer(
                 conn, **{str(c_type): long(c_id), 'index': index})
+            obj = manager._get_object()
+            # Set group - makes any subsequent queries faster
+            if obj is not None:
+                gid = obj.getDetails().group.id.val
+                conn.SERVICE_OPTS.setOmeroGroup(gid)
         except AttributeError, x:
             return handlerInternalError(request, x)
         if share_id is not None:
