@@ -263,11 +263,11 @@ class WebclientLoginView(LoginView):
         if settings.SHOW_CLIENT_DOWNLOADS:
             ver = re.match('(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+).*',
                            omero_version)
-            latest = settings.CLIENT_DOWNLOAD_LATEST_BASE.format(
-                **ver.groupdict())
-            context['download_client_mac'] = latest + '/insight-mac.zip'
-            context['download_client_win'] = latest + '/insight-win.zip'
-            context['download_client_linux'] = latest + '/insight-linux.zip'
+            client_download_tag_re = '^v%s\\.%s\\.[^-]+$' % (
+                ver.group('major'), ver.group('minor'))
+            context['client_download_tag_re'] = client_download_tag_re
+            context['client_download_repo'] = (
+                settings.CLIENT_DOWNLOAD_GITHUB_REPO)
 
         t = template_loader.get_template(self.template)
         c = Context(request, context)

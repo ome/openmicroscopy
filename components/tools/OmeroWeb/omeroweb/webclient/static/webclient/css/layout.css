@@ -2190,6 +2190,9 @@ ul.criteria_right input{
 		overflow:hidden;
 		height: 400px;
 	}
+	#personal_details label {
+		width: 20%;
+	}
 
     /* improve display of E.g. "group-name (rw----)" */
 	.chzn-results li {

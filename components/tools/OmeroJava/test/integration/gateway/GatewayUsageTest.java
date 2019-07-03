@@ -118,6 +118,65 @@ public class GatewayUsageTest extends AbstractServerTest
             Assert.fail("Gateway credentials login failed.", e1);
         }
     }
+
+    @Test
+    public void testPreserveSession() throws DSOutOfServiceException {
+        omero.client client = new omero.client();
+        String[] args = new String[4];
+        args[0] = "--omero.host=" + client.getProperty("omero.host");
+        args[1] = "--omero.port=" + client.getProperty("omero.port");
+        args[2] = "--omero.user=root";
+        args[3] = "--omero.pass=" + client.getProperty("omero.rootpass");
+        LoginCredentials c = new LoginCredentials(args);
+
+        String sessionId = "";
+        // create a session
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
+            ExperimenterData user = gw.connect(c);
+            SecurityContext ctx = new SecurityContext(user.getGroupId());
+            gw.closeSessionOnExit(ctx, false); // do not close the session when disconnecting
+            sessionId = gw.getSessionId(user);
+            Assert.assertNotNull(sessionId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // join session
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
+            JoinSessionCredentials c2= new JoinSessionCredentials(
+                    sessionId, client.getProperty("omero.host"),
+                    Integer.parseInt(client.getProperty("omero.port")));
+            gw.connect(c2);
+            Assert.assertTrue(gw.isConnected());
+            // JoinSessionCredentials by default should not close the server session
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // make sure the session is still active
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
+            JoinSessionCredentials c2= new JoinSessionCredentials(
+                    sessionId, client.getProperty("omero.host"),
+                    Integer.parseInt(client.getProperty("omero.port")));
+            ExperimenterData user = gw.connect(c2);
+            Assert.assertTrue(gw.isConnected());
+            SecurityContext ctx = new SecurityContext(user.getGroupId());
+            gw.closeSessionOnExit(ctx, true); // force the session to be closed
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // make sure the session was closed
+        try (Gateway gw = new Gateway(new SimpleLogger())) {
+            JoinSessionCredentials c2= new JoinSessionCredentials(
+                    sessionId, client.getProperty("omero.host"),
+                    Integer.parseInt(client.getProperty("omero.port")));
+            gw.connect(c2);
+            Assert.fail("The session "+sessionId+" should have been closed.");
+        } catch (Exception e) {
+            // expected to fail
+        }
+    }
     
     Boolean sessionActive = null;
 
@@ -252,7 +311,7 @@ public class GatewayUsageTest extends AbstractServerTest
 
         /* now do the rest of the test as the root user via the gateway */
         final LoginCredentials credentials = new LoginCredentials(
-                roles.rootName, client.getProperty("omero.rootpass"), 
+                roles.rootName, client.getProperty("omero.rootpass"),
                 client.getProperty("omero.host"), Integer.valueOf(client.getProperty("omero.port")));
         try (final Gateway gateway = new Gateway(new SimpleLogger())) {
             gateway.connect(credentials);

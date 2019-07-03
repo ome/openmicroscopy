@@ -16,6 +16,7 @@
 import re
 import json
 import base64
+import warnings
 import omero
 import omero.clients
 
@@ -2681,9 +2682,15 @@ def su(request, user, conn=None, **kwargs):
 
 
 def _annotations(request, objtype, objid, conn=None, **kwargs):
+    warnings.warn("Deprecated. Use _bulk_file_annotations()",
+                  DeprecationWarning)
+    return _bulk_file_annotations(request, objtype, objid, conn, **kwargs)
+
+
+def _bulk_file_annotations(request, objtype, objid, conn=None, **kwargs):
     """
-    Retrieve annotations for object specified by object type and identifier,
-    optionally traversing object model graph.
+    Retrieve Bulk FileAnnotations for object specified by object type and
+    identifier optionally traversing object model graph.
     Returns dictionary containing annotations in NSBULKANNOTATIONS namespace
     if successful, otherwise returns error information.
     If the graph has multiple parents, we return annotations from all parents.
@@ -2745,7 +2752,8 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     links = [l for obj in objs for l in obj.copyAnnotationLinks()]
     for link in links:
         annotation = link.child
-        if unwrap(annotation.getNs()) != NSBULKANNOTATIONS:
+        if (not isinstance(annotation, omero.model.FileAnnotation) or
+                unwrap(annotation.getNs()) != NSBULKANNOTATIONS):
             continue
         owner = annotation.details.owner
         ownerName = "%s %s" % (unwrap(owner.firstName), unwrap(owner.lastName))
@@ -2762,7 +2770,7 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     return dict(data=data)
 
 
-annotations = login_required()(jsonp(_annotations))
+annotations = login_required()(jsonp(_bulk_file_annotations))
 
 
 def _table_query(request, fileid, conn=None, query=None, **kwargs):
@@ -2798,46 +2806,49 @@ def _table_query(request, fileid, conn=None, query=None, **kwargs):
     if not t:
         return dict(error="Table %s not found" % fileid)
 
-    cols = t.getHeaders()
-    rows = t.getNumberOfRows()
+    try:
+        cols = t.getHeaders()
+        rows = t.getNumberOfRows()
 
-    offset = kwargs.get('offset', 0)
-    limit = kwargs.get('limit', None)
+        offset = kwargs.get('offset', 0)
+        limit = kwargs.get('limit', None)
 
-    range_start = offset
-    range_end = kwargs.get('limit', rows)
-    range_end = min(rows, range_start + range_end)
+        range_start = offset
+        range_end = kwargs.get('limit', rows)
+        range_end = min(rows, range_start + range_end)
 
-    if query == '*':
-        hits = range(range_start, range_end)
-        totalCount = rows
-    else:
-        match = re.match(r'^(\w+)-(\d+)', query)
-        if match:
-            query = '(%s==%s)' % (match.group(1), match.group(2))
-        try:
-            hits = t.getWhereList(query, None, 0, rows, 1)
-            totalCount = len(hits)
-            # paginate the hits
-            hits = hits[range_start: range_end]
-        except Exception:
-            return dict(error='Error executing query: %s' % query)
+        if query == '*':
+            hits = range(range_start, range_end)
+            totalCount = rows
+        else:
+            match = re.match(r'^(\w+)-(\d+)', query)
+            if match:
+                query = '(%s==%s)' % (match.group(1), match.group(2))
+            try:
+                hits = t.getWhereList(query, None, 0, rows, 1)
+                totalCount = len(hits)
+                # paginate the hits
+                hits = hits[range_start: range_end]
+            except Exception:
+                return dict(error='Error executing query: %s' % query)
 
-    return {
-        'data': {
-            'column_types': [col.__class__.__name__ for col in cols],
-            'columns': [col.name for col in cols],
-            'rows': [[col.values[0] for col in t.read(range(len(cols)), hit,
-                                                      hit+1).columns]
-                     for hit in hits]
-        },
-        'meta': {
-            'rowCount': rows,
-            'totalCount': totalCount,
-            'limit': limit,
-            'offset': offset,
+        return {
+            'data': {
+                'column_types': [col.__class__.__name__ for col in cols],
+                'columns': [col.name for col in cols],
+                'rows': [[col.values[0] for col in t.read(range(len(cols)), hit,
+                                                        hit+1).columns]
+                        for hit in hits]
+            },
+            'meta': {
+                'rowCount': rows,
+                'totalCount': totalCount,
+                'limit': limit,
+                'offset': offset,
+            }
         }
-    }
+    finally:
+        t.close()
 
 
 table_query = login_required()(jsonp(_table_query))
@@ -2874,7 +2885,7 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
                         'columns' (an array of column names) and 'rows'
                         (an array of rows, each an array of values)
     """
-    a = _annotations(request, objtype, objid, conn, **kwargs)
+    a = _bulk_file_annotations(request, objtype, objid, conn, **kwargs)
     if 'error' in a:
         return a
 
@@ -2894,8 +2905,8 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
             fileId = annotation['file']
             break
     if ann is None:
-        return dict(error='Could not retrieve matching bulk annotation table')
-    tableData = _table_query(request, fileId, conn, **kwargs)
+        return dict(error=tableData.get('error',
+                    'Could not retrieve matching bulk annotation table'))
     tableData['id'] = fileId
     tableData['annId'] = ann['id']
     tableData['owner'] = ann['owner']

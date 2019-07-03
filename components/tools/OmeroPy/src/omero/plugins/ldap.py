@@ -58,7 +58,7 @@ class LdapControl(UserGroupControl):
         getdn = parser.add(sub, self.getdn, help="Get DN for user on stdout")
         setdn = parser.add(
             sub, self.setdn,
-            help="""Enable LDAP login for user (admins only)
+            help="""Enable or disable LDAP login for user (admins only)
 
 Once LDAP login is enabled for a user, the password set via OMERO is
 ignored, and any attempt to change it will result in an error. When
