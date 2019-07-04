@@ -453,8 +453,15 @@ class TestGetObject (object):
 
         findExp = gatewaywrapper.gateway.getObject(
             "Experimenter", attributes={'omeName': gatewaywrapper.USER.name})
+        # get Experimenter without Groups
         exp = gatewaywrapper.gateway.getObject(
-            "Experimenter", findExp.id)  # uses iQuery
+            "Experimenter", findExp.id,
+            opts={'load_experimentergroups': False})
+        assert not exp.groupExperimenterMapLoaded
+        # get Experimenter with Groups (default behaviour)
+        exp = gatewaywrapper.gateway.getObject(
+            "Experimenter", findExp.id)
+        assert exp.groupExperimenterMapLoaded
         assert exp.omeName == findExp.omeName
 
         # check groupExperimenterMap loaded for exp
