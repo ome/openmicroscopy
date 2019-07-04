@@ -450,6 +450,9 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
     group = conn.getObject("ExperimenterGroup", long(active_group),
                            opts={'load_experimenters': False})
 
+    user = conn.getObject("Experimenter", long(user_id),
+                          opts={'load_experimentergroups': False})
+
     # colleagues required for search.html page only.
     myColleagues = {}
     myGroups = {}
@@ -471,7 +474,7 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
         'global_search_form': global_search_form}
     context['myColleagues'] = myColleagues
     context['active_group'] = group
-    context['active_user'] = conn.getObject("Experimenter", long(user_id))
+    context['active_user'] = user
     context['initially_select'] = show.initially_select
     context['initially_open'] = show.initially_open
     context['isLeader'] = conn.isLeader()
