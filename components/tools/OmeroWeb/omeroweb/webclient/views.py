@@ -443,16 +443,15 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
 
     request.session['user_id'] = user_id
 
-    myGroups = list(conn.getGroupsMemberOf())
-    myGroups.sort(key=lambda x: x.getName().lower())
-    groups = myGroups
-
     new_container_form = ContainerForm()
 
     # colleagues required for search.html page only.
     myColleagues = {}
+    myGroups = {}
     if menu == "search":
-        for g in groups:
+        myGroups = list(conn.getGroupsMemberOf())
+        myGroups.sort(key=lambda x: x.getName().lower())
+        for g in myGroups:
             g.loadLeadersAndMembers()
             for c in g.leaders + g.colleagues:
                 myColleagues[c.id] = c
@@ -465,7 +464,6 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
         'myGroups': myGroups,
         'new_container_form': new_container_form,
         'global_search_form': global_search_form}
-    context['groups'] = groups
     context['myColleagues'] = myColleagues
     context['active_group'] = conn.getObject(
         "ExperimenterGroup", long(active_group))

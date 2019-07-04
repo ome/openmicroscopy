@@ -374,7 +374,7 @@
             </select>
 
             <!-- for each group we can choose users - only show <select> for 1 group at a time -->
-            {% for grp in groups %}
+            {% for grp in myGroups %}
             <select name="ownedBy" id="searchByGroupMember-{{ grp.id }}">
                 <option value="-1">All Members</option>
                 {% for user in grp.leaders %}}
