@@ -174,10 +174,7 @@ event = get_event("websettings")
 while True:
     try:
         CUSTOM_SETTINGS = dict()
-        if JSON_CONFIG_DIR:
-            CUSTOM_SETTINGS = omero.config.load_json_config_dir(
-                JSON_CONFIG_DIR)
-        elif os.path.exists(CONFIG_XML):
+        if os.path.exists(CONFIG_XML):
             CONFIG_XML = omero.config.ConfigXml(CONFIG_XML, read_only=True)
             CUSTOM_SETTINGS = CONFIG_XML.as_map()
             CONFIG_XML.close()
@@ -196,6 +193,10 @@ while True:
         # exc_info=True)
         exctype, value = sys.exc_info()[:2]
         raise exctype(value)
+
+CUSTOM_SETTINGS_JSON = dict()
+if JSON_CONFIG_DIR:
+    CUSTOM_SETTINGS_JSON = omero.config.load_json_config_dir(JSON_CONFIG_DIR)
 
 del event
 del count
@@ -216,8 +217,8 @@ SESSION_ENGINE_VALUES = ('omeroweb.filesessionstore',
                          'django.contrib.sessions.backends.cached_db')
 
 
-def parse_boolean(s):
-    if JSON_CONFIG_DIR:
+def parse_boolean(s, src=None):
+    if src == 'json':
         return s
     s = s.strip().lower()
     if s in ('true', '1', 't'):
@@ -229,7 +230,7 @@ def parse_paths(s):
     return [os.path.normpath(path) for path in parse_json(s)]
 
 
-def check_server_type(s):
+def check_server_type(s, src=None):
     if s not in ALL_SERVER_TYPES:
         raise ValueError(
             "Unknown server type: %s. Valid values are: %s"
@@ -237,7 +238,7 @@ def check_server_type(s):
     return s
 
 
-def check_session_engine(s):
+def check_session_engine(s, src=None):
     if s not in SESSION_ENGINE_VALUES:
         raise ValueError(
             "Unknown session engine: %s. Valid values are: %s"
@@ -245,17 +246,17 @@ def check_session_engine(s):
     return s
 
 
-def identity(x):
+def identity(x, src=None):
     return x
 
 
-def parse_json(j):
-    if JSON_CONFIG_DIR:
+def parse_json(j, src=None):
+    if src == 'json':
         return j
     return json.loads(j)
 
 
-def str_slash(s):
+def str_slash(s, src=None):
     if s is not None:
         s = str(s)
         if s and not s.endswith("/"):
@@ -263,17 +264,33 @@ def str_slash(s):
     return s
 
 
+def str_plain(s, src=None):
+    return str(s)
+
+
+def int_plain(i, src=None):
+    return int(i)
+
+
+def normpath_plain(p, src=None):
+    return os.path.normpath(p)
+
+
+def str_compile(s, src=None):
+    return re.compile(s)
+
+
 class LeaveUnset(Exception):
     pass
 
 
-def leave_none_unset(s):
+def leave_none_unset(s, src=None):
     if s is None:
         raise LeaveUnset()
     return s
 
 
-def leave_none_unset_int(s):
+def leave_none_unset_int(s, src=None):
     s = leave_none_unset(s)
     if s is not None:
         return int(s)
@@ -284,7 +301,7 @@ CUSTOM_HOST = CUSTOM_SETTINGS.get("omero.master.host", CUSTOM_HOST)
 # DO NOT EDIT!
 INTERNAL_SETTINGS_MAPPING = {
     "omero.qa.feedback":
-        ["FEEDBACK_URL", "http://qa.openmicroscopy.org.uk", str, None],
+        ["FEEDBACK_URL", "http://qa.openmicroscopy.org.uk", str_plain, None],
     "omero.web.upgrades.url":
         ["UPGRADES_URL", None, leave_none_unset, None],
     "omero.web.check_version":
@@ -335,7 +352,7 @@ INTERNAL_SETTINGS_MAPPING = {
     "omero.web.admins.email_subject_prefix":
         ["EMAIL_SUBJECT_PREFIX",
          "[OMERO.web - admin notification]",
-         str,
+         str_plain,
          "Subject-line prefix for email messages"],
     "omero.mail.smtp.starttls.enable":
         ["EMAIL_USE_TLS",
@@ -381,12 +398,17 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.application_server.host":
         ["APPLICATION_SERVER_HOST",
          "127.0.0.1",
-         str,
+         str_plain,
          "Upstream application host"],
     "omero.web.application_server.port":
-        ["APPLICATION_SERVER_PORT", 4080, int, "Upstream application port"],
+        ["APPLICATION_SERVER_PORT",
+         4080,
+         int_plain,
+         "Upstream application port"],
     "omero.web.application_server.max_requests":
-        ["APPLICATION_SERVER_MAX_REQUESTS", 0, int,
+        ["APPLICATION_SERVER_MAX_REQUESTS",
+         0,
+         int_plain,
          ("The maximum number of requests a worker will process before "
           "restarting.")],
     "omero.web.middleware":
@@ -435,7 +457,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.static_root":
         ["STATIC_ROOT",
          os.path.join(os.path.dirname(__file__), 'static').replace('\\', '/'),
-         os.path.normpath,
+         normpath_plain,
          ("The absolute path to the directory where collectstatic will"
           " collect static files for deployment. If the staticfiles contrib"
           " app is enabled (default) the collectstatic management command"
@@ -473,7 +495,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.session_cookie_age":
         ["SESSION_COOKIE_AGE",
          86400,
-         int,
+         int_plain,
          "The age of session cookies, in seconds."],
     "omero.web.session_cookie_domain":
         ["SESSION_COOKIE_DOMAIN",
@@ -506,7 +528,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "OMERO.web.")],
 
     "omero.web.logdir":
-        ["LOGDIR", LOGDIR, str, "A path to the custom log directory."],
+        ["LOGDIR", LOGDIR, str_plain, "A path to the custom log directory."],
     "omero.web.secure_proxy_ssl_header":
         ["SECURE_PROXY_SSL_HEADER",
          '[]',
@@ -526,14 +548,14 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.wsgi_workers":
         ["WSGI_WORKERS",
          5,
-         int,
+         int_plain,
          ("The number of worker processes for handling requests. "
           "Check Gunicorn Documentation "
           "https://docs.gunicorn.org/en/stable/settings.html#workers")],
     "omero.web.wsgi_timeout":
         ["WSGI_TIMEOUT",
          60,
-         int,
+         int_plain,
          ("Workers silent for more than this many seconds are killed "
           "and restarted. Check Gunicorn Documentation "
           "https://docs.gunicorn.org/en/stable/settings.html#timeout")],
@@ -547,7 +569,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.public.url_filter":
         ["PUBLIC_URL_FILTER",
          r'(?#This regular expression matches nothing)a^',
-         re.compile,
+         str_compile,
          ("Set a regular expression that matches URLs the public user is "
           "allowed to access. If this is not set, no URLs will be "
           "publicly available.")],
@@ -557,7 +579,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
          parse_boolean,
          "Restrict public users to GET requests only"],
     "omero.web.public.server_id":
-        ["PUBLIC_SERVER_ID", 1, int, "Server to authenticate against."],
+        ["PUBLIC_SERVER_ID",
+         1,
+         int_plain,
+         "Server to authenticate against."],
     "omero.web.public.user":
         ["PUBLIC_USER",
          None,
@@ -571,9 +596,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.public.cache.enabled":
         ["PUBLIC_CACHE_ENABLED", "false", parse_boolean, None],
     "omero.web.public.cache.key":
-        ["PUBLIC_CACHE_KEY", "omero.web.public.cache.key", str, None],
+        ["PUBLIC_CACHE_KEY", "omero.web.public.cache.key", str_plain, None],
     "omero.web.public.cache.timeout":
-        ["PUBLIC_CACHE_TIMEOUT", 60 * 60 * 24, int, None],
+        ["PUBLIC_CACHE_TIMEOUT", 60 * 60 * 24, int_plain, None],
 
     # Social media integration
     "omero.web.sharing.twitter":
@@ -600,12 +625,12 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.ping_interval":
         ["PING_INTERVAL",
          60000,
-         int,
+         int_plain,
          "Timeout interval between ping invocations in seconds"],
     "omero.web.chunk_size":
         ["CHUNK_SIZE",
          1048576,
-         int,
+         int_plain,
          "Size, in bytes, of the “chunk”"],
     "omero.web.webgateway_cache":
         ["WEBGATEWAY_CACHE", None, leave_none_unset, None],
@@ -614,7 +639,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.viewer.view":
         ["VIEWER_VIEW",
          'omeroweb.webclient.views.image_viewer',
-         str,
+         str_plain,
          ("Django view which handles display of, or redirection to, the "
           "desired full image viewer.")],
 
@@ -652,7 +677,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.pipeline_staticfile_storage":
         ["STATICFILES_STORAGE",
          "pipeline.storage.PipelineStorage",
-         str,
+         str_plain,
          ("The file storage engine to use when collecting static files with"
           " the collectstatic management command. See `the documentation "
           "<https://django-pipeline.readthedocs.org/en/latest/storages.html>`_"
@@ -670,13 +695,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.login_view":
         ["LOGIN_VIEW",
          "weblogin",
-         str,
+         str_plain,
          ("The Django view name used for login. Use this to provide an "
           "alternative login workflow.")],
     "omero.web.login_incorrect_credentials_text":
         ["LOGIN_INCORRECT_CREDENTIALS_TEXT",
          "Connection not available, please check your user name and password.",
-         str,
+         str_plain,
          ("The error message shown to users who enter an incorrect username "
           "or password.")],
 
@@ -758,7 +783,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.login.client_downloads_base":
         ["CLIENT_DOWNLOAD_GITHUB_REPO",
          'ome/omero-insight',
-         str,
+         str_plain,
          ("GitHub repository containing the Desktop client downloads")],
 
     "omero.web.apps":
@@ -772,13 +797,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.page_size":
         ["PAGE",
          200,
-         int,
+         int_plain,
          ("Number of images displayed within a dataset or 'orphaned'"
           " container to prevent from loading them all at once.")],
     "omero.web.thumbnails_batch":
         ["THUMBNAILS_BATCH",
          50,
-         int,
+         int_plain,
          ("Number of thumbnails retrieved to prevent from loading them"
           " all at once. Make sure the size is not too big, otherwise"
           " you may exceed limit request line, see"
@@ -864,7 +889,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.x_frame_options":
         ["X_FRAME_OPTIONS",
          "SAMEORIGIN",
-         str,
+         str_plain,
          "Whether to allow OMERO.web to be loaded in a frame."
          ],
 
@@ -912,7 +937,7 @@ DEPRECATED_SETTINGS_MAPPINGS = {
     "omero.web.email_subject_prefix":
         ["EMAIL_SUBJECT_PREFIX",
          "[OMERO.web]",
-         str,
+         str_plain,
          ("Default email subject is no longer configurable.")],
     "omero.web.email_use_tls":
         ["EMAIL_USE_TLS",
@@ -942,7 +967,7 @@ DEPRECATED_SETTINGS_MAPPINGS = {
 del CUSTOM_HOST
 
 
-def check_worker_class(c):
+def check_worker_class(c, src=None):
     if c == "gevent":
         try:
             import gevent  # NOQA
@@ -952,7 +977,7 @@ def check_worker_class(c):
     return str(c)
 
 
-def check_threading(t):
+def check_threading(t, src=None):
     if t > 1:
         try:
             import concurrent.futures  # NOQA
@@ -976,7 +1001,7 @@ DEVELOPMENT_SETTINGS_MAPPINGS = {
     "omero.web.wsgi_worker_connections":
         ["WSGI_WORKER_CONNECTIONS",
          1000,
-         int,
+         int_plain,
          ("(ASYNC WORKERS only) The maximum number of simultaneous clients. "
           "Check Gunicorn Documentation https://docs.gunicorn.org"
           "/en/stable/settings.html#worker-connections")],
@@ -1025,17 +1050,21 @@ def process_custom_settings(
         global_name, default_value, mapping, description = values
 
         try:
-            global_value = CUSTOM_SETTINGS[key]
-            values.append(False)
+            global_value = CUSTOM_SETTINGS_JSON[key]
+            src = 'json'
         except KeyError:
-            global_value = default_value
-            values.append(True)
+            try:
+                global_value = CUSTOM_SETTINGS[key]
+                src = 'xml'
+            except KeyError:
+                global_value = default_value
+                src = 'default'
+        values.append(src)
 
         try:
-            using_default = values[-1]
             if global_name in deprecated_map:
                 dep_value, dep_key = deprecated_map[global_name]
-                if using_default:
+                if src == 'default':
                     logging.warning(
                         'Setting %s is deprecated, use %s', dep_key, key)
                     global_value = dep_value
@@ -1043,7 +1072,7 @@ def process_custom_settings(
                     logging.error(
                         '%s and its deprecated key %s are both set, using %s',
                         key, dep_key, key)
-            setattr(module, global_name, mapping(global_value))
+            setattr(module, global_name, mapping(global_value, src))
         except ValueError, e:
             raise ValueError(
                 "Invalid %s (%s = %r). %s. %s" %
@@ -1072,9 +1101,9 @@ def report_settings(module):
     custom_settings_mappings = getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', {})
     for key in sorted(custom_settings_mappings):
         values = custom_settings_mappings[key]
-        global_name, default_value, mapping, description, using_default = \
-            values
-        source = using_default and "default" or key
+        global_name, default_value, mapping, description, source = values
+        if source != 'default':
+            source = '%s:%s' % (source, key)
         global_value = getattr(module, global_name, None)
         if global_name.isupper():
             logger.debug(
@@ -1084,10 +1113,9 @@ def report_settings(module):
     deprecated_settings = getattr(module, 'DEPRECATED_SETTINGS_MAPPINGS', {})
     for key in sorted(deprecated_settings):
         values = deprecated_settings[key]
-        global_name, default_value, mapping, description, using_default = \
-            values
+        global_name, default_value, mapping, description, source = values
         global_value = getattr(module, global_name, None)
-        if global_name.isupper() and not using_default:
+        if global_name.isupper() and source != 'default':
             logger.debug(
                 "%s = %r (deprecated:%s, %s)", global_name,
                 cleanse_setting(global_name, global_value), key, description)
