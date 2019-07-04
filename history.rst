@@ -27,6 +27,9 @@ well as an upgrade of Bio-Formats to 6.1.1.
 - import:
    - Add import target support for creating Projects
 
+- scripts:
+   - Enable annotating Projects and Datasets with the Populate Metadata script
+
 - server:
    - Fix SSL cipher issue to allow Insight to be used from Fedora 30
    - Fix issue with loading Hibernate’s DTD when offline
