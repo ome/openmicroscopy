@@ -2837,8 +2837,8 @@ def _table_query(request, fileid, conn=None, query=None, **kwargs):
                 'column_types': [col.__class__.__name__ for col in cols],
                 'columns': [col.name for col in cols],
                 'rows': [[col.values[0] for col in t.read(
-                        range(len(cols)), hit, hit+1).columns]
-                        for hit in hits]
+                         range(len(cols)), hit, hit+1).columns]
+                         for hit in hits]
             },
             'meta': {
                 'rowCount': rows,
