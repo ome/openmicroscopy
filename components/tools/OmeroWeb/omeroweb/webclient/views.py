@@ -445,6 +445,11 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
 
     new_container_form = ContainerForm()
 
+    # Set group, otherwise 'load_experimenters':False is ingored
+    conn.SERVICE_OPTS.setOmeroGroup(active_group)
+    group = conn.getObject("ExperimenterGroup", long(active_group),
+                           opts={'load_experimenters': False})
+
     # colleagues required for search.html page only.
     myColleagues = {}
     myGroups = {}
@@ -465,8 +470,7 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
         'new_container_form': new_container_form,
         'global_search_form': global_search_form}
     context['myColleagues'] = myColleagues
-    context['active_group'] = conn.getObject(
-        "ExperimenterGroup", long(active_group), opts={'load_experimenters': False})
+    context['active_group'] = group
     context['active_user'] = conn.getObject("Experimenter", long(user_id))
     context['initially_select'] = show.initially_select
     context['initially_open'] = show.initially_open
