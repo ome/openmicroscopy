@@ -397,16 +397,18 @@ class TestGetObject (object):
         #    assert e.getId() in eIds
 
         # groups
-        # groups = list( gatewaywrapper.gateway.listGroups() )
-        # now removed from blitz gateway.
-        gps = list(gatewaywrapper.gateway.getObjects("ExperimenterGroup"))
+        gps = gatewaywrapper.gateway.getObjects(
+            "ExperimenterGroup", opts={'limit': 10})
         for grp in gps:
+            assert grp._obj.groupExperimenterMapLoaded
             grp.copyGroupExperimenterMap()
-        # self.assertEqual(len(gps), len(groups))  # check unordered lists are
-        # the same length & ids
-        # gIds = [g.getId() for g in gps]
-        # for g in groups:
-        #    assert g.getId() in gIds
+
+        # Load groups 'without' experimenters
+        gps = gatewaywrapper.gateway.getObjects(
+            "ExperimenterGroup",
+            opts={'load_experimenters': False, 'limit': 10})
+        for grp in gps:
+            assert not grp._obj.groupExperimenterMapLoaded
 
         # uses gateway.getObjects("ExperimenterGroup") - check this doesn't
         # throw
