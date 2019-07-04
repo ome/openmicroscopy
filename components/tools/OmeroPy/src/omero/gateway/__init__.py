@@ -2315,9 +2315,11 @@ class _BlitzGateway (object):
         """
         params = omero.sys.ParametersI()
         params.addId(group_id)
-        query = "select gem.child.id from GroupExperimenterMap gem where gem.parent.id = :id"
+        query = ("select gem.child.id from GroupExperimenterMap gem"
+                 " where gem.parent.id = :id")
         # conn.SERVICE_OPTS.setOmeroGroup(active_group)
-        result = self.getQueryService().projection(query, params, self.SERVICE_OPTS)
+        result = self.getQueryService().projection(query, params,
+                                                   self.SERVICE_OPTS)
         return [r[0].val for r in result]
 
     def getUser(self):
