@@ -2306,6 +2306,20 @@ class _BlitzGateway (object):
         self._userid = uid
         self._user = None
 
+    def getUserIdsForGroup(self, group_id):
+        """
+        Returns user IDs for specified Group.
+
+        :param group_id:    ID of group to query
+        :return:            List of longs
+        """
+        params = omero.sys.ParametersI()
+        params.addId(group_id)
+        query = "select gem.child.id from GroupExperimenterMap gem where gem.parent.id = :id"
+        # conn.SERVICE_OPTS.setOmeroGroup(active_group)
+        result = self.getQueryService().projection(query, params, self.SERVICE_OPTS)
+        return [r[0].val for r in result]
+
     def getUser(self):
         """
         Returns current Experimenter.
