@@ -6111,16 +6111,20 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
     def _getQueryString(cls, opts=None):
         """
         Returns string for building queries, loading Experimenters for each
-        group.
+        group by default.
         Returns a tuple of (query, clauses, params).
+        Supported opts: 'load_experimenters': If True, we load experimenters
 
         :param opts:        Dictionary of optional parameters.
-                            NB: No options supported for this class.
         :return:            Tuple of string, list, ParametersI
         """
-        query = ("select distinct obj from ExperimenterGroup as obj "
-                 "left outer join fetch obj.groupExperimenterMap as map "
-                 "left outer join fetch map.child e")
+        load_experimenters = True
+        if opts is not None:
+            load_experimenters = opts.get('load_experimenters', True)
+        query = "select distinct obj from ExperimenterGroup as obj"
+        if load_experimenters:
+            query += (" left outer join fetch obj.groupExperimenterMap as map"
+                      " left outer join fetch map.child e")
         return query, [], omero.sys.ParametersI()
 
     def groupSummary(self, exclude_self=False):
