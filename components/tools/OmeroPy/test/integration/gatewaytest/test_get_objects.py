@@ -410,6 +410,25 @@ class TestGetObject (object):
         for grp in gps:
             assert not grp._obj.groupExperimenterMapLoaded
 
+        # getGroup
+        # load_experimenters: False - Don't load Experimenters
+        group_id = gatewaywrapper.gateway.getEventContext().groupId
+        grp = gatewaywrapper.gateway.getObject(
+            "ExperimenterGroup", group_id,
+            opts={'load_experimenters': False})
+        assert not grp._obj.groupExperimenterMapLoaded
+
+        # load_experimenters ignored if groupContext: -1
+        old_id = gatewaywrapper.gateway.SERVICE_OPTS.getOmeroGroup()
+        gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+        grp = gatewaywrapper.gateway.getObject(
+            "ExperimenterGroup", group_id,
+            opts={'load_experimenters': False})
+        # Experimenters ARE loaded
+        assert grp._obj.groupExperimenterMapLoaded
+        grp.copyGroupExperimenterMap()
+        gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup(old_id)
+
         # uses gateway.getObjects("ExperimenterGroup") - check this doesn't
         # throw
         colleagues = gatewaywrapper.gateway.listColleagues()

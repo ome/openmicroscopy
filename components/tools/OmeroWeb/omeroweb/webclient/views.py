@@ -466,7 +466,7 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
         'global_search_form': global_search_form}
     context['myColleagues'] = myColleagues
     context['active_group'] = conn.getObject(
-        "ExperimenterGroup", long(active_group))
+        "ExperimenterGroup", long(active_group), opts={'load_experimenters': False})
     context['active_user'] = conn.getObject("Experimenter", long(user_id))
     context['initially_select'] = show.initially_select
     context['initially_open'] = show.initially_open
