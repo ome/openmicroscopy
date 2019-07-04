@@ -317,16 +317,16 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
             raise
 
         try:
-            callback.loop(20, 500)
-        except LockTimeout:
+            try:
+                callback.loop(20, 500)
+            except LockTimeout:
+                raise omero.InternalException(None, None, "delete timed-out")
+
+            rsp = callback.getResponse()
+            if isinstance(rsp, omero.cmd.ERR):
+                raise omero.InternalException(None, None, str(rsp))
+        finally:
             callback.close(True)
-            raise omero.InternalException(None, None, "delete timed-out")
-
-        rsp = callback.getResponse()
-        if isinstance(rsp, omero.cmd.ERR):
-            raise omero.InternalException(None, None, str(rsp))
-
-        self.file_obj = None
 
     # TABLES METADATA API ===========================
 
