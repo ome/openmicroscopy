@@ -416,15 +416,6 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
     if url is None:
         url = reverse(viewname="load_template", args=[menu])
 
-    # validate experimenter is in the active group
-    active_group = (request.session.get('active_group') or
-                    conn.getEventContext().groupId)
-    # prepare members of group...
-    leaders, members = conn.getObject(
-        "ExperimenterGroup", active_group).groupSummary()
-    userIds = [u.id for u in leaders]
-    userIds.extend([u.id for u in members])
-
     # check any change in experimenter...
     user_id = request.GET.get('experimenter')
     if initially_open_owner is not None:
@@ -435,17 +426,18 @@ def _load_template(request, menu, conn=None, url=None, **kwargs):
         user_id = long(user_id)
     except:
         user_id = None
-    # check if user_id is in a currnt group
+    # check if user_id is in the current group
+    active_group = (request.session.get('active_group') or
+                    conn.getEventContext().groupId)
+    user_ids = conn.getUserIdsForGroup(active_group)
     if user_id is not None:
-        if (user_id not in
-            (set(map(lambda x: x.id, leaders))
-             | set(map(lambda x: x.id, members))) and user_id != -1):
+        if (user_id not in user_ids and user_id != -1):
             # All users in group is allowed
             user_id = None
     if user_id is None:
         # ... or check that current user is valid in active group
         user_id = request.session.get('user_id', None)
-        if user_id is None or int(user_id) not in userIds:
+        if user_id is None or int(user_id) not in user_ids:
             if user_id != -1:           # All users in group is allowed
                 user_id = conn.getEventContext().userId
 
