@@ -1032,6 +1032,57 @@ def map_deprecated_settings(settings):
     return m
 
 
+def lookup_web_config(key, default_value=None, mapping=identity):
+    """
+    Lookup an omero config property as seen by OMERO.web, taking into account
+    the config.xml and and config JSON files.
+
+    :param key str: The omero config property name
+    :param default_value: The default value of the property
+    :param mapping func: The mapping function(value, src) to convert the
+           property to the OMERO.web value
+
+    :return (value, src, unset):
+            value: the  value of the property taking into account the
+            default_value and mapping parameters
+            src: whether the property is the 'default', from the 'xml' config,
+            or from the 'json', config
+            unset: If True the property should be left unset, e.g. it should
+            inherit the default Django value
+    """
+    unset = False
+    if (key in CUSTOM_SETTINGS_JSON_SET or
+            key in CUSTOM_SETTINGS_JSON_APPEND):
+        try:
+            global_value = CUSTOM_SETTINGS_JSON_SET[key]
+        except KeyError:
+            try:
+                global_value = mapping(default_value, src='default')
+            except LeaveUnset:
+                global_value = None
+                unset = True
+        src = 'json'
+        if key in CUSTOM_SETTINGS_JSON_APPEND:
+            try:
+                global_value.extend(CUSTOM_SETTINGS_JSON_APPEND[key])
+            except AttributeError:
+                global_value.update(CUSTOM_SETTINGS_JSON_APPEND[key])
+            global_value = mapping(global_value, src)
+    else:
+        try:
+            src = 'xml'
+            global_value = CUSTOM_SETTINGS[key]
+        except KeyError:
+            src = 'default'
+            global_value = default_value
+        try:
+            global_value = mapping(global_value, src)
+        except LeaveUnset:
+            global_value = None
+            unset = True
+    return global_value, src, unset
+
+
 def process_custom_settings(
         module, settings='CUSTOM_SETTINGS_MAPPINGS', deprecated=None):
     logging.info('Processing custom settings for module %s' % module.__name__)
@@ -1050,38 +1101,27 @@ def process_custom_settings(
             continue
 
         global_name, default_value, mapping, description = values
-
-        if (key in CUSTOM_SETTINGS_JSON_SET or
-                key in CUSTOM_SETTINGS_JSON_APPEND):
-            global_value = CUSTOM_SETTINGS_JSON_SET.get(
-                key, mapping(default_value))
-            if key in CUSTOM_SETTINGS_JSON_APPEND:
-                try:
-                    global_value.extend(CUSTOM_SETTINGS_JSON_APPEND[key])
-                except AttributeError:
-                    global_value.update(CUSTOM_SETTINGS_JSON_APPEND[key])
-            src = 'json'
-        else:
-            try:
-                global_value = CUSTOM_SETTINGS[key]
-                src = 'xml'
-            except KeyError:
-                global_value = default_value
-                src = 'default'
-        values.append(src)
-
         try:
+            global_value, src, unset = lookup_web_config(
+                key, default_value, mapping)
+            values.append(src)
+
             if global_name in deprecated_map:
                 dep_value, dep_key = deprecated_map[global_name]
                 if src == 'default':
                     logging.warning(
                         'Setting %s is deprecated, use %s', dep_key, key)
-                    global_value = dep_value
+                    try:
+                        global_value = mapping(dep_value)
+                    except LeaveUnset:
+                        global_value = None
+                        unset = True
                 else:
                     logging.error(
                         '%s and its deprecated key %s are both set, using %s',
                         key, dep_key, key)
-            setattr(module, global_name, mapping(global_value, src))
+            if not unset:
+                setattr(module, global_name, global_value)
         except ValueError, e:
             raise ValueError(
                 "Invalid %s (%s = %r). %s. %s" %
@@ -1090,8 +1130,6 @@ def process_custom_settings(
             raise ImportError(
                 "ImportError: %s. %s (%s = %r).\n%s" %
                 (e.message, global_name, key, global_value, description))
-        except LeaveUnset:
-            pass
 
 
 process_custom_settings(sys.modules[__name__], 'INTERNAL_SETTINGS_MAPPING')
