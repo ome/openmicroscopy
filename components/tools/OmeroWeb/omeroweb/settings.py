@@ -194,9 +194,11 @@ while True:
         exctype, value = sys.exc_info()[:2]
         raise exctype(value)
 
-CUSTOM_SETTINGS_JSON = dict()
+CUSTOM_SETTINGS_JSON_SET = dict()
+CUSTOM_SETTINGS_JSON_APPEND = dict()
 if JSON_CONFIG_DIR:
-    CUSTOM_SETTINGS_JSON = omero.config.load_json_config_dir(JSON_CONFIG_DIR)
+    CUSTOM_SETTINGS_JSON_SET, CUSTOM_SETTINGS_JSON_APPEND = \
+        omero.config.load_json_config_dir(JSON_CONFIG_DIR)
 
 del event
 del count
@@ -1049,10 +1051,17 @@ def process_custom_settings(
 
         global_name, default_value, mapping, description = values
 
-        try:
-            global_value = CUSTOM_SETTINGS_JSON[key]
+        if (key in CUSTOM_SETTINGS_JSON_SET or
+                key in CUSTOM_SETTINGS_JSON_APPEND):
+            global_value = CUSTOM_SETTINGS_JSON_SET.get(
+                key, mapping(default_value))
+            if key in CUSTOM_SETTINGS_JSON_APPEND:
+                try:
+                    global_value.extend(CUSTOM_SETTINGS_JSON_APPEND[key])
+                except AttributeError:
+                    global_value.update(CUSTOM_SETTINGS_JSON_APPEND[key])
             src = 'json'
-        except KeyError:
+        else:
             try:
                 global_value = CUSTOM_SETTINGS[key]
                 src = 'xml'
