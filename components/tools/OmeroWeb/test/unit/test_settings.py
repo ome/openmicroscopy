@@ -23,6 +23,15 @@ Simple integration tests to ensure that the settings are working correctly.
 """
 
 from connector import Server
+import settings
+from settings import (
+    _apply_mapping,
+    int_plain,
+    leave_none_unset,
+    lookup_web_config,
+    parse_json,
+    str_plain,
+)
 
 
 # Test model
@@ -81,3 +90,80 @@ class TestServerModel (object):
             assert str(te) == 'No more instances allowed'
 
         Server(host=u'example1.com', port=4064)
+
+
+class TestProperties(object):
+
+    def test_apply_mapping_leaveunset(self):
+        assert (None, True) == _apply_mapping(
+            None, 'default', leave_none_unset, 'test.unset')
+        assert ('x', False) == _apply_mapping(
+            'x', 'default', leave_none_unset, 'test.unset')
+
+    def test_apply_mapping_oldmapping(self):
+        assert (123, False) == _apply_mapping(
+            '123', 'default', int, 'test.oldmapping')
+
+    def test_apply_mapping_parsejson(self):
+        assert ({'a': 1}, False) == _apply_mapping(
+            '{"a": 1}', 'default', parse_json, 'test.parsejson')
+        assert ({'a': 1}, False) == _apply_mapping(
+            '{"a": 1}', 'xml', parse_json, 'test.parsejson')
+        assert ({'a': 1}, False) == _apply_mapping(
+            {'a': 1}, 'json', parse_json, 'test.parsejson')
+
+    def test_lookup_web_config_default(self, monkeypatch):
+        monkeypatch.setattr(settings, 'CUSTOM_SETTINGS_JSON_SET', {})
+        monkeypatch.setattr(settings, 'CUSTOM_SETTINGS_JSON_APPEND', {})
+        monkeypatch.setattr(settings, 'CUSTOM_SETTINGS', {})
+
+        assert (123, 'default', False) == lookup_web_config(
+            'test.missing', 123)
+        assert ('123', 'default', False) == lookup_web_config(
+            'test.missing', 123, str_plain)
+
+    def test_lookup_web_config_jsonset(self, monkeypatch):
+        monkeypatch.setattr(settings, 'CUSTOM_SETTINGS_JSON_SET', {
+            'test.k1': 1,
+            'test.k2': [2],
+        })
+        monkeypatch.setattr(settings, 'CUSTOM_SETTINGS_JSON_APPEND', {})
+        monkeypatch.setattr(settings, 'CUSTOM_SETTINGS', {
+            'test.k1': 'should be ignored',
+        })
+
+        assert (1, 'json', False) == lookup_web_config('test.k1')
+        assert (123, 'default', False) == lookup_web_config(
+            'test.missing', 123)
+
+        assert (1, 'json', False) == lookup_web_config(
+            'test.k1', '123', parse_json)
+        assert (123, 'default', False) == lookup_web_config(
+            'test.missing', '123', parse_json)
+
+    def test_lookup_web_config_jsonappend(self, monkeypatch):
+        monkeypatch.setattr(settings, 'CUSTOM_SETTINGS_JSON_SET', {
+            'test.k1': [1],
+        })
+        monkeypatch.setattr(settings, 'CUSTOM_SETTINGS_JSON_APPEND', {
+            'test.k1': [2, 3],
+            'test.k2': [4, 5],
+        })
+        monkeypatch.setattr(settings, 'CUSTOM_SETTINGS', {
+            'test.k1': 'should be ignored',
+        })
+        assert ([1, 2, 3], 'json', False) == lookup_web_config(
+            'test.k1', '[]', parse_json)
+        assert ([4, 5], 'json', False) == lookup_web_config(
+            'test.k2', '[]', parse_json)
+
+    def test_lookup_web_config_xml(self, monkeypatch):
+        monkeypatch.setattr(settings, 'CUSTOM_SETTINGS_JSON_SET', {})
+        monkeypatch.setattr(settings, 'CUSTOM_SETTINGS_JSON_APPEND', {})
+        monkeypatch.setattr(settings, 'CUSTOM_SETTINGS', {
+            'test.k1': '1',
+        })
+
+        assert ('1', 'xml', False) == lookup_web_config('test.k1', 123)
+        assert (1, 'xml', False) == lookup_web_config(
+            'test.k1', 123, int_plain)
