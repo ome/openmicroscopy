@@ -36,6 +36,7 @@ import omero.config
 import omero.clients
 import tempfile
 import re
+import inspect
 import json
 import random
 import string
@@ -1032,6 +1033,47 @@ def map_deprecated_settings(settings):
     return m
 
 
+def _apply_mapping(value, src, mapping, key):
+    """
+    Applies the mapping function for an OMERO.web setting.
+    This attempts to handle both new mapping functions (value, src) and old
+    (value).
+    Old mapping functions only work with config.xml settings, they do not
+    support new JSON settings.
+
+    :param value: The raw config value
+    :param src str: The source of the value
+    :param mapping function: The mapping function
+    :param key str: The key name, used to log a deprecation message if an old
+           mapping function is found
+    :return (value, unset):
+            value: The mapped value
+            unset: If True the property should be left unset
+    """
+    try:
+        argspec = inspect.getargspec(mapping)
+        isold = len(argspec.args) < 2
+    except TypeError:
+        # E.g. int(), str()
+        isold = True
+    if isold:
+        logger.warn(
+            'Setting %s uses a deprecated mapping function %s',
+            key, mapping.__name__)
+        if src not in ('default', 'xml'):
+            raise ValueError(
+                'Deprecated mapping function cannot be used with JSON '
+                'configuration for key %s' % key)
+        try:
+            return mapping(value), False
+        except LeaveUnset:
+            return None, True
+    try:
+        return mapping(value, src), False
+    except LeaveUnset:
+        return None, True
+
+
 def lookup_web_config(key, default_value=None, mapping=identity):
     """
     Lookup an omero config property as seen by OMERO.web, taking into account
@@ -1050,24 +1092,23 @@ def lookup_web_config(key, default_value=None, mapping=identity):
             unset: If True the property should be left unset, e.g. it should
             inherit the default Django value
     """
-    unset = False
     if (key in CUSTOM_SETTINGS_JSON_SET or
             key in CUSTOM_SETTINGS_JSON_APPEND):
         try:
             global_value = CUSTOM_SETTINGS_JSON_SET[key]
+            src = 'json'
         except KeyError:
-            try:
-                global_value = mapping(default_value, src='default')
-            except LeaveUnset:
-                global_value = None
-                unset = True
-        src = 'json'
+            global_value = default_value
+            src = 'default'
+        global_value, unset = _apply_mapping(global_value, src, mapping, key)
         if key in CUSTOM_SETTINGS_JSON_APPEND:
+            src = 'json'
             try:
                 global_value.extend(CUSTOM_SETTINGS_JSON_APPEND[key])
             except AttributeError:
                 global_value.update(CUSTOM_SETTINGS_JSON_APPEND[key])
-            global_value = mapping(global_value, src)
+            global_value, unset = _apply_mapping(
+                global_value, src, mapping, key)
     else:
         try:
             src = 'xml'
@@ -1075,11 +1116,8 @@ def lookup_web_config(key, default_value=None, mapping=identity):
         except KeyError:
             src = 'default'
             global_value = default_value
-        try:
-            global_value = mapping(global_value, src)
-        except LeaveUnset:
-            global_value = None
-            unset = True
+        global_value, unset = _apply_mapping(
+            global_value, src, mapping, key)
     return global_value, src, unset
 
 
@@ -1111,11 +1149,8 @@ def process_custom_settings(
                 if src == 'default':
                     logging.warning(
                         'Setting %s is deprecated, use %s', dep_key, key)
-                    try:
-                        global_value = mapping(dep_value)
-                    except LeaveUnset:
-                        global_value = None
-                        unset = True
+                    global_value, unset = _apply_mapping(
+                        global_value, src, mapping, dep_key)
                 else:
                     logging.error(
                         '%s and its deprecated key %s are both set, using %s',
