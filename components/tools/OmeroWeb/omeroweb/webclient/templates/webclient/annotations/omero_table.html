@@ -1,4 +1,5 @@
 
+{% load common_filters %}
 <html>
     <head>
         <style>
@@ -86,8 +87,8 @@
     </p>
     <table>
         <tr>
-        {% for col in data.columns %}
-            <th>{{ col }}</th>
+        {% for col, col_type in data.columns|zip:data.column_types  %}
+            <th title="{{col_type}}">{{ col }}</th>
         {% endfor %}
         </tr>
 
