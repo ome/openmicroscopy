@@ -2814,8 +2814,8 @@ def _table_query(request, fileid, conn=None, query=None, **kwargs):
         limit = kwargs.get('limit', None)
 
         range_start = offset
-        range_end = kwargs.get('limit', rows)
-        range_end = min(rows, range_start + range_end)
+        range_size = kwargs.get('limit', rows)
+        range_end = min(rows, range_start + range_size)
 
         if query == '*':
             hits = range(range_start, range_end)

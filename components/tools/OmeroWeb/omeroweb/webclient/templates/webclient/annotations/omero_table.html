@@ -31,7 +31,9 @@
     <body>
 
     <div class="download">
-        <a href="{% url 'omero_table' data.id 'csv' %}">Download table as CSV</a>
+        Download as CSV
+        <a href="{% url 'omero_table' data.id 'csv' %}?limit={{ meta.rowCount }}">Whole Table</a> |
+        <a href="{% url 'omero_table' data.id 'csv' %}?limit={{ meta.limit }}&offset={{ meta.offset }}&query={{ meta.query|urlencode }}">This View</a>
     </div>
     {% if meta.query != '*' %}
         <div class="back">
