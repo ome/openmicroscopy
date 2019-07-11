@@ -95,7 +95,13 @@
         {% for row in data.rows %}
         <tr>
             {% for col in row %}
+                {% if image_column_index == forloop.counter0 %}
+                <td><a target="_blank" href="{% url 'webindex' %}?show=image-{{ col }}">{{ col }}</a></td>
+                {% elif well_column_index == forloop.counter0 %}
+                <td><a target="_blank" href="{% url 'webindex' %}?show=well-{{ col }}">{{ col }}</a></td>
+                {% else %}
                 <td>{{ col }}</td>
+                {% endif %}
             {% endfor %}
         </tr>
         {% endfor %}

@@ -3002,9 +3002,14 @@ def omero_table(request, file_id, mtype=None, conn=None, **kwargs):
         return rsp
     elif mtype is None:
         context['template'] = 'webclient/annotations/omero_table.html'
+        col_types = context['data']['column_types']
+        if 'ImageColumn' in col_types:
+            context['image_column_index'] = col_types.index('ImageColumn')
+        if 'WellColumn' in col_types:
+            context['well_column_index'] = col_types.index('WellColumn')
         # provide example queries - pick first DoubleColumn...
-        for idx, c_type in enumerate(context['data']['column_types']):
-            if c_type == 'DoubleColumn':
+        for idx, c_type in enumerate(col_types):
+            if c_type in ('DoubleColumn', 'LongColumn'):
                 col_name = context['data']['columns'][idx]
                 # find first few non-empty cells...
                 vals = []
