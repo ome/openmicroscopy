@@ -100,11 +100,14 @@ class TestOmeroTables(IWebTest):
         # expected table data
         col_types, col_names, rows = table_data
 
+        col_types = [cls.__name__ for cls in col_types]
+
         # GET json
         request_url = reverse("omero_table", args=[file_id, 'json'])
         rsp = get_json(django_client, request_url)
         assert rsp['data']['rows'] == rows
         assert rsp['data']['columns'] == col_names
+        assert rsp['data']['column_types'] == col_types
         assert rsp['data']['name'].startswith('omero_table_test')
         assert rsp['data']['id'] == file_id
 
@@ -112,11 +115,18 @@ class TestOmeroTables(IWebTest):
         request_url = reverse("omero_table", args=[file_id])
         rsp = get(django_client, request_url)
         html = rsp.content
-        for col in col_names:
-            assert ('<th>%s</th>' % col) in html
+        for col_type, col in zip(col_types, col_names):
+            assert ('<th title="%s">%s</th>' % (col_type, col)) in html
+        well_col_index = col_types.index('WellColumn')
         for row in rows:
-            for td in row:
-                assert ('<td>%s</td>' % td) in html
+            for idx, td in enumerate(row):
+                if idx != well_col_index:
+                    assert ('<td>%s</td>' % td) in html
+                else:
+                    # link to webclient
+                    link = reverse('webindex')
+                    link_html = ('<a href="%s?show=well-%s">' % (link, td))
+                    assert ('<td>%s%s</a></td>' % (link_html, td)) in html
 
         # GET csv
         request_url = reverse("omero_table", args=[file_id, 'csv'])
