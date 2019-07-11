@@ -281,8 +281,9 @@ def timeformat(value):
 def json_dumps(value):
     return json.dumps(value)
 
+
 # https://stackoverflow.com/questions/2415865/
 # iterating-through-two-lists-in-django-templates
 @register.filter(name='zip')
 def zip_lists(a, b):
-  return zip(a, b)
+    return zip(a, b)
