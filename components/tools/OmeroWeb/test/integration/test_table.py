@@ -126,7 +126,7 @@ class TestOmeroTables(IWebTest):
                     # link to webclient
                     link = reverse('webindex')
                     link_html = ('<a href="%s?show=well-%s">' % (link, td))
-                    assert ('<td>%s%s</a></td>' % (link_html, td)) in html
+                    assert link_html in html
 
         # GET csv
         request_url = reverse("omero_table", args=[file_id, 'csv'])
