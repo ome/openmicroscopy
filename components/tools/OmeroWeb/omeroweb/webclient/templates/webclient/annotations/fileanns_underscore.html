@@ -39,13 +39,16 @@
             <% if (ann.ns){ %>
                 <br/><b>Namespace:</b> <%= ann.ns %>
             <% } %>
+            <% if (ann.file.mimetype){ %>
+                <br/><b>Mimetype:</b> <%= ann.file.mimetype %>
+            <% } %>
             <br/><b>File ID:</b> <%= ann.file.id %>
         <% } %>
     </span>
 
     <div class="attachment_actions">
         <input type="checkbox" style="display:none;"/>
-        <% if (ann.ns && ann.ns === 'openmicroscopy.org/omero/bulk_annotations'){ %>
+        <% if ((ann.ns && ann.ns === 'openmicroscopy.org/omero/bulk_annotations') || ann.file.mimetype == 'OMERO.tables' ){ %>
             <a class='action btn_view' title="View OMERO.table" target="_blank"
             href='<%= webindex %>omero_table/<%= ann.file.id %>/'>&nbsp;</a>
         <% } %>
