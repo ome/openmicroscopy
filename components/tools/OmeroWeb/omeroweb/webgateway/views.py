@@ -2723,22 +2723,25 @@ def _bulk_file_annotations(request, objtype, objid, conn=None, **kwargs):
     #          retrieves annotations from Plate that contains Well 1
     objtype = objtype.split('.')
 
+    params = omero.sys.ParametersI()
+    params.addId(objid)
+    params.addString('ns', NSBULKANNOTATIONS)
+
     query = "select obj0 from %s obj0\n" % objtype[0]
     for i, t in enumerate(objtype[1:]):
         query += "join fetch obj%d.%s obj%d\n" % (i, t, i+1)
     query += """
         left outer join fetch obj0.annotationLinks links
-        left outer join fetch links.child
+        left outer join fetch links.child as f
         join fetch links.details.owner
         join fetch links.details.creationEvent
-        where obj%d.id=:id""" % (len(objtype) - 1)
+        where obj%d.id=:id and f.ns=:ns""" % (len(objtype) - 1)
 
     ctx = conn.createServiceOptsDict()
     ctx.setOmeroGroup("-1")
 
     try:
-        objs = q.findAllByQuery(query, omero.sys.ParametersI().addId(objid),
-                                ctx)
+        objs = q.findAllByQuery(query, params, ctx)
     except omero.QueryException:
         return dict(error='%s cannot be queried' % objtype,
                     query=query)
@@ -2752,8 +2755,7 @@ def _bulk_file_annotations(request, objtype, objid, conn=None, **kwargs):
     links = [l for obj in objs for l in obj.copyAnnotationLinks()]
     for link in links:
         annotation = link.child
-        if (not isinstance(annotation, omero.model.FileAnnotation) or
-                unwrap(annotation.getNs()) != NSBULKANNOTATIONS):
+        if not isinstance(annotation, omero.model.FileAnnotation):
             continue
         owner = annotation.details.owner
         ownerName = "%s %s" % (unwrap(owner.firstName), unwrap(owner.lastName))
