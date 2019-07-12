@@ -387,10 +387,12 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '{"index": 3, '
           '"class": "django.contrib.sessions.middleware.SessionMiddleware"},'
           '{"index": 4, '
-          '"class": "django.middleware.csrf.CsrfViewMiddleware"},'
+          '"class": "omeroweb.middleware.CustomHeadersMiddleware"},'
           '{"index": 5, '
-          '"class": "django.contrib.messages.middleware.MessageMiddleware"},'
+          '"class": "django.middleware.csrf.CsrfViewMiddleware"},'
           '{"index": 6, '
+          '"class": "django.contrib.messages.middleware.MessageMiddleware"},'
+          '{"index": 7, '
           '"class": "django.middleware.clickjacking.XFrameOptionsMiddleware"}'
           ']'),
          json.loads,
@@ -855,6 +857,14 @@ CUSTOM_SETTINGS_MAPPINGS = {
          str,
          "Whether to allow OMERO.web to be loaded in a frame."
          ],
+
+    "omero.web.http_response_headers":
+        ["HTTP_RESPONSE_HEADERS",
+         "[]",
+         json.loads,
+         ("List of pairs of additional HTTP response headers e.g."
+          "[[\"X-Header-Name\", \"Value\"]]. A header will only be added if it"
+          "hasn't already been set by the application.")],
 
     "omero.web.django_additional_settings":
         ["DJANGO_ADDITIONAL_SETTINGS",
