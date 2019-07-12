@@ -1768,6 +1768,7 @@ def _marshal_annotation(conn, annotation, link=None):
         ann['file']['name'] = unwrap(annotation.file.name)
         ann['file']['size'] = unwrap(annotation.file.size)
         ann['file']['path'] = unwrap(annotation.file.path)
+        ann['file']['mimetype'] = unwrap(annotation.file.mimetype)
         ann['permissions']['canDownload'] = not perms.isRestricted(
             omero.constants.permissions.BINARYACCESS)
 
