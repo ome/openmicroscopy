@@ -2726,6 +2726,7 @@ def _bulk_file_annotations(request, objtype, objid, conn=None, **kwargs):
     params = omero.sys.ParametersI()
     params.addId(objid)
     params.addString('ns', NSBULKANNOTATIONS)
+    params.addString('mt', "OMERO.tables")
 
     query = "select obj0 from %s obj0\n" % objtype[0]
     for i, t in enumerate(objtype[1:]):
@@ -2733,9 +2734,11 @@ def _bulk_file_annotations(request, objtype, objid, conn=None, **kwargs):
     query += """
         left outer join fetch obj0.annotationLinks links
         left outer join fetch links.child as f
+        join f.file
         join fetch links.details.owner
         join fetch links.details.creationEvent
-        where obj%d.id=:id and f.ns=:ns""" % (len(objtype) - 1)
+        where obj%d.id=:id and
+        (f.ns=:ns or f.file.mimetype=:mt)""" % (len(objtype) - 1)
 
     ctx = conn.createServiceOptsDict()
     ctx.setOmeroGroup("-1")
