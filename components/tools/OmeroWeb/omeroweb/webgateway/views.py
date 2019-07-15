@@ -2734,7 +2734,7 @@ def _bulk_file_annotations(request, objtype, objid, conn=None, **kwargs):
     query += """
         left outer join fetch obj0.annotationLinks links
         left outer join fetch links.child as f
-        join f.file
+        left outer join fetch f.file
         join fetch links.details.owner
         join fetch links.details.creationEvent
         where obj%d.id=:id and
