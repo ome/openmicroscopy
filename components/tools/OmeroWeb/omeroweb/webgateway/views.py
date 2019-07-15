@@ -2749,10 +2749,6 @@ def _bulk_file_annotations(request, objtype, objid, conn=None, **kwargs):
         return dict(error='%s cannot be queried' % objtype,
                     query=query)
 
-    if len(objs) == 0:
-        return dict(error='%s with id %s not found' % (objtype, objid),
-                    query=query)
-
     data = []
     # Process all annotations from all objects...
     links = [l for obj in objs for l in obj.copyAnnotationLinks()]
