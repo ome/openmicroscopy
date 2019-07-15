@@ -125,7 +125,8 @@ class TestOmeroTables(IWebTest):
                 else:
                     # link to webclient
                     link = reverse('webindex')
-                    link_html = ('<a href="%s?show=well-%s">' % (link, td))
+                    link_html = ('<a target="_blank" href="%s?show=well-%s">'
+                        % (link, td))
                     assert link_html in html
 
         # GET csv
