@@ -609,7 +609,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # OPEN WITH
     "omero.web.open_with":
         ["OPEN_WITH",
-         ('[["Image viewer", "webgateway", {"supported_objects": ["image"],'
+         ('[["Image viewer", "webgateway", {"supported_objects": ["images"],'
           '"script_url": "webclient/javascript/ome.openwith_viewer.js"}]]'),
          json.loads,
          ("A list of viewers that can be used to display selected Images "
