@@ -20,8 +20,12 @@
 """Settings for the OMERO JSON api app."""
 
 import sys
-from omeroweb.settings import process_custom_settings, report_settings, \
-    str_slash
+from omeroweb.settings import (
+    int_plain,
+    process_custom_settings,
+    report_settings,
+    str_slash,
+)
 
 # load settings
 API_SETTINGS_MAPPING = {
@@ -29,12 +33,12 @@ API_SETTINGS_MAPPING = {
     "omero.web.api.limit":
         ["API_LIMIT",
          200,
-         int,
+         int_plain,
          "Default number of items returned from json api."],
     "omero.web.api.max_limit":
         ["API_MAX_LIMIT",
          500,
-         int,
+         int_plain,
          "Maximum number of items returned from json api."],
     "omero.web.api.absolute_url":
         ["API_ABSOLUTE_URL",

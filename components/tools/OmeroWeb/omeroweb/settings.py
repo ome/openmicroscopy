@@ -36,6 +36,7 @@ import omero.config
 import omero.clients
 import tempfile
 import re
+import inspect
 import json
 import random
 import string
@@ -166,6 +167,7 @@ LOGGING = {
 }
 
 
+JSON_CONFIG_DIR = os.getenv('OMERO_WEB_CONFIG_DIR')
 CONFIG_XML = os.path.join(OMERO_HOME, 'etc', 'grid', 'config.xml')
 count = 10
 event = get_event("websettings")
@@ -193,6 +195,12 @@ while True:
         exctype, value = sys.exc_info()[:2]
         raise exctype(value)
 
+CUSTOM_SETTINGS_JSON_SET = dict()
+CUSTOM_SETTINGS_JSON_APPEND = dict()
+if JSON_CONFIG_DIR:
+    CUSTOM_SETTINGS_JSON_SET, CUSTOM_SETTINGS_JSON_APPEND = \
+        omero.config.load_json_config_dir(JSON_CONFIG_DIR)
+
 del event
 del count
 del get_event
@@ -212,7 +220,9 @@ SESSION_ENGINE_VALUES = ('omeroweb.filesessionstore',
                          'django.contrib.sessions.backends.cached_db')
 
 
-def parse_boolean(s):
+def parse_boolean(s, src=None):
+    if src == 'json':
+        return s
     s = s.strip().lower()
     if s in ('true', '1', 't'):
         return True
@@ -220,10 +230,10 @@ def parse_boolean(s):
 
 
 def parse_paths(s):
-    return [os.path.normpath(path) for path in json.loads(s)]
+    return [os.path.normpath(path) for path in parse_json(s)]
 
 
-def check_server_type(s):
+def check_server_type(s, src=None):
     if s not in ALL_SERVER_TYPES:
         raise ValueError(
             "Unknown server type: %s. Valid values are: %s"
@@ -231,7 +241,7 @@ def check_server_type(s):
     return s
 
 
-def check_session_engine(s):
+def check_session_engine(s, src=None):
     if s not in SESSION_ENGINE_VALUES:
         raise ValueError(
             "Unknown session engine: %s. Valid values are: %s"
@@ -239,11 +249,17 @@ def check_session_engine(s):
     return s
 
 
-def identity(x):
+def identity(x, src=None):
     return x
 
 
-def str_slash(s):
+def parse_json(j, src=None):
+    if src == 'json':
+        return j
+    return json.loads(j)
+
+
+def str_slash(s, src=None):
     if s is not None:
         s = str(s)
         if s and not s.endswith("/"):
@@ -251,17 +267,33 @@ def str_slash(s):
     return s
 
 
+def str_plain(s, src=None):
+    return str(s)
+
+
+def int_plain(i, src=None):
+    return int(i)
+
+
+def normpath_plain(p, src=None):
+    return os.path.normpath(p)
+
+
+def str_compile(s, src=None):
+    return re.compile(s)
+
+
 class LeaveUnset(Exception):
     pass
 
 
-def leave_none_unset(s):
+def leave_none_unset(s, src=None):
     if s is None:
         raise LeaveUnset()
     return s
 
 
-def leave_none_unset_int(s):
+def leave_none_unset_int(s, src=None):
     s = leave_none_unset(s)
     if s is not None:
         return int(s)
@@ -272,7 +304,7 @@ CUSTOM_HOST = CUSTOM_SETTINGS.get("omero.master.host", CUSTOM_HOST)
 # DO NOT EDIT!
 INTERNAL_SETTINGS_MAPPING = {
     "omero.qa.feedback":
-        ["FEEDBACK_URL", "http://qa.openmicroscopy.org.uk", str, None],
+        ["FEEDBACK_URL", "http://qa.openmicroscopy.org.uk", str_plain, None],
     "omero.web.upgrades.url":
         ["UPGRADES_URL", None, leave_none_unset, None],
     "omero.web.check_version":
@@ -281,7 +313,7 @@ INTERNAL_SETTINGS_MAPPING = {
     # Allowed hosts:
     # https://docs.djangoproject.com/en/1.8/ref/settings/#allowed-hosts
     "omero.web.allowed_hosts":
-        ["ALLOWED_HOSTS", '["*"]', json.loads, None],
+        ["ALLOWED_HOSTS", '["*"]', parse_json, None],
 
     # Do not show WARNING (1_8.W001): The standalone TEMPLATE_* settings
     # were deprecated in Django 1.8 and the TEMPLATES dictionary takes
@@ -289,7 +321,7 @@ INTERNAL_SETTINGS_MAPPING = {
     # into your default TEMPLATES dict:
     # TEMPLATE_DIRS, TEMPLATE_CONTEXT_PROCESSORS.
     "omero.web.system_checks":
-        ["SILENCED_SYSTEM_CHECKS", '["1_8.W001"]', json.loads, None],
+        ["SILENCED_SYSTEM_CHECKS", '["1_8.W001"]', parse_json, None],
 
     # Internal email notification for omero.web.admins,
     # loaded from config.xml directly
@@ -323,7 +355,7 @@ INTERNAL_SETTINGS_MAPPING = {
     "omero.web.admins.email_subject_prefix":
         ["EMAIL_SUBJECT_PREFIX",
          "[OMERO.web - admin notification]",
-         str,
+         str_plain,
          "Subject-line prefix for email messages"],
     "omero.mail.smtp.starttls.enable":
         ["EMAIL_USE_TLS",
@@ -351,7 +383,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.admins":
         ["ADMINS",
          '[]',
-         json.loads,
+         parse_json,
          ("A list of people who get code error notifications whenever the "
           "application identifies a broken link or raises an unhandled "
           "exception that results in an internal server error. This gives "
@@ -369,12 +401,17 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.application_server.host":
         ["APPLICATION_SERVER_HOST",
          "127.0.0.1",
-         str,
+         str_plain,
          "Upstream application host"],
     "omero.web.application_server.port":
-        ["APPLICATION_SERVER_PORT", 4080, int, "Upstream application port"],
+        ["APPLICATION_SERVER_PORT",
+         4080,
+         int_plain,
+         "Upstream application port"],
     "omero.web.application_server.max_requests":
-        ["APPLICATION_SERVER_MAX_REQUESTS", 0, int,
+        ["APPLICATION_SERVER_MAX_REQUESTS",
+         0,
+         int_plain,
          ("The maximum number of requests a worker will process before "
           "restarting.")],
     "omero.web.middleware":
@@ -393,7 +430,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '{"index": 6, '
           '"class": "django.middleware.clickjacking.XFrameOptionsMiddleware"}'
           ']'),
-         json.loads,
+         parse_json,
          ('Warning: Only system administrators should use this feature. '
           'List of Django middleware classes in the form '
           '[{"class": "class.name", "index": FLOAT}]. '
@@ -423,7 +460,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.static_root":
         ["STATIC_ROOT",
          os.path.join(os.path.dirname(__file__), 'static').replace('\\', '/'),
-         os.path.normpath,
+         normpath_plain,
          ("The absolute path to the directory where collectstatic will"
           " collect static files for deployment. If the staticfiles contrib"
           " app is enabled (default) the collectstatic management command"
@@ -448,7 +485,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["CACHES",
          ('{"default": {"BACKEND":'
           ' "django.core.cache.backends.dummy.DummyCache"}}'),
-         json.loads,
+         parse_json,
          ("OMERO.web offers alternative session backends to automatically"
           " delete stale data using the cache session store backend, see "
           ":djangodoc:`Django cached session documentation <topics/http/"
@@ -461,7 +498,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.session_cookie_age":
         ["SESSION_COOKIE_AGE",
          86400,
-         int,
+         int_plain,
          "The age of session cookies, in seconds."],
     "omero.web.session_cookie_domain":
         ["SESSION_COOKIE_DOMAIN",
@@ -494,11 +531,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "OMERO.web.")],
 
     "omero.web.logdir":
-        ["LOGDIR", LOGDIR, str, "A path to the custom log directory."],
+        ["LOGDIR", LOGDIR, str_plain, "A path to the custom log directory."],
     "omero.web.secure_proxy_ssl_header":
         ["SECURE_PROXY_SSL_HEADER",
          '[]',
-         json.loads,
+         parse_json,
          ("A tuple representing a HTTP header/value combination that "
           "signifies a request is secure. Example "
           "``'[\"HTTP_X_FORWARDED_PROTO_OMERO_WEB\", \"https\"]'``. "
@@ -514,14 +551,14 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.wsgi_workers":
         ["WSGI_WORKERS",
          5,
-         int,
+         int_plain,
          ("The number of worker processes for handling requests. "
           "Check Gunicorn Documentation "
           "https://docs.gunicorn.org/en/stable/settings.html#workers")],
     "omero.web.wsgi_timeout":
         ["WSGI_TIMEOUT",
          60,
-         int,
+         int_plain,
          ("Workers silent for more than this many seconds are killed "
           "and restarted. Check Gunicorn Documentation "
           "https://docs.gunicorn.org/en/stable/settings.html#timeout")],
@@ -535,7 +572,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.public.url_filter":
         ["PUBLIC_URL_FILTER",
          r'(?#This regular expression matches nothing)a^',
-         re.compile,
+         str_compile,
          ("Set a regular expression that matches URLs the public user is "
           "allowed to access. If this is not set, no URLs will be "
           "publicly available.")],
@@ -545,7 +582,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
          parse_boolean,
          "Restrict public users to GET requests only"],
     "omero.web.public.server_id":
-        ["PUBLIC_SERVER_ID", 1, int, "Server to authenticate against."],
+        ["PUBLIC_SERVER_ID",
+         1,
+         int_plain,
+         "Server to authenticate against."],
     "omero.web.public.user":
         ["PUBLIC_USER",
          None,
@@ -559,22 +599,22 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.public.cache.enabled":
         ["PUBLIC_CACHE_ENABLED", "false", parse_boolean, None],
     "omero.web.public.cache.key":
-        ["PUBLIC_CACHE_KEY", "omero.web.public.cache.key", str, None],
+        ["PUBLIC_CACHE_KEY", "omero.web.public.cache.key", str_plain, None],
     "omero.web.public.cache.timeout":
-        ["PUBLIC_CACHE_TIMEOUT", 60 * 60 * 24, int, None],
+        ["PUBLIC_CACHE_TIMEOUT", 60 * 60 * 24, int_plain, None],
 
     # Social media integration
     "omero.web.sharing.twitter":
         ["SHARING_TWITTER",
          '{}',
-         json.loads,
+         parse_json,
          ("Dictionary of `server-name: @twitter-site-username`, where "
           "server-name matches a name from `omero.web.server_list`. "
           "For example: ``'{\"omero\": \"@openmicroscopy\"}'``")],
     "omero.web.sharing.opengraph":
         ["SHARING_OPENGRAPH",
          '{}',
-         json.loads,
+         parse_json,
          ("Dictionary of `server-name: site-name`, where "
           "server-name matches a name from `omero.web.server_list`. "
           "For example: ``'{\"omero\": \"Open Microscopy\"}'``")],
@@ -583,17 +623,17 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.server_list":
         ["SERVER_LIST",
          '[["%s", 4064, "omero"]]' % CUSTOM_HOST,
-         json.loads,
+         parse_json,
          "A list of servers the Web client can connect to."],
     "omero.web.ping_interval":
         ["PING_INTERVAL",
          60000,
-         int,
+         int_plain,
          "Timeout interval between ping invocations in seconds"],
     "omero.web.chunk_size":
         ["CHUNK_SIZE",
          1048576,
-         int,
+         int_plain,
          "Size, in bytes, of the “chunk”"],
     "omero.web.webgateway_cache":
         ["WEBGATEWAY_CACHE", None, leave_none_unset, None],
@@ -602,7 +642,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.viewer.view":
         ["VIEWER_VIEW",
          'omeroweb.webclient.views.image_viewer',
-         str,
+         str_plain,
          ("Django view which handles display of, or redirection to, the "
           "desired full image viewer.")],
 
@@ -611,7 +651,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["OPEN_WITH",
          ('[["Image viewer", "webgateway", {"supported_objects": ["image"],'
           '"script_url": "webclient/javascript/ome.openwith_viewer.js"}]]'),
-         json.loads,
+         parse_json,
          ("A list of viewers that can be used to display selected Images "
           "or other objects. Each viewer is defined as "
           "``[\"Name\", \"url\", options]``. Url is reverse(url). "
@@ -640,7 +680,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.pipeline_staticfile_storage":
         ["STATICFILES_STORAGE",
          "pipeline.storage.PipelineStorage",
-         str,
+         str_plain,
          ("The file storage engine to use when collecting static files with"
           " the collectstatic management command. See `the documentation "
           "<https://django-pipeline.readthedocs.org/en/latest/storages.html>`_"
@@ -658,26 +698,26 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.login_view":
         ["LOGIN_VIEW",
          "weblogin",
-         str,
+         str_plain,
          ("The Django view name used for login. Use this to provide an "
           "alternative login workflow.")],
     "omero.web.login_incorrect_credentials_text":
         ["LOGIN_INCORRECT_CREDENTIALS_TEXT",
          "Connection not available, please check your user name and password.",
-         str,
+         str_plain,
          ("The error message shown to users who enter an incorrect username "
           "or password.")],
 
     "omero.web.top_logo":
         ["TOP_LOGO",
          "",
-         str,
+         str_plain,
          ("Customize the webclient top bar logo. The recommended image height "
           "is 23 pixels and it must be hosted outside of OMERO.web.")],
     "omero.web.top_logo_link":
         ["TOP_LOGO_LINK",
          "",
-         str,
+         str_plain,
          ("The target location of the webclient top logo, default unlinked.")],
 
     "omero.web.user_dropdown":
@@ -704,7 +744,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.staticfile_dirs":
         ["STATICFILES_DIRS",
          '[]',
-         json.loads,
+         parse_json,
          ("Defines the additional locations the staticfiles app will traverse"
           " if the FileSystemFinder finder is enabled, e.g. if you use the"
           " collectstatic or findstatic management command or use the static"
@@ -712,7 +752,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.template_dirs":
         ["TEMPLATE_DIRS",
          '[]',
-         json.loads,
+         parse_json,
          ("List of locations of the template source files, in search order. "
           "Note that these paths should use Unix-style forward slashes.")],
     "omero.web.index_template":
@@ -730,7 +770,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.login_redirect":
         ["LOGIN_REDIRECT",
          '{}',
-         json.loads,
+         parse_json,
          ("Redirect to the given location after logging in. It only supports "
           "arguments for :djangodoc:`Django reverse function"
           " <ref/urlresolvers/#django.core.urlresolvers.reverse>`. "
@@ -746,27 +786,27 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.login.client_downloads_base":
         ["CLIENT_DOWNLOAD_GITHUB_REPO",
          'ome/omero-insight',
-         str,
+         str_plain,
          ("GitHub repository containing the Desktop client downloads")],
 
     "omero.web.apps":
         ["ADDITIONAL_APPS",
          '[]',
-         json.loads,
+         parse_json,
          ("Add additional Django applications. For example, see"
           " :doc:`/developers/Web/CreateApp`")],
     "omero.web.databases":
-        ["DATABASES", '{}', json.loads, None],
+        ["DATABASES", '{}', parse_json, None],
     "omero.web.page_size":
         ["PAGE",
          200,
-         int,
+         int_plain,
          ("Number of images displayed within a dataset or 'orphaned'"
           " container to prevent from loading them all at once.")],
     "omero.web.thumbnails_batch":
         ["THUMBNAILS_BATCH",
          50,
-         int,
+         int_plain,
          ("Number of thumbnails retrieved to prevent from loading them"
           " all at once. Make sure the size is not too big, otherwise"
           " you may exceed limit request line, see"
@@ -781,7 +821,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '["Help", "https://help.openmicroscopy.org/",'
           '{"title":"Open OMERO user guide in a new tab", "target":"new"}]'
           ']'),
-         json.loads,
+         parse_json,
          ("Add links to the top header: links are ``['Link Text', "
           "'link|lookup_view', options]``, where the url is reverse('link'), "
           "simply 'link' (for external urls) or lookup_view is a detailed "
@@ -803,7 +843,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '{"name": "rating", "label": "Ratings", "index": 6},'
           '{"name": "other", "label": "Others", "index": 7}'
           ']'),
-         json.loads,
+         parse_json,
          ("Manage Metadata pane accordion. This functionality is limited to"
           " the existing sections.")],
     "omero.web.ui.right_plugins":
@@ -815,7 +855,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           # "image_roi_tab"],'
           '["Preview", "webclient/data/includes/right_plugin.preview.js.html"'
           ', "preview_tab"]]'),
-         json.loads,
+         parse_json,
          ("Add plugins to the right-hand panel. "
           "Plugins are ``['Label', 'include.js', 'div_id']``. "
           "The javascript loads data into ``$('#div_id')``.")],
@@ -826,7 +866,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           # "webtest/webclient_plugins/center_plugin.splitview.js.html",
           # "split_view_panel"],'
           ']'),
-         json.loads,
+         parse_json,
          ("Add plugins to the center panels. Plugins are "
           "``['Channel overlay',"
           " 'webtest/webclient_plugins/center_plugin.overlay.js.html',"
@@ -837,7 +877,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.cors_origin_whitelist":
         ["CORS_ORIGIN_WHITELIST",
          '[]',
-         json.loads,
+         parse_json,
          ("A list of origin hostnames that are authorized to make cross-site "
           "HTTP requests. "
           "Used by the django-cors-headers app as described at "
@@ -852,14 +892,14 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.x_frame_options":
         ["X_FRAME_OPTIONS",
          "SAMEORIGIN",
-         str,
+         str_plain,
          "Whether to allow OMERO.web to be loaded in a frame."
          ],
 
     "omero.web.django_additional_settings":
         ["DJANGO_ADDITIONAL_SETTINGS",
          "[]",
-         json.loads,
+         parse_json,
          ("Additional Django settings as list of key-value tuples. "
           "Use this to set or override Django settings that aren't managed by "
           "OMERO.web. E.g. ``[\"CUSTOM_KEY\", \"CUSTOM_VALUE\"]``")],
@@ -900,7 +940,7 @@ DEPRECATED_SETTINGS_MAPPINGS = {
     "omero.web.email_subject_prefix":
         ["EMAIL_SUBJECT_PREFIX",
          "[OMERO.web]",
-         str,
+         str_plain,
          ("Default email subject is no longer configurable.")],
     "omero.web.email_use_tls":
         ["EMAIL_USE_TLS",
@@ -930,7 +970,7 @@ DEPRECATED_SETTINGS_MAPPINGS = {
 del CUSTOM_HOST
 
 
-def check_worker_class(c):
+def check_worker_class(c, src=None):
     if c == "gevent":
         try:
             import gevent  # NOQA
@@ -940,7 +980,7 @@ def check_worker_class(c):
     return str(c)
 
 
-def check_threading(t):
+def check_threading(t, src=None):
     if t > 1:
         try:
             import concurrent.futures  # NOQA
@@ -964,7 +1004,7 @@ DEVELOPMENT_SETTINGS_MAPPINGS = {
     "omero.web.wsgi_worker_connections":
         ["WSGI_WORKER_CONNECTIONS",
          1000,
-         int,
+         int_plain,
          ("(ASYNC WORKERS only) The maximum number of simultaneous clients. "
           "Check Gunicorn Documentation https://docs.gunicorn.org"
           "/en/stable/settings.html#worker-connections")],
@@ -993,6 +1033,94 @@ def map_deprecated_settings(settings):
     return m
 
 
+def _apply_mapping(value, src, mapping, key):
+    """
+    Applies the mapping function for an OMERO.web setting.
+    This attempts to handle both new mapping functions (value, src) and old
+    (value).
+    Old mapping functions only work with config.xml settings, they do not
+    support new JSON settings.
+
+    :param value: The raw config value
+    :param src str: The source of the value
+    :param mapping function: The mapping function
+    :param key str: The key name, used to log a deprecation message if an old
+           mapping function is found
+    :return (value, unset):
+            value: The mapped value
+            unset: If True the property should be left unset
+    """
+    try:
+        argspec = inspect.getargspec(mapping)
+        isold = len(argspec.args) < 2
+    except TypeError:
+        # E.g. int(), str()
+        isold = True
+    if isold:
+        logger.warn(
+            'Setting %s uses a deprecated mapping function %s',
+            key, mapping.__name__)
+        if src not in ('default', 'xml'):
+            raise ValueError(
+                'Deprecated mapping function cannot be used with JSON '
+                'configuration for key %s' % key)
+        try:
+            return mapping(value), False
+        except LeaveUnset:
+            return None, True
+    try:
+        return mapping(value, src), False
+    except LeaveUnset:
+        return None, True
+
+
+def lookup_web_config(key, default_value=None, mapping=identity):
+    """
+    Lookup an omero config property as seen by OMERO.web, taking into account
+    the config.xml and and config JSON files.
+
+    :param key str: The omero config property name
+    :param default_value: The default value of the property
+    :param mapping func: The mapping function(value, src) to convert the
+           property to the OMERO.web value
+
+    :return (value, src, unset):
+            value: the  value of the property taking into account the
+            default_value and mapping parameters
+            src: whether the property is the 'default', from the 'xml' config,
+            or from the 'json', config
+            unset: If True the property should be left unset, e.g. it should
+            inherit the default Django value
+    """
+    if (key in CUSTOM_SETTINGS_JSON_SET or
+            key in CUSTOM_SETTINGS_JSON_APPEND):
+        try:
+            global_value = CUSTOM_SETTINGS_JSON_SET[key]
+            src = 'json'
+        except KeyError:
+            global_value = default_value
+            src = 'default'
+        global_value, unset = _apply_mapping(global_value, src, mapping, key)
+        if key in CUSTOM_SETTINGS_JSON_APPEND:
+            src = 'json'
+            try:
+                global_value.extend(CUSTOM_SETTINGS_JSON_APPEND[key])
+            except AttributeError:
+                global_value.update(CUSTOM_SETTINGS_JSON_APPEND[key])
+            global_value, unset = _apply_mapping(
+                global_value, src, mapping, key)
+    else:
+        try:
+            src = 'xml'
+            global_value = CUSTOM_SETTINGS[key]
+        except KeyError:
+            src = 'default'
+            global_value = default_value
+        global_value, unset = _apply_mapping(
+            global_value, src, mapping, key)
+    return global_value, src, unset
+
+
 def process_custom_settings(
         module, settings='CUSTOM_SETTINGS_MAPPINGS', deprecated=None):
     logging.info('Processing custom settings for module %s' % module.__name__)
@@ -1011,27 +1139,24 @@ def process_custom_settings(
             continue
 
         global_name, default_value, mapping, description = values
-
         try:
-            global_value = CUSTOM_SETTINGS[key]
-            values.append(False)
-        except KeyError:
-            global_value = default_value
-            values.append(True)
+            global_value, src, unset = lookup_web_config(
+                key, default_value, mapping)
+            values.append(src)
 
-        try:
-            using_default = values[-1]
             if global_name in deprecated_map:
                 dep_value, dep_key = deprecated_map[global_name]
-                if using_default:
+                if src == 'default':
                     logging.warning(
                         'Setting %s is deprecated, use %s', dep_key, key)
-                    global_value = dep_value
+                    global_value, unset = _apply_mapping(
+                        global_value, src, mapping, dep_key)
                 else:
                     logging.error(
                         '%s and its deprecated key %s are both set, using %s',
                         key, dep_key, key)
-            setattr(module, global_name, mapping(global_value))
+            if not unset:
+                setattr(module, global_name, global_value)
         except ValueError, e:
             raise ValueError(
                 "Invalid %s (%s = %r). %s. %s" %
@@ -1040,8 +1165,6 @@ def process_custom_settings(
             raise ImportError(
                 "ImportError: %s. %s (%s = %r).\n%s" %
                 (e.message, global_name, key, global_value, description))
-        except LeaveUnset:
-            pass
 
 
 process_custom_settings(sys.modules[__name__], 'INTERNAL_SETTINGS_MAPPING')
@@ -1060,9 +1183,9 @@ def report_settings(module):
     custom_settings_mappings = getattr(module, 'CUSTOM_SETTINGS_MAPPINGS', {})
     for key in sorted(custom_settings_mappings):
         values = custom_settings_mappings[key]
-        global_name, default_value, mapping, description, using_default = \
-            values
-        source = using_default and "default" or key
+        global_name, default_value, mapping, description, source = values
+        if source != 'default':
+            source = '%s:%s' % (source, key)
         global_value = getattr(module, global_name, None)
         if global_name.isupper():
             logger.debug(
@@ -1072,10 +1195,9 @@ def report_settings(module):
     deprecated_settings = getattr(module, 'DEPRECATED_SETTINGS_MAPPINGS', {})
     for key in sorted(deprecated_settings):
         values = deprecated_settings[key]
-        global_name, default_value, mapping, description, using_default = \
-            values
+        global_name, default_value, mapping, description, source = values
         global_value = getattr(module, global_name, None)
-        if global_name.isupper() and not using_default:
+        if global_name.isupper() and source != 'default':
             logger.debug(
                 "%s = %r (deprecated:%s, %s)", global_name,
                 cleanse_setting(global_name, global_value), key, description)

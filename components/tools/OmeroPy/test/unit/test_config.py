@@ -12,10 +12,18 @@
 import os
 import errno
 import pytest
-from omero.config import ConfigXml, xml
+from omero.config import (
+    ConfigXml,
+    xml,
+    _json_config_append,
+    _json_config_set,
+    load_json_config_dir,
+    load_json_configs,
+)
 from omero.util.temp_files import create_path
 from omero_ext import portalocker
 
+import json
 from xml.etree.ElementTree import XML, Element, SubElement, tostring
 
 
@@ -355,3 +363,126 @@ class TestConfig(object):
         with pytest.raises(IOError) as excinfo:
             ConfigXml(str(p)).close()
         assert excinfo.value.errno == errno.EACCES
+
+
+class TestJsonConfig(object):
+
+    def test_json_config_set(self):
+        cfg = {}
+        _json_config_set(cfg, 'a', 'a1')
+        assert cfg == {'a': 'a1'}
+        _json_config_set(cfg, 'b', 'b2')
+        assert cfg == {'a': 'a1', 'b': 'b2'}
+        _json_config_set(cfg, 'a', 'a11')
+        assert cfg == {'a': 'a11', 'b': 'b2'}
+
+    def test_json_config_append_invalid(self):
+        cfg = {
+            'a': 1,
+            'b': [2],
+            'c': {'c3': 3},
+        }
+        with pytest.raises(Exception):
+            _json_config_append(cfg, 'a', 'not-list-or-dict')
+        with pytest.raises(Exception):
+            _json_config_append(cfg, 'b', 'not-list-or-dict')
+        with pytest.raises(Exception):
+            _json_config_append(cfg, 'c', 'not-list-or-dict')
+
+        with pytest.raises(Exception):
+            _json_config_append(cfg, 'b', {'not': 'list'})
+        with pytest.raises(Exception):
+            _json_config_append(cfg, 'c', ['not', 'dict'])
+
+    def test_json_config_append_list(self):
+        cfg = {}
+        _json_config_append(cfg, 'b', [2])
+        assert cfg == {'b': [2]}
+        _json_config_append(cfg, 'b', [3])
+        assert cfg == {'b': [2, 3]}
+        _json_config_append(cfg, 'b', [4, 5])
+        assert cfg == {'b': [2, 3, 4, 5]}
+
+    def test_json_config_append_dict(self):
+        cfg = {}
+        _json_config_append(cfg, 'c', {'c3': 3})
+        assert cfg == {'c': {'c3': 3}}
+        _json_config_append(cfg, 'c', {'c4': 4})
+        assert cfg == {'c': {'c3': 3, 'c4': 4}}
+        _json_config_append(cfg, 'c', {'c4': '44', 'c5': '55'})
+        assert cfg == {'c': {'c3': 3, 'c4': '44', 'c5': '55'}}
+
+    def test_load_json_configs_set(self, tmpdir):
+        cfgfile = tmpdir / 'test.json'
+        cfg = {
+            'str': 'def',
+            'int': 1,
+            'list': ['a', 1],
+            'dict': {'b': 2, 'c': {'d': None}},
+        }
+        cfgfile.write(json.dumps(cfg))
+
+        cset, cappend = load_json_configs([str(cfgfile)])
+        assert cset == cfg
+        assert cappend == {}
+
+    def test_load_json_configs_append(self, tmpdir):
+        cfgfile = tmpdir / 'test.json'
+        cfg = {
+            '_mode': 'append',
+            'list': ['a', 1],
+            'dict': {'b': 2, 'c': {'d': None}},
+        }
+        cfgfile.write(json.dumps(cfg))
+
+        cset, cappend = load_json_configs([str(cfgfile)])
+        assert cset == {}
+        assert cappend == {
+            'list': ['a', 1],
+            'dict': {'b': 2, 'c': {'d': None}},
+        }
+
+    def test_load_json_config_dir(self, tmpdir):
+        cfgfile1 = tmpdir / 'test1.json'
+        cfg1 = {
+            '_mode': 'set',
+            'str': 'def',
+            'int': 1,
+            'list': ['a', 1],
+            'dict': {'b': 2, 'c': {'d': None}},
+        }
+        cfgfile1.write(json.dumps(cfg1))
+
+        cfgfile2 = tmpdir / 'test2.json'
+        cfg2 = {
+            '_mode': 'append',
+            'list': ['a', 1],
+            'dict': {'b': 2, 'c': {'d': None}},
+        }
+        cfgfile2.write(json.dumps(cfg2))
+
+        cfgfile3 = tmpdir / 'test3.json'
+        cfg3 = {
+            '_mode': 'append',
+            'list': [None, {'1': 123}],
+            'dict': {'e': [1, 2], 'c': {'f': 54321}},
+        }
+        cfgfile3.write(json.dumps(cfg3))
+
+        cfgfile4 = tmpdir / 'test4.json'
+        cfg4 = {
+            'int': None,
+            'dict': {}
+        }
+        cfgfile4.write(json.dumps(cfg4))
+
+        cset, cappend = load_json_config_dir(str(tmpdir))
+        assert cset == {
+            'str': 'def',
+            'list': ['a', 1],
+            'dict': {},
+        }
+        assert cappend == {
+            'list': ['a', 1, None, {'1': 123}],
+            'dict': {'b': 2, 'c': {'f': 54321}, 'e': [1, 2]},
+        }

@@ -30,6 +30,11 @@ from xml.etree.ElementTree import (
 )
 from omero_ext import portalocker
 import json
+try:
+    import yaml
+    YAML_ENABLED = True
+except ImportError:
+    YAML_ENABLED = False
 
 
 class Environment(object):
@@ -439,3 +444,110 @@ class ConfigXml(object):
                 to_remove.append(p)
         for x in to_remove:
             props.remove(x)
+
+
+def load_json_config_dir(configdir):
+    """
+    Load a directory of .json, .yaml or .yml configuration files.
+    """
+    files = (f for f in os.listdir(configdir) if
+             not f.startswith('.') and
+             os.path.splitext(f)[1].lower() in ('.json', '.yaml', '.yml'))
+    cset, cappend = load_json_configs(
+        os.path.join(configdir, f) for f in sorted(files))
+    return cset, cappend
+
+
+def load_json_configs(configfiles):
+    """
+    Load a set of configuration files in the given order, and return two
+    dictionaries:
+    - values to be set
+    - values to be appended
+
+    The caller should combine these two dictionaries appropriately.
+    Typically properties to be `set` will be processed first to allow existing
+    defaults to be unset if necessary, followed by processing of properties to
+    `append`.
+
+    Each file is a single JSON or YAML dictionary (set of key-value pairs).
+    A special key `_mode` can take the value `"set"` (default) or `"append"`
+    which determines whether the properties will be added to the `set` or
+    `append` config dictionary.
+
+    In `set` mode duplicate properties will overwrite existing ones, this is
+    equivalent to `omero config set` with the following rules:
+    - a null value will unset the configuration key
+    - otherwise the configuration key will be set to the value
+
+    In `append` mode the value of each field must be a list or dictionary, it
+    is not possible to append a scalar.
+    - If the value is a list all values in the list will be appended to the
+      current property value
+    - If the value is a dictionary it will be merged non-recursively to the
+    all values in the list will be appended to the
+      current property value
+
+    :param configfiles [str]: List of JSON or YAML (if module is available)
+    filepaths to load
+    :return (dict, dict): Tuple of config-set and config-append properties
+    """
+    cset = {}
+    cappend = {}
+
+    for f in configfiles:
+        with open(f) as fh:
+            try:
+                if f.lower().endswith('.yaml') or f.lower().endswith('.yml'):
+                    if not YAML_ENABLED:
+                        raise Exception(
+                            'PyYAML module required to load {}'.format(f))
+                    d = yaml.load(fh)
+                else:
+                    d = json.load(fh)
+            except Exception as e:
+                raise Exception('Failed to load file {}: {}'.format(f, e))
+            mode = d.pop('_mode', 'set')
+            for k, v in d.items():
+                if mode == 'set':
+                    _json_config_set(cset, k, v)
+                elif mode == 'append':
+                    _json_config_append(cappend, k, v)
+                else:
+                    raise Exception(
+                        'Invalid configuration mode: {}'.format(mode))
+
+    return cset, cappend
+
+
+def _json_config_set(config, k, v):
+    if v is None:
+        config.pop(k, None)
+    else:
+        config[k] = v
+
+
+def _json_config_append(config, k, v):
+    if isinstance(v, list):
+        if k not in config:
+            config[k] = v
+        else:
+            try:
+                config[k].extend(v)
+            except AttributeError:
+                raise Exception(
+                    'Incompatible types for append key {}: {} {}'.format(
+                        k, config[k], v))
+    elif isinstance(v, dict):
+        if k not in config:
+            config[k] = v
+        else:
+            try:
+                config[k].update(v)
+            except AttributeError:
+                raise Exception(
+                    'Incompatible types for append key {}: {} {}'.format(
+                        k, config[k], v))
+    else:
+        raise Exception(
+            'Append requires a list or dictionary value: {}: {}'.format(k, v))
