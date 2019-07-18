@@ -62,7 +62,12 @@ OME.getURLParameter = function(key) {
 
 var linkify = function(input) {
     var regex = /(https?|ftp|file):\/\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]/g;
-    return input.replace(regex, "<a href='$&' target='_blank'>$&</a>");
+    input = input.replace(regex, "<a href='$&' target='_blank'>$&</a>");
+    return linkImages(input);
+};
+var linkImages = function(input) {
+    var regex = /Image ID: ([0-9]+)/g;
+    return input.replace(regex, "<a href='" + WEBCLIENT.URLS.webindex + "?show=image-$1'>$&</a>");
 };
 OME.linkify_element = function(elements) {
     elements.each(function() {
