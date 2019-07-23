@@ -1,5 +1,6 @@
+---
 language: java
-jdk: oraclejdk8
+jdk: openjdk8
 
 # This (sudo: false) is needed to "run on container-based infrastructure" on
 # which cache: is available
@@ -10,10 +11,9 @@ sudo: required
 cache:
   directories:
   - $HOME/.m2
-  - download
 
-matrix:
-      fast_finish: true
+services:
+  - docker
 
 addons:
   apt_packages:
