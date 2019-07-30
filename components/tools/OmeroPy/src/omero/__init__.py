@@ -91,6 +91,7 @@ class CmdError(ClientError):
         sb += str(self.err)
         return sb
 
+
 class UnloadedEntityException(ClientError):
     pass
 
