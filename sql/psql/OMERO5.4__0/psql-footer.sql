@@ -2951,20 +2951,17 @@ ALTER TABLE laser
 ALTER TABLE lightsettings
     ALTER COLUMN wavelength TYPE positive_float;
 
-ALTER TABLE logicalchannel
-    ALTER COLUMN emissionwave TYPE positive_float,
-    ALTER COLUMN excitationwave TYPE positive_float;
+ALTER TABLE logicalchannel ALTER COLUMN emissionwave TYPE positive_float;
+ALTER TABLE logicalchannel ALTER COLUMN excitationwave TYPE positive_float;
 
-ALTER TABLE pixels
-    ALTER COLUMN physicalsizex TYPE positive_float,
-    ALTER COLUMN physicalsizey TYPE positive_float,
-    ALTER COLUMN physicalsizez TYPE positive_float;
+ALTER TABLE pixels ALTER COLUMN physicalsizex TYPE positive_float;
+ALTER TABLE pixels ALTER COLUMN physicalsizey TYPE positive_float;
+ALTER TABLE pixels ALTER COLUMN physicalsizez TYPE positive_float;
 
-ALTER TABLE transmittancerange
-    ALTER COLUMN cutin TYPE positive_float,
-    ALTER COLUMN cutintolerance TYPE nonnegative_float,
-    ALTER COLUMN cutout TYPE positive_float,
-    ALTER COLUMN cutouttolerance TYPE nonnegative_float;
+ALTER TABLE transmittancerange ALTER COLUMN cutin TYPE positive_float;
+ALTER TABLE transmittancerange ALTER COLUMN cutintolerance TYPE nonnegative_float;
+ALTER TABLE transmittancerange ALTER COLUMN cutout TYPE positive_float;
+ALTER TABLE transmittancerange ALTER COLUMN cutouttolerance TYPE nonnegative_float;
 
 -- image.series should never be null
 
