@@ -103,7 +103,10 @@ class AdminControl(DiagnosticsControl,
 
     def _configure(self, parser):
         sub = parser.sub()
-        self._add_diagnostics(parser, sub)
+        parser = self._add_diagnostics(parser, sub)
+        parser.add_argument(
+            "--all-jars", action="store_true",
+            help="Show information for all jars")
         self.add_error(
             "NOT_WINDOWS", 123,
             "Not Windows")
@@ -1491,14 +1494,22 @@ present, the user will enter a console""")
             return manifest, error
 
         # Bio-Format versions
-        jars = (
-            'lib/client/formats-api.jar',
-            'lib/client/formats-bsd.jar',
-            'lib/client/formats-gpl.jar',
-            'lib/server/formats-api.jar',
-            'lib/server/formats-bsd.jar',
-            'lib/server/formats-gpl.jar',
-        )
+        if args.all_jars:
+            jars = sorted(
+                os.path.join(os.path.relpath(root, self.ctx.dir), filename)
+                for root, dirnames, filenames in os.walk(self.ctx.dir)
+                for filename in filenames
+                if filename.endswith('.jar')
+            )
+        else:
+            jars = (
+                'lib/client/formats-api.jar',
+                'lib/client/formats-bsd.jar',
+                'lib/client/formats-gpl.jar',
+                'lib/server/formats-api.jar',
+                'lib/server/formats-bsd.jar',
+                'lib/server/formats-gpl.jar',
+            )
         manifest_keys = (
             'Implementation-Title',
             'Implementation-Version',
