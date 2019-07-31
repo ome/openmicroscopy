@@ -24,6 +24,7 @@ import time
 from glob import glob
 from math import ceil
 from path import path
+from zipfile import ZipFile
 
 import omero
 import omero.config
@@ -1469,6 +1470,49 @@ present, the user will enter a console""")
                 sb = " ".join([str(x) for x in v])
                 self._item("JVM settings", " %s" % (k[0].upper() + k[1:]))
                 self.ctx.out("%s" % sb)
+
+        def jar_manifest(jar):
+            manifest = {}
+            error = ''
+            try:
+                with ZipFile(jar) as z:
+                    current = ''
+                    for line in z.read('META-INF/MANIFEST.MF').splitlines():
+                        if line and line[0] == ' ':
+                            current += line[1:]
+                        else:
+                            if current:
+                                manifest.update([current.split(': ', 1)])
+                            current = line
+                    if current:
+                        manifest.update([current.split(': ', 1)])
+            except Exception as e:
+                error = str(e)
+            return manifest, error
+
+        # Bio-Format versions
+        jars = (
+            'lib/client/formats-api.jar',
+            'lib/client/formats-bsd.jar',
+            'lib/client/formats-gpl.jar',
+            'lib/server/formats-api.jar',
+            'lib/server/formats-bsd.jar',
+            'lib/server/formats-gpl.jar',
+        )
+        manifest_keys = (
+            'Implementation-Title',
+            'Implementation-Version',
+            'Implementation-Date',
+        )
+        self.ctx.out("")
+        for jar in jars:
+            manifest, error = jar_manifest(self.ctx.dir / jar)
+            if error:
+                info = [error]
+            else:
+                info = [manifest.get(key, '') for key in manifest_keys]
+            self._item("Jar", jar)
+            self.ctx.out('\t'.join(info))
 
     def email(self, args):
         client = self.ctx.conn(args)
