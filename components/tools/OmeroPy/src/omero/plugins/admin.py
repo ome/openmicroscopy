@@ -1511,6 +1511,7 @@ present, the user will enter a console""")
             'Implementation-Title',
             'Implementation-Version',
             'Implementation-Date',
+            'Implementation-Build',
         )
         self.ctx.out("")
         for jar in jars:
