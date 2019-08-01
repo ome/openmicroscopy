@@ -1503,9 +1503,6 @@ present, the user will enter a console""")
             )
         else:
             jars = (
-                'lib/client/formats-api.jar',
-                'lib/client/formats-bsd.jar',
-                'lib/client/formats-gpl.jar',
                 'lib/server/formats-api.jar',
                 'lib/server/formats-bsd.jar',
                 'lib/server/formats-gpl.jar',
