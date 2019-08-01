@@ -755,6 +755,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
          json.loads,
          ("Add additional Django applications. For example, see"
           " :doc:`/developers/Web/CreateApp`")],
+    "omero.web.override_root_app":
+        ["OVERRIDE_ROOT_APP",
+         '',
+         str,
+         ("Use this as the root application instead of rediredcting to the "
+          "default webclient")],
+
     "omero.web.databases":
         ["DATABASES", '{}', json.loads, None],
     "omero.web.page_size":

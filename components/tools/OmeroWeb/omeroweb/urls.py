@@ -85,7 +85,10 @@ for app in settings.ADDITIONAL_APPS:
     except ImportError:
         pass
     else:
-        regex = '^(?i)%s/' % label
+        if settings.OVERRIDE_ROOT_APP and label == settings.OVERRIDE_ROOT_APP:
+            regex = r'^'
+        else:
+            regex = '^(?i)%s/' % label
         urlpatterns += patterns('', (regex, include(urlmodule)),)
 
 urlpatterns += patterns(
