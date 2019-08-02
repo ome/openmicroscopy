@@ -90,6 +90,12 @@
 
 {% if i.min %}<span style="color: #666"> Min: {{ i.min }} </span>{% endif %}
 {% if i.max %}<span style="color: #666"> Max: {{ i.max }} </span>{% endif %}
+
+<!-- If "File Annotation", allow user to choose file to upload, to create a File-Annotation -->
+{% ifequal i.name 'File Annotation' %}
+    OR <input name='file_annotation' type='file'/>
+{% endifequal %}
+
 </td></tr>
 </table>
 </div>
