@@ -4240,9 +4240,9 @@ def script_run(request, scriptId, conn=None, **kwargs):
 
     logger.debug("Script: run with request.POST: %s" % request.POST)
 
-     # upload new file
+    # upload new file
     fileupload = ('file_annotation' in request.FILES and
-                    request.FILES['file_annotation'] or None)
+                  request.FILES['file_annotation'] or None)
     fileAnnId = None
     if fileupload is not None and fileupload != "":
         manager = BaseContainer(conn)
