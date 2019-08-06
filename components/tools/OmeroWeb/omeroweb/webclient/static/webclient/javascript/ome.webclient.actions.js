@@ -66,8 +66,8 @@ var linkify = function(input) {
     return linkImages(input);
 };
 var linkImages = function(input) {
-    var regex = /Image ID: ([0-9]+)/g;
-    return input.replace(regex, "<a href='" + WEBCLIENT.URLS.webindex + "?show=image-$1'>$&</a>");
+    var regex = /(Project|Dataset|Image|Screen|Plate|Well|ROI) ID: ([0-9]+)/g;
+    return input.replace(regex, function($0, $1, $2) {return "<a href='" + WEBCLIENT.URLS.webindex + "?show=" + $1.toLowerCase() + "-" + $2 + "'>" + $0 + "</a>"});
 };
 OME.linkify_element = function(elements) {
     elements.each(function() {
