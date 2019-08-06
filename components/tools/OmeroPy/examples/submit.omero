@@ -1,5 +1,0 @@
-#!/usr/bin/env omero submit
-
-prefs get
-
-

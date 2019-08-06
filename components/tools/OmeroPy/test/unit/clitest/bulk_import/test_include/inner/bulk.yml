@@ -1,4 +1,0 @@
----
-include: ../bulk.yml
-path: bulk.tsv
-continue: true
