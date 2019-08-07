@@ -223,7 +223,7 @@ class BaseClient(object):
             # OPENSSL_VERSION_INFO not available for 2.6, fall back to default
             self._optSetProp(id, prop, "HIGH:ADH")
 
-        self._optSetProp(id, "IceSSL.VerifyDepthMax", "0")
+        self._optSetProp(id, "IceSSL.VerifyDepthMax", "6")
         self._optSetProp(id, "IceSSL.VerifyPeer", "0")
         self._optSetProp(id, "IceSSL.Protocols", "tls1")
 
