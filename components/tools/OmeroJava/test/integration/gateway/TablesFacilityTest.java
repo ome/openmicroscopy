@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import omero.api.IQueryPrx;
 import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.DataObject;
@@ -42,6 +43,8 @@ import omero.gateway.model.WellData;
 
 import omero.model.OriginalFile;
 
+import omero.model.FileAnnotation;
+import omero.sys.ParametersI;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -66,6 +69,8 @@ public class TablesFacilityTest extends GatewayTest {
     private final String searchForThis = "searchForThis";
     
     private final long searchForThisResult = 123456789l;
+
+    private final String ns = "some Namespace";
 
     @Override
     @BeforeClass(alwaysRun = true)
@@ -162,8 +167,7 @@ public class TablesFacilityTest extends GatewayTest {
         }
 
         original = new TableData(header, data);
-        TableData stored = tablesFacility.addTable(rootCtx, ds, "Table",
-                original);
+        TableData stored = tablesFacility.addTable(rootCtx, ds, "Table", ns, original);
         origData = original.getData();
         Assert.assertEquals(stored.getNumberOfRows(), nRows);
         original.setOriginalFileId(stored.getOriginalFileId());
@@ -178,6 +182,16 @@ public class TablesFacilityTest extends GatewayTest {
     }
 
     @Test(dependsOnMethods = { "testAddTable" })
+    public void testNameSpace() throws Exception {
+        IQueryPrx qs = gw.getQueryService(rootCtx);
+        ParametersI params = new ParametersI();
+        params.add("fid", omero.rtypes.rlong(original.getOriginalFileId()));
+        String query = "SELECT a from FileAnnotation a where a.file.id = :fid";
+        FileAnnotationData fa = new FileAnnotationData((FileAnnotation) qs.findByQuery(query, params));
+        Assert.assertEquals(fa.getNameSpace(), ns);
+    }
+
+    @Test(dependsOnMethods = { "testGetTableInfo" })
     public void testSearch() throws Exception {
         long[] rows = tablesFacility.query(rootCtx,
                 original.getOriginalFileId(), "(column0=='" + searchForThis
