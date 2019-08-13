@@ -30,6 +30,42 @@ build_year = "${python_build_year}"
         </sequential>
     </macrodef>
 
+    <macrodef name="download">
+        <attribute name="url"/>
+        <attribute name="file"/>
+        <attribute name="expected"/>
+        <sequential>
+            <mkdir dir="../target/downloads"/>
+            <mkdir dir="../target/build/lib"/>
+            <local name="dest"/>
+            <local name="calculated"/>
+            <local name="mismatch"/>
+            <property name="dest" value="../target/downloads/@{file}"/>
+            <get dest="${dest}" usetimestamp="true">
+                <url url="@{url}/@{file}"/>
+            </get>
+            <checksum file="${dest}" algorithm="MD5" fileext=".md5"/>
+            <loadfile property="calculated" srcFile="${dest}.md5"/>
+            <condition property="mismatch">
+                <not><equals arg1="@{expected}" arg2="${calculated}" trim="true"/></not>
+            </condition>
+            <fail if="${mismatch}" message="@{file}: checksum error"/>
+        </sequential>
+    </macrodef>
+
+    <target name="python-download">
+        <download url="${versions.omero-py-url}" file="omero-py-${versions.omero-py}.tar.gz" expected="${versions.omero-py-md5}"/>
+        <!-- unfortunately more verbose than should be necessary -->
+        <untar src="../target/downloads/omero-py-${versions.omero-py}.tar.gz" dest="../target/python/lib" compression="gzip">
+            <globmapper from="omero-py-${versions.omero-py}/target/*" to="./*" />
+        </untar>
+        <untar src="../target/downloads/omero-py-${versions.omero-py}.tar.gz" dest="../target/python/bin" compression="gzip">
+            <globmapper from="omero-py-${versions.omero-py}/bin/*" to="./*" />
+        </untar>
+        <chmod file="../target/python/bin/omero" perm="ugo+x"/>
+        <!-- TODO: new download -->
+    </target>
+
     <target name="python-build" unless="env.NOPYTHON">
         <property name="py.target" value="${basedir}/build/lib"/>
         <mkdir dir="${py.target}"/>
@@ -116,13 +152,13 @@ build_year = "${python_build_year}"
         </sequential>
     </macrodef>
 
-    <target name="python-install" unless="env.NOPYTHON">
+    <target name="python-install" depends="python-download" unless="env.NOPYTHON">
         <copy todir="../target/lib/python">
             <fileset dir="${basedir}/build/lib" includes="**/*"/>
         </copy>
     </target>
 
-    <target name="python-clean" unless="env.NOPYTHON">
+    <target name="python-clean" depends="python-download" unless="env.NOPYTHON">
         <setup_py>
             <arg value="clean"/>
         </setup_py>

@@ -35,7 +35,7 @@ import glob
 import sys
 import os
 
-sys.path.append("src")
+sys.path.append("../target/python/lib")
 from omero_setup import PyTest
 
 for tools in glob.glob("../../../lib/repository/setuptools*.egg"):

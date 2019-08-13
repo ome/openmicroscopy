@@ -32,7 +32,7 @@
 
     <target name="integration" depends="python-integration" unless="env.NOPYTHON"/>
 
-    <target name="tools-init" unless="env.NOPYTHON">
+    <target name="tools-init" depends="python-download" unless="env.NOPYTHON">
         <copy todir="${copy.dir}">
             <fileset dir="src" includes="*.py"/>
         </copy>
