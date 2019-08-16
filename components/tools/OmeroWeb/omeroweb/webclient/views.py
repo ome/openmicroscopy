@@ -4247,10 +4247,13 @@ def script_run(request, scriptId, conn=None, **kwargs):
     if fileupload is not None and fileupload != "":
         manager = BaseContainer(conn)
         fileAnnId = manager.createFileAnnotations(fileupload, [])
-
     for key, param in params.inputs.items():
         prototype = param.prototype
         pclass = prototype.__class__
+
+        if key == "File_Annotation" and fileAnnId is not None:
+            inputMap[key] = pclass(str(fileAnnId))
+            continue
 
         # handle bool separately, since unchecked checkbox will not be in
         # request.POST
@@ -4325,8 +4328,6 @@ def script_run(request, scriptId, conn=None, **kwargs):
                 except:
                     logger.debug("Invalid entry for '%s' : %s" % (key, value))
                     continue
-        if key == "File_Annotation" and fileAnnId is not None:
-            inputMap[key] = pclass(fileAnnId)
 
     # If we have objects specified via 'IDs' and 'DataType', try to pick
     # correct group
