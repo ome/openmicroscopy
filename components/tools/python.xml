@@ -75,6 +75,25 @@ build_year = "${python_build_year}"
             <globmapper from="scripts-${versions.omero-scripts}/*" to="./*" />
         </untar>
 
+        <download url="${versions.omero-web-url}" file="${versions.omero-web}.tar.gz" expected="${versions.omero-web-md5}"/>
+        <untar src="../target/downloads/${versions.omero-web}.tar.gz" dest="../target/python/lib" compression="gzip">
+            <!-- Could be improved with an artifact -->
+            <patternset>
+                <include name="omero-web-${versions.omero-web}/omero/*"/>
+                <include name="omero-web-${versions.omero-web}/omeroweb/*"/>
+            </patternset>
+            <globmapper from="omero-web-${versions.omero-web}/*" to="./*" />
+        </untar>
+
+        <download url="${versions.omero-dropbox-url}" file="${versions.omero-dropbox}.tar.gz" expected="${versions.omero-dropbox-md5}"/>
+        <untar src="../target/downloads/${versions.omero-dropbox}.tar.gz" dest="../target/python/lib" compression="gzip">
+            <!-- Could be improved with an artifact -->
+            <patternset>
+                <include name="omero-dropbox-${versions.omero-dropbox}/src/*"/>
+            </patternset>
+            <globmapper from="omero-dropbox-${versions.omero-dropbox}/src/*" to="./*" />
+        </untar>
+
     </target>
 
     <target name="python-build" unless="env.NOPYTHON">
