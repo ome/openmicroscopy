@@ -59,10 +59,10 @@ build_year = "${python_build_year}"
         <untar src="../target/downloads/omero-py-${versions.omero-py}.tar.gz" dest="../target/python/lib" compression="gzip">
             <globmapper from="omero-py-${versions.omero-py}/target/*" to="./*" />
         </untar>
-        <untar src="../target/downloads/omero-py-${versions.omero-py}.tar.gz" dest="../target/python/bin" compression="gzip">
+        <untar src="../target/downloads/omero-py-${versions.omero-py}.tar.gz" dest="../target/bin" compression="gzip">
             <globmapper from="omero-py-${versions.omero-py}/bin/*" to="./*" />
         </untar>
-        <chmod file="../target/python/bin/omero" perm="ugo+x"/>
+        <chmod file="../target/bin/omero" perm="ugo+x"/>
         <!-- TODO: new download -->
 
         <download url="${versions.omero-scripts-url}" file="v${versions.omero-scripts}.tar.gz" expected="${versions.omero-scripts-md5}"/>
