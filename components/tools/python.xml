@@ -69,7 +69,7 @@ build_year = "${python_build_year}"
         <untar src="../target/downloads/v${versions.omero-scripts}.tar.gz" dest="../target/lib/scripts" compression="gzip">
             <!-- Could be improved with an artifact -->
             <patternset>
-                <include name="scripts-${versions.omero-scripts}/omero/*"/>
+                <include name="scripts-${versions.omero-scripts}/omero/**/*"/>
                 <include name="scripts-${versions.omero-scripts}/README*"/>
             </patternset>
             <globmapper from="scripts-${versions.omero-scripts}/*" to="./*" />
@@ -79,8 +79,8 @@ build_year = "${python_build_year}"
         <untar src="../target/downloads/${versions.omero-web}.tar.gz" dest="../target/python/lib" compression="gzip">
             <!-- Could be improved with an artifact -->
             <patternset>
-                <include name="omero-web-${versions.omero-web}/omero/*"/>
-                <include name="omero-web-${versions.omero-web}/omeroweb/*"/>
+                <include name="omero-web-${versions.omero-web}/omero/**/"/>
+                <include name="omero-web-${versions.omero-web}/omeroweb/**/"/>
             </patternset>
             <globmapper from="omero-web-${versions.omero-web}/*" to="./*" />
         </untar>
@@ -89,7 +89,7 @@ build_year = "${python_build_year}"
         <untar src="../target/downloads/${versions.omero-dropbox}.tar.gz" dest="../target/python/lib" compression="gzip">
             <!-- Could be improved with an artifact -->
             <patternset>
-                <include name="omero-dropbox-${versions.omero-dropbox}/src/*"/>
+                <include name="omero-dropbox-${versions.omero-dropbox}/src/**/"/>
             </patternset>
             <globmapper from="omero-dropbox-${versions.omero-dropbox}/src/*" to="./*" />
         </untar>
