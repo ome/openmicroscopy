@@ -56,7 +56,7 @@ build_year = "${python_build_year}"
     <target name="python-download">
         <download url="${versions.omero-py-url}" file="omero-py-${versions.omero-py}.tar.gz" expected="${versions.omero-py-md5}"/>
         <!-- unfortunately more verbose than should be necessary -->
-        <untar src="../target/downloads/omero-py-${versions.omero-py}.tar.gz" dest="../target/python/lib" compression="gzip">
+        <untar src="../target/downloads/omero-py-${versions.omero-py}.tar.gz" dest="../target/lib/python" compression="gzip">
             <globmapper from="omero-py-${versions.omero-py}/target/*" to="./*" />
         </untar>
         <untar src="../target/downloads/omero-py-${versions.omero-py}.tar.gz" dest="../target/bin" compression="gzip">
@@ -75,18 +75,24 @@ build_year = "${python_build_year}"
             <globmapper from="scripts-${versions.omero-scripts}/*" to="./*" />
         </untar>
 
-        <download url="${versions.omero-web-url}" file="${versions.omero-web}.tar.gz" expected="${versions.omero-web-md5}"/>
-        <untar src="../target/downloads/${versions.omero-web}.tar.gz" dest="../target/python/lib" compression="gzip">
+       <download url="${versions.omero-web-url}" file="${versions.omero-web}.tar.gz" expected="${versions.omero-web-md5}"/>
+	<untar src="../target/downloads/${versions.omero-web}.tar.gz" dest="../target/lib/python/omeroweb" compression="gzip">
+            <!-- Could be improved with an artifact -->
+            <patternset>
+                <include name="omero-web-${versions.omero-web}/omeroweb/**/*"/>
+            </patternset>
+	    <globmapper from="omero-web-${versions.omero-web}/omeroweb/*" to="./*" />
+        </untar>
+	<untar src="../target/downloads/${versions.omero-web}.tar.gz" dest="../target/lib/python/omero" compression="gzip">
             <!-- Could be improved with an artifact -->
             <patternset>
                 <include name="omero-web-${versions.omero-web}/omero/**/*"/>
-                <include name="omero-web-${versions.omero-web}/omeroweb/**/*"/>
             </patternset>
-            <globmapper from="omero-web-${versions.omero-web}/*" to="./*" />
+	    <globmapper from="omero-web-${versions.omero-web}/omero/*" to="./*" />
         </untar>
 
         <download url="${versions.omero-dropbox-url}" file="${versions.omero-dropbox}.tar.gz" expected="${versions.omero-dropbox-md5}"/>
-        <untar src="../target/downloads/${versions.omero-dropbox}.tar.gz" dest="../target/python/lib" compression="gzip">
+        <untar src="../target/downloads/${versions.omero-dropbox}.tar.gz" dest="../target/lib/python" compression="gzip">
             <!-- Could be improved with an artifact -->
             <patternset>
                 <include name="omero-dropbox-${versions.omero-dropbox}/src/**/*"/>
@@ -97,18 +103,7 @@ build_year = "${python_build_year}"
     </target>
 
     <target name="python-build" unless="env.NOPYTHON">
-        <property name="py.target" value="${basedir}/build/lib"/>
-        <mkdir dir="${py.target}"/>
-        <setup_py>
-            <arg value="build"/>
-            <arg value="--build-platlib"/>
-            <arg value="${py.target}"/>
-            <arg value="--build-purelib"/>
-            <arg value="${py.target}"/>
-        </setup_py>
-        <setup_py>
-            <arg value="bdist_egg"/>
-        </setup_py>
+        <!-- no-op -->
     </target>
 
     <target name="python-test" unless="env.NOPYTHON">
@@ -183,9 +178,7 @@ build_year = "${python_build_year}"
     </macrodef>
 
     <target name="python-install" depends="python-download" unless="env.NOPYTHON">
-        <copy todir="../target/lib/python">
-            <fileset dir="${basedir}/build/lib" includes="**/*"/>
-        </copy>
+        <!-- no-op -->
     </target>
 
     <target name="python-clean" depends="python-download" unless="env.NOPYTHON">

@@ -37,15 +37,11 @@
     <target name="tools-init" depends="retrieve,python-download" unless="env.NOPYTHON"/>
 
     <!-- Copied prefs.class for testing the prefs plugin. -->
-    <target name="tools-build" depends="tools-init,python-build" description="Uses setup.py to build artifacts" unless="env.NOPYTHON">
-        <copy todir="${basedir}/build/">
-            <fileset dir="../target/python" includes="**/*"/>
-        </copy>
-    </target>
+    <target name="tools-build" depends="tools-init" description="Uses setup.py to build artifacts" unless="env.NOPYTHON"/>
 
     <target name="tools-test" depends="tools-build,python-test" description="Runs test target of setup.py" unless="env.NOPYTHON"/>
 
-    <target name="tools-dist" depends="tools-build,python-install" description="Copies files into tools/target" unless="env.NOPYTHON">
+    <target name="tools-dist" depends="tools-build" description="Copies files into tools/target" unless="env.NOPYTHON">
     </target>
 
    <target name="tools-clean" depends="python-clean">
