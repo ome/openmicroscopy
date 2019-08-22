@@ -75,21 +75,11 @@ build_year = "${python_build_year}"
             <globmapper from="scripts-${versions.omero-scripts}/*" to="./*" />
         </untar>
 
-       <download url="${versions.omero-web-url}" file="${versions.omero-web}.tar.gz" expected="${versions.omero-web-md5}"/>
-	<untar src="../target/downloads/${versions.omero-web}.tar.gz" dest="../target/lib/python/omeroweb" compression="gzip">
-            <!-- Could be improved with an artifact -->
-            <patternset>
-                <include name="omero-web-${versions.omero-web}/omeroweb/**/*"/>
-            </patternset>
-	    <globmapper from="omero-web-${versions.omero-web}/omeroweb/*" to="./*" />
-        </untar>
-	<untar src="../target/downloads/${versions.omero-web}.tar.gz" dest="../target/lib/python/omero" compression="gzip">
-            <!-- Could be improved with an artifact -->
-            <patternset>
-                <include name="omero-web-${versions.omero-web}/omero/**/*"/>
-            </patternset>
-	    <globmapper from="omero-web-${versions.omero-web}/omero/*" to="./*" />
-        </untar>
+        <download url="${versions.omero-web-url}" file="${versions.omero-web}.zip" expected="${versions.omero-web-md5}"/>
+        <unzip src="../target/downloads/${versions.omero-web}.zip" dest="../target/downloads/"/>
+        <copy todir="../target/lib/python">
+            <fileset dir="../target/downloads/omero-web-${versions.omero-web}" includes="omeroweb/**/*,omero/**/*"/>
+        </copy>
 
         <download url="${versions.omero-dropbox-url}" file="${versions.omero-dropbox}.tar.gz" expected="${versions.omero-dropbox-md5}"/>
         <untar src="../target/downloads/${versions.omero-dropbox}.tar.gz" dest="../target/lib/python" compression="gzip">
