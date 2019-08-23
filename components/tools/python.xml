@@ -75,6 +75,9 @@ build_year = "${python_build_year}"
         </copy>
         <chmod file="../target/bin/omero" perm="ugo+x"/>
 
+        <!-- hack: deleting the unpacked code to allow integration tests to pass -->
+        <delete dir="../target/downloads/py/omero-py-${versions.omero-py}"/>
+
 
         <download url="${versions.omero-scripts-url}" file="${versions.omero-scripts}.tar.gz" expected="${versions.omero-scripts-md5}"
                   where="../target/downloads/scripts"/>
