@@ -32,18 +32,25 @@ build_year = "${python_build_year}"
 
     <macrodef name="download">
         <attribute name="url"/>
+        <attribute name="pkg"/><!-- TODO: simplify -->
         <attribute name="file"/>
         <attribute name="expected"/>
         <attribute name="where"/>
         <sequential>
             <mkdir dir="@{where}"/>
             <mkdir dir="../target/build/lib"/>
+            <local name="url_resolved"/>
             <local name="dest"/>
             <local name="calculated"/>
             <local name="mismatch"/>
             <property name="dest" value="@{where}/@{file}"/>
+            <propertyregex property="url_resolved"
+              input="@{url}"
+              regexp="(.*)PACKAGE(.*)"
+              select="\1@{pkg}\2"
+              casesensitive="true" />
             <get dest="${dest}" usetimestamp="true">
-                <url url="@{url}/@{file}"/>
+                <url url="${url_resolved}/@{file}"/>
             </get>
             <checksum file="${dest}" algorithm="MD5" fileext=".md5"/>
             <loadfile property="calculated" srcFile="${dest}.md5"/>
@@ -63,7 +70,7 @@ build_year = "${python_build_year}"
 
     <target name="python-download">
 
-        <download url="${versions.omero-py-url}" file="omero-py-${versions.omero-py}.tar.gz" expected="${versions.omero-py-md5}"
+        <download pkg="omero-py" url="${versions.omero-py-url}" file="omero-py-${versions.omero-py}.tar.gz" expected="${versions.omero-py-md5}"
                   where="../target/downloads/py"/>
         <!-- unfortunately more verbose than should be necessary -->
         <untar src="../target/downloads/py/omero-py-${versions.omero-py}.tar.gz" dest="../target/downloads/py" compression="gzip"/>
@@ -79,7 +86,7 @@ build_year = "${python_build_year}"
         <delete dir="../target/downloads/py/omero-py-${versions.omero-py}"/>
 
 
-        <download url="${versions.omero-scripts-url}" file="${versions.omero-scripts}.tar.gz" expected="${versions.omero-scripts-md5}"
+        <download pkg="omero-scripts" url="${versions.omero-scripts-url}" file="${versions.omero-scripts}.tar.gz" expected="${versions.omero-scripts-md5}"
                   where="../target/downloads/scripts"/>
         <untar src="../target/downloads/scripts/${versions.omero-scripts}.tar.gz" dest="../target/lib/scripts" compression="gzip">
             <!-- Could be improved with an artifact -->
@@ -91,7 +98,7 @@ build_year = "${python_build_year}"
         </untar>
 
 
-        <download url="${versions.omero-web-url}" file="omero-web-${versions.omero-web}.tar.gz" expected="${versions.omero-web-md5}"
+        <download pkg="omero-web" url="${versions.omero-web-url}" file="omero-web-${versions.omero-web}.tar.gz" expected="${versions.omero-web-md5}"
                   where="../target/downloads/web"/>
         <untar src="../target/downloads/web/omero-web-${versions.omero-web}.tar.gz" dest="../target/downloads/web" compression="gzip"/>
         <copy todir="../target/lib/python">
@@ -102,7 +109,7 @@ build_year = "${python_build_year}"
         </copy>
 
 
-        <download url="${versions.omero-dropbox-url}" file="${versions.omero-dropbox}.tar.gz" expected="${versions.omero-dropbox-md5}"
+        <download pkg="omero-dropbox" url="${versions.omero-dropbox-url}" file="${versions.omero-dropbox}.tar.gz" expected="${versions.omero-dropbox-md5}"
                   where="../target/downloads/dropbox"/>
         <untar src="../target/downloads/dropbox/${versions.omero-dropbox}.tar.gz" dest="../target/lib/python" compression="gzip">
             <!-- Could be improved with an artifact -->
