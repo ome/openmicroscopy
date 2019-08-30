@@ -91,11 +91,14 @@ build_year = "${python_build_year}"
         </untar>
 
 
-        <download url="${versions.omero-web-url}" file="${versions.omero-web}.zip" expected="${versions.omero-web-md5}"
+        <download url="${versions.omero-web-url}" file="omero-web-${versions.omero-web}.tar.gz" expected="${versions.omero-web-md5}"
                   where="../target/downloads/web"/>
-        <unzip src="../target/downloads/web/${versions.omero-web}.zip" dest="../target/downloads/web"/>
+        <untar src="../target/downloads/web/omero-web-${versions.omero-web}.tar.gz" dest="../target/downloads/web" compression="gzip"/>
         <copy todir="../target/lib/python">
             <fileset dir="../target/downloads/web/omero-web-${versions.omero-web}" includes="omeroweb/**/*,omero/**/*"/>
+        </copy>
+        <copy todir="../target/etc/templates/web">
+            <fileset dir="../target/downloads/web/omero-web-${versions.omero-web}/omeroweb/templates" includes="*"/>
         </copy>
 
 
