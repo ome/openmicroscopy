@@ -33,16 +33,11 @@
 
     <target name="integration" depends="python-integration" unless="env.NOPYTHON"/>
 
-    <target name="tools-init"/>
+    <target name="tools-init" depends="python-download"/>
 
     <target name="tools-build" depends="tools-init"/>
 
-    <target name="tools-dist" depends="tools-build" description="Copies files into target">
-        <copy todir="${basedir}/../target/lib/python/omeroweb">
-            <fileset dir="${basedir}/omeroweb" excludes="**/*.pyc,media/**,logs,log,db.sqlite3,custom_settings.py,initial_data.json"/>
-            <fileset dir="${basedir}/omeroweb" includes="media/omeroweb/**"/>
-        </copy>
-    </target>
+    <target name="tools-dist" depends="tools-build" description="Copies files into target"/>
 
    <target name="tools-clean" depends="python-clean">
         <delete dir="${basedir}/omeroweb/custom_settings.py"/>

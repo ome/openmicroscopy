@@ -86,24 +86,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <ivy:cleancache settingsRef="ivy.${ant.project.name}"/>
     </target>
 
-    <macrodef name="setup-py-install">
-
-        <attribute name="tarball"/>
-        <attribute name="dir"/>
-
-        <sequential>
-        <mkdir dir="${target.dir}"/>
-        <mkdir dir="${target.dir}/lib/python/site-packages"/>
-        <untar compression="gzip" src="${lib.dir}/repository/@{tarball}" dest="${target.dir}"/>
-        <exec executable="python" dir="${target.dir}/@{dir}" failonerror="true">
-            <env key="PYTHONPATH" value="${env.PYTHONPATH}:${target.dir}/lib/python/site-packages"/>
-            <arg value="setup.py"/>
-            <arg value="install"/>
-            <arg value="--prefix=${target.dir}"/>
-         </exec>
-         </sequential>
-    </macrodef>
-
     <target name="check-scons" description="Checks for scons and sets executable or installs">
         <available property="scons.py" value="${target.dir}/scons/scons.py" filepath="${target.dir}/scons" file="scons.py" />
         <antcall target="build-scons" inheritAll="true" inheritRefs="true"/>
@@ -334,10 +316,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
         </zip>
 
-	<copy todir="target">
-            <fileset dir="components/tools/OmeroPy/dist" includes="*.egg"/>
-            <fileset dir="components/tools/OmeroFS/dist" includes="*.egg"/>
-        </copy>
     </target>
 
     <target name="release-tar" description="Tar the dist directory into ${product-name}-${omero.version}.tar.bz2">
