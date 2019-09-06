@@ -1,4 +1,0 @@
----
-name: new-name
-logprefix: "%(name)s-log-"
-path: bulk.tsv

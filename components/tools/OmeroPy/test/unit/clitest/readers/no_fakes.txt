@@ -1,1 +1,0 @@
-loci.formats.in.MinimalTiffReader

@@ -32,15 +32,11 @@
 
     <target name="integration" depends="python-integration" unless="env.NOPYTHON"/>
 
-    <target name="tools-init" unless="env.NOPYTHON">
-        <copy todir="${copy.dir}">
-            <fileset dir="src" includes="*.py"/>
-        </copy>
-    </target>
+    <target name="tools-init" depends="python-download" unless="env.NOPYTHON"/>
 
-    <target name="tools-build" depends="tools-init,python-build" description="Creates all artifacts for tools/target" unless="env.NOPYTHON"/>
+    <target name="tools-build" depends="tools-init" description="Creates all artifacts for tools/target" unless="env.NOPYTHON"/>
 
-    <target name="tools-dist" depends="tools-build,python-install" description="Copied artifacts to tools/target" unless="env.NOPYTHON"/>
+    <target name="tools-dist" depends="tools-build" description="Copied artifacts to tools/target" unless="env.NOPYTHON"/>
 
     <target name="tools-clean" depends="python-clean">
         <delete dir="${copy.dir}"/>
