@@ -89,9 +89,9 @@ build_year = "${python_build_year}"
         <delete dir="../target/downloads/py/omero-py-${versions.omero-py}"/>
 
 
-        <download pkg="scripts" file="${versions.scripts}.tar.gz" expected="${versions.scripts-md5}"
+        <download pkg="scripts" file="v${versions.scripts}.tar.gz" expected="${versions.scripts-md5}"
                   where="../target/downloads/scripts"/>
-        <untar src="../target/downloads/scripts/${versions.scripts}.tar.gz" dest="../target/lib/scripts" compression="gzip">
+        <untar src="../target/downloads/scripts/v${versions.scripts}.tar.gz" dest="../target/lib/scripts" compression="gzip">
             <!-- Could be improved with an artifact -->
             <patternset>
                 <include name="scripts-${versions.scripts}/omero/**/*"/>
