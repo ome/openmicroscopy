@@ -148,10 +148,14 @@ class TestConnectionMethods(object):
         # exps = map(lambda x: x.omeName,
         # gatewaywrapper.gateway.listExperimenters())  # removed from blitz
         # gateway
-        objects = gatewaywrapper.gateway.getObjects("Experimenter")
-        exps = [x.omeName for x in objects]
-        for omeName in (gatewaywrapper.USER.name, gatewaywrapper.AUTHOR.name,
-                        gatewaywrapper.ADMIN.name):
+        for exp, login in [
+                (gatewaywrapper.USER, gatewaywrapper.loginAsUser),
+                (gatewaywrapper.AUTHOR, gatewaywrapper.loginAsAuthor),
+                (gatewaywrapper.ADMIN, gatewaywrapper.loginAsAdmin)]:
+            login()
+            exps = [x.omeName for x in
+                    gatewaywrapper.gateway.getObjects("Experimenter")]
+            omeName = exp.name
             assert omeName in exps
             assert len(list(gatewaywrapper.gateway.getObjects(
                 "Experimenter", attributes={'omeName': omeName}))) > 0
@@ -161,6 +165,7 @@ class TestConnectionMethods(object):
             "Experimenter", attributes={'omeName': comboName}))) == 0
         ##
         # Test lookupExperimenter
+        gatewaywrapper.loginAsUser()
         assert gatewaywrapper.gateway.getObject(
             "Experimenter",
             attributes={'omeName': gatewaywrapper.USER.name}).omeName == \
@@ -168,13 +173,14 @@ class TestConnectionMethods(object):
         assert gatewaywrapper.gateway.getObject(
             "Experimenter", attributes={'omeName': comboName}) is None
         ##
-        # still logged in as Author, test listImages(ns)
+        # logged in as Author, test listImages(ns)
 
         def listImages(ns=None):
             imageAnnLinks = gatewaywrapper.gateway.getAnnotationLinks("Image",
                                                                       ns=ns)
             return [omero.gateway.ImageWrapper(gatewaywrapper.gateway,
                     link.parent) for link in imageAnnLinks]
+        gatewaywrapper.loginAsAuthor()
         ns = 'weblitz.test_annotation'
         obj = gatewaywrapper.getTestImage()
         # Make sure it doesn't yet exist
