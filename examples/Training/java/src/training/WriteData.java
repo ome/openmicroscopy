@@ -315,12 +315,13 @@ public class WriteData
             int index = 0;
             FileOutputStream stream = new FileOutputStream(file);
             OriginalFile of;
+            IQueryPrx svc = gateway.getQueryService(ctx);
             while (j.hasNext()) {
                 annotation = j.next();
                 if (annotation instanceof FileAnnotation && index == 0) {
                     fa = new FileAnnotationData((FileAnnotation) annotation);
                     //The id of te original file
-                    of = getOriginalFile(fa.getFileID());
+                    of = svc.get("OriginalFile", omero.rtypes.rlong(fa.getFileID());
                     store.setFileId(fa.getFileID());
                     int offset = 0;
                     long size = of.getSize().getValue();
@@ -344,23 +345,6 @@ public class WriteData
             if (store != null) store.close();
             if (file != null) file.delete();
         }
-    }
-
-    /**
-     * Returns the original file corresponding to the passed id.
-     * @param id The id identifying the file.
-     * @return See above.
-     * @throws Exception If an error occurred.
-     */
-    private OriginalFile getOriginalFile(long id)
-            throws Exception
-    {
-        ParametersI param = new ParametersI();
-        param.map.put("id", omero.rtypes.rlong(id));
-        IQueryPrx svc = gateway.getQueryService(ctx);
-        return (OriginalFile) svc.findByQuery(
-                "select p from OriginalFile as p " +
-                        "where p.id = :id", param);
     }
 
     /**
