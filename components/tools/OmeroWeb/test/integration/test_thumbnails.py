@@ -75,7 +75,7 @@ class TestThumbnails(IWebTest):
         thumb = json.dumps(
             "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content))
 
-        request_url = reverse('webgateway.views.get_thumbnail_json',
+        request_url = reverse('webgateway_get_thumbnail_json',
                               args=args)
         b64rsp = get(self.django_client, request_url).content
         assert thumb == b64rsp
