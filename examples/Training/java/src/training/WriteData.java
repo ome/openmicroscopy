@@ -321,7 +321,7 @@ public class WriteData
                 if (annotation instanceof FileAnnotation && index == 0) {
                     fa = new FileAnnotationData((FileAnnotation) annotation);
                     //The id of te original file
-                    of = svc.get("OriginalFile", fa.getFileID());
+                    of = (OriginalFile) svc.get("OriginalFile", fa.getFileID());
                     store.setFileId(fa.getFileID());
                     int offset = 0;
                     long size = of.getSize().getValue();
