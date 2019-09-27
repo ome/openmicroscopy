@@ -49,7 +49,7 @@ class TestThumbnails(IWebTest):
         args = [iId]
         if size is not None:
             args.append(size)
-        request_url = reverse('webgateway.views.render_thumbnail', args=args)
+        request_url = reverse('webgateway_render_thumbnail', args=args)
         rsp = get(self.django_client, request_url)
 
         thumb = Image.open(StringIO(rsp.content))
@@ -70,12 +70,12 @@ class TestThumbnails(IWebTest):
         args = [iid]
         if size is not None:
             args.append(size)
-        request_url = reverse('webgateway.views.render_thumbnail', args=args)
+        request_url = reverse('webgateway_render_thumbnail', args=args)
         rsp = get(self.django_client, request_url)
         thumb = json.dumps(
             "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content))
 
-        request_url = reverse('webgateway.views.get_thumbnail_json',
+        request_url = reverse('webgateway_get_thumbnail_json',
                               args=args)
         b64rsp = get(self.django_client, request_url).content
         assert thumb == b64rsp
@@ -93,7 +93,7 @@ class TestThumbnails(IWebTest):
 
         expected_thumbs = {}
         for i in images:
-            request_url = reverse('webgateway.views.render_thumbnail',
+            request_url = reverse('webgateway_render_thumbnail',
                                   args=[i])
             rsp = get(self.django_client, request_url)
 
@@ -101,7 +101,7 @@ class TestThumbnails(IWebTest):
                 "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content)
 
         iids = {'id': images}
-        request_url = reverse('webgateway.views.get_thumbnails_json')
+        request_url = reverse('webgateway_get_thumbnails_json')
         b64rsp = get(self.django_client, request_url, iids).content
 
         assert cmp(json.loads(b64rsp),

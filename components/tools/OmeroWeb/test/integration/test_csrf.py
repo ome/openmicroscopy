@@ -194,7 +194,7 @@ class TestCsrf(IWebTest):
         session['fromid'] = img.id.val
         session.save()
 
-        request_url = reverse('webgateway.views.copy_image_rdef_json')
+        request_url = reverse('copy_image_rdef_json')
         data = {
             'toids': img.id.val
         }

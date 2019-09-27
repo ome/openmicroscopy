@@ -43,7 +43,7 @@ class TestImgDetail(IWebTest):
             client=self.client, pixelType="int16", sizeX=20, sizeY=20, sizeZ=5,
             sizeT=6)
         iid = images[0].id.val
-        json_url = reverse('webgateway.views.imageData_json', args=[iid])
+        json_url = reverse('webgateway_imageData_json', args=[iid])
         data = {}
         img_data = get_json(self.django_client, json_url, data,
                             status_code=200)

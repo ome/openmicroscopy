@@ -67,7 +67,7 @@ class TestDownload(IWebTest):
 
         plate, well, image = image_well_plate
         # download archived files
-        request_url = reverse('webgateway.views.archived_files')
+        request_url = reverse('archived_files')
         data = {
             "image": image.id.val
         }
@@ -81,7 +81,7 @@ class TestDownload(IWebTest):
         images = self.import_fake_file()
         image = images[0]
         # download archived files
-        request_url = reverse('webgateway.views.archived_files',
+        request_url = reverse('archived_files',
                               args=[image.id.val])
         get(self.django_client, request_url)
 
@@ -94,7 +94,7 @@ class TestDownload(IWebTest):
         image = images[0]
 
         # download archived files
-        request_url = reverse('webgateway.views.archived_files')
+        request_url = reverse('archived_files')
         data = {
             "image": image.id.val
         }
@@ -111,7 +111,7 @@ class TestDownload(IWebTest):
         self.link(ds, image)
 
         # download archived files
-        request_url = reverse('webgateway.views.archived_files')
+        request_url = reverse('archived_files')
         data = {
             "image": image.id.val
         }
@@ -131,7 +131,7 @@ class TestDownload(IWebTest):
         self.link(ds, image)
 
         # download archived files
-        request_url = reverse('webgateway.views.archived_files')
+        request_url = reverse('archived_files')
         data = {
             "image": image.id.val
         }
@@ -144,7 +144,7 @@ class TestDownload(IWebTest):
 
         plate, well, image = image_well_plate
         # download archived files
-        request_url = reverse('webgateway.views.archived_files')
+        request_url = reverse('archived_files')
         data = {
             "well": well.id.val
         }

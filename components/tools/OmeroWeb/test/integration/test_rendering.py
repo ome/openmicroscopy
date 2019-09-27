@@ -75,7 +75,7 @@ class TestRendering(IWebTest):
         assert img2_chan.getCoefficient() == 1.0
 
         # copy rendering settings from image1 via ID
-        request_url = reverse('webgateway.views.copy_image_rdef_json')
+        request_url = reverse('copy_image_rdef_json')
         data = {
             "fromid": iid1
         }
@@ -148,7 +148,7 @@ class TestRendering(IWebTest):
             '&maps=[' + exp_map1 + ',' + exp_map2 + ']'
 
         # copy rendering settings from image1 via URL
-        request_url = reverse('webgateway.views.copy_image_rdef_json')
+        request_url = reverse('copy_image_rdef_json')
         data = {
             "imageId": iid1,
             "c": old_c1,
@@ -211,7 +211,7 @@ class TestRendering(IWebTest):
 
         # request the rendering def via the method we want to test
         request_url = reverse(
-            'webgateway.views.get_image_rdefs_json', args=[iid])
+            'webgateway_get_image_rdefs_json', args=[iid])
         response = get(self.django_client, request_url)
 
         # check expected response
@@ -275,7 +275,7 @@ class TestRenderImageRegion(IWebTest):
         image_id = self.create_test_image(size_c=1, session=self.sf).id.val
 
         request_url = reverse(
-            'webgateway.views.render_image_region',
+            'webgateway_render_image_region',
             kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
         )
         data = {'c': '1|0:255$FF0000'}
@@ -298,7 +298,7 @@ class TestRenderImageRegion(IWebTest):
         image_id = self.create_test_image(size_c=1, session=self.sf).id.val
 
         request_url = reverse(
-            'webgateway.views.render_image_region',
+            'webgateway_render_image_region',
             kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
         )
         data = {'tile': 'malformed'}
@@ -321,7 +321,7 @@ class TestRenderImageRegion(IWebTest):
         image_id = self.create_test_image(size_c=1, session=self.sf).id.val
 
         request_url = reverse(
-            'webgateway.views.render_image_region',
+            'webgateway_render_image_region',
             kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
         )
         data = {'region': 'malformed'}
@@ -349,7 +349,7 @@ class TestRenderImageRegion(IWebTest):
         image._re.close()
 
         request_url = reverse(
-            'webgateway.views.render_image_region',
+            'webgateway_render_image_region',
             kwargs={'iid': str(image.getId()), 'z': '0', 't': '0'}
         )
         data = {'tile': '0,0,0'}
@@ -387,7 +387,7 @@ class TestRenderImageRegion(IWebTest):
         image._re.close()
 
         request_url = reverse(
-            'webgateway.views.render_image_region',
+            'webgateway_render_image_region',
             kwargs={'iid': str(image.getId()), 'z': '0', 't': '0'}
         )
         django_client = self.new_django_client_from_session_id(
@@ -415,7 +415,7 @@ class TestRenderImageRegion(IWebTest):
         image._re.close()
 
         request_url = reverse(
-            'webgateway.views.render_image_region',
+            'webgateway_render_image_region',
             kwargs={'iid': str(image.getId()), 'z': '0', 't': '0'}
         )
         django_client = self.new_django_client_from_session_id(
@@ -440,7 +440,7 @@ class TestRenderImageRegion(IWebTest):
         image._re.close()
 
         request_url = reverse(
-            'webgateway.views.render_image_region',
+            'webgateway_render_image_region',
             kwargs={'iid': str(image.getId()), 'z': '0', 't': '0'}
         )
         django_client = self.new_django_client_from_session_id(
@@ -461,7 +461,7 @@ class TestRenderImageRegion(IWebTest):
         image_id = self.import_pyramid(tmpdir, client=self.client)
 
         request_url = reverse(
-            'webgateway.views.render_image_region',
+            'webgateway_render_image_region',
             kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
         )
         django_client = self.new_django_client_from_session_id(
@@ -497,7 +497,7 @@ class TestRenderImageRegion(IWebTest):
         image._re.close()
 
         request_url = reverse(
-            'webgateway.views.render_image_region',
+            'webgateway_render_image_region',
             kwargs={'iid': str(image.getId()), 'z': '0', 't': '0'}
         )
         data = {'region': '0,0,10,10'}
@@ -520,7 +520,7 @@ class TestRenderImageRegion(IWebTest):
         image_id = self.import_pyramid(tmpdir, client=self.client)
 
         request_url = reverse(
-            'webgateway.views.render_image_region',
+            'webgateway_render_image_region',
             kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
         )
         django_client = self.new_django_client_from_session_id(
@@ -546,7 +546,7 @@ class TestRenderImageRegion(IWebTest):
         """
         image_id = self.import_pyramid(tmpdir, client=self.client)
         request_url = reverse(
-            'webgateway.views.render_birds_eye_view',
+            'webgateway_render_birds_eye_view',
             kwargs={'iid': str(image_id), 'size': '100'}
         )
         django_client = self.new_django_client_from_session_id(
@@ -572,7 +572,7 @@ class TestRenderImageRegion(IWebTest):
         image._re.close()
 
         request_url = reverse(
-            'webgateway.views.render_image_region',
+            'webgateway_render_image_region',
             kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
         )
         django_client = self.new_django_client_from_session_id(

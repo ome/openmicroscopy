@@ -300,7 +300,7 @@ class TestPlateGrid(object):
                     assert well_metadata['name'] == img.name.val
                     # expect default thumbnail (no size specified)
                     assert well_metadata['thumb_url'] ==\
-                        reverse('webgateway.views.render_thumbnail',
+                        reverse('webgateway_render_thumbnail',
                                 args=[img.id.val])
 
     def test_well_images(self, django_client, plate_wells, conn):
@@ -320,7 +320,7 @@ class TestPlateGrid(object):
                 assert ws_json['name'] == img.name.val
                 assert ws_json['id'] == img.id.val
                 assert ws_json['thumb_url'] ==\
-                    reverse('webgateway.views.render_thumbnail',
+                    reverse('webgateway_render_thumbnail',
                             args=[img.id.val])
                 assert ws_json['position'] == {'x': {'value': i,
                                                'unit': rf},
