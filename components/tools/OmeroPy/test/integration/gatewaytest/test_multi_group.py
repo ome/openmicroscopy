@@ -14,7 +14,7 @@
 
 import omero
 import omero.scripts
-from omero.rtypes import rstring, rtime, wrap
+from omero.rtypes import rstring, rtime, rlong, wrap
 from omero.gateway.scripts import dbhelpers
 import time
 import pytest
@@ -181,7 +181,7 @@ class TestScript (object):
 
         # run script
         svc = gatewaywrapper.gateway.getScriptService()
-        process = svc.runScript(scriptID, wrap({"datasetId": new_ds_Id}).val,
+        process = svc.runScript(scriptID, {"datasetId": rlong(new_ds_Id)},
                                 None, gatewaywrapper.gateway.SERVICE_OPTS)
         cb = omero.scripts.ProcessCallbackI(gatewaywrapper.gateway.c, process)
         while cb.block(500) is None:
