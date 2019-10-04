@@ -14,7 +14,7 @@
 
 import omero
 import omero.scripts
-from omero.rtypes import rstring, rtime, rlong, wrap
+from omero.rtypes import rstring, rtime, rlong
 from omero.gateway.scripts import dbhelpers
 import time
 import pytest
