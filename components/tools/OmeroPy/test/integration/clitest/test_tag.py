@@ -29,7 +29,6 @@ from omero.testlib.cli import CLITest
 from omero.rtypes import rstring, rlong
 from omero.util.temp_files import create_path
 import __builtin__
-import builtins
 NSINSIGHTTAGSET = omero.constants.metadata.NSINSIGHTTAGSET
 
 
@@ -124,20 +123,20 @@ class TestTag(AbstractTagTest):
     # ========================================================================
     @pytest.mark.parametrize('name_arg', [None, '--name'])
     @pytest.mark.parametrize('desc_arg', [None, '--description'])
-    def testCreateTagA(self, name_arg, desc_arg, capfd, monkeypatch):
+    def testCreateTag(self, name_arg, desc_arg, capfd):
         tag_name = self.uuid()
         tag_desc = self.uuid()
         self.args += ["create"]
-        def mock_input(msg):
-            return tag_name
-
-        monkeypatch.setattr(builtins, "input", mock_input)
-
+        self.mox.StubOutWithMock(__builtin__, "raw_input")
         if name_arg:
             self.args += [name_arg, tag_name]
+        else:
+            name_input = 'Please enter a name for this tag: '
+            raw_input(name_input).AndReturn(tag_name)
 
         if desc_arg:
             self.args += [desc_arg, tag_desc]
+        self.mox.ReplayAll()
 
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
@@ -152,23 +151,22 @@ class TestTag(AbstractTagTest):
 
     @pytest.mark.parametrize('name_arg', [None, '--name'])
     @pytest.mark.parametrize('desc_arg', [None, '--desc'])
-    def testCreateTagset(self, name_arg, desc_arg, capfd, monkeypatch):
+    def testCreateTagset(self, name_arg, desc_arg, capfd):
         tag_name = self.uuid()
         tag_desc = self.uuid()
         tag_ids = self.create_tags(2, tag_name)
         self.args += ["createset", "--tag"]
         self.args += ["%s" % tag_id for tag_id in tag_ids]
 
-        def mock_input(msg):
-            return tag_name
-
-        monkeypatch.setattr(builtins, "input", mock_input)
-
+        self.mox.StubOutWithMock(__builtin__, "raw_input")
         if name_arg:
             self.args += [name_arg, tag_name]
-
+        else:
+            name_input = 'Please enter a name for this tag set: '
+            raw_input(name_input).AndReturn(tag_name)
         if desc_arg:
             self.args += [desc_arg, tag_desc]
+        self.mox.ReplayAll()
 
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
