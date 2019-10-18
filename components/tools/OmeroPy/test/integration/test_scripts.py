@@ -20,7 +20,7 @@ import omero.processor
 import omero.scripts
 import omero.cli
 
-from omero.rtypes import rstring, wrap, unwrap
+from omero.rtypes import rlong, rstring, wrap, unwrap
 from omero.util.temp_files import create_path
 
 PUBLIC = omero.model.PermissionsI("rwrwrw")
@@ -432,7 +432,7 @@ client.closeSession()
         session = self.client.getSession()
         image = self.create_test_image(100, 100, 1, 1, 1, session)
         process = svc.runScript(
-            scriptID, wrap({"Data_Type": "Image", "IDs": [image.id.val]}).val,
+            scriptID, wrap({"Data_Type": "Image", "IDs": [rlong(image.id.val)]}).val,
             None)
         wait_time, ignore = self.timeit(
             omero.scripts.wait, self.client, process)
