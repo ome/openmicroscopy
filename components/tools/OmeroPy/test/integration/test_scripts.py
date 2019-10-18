@@ -230,7 +230,7 @@ class TestScripts(ITest):
             finally:
                 proc.close(False)
             assert False, "ticket:2309 - should not run without processor"
-        except:
+        except Exception:
             pass
 
         assert "returnMessage" not in results, \
