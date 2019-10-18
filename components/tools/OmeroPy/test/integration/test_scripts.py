@@ -122,7 +122,7 @@ class TestScripts(ITest):
             try:
                 script_id = svc.uploadScript('testpath', "THIS STINKS")
                 svc.getParams(script_id)
-            except omero.ValidationException, ve:
+            except omero.ValidationException as ve:
                 assert "THIS STINKS" in str(ve), str(ve)
         finally:
             impl.cleanup()
@@ -211,7 +211,7 @@ class TestScripts(ITest):
         # processor)
         userScriptId = scriptService.uploadScript(
             "/user/test/script%s.py" % (self.uuid()), script)
-        print userScriptId
+        print(userScriptId)
         # scriptService.canRunScript(userScriptId) returns 'True' here for
         # some reason? (should be False)
         # But the method works in every other situation I have tried (Will).
@@ -409,7 +409,7 @@ client.closeSession()
             assert params_time < 0.1, "params_time(%s) >= 0.01 !" % params_time
 
             run_time, process = self.timeit(
-                svc.runScript, scriptID, wrap({"a": long(5)}).val, None)
+                svc.runScript, scriptID, wrap({"a": int(5)}).val, None)
 
             def wait():
                 cb = omero.scripts.ProcessCallbackI(root_client, process)
