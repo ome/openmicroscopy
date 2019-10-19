@@ -31,10 +31,10 @@ import io
 
 try:
     from PIL import Image  # see ticket:2597
-except:  # pragma: nocover
+except Exception:  # pragma: nocover
     try:
         import Image  # see ticket:2597
-    except:
+    except Exception:
         logging.error('No Pillow installed')
 
 

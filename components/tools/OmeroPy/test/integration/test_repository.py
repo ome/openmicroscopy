@@ -367,7 +367,7 @@ class TestDbSync(AbstractRepoTest):
         try:
             self.create_file(mrepo, fooname)
             assert False, "Should have thrown"
-        except omero.grid.UnregisteredFileException, ufe:
+        except omero.grid.UnregisteredFileException as ufe:
             file = mrepo.register(fooname, None)
             assert file.path == ufe.file.path
             assert file.name == ufe.file.name
@@ -378,7 +378,7 @@ class TestDbSync(AbstractRepoTest):
         try:
             self.create_file(mrepo, mydir)
             assert False, "Should have thrown"
-        except omero.grid.UnregisteredFileException, ufe:
+        except omero.grid.UnregisteredFileException as ufe:
             file = mrepo.register(mydir, None)
             assert file.mimetype == ufe.file.mimetype
 
@@ -535,8 +535,9 @@ class TestFilesetQueries(AbstractRepoTest):
     def testCountFilesetFiles(self):
         params = omero.sys.Parameters()
         params.map = {'imageId': omero.rtypes.rlong(-1)}
-        query = "select count(fse.id) from FilesetEntry as fse join fse.fileset as fs "\
-                "left outer join fs.images as image where image.id=:imageId"
+        query = "select count(fse.id) from FilesetEntry as fse join "\
+                "fse.fileset as fs left outer join fs.images as image "\
+                "where image.id=:imageId"
         self.project(query, params)
 
     def testImportedImageFiles(self):
@@ -573,8 +574,8 @@ class TestOriginalMetadata(AbstractRepoTest):
         try:
             gateway._waitOnCmd(handle, failonerror=True)
             rsp = handle.getResponse()
-            assert dict == type(rsp.globalMetadata)
-            assert dict == type(rsp.seriesMetadata)
+            assert isinstance(type(rsp.globalMetadata), dict)
+            assert isinstance(type(rsp.seriesMetadata), dict)
         finally:
             handle.close()
 
@@ -601,8 +602,8 @@ class TestDeletePerformance(AbstractRepoTest):
         delete = omero.cmd.Delete2()
         delete.targetObjects = {'Fileset': [fs.id.val]}
         s2 = time.time()
-        print s2 - s1,
+        print(s2 - s1),
         t1 = time.time()
         client.submit(delete, loops=200)
         t2 = time.time()
-        print " ", t2-t1,
+        print(" ", t2-t1),

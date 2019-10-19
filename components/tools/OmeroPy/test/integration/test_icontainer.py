@@ -296,7 +296,7 @@ class TestSplitFilesets(ITest):
 
         # create test entities named in test case input values
 
-        parents = lambda hierarchy:     [
+        parents = lambda hierarchy: [
             from_index for from_index, to_indices in hierarchy]
         children = lambda hierarchy: sum(
             [to_indices for from_index, to_indices in hierarchy], [])

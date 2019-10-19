@@ -98,7 +98,7 @@ class TestRFS(ITest):
         try:
             rfs.write("3210", 0, 4)
             assert False, "Require security vio"
-        except:
+        except Exception:
             pass
         rfs.close()
         self.check_file(ofile, client=client2)
@@ -154,5 +154,5 @@ class TestRFS(ITest):
             rfs.getFileId()
             rfs.setFileId(ofile.id.val)
             assert rfs.getFileId() == ofile.id.val
-        except:
+        except Exception:
             rfs.close()

@@ -815,7 +815,7 @@ class TestPermissions(ITest):
         assert script.size.val == len(data)
         try:
             store.close()
-        except:
+        except Exception:
             pass
 
     def testUseOfRawFileBeanScriptReadGroupMinusOne(self):

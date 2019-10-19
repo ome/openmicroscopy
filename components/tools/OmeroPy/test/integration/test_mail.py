@@ -72,7 +72,7 @@ class TestMail(ITest):
                                everyone=True)
         try:
             self.root.submit(req)
-        except omero.CmdError, ce:
+        except omero.CmdError as ce:
             raise Exception(ce.err)
 
         self.assertMail(uuid)

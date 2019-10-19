@@ -44,5 +44,5 @@ class TestTickets6000(ITest):
         # Second attempt with UUID should still be fast
         self.login_attempt(uuid, 0.15, pw=uuid, less=True)
 
-        print client.sf
-        print uuid
+        print(client.sf)
+        print(uuid)

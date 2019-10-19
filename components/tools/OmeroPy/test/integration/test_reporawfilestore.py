@@ -53,7 +53,7 @@ class TestRepoRawFileStore(AbstractRepoTest):
         wbytes = "0123456789"
         try:
             rfs.write(wbytes, 0, len(wbytes))
-        except:
+        except Exception:
             pass
         assert rfs.size() == 0
 
@@ -69,7 +69,7 @@ class TestRepoRawFileStore(AbstractRepoTest):
         wbytes = "0123456789"
         try:
             rfs.write(wbytes, 0, len(wbytes))
-        except:
+        except Exception:
             pass
         with pytest.raises(omero.ResourceError):
             rfs.size()
@@ -114,12 +114,12 @@ class TestRepoRawFileStore(AbstractRepoTest):
         assert wbytes == rbytes
         try:
             rfs.close()
-        except:
+        except Exception:
             # FIXME: close throws an NPE but should close the filehandle...
             pass
         try:
             rbytes = rfs.read(0, len(wbytes))
-        except:
+        except Exception:
             pass  # FIXME: ... so an exception should be thrown here now.
         rfs = self.repoPrx.file(self.repo_filename, "r")
         assert rfs.size() == len(wbytes)

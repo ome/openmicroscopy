@@ -50,7 +50,7 @@ class TestClientConstructors(ITest):
             c.createSession("root", self.rootpasswd)
             c.closeSession()
             c.createSession("root", self.rootpasswd)
-        except:
+        except Exception:
             c.__del__()
 
     def testEmptyInitializationDataConstructor(self):
@@ -140,8 +140,8 @@ class TestClientConstructors(ITest):
             c1 = omero.client(host="foo")
             c1.createSession()
             c1.closeSession()
-        except:
-            print "foo failed appropriately"
+        except Exception:
+            print("foo failed appropriately")
 
         c2 = omero.client(host=self.host, port=self.port)
         try:

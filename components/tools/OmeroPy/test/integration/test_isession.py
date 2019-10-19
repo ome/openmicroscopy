@@ -128,12 +128,12 @@ class TestISession(ITest):
             cb.getResponse()
             cb.close(True)
             assert not who.startswith("bad")  # must throw
-        except omero.CmdError, ce:
+        except omero.CmdError as ce:
             if who.startswith("bad"):
                 assert ce.err.name == "non-admin-increase"
                 return
             else:
-                print ce.err.parameters.get("stacktrace")
+                print(ce.err.parameters.get("stacktrace"))
                 raise Exception(ce.err.category,
                                 ce.err.name)
 
@@ -278,7 +278,7 @@ class TestISession(ITest):
                             cc = omero.client(host, port)
                             cc.joinSession(s.uuid.val)
                             cc.killSession()
-                        except:
+                        except Exception:
                             self.assertRaises(traceback.format_exc())
                     finally:
                         cc.__del__()
