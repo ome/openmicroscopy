@@ -136,7 +136,6 @@ class TestChgrp(ITest):
         assert img.getDetails().getGroup().id == gid, \
             "Image group.id should match new group"
 
-
     def testPDIChgrp(self):
         """
         Create a new group with the User as member. Test move the
@@ -186,131 +185,121 @@ class TestChgrp(ITest):
         assert conn.getObject("Image", image_id) \
             is not None, "Image should be available in original group"
 
+    def testTwoDatasetsChgrpToProject(self):
+        """
+        Create a new group with the User as member. Image has 2 Dataset Parents.
+        Test move one Dataset to new group. Image does not move. Move 2nd Dataset
+        - Image moves.
+        """
+        # One user in two groups
+        client, exp = self.new_client_and_user()
+        conn = BlitzGateway(client_obj=client)
+        grp = self.new_group([exp])
+        gid = grp.id.val
+        conn.getAdminService().getEventContext()  # Reset session
 
-def testTwoDatasetsChgrpToProject(gatewaywrapper):
-    """
-    Create a new group with the User as member. Image has 2 Dataset Parents.
-    Test move one Dataset to new group. Image does not move. Move 2nd Dataset
-    - Image moves.
-    """
-    gatewaywrapper.loginAsAuthor()
-    dataset = gatewaywrapper.createPDTree(
-        dataset="testTwoDatasetsChgrpToProject")
-    image = gatewaywrapper.createTestImage(dataset=dataset)
-    orig_gid = dataset.details.group.id.val
+        # Data Setup (Image in 2 Datasets)
+        img = self.make_image(client=client)
+        image_id = img.id.val
+        dataset1 = self.make_dataset(name="chgrp-gatewaytest1", client=client)
+        dataset1_id = dataset1.id.val
+        orig_gid = dataset1.details.group.id.val
+        self.link(dataset1, img, client=client)
+        dataset2 = self.make_dataset(name="chgrp-gatewaytest2", client=client)
+        dataset2_id = dataset2.id.val
+        self.link(dataset2, img, client=client)
 
-    new_ds = gatewaywrapper.createPDTree(
-        dataset="testTwoDatasetsChgrp-parent2")
-    update = gatewaywrapper.gateway.getUpdateService()
-    link = omero.model.DatasetImageLinkI()
-    link.setParent(omero.model.DatasetI(new_ds.id, False))
-    link.setChild(omero.model.ImageI(image.id, False))
-    update.saveObject(link)
+        assert conn.getObject("Dataset", dataset1_id) is not None
 
-    ctx = gatewaywrapper.gateway.getAdminService().getEventContext()
-    uuid = ctx.sessionUuid
+        # create Project in destination group
+        conn.setGroupForSession(gid)
+        p = omero.model.ProjectI()
+        p.name = rstring("testTwoDatasetsChgrpToProject")
+        p = conn.getUpdateService().saveAndReturnObject(p)
+        assert p.details.group.id.val == gid, \
+            "Project should be created in target group"
+        conn.setGroupForSession(orig_gid)   # switch back
 
-    gatewaywrapper.loginAsAdmin()
-    gid = gatewaywrapper.gateway.createGroup("chgrp-test-%s" % uuid,
-                                             member_Ids=[ctx.userId])
-    gatewaywrapper.loginAsAuthor()
-    assert gatewaywrapper.gateway.getObject("Dataset", dataset.id) is not None
+        # Do the Chgrp with one of the parents
+        doChange(conn, "Dataset", [dataset1_id], gid)
 
-    # create Project in destination group
-    gatewaywrapper.gateway.setGroupForSession(gid)
-    p = omero.model.ProjectI()
-    p.name = rstring("testTwoDatasetsChgrpToProject")
-    p = gatewaywrapper.gateway.getUpdateService().saveAndReturnObject(p)
-    assert p.details.group.id.val == gid, \
-        "Project should be created in target group"
-    gatewaywrapper.gateway.setGroupForSession(orig_gid)   # switch back
+        # Dataset should no-longer be available in current group
+        assert conn.getObject("Dataset", dataset1_id) is None, \
+            "Dataset should not be available in original group"
+        assert conn.getObject("Dataset", dataset2_id) \
+            is not None, "Other Dataset should still be in original group"
+        # But Image should
+        img = conn.getObject("Image", image_id)
+        assert img is not None, \
+            "Image should still be available in original group"
 
-    # Do the Chgrp with one of the parents
-    doChange(gatewaywrapper.gateway, "Dataset", [new_ds.id], gid)
+        # Do the Chgrp with the OTHER parent
+        # switch BEFORE doChange to allow Project link Save
+        conn.setGroupForSession(gid)
+        doChange(conn, "Dataset", [dataset2_id], gid,
+                 container_id=p.id.val)
 
-    # Dataset should no-longer be available in current group
-    assert gatewaywrapper.gateway.getObject("Dataset", new_ds.id) is None, \
-        "Dataset should not be available in original group"
-    assert gatewaywrapper.gateway.getObject("Dataset", dataset.getId()) \
-        is not None, "Other Dataset should still be in original group"
-    # But Image should
-    img = gatewaywrapper.gateway.getObject("Image", image.id)
-    assert img is not None, \
-        "Image should still be available in original group"
+        # Confirm that Dataset AND Image is now in new group
+        ctx = conn.getAdminService().getEventContext()
+        ds = conn.getObject("Dataset", dataset2_id)
+        projects = list(ds.listParents())
+        assert len(projects) == 1, \
+            "Dataset should have one parent Project in new group"
+        assert projects[0].getId() == p.id.val, \
+            "Check Dataset parent is Project created above"
+        assert ds is not None, "Dataset should now be available in new group"
+        assert ds.getDetails().getGroup().id == gid, \
+            "Dataset group.id should match new group"
 
-    # Do the Chgrp with the OTHER parent
-    # switch BEFORE doChange to allow Project link Save
-    gatewaywrapper.gateway.setGroupForSession(gid)
-    doChange(gatewaywrapper.gateway, "Dataset", [dataset.id], gid,
-             container_id=p.id.val)
+        img = conn.getObject("Image", image_id)
+        assert img is not None, "Image should now be available in new group"
+        assert img.getDetails().getGroup().id == gid, \
+            "Image group.id should match new group"
 
-    # Confirm that Dataset AND Image is now in new group
-    ctx = gatewaywrapper.gateway.getAdminService().getEventContext()
-    ds = gatewaywrapper.gateway.getObject("Dataset", dataset.id)
-    projects = list(ds.listParents())
-    assert len(projects) == 1, \
-        "Dataset should have one parent Project in new group"
-    assert projects[0].getId() == p.id.val, \
-        "Check Dataset parent is Project created above"
-    assert ds is not None, "Dataset should now be available in new group"
-    assert ds.getDetails().getGroup().id == gid, \
-        "Dataset group.id should match new group"
+    def testMultiDatasetDoAll(self):
+        """
+        Need to enable chgrp independently of EventContext group being the
+        destination group.
+        Other tests that do not set omero.group require this for DoAll Save to
+        work.
+        """
+        # One user in two groups
+        client, exp = self.new_client_and_user()
+        conn = BlitzGateway(client_obj=client)
+        grp = self.new_group([exp])
+        gid = grp.id.val
+        conn.getAdminService().getEventContext()  # Reset session
 
-    img = gatewaywrapper.gateway.getObject("Image", image.id)
-    assert img is not None, "Image should now be available in new group"
-    assert img.getDetails().getGroup().id == gid, \
-        "Image group.id should match new group"
+        update = conn.getUpdateService()
 
+        new_ds = omero.model.DatasetI()
+        new_ds.name = rstring("testMultiDatasetDoAll")
+        new_ds = update.saveAndReturnObject(new_ds)
 
-def testMultiDatasetDoAll(gatewaywrapper):
-    """
-    Need to enable chgrp independently of EventContext group being the
-    destination group.
-    Other tests that do not set omero.group require this for DoAll Save to
-    work.
-    """
-    gatewaywrapper.loginAsAuthor()
-    ctx = gatewaywrapper.gateway.getAdminService().getEventContext()
-    uuid = ctx.sessionUuid
-    update = gatewaywrapper.gateway.getUpdateService()
+        new_ds2 = omero.model.DatasetI()
+        new_ds2.name = rstring("testMultiDatasetDoAll2")
+        new_ds2 = update.saveAndReturnObject(new_ds2)
 
-    new_ds = omero.model.DatasetI()
-    new_ds.name = rstring("testMultiDatasetDoAll")
-    new_ds = update.saveAndReturnObject(new_ds)
+        # create Project in new group
+        conn.SERVICE_OPTS.setOmeroGroup(gid)
+        p = omero.model.ProjectI()
+        p.name = rstring("testMultiChgrp")
+        p = conn.getUpdateService().saveAndReturnObject(
+            p, conn.SERVICE_OPTS)
+        assert p.details.group.id.val == gid, \
+            "Project should be created in target group"
 
-    new_ds2 = omero.model.DatasetI()
-    new_ds2.name = rstring("testMultiDatasetDoAll2")
-    new_ds2 = update.saveAndReturnObject(new_ds2)
+        # Chgrp
+        dsIds = [new_ds.id.val, new_ds2.id.val]
+        doChange(conn, "Dataset", dsIds, gid,
+                container_id=p.id.val)
 
-    # new group
-    gatewaywrapper.loginAsAdmin()
-    gid = gatewaywrapper.gateway.createGroup(
-        "testMultiDatasetDoAll-%s" % uuid, member_Ids=[ctx.userId])
-    gatewaywrapper.loginAsAuthor()
-
-    # create Project in new group
-    gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup(gid)
-    p = omero.model.ProjectI()
-    p.name = rstring("testMultiChgrp")
-    p = gatewaywrapper.gateway.getUpdateService().saveAndReturnObject(
-        p, gatewaywrapper.gateway.SERVICE_OPTS)
-    assert p.details.group.id.val == gid, \
-        "Project should be created in target group"
-
-    # Test that this works whichever group you're in
-    gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup(ctx.groupId)
-    dsIds = [new_ds.id.val, new_ds2.id.val]
-
-    # Chgrp
-    doChange(gatewaywrapper.gateway, "Dataset", dsIds, gid,
-             container_id=p.id.val)
-
-    # Check all objects in destination group
-    # we can get objects from either group...
-    gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup(-1)
-    p = gatewaywrapper.gateway.getObject("Project", p.id.val)
-    datasets = list(p.listChildren())
-    assert len(datasets) == 2, "Project should have 2 new Datasets"
-    for d in datasets:
-        assert d.details.group.id.val == gid, "Dataset should be in new group"
-        assert d.getId() in dsIds, "Checking Datasets by ID"
+        # Check all objects in destination group
+        # we can get objects from either group...
+        conn.SERVICE_OPTS.setOmeroGroup(-1)
+        p = conn.getObject("Project", p.id.val)
+        datasets = list(p.listChildren())
+        assert len(datasets) == 2, "Project should have 2 new Datasets"
+        for d in datasets:
+            assert d.details.group.id.val == gid, "Dataset should be in new group"
+            assert d.getId() in dsIds, "Checking Datasets by ID"
