@@ -62,7 +62,7 @@ class BackwardsCompatibilityBase(ITest):
 
         ofile = self.client.upload(
             tmpf.name, name=file, type='application/x-hdf')
-        print "Uploaded OriginalFile:", ofile.getId().val
+        print("Uploaded OriginalFile:", ofile.getId().val)
         return ofile
 
     def createMaskCol(self):
@@ -203,7 +203,7 @@ class TestBackwardsCompatibility_4_4_5(BackwardsCompatibilityBase):
         # assert [0.125, 0.0625] == testda[1]
 
         ofile = table.getOriginalFile()
-        print "Created OriginalFile:", ofile.getId().val
+        print("Created OriginalFile:", ofile.getId().val)
 
     def testAllColumns_4_4_5(self):
         """
@@ -444,7 +444,7 @@ class TestBackwardsCompatibility_5_3_4(BackwardsCompatibilityBase):
         assert [0.125, 0.0625] == testda[1]
 
         ofile = table.getOriginalFile()
-        print "Created OriginalFile:", ofile.getId().val
+        print("Created OriginalFile:", ofile.getId().val)
 
         table.close()
 
