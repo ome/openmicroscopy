@@ -37,6 +37,12 @@ except Exception:  # pragma: nocover
     except Exception:
         logging.error('No Pillow installed')
 
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
+
 
 from numpy import asarray, array_equal
 

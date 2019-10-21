@@ -17,6 +17,12 @@ from omero.util.tiles import TileLoopIteration
 from omero.util.tiles import RPSTileLoop
 from binascii import hexlify as hex
 
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
+
 __import__("sys")
 
 

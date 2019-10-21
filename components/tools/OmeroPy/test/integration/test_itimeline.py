@@ -16,6 +16,12 @@ import omero
 
 from omero.rtypes import rint, rlong, rstring, rtime
 
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
+
 
 class TestITimeline(ITest):
 

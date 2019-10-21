@@ -35,6 +35,13 @@ from omero_sys_ParametersI import ParametersI
 from omero.rtypes import rbool, rstring, unwrap
 
 
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
+
+
 class CallContextFixture(object):
 
     """

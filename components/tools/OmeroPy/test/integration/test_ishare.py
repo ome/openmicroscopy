@@ -21,6 +21,11 @@ from omero.gateway import BlitzGateway
 from test.integration.helpers import createTestImage
 import warnings
 
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
 
 class TestIShare(ITest):
 
