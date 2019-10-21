@@ -23,6 +23,12 @@ import omero.cli
 from omero.rtypes import rlong, rstring, wrap, unwrap
 from omero.util.temp_files import create_path
 
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
+
 PUBLIC = omero.model.PermissionsI("rwrwrw")
 
 if "DEBUG" in os.environ:
@@ -409,7 +415,7 @@ client.closeSession()
             assert params_time < 0.1, "params_time(%s) >= 0.01 !" % params_time
 
             run_time, process = self.timeit(
-                svc.runScript, scriptID, wrap({"a": int(5)}).val, None)
+                svc.runScript, scriptID, wrap({"a": long(5)}).val, None)
 
             def wait():
                 cb = omero.scripts.ProcessCallbackI(root_client, process)
