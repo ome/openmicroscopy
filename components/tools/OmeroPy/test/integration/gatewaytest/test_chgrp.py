@@ -18,6 +18,7 @@ from omero.testlib import ITest
 from omero.cmd import State, ERR, OK
 from omero.callbacks import CmdCallbackI
 from omero.gateway import BlitzGateway
+from omero.cmd import Chgrp2
 
 PRIVATE = 'rw----'
 READONLY = 'rwr---'
@@ -84,7 +85,8 @@ class TestChgrp(ITest):
         assert conn.getObject("Image", image_id) is not None
 
         # Do the Chgrp
-        doChange(conn, "Image", [image_id], gid)
+        chgrp = Chgrp2(targetObjects={'Image': [image_id]}, groupId=gid)
+        self.do_submit(chgrp, client)
 
         # Image should no-longer be available in current group
         assert conn.getObject("Image", image_id) is None, \
