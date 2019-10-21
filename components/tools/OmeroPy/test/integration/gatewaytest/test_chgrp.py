@@ -97,95 +97,93 @@ class TestChgrp(ITest):
         assert img.getDetails().getGroup().id == gid, \
             "Image group.id should match new group"
 
+    def testDatasetChgrp(self):
+        """
+        Create a new group with the User as member. Test move the Dataset/Image to
+        new group.
+        """
 
-def testDatasetChgrp(gatewaywrapper):
-    """
-    Create a new group with the User as member. Test move the Dataset/Image to
-    new group.
-    """
-    gatewaywrapper.loginAsAuthor()
-    dataset = gatewaywrapper.createPDTree(dataset="testDatasetChgrp")
-    image = gatewaywrapper.createTestImage(dataset=dataset)
-    ctx = gatewaywrapper.gateway.getAdminService().getEventContext()
-    uuid = ctx.sessionUuid
+        # One user in two groups
+        client, exp = self.new_client_and_user()
+        conn = BlitzGateway(client_obj=client)
+        grp = self.new_group([exp])
+        gid = grp.id.val
+        conn.getAdminService().getEventContext()  # Reset session
 
-    gatewaywrapper.loginAsAdmin()
-    gid = gatewaywrapper.gateway.createGroup(
-        "chgrp-test-%s" % uuid, member_Ids=[ctx.userId], perms=PRIVATE)
-    gatewaywrapper.loginAsAuthor()
-    assert gatewaywrapper.gateway.getObject("Image", image.id) is not None
+        # Data Setup (Image in a Dataset)
+        img = self.make_image(client=client)
+        image_id = img.id.val
+        dataset = self.make_dataset(name="chgrp-gatewaytest", client=client)
+        dataset_id = dataset.id.val
+        self.link(dataset, img, client=client)
 
-    # Do the Chgrp
-    doChange(gatewaywrapper.gateway, "Dataset", [dataset.id], gid)
+        assert conn.getObject("Image", image_id) is not None
 
-    # Dataset should no-longer be available in current group
-    assert gatewaywrapper.gateway.getObject("Dataset", dataset.id) is None, \
-        "Dataset should not be available in original group"
-
-    # Switch to new group - confirm that Dataset, Image is there.
-    gatewaywrapper.gateway.setGroupForSession(gid)
-    ds = gatewaywrapper.gateway.getObject("Dataset", dataset.id)
-    assert ds is not None, "Dataset should be available in new group"
-
-    img = gatewaywrapper.gateway.getObject("Image", image.id)
-    assert img is not None, "Image should be available in new group"
-    assert img.getDetails().getGroup().id == gid, \
-        "Image group.id should match new group"
-
-
-def testPDIChgrp(gatewaywrapper):
-    """
-    Create a new group with the User as member. Test move the
-    Project/Dataset/Image to new group.
-    """
-    gatewaywrapper.loginAsAuthor()
-    link = gatewaywrapper.createPDTree(project="testPDIChgrp",
-                                       dataset="testPDIChgrp")
-    dataset = link.getChild()   # DatasetWrapper
-    # omero.model.ProjectI - link.getParent() overwritten - returns None
-    project = link.parent
-    image = gatewaywrapper.createTestImage(dataset=dataset)
-    grp = project.details.group
-
-    ctx = gatewaywrapper.gateway.getAdminService().getEventContext()
-    uuid = ctx.sessionUuid
-
-    gatewaywrapper.loginAsAdmin()
-    gid = gatewaywrapper.gateway.createGroup(
-        "chgrp-test-%s" % uuid, member_Ids=[ctx.userId], perms=COLLAB)
-    gatewaywrapper.loginAsAuthor()
-    assert gatewaywrapper.gateway.getObject("Image", image.id) is not None
-
-    try:
         # Do the Chgrp
-        doChange(gatewaywrapper.gateway, "Project", [project.id.val], gid)
+        doChange(conn, "Dataset", [dataset_id], gid)
 
-        # Image should no-longer be available in current group
-        assert gatewaywrapper.gateway.getObject("Image", image.id) is None, \
-            "Image should not be available in original group"
+        # Dataset should no-longer be available in current group
+        assert conn.getObject("Dataset", dataset_id) is None, \
+            "Dataset should not be available in original group"
 
-        # Switch to new group - confirm that Project, Dataset, Image is there.
-        gatewaywrapper.gateway.setGroupForSession(gid)
-        prj = gatewaywrapper.gateway.getObject("Project", project.id.val)
-        assert prj is not None, "Project should be available in new group"
-
-        ds = gatewaywrapper.gateway.getObject("Dataset", dataset.id)
+        # Switch to new group - confirm that Dataset, Image is there.
+        conn.setGroupForSession(gid)
+        ds = conn.getObject("Dataset", dataset_id)
         assert ds is not None, "Dataset should be available in new group"
 
-        img = gatewaywrapper.gateway.getObject("Image", image.id)
+        img = conn.getObject("Image", image_id)
         assert img is not None, "Image should be available in new group"
         assert img.getDetails().getGroup().id == gid, \
             "Image group.id should match new group"
-    finally:
-        # Change it all back
-        gatewaywrapper.loginAsAuthor()
+
+
+    def testPDIChgrp(self):
+        """
+        Create a new group with the User as member. Test move the
+        Project/Dataset/Image to new group.
+        """
+        # One user in two groups
+        client, exp = self.new_client_and_user()
+        conn = BlitzGateway(client_obj=client)
+        grp = self.new_group([exp])
+        gid = grp.id.val
+        conn.getAdminService().getEventContext()  # Reset session
+
+        # Data Setup (image in the P/D hierarchy)
+        img = self.make_image(client=client)
+        image_id = img.id.val
+        project = self.make_project(name="chgrp-gatewaytest", client=client)
+        dataset = self.make_dataset(name="chgrp-gatewaytest", client=client)
+        self.link(dataset, img, client=client)
+        self.link(project, dataset, client=client)
+
+        assert conn.getObject("Image", image_id) is not None
 
         # Do the Chgrp
-        doChange(gatewaywrapper.gateway, "Project", [project.id.val],
-                 grp.id.val)
+        doChange(conn, "Project", [project.id.val], gid)
+
+        # Image should no-longer be available in current group
+        assert conn.getObject("Image", image_id) is None, \
+            "Image should not be available in original group"
+
+        # Switch to new group - confirm that Project, Dataset, Image is there.
+        conn.setGroupForSession(gid)
+        prj = conn.getObject("Project", project.id.val)
+        assert prj is not None, "Project should be available in new group"
+
+        ds = conn.getObject("Dataset", dataset.id.val)
+        assert ds is not None, "Dataset should be available in new group"
+
+        img = conn.getObject("Image", image_id)
+        assert img is not None, "Image should be available in new group"
+        assert img.getDetails().getGroup().id == gid, \
+            "Image group.id should match new group"
+
+        # Change it all back
+        doChange(conn, "Project", [project.id.val], grp.id.val)
 
         # Image should again be available in current group
-        assert gatewaywrapper.gateway.getObject("Image", image.id) \
+        assert conn.getObject("Image", image_id) \
             is not None, "Image should be available in original group"
 
 
