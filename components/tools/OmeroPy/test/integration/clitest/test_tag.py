@@ -52,7 +52,7 @@ class AbstractTagTest(CLITest):
     @classmethod
     def create_tags(self, ntags, name):
         tag_ids = []
-        for i in list(xrange(ntags)):
+        for i in range(ntags):
             tag = self.new_tag("%s - %s" % (name, i))
             tag = self.update.saveAndReturnObject(tag)
             if ntags > 1:
