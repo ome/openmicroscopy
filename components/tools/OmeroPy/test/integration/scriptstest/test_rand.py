@@ -95,6 +95,6 @@ class TestRand(ITest):
                 output = process.getResults(0)
                 assert output["x"].val == 3
             except KeyError:
-                print "Key is not in returned dictionary. Is this a fail?"
+                print("Key is not in returned dictionary. Is this a fail?")
         finally:
             impl.cleanup()

@@ -75,7 +75,7 @@ class TestPydictTextIo(ITest):
         fa = self.make_file_annotation(
             name='test.%s' % format[0], binary=content, mimetype=format[1])
         fid = unwrap(fa.file.id)
-        print fid, unwrap(fa.file.mimetype)
+        print(fid, unwrap(fa.file.mimetype))
         retdata, rettype = pydict_text_io.get_format_originalfileid(
             fid, None, self.client.getSession())
         assert rettype == 'yaml'

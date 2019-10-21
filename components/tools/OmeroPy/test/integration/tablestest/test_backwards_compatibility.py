@@ -56,7 +56,7 @@ class TestBackwardsCompatibility(ITest):
 
         ofile = self.client.upload(
             tmpf.name, name=file, type='application/x-hdf')
-        print "Uploaded OriginalFile:", ofile.getId().val
+        print("Uploaded OriginalFile:", ofile.getId().val)
         return ofile
 
     def createMaskCol(self):

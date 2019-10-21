@@ -84,8 +84,8 @@ class TestInputs(ITest):
                 rfs.setFileId(out.val.id.val)
                 text = rfs.read(0, rfs.size())
                 if text.strip():
-                    print "===", which, "==="
-                    print text
+                    print("===", which, "===")
+                    print(text)
             finally:
                 rfs.close()
 

@@ -36,7 +36,7 @@ from omero.model.enums import PixelsTypeint16
 
 try:
     from PIL import Image  # see ticket:2597
-except:  # pragma: nocover
+except Exception:  # pragma: nocover
     import Image  # see ticket:2597
 
 
@@ -208,7 +208,7 @@ class TestScriptUtils(ITest):
         params["IDs"] = [image.id.val]
         objects, message = scriptUtil.get_objects(conn, params)
         assert objects[0].id == image.id.val
-        assert message is ''
+        assert not message
         conn.close()
 
     def test_download_plane(self):

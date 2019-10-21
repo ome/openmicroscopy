@@ -179,7 +179,7 @@ class TestTables(ITest):
             return m
 
         try:
-            print table.getOriginalFile().id.val
+            print(table.getOriginalFile().id.val)
             lc = columns.LongColumnI('lc', 'desc', [1])
             table.initialize([lc])
             assert len(clean(table.getAllMetadata())) == 0
