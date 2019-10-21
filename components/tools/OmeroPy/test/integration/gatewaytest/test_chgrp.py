@@ -14,8 +14,10 @@
 
 import omero
 from omero.rtypes import rstring
+from omero.testlib import ITest
 from omero.cmd import State, ERR, OK
 from omero.callbacks import CmdCallbackI
+from omero.gateway import BlitzGateway
 
 PRIVATE = 'rw----'
 READONLY = 'rwr---'
@@ -59,35 +61,41 @@ def doChange(gateway, obj_type, obj_ids, group_id, container_id=None,
         cb.close(True)
 
 
-def testImageChgrp(gatewaywrapper):
-    """
-    Create a new group with the User as member. Test move the Image to new
-    group.
-    """
-    gatewaywrapper.loginAsAuthor()
-    image = gatewaywrapper.createTestImage()
-    ctx = gatewaywrapper.gateway.getAdminService().getEventContext()
-    uuid = ctx.sessionUuid
+class TestChgrp(ITest):
+    def testImageChgrp(self):
+        """
+        Create a new group with the User as member. Test move the Image to new
+        group.
+        """
 
-    gatewaywrapper.loginAsAdmin()
-    gid = gatewaywrapper.gateway.createGroup(
-        "chgrp-test-%s" % uuid, member_Ids=[ctx.userId], perms=COLLAB)
-    gatewaywrapper.loginAsAuthor()
-    assert gatewaywrapper.gateway.getObject("Image", image.id) is not None
+        # One user in two groups
+        client, exp = self.new_client_and_user()
+        conn = BlitzGateway(client_obj=client)
+        grp = self.new_group(experimenters=[exp], perms=COLLAB)
+        gid = grp.id.val
+        client.sf.getAdminService().getEventContext()  # Reset session
 
-    # Do the Chgrp
-    doChange(gatewaywrapper.gateway, "Image", [image.getId()], gid)
+        # Import an image into the client context
+        images = self.import_fake_file(name="gatewaytestChgrpImportedImage",
+                                       client=client)
+        image = images[0]
+        image_id = image.id.val
 
-    # Image should no-longer be available in current group
-    assert gatewaywrapper.gateway.getObject("Image", image.id) is None, \
-        "Image should not be available in original group"
+        assert conn.getObject("Image", image_id) is not None
 
-    # Switch to new group - confirm that image is there.
-    gatewaywrapper.gateway.setGroupForSession(gid)
-    img = gatewaywrapper.gateway.getObject("Image", image.id)
-    assert img is not None, "Image should be available in new group"
-    assert img.getDetails().getGroup().id == gid, \
-        "Image group.id should match new group"
+        # Do the Chgrp
+        doChange(conn, "Image", [image_id], gid)
+
+        # Image should no-longer be available in current group
+        assert conn.getObject("Image", image_id) is None, \
+            "Image should not be available in original group"
+
+        # Switch to new group - confirm that image is there.
+        conn.setGroupForSession(gid)
+        img = conn.getObject("Image", image_id)
+        assert img is not None, "Image should be available in new group"
+        assert img.getDetails().getGroup().id == gid, \
+            "Image group.id should match new group"
 
 
 def testDatasetChgrp(gatewaywrapper):
