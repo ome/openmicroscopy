@@ -20,7 +20,7 @@ import omero.processor
 import omero.scripts
 import omero.cli
 
-from omero.rtypes import rlong, rstring, wrap, unwrap
+from omero.rtypes import rstring, wrap, unwrap
 from omero.util.temp_files import create_path
 
 try:
