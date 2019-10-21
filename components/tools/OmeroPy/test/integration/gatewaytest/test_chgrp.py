@@ -99,8 +99,8 @@ class TestChgrp(ITest):
 
     def testDatasetChgrp(self):
         """
-        Create a new group with the User as member. Test move the Dataset/Image to
-        new group.
+        Create a new group with the User as member. Test move the
+        Dataset/Image to new group.
         """
 
         # One user in two groups
@@ -187,9 +187,9 @@ class TestChgrp(ITest):
 
     def testTwoDatasetsChgrpToProject(self):
         """
-        Create a new group with the User as member. Image has 2 Dataset Parents.
-        Test move one Dataset to new group. Image does not move. Move 2nd Dataset
-        - Image moves.
+        Create a new group with the User as member. Image has 2 Dataset
+        Parents. Test move one Dataset to new group. Image does not move.
+        Move 2nd Dataset - Image moves.
         """
         # One user in two groups
         client, exp = self.new_client_and_user()
@@ -240,7 +240,6 @@ class TestChgrp(ITest):
                  container_id=p.id.val)
 
         # Confirm that Dataset AND Image is now in new group
-        ctx = conn.getAdminService().getEventContext()
         ds = conn.getObject("Dataset", dataset2_id)
         projects = list(ds.listParents())
         assert len(projects) == 1, \
@@ -292,7 +291,7 @@ class TestChgrp(ITest):
         # Chgrp
         dsIds = [new_ds.id.val, new_ds2.id.val]
         doChange(conn, "Dataset", dsIds, gid,
-                container_id=p.id.val)
+                 container_id=p.id.val)
 
         # Check all objects in destination group
         # we can get objects from either group...
@@ -301,5 +300,6 @@ class TestChgrp(ITest):
         datasets = list(p.listChildren())
         assert len(datasets) == 2, "Project should have 2 new Datasets"
         for d in datasets:
-            assert d.details.group.id.val == gid, "Dataset should be in new group"
+            assert d.details.group.id.val == gid, \
+                "Dataset should be in new group"
             assert d.getId() in dsIds, "Checking Datasets by ID"
