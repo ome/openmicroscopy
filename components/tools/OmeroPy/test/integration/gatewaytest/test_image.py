@@ -15,7 +15,7 @@
 """
 
 import pytest
-from cStringIO import StringIO
+from io import BytesIO
 import omero
 
 try:
@@ -40,18 +40,18 @@ class TestImage (object):
     def testThumbnail(self, author_testimg_bad, author_testimg_big,
                       gatewaywrapper):
         thumb = self.image.getThumbnail()
-        tfile = StringIO(thumb)
+        tfile = BytesIO(thumb)
         thumb = Image.open(tfile)  # Raises if invalid
         thumb.verify()  # Raises if invalid
         assert thumb.format == 'JPEG'
         assert thumb.size == (64, 64)
         thumb = self.image.getThumbnail(96)
-        tfile = StringIO(thumb)
+        tfile = BytesIO(thumb)
         thumb = Image.open(tfile)  # Raises if invalid
         thumb.verify()  # Raises if invalid
         assert thumb.size == (96, 96)
         thumb = self.image.getThumbnail((128, 96))
-        tfile = StringIO(thumb)
+        tfile = BytesIO(thumb)
         thumb = Image.open(tfile)  # Raises if invalid
         thumb.verify()  # Raises if invalid
         assert thumb.size == (128, 96)
@@ -60,7 +60,7 @@ class TestImage (object):
         # Big image (4k x 4k and up) thumb
         bigimage = author_testimg_big
         thumb = bigimage.getThumbnail()
-        tfile = StringIO(thumb)
+        tfile = BytesIO(thumb)
         thumb = Image.open(tfile)  # Raises if invalid
         thumb.verify()  # Raises if invalid
         assert thumb.format == 'JPEG'
@@ -68,7 +68,7 @@ class TestImage (object):
         # Projection
         self.image.setProjection('intmax')
         pThumb = self.image.getThumbnail()
-        ptfile = StringIO(pThumb)
+        ptfile = BytesIO(pThumb)
         pthumb = Image.open(ptfile)  # Raises if invalid
         pthumb.verify()  # Raises if invalid
         # Check that the thumbnail store is closed
@@ -81,7 +81,7 @@ class TestImage (object):
         conn = self.image._conn
         for (img_id, thumb) in conn.getThumbnailSet(image_ids=img_ids).items():
             assert img_id in img_ids
-            tfile = StringIO(thumb)
+            tfile = BytesIO(thumb)
             thumb = Image.open(tfile)  # Raises if invalid
             thumb.verify()  # Raises if invalid
             assert thumb.format == 'JPEG'
@@ -89,7 +89,7 @@ class TestImage (object):
 
         thumb = conn.getThumbnailSet(
             image_ids=[self.image.id], max_size=96)[self.image.id]
-        tfile = StringIO(thumb)
+        tfile = BytesIO(thumb)
         thumb = Image.open(tfile)  # Raises if invalid
         thumb.verify()  # Raises if invalid
         assert thumb.size == (96, 96)
@@ -103,7 +103,7 @@ class TestImage (object):
     def testRenderingModels(self):
         # default is color model
         cimg = self.image.renderJpeg(0, 0)
-        ifile = StringIO(cimg)
+        ifile = BytesIO(cimg)
         img = Image.open(ifile)
         extrema = img.getextrema()
         assert extrema[0] != extrema[1] or extrema[0] != extrema[2], \
@@ -113,7 +113,7 @@ class TestImage (object):
         assert cimg == self.image.renderJpeg(0, 0)
         # Now for greyscale
         self.image.setGreyscaleRenderingModel()
-        ifile = StringIO(self.image.renderJpeg(0, 0))
+        ifile = BytesIO(self.image.renderJpeg(0, 0))
         img = Image.open(ifile)
         extrema = img.getextrema()
         assert extrema[0] == extrema[1] and extrema[0] == extrema[2], \
@@ -128,7 +128,8 @@ class TestImage (object):
         assert cdims['c']['gridx'] == 2
         assert cdims['c']['gridy'] == 2
         # Render the view
-        ifile = StringIO(self.image.renderSplitChannel(0, 0, border=4))
+        data = self.image.renderSplitChannel(0, 0, border=4)
+        ifile = BytesIO(data)
         img = Image.open(ifile)
         assert img.size[0] == cdims['c']['width']
         assert img.size[1] == cdims['c']['height']
@@ -137,7 +138,8 @@ class TestImage (object):
         assert cdims['g']['gridy'] == 1
         # Render the view
         self.image.setGreyscaleRenderingModel()
-        ifile = StringIO(self.image.renderSplitChannel(0, 0, border=4))
+        data = self.image.renderSplitChannel(0, 0, border=4)
+        ifile = BytesIO(data)
         img = Image.open(ifile)
         assert img.size[0] == cdims['g']['width']
         assert img.size[1] == cdims['g']['height']
@@ -159,13 +161,13 @@ class TestImage (object):
         original.
         """
         # Vertical plot
-        gif = StringIO(self.image.renderColLinePlotGif(z=0, t=0, x=1))
+        gif = BytesIO(self.image.renderColLinePlotGif(z=0, t=0, x=1))
         img = Image.open(gif)
         img.verify()  # Raises if invalid
         assert img.format == 'GIF'
         assert img.size == (self.image.getSizeX(), self.image.getSizeY())
         # Horizontal plot
-        gif = StringIO(self.image.renderRowLinePlotGif(z=0, t=0, y=1))
+        gif = BytesIO(self.image.renderRowLinePlotGif(z=0, t=0, y=1))
         img = Image.open(gif)
         img.verify()  # Raises if invalid
         assert img.format == 'GIF'
@@ -180,7 +182,7 @@ class TestImage (object):
         """ Test image projections """
         for p in self.image.getProjections():
             self.image.setProjection(p)
-            ifile = StringIO(self.image.renderJpeg(0, 0))
+            ifile = BytesIO(self.image.renderJpeg(0, 0))
             img = Image.open(ifile)  # Raises if invalid
             img.verify()  # Raises if invalid
             assert img.format == 'JPEG'
@@ -384,7 +386,7 @@ class TestImage (object):
         width = 10
         height = 10
         img = self.image.renderJpegRegion(0, 0, 0, 0, width, height)
-        ifile = StringIO(img)
+        ifile = BytesIO(img)
         img_file = Image.open(ifile)  # Raises if invalid
         img_file.verify()  # Raises if invalid
         assert img_file.format == 'JPEG'
@@ -395,7 +397,7 @@ class TestImage (object):
         width = 10
         height = 10
         img = self.image.renderJpegRegion(0, 0, 0, 0, width, height, level=0)
-        ifile = StringIO(img)
+        ifile = BytesIO(img)
         img_file = Image.open(ifile)  # Raises if invalid
         img_file.verify()  # Raises if invalid
         assert img_file.format == 'JPEG'
@@ -410,7 +412,7 @@ class TestImage (object):
 
     def testRenderBirdsEyeView(self, gatewaywrapper):
         img = self.image.renderBirdsEyeView(None)
-        ifile = StringIO(img)
+        ifile = BytesIO(img)
         img_file = Image.open(ifile)  # Raises if invalid
         img_file.verify()  # Raises if invalid
         assert img_file.format == 'JPEG'
@@ -420,7 +422,7 @@ class TestImage (object):
     def testRenderBirdsEyeView_Size(self, gatewaywrapper):
         size = 10
         img = self.image.renderBirdsEyeView(size)
-        ifile = StringIO(img)
+        ifile = BytesIO(img)
         img_file = Image.open(ifile)  # Raises if invalid
         img_file.verify()  # Raises if invalid
         assert img_file.format == 'JPEG'

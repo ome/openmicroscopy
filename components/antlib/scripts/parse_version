@@ -22,7 +22,10 @@
 """
 Helper script to simpliy version.xml
 """
+from __future__ import print_function
 
+from builtins import str
+from builtins import range
 import os
 import re
 import sys
@@ -56,9 +59,9 @@ def choose_omero_version(omero_version):
         return "%s%s" % (omero_version, omero_build)
 
     except:
-        print "Error getting version for BUILD_NUMBER=%s" % omero_build
+        print("Error getting version for BUILD_NUMBER=%s" % omero_build)
         if err:
-            print err
+            print(err)
         sys.exit(1)
 
 
@@ -123,4 +126,4 @@ def incr_version(omero_version):
 
 
 if __name__ == "__main__":
-    print choose_omero_version(sys.argv[1]),
+    print(choose_omero_version(sys.argv[1]), end='')

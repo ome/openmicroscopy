@@ -24,6 +24,7 @@
 
 """
 
+from future.utils import native_str
 import pytest
 from omero.testlib import ITest, PFS
 import omero
@@ -127,7 +128,8 @@ class TestPermissions(ITest):
         rv = self.root.getPropertyMap()
         ec = self.client.sf.getAdminService().getEventContext()
         public_client = omero.client(rv)
-        public_client.getImplicitContext().put("omero.group", uuid)
+        public_client.getImplicitContext().put("omero.group",
+                                               native_str(uuid))
         sf = public_client.createSession(ec.userName, ec.userName)
         ec = sf.getAdminService().getEventContext()
         assert uuid == ec.groupName

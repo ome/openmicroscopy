@@ -19,7 +19,7 @@ import uuid
 import pytest
 
 from omero.gateway.scripts import dbhelpers
-from omero.rtypes import wrap
+from omero.rtypes import wrap, rlong
 from omero.testlib import ITest
 from omero.gateway import BlitzGateway, KNOWN_WRAPPERS
 from omero.model import DatasetI, \
@@ -704,7 +704,7 @@ class TestGetObject (object):
             "Image", imageIds, respect_order=True)
         reverseIds = [i.id for i in reverseImages]
         assert imageIds == reverseIds, "Images not ordered by ID"
-        wrappedIds = [wrap(i) for i in imageIds]
+        wrappedIds = [rlong(i) for i in imageIds]
         reverseImages = gatewaywrapper.gateway.getObjects(
             "Image", wrappedIds, respect_order=True)
         reverseIds = [i.id for i in reverseImages]

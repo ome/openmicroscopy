@@ -29,7 +29,7 @@ RUN apt-get update \
       zlib1g-dev python-pillow python-numpy python-sphinx \
       libssl-dev libbz2-dev libmcpp-dev libdb++-dev libdb-dev \
       zeroc-ice-all-dev \
- && pip install --upgrade 'pip<10' setuptools flake8==2.4.0 pytest==2.7.3
+ && pip install --upgrade 'pip<10' setuptools flake8==2.4.0 pytest==2.7.3 future
 # TODO: unpin pip when possible
 # openjdk:8 is "stretch" or Debian 9
 RUN pip install https://github.com/ome/zeroc-ice-py-debian9/releases/download/0.1.0/zeroc_ice-3.6.4-cp27-cp27mu-linux_x86_64.whl

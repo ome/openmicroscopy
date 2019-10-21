@@ -8,6 +8,7 @@
 #
 # General build scripts.
 
+from builtins import str
 import os
 import sys
 import subprocess
@@ -87,13 +88,13 @@ def handle_tools(args):
         "-py": _(["components", "tools", "OmeroPy", "build.xml"]),
         "-web": _(["components", "tools", "OmeroWeb", "build.xml"]),
     }
-    while len(args) > 0 and args[0] in mappings.keys()+["-perf"]:
+    while len(args) > 0 and args[0] in list(mappings.keys())+["-perf"]:
         if args[0] == "-perf":
             args.pop(0)
             A = ["-listener",
                  "net.sf.antcontrib.perf.AntPerformanceListener"]
             additions.extend(A)
-        elif args[0] in mappings.keys():
+        elif args[0] in list(mappings.keys()):
             F = mappings[args.pop(0)]
             A = ["-f", F]
             additions.extend(A)
@@ -139,6 +140,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         sys.stderr.write("\nCancelled by user\n")
         sys.exit(2)
-    except SystemExit, se:
+    except SystemExit as se:
         notification(""" Failed: %s """ % " ".join(args), 100)
         sys.exit(se.code)
