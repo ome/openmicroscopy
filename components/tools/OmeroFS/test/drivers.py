@@ -20,7 +20,7 @@ import omero.grid.monitors as monitors
 
 from path import path
 from omero.util import ServerContext
-from omero_ext.mox import Mox
+from mox3 import mox
 from functools import wraps
 from omero.util.temp_files import create_path
 from fsDropBoxMonitorClient import MonitorClientI
@@ -343,7 +343,7 @@ class mock_communicator(object):
 class MockServerContext(ServerContext):
 
     def __init__(self, ic, get_root):
-        self.mox = Mox()
+        self.mox = mox.Mox()
         self.communicator = ic
         self.getSession = get_root
         self.stop_event = threading.Event()
