@@ -31,6 +31,12 @@ from omero.util.temp_files import create_path
 import __builtin__
 NSINSIGHTTAGSET = omero.constants.metadata.NSINSIGHTTAGSET
 
+try:
+    raw_input
+except Exception:
+    # Python 3
+    raw_input = input
+
 
 class AbstractTagTest(CLITest):
 
