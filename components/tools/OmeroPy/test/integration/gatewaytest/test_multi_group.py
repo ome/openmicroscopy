@@ -19,6 +19,12 @@ from omero.gateway.scripts import dbhelpers
 import time
 import pytest
 
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
+
 PRIVATE = 'rw----'
 READONLY = 'rwr---'
 READANN = 'rwra--'

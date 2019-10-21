@@ -120,7 +120,7 @@ class TestRemovePyramidsFullAdmin(CLITest):
             # This won't work but it but we then have a pyramid without fileset
             self.copyPixels(orig_pix, PixelsI(pix_id, False))
         except omero.InternalException:
-            print "Cannot copy pixels for image %s" % orig_pix.image.id.val
+            print("Cannot copy pixels for image %s" % orig_pix.image.id.val)
         finally:
             self.delete([orig_fs])
         return pix_id

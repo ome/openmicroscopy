@@ -22,6 +22,11 @@ from cStringIO import StringIO
 import omero.gateway
 from omero.rtypes import rstring
 from omero.gateway import FileAnnotationWrapper
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
 
 
 def _testAnnotation(obj, annclass, ns, value, sameOwner=False,
@@ -157,7 +162,7 @@ def testBooleanAnnotation(author_testimg_generated):
 def testLongAnnotation(author_testimg_generated):
     _testAnnotation(author_testimg_generated,
                     omero.gateway.LongAnnotationWrapper,
-                    TESTANN_NS, 1000L)
+                    TESTANN_NS, long(1000))
 
 
 def testMapAnnotation(author_testimg_generated):

@@ -28,6 +28,11 @@ from omero.model import DatasetI, \
     ScreenI, \
     WellI, \
     WellSampleI
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
 
 
 class TestDeleteObject (object):
@@ -107,7 +112,7 @@ class TestFindObject (object):
     def testIllegalObjTypeInt(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         with pytest.raises(AttributeError):
-            gatewaywrapper.gateway.getObject(1, 1L)
+            gatewaywrapper.gateway.getObject(1, long(1))
 
     def testObjTypeUnicode(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
@@ -485,7 +490,7 @@ class TestGetObject (object):
         try:
             gatewaywrapper.gateway.getObject("Annotation")
             threw = False
-        except:
+        except Exception:
             threw = True
         assert threw, "getObject() didn't throw exception with >1 result"
 

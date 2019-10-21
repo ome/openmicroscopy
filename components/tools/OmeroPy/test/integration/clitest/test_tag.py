@@ -98,7 +98,7 @@ class AbstractTagTest(CLITest):
 
         pattern = re.compile('^(?P<obj_type>.*):(?P<id>\d+)$')
         for line in reversed(out.split('\n')):
-            print line
+            print(line)
             match = re.match(pattern, line)
             if match:
                 break

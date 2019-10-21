@@ -182,7 +182,7 @@ class TestPixels (object):
             raise AssertionError("Should throw")
         except AssertionError:
             raise
-        except Exception, e:
+        except Exception as e:
             assert not e.close
             assert found == 1
 
@@ -208,7 +208,7 @@ class TestPixels (object):
             raise AssertionError("Should have failed on close")
         except AssertionError:
             raise
-        except Exception, e:
+        except Exception as e:
             assert e.close
             assert found == 2
 
@@ -238,7 +238,7 @@ class TestPixels (object):
             raise AssertionError("Should have failed on getPlane and close")
         except AssertionError:
             raise
-        except Exception, e:
+        except Exception as e:
             assert not e.close
             assert found == 1
 
