@@ -18,7 +18,7 @@
 
     <variable name="OMEROPY_HOME"  value="lib/python/"/>
     <variable name="OMEROPY_SERV"  value="lib/python/omero/"/>
-    <variable name="PYTHONPATH"    value="PYTHONPATH=${OMEROPY_HOME}:$${PYTHONPATH}"/>
+    <variable name="PYTHONPATH"    value="PYTHONPATH=$${PYTHONPATH}:${OMEROPY_HOME}"/>
     <variable name="PYTHON"        value="python"/>
     <variable name="JAVA"          value="java"/>
     <variable name="ROUTERPORT"    value="@omero.ports.prefix@@omero.ports.ssl@"/>
