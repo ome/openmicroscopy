@@ -27,6 +27,7 @@ except Exception:
     # Python 3
     long = int
 
+
 class TestIShare(ITest):
 
     @classmethod
