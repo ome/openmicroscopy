@@ -44,6 +44,8 @@ def build_url(client, url_name, url_kwargs):
     response = client.request()
     # http://testserver/webclient/
     webclient_url = response.url
+    # Needs hard-coding in Django 1.9
+    webclient_url = 'http://testserver/webclient/'
     url = reverse(url_name, kwargs=url_kwargs)
     url = webclient_url.replace('/webclient/', url)
     return url
