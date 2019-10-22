@@ -19,6 +19,7 @@ from omero.cmd import State, ERR, OK
 from omero.callbacks import CmdCallbackI
 from omero.gateway import BlitzGateway
 from omero.cmd import Chgrp2
+from future.utils import native_str
 
 PRIVATE = 'rw----'
 READONLY = 'rwr---'
@@ -31,7 +32,12 @@ def doChange(gateway, obj_type, obj_ids, group_id, container_id=None,
     Performs the change-group action, waits on completion and checks that the
     result is not an error.
     """
-    prx = gateway.chgrpObjects(obj_type, obj_ids, group_id, container_id)
+    # prx = gateway.chgrpObjects(obj_type, obj_ids, group_id, container_id)
+
+    obj = {}
+    obj[obj_type] = obj_ids
+    chgrp = Chgrp2(targetObjects=obj, groupId=group_id)
+    prx = gateway.c.sf.submit(chgrp, {'omero.group': native_str(None)})
 
     if not return_complete:
         return prx
@@ -85,8 +91,9 @@ class TestChgrp(ITest):
         assert conn.getObject("Image", image_id) is not None
 
         # Do the Chgrp
-        chgrp = Chgrp2(targetObjects={'Image': [image_id]}, groupId=gid)
-        self.do_submit(chgrp, client)
+        doChange(conn, "Image", [image_id], gid)
+        # chgrp = Chgrp2(targetObjects={'Image': [image_id]}, groupId=gid)
+        # self.do_submit(chgrp, client)
 
         # Image should no-longer be available in current group
         assert conn.getObject("Image", image_id) is None, \
