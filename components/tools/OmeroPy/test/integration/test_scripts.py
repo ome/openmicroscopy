@@ -365,7 +365,7 @@ client.closeSession()
         client = omero.scripts.client(
             "ticket2326", omero.scripts.Long("width", optional=True))
         width = client.getInput("width")
-        print width
+        print(width)
         client.setOutput(
             "noWidthKey",
             omero.rtypes.rbool("width" not in client.getInputKeys()))

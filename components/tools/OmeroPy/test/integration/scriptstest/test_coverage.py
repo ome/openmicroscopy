@@ -61,7 +61,7 @@ class TestCoverage(ITest):
             import omero.rtypes as OR
             import omero.scripts as OS
             client = OS.client("testUploadScript")
-            print "done"
+            print("done")
             """)
         return scriptID
 

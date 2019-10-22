@@ -61,18 +61,18 @@ import random
 client = s.client(
     "rand.py", "get Random", s.Long("x").inout(), s.Long("y").inout())
 client.createSession()
-print "Session"
-print client.getSession()
+print("Session")
+print(client.getSession())
 keys = client.getInputKeys()
-print "Keys found:"
-print keys
+print("Keys found:")
+print(keys)
 for key in keys:
     client.setOutput(key, client.getInput(key))
 
 x = client.getInput("x").val
 y  = client.getInput("y").val
 val = random.randint(x,y);
-print val
+print(val)
 
 """
 

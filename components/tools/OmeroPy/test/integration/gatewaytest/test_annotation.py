@@ -367,12 +367,12 @@ def testFileAnnotationSpeed(author_testimg_generated, gatewaywrapper):
     for ann in image.listAnnotations():
         if ann._obj.__class__ == omero.model.FileAnnotationI:
             # mimmic behaviour of templates which call multiple times
-            print ann.getId()
-            print ann.getFileName()
-            print ann.getFileName()
-            print ann.getFileSize()
-            print ann.getFileSize()
-    print time.time() - now
+            print(ann.getId())
+            print(ann.getFileName())
+            print(ann.getFileName())
+            print(ann.getFileSize())
+            print(ann.getFileSize())
+    print(time.time() - now)
 
 
 def testFileAnnNonDefaultGroup(author_testimg_generated, gatewaywrapper):
