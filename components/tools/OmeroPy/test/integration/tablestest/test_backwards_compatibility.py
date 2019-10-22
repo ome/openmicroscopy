@@ -194,7 +194,7 @@ class TestBackwardsCompatibility(ITest):
         # assert [0.125, 0.0625] == testda[1]
 
         ofile = table.getOriginalFile()
-        print("Created OriginalFile:", ofile.getId().val)
+        print "Created OriginalFile:", ofile.getId().val
 
     def testAllColumns_4_4_5(self):
         """
