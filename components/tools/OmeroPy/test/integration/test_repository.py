@@ -575,7 +575,7 @@ class TestOriginalMetadata(AbstractRepoTest):
             gateway._waitOnCmd(handle, failonerror=True)
             rsp = handle.getResponse()
             assert isinstance(rsp.globalMetadata, dict)
-            assert isinstance(type(rsp.seriesMetadata), dict)
+            assert isinstance(rsp.seriesMetadata, dict)
         finally:
             handle.close()
 
