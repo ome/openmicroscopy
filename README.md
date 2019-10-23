@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/openmicroscopy/openmicroscopy.png)](http://travis-ci.org/openmicroscopy/openmicroscopy)
+[![Build Status](https://travis-ci.org/ome/openmicroscopy.svg?branch=develop)](https://travis-ci.org/ome/openmicroscopy)
 
 Also see [CONTRIBUTING.md](./CONTRIBUTING.md) and [SUPPORT.md](./SUPPORT.md)
 
