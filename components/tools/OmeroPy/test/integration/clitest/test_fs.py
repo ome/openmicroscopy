@@ -47,13 +47,15 @@ class TestFS(CLITest):
     def parse_ids(self, output):
         ids = []
         for line in output.split('\n')[:-1]:
-            ids.append(int(line.split(',')[1]))
+            if len(line.strip()) != 0:
+                ids.append(int(line.split(',')[1]))
         return ids
 
     def parse_repos(self, output):
         ids = []
         for line in output.split('\n')[:-1]:
-            ids.append(line.split(',')[3])
+            if len(line.strip()) != 0:
+                ids.append(line.split(',')[3])
         return ids
 
     def testRepos(self, capsys):
