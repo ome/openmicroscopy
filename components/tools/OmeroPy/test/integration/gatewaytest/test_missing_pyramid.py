@@ -27,9 +27,9 @@ class TestPyramid (object):
         try:
             self.image._prepareRE()
             assert False, "_prepareRE should have thrown an exception"
-        except omero.ConcurrencyException, ce:
-            print "Handling MissingPyramidException with backoff: %s secs" \
-                % (ce.backOff/1000)
+        except omero.ConcurrencyException as ce:
+            print("Handling MissingPyramidException with backoff: %s secs"
+                  % (ce.backOff/1000))
 
     def testPrepareRenderingEngine(self):
         """
@@ -42,9 +42,9 @@ class TestPyramid (object):
             self.image._prepareRenderingEngine()
             assert False, \
                 "_prepareRenderingEngine() should have thrown an exception"
-        except omero.ConcurrencyException, ce:
-            print "Handling MissingPyramidException with backoff: %s secs" \
-                % (ce.backOff/1000)
+        except omero.ConcurrencyException as ce:
+            print("Handling MissingPyramidException with backoff: %s secs"
+                  % (ce.backOff/1000))
 
     def testGetChannels(self):
         """ Missing Pyramid shouldn't stop us from getting Channel Info """
@@ -52,7 +52,7 @@ class TestPyramid (object):
 
         channels = self.image.getChannels()
         for c in channels:
-            print c.getLabel()
+            print(c.getLabel())
 
     def testGetChannelsNoRe(self):
         """ With noRE, getChannels() shouldn't need rendering Engine """
@@ -61,7 +61,7 @@ class TestPyramid (object):
         channels = self.image.getChannels(noRE=True)
         assert len(channels) > 0
         for c in channels:
-            print c.getLabel()
+            print(c.getLabel())
 
     def testGetRdefId(self):
         """ getRenderingDefId() silently returns None with Missing Pyramid """

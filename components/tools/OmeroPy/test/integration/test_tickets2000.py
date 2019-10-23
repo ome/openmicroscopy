@@ -19,6 +19,12 @@ from omero_model_ProjectI import ProjectI
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
+
 
 class TestTickets2000(ITest):
 

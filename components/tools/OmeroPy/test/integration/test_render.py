@@ -31,11 +31,17 @@ import io
 
 try:
     from PIL import Image  # see ticket:2597
-except:  # pragma: nocover
+except Exception:  # pragma: nocover
     try:
         import Image  # see ticket:2597
-    except:
+    except Exception:
         logging.error('No Pillow installed')
+
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
 
 
 from numpy import asarray, array_equal

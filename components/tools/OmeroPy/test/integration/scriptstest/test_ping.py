@@ -51,14 +51,14 @@ import uuid
 # based on duplicate file names.
 #
 uuid = str(uuid.uuid4())
-print "I am the script named %s" % uuid
+print("I am the script named %s" % uuid)
 
 #
 # Creation
 #
 client = s.client(uuid, "simple ping script",
     s.Long("a", optional=True).inout(), s.String("b", optional=True).inout())
-print "Session", client.getSession()
+print("Session", client.getSession())
 
 #
 # Various diagnostics
@@ -68,31 +68,31 @@ from pprint import pprint
 print "PATH:"
 pprint(sys.path)
 
-print "CONFIG"
+print("CONFIG")
 f = open("config","r")
-print "".join(f.readlines())
+print("".join(f.readlines()))
 f.close()
 
 from omero.rtypes import *
 
 import Ice
 ic = Ice.initialize(["--Ice.Plugin.IceSSL=IceSSL:createIceSSL"])
-print ic.getProperties().getPropertiesForPrefix("Ice")
-print ic.getProperties().getPropertiesForPrefix("omero")
+print(ic.getProperties().getPropertiesForPrefix("Ice"))
+print(ic.getProperties().getPropertiesForPrefix("omero"))
 
 #
 # Echo'ing input to output
 #
 keys = client.getInputKeys()
-print "Keys found:"
-print keys
+print("Keys found:")
+print(keys)
 for key in keys:
     client.setOutput(key, client.getInput(key))
 
 #
 # Env
 #
-print "This was my environment:"
+print("This was my environment:")
 for k,v in os.environ.items():
     print "%s => %s" %(k,v)
 

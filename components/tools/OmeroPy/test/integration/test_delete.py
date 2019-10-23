@@ -342,7 +342,7 @@ class TestDelete(ITest):
                         if not cb.block(500):  # ms.
                             # No errors possible if in progress(
                             # (since no response)
-                            print "in progress", _formatReport(handle)
+                            print("in progress", _formatReport(handle))
                             in_progress += 1
                         else:
                             rsp = cb.getResponse()
@@ -738,7 +738,7 @@ class TestDelete(ITest):
                     # request stops after last step commenced
                     assert status.currentStep == status.steps - 1
                     return
-        except:
+        except Exception:
             handle.close()
 
         raise Exception('delete did not complete within five seconds')

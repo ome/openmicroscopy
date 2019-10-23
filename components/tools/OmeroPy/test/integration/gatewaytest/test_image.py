@@ -24,7 +24,7 @@ except ImportError:
     try:
         import Image  # see ticket:2597
     except ImportError:
-        print "Pillow not installed"
+        print("Pillow not installed")
 
 
 class TestImage (object):

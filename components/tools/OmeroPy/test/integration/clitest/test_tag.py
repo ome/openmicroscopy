@@ -28,7 +28,8 @@ from omero.testlib import PFS
 from omero.testlib.cli import CLITest
 from omero.rtypes import rstring, rlong
 from omero.util.temp_files import create_path
-import __builtin__
+import builtins
+
 NSINSIGHTTAGSET = omero.constants.metadata.NSINSIGHTTAGSET
 
 
@@ -38,10 +39,6 @@ class AbstractTagTest(CLITest):
         super(AbstractTagTest, self).setup_method(method)
         self.cli.register("tag", TagControl, "TEST")
         self.args += ["tag"]
-        self.setup_mock()
-
-    def teardown_method(self, method):
-        self.teardown_mock()
 
     @classmethod
     def new_tag(self, name=""):
@@ -52,7 +49,7 @@ class AbstractTagTest(CLITest):
     @classmethod
     def create_tags(self, ntags, name):
         tag_ids = []
-        for i in list(xrange(ntags)):
+        for i in range(ntags):
             tag = self.new_tag("%s - %s" % (name, i))
             tag = self.update.saveAndReturnObject(tag)
             if ntags > 1:
@@ -98,7 +95,7 @@ class AbstractTagTest(CLITest):
 
         pattern = re.compile('^(?P<obj_type>.*):(?P<id>\d+)$')
         for line in reversed(out.split('\n')):
-            print line
+            print(line)
             match = re.match(pattern, line)
             if match:
                 break
@@ -123,20 +120,20 @@ class TestTag(AbstractTagTest):
     # ========================================================================
     @pytest.mark.parametrize('name_arg', [None, '--name'])
     @pytest.mark.parametrize('desc_arg', [None, '--description'])
-    def testCreateTag(self, name_arg, desc_arg, capfd):
+    def testCreateTag(self, name_arg, desc_arg, capfd, monkeypatch):
         tag_name = self.uuid()
         tag_desc = self.uuid()
         self.args += ["create"]
-        self.mox.StubOutWithMock(__builtin__, "raw_input")
+
+        def mock_input(msg):
+            return tag_name
+
+        monkeypatch.setattr(builtins, "input", mock_input)
+
         if name_arg:
             self.args += [name_arg, tag_name]
-        else:
-            name_input = 'Please enter a name for this tag: '
-            raw_input(name_input).AndReturn(tag_name)
-
         if desc_arg:
             self.args += [desc_arg, tag_desc]
-        self.mox.ReplayAll()
 
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
@@ -151,22 +148,22 @@ class TestTag(AbstractTagTest):
 
     @pytest.mark.parametrize('name_arg', [None, '--name'])
     @pytest.mark.parametrize('desc_arg', [None, '--desc'])
-    def testCreateTagset(self, name_arg, desc_arg, capfd):
+    def testCreateTagset(self, name_arg, desc_arg, capfd, monkeypatch):
         tag_name = self.uuid()
         tag_desc = self.uuid()
         tag_ids = self.create_tags(2, tag_name)
         self.args += ["createset", "--tag"]
         self.args += ["%s" % tag_id for tag_id in tag_ids]
 
-        self.mox.StubOutWithMock(__builtin__, "raw_input")
+        def mock_input(msg):
+            return tag_name
+
+        monkeypatch.setattr(builtins, "input", mock_input)
+
         if name_arg:
             self.args += [name_arg, tag_name]
-        else:
-            name_input = 'Please enter a name for this tag set: '
-            raw_input(name_input).AndReturn(tag_name)
         if desc_arg:
             self.args += [desc_arg, tag_desc]
-        self.mox.ReplayAll()
 
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()

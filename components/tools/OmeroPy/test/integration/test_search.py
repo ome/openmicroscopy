@@ -160,7 +160,7 @@ class TestSearch(ITest):
             if 5 != sz:
                 failed[text] = sz
         if failed:
-            print "%i fails" % len(failed)
+            print("%i fails" % len(failed))
         return failed
 
     def _3164_assert(self, failed):

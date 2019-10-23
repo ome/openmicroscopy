@@ -179,7 +179,7 @@ class TestTables(ITest):
             return m
 
         try:
-            print table.getOriginalFile().id.val
+            print(table.getOriginalFile().id.val)
             lc = columns.LongColumnI('lc', 'desc', [1])
             table.initialize([lc])
             assert len(clean(table.getAllMetadata())) == 0
@@ -533,7 +533,7 @@ class TestTables(ITest):
         assert [0.125, 0.0625] == testda[1]
 
         ofile = table.getOriginalFile()
-        print "testAllColumnsSameTable", "OriginalFile:", ofile.getId().val
+        print("testAllColumnsSameTable", "OriginalFile:", ofile.getId().val)
 
         # Now try an update
         updatel = omero.grid.LongColumn('longcol', '', [12345])

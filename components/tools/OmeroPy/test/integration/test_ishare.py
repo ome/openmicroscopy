@@ -21,6 +21,12 @@ from omero.gateway import BlitzGateway
 from test.integration.helpers import createTestImage
 import warnings
 
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
+
 
 class TestIShare(ITest):
 
@@ -361,7 +367,7 @@ class TestIShare(ITest):
         try:
             res1 = query1.findAllByQuery(sql, p)
             assert False, "This should throw an exception"
-        except:
+        except Exception:
             pass
 
         # Now we add all the other elements to the share to prevent
@@ -514,7 +520,7 @@ class TestIShare(ITest):
         try:
             share3.getShare(sid)
             assert False, "Share returned to non-member"
-        except:
+        except Exception:
             pass
 
     def test1227(self):

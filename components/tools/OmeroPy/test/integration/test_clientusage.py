@@ -90,7 +90,7 @@ class TestClientUsage(ITest):
         try:
             sf.setSecurityContext(omero.model.ExperimenterGroupI(1, False))
             assert False, "Should not be allowed"
-        except:
+        except Exception:
             pass  # good
         srvs[0].close()
         srvs = root.getStatefulServices()

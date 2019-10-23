@@ -61,7 +61,7 @@ class TestPerformance (object):
             fa.getFileName()
             fileCount += 1
         t1 = time.time() - startTime
-        print "listFileAnnotations for %d files = %s secs" % (fileCount, t1)
+        print("listFileAnnotations for %d files = %s secs" % (fileCount, t1))
         # Typically 1.4 secs
 
         # test speed of getOjbects("Annotation") - lazy loading file names
@@ -73,8 +73,8 @@ class TestPerformance (object):
             fa.getFileName()
             fileCount += 1
         t2 = time.time() - startTime
-        print "getObjects, lazy loading file names for %d files = %s secs" \
-            % (fileCount, t2)  # Typically 2.8 secs
+        print("getObjects, lazy loading file names for %d files = %s secs"
+              % (fileCount, t2))  # Typically 2.8 secs
 
         # test speed of getOjbects("Annotation") - NO loading file names
         startTime = time.time()
@@ -85,8 +85,8 @@ class TestPerformance (object):
             fa.getId()
             fileCount += 1
         t3 = time.time() - startTime
-        print "getObjects, NO file names for %d files = %s secs" \
-            % (fileCount, t3)  # Typically 0.4 secs
+        print("getObjects, NO file names for %d files = %s secs"
+              % (fileCount, t3))  # Typically 0.4 secs
 
         assert t1 < t2, "Blitz listFileAnnotations() should be faster " \
             "than getObjects('FileAnnotation')"

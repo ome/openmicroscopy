@@ -23,6 +23,12 @@ import omero.cli
 from omero.rtypes import rstring, wrap, unwrap
 from omero.util.temp_files import create_path
 
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
+
 PUBLIC = omero.model.PermissionsI("rwrwrw")
 
 if "DEBUG" in os.environ:
@@ -122,7 +128,7 @@ class TestScripts(ITest):
             try:
                 script_id = svc.uploadScript('testpath', "THIS STINKS")
                 svc.getParams(script_id)
-            except omero.ValidationException, ve:
+            except omero.ValidationException as ve:
                 assert "THIS STINKS" in str(ve), str(ve)
         finally:
             impl.cleanup()
@@ -211,7 +217,7 @@ class TestScripts(ITest):
         # processor)
         userScriptId = scriptService.uploadScript(
             "/user/test/script%s.py" % (self.uuid()), script)
-        print userScriptId
+        print(userScriptId)
         # scriptService.canRunScript(userScriptId) returns 'True' here for
         # some reason? (should be False)
         # But the method works in every other situation I have tried (Will).
@@ -230,7 +236,7 @@ class TestScripts(ITest):
             finally:
                 proc.close(False)
             assert False, "ticket:2309 - should not run without processor"
-        except:
+        except Exception:
             pass
 
         assert "returnMessage" not in results, \
@@ -359,7 +365,7 @@ client.closeSession()
         client = omero.scripts.client(
             "ticket2326", omero.scripts.Long("width", optional=True))
         width = client.getInput("width")
-        print width
+        print(width)
         client.setOutput(
             "noWidthKey",
             omero.rtypes.rbool("width" not in client.getInputKeys()))

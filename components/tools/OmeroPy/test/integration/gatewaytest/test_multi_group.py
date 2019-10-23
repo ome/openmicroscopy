@@ -19,6 +19,12 @@ from omero.gateway.scripts import dbhelpers
 import time
 import pytest
 
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
+
 PRIVATE = 'rw----'
 READONLY = 'rwr---'
 READANN = 'rwra--'
@@ -154,12 +160,12 @@ class TestScript (object):
         gid = ec.groupId
         qs = client.sf.getQueryService()
         ds_Id = client.getInput("datasetId").getValue()
-        print "Running test..."     # generate stdout
+        print("Running test...")     # generate stdout
         try:
             dataset = qs.find("Dataset", ds_Id)
             ds_Name = dataset.name.val
-            print ds_Name
-        except:
+            print(ds_Name)
+        except Exception:
             ds_Name = "Not Found"
         client.setOutput("gid", omero.rtypes.rlong(gid))
         client.setOutput("datasetName", omero.rtypes.rstring(ds_Name))

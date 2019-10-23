@@ -57,10 +57,10 @@ class TestImportBulk(CLITest):
                 o = clean_o
         except NonZeroReturnCode:
             o, e = capfd.readouterr()
-            print "O" * 40
-            print o
-            print "E" * 40
-            print e
+            print("O" * 40)
+            print(o)
+            print("E" * 40)
+            print(e)
             raise
         return o, e
 
@@ -125,7 +125,7 @@ path: test.tsv
 
         # At this point, script1.sh has been created
         assert script.exists()
-        print script.read()
+        print(script.read())
 
         # But we need to login and then run the script
         monkeypatch.setenv("OMERO_SESSIONDIR", tmpdir)

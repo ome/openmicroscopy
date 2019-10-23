@@ -22,6 +22,11 @@ from cStringIO import StringIO
 import omero.gateway
 from omero.rtypes import rstring
 from omero.gateway import FileAnnotationWrapper
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
 
 
 def _testAnnotation(obj, annclass, ns, value, sameOwner=False,
@@ -157,7 +162,7 @@ def testBooleanAnnotation(author_testimg_generated):
 def testLongAnnotation(author_testimg_generated):
     _testAnnotation(author_testimg_generated,
                     omero.gateway.LongAnnotationWrapper,
-                    TESTANN_NS, 1000L)
+                    TESTANN_NS, long(1000))
 
 
 def testMapAnnotation(author_testimg_generated):
@@ -362,12 +367,12 @@ def testFileAnnotationSpeed(author_testimg_generated, gatewaywrapper):
     for ann in image.listAnnotations():
         if ann._obj.__class__ == omero.model.FileAnnotationI:
             # mimmic behaviour of templates which call multiple times
-            print ann.getId()
-            print ann.getFileName()
-            print ann.getFileName()
-            print ann.getFileSize()
-            print ann.getFileSize()
-    print time.time() - now
+            print(ann.getId())
+            print(ann.getFileName())
+            print(ann.getFileName())
+            print(ann.getFileSize())
+            print(ann.getFileSize())
+    print(time.time() - now)
 
 
 def testFileAnnNonDefaultGroup(author_testimg_generated, gatewaywrapper):

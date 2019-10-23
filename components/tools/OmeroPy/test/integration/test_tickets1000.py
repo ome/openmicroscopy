@@ -44,11 +44,11 @@ class TestTicket1000(ITest):
             assert i.id is not None
             assert i.details is not None
         except omero.ValidationException:
-            print " test880 - createTestImage has failed. "\
-                  "This fixture method needs to be fixed."
+            print(" test880 - createTestImage has failed. "
+                  "This fixture method needs to be fixed.")
         except IndexError:
-            print " test880 - findAll has failed so assertions "\
-                  "can't be checked. Is this a fail? "
+            print(" test880 - findAll has failed so assertions "
+                  "can't be checked. Is this a fail? ")
 
     def test883WithoutClose(self):
         s = self.client.sf.createSearchService()
@@ -76,7 +76,7 @@ class TestTicket1000(ITest):
             tmpfile = self.tmpfile()
             self.client.download(ofile, tmpfile)
         else:
-            print " test883Upload - no stderr found. Is this a fail? "
+            print(" test883Upload - no stderr found. Is this a fail? ")
 
         search.close()
 
@@ -94,7 +94,7 @@ class TestTicket1000(ITest):
             self.client.sf.getQueryService().findAllByQuery(
                 TestTicket1000.success, prms)
         except omero.ValidationException:
-            print " test985 - query has failed. Should this query pass? "
+            print(" test985 - query has failed. Should this query pass? ")
 
         with pytest.raises(omero.ValidationException):
             self.client.sf.getQueryService().findAllByQuery(

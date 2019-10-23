@@ -19,6 +19,11 @@ from omero.testlib import ITest
 from omero.model import ImageI, ChannelI, LogicalChannelI, LengthI
 from omero.rtypes import rstring, rtime
 from datetime import datetime
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
 
 
 @pytest.fixture(scope='module')
@@ -50,7 +55,7 @@ def image(request, gatewaywrapper):
     image = ImageI()
     image.name = rstring('an image')
     # 2015-04-21 01:15:00
-    image.acquisitionDate = rtime(1429578900000L)
+    image.acquisitionDate = rtime(long(1429578900000))
     image_id, = update_service.saveAndReturnIds([image])
     return gw.getObject('Image', image_id)
 
@@ -63,7 +68,7 @@ def image_no_acquisition_date(request, gatewaywrapper):
     update_service = gw.getUpdateService()
     image = ImageI()
     image.name = rstring('an image')
-    image.acquisitionDate = rtime(0L)
+    image.acquisitionDate = rtime(long(0))
     image_id, = update_service.saveAndReturnIds([image])
     return gw.getObject('Image', image_id)
 
@@ -123,7 +128,7 @@ class TestImageWrapper(object):
 
     def testGetDate(self, gatewaywrapper, image):
         date = image.getDate()
-        assert date == datetime.fromtimestamp(1429578900L)
+        assert date == datetime.fromtimestamp(long(1429578900))
 
     def testGetDateNoAcquisitionDate(
             self, gatewaywrapper, image_no_acquisition_date):

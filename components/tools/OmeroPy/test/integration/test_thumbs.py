@@ -17,6 +17,12 @@ from omero.sys import ParametersI
 from omero.util.concurrency import get_event
 from omero.rtypes import rint, unwrap
 
+try:
+    long
+except Exception:
+    # Python 3
+    long = int
+
 
 class TestThumbs(ITest):
 
@@ -165,7 +171,7 @@ def assign(f, method, *args):
         try:
             for i2 in i:
                 name += "x%s" % unwrap(i2)
-        except:
+        except Exception:
             name += "x%s" % unwrap(i)
     f.func_name = name
     setattr(TestThumbs, name, f)

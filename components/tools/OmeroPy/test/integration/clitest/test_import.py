@@ -147,10 +147,10 @@ class TestImport(CLITest):
                 o = clean_o
         except NonZeroReturnCode:
             o, e = capfd.readouterr()
-            print "O" * 40
-            print o
-            print "E" * 40
-            print e
+            print("O" * 40)
+            print(o)
+            print("E" * 40)
+            print(e)
             raise
         return o, e
 

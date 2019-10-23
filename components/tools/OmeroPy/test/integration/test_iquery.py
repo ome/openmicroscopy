@@ -56,14 +56,14 @@ class TestQuery(ITest):
             for obj_array in rv:
                 as_map[obj_array[0]] = obj_array[1]
             if len(as_map) > 0:
-                print "Group %s: %s" % (group.id.val, as_map)
+                print("Group %s: %s" % (group.id.val, as_map))
 
     def testQueryTaggedUnique(self):
 
         # get group we're working on...
         ctx = self.client.sf.getAdminService().getEventContext()
         groupId = ctx.groupId
-        print 'groupId', groupId
+        print('groupId', groupId)
 
         # Admin sets permissions to read-ann
         admin = self.root.sf.getAdminService()
