@@ -32,12 +32,12 @@ def doChange(gateway, obj_type, obj_ids, group_id, container_id=None,
     Performs the change-group action, waits on completion and checks that the
     result is not an error.
     """
-    # prx = gateway.chgrpObjects(obj_type, obj_ids, group_id, container_id)
+    prx = gateway.chgrpObjects(obj_type, obj_ids, group_id, container_id)
 
-    obj = {}
-    obj[obj_type] = obj_ids
-    chgrp = Chgrp2(targetObjects=obj, groupId=group_id)
-    prx = gateway.c.sf.submit(chgrp, {'omero.group': native_str(None)})
+    #obj = {}
+    #obj[obj_type] = obj_ids
+    #chgrp = Chgrp2(targetObjects=obj, groupId=group_id)
+    #prx = gateway.c.sf.submit(chgrp, {'omero.group': native_str(None)})
 
     if not return_complete:
         return prx
