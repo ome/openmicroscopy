@@ -29,7 +29,7 @@ from omero.plugins.sessions import SessionsControl
 from omero.rtypes import rstring
 
 from omero.testlib import ITest
-from omero_ext.mox import Mox
+from mox3 import mox
 
 
 class AbstractCLITest(ITest):
@@ -44,7 +44,7 @@ class AbstractCLITest(ITest):
         cls.cli.register("sessions", SessionsControl, "TEST")
 
     def setup_mock(self):
-        self.mox = Mox()
+        self.mox = mox.Mox()
 
     def teardown_mock(self):
         self.mox.UnsetStubs()
