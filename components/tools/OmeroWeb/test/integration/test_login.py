@@ -22,7 +22,7 @@ Tests webclient login
 """
 from django.conf import settings
 from django.conf.urls import url
-from django.utils.importlib import import_module
+from importlib import import_module
 from django.test.utils import override_settings
 
 from omeroweb.webclient.views import WebclientLoginView
