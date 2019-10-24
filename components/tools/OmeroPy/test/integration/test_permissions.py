@@ -24,6 +24,8 @@
 
 """
 
+from builtins import str
+from builtins import object
 from future.utils import native_str
 import pytest
 from omero.testlib import ITest, PFS
@@ -37,7 +39,7 @@ from omero.rtypes import rbool, rstring, unwrap
 
 
 try:
-    long
+    int
 except Exception:
     # Python 3
     long = int
@@ -820,7 +822,7 @@ class TestPermissions(ITest):
         ctx.update(params)
         store.setFileId(script.id.val, ctx)
 
-        data = store.read(0, long(script.size.val))
+        data = store.read(0, int(script.size.val))
         assert script.size.val == len(data)
         try:
             store.close()

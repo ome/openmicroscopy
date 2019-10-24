@@ -23,7 +23,10 @@
    Integration test for delete testing
 
 """
+from __future__ import print_function
 
+from builtins import str
+from builtins import range
 import traceback
 from omero.testlib import ITest
 import pytest
@@ -342,7 +345,7 @@ class TestDelete(ITest):
                         if not cb.block(500):  # ms.
                             # No errors possible if in progress(
                             # (since no response)
-                            print("in progress", _formatReport(handle))
+                            print(("in progress", _formatReport(handle)))
                             in_progress += 1
                         else:
                             rsp = cb.getResponse()

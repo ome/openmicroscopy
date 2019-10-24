@@ -12,6 +12,8 @@
 
 """
 
+from builtins import str
+from builtins import object
 import omero
 import omero.scripts
 from omero.rtypes import rstring, rtime, rlong
@@ -20,7 +22,7 @@ import time
 import pytest
 
 try:
-    long
+    int
 except Exception:
     # Python 3
     long = int
@@ -44,9 +46,9 @@ class TestHistory (object):
     def searchHistory(self, gateway, start, end, dtype="Dataset"):
 
         tm = gateway.getTimelineService()
-        count = tm.countByPeriod([dtype], rtime(long(start)),
-                                 rtime(long(end)), None, gateway.SERVICE_OPTS)
-        data = tm.getByPeriod([dtype], rtime(long(start)), rtime(long(end)),
+        count = tm.countByPeriod([dtype], rtime(int(start)),
+                                 rtime(int(end)), None, gateway.SERVICE_OPTS)
+        data = tm.getByPeriod([dtype], rtime(int(start)), rtime(int(end)),
                               None, True, gateway.SERVICE_OPTS)
 
         logs = tm.getEventLogsByPeriod(rtime(start), rtime(end), None,

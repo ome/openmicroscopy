@@ -23,6 +23,7 @@
    Integration test focused on the omero.api.ISession interface.
 
 """
+from __future__ import print_function
 import os
 
 from omero.testlib import ITest

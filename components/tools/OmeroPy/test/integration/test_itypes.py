@@ -9,6 +9,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from builtins import str
 from omero.testlib import ITest
 
 from omero.rtypes import rstring
@@ -33,7 +34,7 @@ class TestTypes(ITest):
             types.allEnumerations(str(r))
 
     def testGetEnumerationWithEntries(self):
-        self.root.sf.getTypesService().getEnumerationsWithEntries().items()
+        list(self.root.sf.getTypesService().getEnumerationsWithEntries().items())
 
     def testManageEnumeration(self):
         from omero_model_ExperimentTypeI import ExperimentTypeI

@@ -12,6 +12,8 @@
 
 """
 
+from builtins import str
+from builtins import object
 import omero
 from omero.rtypes import wrap, unwrap
 import time

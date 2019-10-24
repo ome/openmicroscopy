@@ -24,6 +24,7 @@
 
 """
 
+from builtins import range
 import omero.util.script_utils as scriptUtil
 from numpy import arange, uint8
 
@@ -53,7 +54,7 @@ def createImageWithPixels(client, name, sizes={}):
         sizeZ = "z" in sizes and sizes["z"] or 1
         sizeT = "t" in sizes and sizes["t"] or 1
         sizeC = "c" in sizes and sizes["c"] or 1
-        channelList = range(1, sizeC+1)
+        channelList = list(range(1, sizeC+1))
         id = pixelsService.createImage(
             sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType,
             name, description=None)

@@ -36,7 +36,7 @@ client = sc.client("script_1", """
                    sc.String("myoptional", optional=True)
                    )
 
-assert isinstance(client, types.TupleType)
+assert isinstance(client, tuple)
 
 self = sys.argv[0]
 cfg = self.replace("py", "cfg")

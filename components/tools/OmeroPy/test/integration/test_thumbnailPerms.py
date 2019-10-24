@@ -25,6 +25,7 @@
 
 """
 
+from builtins import str
 import Ice
 import pytest
 from omero.testlib import ITest

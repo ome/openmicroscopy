@@ -12,18 +12,23 @@
    - author_testimg_generated
 
 """
+from __future__ import print_function
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
 import time
 import datetime
 import os
 from tempfile import NamedTemporaryFile
-from cStringIO import StringIO
+from io import StringIO
 
 import omero.gateway
 from omero.rtypes import rstring
 from omero.gateway import FileAnnotationWrapper
 try:
-    long
+    int
 except Exception:
     # Python 3
     long = int
@@ -162,7 +167,7 @@ def testBooleanAnnotation(author_testimg_generated):
 def testLongAnnotation(author_testimg_generated):
     _testAnnotation(author_testimg_generated,
                     omero.gateway.LongAnnotationWrapper,
-                    TESTANN_NS, long(1000))
+                    TESTANN_NS, int(1000))
 
 
 def testMapAnnotation(author_testimg_generated):

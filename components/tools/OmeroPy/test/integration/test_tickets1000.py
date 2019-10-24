@@ -8,6 +8,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import print_function
 
 from omero.testlib import ITest
 import pytest
@@ -72,7 +73,7 @@ class TestTicket1000(ITest):
         search.byHqlQuery(
             "select o from OriginalFile o where o.name = 'stderr'", params)
         if search.hasNext():
-            ofile = search.next()
+            ofile = next(search)
             tmpfile = self.tmpfile()
             self.client.download(ofile, tmpfile)
         else:

@@ -9,7 +9,11 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import division
+from __future__ import print_function
 
+from builtins import object
+from past.utils import old_div
 import omero
 import pytest
 
@@ -29,7 +33,7 @@ class TestPyramid (object):
             assert False, "_prepareRE should have thrown an exception"
         except omero.ConcurrencyException as ce:
             print("Handling MissingPyramidException with backoff: %s secs"
-                  % (ce.backOff/1000))
+                  % (old_div(ce.backOff,1000)))
 
     def testPrepareRenderingEngine(self):
         """
@@ -44,7 +48,7 @@ class TestPyramid (object):
                 "_prepareRenderingEngine() should have thrown an exception"
         except omero.ConcurrencyException as ce:
             print("Handling MissingPyramidException with backoff: %s secs"
-                  % (ce.backOff/1000))
+                  % (old_div(ce.backOff,1000)))
 
     def testGetChannels(self):
         """ Missing Pyramid shouldn't stop us from getting Channel Info """

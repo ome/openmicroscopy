@@ -22,8 +22,10 @@
 """
 Integration test of metadata_mapannotation
 """
+from __future__ import print_function
 
 
+from builtins import zip
 from omero.testlib import ITest
 from omero.model import MapAnnotationI, NamedValue
 from omero.rtypes import unwrap, wrap
@@ -62,7 +64,7 @@ class TestMapAnnotationManager(ITest):
         ma3.setMapValue([NamedValue('a', '1')])
 
         mids = self.update.saveAndReturnIds([ma1, ma2, ma3])
-        print(ns1, ns3, mids)
+        print((ns1, ns3, mids))
         return ns1, ns3, mids
 
     def test_add_from_namespace_query(self):

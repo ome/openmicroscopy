@@ -19,6 +19,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from builtins import str
 from omero.testlib.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.model import Experimenter
@@ -89,7 +90,7 @@ class TestSessions(CLITest):
             self.args += ["-q"]
         if timeout:
             self.args += ["--timeout", str(timeout)]
-            timetoidle = long(timeout) * 1000
+            timetoidle = int(timeout) * 1000
             timetoidle_str = "%.f min" % (float(timeout) / 60)
         self.cli.invoke(self.args, strict=True)
 

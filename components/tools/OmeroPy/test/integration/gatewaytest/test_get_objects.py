@@ -14,6 +14,9 @@
 
 """
 
+from builtins import str
+from builtins import range
+from builtins import object
 import omero
 import uuid
 import pytest
@@ -29,7 +32,7 @@ from omero.model import DatasetI, \
     WellI, \
     WellSampleI
 try:
-    long
+    int
 except Exception:
     # Python 3
     long = int
@@ -112,7 +115,7 @@ class TestFindObject (object):
     def testIllegalObjTypeInt(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         with pytest.raises(AttributeError):
-            gatewaywrapper.gateway.getObject(1, long(1))
+            gatewaywrapper.gateway.getObject(1, int(1))
 
     def testObjTypeUnicode(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
@@ -773,7 +776,7 @@ class TestLeaderAndMemberOfGroup(object):
         gatewaywrapper.doLogin(dbhelpers.USERS['group_member'])
         assert not gatewaywrapper.gateway.isLeader()
         with pytest.raises(StopIteration):
-            gatewaywrapper.gateway.getGroupsLeaderOf().next()
+            next(gatewaywrapper.gateway.getGroupsLeaderOf())
 
     def testGetGroupsMemberOf(self, gatewaywrapper):
         gatewaywrapper.doLogin(dbhelpers.USERS['group_member'])
@@ -865,7 +868,7 @@ class TestListParents(ITest):
         corresponding tests below
         """
         tested_wrappers = ['plate', 'image', 'dataset', 'experimenter', 'well']
-        for key, wrapper in KNOWN_WRAPPERS.items():
+        for key, wrapper in list(KNOWN_WRAPPERS.items()):
             if (hasattr(wrapper, 'PARENT_WRAPPER_CLASS') and
                     wrapper.PARENT_WRAPPER_CLASS is not None):
                 assert key in tested_wrappers

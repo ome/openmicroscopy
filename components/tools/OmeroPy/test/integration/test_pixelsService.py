@@ -23,11 +23,12 @@
    Tests for the Pixels service.
 
 """
+from __future__ import absolute_import
 
 import omero
 import omero.gateway
 from omero.testlib import ITest
-from helpers import createImageWithPixels
+from .helpers import createImageWithPixels
 
 
 class TestPixelsService(ITest):

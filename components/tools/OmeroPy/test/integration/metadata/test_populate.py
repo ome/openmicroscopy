@@ -24,6 +24,10 @@
    and populate_roi.py scripts.
 """
 
+from builtins import str
+from builtins import zip
+from builtins import range
+from builtins import object
 from omero.testlib import ITest
 import string
 import csv
@@ -706,7 +710,7 @@ class Dataset2Images(Fixture):
             con = mv['Concentration']
             typ = mv['Type']
             assert img[0] in ("A", "a")
-            which = long(img[1:])
+            which = int(img[1:])
             if which % 2 == 1:
                 assert con == '0'
                 assert typ == 'Control'
@@ -930,7 +934,7 @@ class TestPopulateMetadataHelper(ITest):
         rows = t.getNumberOfRows()
         fixture.assert_rows(rows)
         for hit in range(rows):
-            rowValues = [col.values[0] for col in t.read(range(len(cols)),
+            rowValues = [col.values[0] for col in t.read(list(range(len(cols))),
                                                          hit, hit+1).columns]
             assert len(rowValues) == fixture.count
             # Unsure where the lower-casing is happening
@@ -1047,8 +1051,8 @@ class TestPopulateMetadata(TestPopulateMetadataHelper):
         cols = t.getHeaders()
         rows = t.getNumberOfRows()
         fixture.assert_rows(rows)
-        data = [c.values for c in t.read(range(len(cols)), 0, rows).columns]
-        rowValues = zip(*data)
+        data = [c.values for c in t.read(list(range(len(cols))), 0, rows).columns]
+        rowValues = list(zip(*data))
         assert len(rowValues) == fixture.count
         fixture.assert_row_values(rowValues)
 
@@ -1475,7 +1479,7 @@ class TestPopulateRois(ITest):
         rows = t.getNumberOfRows()
         assert rows == 1
 
-        data = t.read(range(len(cols)), 0, 1)
+        data = t.read(list(range(len(cols))), 0, 1)
         imag = data.columns[0].values[0]
         rois = self.client.sf.getRoiService()
         anns = rois.getRoiMeasurements(imag, RoiOptions())

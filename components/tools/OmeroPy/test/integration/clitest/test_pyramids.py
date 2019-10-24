@@ -20,6 +20,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
+from __future__ import print_function
+from builtins import str
 from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.model import PixelsI
@@ -98,7 +100,7 @@ class TestRemovePyramidsFullAdmin(CLITest):
         fakefile = tmpdir.join(name)
         fakefile.write('')
         pixels = self.import_image(filename=str(fakefile), skip="checksum")[0]
-        id = long(float(pixels))
+        id = int(float(pixels))
         # wait for the pyramid to be generated
         self.wait_for_pyramid(id)
         query_service = self.client.sf.getQueryService()

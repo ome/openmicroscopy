@@ -9,6 +9,8 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from builtins import str
+from builtins import range
 import time
 from omero.testlib import ITest
 import pytest
@@ -20,7 +22,7 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 
 try:
-    long
+    int
 except Exception:
     # Python 3
     long = int
@@ -108,7 +110,7 @@ class TestTickets2000(ITest):
 
         # test:
         hier = pojos.findContainerHierarchies(
-            "Project", [long(im2.id.val)], None)
+            "Project", [int(im2.id.val)], None)
 
         assert 3 == len(hier), \
             "len of hier != 3: %s" % [type(x) for x in hier]
@@ -160,7 +162,7 @@ class TestTickets2000(ITest):
 
         # test:
         hier = c2_pojos.findContainerHierarchies(
-            "Project", [long(im2.id.val)], None)
+            "Project", [int(im2.id.val)], None)
 
         assert 2 == len(hier), "size of hier != 2: %s" % \
             [type(x) for x in hier]

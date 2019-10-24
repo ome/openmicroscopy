@@ -55,7 +55,7 @@ class TestTickets4000(ITest):
         proxies['admin'] = client.sf.getAdminService()
 
         # changing group
-        for k in proxies.keys():
+        for k in list(proxies.keys()):
             try:
                 proxies[k].close()
             except AttributeError:
@@ -109,7 +109,7 @@ class TestTickets4000(ITest):
         proxies['admin'] = sf.getAdminService()
 
         # changing group
-        for k in proxies.keys():
+        for k in list(proxies.keys()):
             prx = proxies[k]
             if isinstance(prx, omero.api.StatefulServiceInterfacePrx):
                 prx.close()
@@ -123,7 +123,7 @@ class TestTickets4000(ITest):
             sf.setSecurityContext(
                 omero.model.ExperimenterGroupI(grp.id.val, False))
 
-        for k in copy.keys():
+        for k in list(copy.keys()):
             prx = copy[k]
             if isinstance(prx, omero.api.StatefulServiceInterfacePrx):
                 prx.close()

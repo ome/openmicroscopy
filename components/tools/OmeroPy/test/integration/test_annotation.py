@@ -95,7 +95,7 @@ class TestFigureExportScripts(ITest):
         p.map["pid"] = parent.getId()
         query = "select l from ProjectAnnotationLink as l join\
             fetch l.child as a where l.parent.id=:pid and a.ns=:ns"
-        for ns, values in annValues.items():
+        for ns, values in list(annValues.items()):
             p.map["ns"] = rstring(ns)
             # only 1 of each namespace
             link = queryService.findByQuery(query, p)

@@ -18,6 +18,10 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import division
+from __future__ import print_function
+from builtins import str
+from past.utils import old_div
 plugin = __import__('omero.plugins.import', globals(), locals(),
                     ['ImportControl'], -1)
 ImportControl = plugin.ImportControl
@@ -117,9 +121,9 @@ path: test.tsv
         script = tmpdir.join("script1.sh")
 
         self.args += ["import", "-f", "--bulk", str(yml),
-                      "--clientdir", self.omero_dist / "lib" / "client"]
+                      "--clientdir", old_div(old_div(self.omero_dist, "lib"), "client")]
 
-        bin = self.omero_dist / "bin" / "omero"
+        bin = old_div(old_div(self.omero_dist, "bin"), "omero")
         monkeypatch.setattr(sys, "argv", [str(bin)])
         out, err = self.do_import(capfd)
 

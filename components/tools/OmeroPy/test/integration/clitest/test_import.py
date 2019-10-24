@@ -18,6 +18,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import division
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 plugin = __import__('omero.plugins.import', globals(), locals(),
                     ['ImportControl'], -1)
 ImportControl = plugin.ImportControl
@@ -155,7 +161,7 @@ class TestImport(CLITest):
         return o, e
 
     def add_client_dir(self):
-        client_dir = self.omero_dist / "lib" / "client"
+        client_dir = old_div(old_div(self.omero_dist, "lib"), "client")
         self.args += ["--clientdir", client_dir]
 
     def check_other_output(self, out, import_type='default'):
@@ -408,7 +414,7 @@ class TestImport(CLITest):
             self.args += ['--']
         for i in range(fixture.n):
             self.args += [fixture.annotation_link_arg, '%s' % comment_ids[i]]
-        print self.args
+        print(self.args)
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
         obj = self.get_object(o, 'Image')

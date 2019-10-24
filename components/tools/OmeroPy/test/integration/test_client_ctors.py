@@ -23,7 +23,9 @@
    Tests of the omero.client constructors
 
 """
+from __future__ import print_function
 
+from builtins import str
 import os
 from omero.testlib import ITest
 import omero

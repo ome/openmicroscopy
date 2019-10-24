@@ -23,6 +23,7 @@
     Specifically test the parseInputs functionality
     which all scripts might want to use.
 """
+from __future__ import print_function
 
 from omero.testlib import ITest
 import omero
@@ -84,7 +85,7 @@ class TestInputs(ITest):
                 rfs.setFileId(out.val.id.val)
                 text = rfs.read(0, rfs.size())
                 if text.strip():
-                    print("===", which, "===")
+                    print(("===", which, "==="))
                     print(text)
             finally:
                 rfs.close()

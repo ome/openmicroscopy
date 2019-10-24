@@ -23,7 +23,11 @@
    Integration test focused on the omero.api.IQuery interface.
 
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
+from builtins import str
+from builtins import range
 from omero.testlib import ITest
 from omero.rtypes import rstring
 from omero.rtypes import unwrap, wrap
@@ -31,7 +35,7 @@ from omero.model import CommentAnnotationI
 from omero.model import TagAnnotationI, ImageI, ImageAnnotationLinkI
 from omero.model import PermissionsI
 from omero.sys import ParametersI
-from helpers import createImageWithPixels
+from .helpers import createImageWithPixels
 
 
 class TestQuery(ITest):
@@ -63,7 +67,7 @@ class TestQuery(ITest):
         # get group we're working on...
         ctx = self.client.sf.getAdminService().getEventContext()
         groupId = ctx.groupId
-        print('groupId', groupId)
+        print(('groupId', groupId))
 
         # Admin sets permissions to read-ann
         admin = self.root.sf.getAdminService()

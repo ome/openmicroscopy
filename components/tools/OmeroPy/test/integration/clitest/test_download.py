@@ -19,6 +19,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from builtins import str
+from builtins import object
 import pytest
 import omero
 
@@ -31,7 +33,7 @@ from omero.model import NamedValue as NV
 from omero.util.temp_files import create_path
 
 try:
-    long
+    int
 except Exception:
     # Python 3
     long = int
@@ -175,7 +177,7 @@ class TestDownload(CLITest):
         with open(fake.abspath(), 'w+') as f:
             bytes1 = f.read()
         pix_ids = self.import_image(f.name)
-        pixels = self.query.get("Pixels", long(pix_ids[0]))
+        pixels = self.query.get("Pixels", int(pix_ids[0]))
         tmpfile = tmpdir.join('test')
         self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]
         self.cli.invoke(self.args, strict=True)
@@ -217,7 +219,7 @@ class TestDownload(CLITest):
         with open(fake.abspath(), 'w+') as f:
             bytes1 = f.read()
         pix_ids = self.import_image(f.name)
-        pixels = self.query.get("Pixels", long(pix_ids[0]))
+        pixels = self.query.get("Pixels", int(pix_ids[0]))
         tmpfile = tmpdir.join('test')
         self.set_context(client, group2.id.val)
         self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]

@@ -14,9 +14,13 @@
 
 """
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 import pytest
 
-from cStringIO import StringIO
+from io import StringIO
 from PIL import Image, ImageChops
 import omero
 
@@ -400,7 +404,7 @@ class TestRDefs (object):
         channels = self.image.getChannels()
 
         # change settings looping over all families
-        families = self.image.getFamilies().values()
+        families = list(self.image.getFamilies().values())
         for fam in families:
             i = 0
             # change and assert for new value per channel

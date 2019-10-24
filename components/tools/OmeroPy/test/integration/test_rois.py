@@ -8,6 +8,8 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import print_function
+from builtins import object
 from omero.testlib import ITest
 import omero
 from omero.rtypes import rdouble, rstring, rint
@@ -268,7 +270,7 @@ class TestRois(ITest):
         """Test ROI intensity stats."""
         img = self.create_test_image(100, 100, 1, 1, 1, self.client.sf)
         pixid1 = img.getPrimaryPixels().getId().getValue()
-        print(img.id.val, pixid1)
+        print((img.id.val, pixid1))
 
         roi = omero.model.RoiI()
         roi.setImage(img)
@@ -302,7 +304,7 @@ class TestRois(ITest):
             for s in roi.copyShapes():
                 shape_ids.append(s.id.val)
 
-        print("shape_ids", shape_ids)
+        print(("shape_ids", shape_ids))
 
         stats = roi_service.getShapeStatsRestricted(shape_ids, 0, 0, [0])
         print(stats)

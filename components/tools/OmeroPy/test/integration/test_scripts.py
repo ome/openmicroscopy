@@ -8,7 +8,12 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import division
+from __future__ import print_function
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import os
 import time
 import pytest
@@ -24,7 +29,7 @@ from omero.rtypes import rstring, wrap, unwrap
 from omero.util.temp_files import create_path
 
 try:
-    long
+    int
 except Exception:
     # Python 3
     long = int
@@ -157,7 +162,7 @@ class TestScripts(ITest):
             # force the server to parse the file enough to get params (checks
             # syntax etc)
             params = scriptService.getParams(id)
-            for key, param in params.inputs.items():
+            for key, param in list(params.inputs.items()):
                 assert "longParam" == key
                 assert param.prototype is not None, \
                     "Parameter prototype is 'None'"
@@ -409,13 +414,13 @@ client.closeSession()
         impl = omero.processor.usermode_processor(root_client)
         try:
             params_time, params = self.timeit(svc.getParams, scriptID)
-            assert params_time < (upload_time / 10), \
+            assert params_time < (old_div(upload_time, 10)), \
                 "upload_time(%s) <= 10 * params_time(%s)!" % \
                 (upload_time, params_time)
             assert params_time < 0.1, "params_time(%s) >= 0.01 !" % params_time
 
             run_time, process = self.timeit(
-                svc.runScript, scriptID, wrap({"a": long(5)}).val, None)
+                svc.runScript, scriptID, wrap({"a": int(5)}).val, None)
 
             def wait():
                 cb = omero.scripts.ProcessCallbackI(root_client, process)

@@ -24,6 +24,8 @@
 
 """
 
+from builtins import str
+from builtins import range
 from omero.testlib import ITest
 import omero
 from omero_model_CommentAnnotationI import CommentAnnotationI
@@ -103,7 +105,7 @@ class TestSplitFilesets(ITest):
         # compare result with expected...
         assert set(result.keys()) == set(
             expected.keys()),  "Result should have expected Fileset IDs"
-        for fsId, expectedDict in expected.items():
+        for fsId, expectedDict in list(expected.items()):
             assert cmpLists(
                 expectedDict[True],
                 result[fsId][True]), "True ImageIDs should match"
@@ -287,11 +289,11 @@ class TestSplitFilesets(ITest):
         # note all test case input values
 
         all_inputs = {}
-        for name in named_entities.keys():
+        for name in list(named_entities.keys()):
             all_inputs[name] = []
 
         for input, expected in test_cases:
-            for name, ids in input.items():
+            for name, ids in list(input.items()):
                 all_inputs[name] += ids
 
         # create test entities named in test case input values
@@ -384,11 +386,11 @@ class TestSplitFilesets(ITest):
 
         for named_indices, fileset_split in test_cases:
             referenced = {}
-            for name, indices in named_indices.items():
+            for name, indices in list(named_indices.items()):
                 referenced[name] = [
                     named_entities[name][index].id.val for index in indices]
             expected = {}
-            for fileset_index, image_indices in fileset_split.items():
+            for fileset_index, image_indices in list(fileset_split.items()):
                 fileset_id = filesets[fileset_index].id.val
                 expected[fileset_id] = {}
                 for included in [False, True]:
