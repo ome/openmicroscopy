@@ -19,6 +19,7 @@
 
 """Tests querying & editing Projects with webgateway json api."""
 
+from builtins import str
 from omeroweb.testlib import IWebTest, post_json, put_json, get_json
 from django.core.urlresolvers import reverse
 from omeroweb.api import api_settings

@@ -21,6 +21,9 @@
 Tests copying and pasting of rendering settings in webclient
 """
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 import json
 
 import omero
@@ -31,7 +34,7 @@ from omeroweb.testlib import post, get
 
 from django.core.urlresolvers import reverse
 
-from cStringIO import StringIO
+from io import StringIO
 try:
     from PIL import Image
 except ImportError:

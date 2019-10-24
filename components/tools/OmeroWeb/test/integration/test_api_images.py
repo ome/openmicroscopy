@@ -19,6 +19,8 @@
 
 """Tests querying Images with web json api."""
 
+from builtins import zip
+from builtins import range
 from omeroweb.testlib import IWebTest, get_json
 from django.core.urlresolvers import reverse
 from omeroweb.api import api_settings
@@ -49,7 +51,7 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     pids = []
     for p in omero_ids_objects:
         try:
-            pids.append(long(p))
+            pids.append(int(p))
         except TypeError:
             pids.append(p.id.val)
     conn.SERVICE_OPTS.setOmeroGroup(group)
@@ -57,14 +59,14 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     objs = [p._obj for p in objs]
     expected = marshal_objects(objs)
     assert len(json_objects) == len(expected)
-    for i, o1, o2 in zip(range(len(expected)), json_objects, expected):
+    for i, o1, o2 in zip(list(range(len(expected))), json_objects, expected):
         if extra is not None and i < len(extra):
             o2.update(extra[i])
         # dumping to json and loading (same as test data) means that
         # unicode has been handled in same way, e.g. Pixel size symbols.
         o2 = json.loads(json.dumps(o2))
         # remove any urls from json (tested elsewhere)
-        for key in o1.keys():
+        for key in list(o1.keys()):
             if key.startswith('url:'):
                 del(o1[key])
         assert o1 == o2

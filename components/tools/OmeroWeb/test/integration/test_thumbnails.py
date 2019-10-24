@@ -19,12 +19,16 @@
 
 """Tests rendering of thumbnails."""
 
+from past.builtins import cmp
+from future import standard_library
+standard_library.install_aliases()
+from builtins import range
 import base64
 import json
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get
 
-from cStringIO import StringIO
+from io import StringIO
 import pytest
 from django.core.urlresolvers import reverse
 try:

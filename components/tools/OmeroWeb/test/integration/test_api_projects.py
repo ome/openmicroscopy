@@ -21,6 +21,10 @@
 Tests querying & editing Projects with webgateway json api
 """
 
+from past.builtins import cmp
+from builtins import zip
+from builtins import str
+from builtins import range
 from omeroweb.testlib import IWebTest, get_json, \
     post_json, put_json, delete_json
 from django.core.urlresolvers import reverse
@@ -165,7 +169,7 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     pids = []
     for p in omero_ids_objects:
         try:
-            pids.append(long(p))
+            pids.append(int(p))
         except TypeError:
             pids.append(p.id.val)
     if len(pids) == 0:
@@ -178,7 +182,7 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     assert len(json_objects) == len(expected)
     for o1, o2 in zip(json_objects, expected):
         # remove any urls from json
-        for key in o1.keys():
+        for key in list(o1.keys()):
             if key.startswith('url:'):
                 del(o1[key])
         assert o1 == o2
@@ -461,8 +465,8 @@ class TestProjects(IWebTest):
             owner = details['owner']
             group = details['group']
             # owner and group have @id only
-            assert owner.keys() == ['@id']
-            assert group.keys() == ['@id']
+            assert list(owner.keys()) == ['@id']
+            assert list(group.keys()) == ['@id']
         # check normaliszed owners and groups are same as before
         rsp_owners = {}
         for o in rsp['experimenters']:

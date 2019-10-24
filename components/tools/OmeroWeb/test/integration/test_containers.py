@@ -20,7 +20,10 @@
 """
 Tests creation, linking, editing & deletion of containers
 """
+from __future__ import print_function
 
+from builtins import str
+from builtins import range
 import omero
 import omero.clients
 from omero.rtypes import rtime
@@ -43,7 +46,7 @@ class TestContainers(IWebTest):
         Returns a new foundational Image with Channel objects attached for
         view method testing.
         """
-        print dir(self)
+        print(dir(self))
 
         pixels = self.create_pixels(client=self.client)
         for the_c in range(pixels.getSizeC().val):
@@ -138,7 +141,7 @@ class TestContainers(IWebTest):
         did = json.loads(response.content).get("id")
 
         img = self.make_image()
-        print img
+        print(img)
 
         # Link image to Dataset
         request_url = reverse("api_links")

@@ -20,7 +20,11 @@
 """
 Simple integration tests for the "tree" module.
 """
+from __future__ import division
 
+from past.builtins import cmp
+from builtins import str
+from past.utils import old_div
 import pytest
 from omero.testlib import ITest
 
@@ -1910,7 +1914,7 @@ class TestTree(ITest):
             i.setAcquisitionDate(rtime(utcAcq))
         images = conn.getUpdateService().saveAndReturnArray(images)
         # All images created at same time
-        utcCreate = datetime.fromtimestamp(utcCreate/1000).isoformat() + 'Z'
+        utcCreate = datetime.fromtimestamp(old_div(utcCreate,1000)).isoformat() + 'Z'
         extraValues = {'acqDate': acqDate,
                        'date': utcCreate}
         expected = expected_images(userA, images,
@@ -2154,7 +2158,7 @@ class TestTree(ITest):
         '''
         conn = get_connection(userA)
         expected = {
-            'id': -2L,
+            'id': -2,
             'childCount': 0
         }
         marshaled = marshal_orphaned(conn=conn,

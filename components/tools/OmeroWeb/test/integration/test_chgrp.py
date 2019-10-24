@@ -20,7 +20,9 @@
 """
 Tests chgrp functionality of views.py
 """
+from __future__ import print_function
 
+from builtins import str
 from omero.model import ProjectI, DatasetI, TagAnnotationI
 from omero.rtypes import rstring
 from omero.gateway import BlitzGateway
@@ -213,10 +215,10 @@ class TestChgrp(IWebTest):
             data = get_json(django_client, activities_url)
 
         # individual activities/jobs are returned as dicts within json data
-        for k, o in data.items():
+        for k, o in list(data.items()):
             if hasattr(o, 'values'):    # a dict
                 if 'report' in o:
-                    print o['report']
+                    print(o['report'])
                 assert o['status'] == 'finished'
                 assert o['job_name'] == 'Change group'
                 assert o['to_group_id'] == self.group2.id.val
@@ -278,10 +280,10 @@ class TestChgrp(IWebTest):
             data = get_json(django_client, activities_url)
 
         # individual activities/jobs are returned as dicts within json data
-        for k, o in data.items():
+        for k, o in list(data.items()):
             if hasattr(o, 'values'):    # a dict
                 if 'report' in o:
-                    print o['report']
+                    print(o['report'])
                 assert o['status'] == 'finished'
                 assert o['job_name'] == 'Change group'
                 assert o['to_group_id'] == self.group2.id.val
