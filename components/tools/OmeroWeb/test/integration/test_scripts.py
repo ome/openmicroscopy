@@ -58,7 +58,7 @@ if __name__ == '__main__':
         scripts.Int('Row_Count', default=12),
         scripts.List('Names', default=['A', 'B']),
         scripts.List('Channels',
-                     default=[1, 2, 3, 4]).ofType(int(0))
+                     default=[1, 2, 3, 4]).ofType(rint(0))
     )
     params = client.getInputs(unwrap=True)
     for name, value in params.items():
