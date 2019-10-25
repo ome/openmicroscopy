@@ -74,5 +74,8 @@ RUN rm -rf /opt/omero/server/OMERO.server
 COPY --chown=omero-server:omero-server --from=build /src/dist /opt/omero/server/OMERO.server
 USER root
 RUN yum install -y git
+RUN /opt/omero/server/venv/bin/pip install future
+RUN sed -i 's/#!\/usr\/bin\/env python/#!\/opt\/omero\/server\/venv\/bin\/python/' /opt/omero/server/OMERO.server/bin/omero
+RUN /opt/omero/omego/bin/pip install future
 USER omero-server
 WORKDIR /opt/omero/server/OMERO.server
