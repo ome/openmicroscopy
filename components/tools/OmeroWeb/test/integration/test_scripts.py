@@ -48,7 +48,7 @@ class TestScripts(IWebTest):
 
         script = """
 import omero
-from omero.rtypes import rstring, rlong, wrap
+from omero.rtypes import rstring, rint, wrap
 import omero.scripts as scripts
 if __name__ == '__main__':
     client = scripts.client(
@@ -58,7 +58,7 @@ if __name__ == '__main__':
         scripts.Int('Row_Count', default=12),
         scripts.List('Names', default=['A', 'B']),
         scripts.List('Channels',
-                     default=[1L, 2L, 3L, 4L]).ofType(rlong(0))
+                     default=[1, 2, 3, 4]).ofType(rint(0))
     )
     params = client.getInputs(unwrap=True)
     for name, value in params.items():
