@@ -34,7 +34,8 @@ class TestTypes(ITest):
             types.allEnumerations(str(r))
 
     def testGetEnumerationWithEntries(self):
-        list(self.root.sf.getTypesService().getEnumerationsWithEntries().items())
+        svc = self.root.sf.getTypesService()
+        list(svc.getEnumerationsWithEntries().items())
 
     def testManageEnumeration(self):
         from omero_model_ExperimentTypeI import ExperimentTypeI

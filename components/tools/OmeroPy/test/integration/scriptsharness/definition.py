@@ -20,7 +20,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import sys
-import types
 
 import omero
 import omero.scripts as sc

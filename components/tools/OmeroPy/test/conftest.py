@@ -8,6 +8,8 @@
 
 from builtins import range
 from builtins import object
+
+
 def pytest_addoption(parser):
     parser.addoption(
         '--repeat', action='store',

@@ -147,7 +147,8 @@ class TestConnectionMethods(object):
         # exps = map(lambda x: x.omeName,
         # gatewaywrapper.gateway.listExperimenters())  # removed from blitz
         # gateway
-        exps = [x.omeName for x in gatewaywrapper.gateway.getObjects("Experimenter")]
+        objects = gatewaywrapper.gateway.getObjects("Experimenter")
+        exps = [x.omeName for x in objects]
         for omeName in (gatewaywrapper.USER.name, gatewaywrapper.AUTHOR.name,
                         gatewaywrapper.ADMIN.name.decode('utf-8')):
             assert omeName in exps
@@ -197,7 +198,7 @@ class TestConnectionMethods(object):
             gatewaywrapper.USER.name, gatewaywrapper.USER.passwd)
         setprop = gatewaywrapper.gateway.c.ic.getProperties().setProperty
         list(map(lambda x: setprop(x[0], str(x[1])),
-            list(gatewaywrapper.gateway._ic_props.items())))
+             list(gatewaywrapper.gateway._ic_props.items())))
         gatewaywrapper.gateway.c.ic.getImplicitContext().put(
             omero.constants.GROUP, gatewaywrapper.gateway.group)
         # I'm not certain the following assertion is as intended.

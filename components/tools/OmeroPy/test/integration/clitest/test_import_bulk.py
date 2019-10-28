@@ -22,16 +22,16 @@ from __future__ import division
 from __future__ import print_function
 from builtins import str
 from past.utils import old_div
-plugin = __import__('omero.plugins.import', globals(), locals(),
-                    ['ImportControl'], -1)
-ImportControl = plugin.ImportControl
-
 from omero.cli import NonZeroReturnCode
 from omero.testlib.cli import CLITest
 from omero.plugins.sessions import SessionsControl
 import sys
 import re
 import subprocess
+
+plugin = __import__('omero.plugins.import', globals(), locals(),
+                    ['ImportControl'], -1)
+ImportControl = plugin.ImportControl
 
 
 class TestImportBulk(CLITest):
@@ -121,7 +121,8 @@ path: test.tsv
         script = tmpdir.join("script1.sh")
 
         self.args += ["import", "-f", "--bulk", str(yml),
-                      "--clientdir", old_div(old_div(self.omero_dist, "lib"), "client")]
+                      "--clientdir", old_div(old_div(self.omero_dist, "lib"),
+                                             "client")]
 
         bin = old_div(old_div(self.omero_dist, "bin"), "omero")
         monkeypatch.setattr(sys, "argv", [str(bin)])

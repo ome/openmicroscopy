@@ -84,7 +84,8 @@ class TestImage (object):
         # ordinary and big image (4k x 4k and up)
         img_ids = [self.image.id, author_testimg_big.id]
         conn = self.image._conn
-        for (img_id, thumb) in list(conn.getThumbnailSet(image_ids=img_ids).items()):
+        thumbnails_set = conn.getThumbnailSet(image_ids=img_ids)
+        for (img_id, thumb) in list(thumbnails_set.items()):
             assert img_id in img_ids
             tfile = BytesIO(thumb)
             thumb = Image.open(tfile)  # Raises if invalid
@@ -294,11 +295,11 @@ class TestImage (object):
     def testShortname(self):
         """ Test the shortname method """
         name = self.image.name
-        l = len(self.image.name)
-        assert self.image.shortname(length=l+4, hist=5) == self.image.name
-        assert self.image.shortname(length=l-4, hist=5) == self.image.name
-        assert self.image.shortname(length=l-5, hist=5) == \
-            '...' + self.image.name[-l+5:]
+        size = len(self.image.name)
+        assert self.image.shortname(length=size+4, hist=5) == self.image.name
+        assert self.image.shortname(length=size-4, hist=5) == self.image.name
+        assert self.image.shortname(length=size-5, hist=5) == \
+            '...' + self.image.name[-size+5:]
         self.image.name = ''
         assert self.image.shortname(length=20, hist=5) == ''
         self.image.name = name
