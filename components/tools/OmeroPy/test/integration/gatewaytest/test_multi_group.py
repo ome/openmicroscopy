@@ -102,9 +102,11 @@ class TestHistory (object):
         assert switched, "Failed to switch into new group"
         # Shouldn't be able to access Dataset...
         self.searchHistory(gatewaywrapper.gateway, start, end)
-        assert None == gatewaywrapper.gateway.getObject("Dataset", new_ds_Id)
+        value = gatewaywrapper.gateway.getObject("Dataset", new_ds_Id)
+        assert value is None
         gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup(str(default_groupId))
-        assert None != gatewaywrapper.gateway.getObject("Dataset", new_ds_Id)
+        value = gatewaywrapper.gateway.getObject("Dataset", new_ds_Id)
+        assert value is not None
 
         self.searchHistory(gatewaywrapper.gateway, start, end)
 
@@ -182,10 +184,12 @@ class TestScript (object):
             omero.model.ExperimenterGroupI(gid, False))
         assert switched, "Failed to switch into new group"
         # Shouldn't be able to access Dataset...
-        assert None == gatewaywrapper.gateway.getObject("Dataset", new_ds_Id)
+        value = gatewaywrapper.gateway.getObject("Dataset", new_ds_Id)
+        assert value is None
         gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup(
             str(default_groupId))
-        assert None != gatewaywrapper.gateway.getObject("Dataset", new_ds_Id)
+        value = gatewaywrapper.gateway.getObject("Dataset", new_ds_Id)
+        assert value is not None
 
         # run script
         svc = gatewaywrapper.gateway.getScriptService()

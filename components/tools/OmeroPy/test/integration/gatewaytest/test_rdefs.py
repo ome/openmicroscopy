@@ -15,7 +15,6 @@
 """
 
 from future import standard_library
-standard_library.install_aliases()
 from builtins import str
 from builtins import object
 import pytest
@@ -23,6 +22,7 @@ import pytest
 from io import StringIO
 from PIL import Image, ImageChops
 import omero
+standard_library.install_aliases()
 
 
 class TestRDefs (object):

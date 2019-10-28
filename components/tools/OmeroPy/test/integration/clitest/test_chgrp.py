@@ -191,7 +191,7 @@ class TestChgrp(CLITest):
     def testNonExistingGroupName(self):
         self.args += [self.uuid(), '/Image:1']
         with pytest.raises(NonZeroReturnCode):
-                self.cli.invoke(self.args, strict=True)
+            self.cli.invoke(self.args, strict=True)
 
     # These tests try to exercise the various grouping possibilities
     # when passing multiple objects on the command line. In all of these

@@ -24,9 +24,6 @@ from builtins import str
 from builtins import range
 from past.utils import old_div
 from builtins import object
-plugin = __import__('omero.plugins.import', globals(), locals(),
-                    ['ImportControl'], -1)
-ImportControl = plugin.ImportControl
 from omero.testlib.cli import CLITest
 import pytest
 import stat
@@ -35,6 +32,9 @@ import yaml
 import omero
 from omero.cli import NonZeroReturnCode
 from omero.rtypes import rstring
+plugin = __import__('omero.plugins.import', globals(), locals(),
+                    ['ImportControl'], -1)
+ImportControl = plugin.ImportControl
 
 
 class NamingFixture(object):
@@ -47,7 +47,10 @@ class NamingFixture(object):
         self.name_arg = name_arg
         self.description_arg = description_arg
 
+
 NF = NamingFixture
+
+
 NFS = (
     NF("Image", None, None),
     NF("Image", None, "-x"),
@@ -76,6 +79,8 @@ NFS = (
     NF("Plate", "--plate_name", "--plate_description"),
 )
 xstr = lambda s: s or ""
+
+
 NFS_names = ['%s%s%s' % (x.obj_type, xstr(x.name_arg),
              xstr(x.description_arg)) for x in NFS]
 debug_levels = ['ALL', 'TRACE',  'DEBUG', 'INFO', 'WARN', 'ERROR']
@@ -105,7 +110,10 @@ class AnnotationFixture(object):
         else:
             return '%s-%s-Official' % (self.arg_type, self.n)
 
+
 AF = AnnotationFixture
+
+
 AFS = (
     AF("Python", 1, False),
     AF("Python", 1, True),

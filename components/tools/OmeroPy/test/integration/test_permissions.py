@@ -460,7 +460,7 @@ class TestPermissions(ITest):
         # As root, try to load it
         root_query = self.root.sf.getQueryService()
         tag = get_tag(root_query, {})
-        assert None == tag
+        assert tag is None
 
         # Now try to load it again, with a context
         tag = get_tag(root_query, {"omero.group": "-1"})

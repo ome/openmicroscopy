@@ -34,8 +34,8 @@ class TestAdmin(ITest):
 
     def testGetGroup(self):
         a = self.sf.getAdminService()
-        l = a.lookupGroups()
-        g = a.getGroup(l[0].getId().val)
+        groups = a.lookupGroups()
+        g = a.getGroup(groups[0].getId().val)
         assert 0 != g.sizeOfGroupExperimenterMap()
 
     def testSetGroup(self):

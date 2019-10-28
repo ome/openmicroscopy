@@ -133,22 +133,22 @@ class TestIShare(ITest):
         # test action by member
         user_conn = BlitzGateway(client_obj=client)
         # user CANNOT see image if not in share
-        assert None == user_conn.getObject("Image", image.id.val)
+        assert user_conn.getObject("Image", image.id.val) is None
         # activate share
         user_conn.SERVICE_OPTS.setOmeroShare(share_id)
-        assert False == getattr(user_conn.getObject("Image",
-                                                    image.id.val), func)()
+        assert getattr(user_conn.getObject("Image",
+                                           image.id.val), func)() is False
 
         # test action by owner
         owner_conn = BlitzGateway(client_obj=self.client)
         # owner CAN do action on the object when not in share
-        assert True == getattr(owner_conn.getObject("Image",
-                                                    image.id.val), func)()
+        assert getattr(owner_conn.getObject("Image",
+                                            image.id.val), func)() is True
         # activate share
         owner_conn.SERVICE_OPTS.setOmeroShare(share_id)
         # owner CANNOT do action on the object when in share
-        assert False == getattr(owner_conn.getObject("Image",
-                                                     image.id.val), func)()
+        assert getattr(owner_conn.getObject("Image",
+                                            image.id.val), func)() is False
 
     def test8118(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
@@ -581,8 +581,7 @@ class TestIShare(ITest):
 
         # login as user2
         share2 = client_share2.sf.getShareService()
-        l = share2.getMemberShares(False)
-        assert 1 == len(l)
+        assert 1 == len(share2.getMemberShares(False))
 
         # add comment by the member
         share2.addComment(sid, 'test comment by the member %s' % user2.id.val)

@@ -110,11 +110,11 @@ class AnnotationPermissions(ITest):
 
     def linkTagAs(self, user, project, tag):
         """ Adds a Tag. """
-        l = ProjectAnnotationLinkI()
+        link = ProjectAnnotationLinkI()
         project = project.__class__(project.id.val, False)
-        l.setParent(project)
-        l.setChild(tag)
-        l = self.updateServices[user].saveAndReturnObject(l)
+        link.setParent(project)
+        link.setChild(tag)
+        link = self.updateServices[user].saveAndReturnObject(link)
 
     def removeTagAs(self, user, project, tag):
         """ Removes (unlinks) a Tag. """

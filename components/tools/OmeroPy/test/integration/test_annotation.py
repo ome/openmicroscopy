@@ -118,17 +118,17 @@ def saveAndLinkAnnotation(
         annotation.setDescription(rstring(description))
     annotation = updateService.saveAndReturnObject(annotation)
     if type(parent) == omero.model.DatasetI:
-        l = omero.model.DatasetAnnotationLinkI()
+        link = omero.model.DatasetAnnotationLinkI()
     elif type(parent) == omero.model.ProjectI:
-        l = omero.model.ProjectAnnotationLinkI()
+        link = omero.model.ProjectAnnotationLinkI()
     elif type(parent) == omero.model.ImageI:
-        l = omero.model.ImageAnnotationLinkI()
+        link = omero.model.ImageAnnotationLinkI()
     else:
         return
     parent = parent.__class__(parent.id.val, False)
-    l.setParent(parent)
-    l.setChild(annotation)
-    return updateService.saveAndReturnObject(l)
+    link.setParent(parent)
+    link.setChild(annotation)
+    return updateService.saveAndReturnObject(link)
 
 
 # Text Annotations

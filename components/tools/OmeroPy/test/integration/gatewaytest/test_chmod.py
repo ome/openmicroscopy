@@ -22,6 +22,7 @@ from omero.cmd import State, ERR, OK
 from omero.gateway.scripts import dbhelpers
 import uuid
 import pytest
+import logging
 
 PRIVATE = 'rw----'
 READONLY = 'rwr---'
@@ -29,7 +30,6 @@ READANN = 'rwra--'
 READWRITE = 'rwrw--'
 
 
-import logging
 logging.basicConfig(level=logging.ERROR)
 
 
@@ -382,7 +382,7 @@ class TestCustomUsers (ChmodBase):
         # Login as regular member
         gatewaywrapper.doLogin(dbhelpers.USERS['read_write_user'])
         p = gatewaywrapper.gateway.getObject("Project", pr.id.val)
-        assert None != p, "Member can access Project"
+        assert p is not None, "Member can access Project"
         assert p.canDelete() is True, \
             "Member can delete another user's Project"
         handle = gatewaywrapper.gateway.deleteObjects("Project", [pr.id.val])
@@ -390,7 +390,7 @@ class TestCustomUsers (ChmodBase):
 
         # Must reload project
         p = gatewaywrapper.gateway.getObject("Project", pr.id.val)
-        assert None == p, "Project should be Deleted"
+        assert p is None, "Project should be Deleted"
 
 
 class TestManualCreateEdit (ChmodBase):
@@ -501,7 +501,7 @@ class TestDefaultSetup (object):
         gatewaywrapper.loginAsUser()
         gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
         i = gatewaywrapper.gateway.getObject("Image", imageId)
-        assert None == i, \
+        assert i is None, \
             "User cannot access Author's image in Read-only group"
 
         # Create new user in the same group
