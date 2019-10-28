@@ -79,3 +79,5 @@ RUN sed -i 's/#!\/usr\/bin\/env python/#!\/opt\/omero\/server\/venv\/bin\/python
 RUN /opt/omero/omego/bin/pip install future
 USER omero-server
 WORKDIR /opt/omero/server/OMERO.server
+ENV VIRTUAL_ENV=/opt/omero/server/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
