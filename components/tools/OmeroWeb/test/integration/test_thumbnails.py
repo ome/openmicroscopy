@@ -21,7 +21,6 @@
 
 from past.builtins import cmp
 from future import standard_library
-standard_library.install_aliases()
 from builtins import range
 import base64
 import json
@@ -33,8 +32,9 @@ import pytest
 from django.core.urlresolvers import reverse
 try:
     from PIL import Image
-except:
+except Exception:
     import Image
+standard_library.install_aliases()
 
 
 class TestThumbnails(IWebTest):

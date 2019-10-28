@@ -261,11 +261,11 @@ class TestWells(IWebTest):
         plate = conn.getObject('Plate', plate_id)
         idx = plate.getNumberOfFields()
         for i in range(idx[0], idx[1]+1):
-            l = build_url(client, 'api_plate_wellsampleindex_wells',
-                          {'api_version': version,
-                           'plate_id': plate_id,
-                           'index': i})
-            index_links.append(l)
+            link = build_url(client, 'api_plate_wellsampleindex_wells',
+                             {'api_version': version,
+                              'plate_id': plate_id,
+                              'index': i})
+            index_links.append(link)
         # ...and compare plate json:
         assert_objects(conn, [plate_json], [multi_acquisition_plate],
                        dtype='Plate',
@@ -286,12 +286,12 @@ class TestWells(IWebTest):
         for p, plate_acq in enumerate(pas):
             index_links = []
             for i in range(p * 3, (p + 1) * 3):
-                l = build_url(client,
-                              'api_plateacquisition_wellsampleindex_wells',
-                              {'api_version': version,
-                               'plateacquisition_id': plate_acq.id,
-                               'index': i})
-                index_links.append(l)
+                link = build_url(client,
+                                 'api_plateacquisition_wellsampleindex_wells',
+                                 {'api_version': version,
+                                  'plateacquisition_id': plate_acq.id,
+                                  'index': i})
+                index_links.append(link)
             extra.append({'url:wellsampleindex_wells': index_links,
                           'omero:wellsampleIndex': [p * 3, (p + 1) * 3 - 1]})
         # ...and compare

@@ -524,11 +524,11 @@ class TestContainers(IWebTest):
         minMaxIndex = [0, 0]
         links = []
         for idx in range(minMaxIndex[0], minMaxIndex[1]+1):
-            l = build_url(client, 'api_plate_wellsampleindex_wells',
-                          {'api_version': version,
-                           'plate_id': plate_json['@id'],
-                           'index': idx})
-            links.append(l)
+            link = build_url(client, 'api_plate_wellsampleindex_wells',
+                             {'api_version': version,
+                              'plate_id': plate_json['@id'],
+                              'index': idx})
+            links.append(link)
         extra = [{'url:wellsampleindex_wells': links,
                   'omero:wellsampleIndex': minMaxIndex}]
         assert_objects(conn, [plate_json], plates[0:1], dtype='Plate',

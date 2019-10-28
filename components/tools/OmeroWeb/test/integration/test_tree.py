@@ -1798,7 +1798,7 @@ class TestTree(ITest):
         # Thumbnail creation is optional, see testlib.ITest.create_test_image
         try:
             extraValues = {'thumbVersion': thumb['version']}
-        except:
+        except Exception:
             extraValues = None
         expected = expected_images(
             userA, [image], extraValues=extraValues)
@@ -1914,7 +1914,8 @@ class TestTree(ITest):
             i.setAcquisitionDate(rtime(utcAcq))
         images = conn.getUpdateService().saveAndReturnArray(images)
         # All images created at same time
-        utcCreate = datetime.fromtimestamp(old_div(utcCreate,1000)).isoformat() + 'Z'
+        utcCreate = datetime.fromtimestamp(
+            old_div(utcCreate, 1000)).isoformat() + 'Z'
         extraValues = {'acqDate': acqDate,
                        'date': utcCreate}
         expected = expected_images(userA, images,

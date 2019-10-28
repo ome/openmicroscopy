@@ -1361,7 +1361,8 @@ class TestShow(IWebTest):
             [{'type': 'experimenter', 'id': project.details.owner.id.val},
              {'type': 'project', 'id': project.id.val},
              {'type': 'dataset', 'childIndex': imgIndex,
-              'id': dataset.id.val, 'childPage': (old_div(imgIndex,page_size)) + 1,
+              'id': dataset.id.val,
+              'childPage': (old_div(imgIndex, page_size)) + 1,
               'childCount': len(iids)},
              {'type': 'image', 'id': iid}]]
         assert paths == expected
@@ -1382,7 +1383,7 @@ class TestShow(IWebTest):
             [{'type': 'experimenter', 'id': ownerId},
              {'type': 'orphaned', 'id': ownerId,
               'childIndex': imgIndex,
-              'childPage': (old_div(imgIndex,page_size)) + 1,
+              'childPage': (old_div(imgIndex, page_size)) + 1,
               'childCount': len(iids)},
              {'type': 'image', 'id': iid}]]
         assert paths == expected

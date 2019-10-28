@@ -22,10 +22,9 @@ Tests copying and pasting of rendering settings in webclient
 """
 
 from future import standard_library
-standard_library.install_aliases()
+
 from builtins import str
 import json
-
 import omero
 import omero.clients
 
@@ -39,6 +38,7 @@ try:
     from PIL import Image
 except ImportError:
     import Image
+standard_library.install_aliases()
 
 
 class TestRendering(IWebTest):
