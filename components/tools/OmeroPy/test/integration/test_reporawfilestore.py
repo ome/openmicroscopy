@@ -38,7 +38,7 @@ class TestRepoRawFileStore(AbstractRepoTest):
     def testWrite(self):
         rfs = self.repoPrx.file(self.repo_filename, "rw")
         assert rfs.size() == 0
-        wbytes = "0123456789"
+        wbytes = b"0123456789"
         rfs.write(wbytes, 0, len(wbytes))
         assert rfs.size() == len(wbytes)
 
@@ -50,7 +50,7 @@ class TestRepoRawFileStore(AbstractRepoTest):
 
         rfs = self.repoPrx.file(self.repo_filename, "r")
         assert rfs.size() == 0
-        wbytes = "0123456789"
+        wbytes = b"0123456789"
         try:
             rfs.write(wbytes, 0, len(wbytes))
         except Exception:
@@ -66,7 +66,7 @@ class TestRepoRawFileStore(AbstractRepoTest):
         rfs = self.repoPrx.file(self.repo_filename, "r")
         with pytest.raises(omero.ResourceError):
             rfs.size()
-        wbytes = "0123456789"
+        wbytes = b"0123456789"
         try:
             rfs.write(wbytes, 0, len(wbytes))
         except Exception:
@@ -77,7 +77,7 @@ class TestRepoRawFileStore(AbstractRepoTest):
     def testWriteRead(self):
         rfs = self.repoPrx.file(self.repo_filename, "rw")
         assert rfs.size() == 0
-        wbytes = "0123456789"
+        wbytes = b"0123456789"
         rfs.write(wbytes, 0, len(wbytes))
         assert rfs.size() == len(wbytes)
         rbytes = rfs.read(0, len(wbytes))
@@ -86,7 +86,7 @@ class TestRepoRawFileStore(AbstractRepoTest):
     def testAppend(self):
         rfs = self.repoPrx.file(self.repo_filename, "rw")
         assert rfs.size() == 0
-        wbytes = "0123456789"
+        wbytes = b"0123456789"
         rfs.write(wbytes, 0, len(wbytes))
         assert rfs.size() == len(wbytes)
         end = rfs.size()
@@ -98,7 +98,7 @@ class TestRepoRawFileStore(AbstractRepoTest):
     def testTruncateToZero(self):
         rfs = self.repoPrx.file(self.repo_filename, "rw")
         assert rfs.size() == 0
-        wbytes = "0123456789"
+        wbytes = b"0123456789"
         rfs.write(wbytes, 0, len(wbytes))
         assert rfs.size() == len(wbytes)
         assert rfs.truncate(0)
@@ -107,7 +107,7 @@ class TestRepoRawFileStore(AbstractRepoTest):
     def testClose(self):
         rfs = self.repoPrx.file(self.repo_filename, "rw")
         assert rfs.size() == 0
-        wbytes = "0123456789"
+        wbytes = b"0123456789"
         rfs.write(wbytes, 0, len(wbytes))
         assert rfs.size() == len(wbytes)
         rbytes = rfs.read(0, len(wbytes))
