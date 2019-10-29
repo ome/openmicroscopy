@@ -408,7 +408,7 @@ class TestImport(CLITest):
             self.args += ['--']
         for i in range(fixture.n):
             self.args += [fixture.annotation_link_arg, '%s' % comment_ids[i]]
-        print self.args
+        print(self.args)
         # Invoke CLI import command and retrieve stdout/stderr
         o, e = self.do_import(capfd)
         obj = self.get_object(o, 'Image')
