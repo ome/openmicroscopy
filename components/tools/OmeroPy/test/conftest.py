@@ -8,6 +8,7 @@
 
 from builtins import range
 from builtins import object
+import pytest
 
 
 def pytest_addoption(parser):
@@ -75,10 +76,11 @@ class Methods(object):
         raise Exception(standardMsg)
 
 
-def pytest_namespace():
+def pytest_configure():
     """
     Add helper methods to the 'pytest' module
     """
-    return {
-        "assertAlmostEqual": Methods.assertAlmostEqual
-    }
+    pytest.assertAlmostEqual = Methods.assertAlmostEqual
+
+
+pytest_plugins = "omero.gateway.pytest_fixtures"
