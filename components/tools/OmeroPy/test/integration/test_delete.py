@@ -214,7 +214,7 @@ class TestDelete(ITest):
             ofid = self.update.saveAndReturnObject(oFile).id.val
 
             store.setFileId(ofid)
-            binary = 'aaa\naaaa\naaaaa'
+            binary = b'aaa\naaaa\naaaaa'
             store.write(binary, 0, 0)
             of = store.save()
 
