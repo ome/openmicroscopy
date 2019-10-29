@@ -27,6 +27,7 @@ from __future__ import print_function
 
 from builtins import str
 from builtins import range
+from future.utils import native_str
 import traceback
 from omero.testlib import ITest
 import pytest
@@ -340,7 +341,7 @@ class TestDelete(ITest):
                 try:
                     with pytest.raises(Ice.ObjectNotExistException):
                         handle = omero.cmd.HandlePrx.checkedCast(
-                            client_o.ic.stringToProxy(cbString))
+                            client_o.ic.stringToProxy(native_str(cbString)))
                         cb = omero.callbacks.CmdCallbackI(client_o, handle)
                         if not cb.block(500):  # ms.
                             # No errors possible if in progress(
