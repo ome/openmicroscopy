@@ -11,6 +11,7 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
+from __future__ import print_function
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
@@ -34,18 +35,18 @@ fileset = image.getFileset()       # will be None for pre-FS images
 fs_id = fileset.getId()
 # List all images that are in this fileset
 for fs_image in fileset.copyImages():
-    print fs_image.getId(), fs_image.getName()
+    print(fs_image.getId(), fs_image.getName())
 # List original imported files
 for orig_file in fileset.listFiles():
     name = orig_file.getName()
     path = orig_file.getPath()
-    print path, name
+    print(path, name)
 
 
 # Get Original Imported Files directly from the image
 # ===================================================
 # this will include pre-FS data IF images were archived on import
-print image.countImportedImageFiles()
+print(image.countImportedImageFiles())
 # specifically count Fileset files
 file_count = image.countFilesetFiles()
 # list files
@@ -53,7 +54,7 @@ if file_count > 0:
     for orig_file in image.getImportedImageFiles():
         name = orig_file.getName()
         path = orig_file.getPath()
-        print path, name
+        print(path, name)
 
 
 # Can get the Fileset using conn.getObject()

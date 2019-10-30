@@ -11,6 +11,7 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
+from __future__ import print_function
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
@@ -41,11 +42,11 @@ size_t = image.getSizeT()
 z, t, c = 0, 0, 0                     # first plane of the image
 pixels = image.getPrimaryPixels()
 plane = pixels.getPlane(z, c, t)      # get a numpy array.
-print "\nPlane at zct: ", z, c, t
-print plane
-print "shape: ", plane.shape
-print "min:", plane.min(), " max:", plane.max(),\
-    "pixel type:", plane.dtype.name
+print("\nPlane at zct: ", z, c, t)
+print(plane)
+print("shape: ", plane.shape)
+print("min:", plane.min(), " max:", plane.max(),
+      "pixel type:", plane.dtype.name)
 
 
 # Retrieve a given stack
@@ -59,11 +60,11 @@ tile = (50, 50, 10, 10)     # x, y, width, height of tile
 
 # list of [ (0,0,0,(x,y,w,h)), (1,0,0,(x,y,w,h)), (2,0,0,(x,y,w,h))... ]
 zct_list = [(iz, c, t, tile) for iz in range(size_z)]
-print "\nZ stack of tiles:"
+print("\nZ stack of tiles:")
 planes = pixels.getTiles(zct_list)
 for i, p in enumerate(planes):
-    print "Tile:", zct_list[i], " min:", p.min(),\
-        " max:", p.max(), " sum:", p.sum()
+    print("Tile:", zct_list[i], " min:", p.min(),
+          " max:", p.max(), " sum:", p.sum())
 
 
 # Retrieve a given hypercube
@@ -73,16 +74,16 @@ for z in range(size_z / 2, size_z):     # get the top half of the Z-stack
     for c in range(size_c):          # all channels
         for t in range(size_t):      # all time-points
             zct_list.append((z, c, t))
-print "\nHyper stack of planes:"
+print("\nHyper stack of planes:")
 planes = pixels.getPlanes(zct_list)
 for i, p in enumerate(planes):
-    print "plane zct:", zct_list[i], " min:", p.min(), " max:", p.max()
+    print("plane zct:", zct_list[i], " min:", p.min(), " max:", p.max())
 
 # Retrieve a histogram
 # ====================
 # Get a 256 bin histogram for channel 0 and plane z=0/t=0:
 hist = image.getHistogram([0], 256, False, 0, 0)
-print hist
+print(hist)
 
 # Close connection
 # ================
