@@ -10,7 +10,11 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
+from __future__ import division
+from __future__ import print_function
 
+from builtins import range
+from past.utils import old_div
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import datasetId, imageId, plateId
@@ -30,12 +34,12 @@ def print_obj(obj, indent=0):
     Helper method to display info about OMERO objects.
     Not all objects will have a "name" or owner field.
     """
-    print """%s%s:%s  Name:"%s" (owner=%s)""" % (
+    print("""%s%s:%s  Name:"%s" (owner=%s)""" % (
         " " * indent,
         obj.OMERO_CLASS,
         obj.getId(),
         obj.getName(),
-        obj.getOwnerOmeName())
+        obj.getOwnerOmeName()))
 
 
 # List all Projects owned by the user currently logged in
@@ -45,8 +49,8 @@ def print_obj(obj, indent=0):
 # optional opts dict (new in 5.3.0)
 # We also order by name and use 'limit' and 'offset',
 # to load the first 5 Projects
-print "\nList Projects:"
-print "=" * 50
+print("\nList Projects:")
+print("=" * 50)
 my_exp_id = conn.getUser().getId()
 default_group_id = conn.getEventContext().groupId
 for project in conn.getObjects("Project", opts={'owner': my_exp_id,
@@ -67,7 +71,7 @@ for project in conn.getObjects("Project", opts={'owner': my_exp_id,
 # ===========================
 # We can use the 'orphaned' filter to find Datasets, Images
 # or Plates that are not in any parent container
-print "\nList orphaned Datasets: \n", "=" * 50
+print("\nList orphaned Datasets: \n", "=" * 50)
 datasets = conn.getObjects("Dataset", opts={'orphaned': True})
 for dataset in datasets:
     print_obj(dataset)
@@ -78,7 +82,7 @@ for dataset in datasets:
 # We can filter Images by their parent Dataset
 # We can also filter Datasets by 'project', Plates by 'screen',
 # Wells by 'plate'
-print "\nImages in Dataset:", datasetId, "\n", "=" * 50
+print("\nImages in Dataset:", datasetId, "\n", "=" * 50)
 for image in conn.getObjects('Image', opts={'dataset': datasetId}):
     print_obj(image)
 
@@ -87,24 +91,24 @@ for image in conn.getObjects('Image', opts={'dataset': datasetId}):
 # =======================
 # Pixels and Channels will be loaded automatically as needed
 image = conn.getObject("Image", imageId)
-print "\nImage:%s" % imageId
-print "=" * 50
-print image.getName(), image.getDescription()
+print("\nImage:%s" % imageId)
+print("=" * 50)
+print(image.getName(), image.getDescription())
 # Retrieve information about an image.
-print " X:", image.getSizeX()
-print " Y:", image.getSizeY()
-print " Z:", image.getSizeZ()
-print " C:", image.getSizeC()
-print " T:", image.getSizeT()
+print(" X:", image.getSizeX())
+print(" Y:", image.getSizeY())
+print(" Z:", image.getSizeZ())
+print(" C:", image.getSizeC())
+print(" T:", image.getSizeT())
 # List Channels (loads the Rendering settings to get channel colors)
 for channel in image.getChannels():
-    print 'Channel:', channel.getLabel(),
-    print 'Color:', channel.getColor().getRGB()
-    print 'Lookup table:', channel.getLut()
-    print 'Is reverse intensity?', channel.isReverseIntensity()
+    print('Channel:', channel.getLabel(), end=' ')
+    print('Color:', channel.getColor().getRGB())
+    print('Lookup table:', channel.getLut())
+    print('Is reverse intensity?', channel.isReverseIntensity())
 
 # render the first timepoint, mid Z section
-z = image.getSizeZ() / 2
+z = old_div(image.getSizeZ(), 2)
 t = 0
 rendered_image = image.renderImage(z, t)
 # renderedImage.show()               # popup (use for debug only)
@@ -114,20 +118,20 @@ rendered_image = image.renderImage(z, t)
 # Get Pixel Sizes for the above Image
 # ===================================
 size_x = image.getPixelSizeX()       # e.g. 0.132
-print " Pixel Size X:", size_x
+print(" Pixel Size X:", size_x)
 if size_x:
     # Units support, new in OMERO 5.1.0
     size_x_obj = image.getPixelSizeX(units=True)
-    print "Size X:", size_x_obj.getValue(), "(%s)" % size_x_obj.getSymbol()
+    print("Size X:", size_x_obj.getValue(), "(%s)" % size_x_obj.getSymbol())
     # To get the size with different units, e.g. Angstroms
     size_x_ang = image.getPixelSizeX(units="ANGSTROM")
-    print "Size X:", size_x_ang.getValue(), "(%s)" % size_x_ang.getSymbol()
+    print("Size X:", size_x_ang.getValue(), "(%s)" % size_x_ang.getSymbol())
 
 
 # Retrieve Screening data
 # =======================
-print "\nList Screens:"
-print "=" * 50
+print("\nList Screens:")
+print("=" * 50)
 for screen in conn.getObjects("Screen"):
     print_obj(screen)
     for plate in screen.listChildren():
@@ -137,19 +141,19 @@ for screen in conn.getObjects("Screen"):
 # Retrieve Wells and Images within a Plate
 # ========================================
 if plateId >= 0:
-    print "\nPlate:%s" % plateId
-    print "=" * 50
+    print("\nPlate:%s" % plateId)
+    print("=" * 50)
     plate = conn.getObject("Plate", plateId)
-    print "\nNumber of fields:", plate.getNumberOfFields()
-    print "\nGrid size:", plate.getGridSize()
-    print "\nWells in Plate:", plate.getName()
+    print("\nNumber of fields:", plate.getNumberOfFields())
+    print("\nGrid size:", plate.getGridSize())
+    print("\nWells in Plate:", plate.getName())
     for well in plate.listChildren():
         index = well.countWellSample()
-        print "  Well: ", well.row, well.column, " Fields:", index
-        for index in xrange(0, index):
-            print "    Image: ", \
-                well.getImage(index).getName(),\
-                well.getImage(index).getId()
+        print("  Well: ", well.row, well.column, " Fields:", index)
+        for index in range(0, index):
+            print("    Image: ",
+                  well.getImage(index).getName(),
+                  well.getImage(index).getId())
 
 # Close connection
 # ================
