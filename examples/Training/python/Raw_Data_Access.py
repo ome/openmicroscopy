@@ -12,6 +12,9 @@ FOR TRAINING PURPOSES ONLY!
 """
 
 from __future__ import print_function
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
@@ -70,7 +73,8 @@ for i, p in enumerate(planes):
 # Retrieve a given hypercube
 # ==========================
 zct_list = []
-for z in range(size_z / 2, size_z):     # get the top half of the Z-stack
+# get the top half of the Z-stack
+for z in range(old_div(size_z, 2), size_z):
     for c in range(size_c):          # all channels
         for t in range(size_t):      # all time-points
             zct_list.append((z, c, t))
