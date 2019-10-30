@@ -21,6 +21,8 @@
 Tests creation, linking, editing and deletion of Tags
 """
 
+from builtins import str
+from builtins import range
 import omero
 import omero.clients
 from omero.rtypes import rstring

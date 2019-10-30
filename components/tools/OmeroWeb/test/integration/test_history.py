@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Tests display of data in History page."""
+from __future__ import print_function
 
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get, post
@@ -59,7 +60,7 @@ class TestHistory(IWebTest):
         """Test loading of calendar, specifying this month."""
         now = datetime.now()
         calendar_url = reverse("load_calendar", args=[now.year, now.month])
-        print 'calendar_url', calendar_url
+        print('calendar_url', calendar_url)
         response = get(self.django_client, calendar_url)
         # Calendar is initially empty (no 'Dataset' icon)
         assert "folder_image16.png" not in response.content

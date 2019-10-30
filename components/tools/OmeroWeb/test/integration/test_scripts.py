@@ -19,6 +19,7 @@
 
 """Test OMERO.scripts usage in the webclient."""
 
+from builtins import str
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get, post, get_json
 import time
@@ -128,7 +129,7 @@ if __name__ == '__main__':
             data = get_json(self.django_client, activities_url)
 
         # individual activities/jobs are returned as dicts within json data
-        for k, o in data.items():
+        for k, o in list(data.items()):
             # find dict of results from the script job
             if job_id in k:
                 assert o['status'] == 'finished'

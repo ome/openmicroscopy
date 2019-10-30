@@ -22,6 +22,7 @@ Simple integration tests to ensure that the CSRF middleware is enabled and
 working correctly.
 """
 
+from builtins import range
 import omero
 import omero.clients
 from omero.rtypes import rstring

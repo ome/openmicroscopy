@@ -20,7 +20,13 @@
 """
 Integration tests for annotations methods in the "tree" module.
 """
+from __future__ import division
+from __future__ import print_function
 
+from past.builtins import cmp
+from builtins import zip
+from builtins import str
+from past.utils import old_div
 import pytest
 from omero.testlib import ITest
 from datetime import datetime
@@ -155,7 +161,7 @@ def annotate_project(ann, project, user):
     by userA and userB
     """
     ctx = {'omero.group': str(project.details.group.id.val)}
-    print "annotate_project", ctx
+    print("annotate_project", ctx)
     link = ProjectAnnotationLinkI()
     link.parent = ProjectI(project.id.val, False)
     link.child = ann
@@ -165,7 +171,7 @@ def annotate_project(ann, project, user):
 
 
 def expected_date(time):
-    d = datetime.fromtimestamp(time/1000)
+    d = datetime.fromtimestamp(old_div(time, 1000))
     return d.isoformat() + 'Z'
 
 
@@ -248,7 +254,7 @@ def expected_annotations(user, links):
         annotations.append(marshalled)
 
     # remove duplicates
-    experimenters = [expected_experimenter(e) for e in exps.values()]
+    experimenters = [expected_experimenter(e) for e in list(exps.values())]
     experimenters.sort(key=lambda x: x['id'])
 
     return annotations, experimenters
@@ -273,7 +279,7 @@ class TestTreeAnnotations(ITest):
     def groupA(self):
         """Returns a new read-annotate group."""
         a = self.new_group(perms='rwra--')
-        print "GroupA", a.id.val
+        print("GroupA", a.id.val)
         return a
 
     # Create a read-only group
@@ -281,7 +287,7 @@ class TestTreeAnnotations(ITest):
     def groupB(self):
         """Returns a new read-only group."""
         b = self.new_group(perms='rwr---')
-        print "Group B", b.id.val
+        print("Group B", b.id.val)
         return b
 
     # Create users in groups
@@ -290,7 +296,7 @@ class TestTreeAnnotations(ITest):
         """Returns a new user in the groupB (default) also add to groupA"""
         c, user = self.new_client_and_user(group=groupB)
         self.add_groups(user, [groupA])
-        print "USER A", user.id.val, 'groupA', groupA.id.val
+        print("USER A", user.id.val, 'groupA', groupA.id.val)
         c.getSession().getAdminService().getEventContext()
         return c, user
 
@@ -298,7 +304,7 @@ class TestTreeAnnotations(ITest):
     def userB(self, groupA):
         """Returns another new user in the read-only group."""
         c, userb = self.new_client_and_user(group=groupA)
-        print "USER B", userb.id.val, 'groupA', groupA.id.val
+        print("USER B", userb.id.val, 'groupA', groupA.id.val)
         return c, userb
 
     def test_single_tag(self, userA, project_userA, tags_userA_userB):

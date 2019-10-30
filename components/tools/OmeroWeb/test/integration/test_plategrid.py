@@ -8,7 +8,14 @@
 """
    Integration tests for the "plategrid" module.
 """
+from __future__ import division
+from __future__ import print_function
 
+from builtins import map
+from builtins import str
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import pytest
 from omeroweb.testlib import IWebTest
 
@@ -130,7 +137,7 @@ def full_plate_wells(itest, update_service):
     Returns a full OMERO Plate, linked Wells, linked WellSamples, and linked
     Images populated by an L{omeroweb.testlib.IWebTest} instance.
     """
-    lett = map(chr, range(ord('A'), ord('Z')+1))
+    lett = list(map(chr, list(range(ord('A'), ord('Z')+1))))
     plate = PlateI()
     plate.name = rstring(itest.uuid())
     for row in range(8):
@@ -162,7 +169,7 @@ def plate_wells_with_acq_date(itest, well_grid_factory, update_service):
     plate.addWell(well)
     plate = update_service.saveAndReturnObject(plate)
     return {'plate': plate,
-            'acq_date': int(acq_date / 1000)}
+            'acq_date': int(old_div(acq_date, 1000))}
 
 
 @pytest.fixture()
@@ -182,7 +189,7 @@ def plate_wells_with_no_acq_date(itest, well_grid_factory, update_service,
     image = plate.copyWells()[0].copyWellSamples()[0].image
     creation_date = image.details.creationEvent.time
     return {'plate': plate,
-            'creation_date': creation_date.val / 1000}
+            'creation_date': old_div(creation_date.val, 1000)}
 
 
 @pytest.fixture()
@@ -224,7 +231,7 @@ def plate_well_table(itest, well_grid_factory, update_service, conn):
     table.initialize(columns)
 
     wellIds = [w.id.val for w in plate.copyWells()]
-    print "WellIds", wellIds
+    print("WellIds", wellIds)
 
     data1 = WellColumn('Well', '', wellIds)
     data2 = StringColumn('TestColumn', '', 64, ["foobar"])
@@ -362,7 +369,7 @@ class TestPlateGrid(object):
         Check that all wells are assigned correctly even if the entire plate of
         wells is full
         """
-        lett = map(chr, range(ord('A'), ord('Z')+1))
+        lett = list(map(chr, list(range(ord('A'), ord('Z')+1))))
         plate_grid = PlateGrid(conn, full_plate_wells.id.val, 0)
         metadata = plate_grid.metadata
         for row in range(8):
@@ -422,7 +429,7 @@ class TestScreenPlateTables(object):
         response = django_client.get(request_url,
                                      data={'query': 'Well-%s' % wellId})
         rspJson = json.loads(response.content)
-        print rspJson
+        print(rspJson)
         assert rspJson['data'] == {
             'rows': [[wellId, 'foobar']],
             'columns': ['Well', 'TestColumn']}

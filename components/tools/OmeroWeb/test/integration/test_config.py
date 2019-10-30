@@ -49,9 +49,9 @@ def flattenProperties(d):
     """
 
     def items():
-        for key, value in d.items():
+        for key, value in list(d.items()):
             if isinstance(value, dict):
-                for subkey, subvalue in flattenProperties(value).items():
+                for subkey, subvalue in list(flattenProperties(value).items()):
                     yield key + "." + subkey, subvalue
             else:
                 yield key, value
@@ -90,10 +90,8 @@ class TestConfig(ITest):
         login_required(default_view).load_server_settings(self.conn, self.r)
         s = {"omero": {"client": self.r.session.get('server_settings', {})}}
         # compare keys in default and config loaded by decorator
-        a = filter(lambda x: x not in (
-            set(default.keys())),
-            set(flattenProperties(s).keys())
-            )
+        a = [x for x in set(flattenProperties(s).keys()) if x not in (
+            set(default.keys()))]
         assert a == ['omero.client.email']
 
     def testDefaultConfigConversion(self):

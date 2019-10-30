@@ -8,7 +8,13 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import division
+from __future__ import print_function
 
+from past.builtins import cmp
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import omero
 import omero.clients
 import pytest
@@ -144,7 +150,7 @@ class TestShow(IWebTest):
         project.linkDataset(dataset)
         project = self.update.saveAndReturnObject(project)
 
-        print "Fixture project_dataset_image_roi image", image.id.val
+        print("Fixture project_dataset_image_roi image", image.id.val)
         roi = RoiI()
         roi.image = ImageI(image.id.val, False)
         roi = self.update.saveAndReturnObject(roi)
@@ -1355,7 +1361,8 @@ class TestShow(IWebTest):
             [{'type': 'experimenter', 'id': project.details.owner.id.val},
              {'type': 'project', 'id': project.id.val},
              {'type': 'dataset', 'childIndex': imgIndex,
-              'id': dataset.id.val, 'childPage': (imgIndex/page_size) + 1,
+              'id': dataset.id.val,
+              'childPage': (old_div(imgIndex, page_size)) + 1,
               'childCount': len(iids)},
              {'type': 'image', 'id': iid}]]
         assert paths == expected
@@ -1376,7 +1383,7 @@ class TestShow(IWebTest):
             [{'type': 'experimenter', 'id': ownerId},
              {'type': 'orphaned', 'id': ownerId,
               'childIndex': imgIndex,
-              'childPage': (imgIndex/page_size) + 1,
+              'childPage': (old_div(imgIndex, page_size)) + 1,
               'childCount': len(iids)},
              {'type': 'image', 'id': iid}]]
         assert paths == expected
@@ -2051,7 +2058,7 @@ class TestShow(IWebTest):
              {'type': 'plate', 'id': plate.id.val},
              {'type': 'acquisition', 'id': plate_acquisition1.id.val}]]
 
-        print paths
+        print(paths)
 
         for e in expected:
             try:
@@ -2101,7 +2108,7 @@ class TestShow(IWebTest):
              {'type': 'plate', 'id': plate.id.val},
              {'type': 'acquisition', 'id': plate_acquisition2.id.val}]]
 
-        print paths
+        print(paths)
 
         for e in expected:
             try:

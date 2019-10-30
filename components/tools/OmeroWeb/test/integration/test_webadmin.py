@@ -20,6 +20,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+from builtins import zip
 import pytest
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import post, get

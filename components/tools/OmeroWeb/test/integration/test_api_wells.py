@@ -19,6 +19,9 @@
 
 """Tests querying Wells with web json api."""
 
+from past.builtins import cmp
+from builtins import zip
+from builtins import range
 from omeroweb.testlib import IWebTest, get_json
 from django.core.urlresolvers import reverse
 from omeroweb.api import api_settings
@@ -54,7 +57,7 @@ def cmp_column_row(x, y):
 
 def remove_urls(marshalled, keys=[]):
     """Traverse a dict (Well) removing 'url:' values."""
-    for key, val in marshalled.items():
+    for key, val in list(marshalled.items()):
         if key.startswith('url:') and key not in keys:
             del(marshalled[key])
         # We only traverse paths where we know urls are
@@ -79,7 +82,7 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     pids = []
     for p in omero_ids_objects:
         try:
-            pids.append(long(p))
+            pids.append(int(p))
         except TypeError:
             pids.append(p.id.val)
     conn.SERVICE_OPTS.setOmeroGroup(group)
@@ -87,11 +90,11 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     objs = [p._obj for p in objs]
     expected = marshal_objects(objs)
     assert len(json_objects) == len(expected)
-    for i, o1, o2 in zip(range(len(expected)), json_objects, expected):
+    for i, o1, o2 in zip(list(range(len(expected))), json_objects, expected):
         dont_remove = []
         if extra is not None and i < len(extra):
             o2.update(extra[i])
-            dont_remove = extra[i].keys()
+            dont_remove = list(extra[i].keys())
         # We dump to json and re-load (same as test data). This means that
         # unicode has been handled in same way, e.g. Pixel size symbols.
         o2 = json.loads(json.dumps(o2))
@@ -124,8 +127,8 @@ class TestWells(IWebTest):
             plate_acq.name = rstring('plateacquisition_%s' % p)
             plate_acq.description = rstring('plateacquisition_description')
             plate_acq.maximumFieldCount = rint(3)
-            plate_acq.startTime = rtime(1L)
-            plate_acq.endTime = rtime(2L)
+            plate_acq.startTime = rtime(1)
+            plate_acq.endTime = rtime(2)
             plate_acq.plate = PlateI(plate.id.val, False)
             plate_acq = updateService.saveAndReturnObject(plate_acq)
             plate_acqs.append(plate_acq)
@@ -258,11 +261,11 @@ class TestWells(IWebTest):
         plate = conn.getObject('Plate', plate_id)
         idx = plate.getNumberOfFields()
         for i in range(idx[0], idx[1]+1):
-            l = build_url(client, 'api_plate_wellsampleindex_wells',
-                          {'api_version': version,
-                           'plate_id': plate_id,
-                           'index': i})
-            index_links.append(l)
+            link = build_url(client, 'api_plate_wellsampleindex_wells',
+                             {'api_version': version,
+                              'plate_id': plate_id,
+                              'index': i})
+            index_links.append(link)
         # ...and compare plate json:
         assert_objects(conn, [plate_json], [multi_acquisition_plate],
                        dtype='Plate',
@@ -283,12 +286,12 @@ class TestWells(IWebTest):
         for p, plate_acq in enumerate(pas):
             index_links = []
             for i in range(p * 3, (p + 1) * 3):
-                l = build_url(client,
-                              'api_plateacquisition_wellsampleindex_wells',
-                              {'api_version': version,
-                               'plateacquisition_id': plate_acq.id,
-                               'index': i})
-                index_links.append(l)
+                link = build_url(client,
+                                 'api_plateacquisition_wellsampleindex_wells',
+                                 {'api_version': version,
+                                  'plateacquisition_id': plate_acq.id,
+                                  'index': i})
+                index_links.append(link)
             extra.append({'url:wellsampleindex_wells': index_links,
                           'omero:wellsampleIndex': [p * 3, (p + 1) * 3 - 1]})
         # ...and compare

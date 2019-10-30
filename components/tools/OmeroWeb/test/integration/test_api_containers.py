@@ -18,7 +18,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Tests querying & editing Containers with webgateway json api."""
+from __future__ import print_function
 
+from builtins import zip
+from builtins import str
+from builtins import range
 from omeroweb.testlib import IWebTest, get_json, \
     post_json, put_json, delete_json
 from django.core.urlresolvers import reverse
@@ -77,7 +81,7 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     pids = []
     for p in omero_ids_objects:
         try:
-            pids.append(long(p))
+            pids.append(int(p))
         except TypeError:
             pids.append(p.id.val)
     conn.SERVICE_OPTS.setOmeroGroup(group)
@@ -85,11 +89,11 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     objs = [p._obj for p in objs]
     expected = marshal_objects(objs)
     assert len(json_objects) == len(expected)
-    for i, o1, o2 in zip(range(len(expected)), json_objects, expected):
+    for i, o1, o2 in zip(list(range(len(expected))), json_objects, expected):
         if extra is not None and i < len(extra):
             o2.update(extra[i])
         # remove any urls from json, if not in both objects
-        for key in o1.keys():
+        for key in list(o1.keys()):
             if key.startswith('url:') and key not in o2:
                 del(o1[key])
         # add urls to any 'Image' in expected 'Wells' dict
@@ -522,11 +526,11 @@ class TestContainers(IWebTest):
         minMaxIndex = [0, 0]
         links = []
         for idx in range(minMaxIndex[0], minMaxIndex[1]+1):
-            l = build_url(client, 'api_plate_wellsampleindex_wells',
-                          {'api_version': version,
-                           'plate_id': plate_json['@id'],
-                           'index': idx})
-            links.append(l)
+            link = build_url(client, 'api_plate_wellsampleindex_wells',
+                             {'api_version': version,
+                              'plate_id': plate_json['@id'],
+                              'index': idx})
+            links.append(link)
         extra = [{'url:wellsampleindex_wells': links,
                   'omero:wellsampleIndex': minMaxIndex}]
         assert_objects(conn, [plate_json], plates[0:1], dtype='Plate',
@@ -573,7 +577,7 @@ class TestContainers(IWebTest):
         assert well_json['url:plates'] == well_plates_url
 
         # Get parent plate (Plates list, filtered by Well)
-        print 'well_plates_url', well_plates_url
+        print('well_plates_url', well_plates_url)
         rsp = get_json(client, well_plates_url)
         plates_json = rsp['data']
         # check for link to Screen

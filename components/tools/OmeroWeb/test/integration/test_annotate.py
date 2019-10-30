@@ -21,6 +21,7 @@
 Tests adding & removing annotations
 """
 
+from builtins import str
 import omero
 import omero.clients
 from time import sleep
