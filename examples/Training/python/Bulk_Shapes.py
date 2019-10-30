@@ -10,7 +10,9 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
+from __future__ import print_function
 
+from builtins import range
 import omero
 from omero.gateway import BlitzGateway
 from omero.rtypes import rdouble
