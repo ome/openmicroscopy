@@ -11,6 +11,9 @@ This method is DEPRECATED.
 Check https://github.com/pypa/setuptools/issues/581 for more details.
 """
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import next
 import os
 import shutil
 import sys
@@ -27,7 +30,7 @@ from distutils import log
 try:
     from urllib.request import urlopen
 except ImportError:
-    from urllib2 import urlopen
+    from urllib.request import urlopen
 
 try:
     from site import USER_SITE

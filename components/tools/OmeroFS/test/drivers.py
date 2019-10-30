@@ -9,7 +9,12 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import division
 
+from builtins import str
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import logging
 import threading
 import time
@@ -62,7 +67,7 @@ class AbstractEvent(object):
         By default, nothing.
         """
         self.log.info("Sleeping %s" % self.waitMillis)
-        time.sleep(self.waitMillis / 1000)
+        time.sleep(old_div(self.waitMillis, 1000))
         if not self.client:
             self.log.error("No client")
         self.doRun()
@@ -144,7 +149,7 @@ class Driver(threading.Thread):
             try:
                 event.setClient(self.client)
                 event.run()
-            except Exception, e:
+            except Exception as e:
                 self.errors.append((event, e))
                 self.log.exception("Error in Driver.run()")
 
@@ -153,7 +158,7 @@ def with_driver(func, errors=0):
     """ Decorator for running a test with a Driver """
     def handler(*args, **kwargs):
         self = args[0]
-        self.dir = create_path(folder=True) / "DropBox"
+        self.dir = old_div(create_path(folder=True), "DropBox")
         self.simulator = Simulator(self.dir)
         self.client = MockMonitor(self.dir, pre=[self.simulator], post=[])
         try:
@@ -224,7 +229,7 @@ class Replay(object):
     def fileset(self, timestamp, data):
         filesets = eval(data, {"__builtins__": None}, {})
         self.filesets = dict()
-        for k, iv in filesets.items():
+        for k, iv in list(filesets.items()):
             k = self.rewrite(k)
             ov = []
             for i in iv:
@@ -303,7 +308,7 @@ class Simulator(monitors.MonitorClient):
                     if not file.isdir():
                         raise Exception("%s is not a directory" % file)
                     self.log.info("Creating file in dir %s", file)
-                    new_file = file / str(uuid.uuid4())
+                    new_file = old_div(file, str(uuid.uuid4()))
                     new_file.write_lines(
                         ["Writing new file to modify this"
                          "directory on event: %s" % event])
