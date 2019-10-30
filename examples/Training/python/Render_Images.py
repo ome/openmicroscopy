@@ -10,15 +10,21 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
+from __future__ import division
+from __future__ import print_function
 
+from future import standard_library
+from builtins import range
+from past.utils import old_div
 from omero.gateway import BlitzGateway
-from cStringIO import StringIO
+from io import StringIO
 try:
     from PIL import Image
 except ImportError:
     import Image
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT, imageId
 
+standard_library.install_aliases()
 """
 start-code
 """
@@ -32,7 +38,7 @@ conn.connect()
 # Get thumbnail
 # =============
 # Thumbnail is created using the current rendering settings on the image
-print imageId
+print(imageId)
 image = conn.getObject("Image", imageId)
 img_data = image.getThumbnail()
 rendered_thumb = Image.open(StringIO(img_data))
@@ -42,32 +48,32 @@ rendered_thumb.save("thumbnail.jpg")
 
 # Get current settings
 # ====================
-print "Channel rendering settings:"
+print("Channel rendering settings:")
 for ch in image.getChannels():
     # if no name, get emission wavelength or index
-    print "Name: ", ch.getLabel()
-    print "  Color:", ch.getColor().getHtml()
-    print "  Active:", ch.isActive()
-    print "  Levels:", ch.getWindowStart(), "-", ch.getWindowEnd()
-print "isGreyscaleRenderingModel:", image.isGreyscaleRenderingModel()
-print "Default Z/T positions:"
-print "    Z = %s, T = %s" % (image.getDefaultZ(), image.getDefaultT())
+    print("Name: ", ch.getLabel())
+    print("  Color:", ch.getColor().getHtml())
+    print("  Active:", ch.isActive())
+    print("  Levels:", ch.getWindowStart(), "-", ch.getWindowEnd())
+print("isGreyscaleRenderingModel:", image.isGreyscaleRenderingModel())
+print("Default Z/T positions:")
+print("    Z = %s, T = %s" % (image.getDefaultZ(), image.getDefaultT()))
 
 
 # Show the saved rendering settings on this image
 # ===============================================
-print "Rendering Defs on Image:"
+print("Rendering Defs on Image:")
 for rdef in image.getAllRenderingDefs():
     img_data = image.getThumbnail(rdefId=rdef['id'])
-    print "   ID: %s (owner: %s %s)" % (
-        rdef['id'], rdef['owner']['firstName'], rdef['owner']['lastName'])
+    print("   ID: %s (owner: %s %s)" % (
+        rdef['id'], rdef['owner']['firstName'], rdef['owner']['lastName']))
 
 
 # Render each channel as a separate greyscale image
 # =================================================
 image.setGreyscaleRenderingModel()
 size_c = image.getSizeC()
-z = image.getSizeZ() / 2
+z = old_div(image.getSizeZ(), 2)
 t = 0
 for c in range(1, size_c + 1):       # Channel index starts at 1
     channels = [c]                  # Turn on a single channel at a time
