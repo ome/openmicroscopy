@@ -10,6 +10,7 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
+from __future__ import print_function
 
 # This is a 'bare-bones' template to allow easy conversion from a simple
 # client-side Python script to a script run by the server, on the OMERO
@@ -53,7 +54,7 @@ image_id = ids[0]        # simply use the first ID for this example
 # Replace the code block below. NB: we have established a connection "conn"
 # and we have an "imageId"
 image = conn.getObject("Image", image_id)
-print image.getName()
+print(image.getName())
 
 
 # Return some value(s).
