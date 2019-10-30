@@ -168,7 +168,7 @@ class TestReimportArchivedFiles(ITest):
             prx = proc.getUploader(idx)
             self.client.download(file, filename=tmp)
             hashes.append(self.client.sha1(tmp))
-            with open(tmp, "r") as source:
+            with open(tmp, "rb") as source:
                 self.client.write_stream(source, prx)
             prx.close()
         tmp.remove()

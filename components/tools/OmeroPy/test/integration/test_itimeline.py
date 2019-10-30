@@ -160,7 +160,7 @@ class TestITimeline(ITest):
         B = rtime(long(end))
 
         rv = M(A, B, p)
-        assert rv > 0
+        assert len(rv) > 0
 
         # And now for #9609
         rv = M(A, B, p, {"omero.group": "-1"})

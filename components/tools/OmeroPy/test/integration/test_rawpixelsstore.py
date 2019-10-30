@@ -35,7 +35,7 @@ class TestRPS(ITest):
         try:
             rps.setPixelsId(pix.id.val, True)
             sha1 = hex(rps.calculateMessageDigest())
-            assert sha1 == pix.sha1.val
+            assert sha1.decode('utf-8') == pix.sha1.val
         finally:
             rps.close()
 

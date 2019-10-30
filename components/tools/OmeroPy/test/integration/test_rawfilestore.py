@@ -89,14 +89,14 @@ class TestRFS(ITest):
         ofile = self.file(client=client1)
         rfs = client1.sf.createRawFileStore()
         rfs.setFileId(ofile.id.val)
-        rfs.write("0123", 0, 4)
+        rfs.write(b"0123", 0, 4)
         rfs.close()
         self.check_file(ofile, client=client1)
 
         rfs = client2.sf.createRawFileStore()
         rfs.setFileId(ofile.id.val)
         try:
-            rfs.write("3210", 0, 4)
+            rfs.write(b"3210", 0, 4)
             assert False, "Require security vio"
         except Exception:
             pass
@@ -107,7 +107,7 @@ class TestRFS(ITest):
         rfs.setFileId(ofile.id.val)
         buf = rfs.read(0, 4)
         rfs.close()
-        assert "0123" == buf
+        assert b"0123" == buf
 
     def dummy_file(self):
         """
@@ -117,7 +117,7 @@ class TestRFS(ITest):
         rfs = self.sf.createRawFileStore()
         try:
             rfs.setFileId(ofile.id.val)
-            rfs.write("0123", 0, 4)
+            rfs.write(b"0123", 0, 4)
             ofile = rfs.save()
             assert 4 == ofile.size.val
             return ofile
