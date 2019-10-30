@@ -10,7 +10,9 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
+from __future__ import print_function
 
+from builtins import str
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
@@ -28,7 +30,7 @@ conn.connect()
 # We are logged in to our 'default' group
 # =======================================
 group = conn.getGroupFromContext()
-print "Current group: ", group.getName()
+print("Current group: ", group.getName())
 
 
 # Each group has defined Permissions set
@@ -40,7 +42,7 @@ permission_names = {
     'rwr---': 'READ-ONLY',
     'rwra--': 'READ-ANNOTATE',
     'rwrw--': 'READ-WRITE'}  # Not exposed in 4.4.0 clients
-print "Permissions: %s (%s)" % (permission_names[perm_string], perm_string)
+print("Permissions: %s (%s)" % (permission_names[perm_string], perm_string))
 
 
 # By default, any query applies to ALL data that we can access in our Current
@@ -51,21 +53,21 @@ print "Permissions: %s (%s)" % (permission_names[perm_string], perm_string)
 
 projects = conn.listProjects()      # may include other users' data
 for p in projects:
-    print p.getName(), "Owner: ", p.getDetails().getOwner().getFullName()
+    print(p.getName(), "Owner: ", p.getDetails().getOwner().getFullName())
 # Will return None if Image is not in current group
 image = conn.getObject("Image", imageId)
-print "Image: ", image
+print("Image: ", image)
 
 
 # 'Cross-group' querying, use '-1'
 # ===============================
 conn.SERVICE_OPTS.setOmeroGroup('-1')
 image = conn.getObject("Image", imageId)     # Will query across all my groups
-print "Image: ", image,
+print("Image: ", image, end=' ')
 if image is not None:
-    print "Group: ", image.getDetails().getGroup().getName(),
+    print("Group: ", image.getDetails().getGroup().getName(), end=' ')
     # access groupId without loading group
-    print image.getDetails().getGroup().getId()
+    print(image.getDetails().getGroup().getId())
 
 
 # To query only a single group (not necessarily your 'current' group)
@@ -75,7 +77,7 @@ group_id = image.getDetails().getGroup().getId()
 conn.SERVICE_OPTS.setOmeroGroup(group_id)
 projects = conn.listProjects()
 image = conn.getObject("Image", imageId)
-print "Image: ", image,
+print("Image: ", image, end=' ')
 
 
 # Close connection
