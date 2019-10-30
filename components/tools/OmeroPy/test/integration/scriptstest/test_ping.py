@@ -66,7 +66,7 @@ print("Session", client.getSession())
 #
 import sys
 from pprint import pprint
-print "PATH:"
+print("PATH:")
 pprint(sys.path)
 
 print("CONFIG")
