@@ -139,11 +139,12 @@ class TestITimeline(ITest):
             self.sf.getTimelineService(), start, end, ownerId, groupId)
 
     def test1173(self):
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        timeline = self.root.sf.getTimelineService()
+        client2, user2 = self.new_client_and_user(group=self.group)
+        timeline = client2.sf.getTimelineService()
+        uuid = client2.sf.getAdminService().getEventContext().sessionUuid
 
-        # create image
-        ds = self.make_dataset(name='test1173-ds-%s' % uuid, client=self.root)
+        # create dataset
+        ds = self.make_dataset(name='test1173-ds-%s' % uuid, client=client2)
         ds.unload()
 
         # Here we assume that this test is not run within the last 1 second
@@ -153,19 +154,19 @@ class TestITimeline(ITest):
         p = omero.sys.Parameters()
         p.map = {}
         f = omero.sys.Filter()
-        f.ownerId = rlong(self.new_user().id.val)
+        f.ownerId = rlong(user2.id.val)
         p.theFilter = f
 
         M = timeline.getEventLogsByPeriod
-        A = rtime(int(start))
-        B = rtime(int(end))
+        A = rtime(start)
+        B = rtime(end)
 
         rv = M(A, B, p)
         assert len(rv) > 0
 
         # And now for #9609
         rv = M(A, B, p, {"omero.group": "-1"})
-        assert rv > 0
+        assert len(rv) > 0
 
     def test1175(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
