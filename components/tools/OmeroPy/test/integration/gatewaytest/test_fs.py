@@ -27,6 +27,9 @@
 
 """
 
+from builtins import str
+from builtins import range
+from builtins import object
 import pytest
 
 from omero.model import ImageI, PixelsI, FilesetI, FilesetEntryI, \
@@ -35,7 +38,7 @@ from omero.model import ImageI, PixelsI, FilesetI, FilesetEntryI, \
 from omero.rtypes import rstring, rlong, rint, rtime
 from uuid import uuid4
 try:
-    long
+    int
 except Exception:
     # Python 3
     long = int
@@ -56,8 +59,8 @@ def create_image(image_index):
     pixels.sizeZ = rint(1)
     pixels.sizeC = rint(1)
     pixels.sizeT = rint(1)
-    pixels.dimensionOrder = DimensionOrderI(long(1), False)  # XYZCT
-    pixels.pixelsType = PixelsTypeI(long(1), False)  # bit
+    pixels.dimensionOrder = DimensionOrderI(int(1), False)  # XYZCT
+    pixels.pixelsType = PixelsTypeI(int(1), False)  # bit
     image.addPixels(pixels)
     return image
 
@@ -75,7 +78,7 @@ def images_with_original_files(request, gatewaywrapper):
             'filename_%d.ext' % original_file_index
         )
         original_file.path = rstring('/server/path/')
-        original_file.size = rlong(long(50))
+        original_file.size = rlong(int(50))
         original_files.append(original_file)
     images = list()
     for image_index in range(2):
@@ -101,7 +104,7 @@ def create_fileset():
             original_file = OriginalFileI()
             original_file.name = rstring('filename_%d.ext' % fileset_index)
             original_file.path = rstring('/server/path/')
-            original_file.size = rlong(long(50))
+            original_file.size = rlong(int(50))
             fileset_entry.originalFile = original_file
             fileset.addFilesetEntry(fileset_entry)
         fileset.addImage(image)
@@ -128,7 +131,7 @@ def fileset_with_images_and_annotations(request, gatewaywrapper):
     comment_annotation.textValue = rstring('textValue')
     long_annotation = LongAnnotationI()
     long_annotation.ns = rstring('long_annotation')
-    long_annotation.longValue = rlong(long(1))
+    long_annotation.longValue = rlong(int(1))
     fileset.linkAnnotation(comment_annotation)
     fileset.linkAnnotation(long_annotation)
     fileset = update_service.saveAndReturnObject(fileset)

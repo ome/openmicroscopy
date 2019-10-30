@@ -24,6 +24,7 @@
 
 """
 
+from builtins import range
 from omero.testlib import ITest
 import os
 
@@ -106,8 +107,8 @@ class TestPopulateMetadata(ITest):
         rows = t.getNumberOfRows()
         assert rows == rowCount * colCount
         for hit in range(rows):
-            rowValues = [col.values[0] for col in t.read(range(len(cols)),
-                                                         hit, hit+1).columns]
+            values = t.read(list(range(len(cols))), hit, hit+1).columns
+            rowValues = [col.values[0] for col in values]
             assert len(rowValues) == 4
             if "a1" in rowValues:
                 assert "Control" in rowValues

@@ -18,9 +18,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-plugin = __import__('omero.plugins.import', globals(), locals(),
-                    ['ImportControl'], -1)
-ImportControl = plugin.ImportControl
+from __future__ import division
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 from omero.testlib.cli import CLITest
 import pytest
 import stat
@@ -29,6 +32,14 @@ import yaml
 import omero
 from omero.cli import NonZeroReturnCode
 from omero.rtypes import rstring
+try:
+    plugin = __import__('omero.plugins.import', globals(), locals(),
+                        ['ImportControl'], -1)
+except ValueError:
+    # Python 3
+    plugin = __import__('omero.plugins.import', globals(), locals(),
+                        ['ImportControl'], 0)
+ImportControl = plugin.ImportControl
 
 
 class NamingFixture(object):
@@ -41,7 +52,10 @@ class NamingFixture(object):
         self.name_arg = name_arg
         self.description_arg = description_arg
 
+
 NF = NamingFixture
+
+
 NFS = (
     NF("Image", None, None),
     NF("Image", None, "-x"),
@@ -70,6 +84,8 @@ NFS = (
     NF("Plate", "--plate_name", "--plate_description"),
 )
 xstr = lambda s: s or ""
+
+
 NFS_names = ['%s%s%s' % (x.obj_type, xstr(x.name_arg),
              xstr(x.description_arg)) for x in NFS]
 debug_levels = ['ALL', 'TRACE',  'DEBUG', 'INFO', 'WARN', 'ERROR']
@@ -99,7 +115,10 @@ class AnnotationFixture(object):
         else:
             return '%s-%s-Official' % (self.arg_type, self.n)
 
+
 AF = AnnotationFixture
+
+
 AFS = (
     AF("Python", 1, False),
     AF("Python", 1, True),
@@ -155,7 +174,7 @@ class TestImport(CLITest):
         return o, e
 
     def add_client_dir(self):
-        client_dir = self.omero_dist / "lib" / "client"
+        client_dir = old_div(old_div(self.omero_dist, "lib"), "client")
         self.args += ["--clientdir", client_dir]
 
     def check_other_output(self, out, import_type='default'):

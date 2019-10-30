@@ -21,7 +21,11 @@
    Integration test which checks the various methods from script_utils
 
 """
+from __future__ import division
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import pytest
 from omero.testlib import ITest
 import omero.util.script_utils as scriptUtil
@@ -70,7 +74,7 @@ class TestScriptUtils(ITest):
             min_c = c.getWindowMin()
             max_c = c.getWindowMax()
             channel_min_max.append((min_c, max_c))
-        z = image.getSizeZ() / 2
+        z = old_div(image.getSizeZ(), 2)
         t = 0
         c = 0
         try:
@@ -100,7 +104,7 @@ class TestScriptUtils(ITest):
             min_c = c.getWindowMin()
             max_c = c.getWindowMax()
             channel_min_max.append((min_c, max_c))
-        z = image.getSizeZ() / 2
+        z = old_div(image.getSizeZ(), 2)
         t = 0
         c = 0
         try:
@@ -126,7 +130,7 @@ class TestScriptUtils(ITest):
             min_c = c.getWindowMin()
             max_c = c.getWindowMax()
             channel_min_max.append((min_c, max_c))
-        z = image.getSizeZ() / 2
+        z = old_div(image.getSizeZ(), 2)
         t = 0
         c = 0
 
@@ -233,7 +237,7 @@ class TestScriptUtils(ITest):
         """Test the upload of the plane by row."""
         client = self.new_client()
         # create an image
-        channel_list = range(2)
+        channel_list = list(range(2))
         session = client.getSession()
         pixels_service = session.getPixelsService()
         query_service = session.getQueryService()
@@ -242,7 +246,7 @@ class TestScriptUtils(ITest):
             return y
 
         def f2(x, y):
-            return (x + y) / 2
+            return old_div((x + y), 2)
 
         def f3(x, y):
             return x
@@ -272,7 +276,7 @@ class TestScriptUtils(ITest):
         """Test the upload of the plane."""
         client = self.new_client()
         # create an image
-        channel_list = range(2)
+        channel_list = list(range(2))
         session = client.getSession()
         pixels_service = session.getPixelsService()
         query_service = session.getQueryService()
@@ -281,7 +285,7 @@ class TestScriptUtils(ITest):
             return y
 
         def f2(x, y):
-            return (x + y) / 2
+            return old_div((x + y), 2)
 
         def f3(x, y):
             return x

@@ -7,10 +7,11 @@
 
 """
 
+from builtins import object
 import omero
 import omero.gateway
 try:
-    long
+    int
 except Exception:
     # Python 3
     long = int
@@ -41,7 +42,7 @@ class TestHelperObjects(object):
         assert isinstance(omero_type('rstring'), omero.RString)
         assert isinstance(omero_type(u'rstring'), omero.RString)
         assert isinstance(omero_type(1), omero.RInt)
-        assert isinstance(omero_type(long(1)), omero.RLong)
+        assert isinstance(omero_type(int(1)), omero.RLong)
         assert isinstance(omero_type(False), omero.RBool)
         assert isinstance(omero_type(True), omero.RBool)
         assert not isinstance(omero_type((1, 2, 'a')), omero.RType)

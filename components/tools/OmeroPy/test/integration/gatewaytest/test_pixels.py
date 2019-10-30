@@ -14,6 +14,9 @@
 
 """
 
+from builtins import str
+from builtins import range
+from builtins import object
 import omero
 import pytest
 
@@ -257,7 +260,7 @@ class TestPixels (object):
         theZ = 0
         theT = 0
         histogram = image.getHistogram(channels, binSize, theZ=theZ, theT=theT)
-        assert histogram.keys() == channels
+        assert list(histogram.keys()) == channels
         assert len(histogram[0]) == binSize
 
         # ...as long as we haven't left additional services open

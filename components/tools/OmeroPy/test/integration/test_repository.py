@@ -8,7 +8,14 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from __future__ import division
+from __future__ import print_function
 
+from builtins import zip
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import pytest
 
 import omero
@@ -105,7 +112,7 @@ class TestRepository(AbstractRepoTest):
         # Now we try to look it up with __redirect
         rfs = self.client.sf.createRawFileStore()
         rfs.setFileId(obj.id.val)
-        assert "hi" == unicode(rfs.read(0, 2), "utf-8")
+        assert "hi" == str(rfs.read(0, 2), "utf-8")
         rfs.close()
 
 
@@ -397,7 +404,7 @@ class TestRecursiveDelete(AbstractRepoTest):
         assert 1 == len(self.file_map1)
         self.dir_map = unwrap(self.mrepo.treeList(self.unique_dir))
         assert 1 == len(self.dir_map)
-        self.dir_key = self.dir_map.keys()[0]
+        self.dir_key = list(self.dir_map.keys())[0]
         self.file_map2 = self.dir_map[self.dir_key]["files"]["file.txt"]
 
     # treeList is a utility that is useful for
@@ -590,7 +597,7 @@ class TestDeletePerformance(AbstractRepoTest):
         folder = create_path(folder=True)
         for x in range(200):
             name = "%s.unknown" % x
-            (folder / name).touch()
+            (old_div(folder, name)).touch()
         paths = folder.files()
         proc = mrepo.importPaths(paths)
         hashes = self.upload_folder(proc, folder)
@@ -602,8 +609,8 @@ class TestDeletePerformance(AbstractRepoTest):
         delete = omero.cmd.Delete2()
         delete.targetObjects = {'Fileset': [fs.id.val]}
         s2 = time.time()
-        print(s2 - s1),
+        print((s2 - s1), end=' ')
         t1 = time.time()
         client.submit(delete, loops=200)
         t2 = time.time()
-        print(" ", t2-t1),
+        print((" ", t2-t1), end=' ')

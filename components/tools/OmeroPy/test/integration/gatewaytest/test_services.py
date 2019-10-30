@@ -13,6 +13,8 @@
 
 """
 
+from builtins import str
+from builtins import object
 import omero
 from omero.grid import StringColumn
 

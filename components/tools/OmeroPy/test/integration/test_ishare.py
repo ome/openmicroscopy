@@ -9,6 +9,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from builtins import str
 import time
 from omero.testlib import ITest
 import pytest
@@ -22,7 +23,7 @@ from test.integration.helpers import createTestImage
 import warnings
 
 try:
-    long
+    int
 except Exception:
     # Python 3
     long = int
@@ -132,22 +133,22 @@ class TestIShare(ITest):
         # test action by member
         user_conn = BlitzGateway(client_obj=client)
         # user CANNOT see image if not in share
-        assert None == user_conn.getObject("Image", image.id.val)
+        assert user_conn.getObject("Image", image.id.val) is None
         # activate share
         user_conn.SERVICE_OPTS.setOmeroShare(share_id)
-        assert False == getattr(user_conn.getObject("Image",
-                                                    image.id.val), func)()
+        assert getattr(user_conn.getObject("Image",
+                                           image.id.val), func)() is False
 
         # test action by owner
         owner_conn = BlitzGateway(client_obj=self.client)
         # owner CAN do action on the object when not in share
-        assert True == getattr(owner_conn.getObject("Image",
-                                                    image.id.val), func)()
+        assert getattr(owner_conn.getObject("Image",
+                                            image.id.val), func)() is True
         # activate share
         owner_conn.SERVICE_OPTS.setOmeroShare(share_id)
         # owner CANNOT do action on the object when in share
-        assert False == getattr(owner_conn.getObject("Image",
-                                                     image.id.val), func)()
+        assert getattr(owner_conn.getObject("Image",
+                                            image.id.val), func)() is False
 
     def test8118(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
@@ -339,7 +340,7 @@ class TestIShare(ITest):
                "where e.id =:eid order by e.omeName")
         ms = query.findAllByQuery(sql, p)
         sid = share.createShare(("test-share-%s" % uuid),
-                                rtime(long(time.time() * 1000 + 86400)),
+                                rtime(int(time.time() * 1000 + 86400)),
                                 items, ms, [], True)
 
         # USER RETRIEVAL
@@ -465,7 +466,7 @@ class TestIShare(ITest):
 
         assert share1.getShare(sid).message.val == new_description
 
-        expiration = long(time.time() * 1000) + 86400
+        expiration = int(time.time() * 1000) + 86400
         share1.setExpiration(sid, rtime(expiration))
         self.assert_expiration(expiration, share1.getShare(sid))
 
@@ -580,8 +581,7 @@ class TestIShare(ITest):
 
         # login as user2
         share2 = client_share2.sf.getShareService()
-        l = share2.getMemberShares(False)
-        assert 1 == len(l)
+        assert 1 == len(share2.getMemberShares(False))
 
         # add comment by the member
         share2.addComment(sid, 'test comment by the member %s' % user2.id.val)
@@ -972,7 +972,7 @@ class TestIShare(ITest):
         image_id = createTestImage(owner.sf)
 
         p = omero.sys.Parameters()
-        p.map = {"id": rlong(long(image_id))}
+        p.map = {"id": rlong(int(image_id))}
         sql = "select im from Image im join fetch im.details.owner " \
               "join fetch im.details.group where im.id=:id order by im.name"
         image = owner.sf.getQueryService().findAllByQuery(
@@ -1071,7 +1071,7 @@ class TestIShare(ITest):
         t_conn.sf.getQueryService().find("Image", image.id.val)
 
         # test expired share, if member has no access to the image
-        expiration = long(time.time() * 1000) + 500
+        expiration = int(time.time() * 1000) + 500
         o_share.setExpiration(sid, rtime(expiration))
         self.assert_expiration(expiration, o_share.getShare(sid))
         time.sleep(0.5)

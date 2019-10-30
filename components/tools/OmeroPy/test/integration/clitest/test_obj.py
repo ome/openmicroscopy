@@ -228,7 +228,7 @@ class TestObj(CLITest):
         self.args = self.login_args() + [
             "obj", "get", project, "bar"]
         with pytest.raises(NonZeroReturnCode):
-                state = self.go()
+            state = self.go()
 
     def test_get_fields(self):
         name = "foo"
@@ -301,7 +301,7 @@ class TestObj(CLITest):
         self.args = self.login_args() + [
             "obj", "list-get", ann, "mapValue", "0"]
         with pytest.raises(NonZeroReturnCode):
-                state = self.go()
+            state = self.go()
         self.args = self.login_args() + [
             "obj", "map-set", ann, "mapValue", "name1", "value1"]
         self.go()
@@ -328,7 +328,7 @@ class TestObj(CLITest):
         self.args = self.login_args() + [
             "obj", "list-get", ann, "mapValue", "3"]
         with pytest.raises(NonZeroReturnCode):
-                state = self.go()
+            state = self.go()
 
         # Test for a list of strings
         updateService = self.root.getSession().getUpdateService()
@@ -344,7 +344,7 @@ class TestObj(CLITest):
         self.args = self.login_args() + [
             "obj", "list-get", "Namespace:%s" % n.id.val, "name", "0"]
         with pytest.raises(NonZeroReturnCode):
-                state = self.go()
+            state = self.go()
 
     def test_map_mods(self):
         self.args = self.login_args() + [

@@ -86,7 +86,7 @@ class TestFS(CLITest):
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
         printed_ids = set(self.parse_ids(o))
-        expected_ids = set([x.id.val for x in f.values()])
+        expected_ids = set([x.id.val for x in list(f.values())])
         assert expected_ids.issubset(printed_ids)
 
         for transfer in transfers:
@@ -94,7 +94,7 @@ class TestFS(CLITest):
                             strict=True)
             o, e = capsys.readouterr()
             printed_ids = set(self.parse_ids(o))
-            expected_ids = set([x.id.val for (k, x) in f.iteritems()
+            expected_ids = set([x.id.val for (k, x) in f.items()
                                 if k == transfer])
             assert expected_ids.issubset(printed_ids)
 

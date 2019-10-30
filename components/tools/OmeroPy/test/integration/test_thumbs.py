@@ -9,6 +9,7 @@
 
 """
 
+from builtins import range
 from omero.testlib import ITest
 import pytest
 
@@ -18,7 +19,7 @@ from omero.util.concurrency import get_event
 from omero.rtypes import rint, unwrap
 
 try:
-    long
+    int
 except Exception:
     # Python 3
     long = int
@@ -57,7 +58,7 @@ class TestThumbs(ITest):
         """
         pix = self.missing_pyramid()
         tb = self.client.sf.createThumbnailStore()
-        tb.setPixelsId(long(pix))
+        tb.setPixelsId(int(pix))
         tb.resetDefaults()
         return tb
 
@@ -81,7 +82,7 @@ class TestThumbs(ITest):
         tb = self.client.sf.createThumbnailStore()
         try:
             tb.createThumbnailsByLongestSideSet(
-                rint(64), [long(pix1), long(pix2)])
+                rint(64), [int(pix1), int(pix2)])
         finally:
             tb.close()
 
@@ -114,7 +115,7 @@ class TestThumbs(ITest):
         # thumbnail
         tb = self.client.sf.createThumbnailStore()
         if meth == "one":
-            tb.setPixelsId(long(pix))
+            tb.setPixelsId(int(pix))
             tb.resetDefaults()
             assert not tb.thumbnailExists(i64, i64)
             assert tb.isInProgress()
@@ -126,8 +127,8 @@ class TestThumbs(ITest):
             assert not tb.thumbnailExists(i64, i64)
             assert tb.isInProgress()
         elif meth == "set":
-            before = tb.getThumbnailSet(i64, i64, [long(pix)])
-            before = before[long(pix)]
+            before = tb.getThumbnailSet(i64, i64, [int(pix)])
+            before = before[int(pix)]
         assert get().version.val == -1
 
         # Now we wait until the pyramid has been created
@@ -137,7 +138,7 @@ class TestThumbs(ITest):
         rps = self.client.sf.createRawPixelsStore()
         for x in range(secs):
             try:
-                rps.setPixelsId(long(pix), True)
+                rps.setPixelsId(int(pix), True)
                 event = None
                 break
             except MissingPyramidException:
@@ -150,17 +151,17 @@ class TestThumbs(ITest):
             # the pyramid is generated.
             tb.close()
             tb = self.client.sf.createThumbnailStore()
-            if not tb.setPixelsId(long(pix)):
+            if not tb.setPixelsId(int(pix)):
                 tb.resetDefaults()
                 tb.close()
                 tb = self.client.sf.createThumbnailStore()
-                assert tb.setPixelsId(long(pix))
+                assert tb.setPixelsId(int(pix))
             after = tb.getThumbnail(i64, i64)
             assert before != after
             assert tb.thumbnailExists(i64, i64)
             assert not tb.isInProgress()
         elif meth == "set":
-            tb.getThumbnailSet(i64, i64, [long(pix)])
+            tb.getThumbnailSet(i64, i64, [int(pix)])
         assert get().version.val >= 0
 
 
@@ -173,7 +174,7 @@ def assign(f, method, *args):
                 name += "x%s" % unwrap(i2)
         except Exception:
             name += "x%s" % unwrap(i)
-    f.func_name = name
+    f.__name__ = name
     setattr(TestThumbs, name, f)
 
 
@@ -194,11 +195,11 @@ def make_test_set(method, x, y, *args):
         pix2 = self.missing_pyramid()
         tb = self.client.sf.createThumbnailStore()
         copy = list(args)
-        copy.append([long(pix1), long(pix2)])
+        copy.append([int(pix1), int(pix2)])
         copy = tuple(copy)
         try:
             buf_map = getattr(tb, method)(*copy)
-            for id, buf in buf_map.items():
+            for id, buf in list(buf_map.items()):
                 self.assertTb(buf, x, y)
         finally:
             tb.close()

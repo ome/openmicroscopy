@@ -6,6 +6,11 @@
 #
 
 
+from builtins import range
+from builtins import object
+import pytest
+
+
 def pytest_addoption(parser):
     parser.addoption(
         '--repeat', action='store',
@@ -24,7 +29,7 @@ def pytest_generate_tests(metafunc):
         # Now we parametrize. This is what happens when we do e.g.,
         # @pytest.mark.parametrize('tmp_ct', range(count))
         # def test_foo(): pass
-        metafunc.parametrize('tmp_ct', range(count))
+        metafunc.parametrize('tmp_ct', list(range(count)))
 
 
 class Methods(object):
@@ -71,10 +76,11 @@ class Methods(object):
         raise Exception(standardMsg)
 
 
-def pytest_namespace():
+def pytest_configure():
     """
     Add helper methods to the 'pytest' module
     """
-    return {
-        "assertAlmostEqual": Methods.assertAlmostEqual
-    }
+    pytest.assertAlmostEqual = Methods.assertAlmostEqual
+
+
+pytest_plugins = "omero.gateway.pytest_fixtures"

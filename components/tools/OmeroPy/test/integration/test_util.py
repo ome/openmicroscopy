@@ -24,6 +24,7 @@
 Test of various things under omero.util
 """
 
+from builtins import object
 from omero.util.upgrade_check import UpgradeCheck
 
 

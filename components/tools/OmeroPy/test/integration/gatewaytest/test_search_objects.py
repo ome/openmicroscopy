@@ -29,6 +29,9 @@
 """
 
 
+from builtins import object
+
+
 class TestGetObject (object):
 
     def testSearchObjects(self, gatewaywrapper):

@@ -12,21 +12,26 @@
    - author_testimg_generated
 
 """
+from __future__ import print_function
 
+from future import standard_library
+from builtins import str
+from builtins import range
 import time
 import datetime
 import os
 from tempfile import NamedTemporaryFile
-from cStringIO import StringIO
+from io import StringIO
 
 import omero.gateway
 from omero.rtypes import rstring
 from omero.gateway import FileAnnotationWrapper
 try:
-    long
+    int
 except Exception:
     # Python 3
     long = int
+standard_library.install_aliases()
 
 
 def _testAnnotation(obj, annclass, ns, value, sameOwner=False,
@@ -76,6 +81,7 @@ def _testAnnotation(obj, annclass, ns, value, sameOwner=False,
     # Remove and check
     obj.removeAnnotations(ns)
     assert obj.getAnnotation(ns) is None
+
 
 TESTANN_NS = 'omero.gateway.test_annotation'
 
@@ -162,7 +168,7 @@ def testBooleanAnnotation(author_testimg_generated):
 def testLongAnnotation(author_testimg_generated):
     _testAnnotation(author_testimg_generated,
                     omero.gateway.LongAnnotationWrapper,
-                    TESTANN_NS, long(1000))
+                    TESTANN_NS, int(1000))
 
 
 def testMapAnnotation(author_testimg_generated):
@@ -230,18 +236,18 @@ def testListAnnotations(author_testimg_generated):
     annclass.createAndLink(target=obj, ns=ns2, val=value)
     ann1 = obj.getAnnotation(ns1)
     ann2 = obj.getAnnotation(ns2)
-    l = list(obj.listAnnotations())
-    assert ann1 in l
-    assert ann2 in l
-    l = list(obj.listAnnotations(ns=ns1))
-    assert ann1 in l
-    assert ann2 not in l
-    l = list(obj.listAnnotations(ns=ns2))
-    assert ann1 not in l
-    assert ann2 in l
-    l = list(obj.listAnnotations(ns='bogusns...bogusns...'))
-    assert ann1 not in l
-    assert ann2 not in l
+    values = list(obj.listAnnotations())
+    assert ann1 in values
+    assert ann2 in values
+    values = list(obj.listAnnotations(ns=ns1))
+    assert ann1 in values
+    assert ann2 not in values
+    values = list(obj.listAnnotations(ns=ns2))
+    assert ann1 not in values
+    assert ann2 in values
+    values = list(obj.listAnnotations(ns='bogusns...bogusns...'))
+    assert ann1 not in values
+    assert ann2 not in values
     # Remove and check
     obj.removeAnnotations(ns1)
     obj.removeAnnotations(ns2)

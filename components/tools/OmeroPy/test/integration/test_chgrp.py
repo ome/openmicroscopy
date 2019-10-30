@@ -24,6 +24,8 @@
 
 """
 
+from builtins import str
+from builtins import range
 import omero
 import omero.gateway
 from omero.testlib import ITest
@@ -122,9 +124,9 @@ class TestChgrp(ITest):
         # check Dataset
         query = "select link from DatasetImageLink link\
             where link.child.id=%s" % img.id.val
-        l = client.sf.getQueryService().findByQuery(query, None)
-        assert l is not None, "New DatasetImageLink on image not found"
-        assert l.details.group.id.val == first_gid,\
+        link = client.sf.getQueryService().findByQuery(query, None)
+        assert link is not None, "New DatasetImageLink on image not found"
+        assert link.details.group.id.val == first_gid,\
             "Link Created in same group as Image target"
 
     def testChgrpPDI(self):

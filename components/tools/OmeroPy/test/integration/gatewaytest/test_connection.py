@@ -11,6 +11,9 @@
 
 """
 
+from builtins import map
+from builtins import str
+from builtins import object
 import omero
 import Ice
 from omero.gateway.scripts import dbhelpers
@@ -109,25 +112,25 @@ class TestConnectionMethods(object):
         # the project created above is in new group.
         # gatewaywrapper.loginAsAdmin()
         # test passes if we remain logged in as Author
-        ids = map(lambda x: x.getId(), gatewaywrapper.gateway.listProjects())
+        ids = [x.getId() for x in gatewaywrapper.gateway.listProjects()]
         assert project_id in ids
         # test passes if we NOW log in as Admin (different group)
         gatewaywrapper.loginAsAdmin()
-        ids = map(lambda x: x.getId(), gatewaywrapper.gateway.listProjects())
+        ids = [x.getId() for x in gatewaywrapper.gateway.listProjects()]
         assert project_id not in ids
         ##
         # Test listProjects as author (sees, owns)
         gatewaywrapper.loginAsAuthor()
-        ids = map(lambda x: x.getId(), gatewaywrapper.gateway.listProjects())
+        ids = [x.getId() for x in gatewaywrapper.gateway.listProjects()]
         assert project_id in ids
-        ids = map(lambda x: x.getId(), gatewaywrapper.gateway.listProjects())
+        ids = [x.getId() for x in gatewaywrapper.gateway.listProjects()]
         assert project_id in ids
         ##
         # Test listProjects as guest (does not see, does not own)
         gatewaywrapper.doLogin(gatewaywrapper.USER)
-        ids = map(lambda x: x.getId(), gatewaywrapper.gateway.listProjects())
+        ids = [x.getId() for x in gatewaywrapper.gateway.listProjects()]
         assert project_id not in ids
-        ids = map(lambda x: x.getId(), gatewaywrapper.gateway.listProjects())
+        ids = [x.getId() for x in gatewaywrapper.gateway.listProjects()]
         assert project_id not in ids
         ##
         # Test getProject
@@ -144,8 +147,8 @@ class TestConnectionMethods(object):
         # exps = map(lambda x: x.omeName,
         # gatewaywrapper.gateway.listExperimenters())  # removed from blitz
         # gateway
-        exps = map(lambda x: x.omeName,
-                   gatewaywrapper.gateway.getObjects("Experimenter"))
+        objects = gatewaywrapper.gateway.getObjects("Experimenter")
+        exps = [x.omeName for x in objects]
         for omeName in (gatewaywrapper.USER.name, gatewaywrapper.AUTHOR.name,
                         gatewaywrapper.ADMIN.name.decode('utf-8')):
             assert omeName in exps
@@ -194,8 +197,8 @@ class TestConnectionMethods(object):
         gatewaywrapper.gateway.setIdentity(
             gatewaywrapper.USER.name, gatewaywrapper.USER.passwd)
         setprop = gatewaywrapper.gateway.c.ic.getProperties().setProperty
-        map(lambda x: setprop(x[0], str(x[1])),
-            gatewaywrapper.gateway._ic_props.items())
+        list(map(lambda x: setprop(x[0], str(x[1])),
+             list(gatewaywrapper.gateway._ic_props.items())))
         gatewaywrapper.gateway.c.ic.getImplicitContext().put(
             omero.constants.GROUP, gatewaywrapper.gateway.group)
         # I'm not certain the following assertion is as intended.

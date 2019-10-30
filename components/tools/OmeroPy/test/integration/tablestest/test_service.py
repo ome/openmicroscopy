@@ -23,7 +23,10 @@
    Test of the Tables service
 
 """
+from __future__ import print_function
 
+from builtins import str
+from builtins import range
 import path
 import omero
 import omero.tables
@@ -389,7 +392,7 @@ class TestTables(ITest):
         # 3 characters should work, 4 should cause an error
         scol.values = ['abc']
         table.addData([scol])
-        data = table.readCoordinates(range(table.getNumberOfRows()))
+        data = table.readCoordinates(list(range(table.getNumberOfRows())))
         assert ['abc'] == data.columns[0].values
         scol.values = ['abcd']
         with pytest.raises(omero.ValidationException):
@@ -533,7 +536,7 @@ class TestTables(ITest):
         assert [0.125, 0.0625] == testda[1]
 
         ofile = table.getOriginalFile()
-        print("testAllColumnsSameTable", "OriginalFile:", ofile.getId().val)
+        print(("testAllColumnsSameTable", "OriginalFile:", ofile.getId().val))
 
         # Now try an update
         updatel = omero.grid.LongColumn('longcol', '', [12345])

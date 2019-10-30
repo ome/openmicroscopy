@@ -9,6 +9,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+from builtins import range
 import time
 import pytest
 from omero.testlib import ITest
@@ -17,7 +18,7 @@ import omero
 from omero.rtypes import rint, rlong, rstring, rtime
 
 try:
-    long
+    int
 except Exception:
     # Python 3
     long = int
@@ -34,7 +35,7 @@ class TestITimeline(ITest):
         im_ids = dict()
         for i in range(0, 10):
             # create image
-            acquired = long(time.time() * 1000)
+            acquired = int(time.time() * 1000)
             img = self.make_image(name='test-img-%s' % uuid, date=acquired)
             im_ids[i] = [img.id.val, acquired]
 
@@ -50,8 +51,8 @@ class TestITimeline(ITest):
         p.theFilter = f
 
         M = timeline.countByPeriod
-        A = rtime(long(start))
-        B = rtime(long(end))
+        A = rtime(int(start))
+        B = rtime(int(end))
         counter = M(['Image'], A, B, p)
         assert counter['Image'] == 10
         # And with #9609
@@ -101,7 +102,7 @@ class TestITimeline(ITest):
         im_ids = dict()
         for i in range(0, 10):
             # create image
-            acquired = long(time.time() * 1000)
+            acquired = int(time.time() * 1000)
             img = self.make_image(name='test-img-%s' % client2.sf,
                                   date=acquired, client=client2)
             im_ids[i] = [img.id.val, acquired]
@@ -124,10 +125,10 @@ class TestITimeline(ITest):
             p.theFilter = f
 
             counter = timeline.countByPeriod(
-                ['Image'], rtime(long(start)), rtime(long(end)), p)
+                ['Image'], rtime(int(start)), rtime(int(end)), p)
             assert 10 == counter['Image']
             data = timeline.getByPeriod(
-                ['Image'], rtime(long(start)), rtime(long(end)), p, False)
+                ['Image'], rtime(int(start)), rtime(int(end)), p, False)
             assert 10 == len(data['Image'])
 
         assert_timeline(timeline2, start, end, ownerId, groupId)
@@ -146,8 +147,8 @@ class TestITimeline(ITest):
         ds.unload()
 
         # Here we assume that this test is not run within the last 1 second
-        start = long(time.time() * 1000 - 86400)
-        end = long(time.time() * 1000 + 86400)
+        start = int(time.time() * 1000 - 86400)
+        end = int(time.time() * 1000 + 86400)
 
         p = omero.sys.Parameters()
         p.map = {}
@@ -156,8 +157,8 @@ class TestITimeline(ITest):
         p.theFilter = f
 
         M = timeline.getEventLogsByPeriod
-        A = rtime(long(start))
-        B = rtime(long(end))
+        A = rtime(int(start))
+        B = rtime(int(end))
 
         rv = M(A, B, p)
         assert len(rv) > 0

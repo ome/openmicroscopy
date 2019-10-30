@@ -24,6 +24,7 @@
    rendering a 'region' of big images.
 """
 
+from builtins import range
 import omero
 import logging
 from omero.testlib import ITest
@@ -38,7 +39,7 @@ except Exception:  # pragma: nocover
         logging.error('No Pillow installed')
 
 try:
-    long
+    int
 except Exception:
     # Python 3
     long = int
@@ -93,8 +94,8 @@ class TestRendering(ITest):
         region_def.height = height
 
         plane_def = omero.romio.PlaneDef()
-        plane_def.z = long(0)
-        plane_def.t = long(0)
+        plane_def.z = int(0)
+        plane_def.t = int(0)
 
         # First, get the full rendered plane...
         img = rendering_engine.renderCompressed(plane_def)  # compressed String

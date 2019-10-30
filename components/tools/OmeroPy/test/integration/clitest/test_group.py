@@ -18,6 +18,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from builtins import str
 from omero.plugins.group import GroupControl, defaultperms
 from omero.cli import NonZeroReturnCode
 from omero.testlib.cli import CLITest, RootCLITest
@@ -30,8 +31,8 @@ import pytest
 GroupNames = [str(x) for x in GroupFixtures]
 UserNames = [str(x) for x in UserFixtures]
 GroupIdNameNames = [str(x) for x in GroupIdNameFixtures]
-perms_pairs = [('--perms', v) for v in defaultperms.values()]
-perms_pairs.extend([('--type', v) for v in defaultperms.keys()])
+perms_pairs = [('--perms', v) for v in list(defaultperms.values())]
+perms_pairs.extend([('--type', v) for v in list(defaultperms.keys())])
 
 
 class TestGroup(CLITest):
@@ -201,7 +202,7 @@ class TestGroupRoot(RootCLITest):
     # ========================================================================
     @pytest.mark.parametrize(
         "idnamefixture", GroupIdNameFixtures, ids=GroupIdNameNames)
-    @pytest.mark.parametrize("from_perms", defaultperms.values())
+    @pytest.mark.parametrize("from_perms", list(defaultperms.values()))
     @pytest.mark.parametrize("perms_prefix,to_perms", perms_pairs)
     def testPerms(self, idnamefixture, from_perms, perms_prefix, to_perms):
         group = self.new_group([], from_perms)

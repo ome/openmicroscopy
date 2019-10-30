@@ -20,7 +20,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import sys
-import types
 
 import omero
 import omero.scripts as sc
@@ -36,7 +35,7 @@ client = sc.client("script_1", """
                    sc.String("myoptional", optional=True)
                    )
 
-assert isinstance(client, types.TupleType)
+assert isinstance(client, tuple)
 
 self = sys.argv[0]
 cfg = self.replace("py", "cfg")
