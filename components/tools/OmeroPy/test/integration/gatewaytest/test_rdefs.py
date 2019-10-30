@@ -19,7 +19,7 @@ from builtins import str
 from builtins import object
 import pytest
 
-from io import StringIO, BytesIO
+from io import BytesIO
 from PIL import Image, ImageChops
 import omero
 standard_library.install_aliases()
