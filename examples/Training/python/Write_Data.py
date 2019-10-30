@@ -10,7 +10,9 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
+from __future__ import print_function
 
+from builtins import str
 import os
 import omero
 from omero.rtypes import rstring
@@ -34,7 +36,7 @@ dataset_obj = omero.model.DatasetI()
 dataset_obj.setName(rstring("New Dataset"))
 dataset_obj = conn.getUpdateService().saveAndReturnObject(dataset_obj)
 dataset_id = dataset_obj.getId().getValue()
-print "New dataset, Id:", dataset_id
+print("New dataset, Id:", dataset_id)
 
 
 # Link to Project
@@ -75,16 +77,16 @@ project.linkAnnotation(map_ann)
 
 # Count the number of annotations on one or many objects
 # ===========================================================
-print conn.countAnnotations('Project', [projectId])
+print(conn.countAnnotations('Project', [projectId]))
 
 
 # List all annotations on an object. Get text from tags
 # ===========================================================
 for ann in project.listAnnotations():
-    print ann.getId(), ann.OMERO_TYPE,
-    print " added by ", ann.link.getDetails().getOwner().getOmeName()
+    print(ann.getId(), ann.OMERO_TYPE, end=' ')
+    print(" added by ", ann.link.getDetails().getOwner().getOmeName())
     if ann.OMERO_TYPE == omero.model.TagAnnotationI:
-        print "Tag value:", ann.getTextValue()
+        print("Tag value:", ann.getTextValue())
 
 
 # How to create a file annotation and link to a Dataset
@@ -96,11 +98,11 @@ with open(file_to_upload, 'w') as f:
     f.write('annotation test')
 # create the original file and file annotation (uploads the file etc.)
 namespace = "imperial.training.demo"
-print "\nCreating an OriginalFile and FileAnnotation"
+print("\nCreating an OriginalFile and FileAnnotation")
 file_ann = conn.createFileAnnfromLocalFile(
     file_to_upload, mimetype="text/plain", ns=namespace, desc=None)
-print "Attaching FileAnnotation to Dataset: ", "File ID:", file_ann.getId(), \
-    ",", file_ann.getFile().getName(), "Size:", file_ann.getFile().getSize()
+print("Attaching FileAnnotation to Dataset: ", "File ID:", file_ann.getId(),
+      ",", file_ann.getFile().getName(), "Size:", file_ann.getFile().getSize())
 dataset.linkAnnotation(file_ann)     # link it to dataset.
 os.remove(file_to_upload)
 
@@ -112,17 +114,17 @@ if not os.path.exists(path):
     os.makedirs(path)
 # Go through all the annotations on the Dataset. Download any file annotations
 # we find.
-print "\nAnnotations on Dataset:", dataset.getName()
+print("\nAnnotations on Dataset:", dataset.getName())
 for ann in dataset.listAnnotations():
     if isinstance(ann, omero.gateway.FileAnnotationWrapper):
-        print "File ID:", ann.getFile().getId(), ann.getFile().getName(), \
-            "Size:", ann.getFile().getSize()
+        print("File ID:", ann.getFile().getId(), ann.getFile().getName(),
+              "Size:", ann.getFile().getSize())
         file_path = os.path.join(path, ann.getFile().getName())
         with open(str(file_path), 'w') as f:
-            print "\nDownloading file to", file_path, "..."
+            print("\nDownloading file to", file_path, "...")
             for chunk in ann.getFileInChunks():
                 f.write(chunk)
-        print "File downloaded!"
+        print("File downloaded!")
 
 
 # Load all the file annotations with a given namespace
@@ -133,13 +135,13 @@ metadataService = conn.getMetadataService()
 annotations = metadataService.loadSpecifiedAnnotations(
     'omero.model.FileAnnotation', ns_to_include, ns_to_exclude, None)
 for ann in annotations:
-    print ann.getId().getValue(), ann.getFile().getName().getValue()
+    print(ann.getId().getValue(), ann.getFile().getName().getValue())
 
 
 # Get first annotation with specified namespace
 # =============================================
 ann = dataset.getAnnotation(namespace)
-print "Found Annotation with namespace: ", ann.getNs()
+print("Found Annotation with namespace: ", ann.getNs())
 
 
 # Close connection
