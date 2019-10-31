@@ -28,7 +28,7 @@ from __future__ import absolute_import
 
 from builtins import str
 from builtins import range
-from future.util import native_str
+from future.utils import native_str
 from omero.testlib import ITest
 from omero.rtypes import rstring
 from omero.rtypes import unwrap, wrap
