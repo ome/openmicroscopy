@@ -262,6 +262,7 @@ def testFileAnnotation(author_testimg_generated, gatewaywrapper):
     fileText = "Test text for writing to file for upload"
     f.write(fileText)
     f.close()
+
     ns = TESTANN_NS
     image = author_testimg_generated
 
@@ -314,7 +315,8 @@ def testFileAnnotation(author_testimg_generated, gatewaywrapper):
     annId = ann.getId()
     assert ann.OMERO_TYPE == omero.model.FileAnnotationI
     for t in ann.getFileInChunks():
-        assert str(t) == fileText   # we get whole text in one chunk
+        # see https://github.com/ome/omero-py/pull/69
+        assert t == fileText.encode("utf-8")   # we get whole text in one chunk
 
     # delete what we created
     assert gateway.getObject("Annotation", annId) is not None
