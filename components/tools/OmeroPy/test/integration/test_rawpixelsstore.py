@@ -37,8 +37,14 @@ class TestRPS(ITest):
         rps = self.client.sf.createRawPixelsStore()
         try:
             rps.setPixelsId(pix.id.val, True)
-            sha1 = hex(rps.calculateMessageDigest())
-            assert sha1.decode('utf-8') == pix.sha1.val
+            md = rps.calculateMessageDigest()
+            try:
+                # python 3
+                sha1 = format(int.from_bytes(md, 'big'), 'x')
+            except:
+                # python 2
+                sha1 = hex(int(md.encode('hex'), 16))[2:]
+            assert sha1 == pix.sha1.val
         finally:
             rps.close()
 
