@@ -285,7 +285,7 @@ class TestScriptUtils(ITest):
             return y
 
         def f2(x, y):
-            return (x + y)// 2
+            return (x + y) // 2
 
         def f3(x, y):
             return x
