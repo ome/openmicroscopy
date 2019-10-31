@@ -327,8 +327,9 @@ def testFileAnnotationNoName(author_testimg_generated, gatewaywrapper):
     """Test conn.createOriginalFileFromFileObj() and getFileName()"""
     file_text = "test"
     file_size = len(file_text)
-    f = StringIO()
-    f.write(file_text)
+    f = NamedTemporaryFile()
+    f.write(file_text.encode("utf-8"))
+
     file_name = "testFileAnnotationNoName"
     conn = gatewaywrapper.gateway
     update_service = conn.getUpdateService()
