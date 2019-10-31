@@ -37,6 +37,7 @@ SENDFILE = """
 # Setup to run as an integration test
 import os
 import sys
+from past.builtins import long
 
 import omero.scripts as s
 import omero.util.script_utils as su
