@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-from builtins import str
+from future.utils import native_str
 import pytest
 
 from omero.testlib import AbstractRepoTest
@@ -112,7 +112,7 @@ class TestRename(AbstractRepoTest):
         mrepo = client.getManagedRepository()
         ctx = client.getContext(group=gid)
         if renamer == "root":
-            ctx["omero.user"] = str(uid)
+            ctx["omero.user"] = native_str(uid)
 
         new_dir = prep_directory(client, mrepo)
         try:
