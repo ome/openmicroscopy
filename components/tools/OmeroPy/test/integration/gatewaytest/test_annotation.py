@@ -21,7 +21,6 @@ import time
 import datetime
 import os
 from tempfile import NamedTemporaryFile
-from io import StringIO
 
 import omero.gateway
 from omero.rtypes import rstring
