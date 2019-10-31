@@ -82,7 +82,6 @@ class TestImportBulk(CLITest):
             if match:
                 break
         obj_id = int(match.group('id'))
-        print(obj_id)
         return self.assert_object(obj_type, obj_id, query=query)
 
     def assert_object(self, obj_type, obj_id, query=None):
