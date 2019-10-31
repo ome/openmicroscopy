@@ -99,7 +99,7 @@ class TestMapAnnotationManager(ITest):
         mgr.add_from_namespace_query(self.sf, ns1, pks)
         with pytest.raises(Exception) as exc_info:
             mgr.add_from_namespace_query(self.sf, ns1, pks)
-        assert exc_info.value.message.startswith(
+        assert str(exc_info.value).startswith(
             'Duplicate MapAnnotation primary key')
 
     def test_update_existing_mapann(self):
