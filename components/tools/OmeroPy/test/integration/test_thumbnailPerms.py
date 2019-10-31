@@ -25,7 +25,6 @@
 
 """
 
-from builtins import str
 from future.utils import native_str
 import Ice
 import pytest

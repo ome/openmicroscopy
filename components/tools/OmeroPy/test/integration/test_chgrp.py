@@ -24,7 +24,6 @@
 
 """
 
-from builtins import str
 from builtins import range
 from future.utils import native_str
 import omero

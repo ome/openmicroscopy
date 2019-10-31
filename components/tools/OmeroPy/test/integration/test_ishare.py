@@ -9,7 +9,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from builtins import str
 from future.utils import native_str
 import time
 from omero.testlib import ITest
