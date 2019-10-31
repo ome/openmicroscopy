@@ -41,11 +41,11 @@ class TestPydictTextIo(ITest):
 
     def getTestJson(self):
         # space after : is optional for json but required for yaml
-        return '{"a":2}'
+        return b'{"a":2}'
 
     def getTestYaml(self):
         # quoted strings are optional for yaml but required for json
-        return 'a: 2'
+        return b'a: 2'
 
     @pytest.mark.parametrize('format', ['yaml', 'Yml'])
     def test_get_format_filename_yaml(self, tmpdir, format):
