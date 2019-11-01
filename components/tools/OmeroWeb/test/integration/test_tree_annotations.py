@@ -121,7 +121,7 @@ def tags_userA_userB(request, userA, userB, groupA):
             tag.description = rstring('tag description')
         tag = get_update_service(user).saveAndReturnObject(tag, ctx)
         tags.append(tag)
-    tags.sort(cmp_id)
+    tags.sort(key=lambda x: unwrap(x.id))
     return tags
 
 
@@ -137,7 +137,7 @@ def comments_userA(request, userA, groupA):
         comment.textValue = rstring(text)
         comments.append(comment)
     comments = get_update_service(userA).saveAndReturnArray(comments, ctx)
-    comments.sort(cmp_id)
+    comments.sort(key=lambda x: unwrap(x.id))
     return comments
 
 
