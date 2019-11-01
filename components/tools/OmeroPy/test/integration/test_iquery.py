@@ -145,7 +145,7 @@ class TestQuery(ITest):
                 where alink.child.id=:tid and alink.parent.id=obj.id)"""
         query = q % uniqueClause
         result1 = queryService.projection(query, params,
-                                          {'omero.group': str(groupId)})
+                                          {'omero.group':native_str(groupId)})
         assert len(result1) == tagCount
 
         # Without the select statement, we get the same image returned
@@ -153,7 +153,7 @@ class TestQuery(ITest):
         clause = "alink.child.id=:tid"
         query = q % clause
         result2 = queryService.projection(query, params,
-                                          {'omero.group': str(groupId)})
+                                          {'omero.group': native_str(groupId)})
         assert len(result2) == tagCount
         for idx in range(len(result1)-1):
             # Omit final since == isn't defined for Ice objects.
