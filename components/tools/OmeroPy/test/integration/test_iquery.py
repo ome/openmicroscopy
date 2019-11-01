@@ -28,6 +28,7 @@ from __future__ import absolute_import
 
 from builtins import str
 from builtins import range
+from future.utils import native_str
 from omero.testlib import ITest
 from omero.rtypes import rstring
 from omero.rtypes import unwrap, wrap
@@ -54,7 +55,7 @@ class TestQuery(ITest):
                     * p.sizeZ * p.sizeT * p.sizeC)
                 from Pixels p group by p.pixelsType.value
                 """,
-                None, {"omero.group": str(group.id.val)})
+                None, {"omero.group": native_str(group.id.val)})
             rv = unwrap(rtypeseqseq)
             as_map = dict()
             for obj_array in rv:
@@ -115,7 +116,8 @@ class TestQuery(ITest):
             link.parent = ImageI(l.parent.id, False)
             link.child = TagAnnotationI(l.child.id, False)
             rootLinks.append(link)
-        rootUpdate.saveAndReturnArray(rootLinks, {'omero.group': str(groupId)})
+        rootUpdate.saveAndReturnArray(rootLinks, {'omero.group':
+                                                  native_str(groupId)})
 
         q = """select distinct new map(obj.id as id,
                obj.name as name,

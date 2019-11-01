@@ -25,7 +25,7 @@ from __future__ import print_function
 
 from past.builtins import cmp
 from builtins import zip
-from builtins import str
+from future.utils import native_str
 from past.utils import old_div
 import pytest
 from omero.testlib import ITest
@@ -83,7 +83,7 @@ def project_userA(request, userA, groupA):
     """
     Returns new OMERO Project
     """
-    ctx = {'omero.group': str(groupA.id.val)}
+    ctx = {'omero.group': native_str(groupA.id.val)}
     project = ProjectI()
     project.name = rstring("test_tree_annnotations")
     project = get_update_service(userA).saveAndReturnObject(project, ctx)
@@ -96,7 +96,7 @@ def projects_userA(request, userA, groupA):
     Returns new OMERO Project
     """
     to_save = []
-    ctx = {'omero.group': str(groupA.id.val)}
+    ctx = {'omero.group': native_str(groupA.id.val)}
     for name in "test_ann1", "test_ann2":
         project = ProjectI()
         project.name = rstring(name)
@@ -112,7 +112,7 @@ def tags_userA_userB(request, userA, userB, groupA):
     Returns new OMERO Tags with descriptions
     """
     tags = []
-    ctx = {'omero.group': str(groupA.id.val)}
+    ctx = {'omero.group': native_str(groupA.id.val)}
     for name, user in zip(["userAtag", "userBtag"], [userA, userB]):
         tag = TagAnnotationI()
         tag.textValue = rstring(name)
@@ -131,7 +131,7 @@ def comments_userA(request, userA, groupA):
     Returns new OMERO Comments
     """
     comments = []
-    ctx = {'omero.group': str(groupA.id.val)}
+    ctx = {'omero.group': native_str(groupA.id.val)}
     for text in ["Test Comment", "Another comment userA"]:
         comment = CommentAnnotationI()
         comment.textValue = rstring(text)
@@ -147,7 +147,7 @@ def rating_userA(request, userA, groupA):
     Returns new OMERO Rating
     """
     rating = LongAnnotationI()
-    ctx = {'omero.group': str(groupA.id.val)}
+    ctx = {'omero.group': native_str(groupA.id.val)}
     rating.longValue = rlong(4)
     rating.ns = rstring(omero.constants.metadata.NSINSIGHTRATING)
     rating = get_update_service(userA).saveAndReturnObject(rating, ctx)
@@ -160,7 +160,7 @@ def annotate_project(ann, project, user):
     Returns userA's Tag linked to userB's Project
     by userA and userB
     """
-    ctx = {'omero.group': str(project.details.group.id.val)}
+    ctx = {'omero.group': native_str(project.details.group.id.val)}
     print("annotate_project", ctx)
     link = ProjectAnnotationLinkI()
     link.parent = ProjectI(project.id.val, False)

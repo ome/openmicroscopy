@@ -25,7 +25,7 @@
 
 """
 
-from builtins import str
+from future.utils import native_str
 import Ice
 import pytest
 from omero.testlib import ITest
@@ -96,7 +96,7 @@ class TestThumbnailPerms(ITest):
         owner_client = self.new_client(
             user=newOwner, password=newOwner.omeName.val)
 
-        group_ctx = {"omero.group": str(privateGroup)}
+        group_ctx = {"omero.group": native_str(privateGroup)}
         self.getThumbnail(owner_client.sf, privateImageId, *group_ctx)
         # check that we can't get thumbnails for images in other groups
         assert self.getThumbnail(owner_client.sf, readOnlyImageId) is None
@@ -223,28 +223,28 @@ class TestThumbnailPerms(ITest):
 
     def testPrivate10618RootWithGrpCtx(self):
         group = self.new_group(perms="rw----")
-        grp_ctx = {"omero.group": str(group.id.val)}
+        grp_ctx = {"omero.group": native_str(group.id.val)}
         self.assert10618(group, self.root, True, grp_ctx)
 
     def testPrivate10618RootWithGrpCtxButNoLoad(self):
         group = self.new_group(perms="rw----")
-        grp_ctx = {"omero.group": str(group.id.val)}
+        grp_ctx = {"omero.group": native_str(group.id.val)}
         self.assert10618(group, self.root, False, grp_ctx)
 
     def testReadOnly10618RootWithGrpCtx(self):
         group = self.new_group(perms="rwr---")
-        grp_ctx = {"omero.group": str(group.id.val)}
+        grp_ctx = {"omero.group": native_str(group.id.val)}
         self.assert10618(group, self.root, True, grp_ctx)
 
     def testReadOnly10618RootWithGrpCtxButNoLoad(self):
         group = self.new_group(perms="rwr---")
-        grp_ctx = {"omero.group": str(group.id.val)}
+        grp_ctx = {"omero.group": native_str(group.id.val)}
         self.assert10618(group, self.root, False, grp_ctx)
 
     def testReadOnly10618MemberWithGrpCtxButNoLoad(self):
         group = self.new_group(perms="rwr---")
         member = self.new_client(group=group)
-        grp_ctx = {"omero.group": str(group.id.val)}
+        grp_ctx = {"omero.group": native_str(group.id.val)}
         self.assert10618(group, member, False, grp_ctx)
 
     @pytest.mark.broken(reason="requires thumbnail work")

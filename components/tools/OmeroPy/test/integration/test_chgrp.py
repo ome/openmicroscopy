@@ -24,8 +24,8 @@
 
 """
 
-from builtins import str
 from builtins import range
+from future.utils import native_str
 import omero
 import omero.gateway
 from omero.testlib import ITest
@@ -307,7 +307,8 @@ class TestChgrp(ITest):
         assert target_gid != dataset.details.group.id.val,\
             "Dataset should not be in group: %s" % target_gid
 
-        ctx = {'omero.group': str(target_gid)}  # query in the target group
+        # query in the target group
+        ctx = {'omero.group': native_str(target_gid)}
 
         # Check first Dataset moved
         dataset = query_service.get('Dataset', datasets[0].id.val, ctx)
@@ -338,7 +339,8 @@ class TestChgrp(ITest):
 
         # Check both Datasets and Images moved
         query_service = client.sf.getQueryService()
-        ctx = {'omero.group': str(target_gid)}  # query in the target group
+        # query in the target group
+        ctx = {'omero.group': native_str(target_gid)}
         for i in range(2):
             dataset = query_service.get('Dataset', datasets[i].id.val, ctx)
             image = query_service.get('Image', images[i].id.val, ctx)
@@ -371,7 +373,7 @@ class TestChgrp(ITest):
 
         # Check Dataset and both Images moved
         query_service = client.sf.getQueryService()
-        ctx = {'omero.group': '-1'}  # query across groups
+        ctx = {'omero.group': native_str('-1')}  # query across groups
         dataset = query_service.get('Dataset', ds.id.val, ctx)
         assert target_gid == dataset.details.group.id.val,\
             "Dataset should be in group: %s" % target_gid
@@ -431,7 +433,8 @@ class TestChgrp(ITest):
             assert target_gid != image.details.group.id.val,\
                 "Image should not be in group: %s" % target_gid
 
-        ctx = {'omero.group': str(target_gid)}  # query in the target group
+        # query in the target group
+        ctx = {'omero.group': native_str(target_gid)}
 
         # Check Dataset moved
         dataset = query_service.get('Dataset', ds.id.val, ctx)
@@ -462,7 +465,7 @@ class TestChgrp(ITest):
         self.do_submit(chgrp, client)
 
         # Check the group of the fileset is in sync with image.
-        ctx = {'omero.group': '-1'}
+        ctx = {'omero.group': native_str('-1')}
         qs = client.sf.getQueryService()
         image1 = qs.get("Image", images[0].id.val, ctx)
         fs_id = image1.fileset.id.val
@@ -492,7 +495,7 @@ class TestChgrp(ITest):
 
         # Check Fileset and both Images moved and
         # thus the Fileset is in sync with Images.
-        ctx = {'omero.group': '-1'}  # query across groups
+        ctx = {'omero.group': native_str('-1')}  # query across groups
         fileset = query.get('Fileset', fs_id, ctx)
         assert target_gid == fileset.details.group.id.val,\
             "Fileset should be in group: %s" % target_gid
@@ -557,7 +560,8 @@ class TestChgrp(ITest):
         # Check that the links have been destroyed
         query = client.sf.getQueryService()
         with pytest.raises(omero.ValidationException):
-            query.get("ScreenPlateLink", link.id.val, {"omero.group": "-1"})
+            query.get("ScreenPlateLink", link.id.val,
+                      {"omero.group": native_str("-1")})
 
     def testChgrpDatasetWithImage(self):
         """
@@ -579,7 +583,7 @@ class TestChgrp(ITest):
         self.link(d, i, client=client)
         self.change_group([d], target_gid, client)
 
-        ctx = {'omero.group': '-1'}
+        ctx = {'omero.group': native_str('-1')}
         assert target_gid == query.get("Image",
                                        i.id.val, ctx).details.group.id.val
         assert target_gid == query.get("Dataset",
@@ -607,7 +611,7 @@ class TestChgrp(ITest):
         self.link(d, i, client=client)
         self.change_group([p], target_gid, client=client)
 
-        ctx = {'omero.group': '-1'}
+        ctx = {'omero.group': native_str('-1')}
         assert target_gid == query.get("Project",
                                        p.id.val, ctx).details.group.id.val
         assert target_gid == query.get("Dataset",
@@ -638,7 +642,7 @@ class TestChgrp(ITest):
         self.link(d2, i, client=client)
         self.change_group([d1], target_gid, client=client)
 
-        ctx = {'omero.group': '-1'}
+        ctx = {'omero.group': native_str('-1')}
         assert target_gid == query.get("Dataset",
                                        d1.id.val, ctx).details.group.id.val
         assert target_gid != query.get("Dataset",
@@ -674,7 +678,7 @@ class TestChgrp(ITest):
             groupId=target_gid)
         self.do_submit(chgrp, client)
 
-        ctx = {'omero.group': '-1'}
+        ctx = {'omero.group': native_str('-1')}
         assert target_gid == query.get("Dataset",
                                        d1.id.val, ctx).details.group.id.val
         assert target_gid != query.get("Dataset",
@@ -707,7 +711,7 @@ class TestChgrp(ITest):
         self.link(p, d1, client=client)
         self.change_group([p], target_gid, client)
 
-        ctx = {'omero.group': '-1'}
+        ctx = {'omero.group': native_str('-1')}
         assert target_gid == query.get("Project",
                                        p.id.val, ctx).details.group.id.val
         assert target_gid == query.get("Dataset",
@@ -745,7 +749,7 @@ class TestChgrp(ITest):
             groupId=target_gid)
         self.do_submit(chgrp, client)
 
-        ctx = {'omero.group': '-1'}
+        ctx = {'omero.group': native_str('-1')}
         assert target_gid == query.get("Project",
                                        p.id.val, ctx).details.group.id.val
         assert target_gid == query.get("Dataset",
@@ -780,7 +784,7 @@ class TestChgrp(ITest):
         self.link(d, i, client=client)
         self.change_group([d], target_gid, client)
 
-        ctx = {'omero.group': '-1'}
+        ctx = {'omero.group': native_str('-1')}
 
         assert not target_gid == query.get("Project",
                                            p1.id.val, ctx).details.group.id.val
@@ -816,7 +820,7 @@ class TestChgrp(ITest):
         self.link(d, i, client=client)
         self.change_group([p1], target_gid, client)
 
-        ctx = {'omero.group': '-1'}
+        ctx = {'omero.group': native_str('-1')}
         assert target_gid == query.get("Project",
                                        p1.id.val, ctx).details.group.id.val
         assert target_gid != query.get("Dataset",
@@ -854,7 +858,7 @@ class TestChgrp(ITest):
             groupId=target_gid)
         self.do_submit(chgrp, client)
 
-        ctx = {'omero.group': '-1'}
+        ctx = {'omero.group': native_str('-1')}
         assert target_gid == query.get("Project",
                                        p1.id.val, ctx).details.group.id.val
         assert target_gid != query.get("Project",
@@ -887,7 +891,7 @@ class TestChgrp(ITest):
         self.link(p2, d, client=client)
         self.change_group([p1], target_gid, client)
 
-        ctx = {'omero.group': '-1'}
+        ctx = {'omero.group': native_str('-1')}
         assert target_gid == query.get("Project",
                                        p1.id.val, ctx).details.group.id.val
         assert target_gid != query.get("Dataset",
@@ -921,7 +925,7 @@ class TestChgrp(ITest):
             groupId=target_gid)
         self.do_submit(chgrp, client)
 
-        ctx = {'omero.group': '-1'}
+        ctx = {'omero.group': native_str('-1')}
         assert target_gid == query.get("Project",
                                        p1.id.val, ctx).details.group.id.val
         assert target_gid != query.get("Project",
@@ -1039,7 +1043,7 @@ class TestChgrpTarget(ITest):
             name = self.uuid()
         if client is None:
             client = self.client
-        ctx = {'omero.group': str(gid)}
+        ctx = {'omero.group': native_str(gid)}
         update = client.sf.getUpdateService()
         ds = self.new_dataset(name)
         return update.saveAndReturnObject(ds, ctx)
@@ -1155,7 +1159,7 @@ class TestChgrpTarget(ITest):
         update = client.sf.getUpdateService()
         ds = self.make_dataset(client=client)
         # ...and Project in target group
-        ctx = {'omero.group': str(target_gid)}
+        ctx = {'omero.group': native_str(target_gid)}
         pr = self.new_project()
         pr = update.saveAndReturnObject(pr, ctx)
 

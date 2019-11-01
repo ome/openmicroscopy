@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-from builtins import str
+from future.utils import native_str
 from omero.testlib.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.cmd import Delete2
@@ -59,7 +59,7 @@ class TestCleanseFullAdmin(CLITest):
         super(TestCleanseFullAdmin, self).setup_method(method)
         self.cli.register("admin", omero.plugins.admin.AdminControl, "TEST")
         self.args += ["admin", "cleanse"]
-        self.group_ctx = {'omero.group': str(self.group.id.val)}
+        self.group_ctx = {'omero.group': native_str(self.group.id.val)}
         config_service = self.root.sf.getConfigService()
         self.mrepo_dir = config_service.getConfigValue("omero.managed.dir")
         self.data_dir = config_service.getConfigValue("omero.managed.dir")

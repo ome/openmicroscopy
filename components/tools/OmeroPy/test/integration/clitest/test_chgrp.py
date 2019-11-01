@@ -19,8 +19,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from builtins import str
 from builtins import range
+from future.utils import native_str
 import omero
 from omero.cli import NonZeroReturnCode
 from omero.plugins.chgrp import ChgrpControl
@@ -63,7 +63,8 @@ class TestChgrp(CLITest):
 
         # check the object has been moved
         new_object = self.query.get(object_type, oid,
-                                    {'omero.group': str(target_group.id.val)})
+                                    {'omero.group':
+                                     native_str(target_group.id.val)})
         assert new_object.id.val == oid
 
     def testNonMember(self):

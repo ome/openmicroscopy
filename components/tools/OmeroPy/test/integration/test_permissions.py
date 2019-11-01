@@ -681,7 +681,7 @@ class TestPermissions(ITest):
         # Setup groups as per Carlos' instructions (Feb 23)
         groupX = self.new_group(perms="rwrw--")
         clientA, userA = self.new_client_and_user(group=groupX)
-        gid = str(groupX.id.val)
+        gid = native_str(groupX.id.val)
 
         groupY = self.new_group(perms="rw----")
         clientB, userB = self.new_client_and_user(group=groupY)
@@ -747,8 +747,8 @@ class TestPermissions(ITest):
             self.assertAsUser(client, image, user, group)
 
     def assertAsUser(self, client, image, user, group):
-        callcontext = {"omero.user": str(user.id.val),
-                       "omero.group": str(group.id.val)}
+        callcontext = {"omero.user": native_str(user.id.val),
+                       "omero.group": native_str(group.id.val)}
         query = client.sf.getQueryService()
         query.get("Image", image.id.val, callcontext)
 
@@ -834,7 +834,7 @@ class TestPermissions(ITest):
 
     def testUseOfRawFileBeanScriptReadCorrectGroup(self):
         self.assertValidScript(lambda v: {'omero.group':
-                                          str(v.details.group.id.val)})
+                                          native_str(v.details.group.id.val)})
 
     @pytest.mark.broken(ticket="11539")
     def testUseOfRawFileBeanScriptReadCorrectGroupAndUser(self):
@@ -936,7 +936,7 @@ class TestPermissionProjections(ITest):
                 proj = unwrap(reader.projection(
                     "select p from Project p where p.id = :id",
                     ParametersI().addId(project.id.val),
-                    {"omero:group": str(group)}))[0][0]
+                    {"omero:group": native_str(group)}))[0][0]
                 assert fixture.canRead
                 perms = proj.details.permissions
                 value = {
