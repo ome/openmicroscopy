@@ -33,7 +33,6 @@ from omero.testlib import ITest
 import pytest
 import omero
 import omero.callbacks
-import Ice
 import sys
 import os
 from time import time
@@ -339,29 +338,28 @@ class TestDelete(ITest):
         while(len(handlers) > 0):
             for cbString in handlers:
                 try:
-                    with pytest.raises(Ice.ObjectNotExistException):
-                        handle = omero.cmd.HandlePrx.checkedCast(
-                            client_o.ic.stringToProxy(native_str(cbString)))
-                        cb = omero.callbacks.CmdCallbackI(client_o, handle)
-                        if not cb.block(500):  # ms.
-                            # No errors possible if in progress(
-                            # (since no response)
-                            print(("in progress", _formatReport(handle)))
-                            in_progress += 1
-                        else:
-                            rsp = cb.getResponse()
-                            if isinstance(rsp, omero.cmd.ERR):
-                                r = _formatReport(handle)
-                                if r is not None:
-                                    failure.append(r)
-                                else:
-                                    failure.append("No report!!!")
+                    handle = omero.cmd.HandlePrx.checkedCast(
+                        client_o.ic.stringToProxy(cbString))
+                    cb = omero.callbacks.CmdCallbackI(client_o, handle)
+                    if not cb.block(500):  # ms.
+                        # No errors possible if in progress(
+                        # (since no response)
+                        print(("in progress", _formatReport(handle)))
+                        in_progress += 1
+                    else:
+                        rsp = cb.getResponse()
+                        if isinstance(rsp, omero.cmd.ERR):
+                            r = _formatReport(handle)
+                            if r is not None:
+                                failure.append(r)
                             else:
-                                r = _formatReport(handle)
-                                if r is not None:
-                                    failure.append(r)
-                                cb.close(True)  # Close handle
-                            handlers.remove(cbString)
+                                failure.append("No report!!!")
+                        else:
+                            r = _formatReport(handle)
+                            if r is not None:
+                                failure.append(r)
+                            cb.close(True)  # Close handle
+                        handlers.remove(cbString)
                 except Exception:
                     if r is not None:
                         failure.append(traceback.format_exc())
