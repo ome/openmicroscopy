@@ -19,7 +19,7 @@ from builtins import str
 from builtins import object
 import pytest
 
-from io import StringIO
+from io import BytesIO
 from PIL import Image, ImageChops
 import omero
 standard_library.install_aliases()
@@ -315,9 +315,9 @@ class TestRDefs (object):
         adminThumb = self.image.getThumbnail(rdefId=adminRdefId)
 
         # convert to PIL images
-        defaultThumb = Image.open(StringIO(defaultThumb))
-        authorThumb = Image.open(StringIO(authorThumb))
-        adminThumb = Image.open(StringIO(adminThumb))
+        defaultThumb = Image.open(BytesIO(defaultThumb))
+        authorThumb = Image.open(BytesIO(authorThumb))
+        adminThumb = Image.open(BytesIO(adminThumb))
 
         # Assert that default thumb and author thumb are same
         diff = ImageChops.difference(defaultThumb, authorThumb)
