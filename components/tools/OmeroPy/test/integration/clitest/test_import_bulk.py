@@ -76,7 +76,8 @@ class TestImportBulk(CLITest):
     def get_object(self, err, obj_type, query=None):
         """Retrieve the created object by parsing the stderr output"""
         pattern = re.compile('^%s:(?P<id>\d+)$' % obj_type)
-        for line in reversed(err.split('\n')):
+        decoded = err.decode("utf-8")
+        for line in reversed(decoded.split('\n')):
             match = re.match(pattern, line)
             if match:
                 break
