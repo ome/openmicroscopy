@@ -150,7 +150,7 @@ class TestConnectionMethods(object):
         objects = gatewaywrapper.gateway.getObjects("Experimenter")
         exps = [x.omeName for x in objects]
         for omeName in (gatewaywrapper.USER.name, gatewaywrapper.AUTHOR.name,
-                        gatewaywrapper.ADMIN.name.decode('utf-8')):
+                        gatewaywrapper.ADMIN.name):
             assert omeName in exps
             assert len(list(gatewaywrapper.gateway.getObjects(
                 "Experimenter", attributes={'omeName': omeName}))) > 0
