@@ -39,11 +39,6 @@ from omero.rtypes import rstring, rlong
 from omeroweb.webclient.tree import marshal_annotations
 
 
-def cmp_id(x, y):
-    """Identifier comparator."""
-    return cmp(unwrap(x.id), unwrap(y.id))
-
-
 def unwrap(x):
     """Handle case where there is no value because attribute is None"""
     if x is not None:
