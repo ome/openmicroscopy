@@ -90,7 +90,7 @@ class TestSearch(ITest):
             proj = self.update.saveAndReturnObject(proj)
             proj_by_ns[ns] = proj
             self.index(proj)
-        all_ns = proj_by_ns.keys()
+        all_ns = list(proj_by_ns.keys())
 
         search = self.client.sf.createSearchService()
         search.onlyType("Project")
