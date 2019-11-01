@@ -13,8 +13,8 @@
 
 """
 
-from builtins import str
 from builtins import object
+from future.utils import native_str
 import omero
 import traceback
 from omero.rtypes import rstring
@@ -454,7 +454,7 @@ class Test8800 (object):
         imgObj = image._obj
         gid = image.getDetails().group.id.val
         before = imgObj.getDetails().getPermissions().canEdit()
-        ctx = {'omero.group': str(gid)}
+        ctx = {'omero.group': native_str(gid)}
         imgObj = gatewaywrapper.gateway.getContainerService().getImages(
             "Image", (imgObj.id.val,), None, ctx)[0]
         after = imgObj.getDetails().getPermissions().canEdit()

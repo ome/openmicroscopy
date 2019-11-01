@@ -12,8 +12,8 @@
 """
 
 from builtins import map
-from builtins import str
 from builtins import object
+from future.utils import native_str
 import omero
 import Ice
 from omero.gateway.scripts import dbhelpers
@@ -45,6 +45,7 @@ class TestConnectionMethods(object):
         c3.setGroupForSession(g)
 
     # seppuku is deprecated: testClose below supersedes this test
+    @pytest.mark.filterwarnings("ignore:.*U.*close.*:DeprecationWarning")
     def testSeppuku(self, gatewaywrapper, author_testimg):
         # author_testimg in args to make sure the image has been imported
         gatewaywrapper.loginAsAuthor()
@@ -197,7 +198,7 @@ class TestConnectionMethods(object):
         gatewaywrapper.gateway.setIdentity(
             gatewaywrapper.USER.name, gatewaywrapper.USER.passwd)
         setprop = gatewaywrapper.gateway.c.ic.getProperties().setProperty
-        list(map(lambda x: setprop(x[0], str(x[1])),
+        list(map(lambda x: setprop(x[0], native_str(x[1])),
              list(gatewaywrapper.gateway._ic_props.items())))
         gatewaywrapper.gateway.c.ic.getImplicitContext().put(
             omero.constants.GROUP, gatewaywrapper.gateway.group)
