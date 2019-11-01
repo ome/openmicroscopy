@@ -455,7 +455,7 @@ class TestDeleteLog(AbstractRepoTest):
         # Assert contents of file
         rfs = mrepo.fileById(ofile.id.val)
         try:
-            assert "hi" == rfs.read(0, 2)
+            assert b"hi" == rfs.read(0, 2)
         finally:
             rfs.close()
 
@@ -469,7 +469,7 @@ class TestDeleteLog(AbstractRepoTest):
         # But should just be an empty file.
         rfs = mrepo.file(filename, "rw")
         try:
-            assert "\x00\x00" == rfs.read(0, 2)
+            assert b"\x00\x00" == rfs.read(0, 2)
         finally:
             rfs.close()
 
