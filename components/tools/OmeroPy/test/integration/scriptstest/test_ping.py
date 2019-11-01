@@ -66,7 +66,7 @@ print("Session", client.getSession())
 #
 import sys
 from pprint import pprint
-print "PATH:"
+print("PATH:")
 pprint(sys.path)
 
 print("CONFIG")
@@ -95,7 +95,7 @@ for key in keys:
 #
 print("This was my environment:")
 for k,v in os.environ.items():
-    print "%s => %s" %(k,v)
+    print("%s => %s" %(k,v))
 
 sys.stderr.write("Oh, and this is stderr.");
 
