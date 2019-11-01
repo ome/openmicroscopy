@@ -29,6 +29,7 @@ from omero.plugins.metadata import Metadata, MetadataControl
 from omero.rtypes import rdouble, unwrap
 from omero.testlib.cli import CLITest
 from omero.model.enums import UnitsLength
+from past.builtins import long
 
 
 class MetadataTestBase(CLITest):
@@ -42,7 +43,7 @@ class MetadataTestBase(CLITest):
 
         conn = BlitzGateway(client_obj=self.client)
         self.imageid = unwrap(self.image.getId())
-        assert type(self.imageid) == int
+        assert type(self.imageid) == long
         wrapper = conn.getObject("Image", self.imageid)
         self.md = Metadata(wrapper)
 
