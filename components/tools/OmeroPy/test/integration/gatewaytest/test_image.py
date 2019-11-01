@@ -359,7 +359,6 @@ class TestImage (object):
         assert len(self.image.exportOmeTiff()) > 0
         # if we pass a bufsize we should get a generator back
         size, gen = self.image.exportOmeTiff(bufsize=16)
-        assert hasattr(gen, 'next')
         assert len(next(gen)) == 16
         del gen
         self.assert_no_leaked_exporter(gatewaywrapper.gateway.c)
