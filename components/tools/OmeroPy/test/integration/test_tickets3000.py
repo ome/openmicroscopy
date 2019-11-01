@@ -25,7 +25,7 @@ class TestTickets3000(ITest):
         img = self.make_image(name='test2396-img-%s' % self.uuid())
 
         format = "txt"
-        binary = "12345678910"
+        binary = b"12345678910"
         oFile = omero.model.OriginalFileI()
         oFile.setName(rstring(str("txt-name")))
         oFile.setPath(rstring(str("txt-name")))
