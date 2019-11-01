@@ -135,7 +135,7 @@ class TestDelete(ITest):
         cmd = Delete2(targetObjects={"Image": [iid]})
         handle = self.client.sf.submit(cmd)
         callback = self.wait_on_cmd(self.client, handle)
-        cbString = str(handle)
+        cbString = native_str(handle)
 
         callback.close(True)  # Don't close handle
 
@@ -314,11 +314,11 @@ class TestDelete(ITest):
         keep = ChildOption(excludeType=["Image"])
         dc = Delete2(
             targetObjects={'Dataset': [dataset.id.val]}, childOptions=[keep])
-        handlers.append(str(client_o.sf.submit(dc)))
+        handlers.append(native_str(client_o.sf.submit(dc)))
 
         imageToDelete = images[2].id.val
         dc2 = Delete2(targetObjects={'Image': [imageToDelete]})
-        handlers.append(str(client_o.sf.submit(dc2)))
+        handlers.append(native_str(client_o.sf.submit(dc2)))
 
         def _formatReport(delete_handle):
             """
