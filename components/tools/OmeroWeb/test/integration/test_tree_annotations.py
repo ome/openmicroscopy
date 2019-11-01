@@ -154,7 +154,6 @@ def rating_userA(request, userA, groupA):
     return rating
 
 
-@pytest.fixture(scope='function')
 def annotate_project(ann, project, user):
     """
     Returns userA's Tag linked to userB's Project
