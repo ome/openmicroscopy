@@ -114,7 +114,7 @@ class TestExperimenters(IWebTest):
         field, error = required_field
         del data[field]
         rsp = post(self.django_root_client, request_url, data)
-        assert error in rsp.content
+        assert error in rsp.content.decode("utf-8")
 
     @pytest.mark.parametrize(
         "privilege",
@@ -182,7 +182,7 @@ class TestExperimenters(IWebTest):
         # loads the new experimenter form
         request_url = reverse('wamanageexperimenterid', args=["new"])
         rsp = get(django_client, request_url)
-        form_html = rsp.content
+        form_html = rsp.content.decode("utf-8")
         form_lines = form_html.split('\n')
         input_text = '<input class="privilege'
         inputs = [line for line in form_lines if input_text in line]
@@ -264,13 +264,13 @@ class TestGroups(IWebTest):
         can_modify = 'ModifyGroup' in privileges
         request_url = reverse('wagroups')
         rsp = get(django_client, request_url)
-        groups_html = rsp.content
+        groups_html = rsp.content.decode("utf-8")
         assert ('<span>Add new Group</span>' in groups_html) == can_modify
 
         # Check new group form has correct fields for privileges
         request_url = reverse('wamanagegroupid', args=["new"])
         rsp = get(django_client, request_url)
-        form_html = rsp.content
+        form_html = rsp.content.decode("utf-8")
 
         assert ('name="name"' in form_html) == can_modify
         assert ('name="description"' in form_html) == can_modify
@@ -325,7 +325,7 @@ class TestGroups(IWebTest):
         field, error = required_field
         del data[field]
         rsp = post(self.django_root_client, request_url, data)
-        assert error in rsp.content
+        assert error in rsp.content.decode("utf-8")
 
     def test_validation_errors(self):
         """Test creating or editing group with existing group name."""
@@ -342,7 +342,7 @@ class TestGroups(IWebTest):
         }
         # Try to create - check error
         rsp = post(django_client, request_url, data)
-        assert "This name already exists." in rsp.content
+        assert "This name already exists." in rsp.content.decode("utf-8")
         # Create group
         data['name'] = uuid
         post(django_client, request_url, data, status_code=302)
@@ -361,13 +361,13 @@ class TestGroups(IWebTest):
             "permissions": "0"
         }
         rsp = post(django_client, request_url, data)
-        assert "This name already exists." in rsp.content
+        assert "This name already exists." in rsp.content.decode("utf-8")
 
         # ...Fix name. Now we get error saving group with no members
         # (removed user from their only group)
         data['name'] = uuid
         rsp = post(django_client, request_url, data)
-        assert "Can't remove user" in rsp.content
+        assert "Can't remove user" in rsp.content.decode("utf-8")
 
         # Save and check we added members
         data['members'] = [exp.id.val, exp2.id.val]
