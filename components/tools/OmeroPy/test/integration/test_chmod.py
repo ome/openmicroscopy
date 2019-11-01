@@ -25,6 +25,7 @@
 """
 
 from builtins import str
+from past.builtins import basestring
 import time
 from omero.testlib import ITest
 import omero
@@ -46,8 +47,8 @@ class BaseChmodTest(ITest):
         client.sf.getAdminService().getEventContext()  # Refresh
 
     def assertEqPerms(self, a, b):
-        assert a.__class__ in (omero.model.PermissionsI, str)
-        assert b.__class__ in (omero.model.PermissionsI, str)
+        assert isinstance(a, (omero.model.PermissionsI, basestring))
+        assert isinstance(b, (omero.model.PermissionsI, basestring))
         assert str(a) == str(b)
 
     def addData(self):
