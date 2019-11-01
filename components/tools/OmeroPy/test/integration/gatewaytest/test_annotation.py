@@ -21,7 +21,6 @@ import time
 import datetime
 import os
 from tempfile import NamedTemporaryFile
-from io import StringIO
 
 import omero.gateway
 from omero.rtypes import rstring
@@ -262,6 +261,7 @@ def testFileAnnotation(author_testimg_generated, gatewaywrapper):
     fileText = "Test text for writing to file for upload"
     f.write(fileText)
     f.close()
+
     ns = TESTANN_NS
     image = author_testimg_generated
 
@@ -314,7 +314,8 @@ def testFileAnnotation(author_testimg_generated, gatewaywrapper):
     annId = ann.getId()
     assert ann.OMERO_TYPE == omero.model.FileAnnotationI
     for t in ann.getFileInChunks():
-        assert str(t) == fileText   # we get whole text in one chunk
+        # see https://github.com/ome/omero-py/pull/69
+        assert t == fileText.encode("utf-8")   # we get whole text in one chunk
 
     # delete what we created
     assert gateway.getObject("Annotation", annId) is not None
@@ -327,8 +328,9 @@ def testFileAnnotationNoName(author_testimg_generated, gatewaywrapper):
     """Test conn.createOriginalFileFromFileObj() and getFileName()"""
     file_text = "test"
     file_size = len(file_text)
-    f = StringIO()
-    f.write(file_text)
+    f = NamedTemporaryFile()
+    f.write(file_text.encode("utf-8"))
+
     file_name = "testFileAnnotationNoName"
     conn = gatewaywrapper.gateway
     update_service = conn.getUpdateService()
@@ -357,7 +359,7 @@ def testFileAnnotationSpeed(author_testimg_generated, gatewaywrapper):
     """ Tests speed of loading file annotations. See PR: 4176 """
     try:
         f = NamedTemporaryFile()
-        f.write("testFileAnnotationSpeed text")
+        f.write(b"testFileAnnotationSpeed text")
         ns = TESTANN_NS
         image = author_testimg_generated
 
