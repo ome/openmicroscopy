@@ -23,7 +23,6 @@ Integration tests for annotations methods in the "tree" module.
 from __future__ import division
 from __future__ import print_function
 
-from past.builtins import cmp
 from builtins import zip
 from future.utils import native_str
 from past.utils import old_div
