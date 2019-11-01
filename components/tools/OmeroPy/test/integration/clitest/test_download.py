@@ -84,14 +84,14 @@ class TestDownload(CLITest):
     # ========================================================================
     @pytest.mark.parametrize('prefix', ['', 'OriginalFile:'])
     def testNonExistingOriginalFile(self, tmpdir, prefix):
-        ofile = self.create_original_file("test")
+        ofile = self.create_original_file(b"test")
         self.args += ['%s%s' % (prefix, str(ofile.id.val + 1)), '-']
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
     @pytest.mark.parametrize('prefix', ['', 'OriginalFile:'])
     def testOriginalFileTmpfile(self, prefix, tmpdir):
-        ofile = self.create_original_file("test")
+        ofile = self.create_original_file(b"test")
         tmpfile = tmpdir.join('test')
         self.args += ['%s%s' % (prefix, str(ofile.id.val)), str(tmpfile)]
         self.cli.invoke(self.args, strict=True)
@@ -100,7 +100,7 @@ class TestDownload(CLITest):
 
     @pytest.mark.parametrize('prefix', ['', 'OriginalFile:'])
     def testOriginalFileStdout(self, prefix, capsys):
-        ofile = self.create_original_file("test")
+        ofile = self.create_original_file(b"test")
         self.args += ['%s%s' % (prefix, str(ofile.id.val)), '-']
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
@@ -110,7 +110,7 @@ class TestDownload(CLITest):
     def testOriginalFileMultipleGroups(self, prefix, capsys):
         user, group1, group2 = self.setup_user_and_two_groups()
         client = self.new_client(user=user)
-        ofile = self.create_original_file("test")
+        ofile = self.create_original_file(b"test")
         self.set_context(client, group2.id.val)
         self.args += ['%s%s' % (prefix, str(ofile.id.val)), '-']
         self.cli.invoke(self.args, strict=True)
@@ -120,7 +120,7 @@ class TestDownload(CLITest):
     # FileAnnotation tests
     # ========================================================================
     def testNonExistingFileAnnotation(self, tmpdir):
-        ofile = self.create_original_file("test")
+        ofile = self.create_original_file(b"test")
         fa = omero.model.FileAnnotationI()
         fa.setFile(ofile)
         fa = self.update.saveAndReturnObject(fa)
@@ -129,7 +129,7 @@ class TestDownload(CLITest):
             self.cli.invoke(self.args, strict=True)
 
     def testFileAnnotationTmpfile(self, tmpdir):
-        ofile = self.create_original_file("test")
+        ofile = self.create_original_file(b"test")
         fa = omero.model.FileAnnotationI()
         fa.setFile(ofile)
         fa = self.update.saveAndReturnObject(fa)
@@ -140,7 +140,7 @@ class TestDownload(CLITest):
             assert f.read() == "test"
 
     def testFileAnnotationStdout(self, capsys):
-        ofile = self.create_original_file("test")
+        ofile = self.create_original_file(b"test")
         fa = omero.model.FileAnnotationI()
         fa.setFile(ofile)
         fa = self.update.saveAndReturnObject(fa)
@@ -152,7 +152,7 @@ class TestDownload(CLITest):
     def testFileAnnotationMultipleGroups(self, capsys):
         user, group1, group2 = self.setup_user_and_two_groups()
         client = self.new_client(user=user)
-        ofile = self.create_original_file("test")
+        ofile = self.create_original_file(b"test")
         fa = omero.model.FileAnnotationI()
         fa.setFile(ofile)
         fa = self.update.saveAndReturnObject(fa)
@@ -318,7 +318,7 @@ class TestDownload(CLITest):
         images = self.import_fake_file(client=upper)
         image = images[0]
 
-        ofile = self.create_original_file("test", upper)
+        ofile = self.create_original_file(b"test", upper)
 
         owner = upper
         admin = self.new_client(group=group, system=True)
