@@ -359,7 +359,7 @@ def testFileAnnotationSpeed(author_testimg_generated, gatewaywrapper):
     """ Tests speed of loading file annotations. See PR: 4176 """
     try:
         f = NamedTemporaryFile()
-        f.write(("testFileAnnotationSpeed text").encode("utf-8"))
+        f.write(b"testFileAnnotationSpeed text")
         ns = TESTANN_NS
         image = author_testimg_generated
 
