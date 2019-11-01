@@ -49,7 +49,7 @@ class TestCoreMetadata(IWebTest):
         request_url = reverse('load_metadata_details', args=['image', iid])
         data = {}
         rsp = get(self.django_client, request_url, data, status_code=200)
-        html = rsp.content
+        html = rsp.content.decode("utf-8")
         # Units are µm by default
         assert "Pixels Size (XYZ) (µm):" in html
 
@@ -64,7 +64,7 @@ class TestCoreMetadata(IWebTest):
 
         # Should now be showing pixels
         rsp = get(self.django_client, request_url, data, status_code=200)
-        html = rsp.content
+        html = rsp.content.decode("utf-8")
         assert "Pixels Size (XYZ):" in html
         assert "1.20 (pixel)" in html
 
