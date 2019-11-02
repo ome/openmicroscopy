@@ -33,7 +33,7 @@ from omeroweb.testlib import post, get
 
 from django.core.urlresolvers import reverse
 
-from io import StringIO
+from io import BytesIO
 try:
     from PIL import Image
 except ImportError:
@@ -363,17 +363,17 @@ class TestRenderImageRegion(IWebTest):
         try:
             # case 1
             response = get(django_client, request_url, data)
-            tile = Image.open(StringIO(response.content))
+            tile = Image.open(BytesIO(response.content))
             assert tile.size == tuple(expTileSize)
             # case 2
             data['tile'] = '0,0,0,10,10'
             response = get(django_client, request_url, data)
-            tile = Image.open(StringIO(response.content))
+            tile = Image.open(BytesIO(response.content))
             assert tile.size == (10, 10)
             # case 3
             data['tile'] = '0,0,0,0,10000'
             response = get(django_client, request_url, data)
-            tile = Image.open(StringIO(response.content))
+            tile = Image.open(BytesIO(response.content))
             assert tile.size == tuple(expTileSize)
         finally:
             self.assert_no_leaked_rendering_engines()
@@ -401,7 +401,7 @@ class TestRenderImageRegion(IWebTest):
             data['tile'] = '0,0,0,512,512'
             response = get(django_client, request_url, data)
             tile_content = response.content
-            tile = Image.open(StringIO(tile_content))
+            tile = Image.open(BytesIO(tile_content))
             assert tile.size == (512, 512)
         finally:
             self.assert_no_leaked_rendering_engines()
@@ -475,14 +475,14 @@ class TestRenderImageRegion(IWebTest):
             data['tile'] = '0,0,0,512,512'
             response = get(django_client, request_url, data)
             tile_content = response.content
-            tile = Image.open(StringIO(tile_content))
+            tile = Image.open(BytesIO(tile_content))
             assert tile.size == (512, 512)
             digest = self.calculate_sha1(tile_content)
             # request another resolution. It should default to 0
             data['tile'] = '1,0,0,512,512'
             response = get(django_client, request_url, data)
             tile_res_content = response.content
-            tile = Image.open(StringIO(tile_res_content))
+            tile = Image.open(BytesIO(tile_res_content))
             assert tile.size == (512, 512)
             digest_res = self.calculate_sha1(tile_res_content)
             assert digest != digest_res
@@ -510,7 +510,7 @@ class TestRenderImageRegion(IWebTest):
 
         try:
             response = get(django_client, request_url, data)
-            tile = Image.open(StringIO(response.content))
+            tile = Image.open(BytesIO(response.content))
             assert tile.size == (10, 10)
         finally:
             self.assert_no_leaked_rendering_engines()
@@ -533,11 +533,11 @@ class TestRenderImageRegion(IWebTest):
         try:
             data['region'] = '0,0,512,512'
             response = get(django_client, request_url, data)
-            region = Image.open(StringIO(response.content))
+            region = Image.open(BytesIO(response.content))
             assert region.size == (512, 512)
             data['region'] = '0,0,2000,2000'
             response = get(django_client, request_url, data)
-            region = Image.open(StringIO(response.content))
+            region = Image.open(BytesIO(response.content))
             assert region.size == (2000, 2000)
         finally:
             self.assert_no_leaked_rendering_engines()
@@ -557,7 +557,7 @@ class TestRenderImageRegion(IWebTest):
         )
         try:
             response = get(django_client, request_url)
-            region = Image.open(StringIO(response.content))
+            region = Image.open(BytesIO(response.content))
             assert region.size == (100, 100)
         finally:
             self.assert_no_leaked_rendering_engines()
