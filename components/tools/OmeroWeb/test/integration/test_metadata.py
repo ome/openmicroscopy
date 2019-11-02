@@ -51,7 +51,8 @@ class TestCoreMetadata(IWebTest):
         rsp = get(self.django_client, request_url, data, status_code=200)
         html = rsp.content.decode("utf-8")
         # Units are µm by default
-        assert "Pixels Size (XYZ) (µm):" in html
+        value = "Pixels Size (XYZ) ("+u"µm):"
+        assert value in html
 
         # Now save units as PIXELs and view again
         conn = omero.gateway.BlitzGateway(client_obj=self.client)
