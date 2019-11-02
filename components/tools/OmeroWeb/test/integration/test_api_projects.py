@@ -51,12 +51,6 @@ def lower_or_none(x):
     return None
 
 
-def cmp_name_insensitive(x, y):
-    """Case-insensitive name comparator."""
-    return cmp(lower_or_none(unwrap(x.name)),
-               lower_or_none(unwrap(y.name)))
-
-
 def get_connection(user, group_id=None):
     """
     Get a BlitzGateway connection for the given user's client
@@ -100,7 +94,7 @@ def projects_user1_group1(request, names1, user1,
         to_save.append(project)
     projects = get_update_service(user1).saveAndReturnArray(to_save)
     projects.extend(project_hierarchy_user1_group1[:2])
-    projects.sort(cmp_name_insensitive)
+    projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return projects
 
 
@@ -117,7 +111,7 @@ def projects_user2_group1(request, names2, user2):
         to_save.append(project)
     projects = get_update_service(user2).saveAndReturnArray(
         to_save)
-    projects.sort(cmp_name_insensitive)
+    projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return projects
 
 
@@ -135,7 +129,7 @@ def projects_user1_group2(request, names3, user1, group2):
     conn = get_connection(user1, group2.id.val)
     projects = conn.getUpdateService().saveAndReturnArray(to_save,
                                                           conn.SERVICE_OPTS)
-    projects.sort(cmp_name_insensitive)
+    projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return projects
 
 
@@ -146,7 +140,7 @@ def projects_user1(request, projects_user1_group1,
     Returns OMERO Projects for user1 in both group1 and group2
     """
     projects = projects_user1_group1 + projects_user1_group2
-    projects.sort(cmp_name_insensitive)
+    projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return projects
 
 
@@ -257,13 +251,13 @@ class TestProjects(IWebTest):
 
         to_save = [project1, project2]
         projects = get_update_service(user1).saveAndReturnArray(to_save)
-        projects.sort(cmp_name_insensitive)
+        projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
 
         datasets = projects[0].linkedDatasetList()
-        datasets.sort(cmp_name_insensitive)
+        datasets.sort(key=lambda x: lower_or_none(unwrap(x.name)))
 
         images = datasets[0].linkedImageList()
-        images.sort(cmp_name_insensitive)
+        images.sort(key=lambda x: lower_or_none(unwrap(x.name)))
 
         return projects + datasets + images
 
@@ -372,7 +366,7 @@ class TestProjects(IWebTest):
         and filtering by owner.
         """
         projects = projects_user1_group1 + projects_user2_group1
-        projects.sort(cmp_name_insensitive)
+        projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
@@ -401,7 +395,7 @@ class TestProjects(IWebTest):
         Test pagination of projects
         """
         projects = projects_user1_group1 + projects_user2_group1
-        projects.sort(cmp_name_insensitive)
+        projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
@@ -433,7 +427,7 @@ class TestProjects(IWebTest):
         Tests normalize and childCount params of projects
         """
         projects = projects_user1_group1 + projects_user2_group1
-        projects.sort(cmp_name_insensitive)
+        projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
         conn = get_connection(user1)
         user_name = conn.getUser().getName()
         django_client = self.new_django_client(user_name, user_name)
