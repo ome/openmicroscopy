@@ -22,7 +22,6 @@ Simple integration tests for the "tree" module.
 """
 from __future__ import division
 
-from past.builtins import cmp
 from builtins import str
 from past.utils import old_div
 import pytest
@@ -51,44 +50,11 @@ def unwrap(x):
     return None
 
 
-def cmp_id(x, y):
-    """Identifier comparator."""
-    return cmp(unwrap(x.id), unwrap(y.id))
-
-
-def cmp_name(x, y):
-    """Name comparator."""
-    return cmp(unwrap(x.name), unwrap(y.name))
-
-
-def cmp_column(x, y):
-    """Column comparator for Wells."""
-    return cmp(unwrap(x.column), unwrap(y.column))
-
-
 def lower_or_none(x):
     """ Lower the case or `None`"""
     if x is not None:
         return x.lower()
     return None
-
-
-def cmp_name_insensitive(x, y):
-    """Case-insensitive name comparator."""
-    return cmp(lower_or_none(unwrap(x.name)),
-               lower_or_none(unwrap(y.name)))
-
-
-def cmp_omename_insensitive(x, y):
-    """Case-insensitive omeName comparator."""
-    return cmp(lower_or_none(unwrap(x.omeName)),
-               lower_or_none(unwrap(y.omeName)))
-
-
-def cmp_textValue_insensitive(x, y):
-    """Case-insensitive textValue comparator."""
-    return cmp(lower_or_none(unwrap(x.textValue)),
-               lower_or_none(unwrap(y.textValue)))
 
 
 def get_connection(user, group_id=None):
@@ -370,7 +336,7 @@ def projects_userA_groupA(request, names1, userA,
         to_save.append(project)
     projects = get_update_service(userA).saveAndReturnArray(to_save)
     projects.extend(project_hierarchy_userA_groupA[:2])
-    projects.sort(cmp_name_insensitive)
+    projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return projects
 
 
@@ -387,7 +353,7 @@ def projects_userB_groupA(request, names2, userB):
         to_save.append(project)
     projects = get_update_service(userB).saveAndReturnArray(
         to_save)
-    projects.sort(cmp_name_insensitive)
+    projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return projects
 
 
@@ -406,7 +372,7 @@ def projects_userA_groupB(request, names3, userA, groupB):
     projects = conn.getUpdateService().saveAndReturnArray(to_save,
                                                           conn.SERVICE_OPTS)
 
-    projects.sort(cmp_name_insensitive)
+    projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return projects
 
 
@@ -417,7 +383,7 @@ def projects_groupA(request, projects_userA_groupA,
     Returns OMERO Projects for userA and userB in groupA
     """
     projects = projects_userA_groupA + projects_userB_groupA
-    projects.sort(cmp_name_insensitive)
+    projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return projects
 
 
@@ -427,7 +393,6 @@ def projects_groupB(request, projects_userA_groupB):
     Returns OMERO Projects for userA and userB in groupB
     """
     projects = projects_userA_groupB
-    # projects.sort(cmp_name_insensitive)
     return projects
 
 
@@ -438,7 +403,7 @@ def projects_userA(request, projects_userA_groupA,
     Returns OMERO Projects for userA in both groupA and groupB
     """
     projects = projects_userA_groupA + projects_userA_groupB
-    projects.sort(cmp_name_insensitive)
+    projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return projects
 
 
@@ -449,7 +414,7 @@ def projects(request, projects_groupA,
     Returns OMERO Projects for both users in read-only group
     """
     projects = projects_groupA + projects_groupB
-    projects.sort(cmp_name_insensitive)
+    projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return projects
 
 
@@ -465,7 +430,7 @@ def datasets_userA_groupA(request, userA):
         dataset.name = rstring(name)
         to_save.append(dataset)
     datasets = get_update_service(userA).saveAndReturnArray(to_save)
-    datasets.sort(cmp_name_insensitive)
+    datasets.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return datasets
 
 
@@ -480,7 +445,7 @@ def datasets_userB_groupA(request, userB):
         dataset.name = rstring(name)
         to_save.append(dataset)
     datasets = get_update_service(userB).saveAndReturnArray(to_save)
-    datasets.sort(cmp_name_insensitive)
+    datasets.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return datasets
 
 
@@ -498,7 +463,7 @@ def datasets_userA_groupB(request, userA, groupB):
     datasets = conn.getUpdateService().saveAndReturnArray(to_save,
                                                           conn.SERVICE_OPTS)
 
-    datasets.sort(cmp_name_insensitive)
+    datasets.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return datasets
 
 
@@ -509,7 +474,7 @@ def datasets_groupA(request, datasets_userA_groupA,
     Returns OMERO Datasets for userA and userB in groupA
     """
     datasets = datasets_userA_groupA + datasets_userB_groupA
-    datasets.sort(cmp_name_insensitive)
+    datasets.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return datasets
 
 
@@ -519,7 +484,6 @@ def datasets_groupB(request, datasets_userA_groupB):
     Returns OMERO Datasets for userA and userB in groupB
     """
     datasets = datasets_userA_groupB
-    # datasets.sort(cmp_name_insensitive)
     return datasets
 
 
@@ -530,7 +494,7 @@ def datasets_userA(request, datasets_userA_groupA,
     Returns OMERO Datasets for userA in groupA and groupB
     """
     datasets = datasets_userA_groupA + datasets_userA_groupB
-    datasets.sort(cmp_name_insensitive)
+    datasets.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return datasets
 
 
@@ -541,7 +505,7 @@ def datasets(request, datasets_groupA,
     Returns OMERO Datasets for all users in all groups
     """
     datasets = datasets_groupA + datasets_groupB
-    datasets.sort(cmp_name_insensitive)
+    datasets.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return datasets
 
 
@@ -553,7 +517,7 @@ def images_groupA(request, images_userA_groupA,
     Returns OMERO Images for userA and userB in groupA
     """
     images = images_userA_groupA + images_userB_groupA
-    images.sort(cmp_name_insensitive)
+    images.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return images
 
 
@@ -563,7 +527,6 @@ def images_groupB(request, images_userA_groupB):
     Returns OMERO Images for userA and userB in groupB
     """
     images = images_userA_groupB
-    # images.sort(cmp_name_insensitive)
     return images
 
 
@@ -573,7 +536,7 @@ def images_userA(request, images_userA_groupA, images_userA_groupB):
     Returns OMERO Images for userA in groupA and groupB
     """
     images = images_userA_groupA + images_userA_groupB
-    images.sort(cmp_name_insensitive)
+    images.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return images
 
 
@@ -583,7 +546,7 @@ def images(request, images_groupA, images_groupB):
     Returns OMERO Images for all users in all groups
     """
     images = images_groupA + images_groupB
-    images.sort(cmp_name_insensitive)
+    images.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return images
 
 
@@ -604,7 +567,7 @@ def shares_userA_owned(request, userA, userB, images_userA_groupA):
                                                  [], True)
         sh = conn.getShareService().getShare(sid)
         shares.append(sh)
-    shares.sort(cmp_id)
+    shares.sort(key=lambda x: unwrap(x.id))
     return shares
 
 
@@ -622,7 +585,7 @@ def shares_userB_owned(request, userA, userB, images_userB_groupA):
                                                  [], True)
         sh = conn.getShareService().getShare(sid)
         shares.append(sh)
-    shares.sort(cmp_id)
+    shares.sort(key=lambda x: unwrap(x.id))
     return shares
 
 
@@ -632,7 +595,7 @@ def shares(request, shares_userA_owned, shares_userB_owned):
     Returns OMERO Shares for userA and userB
     """
     shares = shares_userA_owned + shares_userB_owned
-    shares.sort(cmp_id)
+    shares.sort(key=lambda x: unwrap(x.id))
     return shares
 
 
@@ -651,7 +614,7 @@ def discussions_userA_owned(request, userA, userB):
                                                  [], True)
         sh = conn.getShareService().getShare(sid)
         discussions.append(sh)
-    discussions.sort(cmp_id)
+    discussions.sort(key=lambda x: unwrap(x.id))
     return discussions
 
 
@@ -669,7 +632,7 @@ def discussions_userB_owned(request, userA, userB):
                                                  [], True)
         sh = conn.getShareService().getShare(sid)
         discussions.append(sh)
-    discussions.sort(cmp_id)
+    discussions.sort(key=lambda x: unwrap(x.id))
     return discussions
 
 
@@ -679,7 +642,7 @@ def discussions(request, discussions_userA_owned, discussions_userB_owned):
     Returns OMERO Shares for userA and userB
     """
     discussions = discussions_userA_owned + discussions_userB_owned
-    discussions.sort(cmp_id)
+    discussions.sort(key=lambda x: unwrap(x.id))
     return discussions
 
 
@@ -696,7 +659,7 @@ def screens_userA_groupA(request, userA):
         to_save.append(screen)
 
     screens = get_update_service(userA).saveAndReturnArray(to_save)
-    screens.sort(cmp_name_insensitive)
+    screens.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return screens
 
 
@@ -712,7 +675,7 @@ def screens_userB_groupA(request, userB):
         to_save.append(screen)
 
     screens = get_update_service(userB).saveAndReturnArray(to_save)
-    screens.sort(cmp_name_insensitive)
+    screens.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return screens
 
 
@@ -730,7 +693,7 @@ def screens_userA_groupB(request, userA, groupB):
     conn = get_connection(userA, groupB.id.val)
     screens = conn.getUpdateService().saveAndReturnArray(to_save,
                                                          conn.SERVICE_OPTS)
-    screens.sort(cmp_name_insensitive)
+    screens.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return screens
 
 
@@ -740,7 +703,7 @@ def screens_groupA(request, screens_userA_groupA, screens_userB_groupA):
     Returns OMERO Screens for userA and userB in groupA
     """
     screens = screens_userA_groupA + screens_userB_groupA
-    screens.sort(cmp_name_insensitive)
+    screens.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return screens
 
 
@@ -750,7 +713,6 @@ def screens_groupB(request, screens_userA_groupB):
     Returns OMERO Screens for userA and userB in groupB
     """
     screens = screens_userA_groupB
-    # screens.sort(cmp_name_insensitive)
     return screens
 
 
@@ -760,7 +722,7 @@ def screens_userA(request, screens_userA_groupA, screens_userA_groupB):
     Returns OMERO Screens for userA in groupA and groupB
     """
     screens = screens_userA_groupA + screens_userA_groupB
-    screens.sort(cmp_name_insensitive)
+    screens.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return screens
 
 
@@ -770,7 +732,7 @@ def screens(request, screens_groupA, screens_groupB):
     Returns OMERO Screens for all users in all groups
     """
     screens = screens_groupA + screens_groupB
-    screens.sort(cmp_name_insensitive)
+    screens.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return screens
 
 
@@ -787,7 +749,7 @@ def plates_userA_groupA(request, userA):
         to_save.append(plate)
 
     plates = get_update_service(userA).saveAndReturnArray(to_save)
-    plates.sort(cmp_name_insensitive)
+    plates.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return plates
 
 
@@ -803,7 +765,7 @@ def plates_userB_groupA(request, userB):
         to_save.append(plate)
 
     plates = get_update_service(userB).saveAndReturnArray(to_save)
-    plates.sort(cmp_name_insensitive)
+    plates.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return plates
 
 
@@ -821,7 +783,7 @@ def plates_userA_groupB(request, userA, groupB):
     conn = get_connection(userA, groupB.id.val)
     plates = conn.getUpdateService().saveAndReturnArray(to_save,
                                                         conn.SERVICE_OPTS)
-    plates.sort(cmp_name_insensitive)
+    plates.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return plates
 
 
@@ -831,7 +793,7 @@ def plates_groupA(request, plates_userA_groupA, plates_userB_groupA):
     Returns OMERO Plates for userA and userB in groupA
     """
     plates = plates_userA_groupA + plates_userB_groupA
-    plates.sort(cmp_name_insensitive)
+    plates.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return plates
 
 
@@ -841,7 +803,6 @@ def plates_groupB(request, plates_userA_groupB):
     Returns OMERO Plates for userA and userB in groupB
     """
     plates = plates_userA_groupB
-    # plates.sort(cmp_name_insensitive)
     return plates
 
 
@@ -851,7 +812,7 @@ def plates_userA(request, plates_userA_groupA, plates_userA_groupB):
     Returns OMERO Plates for userA in groupA and groupB
     """
     plates = plates_userA_groupA + plates_userA_groupB
-    plates.sort(cmp_name_insensitive)
+    plates.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return plates
 
 
@@ -861,7 +822,7 @@ def plates(request, plates_groupA, plates_groupB):
     Returns OMERO Plates for all users in all groups
     """
     plates = plates_groupA + plates_groupB
-    plates.sort(cmp_name_insensitive)
+    plates.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     return plates
 
 
@@ -917,16 +878,16 @@ def screen_hierarchy_userA_groupA(request, userA):
 
     to_save = [screenA, screenB]
     screens = get_update_service(userA).saveAndReturnArray(to_save)
-    screens.sort(cmp_name_insensitive)
+    screens.sort(key=lambda x: lower_or_none(unwrap(x.name)))
 
     plates = screens[0].linkedPlateList()
-    plates.sort(cmp_name_insensitive)
+    plates.sort(key=lambda x: lower_or_none(unwrap(x.name)))
 
     acqs = plates[0].copyPlateAcquisitions()
-    acqs.sort(cmp_id)
+    acqs.sort(key=lambda x: unwrap(x.id))
 
     wells = plates[0].copyWells()
-    wells.sort(cmp_column)
+    wells.sort(key=lambda x: unwrap(x.column))
 
     # return [scr, scr, plate, acq, acq, acq, well, well]
     return screens + plates + acqs + wells
@@ -959,7 +920,7 @@ def screen_hierarchy_userB_groupA(request, userB):
 
     to_save = [screenC]
     screens = get_update_service(userB).saveAndReturnArray(to_save)
-    screens.sort(cmp_name_insensitive)
+    screens.sort(key=lambda x: lower_or_none(unwrap(x.name)))
 
     plates = screens[0].linkedPlateList()
 
@@ -997,7 +958,7 @@ def screen_hierarchy_userA_groupB(request, userA, groupB):
     conn = get_connection(userA, groupB.id.val)
     screens = conn.getUpdateService().saveAndReturnArray(to_save,
                                                          conn.SERVICE_OPTS)
-    screens.sort(cmp_name_insensitive)
+    screens.sort(key=lambda x: lower_or_none(unwrap(x.name)))
 
     plates = screens[0].linkedPlateList()
 
@@ -1018,7 +979,7 @@ def tags_userA_groupA(request, userA, tagset_hierarchy_userA_groupA):
         to_save.append(tag)
     tags = get_update_service(userA).saveAndReturnArray(to_save)
     tags.extend(tagset_hierarchy_userA_groupA[:2])
-    tags.sort(cmp_id)
+    tags.sort(key=lambda x: unwrap(x.id))
     return tags
 
 
@@ -1034,7 +995,7 @@ def tags_userB_groupA(request, userB):
         to_save.append(tag)
 
     tags = get_update_service(userB).saveAndReturnArray(to_save)
-    tags.sort(cmp_id)
+    tags.sort(key=lambda x: unwrap(x.id))
     return tags
 
 
@@ -1052,7 +1013,7 @@ def tags_userA_groupB(request, userA, groupB):
     conn = get_connection(userA, groupB.id.val)
     tags = conn.getUpdateService().saveAndReturnArray(to_save,
                                                       conn.SERVICE_OPTS)
-    tags.sort(cmp_id)
+    tags.sort(key=lambda x: unwrap(x.id))
     return tags
 
 
@@ -1062,7 +1023,7 @@ def tags_groupA(request, tags_userA_groupA, tags_userB_groupA):
     Returns OMERO Tags for userA and userB in groupA
     """
     tags = tags_userA_groupA + tags_userB_groupA
-    tags.sort(cmp_id)
+    tags.sort(key=lambda x: unwrap(x.id))
     return tags
 
 
@@ -1072,7 +1033,6 @@ def tags_groupB(request, tags_userA_groupB):
     Returns OMERO Tags for userA and userB in groupB
     """
     tags = tags_userA_groupB
-    # tags.sort(cmp_name_insensitive)
     return tags
 
 
@@ -1082,7 +1042,7 @@ def tags_userA(request, tags_userA_groupA, tags_userA_groupB):
     Returns OMERO Tags for userA in groupA and groupB
     """
     tags = tags_userA_groupA + tags_userA_groupB
-    tags.sort(cmp_id)
+    tags.sort(key=lambda x: unwrap(x.id))
     return tags
 
 
@@ -1092,7 +1052,7 @@ def tags(request, tags_groupA, tags_groupB):
     Returns OMERO Tags for all users in all groups
     """
     tags = tags_groupA + tags_groupB
-    tags.sort(cmp_id)
+    tags.sort(key=lambda x: unwrap(x.id))
     return tags
 
 
@@ -1179,10 +1139,10 @@ def tagset_hierarchy_userA_groupA(request, userA, userB,
     to_save = [tagsetA]
     conn = get_connection(userA)
     tagsets = conn.getUpdateService().saveAndReturnArray(to_save)
-    tagsets.sort(cmp_id)
+    tagsets.sort(key=lambda x: unwrap(x.id))
 
     tags = tagsets[0].linkedAnnotationList()
-    tags.sort(cmp_id)
+    tags.sort(key=lambda x: unwrap(x.id))
 
     project_link = ProjectAnnotationLinkI()
     project_link.parent = project
@@ -1263,10 +1223,10 @@ def tagset_hierarchy_userB_groupA(request, userA,
     to_save = [tagsetA]
     conn = get_connection(userA)
     tagsets = conn.getUpdateService().saveAndReturnArray(to_save)
-    tagsets.sort(cmp_id)
+    tagsets.sort(key=lambda x: unwrap(x.id))
 
     tags = tagsets[0].linkedAnnotationList()
-    tags.sort(cmp_id)
+    tags.sort(key=lambda x: unwrap(x.id))
 
     project_link = ProjectAnnotationLinkI()
     project_link.parent = project
@@ -1370,7 +1330,7 @@ class TestTree(ITest):
     #         to_save.append(project)
     #     projects = get_update_service(userA).saveAndReturnArray(to_save)
     #     projects.extend(project_hierarchy_userA_groupA[:2])
-    #     projects.sort(cmp_name_insensitive)
+    #     projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     #     return projects
 
     # @pytest.fixture()
@@ -1386,7 +1346,7 @@ class TestTree(ITest):
     #         to_save.append(project)
     #     projects = get_update_service(userB).saveAndReturnArray(
     #         to_save)
-    #     projects.sort(cmp_name_insensitive)
+    #     projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
     #     return projects
 
     # Images ###
@@ -1401,7 +1361,7 @@ class TestTree(ITest):
             to_save.append(image)
 
         images = get_update_service(userA).saveAndReturnArray(to_save)
-        images.sort(cmp_name_insensitive)
+        images.sort(key=lambda x: lower_or_none(unwrap(x.name)))
         return images
 
     @pytest.fixture()
@@ -1425,7 +1385,7 @@ class TestTree(ITest):
             to_save.append(image)
 
         images = get_update_service(userB).saveAndReturnArray(to_save)
-        images.sort(cmp_name_insensitive)
+        images.sort(key=lambda x: lower_or_none(unwrap(x.name)))
         return images
 
     @pytest.fixture()
@@ -1441,7 +1401,7 @@ class TestTree(ITest):
         conn = get_connection(userA, groupB.id.val)
         images = conn.getUpdateService().saveAndReturnArray(to_save,
                                                             conn.SERVICE_OPTS)
-        images.sort(cmp_name_insensitive)
+        images.sort(key=lambda x: lower_or_none(unwrap(x.name)))
         return images
 
     @pytest.fixture()
@@ -1483,13 +1443,13 @@ class TestTree(ITest):
 
         to_save = [projectA, projectB]
         projects = get_update_service(userA).saveAndReturnArray(to_save)
-        projects.sort(cmp_name_insensitive)
+        projects.sort(key=lambda x: lower_or_none(unwrap(x.name)))
 
         datasets = projects[0].linkedDatasetList()
-        datasets.sort(cmp_name_insensitive)
+        datasets.sort(key=lambda x: lower_or_none(unwrap(x.name)))
 
         images = datasets[0].linkedImageList()
-        images.sort(cmp_name_insensitive)
+        images.sort(key=lambda x: lower_or_none(unwrap(x.name)))
 
         return projects + datasets + images
 
