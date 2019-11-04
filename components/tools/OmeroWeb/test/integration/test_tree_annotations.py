@@ -23,7 +23,6 @@ Integration tests for annotations methods in the "tree" module.
 from __future__ import division
 from __future__ import print_function
 
-from past.builtins import cmp
 from builtins import zip
 from future.utils import native_str
 from past.utils import old_div
@@ -37,11 +36,6 @@ from omero.model import ProjectI, CommentAnnotationI, \
     TagAnnotationI, ProjectAnnotationLinkI, LongAnnotationI
 from omero.rtypes import rstring, rlong
 from omeroweb.webclient.tree import marshal_annotations
-
-
-def cmp_id(x, y):
-    """Identifier comparator."""
-    return cmp(unwrap(x.id), unwrap(y.id))
 
 
 def unwrap(x):
@@ -121,7 +115,7 @@ def tags_userA_userB(request, userA, userB, groupA):
             tag.description = rstring('tag description')
         tag = get_update_service(user).saveAndReturnObject(tag, ctx)
         tags.append(tag)
-    tags.sort(cmp_id)
+    tags.sort(key=lambda x: unwrap(x.id))
     return tags
 
 
@@ -137,7 +131,7 @@ def comments_userA(request, userA, groupA):
         comment.textValue = rstring(text)
         comments.append(comment)
     comments = get_update_service(userA).saveAndReturnArray(comments, ctx)
-    comments.sort(cmp_id)
+    comments.sort(key=lambda x: unwrap(x.id))
     return comments
 
 
@@ -154,7 +148,6 @@ def rating_userA(request, userA, groupA):
     return rating
 
 
-@pytest.fixture(scope='function')
 def annotate_project(ann, project, user):
     """
     Returns userA's Tag linked to userB's Project
