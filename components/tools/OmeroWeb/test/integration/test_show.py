@@ -11,7 +11,6 @@
 from __future__ import division
 from __future__ import print_function
 
-from past.builtins import cmp
 from builtins import str
 from builtins import range
 from past.utils import old_div
@@ -29,11 +28,6 @@ from omero.rtypes import rstring, rint
 from omeroweb.webclient.show import Show, IncorrectMenuError, \
     paths_to_object, get_image_ids
 from django.test.client import RequestFactory
-
-
-def cmp_well_column(x, y):
-    """Well column comparator."""
-    return cmp(x.column.val, y.column.val)
 
 
 class TestShow(IWebTest):
@@ -512,7 +506,7 @@ class TestShow(IWebTest):
         """
         well_index = request.param
         plate, = screen_plate_run_well.linkedPlateList()
-        wells = sorted(plate.copyWells(), cmp_well_column)
+        wells = sorted(plate.copyWells(), key=lambda x: x.column.val)
         # Only the first Well has a WellSample and is linked to the
         # PlateAcquisition.
         ws_a, ws_b = wells[0].copyWellSamples()
@@ -648,7 +642,7 @@ class TestShow(IWebTest):
         select and open the first well.
         """
         plate, = screen_plate_run_well.linkedPlateList()
-        well_a, well_b = sorted(plate.copyWells(), cmp_well_column)
+        well_a, well_b = sorted(plate.copyWells(), key=lambda x: x.column.val)
         ws_a, ws_b = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
         as_string = 'well-%d|well-%d' % (well_a.id.val, well_b.id.val)
@@ -703,7 +697,7 @@ class TestShow(IWebTest):
         PlateAcquisition 'run'.
         """
         plate, = screen_plate_run_well.linkedPlateList()
-        well_a, well_b = sorted(plate.copyWells(), cmp_well_column)
+        well_a, well_b = sorted(plate.copyWells(), key=lambda x: x.column.val)
         ws_a, ws_b = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
         as_string = as_string_well_by_name % {
@@ -736,7 +730,7 @@ class TestShow(IWebTest):
         PlateAcquisition 'run'.
         """
         plate, = screen_plate_run_well.linkedPlateList()
-        well_a, well_b = sorted(plate.copyWells(), cmp_well_column)
+        well_a, well_b = sorted(plate.copyWells(), key=lambda x: x.column.val)
         ws_a, ws_b = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
         as_string = 'plate.name-%s|run.name-Run%d' % (
@@ -961,7 +955,7 @@ class TestShow(IWebTest):
 
         plate, = screen_plate_run_well.linkedPlateList()
         well_a, well_b = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
         ws_a, ws_b, = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
         first_selected = show.first_selected
@@ -1090,7 +1084,7 @@ class TestShow(IWebTest):
         self.assert_instantiation(show)
 
         plate, = screen_plate_run_well.linkedPlateList()
-        well_a, well_b = sorted(plate.copyWells(), cmp_well_column)
+        well_a, well_b = sorted(plate.copyWells(), key=lambda x: x.column.val)
         ws_a, ws_b = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
         first_selected = show.first_selected
@@ -1135,7 +1129,7 @@ class TestShow(IWebTest):
 
         plate, = screen_plate_run_well.linkedPlateList()
         well_a, well_b = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
         ws_a, ws_b = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
         first_selected = show.first_selected
@@ -1620,7 +1614,7 @@ class TestShow(IWebTest):
         screen = screen_plate_run_well
         plate, = screen.linkedPlateList()
         well_a, well_b = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
         ws_a, ws_b, = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
 
@@ -1642,7 +1636,7 @@ class TestShow(IWebTest):
         screen = screen_plate_run_well
         plate, = screen.linkedPlateList()
         well_a, well_b = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
         ws_a, ws_b, = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
 
@@ -1666,7 +1660,7 @@ class TestShow(IWebTest):
         screen = screen_plate_run_well
         plate, = screen.linkedPlateList()
         well_a, well_b = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
         ws_a, ws_b, = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
 
@@ -1691,7 +1685,7 @@ class TestShow(IWebTest):
         screen = screen_plate_run_well
         plate, = screen.linkedPlateList()
         well_a, well_b = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
         ws_a, ws_b, = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
 
@@ -1715,7 +1709,7 @@ class TestShow(IWebTest):
         screen = screen_plate_run_well
         plate, = screen.linkedPlateList()
         well_a, well_b = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
         ws_a, ws_b, = well_a.copyWellSamples()
         plate_acquisition = ws_a.plateAcquisition
 
@@ -1752,7 +1746,7 @@ class TestShow(IWebTest):
         screen = screen_plate_run_well_multi
         plate, = screen.linkedPlateList()
         well_a, well_b, well_c = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
 
         ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
 
@@ -1803,7 +1797,7 @@ class TestShow(IWebTest):
         screen = screen_plate_run_well_multi
         plate, = screen.linkedPlateList()
         well_a, well_b, well_c = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
         ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
 
@@ -1828,7 +1822,7 @@ class TestShow(IWebTest):
         screen = screen_plate_run_well_multi
         plate, = screen.linkedPlateList()
         well_a, well_b, well_c = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
 
         ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
 
@@ -1866,7 +1860,7 @@ class TestShow(IWebTest):
         screen = screen_plate_run_well_multi
         plate, = screen.linkedPlateList()
         well_a, well_b, well_c = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
 
         ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
 
@@ -1912,7 +1906,7 @@ class TestShow(IWebTest):
         screen = screen_plate_run_well_multi
         plate, = screen.linkedPlateList()
         well_a, well_b, well_c = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
 
         ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
 
@@ -1959,7 +1953,7 @@ class TestShow(IWebTest):
         screen = screen_plate_run_well_multi
         plate, = screen.linkedPlateList()
         well_a, well_b, well_c = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
 
         ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
 
@@ -1998,7 +1992,7 @@ class TestShow(IWebTest):
         screen = screen_plate_run_well_multi
         plate, = screen.linkedPlateList()
         well_a, well_b, well_c = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
 
         ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
 
@@ -2037,7 +2031,7 @@ class TestShow(IWebTest):
         screen = screen_plate_run_well_multi
         plate, = screen.linkedPlateList()
         well_a, well_b, well_c = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
 
         ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
 
@@ -2078,7 +2072,7 @@ class TestShow(IWebTest):
         screen = screen_plate_run_well_multi
         plate, = screen.linkedPlateList()
         well_a, well_b, well_c = \
-            sorted(plate.copyWells(), cmp_well_column)
+            sorted(plate.copyWells(), key=lambda x: x.column.val)
 
         ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
 
