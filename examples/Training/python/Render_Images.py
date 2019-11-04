@@ -17,7 +17,7 @@ from future import standard_library
 from builtins import range
 from past.utils import old_div
 from omero.gateway import BlitzGateway
-from io import StringIO
+from io import BytesIO
 try:
     from PIL import Image
 except ImportError:
@@ -41,7 +41,7 @@ conn.connect()
 print(imageId)
 image = conn.getObject("Image", imageId)
 img_data = image.getThumbnail()
-rendered_thumb = Image.open(StringIO(img_data))
+rendered_thumb = Image.open(BytesIO(img_data))
 # renderedThumb.show()           # shows a pop-up
 rendered_thumb.save("thumbnail.jpg")
 
