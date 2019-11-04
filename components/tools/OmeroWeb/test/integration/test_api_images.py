@@ -25,10 +25,10 @@ from omeroweb.testlib import IWebTest, get_json
 from django.core.urlresolvers import reverse
 from omeroweb.api import api_settings
 import pytest
-from test_api_projects import cmp_name_insensitive, get_update_service, \
+from test_api_projects import lower_or_none, get_update_service, \
     get_connection, marshal_objects
 from omero.model import DatasetI, ImageI
-from omero.rtypes import rstring
+from omero.rtypes import rstring, unwrap
 import json
 
 
@@ -136,7 +136,7 @@ class TestImages(IWebTest):
                                'offset': 0}
 
         # Filter Images by Dataset
-        images.sort(cmp_name_insensitive)
+        images.sort(key=lambda x: lower_or_none(unwrap(x.name)))
         payload = {'dataset': dataset.id.val}
         rsp = get_json(django_client, images_url, payload)
         # Manual check that Pixels & Type are loaded but Channels are not
