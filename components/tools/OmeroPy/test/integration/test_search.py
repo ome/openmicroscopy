@@ -254,7 +254,7 @@ class TestSearch(ITest):
         pixel_ids = self.import_image(
             filename=fake.abspath(), client=client)
         assert len(pixel_ids) == 1
-        pixels = query.get("Pixels", long(pixel_ids[0]))
+        pixels = query.get("Pixels", int(pixel_ids[0]))
         image = pixels.getImage()
         self.index(image)
 
