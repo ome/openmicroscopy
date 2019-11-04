@@ -86,7 +86,7 @@ class TestCoreMetadata(IWebTest):
 
         # Just check that the metadata panel is loaded
         rsp = get(self.django_client, request_url, status_code=200)
-        assert "no_pixels" in rsp.content
+        assert "no_pixels" in rsp.content.decode("utf-8")
 
 
 class TestBulkAnnotations(IWebTest):
