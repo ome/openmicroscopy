@@ -19,7 +19,6 @@
 
 """Tests querying Wells with web json api."""
 
-from past.builtins import cmp
 from builtins import zip
 from builtins import range
 from omeroweb.testlib import IWebTest, get_json
