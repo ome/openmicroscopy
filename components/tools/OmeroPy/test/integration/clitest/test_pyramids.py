@@ -22,7 +22,7 @@
 
 from __future__ import print_function
 from builtins import str
-from test.integration.clitest.cli import CLITest
+from omero.testlib.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.model import PixelsI
 from omero.rtypes import rint
