@@ -23,7 +23,6 @@ Tests querying & editing Projects with webgateway json api
 
 
 from future.utils import native_str
-from past.builtins import cmp
 
 from builtins import zip
 from builtins import range
