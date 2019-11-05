@@ -19,9 +19,6 @@ client = omero.client()
 
 omeroProperties = client.getProperties().getPropertiesForPrefix('omero')
 
-# Handle printing of unicode
-sys.stdout = codecs.getwriter('utf8')(sys.stdout)
-
 # Configuration
 # =================================================================
 # These values will be imported by all the other training scripts.
