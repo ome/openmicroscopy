@@ -13,6 +13,7 @@ FOR TRAINING PURPOSES ONLY!
 from __future__ import division
 from __future__ import print_function
 
+from future.utils import native_str
 from builtins import str
 from builtins import range
 from past.utils import old_div
@@ -139,7 +140,7 @@ def create_mask(mask_bytes, bytes_per_pixel=1):
     for i in range(int(steps)):
         binary = mask_bytes[
             i * int(divider):i * int(divider) + int(divider)]
-        format = str(int(byte_factor * len(binary))) + format_string
+        format = native_str(int(byte_factor * len(binary))) + format_string
         binary = struct.unpack(format, binary)
         s = ""
         for bit in binary:
