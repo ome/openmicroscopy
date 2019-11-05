@@ -44,6 +44,7 @@ class TestRPS(ITest):
             except:
                 # python 2
                 sha1 = hex(int(md.encode('hex'), 16))[2:]
+            sha1 = sha1.rjust(40, "0")
             assert sha1 == pix.sha1.val
         finally:
             rps.close()

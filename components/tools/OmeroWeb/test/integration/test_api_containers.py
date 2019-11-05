@@ -28,7 +28,7 @@ from omeroweb.testlib import IWebTest, get_json, \
 from django.core.urlresolvers import reverse
 from omeroweb.api import api_settings
 import pytest
-from test_api_projects import cmp_name_insensitive, get_update_service, \
+from test_api_projects import lower_or_none, get_update_service, \
     get_connection, marshal_objects
 from omero.gateway import BlitzGateway
 from omero.model import DatasetI, \
@@ -39,7 +39,7 @@ from omero.model import DatasetI, \
     TagAnnotationI, \
     WellI, \
     WellSampleI
-from omero.rtypes import rstring, rint
+from omero.rtypes import rstring, rint, unwrap
 from omero_marshal import OME_SCHEMA_URL
 
 
@@ -159,7 +159,7 @@ class TestContainers(IWebTest):
 
         # Add well to first plate
         plates = screen.linkedPlateList()
-        plates.sort(cmp_name_insensitive)
+        plates.sort(key=lambda x: lower_or_none(unwrap(x.name)))
         plate_id = plates[0].id.val
         well = WellI()
         well.column = rint(0)
@@ -183,7 +183,7 @@ class TestContainers(IWebTest):
             screen.name = rstring('Screen%s' % i)
             screens.append(screen)
         screens = get_update_service(user1).saveAndReturnArray(screens)
-        screens.sort(cmp_name_insensitive)
+        screens.sort(key=lambda x: lower_or_none(unwrap(x.name)))
         return screens
 
     @pytest.mark.parametrize("dtype", ['Plate', 'Image', 'Well',
@@ -340,7 +340,7 @@ class TestContainers(IWebTest):
                                'offset': 0}
 
         # Filter Datasets by Project or Plates by Screen
-        children.sort(cmp_name_insensitive)
+        children.sort(key=lambda x: lower_or_none(unwrap(x.name)))
         payload = {ptype: parent.id.val,
                    'childCount': str(child_count).lower()}
         rsp = get_json(django_client, request_url, payload)
@@ -506,7 +506,7 @@ class TestContainers(IWebTest):
         # List plates
         plates_url = screens_json[0]['url:plates']
         plates = screen.linkedPlateList()
-        plates.sort(cmp_name_insensitive)
+        plates.sort(key=lambda x: lower_or_none(unwrap(x.name)))
         rsp = get_json(client, plates_url)
         plates_json = rsp['data']
         extra = []
@@ -555,7 +555,7 @@ class TestContainers(IWebTest):
         version = api_settings.API_VERSIONS[-1]
         screen, plate = screen_plates
         plates = screen.linkedPlateList()
-        plates.sort(cmp_name_insensitive)
+        plates.sort(key=lambda x: lower_or_none(unwrap(x.name)))
 
         # Listing wells - all have link to parents
         wells_url = reverse('api_wells', kwargs={'api_version': version})
@@ -627,7 +627,7 @@ class TestContainers(IWebTest):
         # List datasets
         datasets_url = projects_json[0]['url:datasets']
         datasets = project.linkedDatasetList()
-        datasets.sort(cmp_name_insensitive)
+        datasets.sort(key=lambda x: lower_or_none(unwrap(x.name)))
         rsp = get_json(client, datasets_url)
         datasets_json = rsp['data']
         extra = []
@@ -650,7 +650,7 @@ class TestContainers(IWebTest):
         # List images (from last Dataset)
         images_url = datasets_json[-1]['url:images']
         images = datasets[-1].linkedImageList()
-        images.sort(cmp_name_insensitive)
+        images.sort(key=lambda x: lower_or_none(unwrap(x.name)))
         rsp = get_json(client, images_url)
         images_json = rsp['data']
         extra = []
@@ -677,7 +677,7 @@ class TestContainers(IWebTest):
         # Get image...
         project, dataset = project_datasets
         datasets = project.linkedDatasetList()
-        datasets.sort(cmp_name_insensitive)
+        datasets.sort(key=lambda x: lower_or_none(unwrap(x.name)))
         # ...from last dataset
         images = datasets[-1].linkedImageList()
         dataset_id = datasets[-1].id.val

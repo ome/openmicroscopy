@@ -74,7 +74,7 @@ class TestLogin(IWebTest):
         data['server'] = 1
         message = credentials[1]
         rsp = post(django_client, request_url, data, status_code=200)
-        assert message in rsp.content
+        assert message in rsp.content.decode("utf-8")
 
     def test_get_login_page(self):
         """
@@ -83,7 +83,7 @@ class TestLogin(IWebTest):
         django_client = Client()
         request_url = reverse('weblogin')
         rsp = get(django_client, request_url, {}, status_code=200)
-        assert 'OMERO.web - Login' in rsp.content
+        assert 'OMERO.web - Login' in rsp.content.decode("utf-8")
 
     @pytest.mark.parametrize("redirect", ['', tag_url])
     def test_login_redirect(self, redirect):

@@ -131,7 +131,7 @@ class TestCsrf(IWebTest):
         img = self.image_with_channels()
         try:
             temp = tempfile.NamedTemporaryFile(suffix='.csrf')
-            temp.write("Testing without csrf token")
+            temp.write(b"Testing without csrf token")
             temp.seek(0)
 
             request_url = reverse('annotate_file')
@@ -147,7 +147,7 @@ class TestCsrf(IWebTest):
         # Good post
         try:
             temp = tempfile.NamedTemporaryFile(suffix='.csrf')
-            temp.write("Testing csrf token")
+            temp.write(b"Testing csrf token")
             temp.seek(0)
 
             request_url = reverse('annotate_file')

@@ -19,14 +19,13 @@
 
 """Tests querying Wells with web json api."""
 
-from past.builtins import cmp
 from builtins import zip
 from builtins import range
 from omeroweb.testlib import IWebTest, get_json
 from django.core.urlresolvers import reverse
 from omeroweb.api import api_settings
 import pytest
-from test_api_projects import cmp_name_insensitive, \
+from test_api_projects import lower_or_none, \
     get_connection, \
     get_update_service, \
     marshal_objects
@@ -47,12 +46,9 @@ def get_query_service(user):
     return user[0].getSession().getQueryService()
 
 
-def cmp_column_row(x, y):
+def column_row_key(x):
     """Sort wells by row, then column."""
-    sort_by_column = cmp(unwrap(x.column), unwrap(y.column))
-    if sort_by_column == 0:
-        return cmp(unwrap(x.row), unwrap(y.row))
-    return sort_by_column
+    return (x.column.val * 1000) + (x.row.val)
 
 
 def remove_urls(marshalled, keys=[]):
@@ -213,7 +209,7 @@ class TestWells(IWebTest):
             # Use Blitz Plates for listing Wells etc.
             plate_wrapper = conn.getObject('Plate', plate.id.val)
             wells = [w._obj for w in plate_wrapper.listChildren()]
-            wells.sort(cmp_column_row)
+            wells.sort(key=lambda x: column_row_key(x))
             payload = {'plate': plate.id.val}
             rsp = get_json(django_client, wells_url, payload)
             # Manual check that Images are loaded but Pixels are not
@@ -280,7 +276,7 @@ class TestWells(IWebTest):
 
         # Construct data & urls we expect...
         pas = list(plate.listPlateAcquisitions())
-        pas.sort(cmp_name_insensitive)
+        pas.sort(key=lambda x: lower_or_none(unwrap(x.name)))
         paq_ids = [p.id for p in pas]
         extra = []
         for p, plate_acq in enumerate(pas):
@@ -308,7 +304,7 @@ class TestWells(IWebTest):
 
         small_plate = conn.getObject('Plate', small_plate.id.val)
         wells = [w._obj for w in small_plate.listChildren()]
-        wells.sort(cmp_column_row)
+        wells.sort(key=lambda x: column_row_key(x))
 
         # plate has 2 wells. First has WellSamples, other doesn't
         for well, has_image in zip(wells, [True, False]):

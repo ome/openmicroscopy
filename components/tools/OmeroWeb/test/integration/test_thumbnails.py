@@ -27,7 +27,7 @@ import json
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get
 
-from io import StringIO
+from io import BytesIO
 import pytest
 from django.core.urlresolvers import reverse
 try:
@@ -56,7 +56,7 @@ class TestThumbnails(IWebTest):
         request_url = reverse('webgateway_render_thumbnail', args=args)
         rsp = get(self.django_client, request_url)
 
-        thumb = Image.open(StringIO(rsp.content))
+        thumb = Image.open(BytesIO(rsp.content))
         # Should be 96 on both sides
         if size is None:
             assert thumb.size == (96, 96)

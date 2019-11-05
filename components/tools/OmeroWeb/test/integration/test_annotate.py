@@ -219,5 +219,5 @@ class TestFileAnnotations(IWebTest):
         rsp = get(django_client1, request_url, data)
         html = rsp.content
 
-        expected_name = "No name. ID %s" % fa.id.val
+        expected_name = b"No name. ID %d" % fa.id.val
         assert expected_name in html

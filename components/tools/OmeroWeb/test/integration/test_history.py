@@ -33,14 +33,14 @@ class TestHistory(IWebTest):
         """Test /webclient/history/ page."""
         request_url = reverse("load_template", args=["history"])
         response = get(self.django_client, request_url)
-        assert "history_calendar" in response.content
+        assert "history_calendar" in response.content.decode("utf-8")
 
     def test_calendar_default(self):
         """Test display of new Project in today's history page."""
         calendar_url = reverse("load_calendar")
         response = get(self.django_client, calendar_url)
         # Calendar is initially empty (no 'Project' icon)
-        assert "folder16.png" not in response.content
+        assert "folder16.png" not in response.content.decode("utf-8")
 
         # Add Project
         request_url = reverse("manage_action_containers",
@@ -54,7 +54,7 @@ class TestHistory(IWebTest):
         # Default calendar loads calendar for current month
         response = get(self.django_client, calendar_url)
         # Now contains icon for Project
-        assert "folder16.png" in response.content
+        assert "folder16.png" in response.content.decode("utf-8")
 
     def test_calendar_month(self):
         """Test loading of calendar, specifying this month."""
@@ -63,7 +63,7 @@ class TestHistory(IWebTest):
         print('calendar_url', calendar_url)
         response = get(self.django_client, calendar_url)
         # Calendar is initially empty (no 'Dataset' icon)
-        assert "folder_image16.png" not in response.content
+        assert "folder_image16.png" not in response.content.decode("utf-8")
 
         # Add Dataset
         request_url = reverse("manage_action_containers",
@@ -76,4 +76,4 @@ class TestHistory(IWebTest):
 
         # Now contains icon for Dataset
         response = get(self.django_client, calendar_url)
-        assert "folder_image16.png" in response.content
+        assert "folder_image16.png" in response.content.decode("utf-8")
