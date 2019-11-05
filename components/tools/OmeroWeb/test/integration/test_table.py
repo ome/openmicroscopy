@@ -114,7 +114,7 @@ class TestOmeroTables(IWebTest):
         # GET html
         request_url = reverse("omero_table", args=[file_id])
         rsp = get(django_client, request_url)
-        html = rsp.content
+        html = rsp.content.decode("utf-8")
         for col_type, col in zip(col_types, col_names):
             assert ('<th title="%s">%s</th>' % (col_type, col)) in html
         well_col_index = col_types.index('WellColumn')
@@ -132,7 +132,7 @@ class TestOmeroTables(IWebTest):
         # GET csv
         request_url = reverse("omero_table", args=[file_id, 'csv'])
         rsp = get(django_client, request_url)
-        csv_data = rsp.content
+        csv_data = rsp.content.decode("utf-8")
         cols_csv = ','.join(col_names)
         rows_csv = '\n'.join([','.join(
             [str(td) for td in row]) for row in rows])
