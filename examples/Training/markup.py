@@ -15,6 +15,7 @@ $ python markup.py > wikiText.txt    # to file
 
 """
 
+from __future__ import print_function
 import sys
 import re
 import os
@@ -156,47 +157,47 @@ class SphinxRenderer(Handler):
     A specific handler used for rendering reStrunctured Text (sphinx Docs).
     """
     def start_document(self, title):
-        print title
-        print "^" * len(title)
+        print(title)
+        print("^" * len(title))
 
     def end_document(self):
-        print ''
+        print('')
 
     def start_code(self):
-        print '\n::\n'
+        print('\n::\n')
 
     def end_code(self):
-        print ''
+        print('')
 
     def start_subtitle(self, block):
-        print "\n-  **%s**" % block[0]
+        print("\n-  **%s**" % block[0])
 
     def end_subtitle(self):
-        print ""
+        print("")
 
     def start_comment(self):
-        print '\n'
+        print('\n')
 
     def end_comment(self):
-        print '\n'
+        print('\n')
 
     def start_list(self):
-        print '\n'
+        print('\n')
 
     def end_list(self):
-        print '\n'
+        print('\n')
 
     def start_listitem(self):
-        print ' * '
+        print(' * ')
 
     def end_listitem(self):
-        print ''
+        print('')
 
     def start_title(self):
-        print '='
+        print('=')
 
     def end_title(self):
-        print '='
+        print('=')
 
     def sub_emphasis(self, match):
         return '**%s**' % match.group(1)
@@ -209,8 +210,8 @@ class SphinxRenderer(Handler):
 
     def feed(self, block, indent="    "):
         for i in range(len(block)-1):
-            print indent + block[i]
-        print indent + block[-1],
+            print(indent + block[i])
+        print(indent + block[-1]),
 
 
 class WikiRenderer(Handler):
@@ -218,46 +219,46 @@ class WikiRenderer(Handler):
     A specific handler used for rendering Wiki.
     """
     def start_document(self, title):
-        print '== %s ==' % title
+        print('== %s ==' % title)
 
     def end_document(self):
-        print ''
+        print('')
 
     def start_code(self):
-        print '\n{{{'
+        print('\n{{{')
 
     def end_code(self):
-        print '\n}}}'
+        print('\n}}}')
 
     def start_subtitle(self):
-        print " * ''' ",
+        print(" * ''' "),
 
     def end_subtitle(self):
-        print " ''' "
+        print(" ''' ")
 
     def start_comment(self):
-        print '\n'
+        print('\n')
 
     def end_comment(self):
-        print '\n'
+        print('\n')
 
     def start_list(self):
-        print '\n'
+        print('\n')
 
     def end_list(self):
-        print '\n'
+        print('\n')
 
     def start_listitem(self):
-        print ' * '
+        print(' * ')
 
     def end_listitem(self):
-        print ''
+        print('')
 
     def start_title(self):
-        print '='
+        print('=')
 
     def end_title(self):
-        print '='
+        print('=')
 
     def sub_emphasis(self, match):
         return '**%s**' % match.group(1)
@@ -270,8 +271,8 @@ class WikiRenderer(Handler):
 
     def feed(self, block):
         for i in range(len(block)-1):
-            print block[i]
-        print block[-1],
+            print(block[i])
+        print(block[-1]),
 
 
 class Parser:
@@ -349,6 +350,7 @@ class JavaParser(Parser):
 
         # self.addFilter(r'\*(.+?)\*', 'emphasis')
         self.addFilter(r'(http://[\.a-zA-Z_/]+)', 'url')
+
 
 # Marker to find in the file the blocks to parse
 START_MARKER = "start-code"
@@ -435,8 +437,8 @@ def parsefiles(parser=Parser, files=[]):
         # get title from file name
         t = os.path.splitext(os.path.basename(f))[0]
         t = t.replace("_", "")
-        l = re.findall('[A-Z][a-z]*', t)
-        t = " ".join(l)
+        values = re.findall('[A-Z][a-z]*', t)
+        t = " ".join(values)
         # specific case to handle.
         t = t.replace("R O I", "ROI")
         t = t.replace("O M E R O", "OMERO")
