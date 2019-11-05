@@ -19,6 +19,7 @@ FOR TRAINING PURPOSES ONLY!
 # A more complete template, for 'real-world' scripts, is also included in this
 # folder
 # This script takes an Image ID as a parameter from the scripting service.
+from __future__ import print_function
 
 from omero.gateway import BlitzGateway
 import omero
@@ -37,15 +38,15 @@ rating_ns = None
 for ann in project.listAnnotations():
     if isinstance(ann, omero.gateway.FileAnnotationWrapper):
         name = ann.getFile().getName()
-        print "File ID: %s Name: %s Size: %s" % (
-            ann.getFile().getId(), name, ann.getFile().getSize())
+        print("File ID: %s Name: %s Size: %s" % (
+              ann.getFile().getId(), name, ann.getFile().getSize()))
         if file_name == name:
             file_path = 'downloadFile'
             with open(file_path, 'w') as f:
-                print "\nDownloading file ", file_name, "to", file_path, "..."
+                print("\nDownloading file ", file_name, "to", file_path, "...")
                 for chunk in ann.getFileInChunks():
                     f.write(chunk)
-            print "File Downloaded."
+            print("File Downloaded.")
 
     elif isinstance(ann, omero.gateway.LongAnnotationWrapper):
         # This may be a 'Rating' annotation, so let's get it's namespace
@@ -56,7 +57,7 @@ if rating_ns is not None:
 else:
     message += " Project not rated."
 
-print message
+print(message)
 # Return some value(s).
 
 # Here, we return anything useful the script has produced.

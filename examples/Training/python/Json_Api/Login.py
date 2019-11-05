@@ -7,6 +7,8 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+from __future__ import print_function
+
 import requests
 
 from Parse_OMERO_Properties import USERNAME, PASSWORD, OMERO_WEB_HOST, \
@@ -16,7 +18,7 @@ session = requests.Session()
 
 # Start by getting supported versions from the base url...
 api_url = '%s/api/' % OMERO_WEB_HOST
-print "Starting at:", api_url
+print("Starting at:", api_url)
 r = session.get(api_url)
 # we get a list of versions
 versions = r.json()['data']
@@ -37,7 +39,7 @@ schema_url = urls['url:schema']
 # To login we need to get CSRF token
 token_url = urls['url:token']
 token = session.get(token_url).json()['data']
-print 'CSRF token', token
+print('CSRF token', token)
 # We add this to our session header
 # Needed for all POST, PUT, DELETE requests
 session.headers.update({'X-CSRFToken': token,
@@ -45,12 +47,12 @@ session.headers.update({'X-CSRFToken': token,
 
 # List the servers available to connect to
 servers = session.get(servers_url).json()['data']
-print 'Servers:'
+print('Servers:')
 for s in servers:
-    print '-id:', s['id']
-    print ' name:', s['server']
-    print ' host:', s['host']
-    print ' port:', s['port']
+    print('-id:', s['id'])
+    print(' name:', s['server'])
+    print(' host:', s['host'])
+    print(' port:', s['port'])
 # find one called SERVER_NAME
 servers = [s for s in servers if s['server'] == SERVER_NAME]
 if len(servers) < 1:
@@ -68,7 +70,7 @@ login_rsp = r.json()
 assert r.status_code == 200
 assert login_rsp['success']
 eventContext = login_rsp['eventContext']
-print 'eventContext', eventContext
+print('eventContext', eventContext)
 # Can get our 'default' group
 groupId = eventContext['groupId']
 
@@ -81,9 +83,9 @@ groupId = eventContext['groupId']
 payload = {'limit': 2}
 data = session.get(projects_url, params=payload).json()
 assert len(data['data']) < 3
-print "Projects:"
+print("Projects:")
 for p in data['data']:
-    print '  ', p['@id'], p['Name']
+    print('  ', p['@id'], p['Name'])
 
 # Create a project:
 projType = schema_url + '#Project'
@@ -93,13 +95,13 @@ r = session.post(url, json={'Name': 'API TEST foo', '@type': projType})
 assert r.status_code == 201
 project = r.json()['data']
 project_id = project['@id']
-print 'Created Project:', project_id, project['Name']
+print('Created Project:', project_id, project['Name'])
 
 # Get project by ID
 project_url = projects_url + str(project_id) + '/'
 r = session.get(project_url)
 project = r.json()
-print project
+print(project)
 
 # Update a project
 project['Name'] = 'API test updated'

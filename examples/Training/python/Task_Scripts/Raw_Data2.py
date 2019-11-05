@@ -20,6 +20,8 @@ FOR TRAINING PURPOSES ONLY!
 # folder
 # This script takes an Image ID as a parameter from the scripting service.
 
+from __future__ import print_function
+
 import omero.util.script_utils as scriptUtil
 from omero.gateway import BlitzGateway
 from numpy import hstack, int32
@@ -33,7 +35,7 @@ conn.connect()
 
 # First Task: Get the Average pixel value for a specified region:
 image = conn.getObject("Image", imageId)
-print image.getName()
+print(image.getName())
 size_z = image.getSizeZ()
 size_c = image.getSizeC()
 size_t = image.getSizeT()
@@ -43,13 +45,13 @@ x, y, w, h = 5, 5, 100, 100        # Our pre-defined x, y, w, h
 tile = (x, y, w, h)
 pixels = image.getPrimaryPixels()
 tile_data = pixels.getTile(z, c, t, tile)      # get a numpy array.
-print "\Tile at zct tile: ", z, c, t, tile
-print tile_data
-print "shape: ", tile_data.shape
-print "min:", tile_data.min(), " max:", tile_data.max(),\
-    "pixel type:", tile_data.dtype.name
+print("Tile at zct tile: ", z, c, t, tile)
+print(tile_data)
+print("shape: ", tile_data.shape)
+print("min:", tile_data.min(), " max:", tile_data.max(),
+      "pixel type:", tile_data.dtype.name)
 average = float(tile_data.sum()) / (w * h)
-print "Average :", average
+print("Average :", average)
 
 
 # Advanced: For each time point, get a column of data (E.g. for kymograph)
@@ -63,14 +65,14 @@ tile = (x, y, width, height)
 col_data = []   # let's collect the column data for each time point
 
 for t in range(size_t):
-    print "Getting data for T, tile:", t, tile
+    print("Getting data for T, tile:", t, tile)
     col = pixels.getTile(z, c, t, tile)
     col_data.append(col)
 
 # ** BONUS **
 # stack the numpy columns horizontally. hstack is a numpy function
 kymograph_data = hstack(col_data)
-print "kymograph_data", kymograph_data.shape
+print("kymograph_data", kymograph_data.shape)
 
 name = "kymograph.png"
 min_max = (kymograph_data.min(), kymograph_data.max())
@@ -79,7 +81,7 @@ scriptUtil.numpy_save_as_image(kymograph_data, min_max, int32, name)
 # attach the png to the image
 file_ann = conn.createFileAnnfromLocalFile(
     name, mimetype="image/png")
-print "Attaching %s to image" % name
+print("Attaching %s to image" % name)
 image.linkAnnotation(file_ann)
 
 message = "Tile average value: %s" % average

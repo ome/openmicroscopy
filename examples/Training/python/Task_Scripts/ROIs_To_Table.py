@@ -6,6 +6,7 @@
 #                    All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
+from __future__ import print_function
 
 import omero.scripts as scripts
 from random import random
@@ -80,11 +81,11 @@ def process_data(conn, script_params):
                         else:
                             shape_texts.append("")
             if len(lengths_for_image) == 0:
-                print "No lines found on Image:", image.getName()
+                print("No lines found on Image:", image.getName())
                 continue
             img_average = sum(lengths_for_image) / len(lengths_for_image)
-            print ("Average length of line for Image: %s is %s"
-                   % (image.getName(), img_average))
+            print("Average length of line for Image: %s is %s"
+                  % (image.getName(), img_average))
 
             # Add the average as an annotation on each image.
             length_ann = omero.model.DoubleAnnotationI()
@@ -119,27 +120,27 @@ def process_data(conn, script_params):
         # conn.getUpdateService().saveAndReturnObject(link)
 
         a = array(line_lengths)
-        print "std", a.std()
-        print "mean", a.mean()
-        print "max", a.max()
-        print "min", a.min()
+        print("std", a.std())
+        print("mean", a.mean())
+        print("max", a.max())
+        print("min", a.min())
 
         # lets retrieve all the lines that are longer than 2 standard
         # deviations above mean
         limit = a.mean() + (2 * a.std())
-        print "Retrieving all lines longer than: ", limit
+        print("Retrieving all lines longer than: ", limit)
         row_count = table.getNumberOfRows()
         query_rows = table.getWhereList(
             "lineLength > %s" % limit, variables={}, start=0, stop=row_count,
             step=0)
         if len(query_rows) == 0:
-            print "No lines found"
+            print("No lines found")
         else:
             data = table.readCoordinates(query_rows)
             for col in data.columns:
-                print "Query Results for Column: ", col.name
+                print("Query Results for Column: ", col.name)
                 for v in col.values:
-                    print "   ", v
+                    print("   ", v)
 
         # Assume we only have 1 dataset. This will return after the first
         # dataset
@@ -185,7 +186,7 @@ def run_as_script():
             if client.getInput(key):
                 script_params[key] = client.getInput(key, unwrap=True)
 
-        print script_params
+        print(script_params)
 
         # wrap client to use the Blitz Gateway
         conn = BlitzGateway(client_obj=client)
@@ -198,6 +199,7 @@ def run_as_script():
             client.setOutput("Message", rstring("No datasets found"))
     finally:
         conn.close()
+
 
 if __name__ == "__main__":
     run_as_script()

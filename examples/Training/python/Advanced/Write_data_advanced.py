@@ -11,6 +11,8 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
+from __future__ import print_function
+
 import omero
 from omero.rtypes import rstring
 from omero.gateway import BlitzGateway
@@ -27,12 +29,12 @@ conn.connect()
 dataset = omero.model.DatasetI()
 dataset.setName(rstring("New Dataset"))
 dataset = conn.getUpdateService().saveAndReturnObject(dataset)
-print "New dataset, Id:", dataset.getId().getValue()
+print("New dataset, Id:", dataset.getId().getValue())
 
 dataset2 = omero.model.DatasetI()
 dataset2.setName(rstring("New Dataset2"))
 dataset2 = conn.getUpdateService().saveAndReturnObject(dataset2)
-print "New dataset 2, Id:", dataset2.getId().getValue()
+print("New dataset 2, Id:", dataset2.getId().getValue())
 
 
 # How to annotate multiple Datasets
