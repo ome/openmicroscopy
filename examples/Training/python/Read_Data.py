@@ -140,7 +140,7 @@ for screen in conn.getObjects("Screen"):
 
 # Retrieve Wells and Images within a Plate
 # ========================================
-if plateId >= 0:
+if int(plateId) >= 0:
     print("\nPlate:%s" % plateId)
     print("=" * 50)
     plate = conn.getObject("Plate", plateId)
