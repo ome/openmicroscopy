@@ -19,7 +19,6 @@
 
 """Tests rendering of thumbnails."""
 
-from past.builtins import cmp
 from future import standard_library
 from builtins import range
 import base64
@@ -77,11 +76,12 @@ class TestThumbnails(IWebTest):
         request_url = reverse('webgateway_render_thumbnail', args=args)
         rsp = get(self.django_client, request_url)
         thumb = json.dumps(
-            "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content))
+            "data:image/jpeg;base64,%s" %
+            base64.b64encode(rsp.content).decode("utf-8"))
 
         request_url = reverse('webgateway_get_thumbnail_json',
                               args=args)
-        b64rsp = get(self.django_client, request_url).content
+        b64rsp = get(self.django_client, request_url).content.decode("utf-8")
         assert thumb == b64rsp
 
     def test_base64_thumb_set(self):
@@ -102,12 +102,13 @@ class TestThumbnails(IWebTest):
             rsp = get(self.django_client, request_url)
 
             expected_thumbs[i] = \
-                "data:image/jpeg;base64,%s" % base64.b64encode(rsp.content)
+                "data:image/jpeg;base64,%s" % \
+                base64.b64encode(rsp.content).decode("utf-8")
 
         iids = {'id': images}
         request_url = reverse('webgateway_get_thumbnails_json')
         b64rsp = get(self.django_client, request_url, iids).content
 
-        assert cmp(json.loads(b64rsp),
-                   json.loads(json.dumps(expected_thumbs))) == 0
-        assert json.dumps(expected_thumbs) == b64rsp
+        json_data = json.loads(b64rsp)
+        for i in images:
+            assert json_data[str(i)] == expected_thumbs[i]
