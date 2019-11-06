@@ -112,31 +112,31 @@ class TestMapAnnotations(IWebTest):
         assert ann["ns"] == client_ns
 
 
+def annotate_tags_dataset(django_client, dsId, tagIds):
+    """
+    Links the specified dataset and tags
+    """
+    # 'newtags-0-description': '',
+    # 'newtags-0-tag': 'foobar',
+    # 'newtags-0-tagset': '',
+    request_url = reverse('annotate_tags')
+    data = {
+        'dataset': dsId,
+        'filter_mode': 'any',
+        'filter_owner_mode': 'all',
+        'index': 0,
+        'newtags-INITIAL_FORMS': 0,
+        'newtags-MAX_NUM_FORMS': 1000,
+        'newtags-TOTAL_FORMS': 0,
+        'tags': ",".join([str(i) for i in tagIds])
+    }
+    post(django_client, request_url, data)
+
+
 class TestTagging(IWebTest):
     """
     Tests adding and removing Tags with annotate_tags()
     """
-
-    def annotate_dataset(self, django_client, dsId, tagIds):
-        """
-        Returns userA's Tag linked to userB's dataset
-        by userA and userB
-        """
-        # 'newtags-0-description': '',
-        # 'newtags-0-tag': 'foobar',
-        # 'newtags-0-tagset': '',
-        request_url = reverse('annotate_tags')
-        data = {
-            'dataset': dsId,
-            'filter_mode': 'any',
-            'filter_owner_mode': 'all',
-            'index': 0,
-            'newtags-INITIAL_FORMS': 0,
-            'newtags-MAX_NUM_FORMS': 1000,
-            'newtags-TOTAL_FORMS': 0,
-            'tags': ",".join([str(i) for i in tagIds])
-        }
-        post(django_client, request_url, data)
 
     def test_annotate_tag(self):
 
@@ -146,7 +146,7 @@ class TestTagging(IWebTest):
         omeName = client1.sf.getAdminService().getEventContext().userName
         django_client1 = self.new_django_client(omeName, omeName)
 
-        # User1 creates Tag and Dataset
+        # User1 creates Tag and Datasets
         ds = self.make_dataset("user1_Dataset", client=client1)
         tag = self.make_tag("test_annotate_tag", client=client1)
 
@@ -158,7 +158,7 @@ class TestTagging(IWebTest):
         tag2 = self.make_tag("user2_tag", client=client2)
 
         # User1 adds 2 tags to Dataset
-        self.annotate_dataset(django_client1, ds.id.val,
+        annotate_tags_dataset(django_client1, ds.id.val,
                               [tag.id.val, tag2.id.val])
 
         # check tags got added
@@ -174,7 +174,7 @@ class TestTagging(IWebTest):
 
         # We can remove tags by not including them
         # E.g. move from Right to Left column in the UI
-        self.annotate_dataset(django_client1, ds.id.val, [tag2.id.val])
+        annotate_tags_dataset(django_client1, ds.id.val, [tag2.id.val])
 
         # Since tag link deletion is async, we need to wait to be sure that
         # tag is removed.
@@ -183,6 +183,45 @@ class TestTagging(IWebTest):
         tagIds = [t['id'] for t in rsp['annotations']]
         assert tag.id.val not in tagIds
         assert tag2.id.val in tagIds
+
+
+class TestBatchAnnotate(IWebTest):
+    """
+    Tests adding and removing Tags with annotate_tags()
+    """
+
+    def test_batch_annotate_tag(self):
+
+        # Create User in a Read-Annotate group
+        client1, user1 = self.new_client_and_user(perms='rwrw--')
+        omeName = client1.sf.getAdminService().getEventContext().userName
+        django_client = self.new_django_client(omeName, omeName)
+
+        # User1 creates Tag and 2 Datasets
+        ds1 = self.make_dataset("batch_Dataset1", client=client1)
+        ds2 = self.make_dataset("batch_Dataset2", client=client1)
+        tag1 = self.make_tag("test_batch_annotate1", client=client1)
+        tag2 = self.make_tag("test_batch_annotate2", client=client1)
+
+        # Batch Annotate panel should have 'Tags'
+        request_url = reverse('batch_annotate')
+        request_url += '?dataset=%s&dataset=%s' % (ds1.id.val, ds2.id.val)
+        rsp = get(django_client, request_url)
+        assert b'2 objects' in rsp.content
+        # can't check for 'Tags 0' since html splits these up
+        assert b'<span class="annotationCount">0</span>' in rsp.content
+        assert b'<span class="annotationCount">1</span>' not in rsp.content
+
+        # Add 1 Tag to 1 Dataset
+        annotate_tags_dataset(django_client, ds1.id.val, [tag1.id.val])
+        rsp = get(django_client, request_url)
+        assert b'<span class="annotationCount">1</span>' in rsp.content
+
+        # Add 2 Tags to other Dataset
+        annotate_tags_dataset(django_client, ds2.id.val,
+                              [tag1.id.val, tag2.id.val])
+        rsp = get(django_client, request_url)
+        assert b'<span class="annotationCount">2</span>' in rsp.content
 
 
 class TestFileAnnotations(IWebTest):
