@@ -49,9 +49,10 @@ class TestCoreMetadata(IWebTest):
         request_url = reverse('load_metadata_details', args=['image', iid])
         data = {}
         rsp = get(self.django_client, request_url, data, status_code=200)
-        html = rsp.content
+        html = rsp.content.decode("utf-8")
         # Units are µm by default
-        assert "Pixels Size (XYZ) (µm):" in html
+        value = "Pixels Size (XYZ) ("+u"µm):"
+        assert value in html
 
         # Now save units as PIXELs and view again
         conn = omero.gateway.BlitzGateway(client_obj=self.client)
@@ -64,7 +65,7 @@ class TestCoreMetadata(IWebTest):
 
         # Should now be showing pixels
         rsp = get(self.django_client, request_url, data, status_code=200)
-        html = rsp.content
+        html = rsp.content.decode("utf-8")
         assert "Pixels Size (XYZ):" in html
         assert "1.20 (pixel)" in html
 
@@ -85,7 +86,7 @@ class TestCoreMetadata(IWebTest):
 
         # Just check that the metadata panel is loaded
         rsp = get(self.django_client, request_url, status_code=200)
-        assert "no_pixels" in rsp.content
+        assert "no_pixels" in rsp.content.decode("utf-8")
 
 
 class TestBulkAnnotations(IWebTest):

@@ -77,7 +77,7 @@ if __name__ == '__main__':
         script_id = self.upload_script()
         script_ui_url = reverse('script_ui', kwargs={'scriptId': script_id})
         rsp = get(self.django_client, script_ui_url)
-        html = rsp.content
+        html = rsp.content.decode("utf-8")
         defaults = self.default_param_values
         expected_values = [
             defaults['Greeting'],
