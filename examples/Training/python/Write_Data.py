@@ -123,7 +123,7 @@ for ann in dataset.listAnnotations():
         with open(str(file_path), 'w') as f:
             print("\nDownloading file to", file_path, "...")
             for chunk in ann.getFileInChunks():
-                f.write(chunk)
+                f.write(chunk.decode("utf-8"))
         print("File downloaded!")
 
 
