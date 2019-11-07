@@ -430,8 +430,8 @@ class TestScreenPlateTables(object):
                                      data={'query': 'Well-%s' % wellId})
         rspJson = json.loads(response.content)
 
-        def extractDictAFromB(A,B):
-            return dict([(k,B[k]) for k in A.keys() if k in B.keys()])
+        def extractDictAFromB(A, B):
+            return dict([(k, B[k]) for k in A.keys() if k in B.keys()])
         d1 = rspJson['data']
         d2 = {'rows': [[wellId, 'foobar']],
               'columns': ['Well', 'TestColumn']}
