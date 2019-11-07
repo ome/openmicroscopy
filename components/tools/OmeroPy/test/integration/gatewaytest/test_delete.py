@@ -143,3 +143,21 @@ class TestDelete (object):
 
         assert qs.find('OriginalFile', oid) is None
         assert qs.find('FileAnnotation', faid) is None
+
+    def testDeleteObjectDirect(self, gatewaywrapper):
+        """ tests conn.deleteObjectDirect(obj) """
+
+        gatewaywrapper.loginAsAuthor()
+        conn = gatewaywrapper.gateway
+        us = conn.getUpdateService()
+        project = omero.model.ProjectI()
+        project.setName(wrap('project'))
+        project = us.saveAndReturnObject(project)
+        pid = unwrap(project.getId())
+
+        project_wrapper = conn.getObject("Project", pid)
+        assert project_wrapper is not None
+
+        conn.deleteObjectDirect(project_wrapper._obj)
+
+        assert conn.getObject("Project", pid) is None
