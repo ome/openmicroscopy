@@ -429,10 +429,15 @@ class TestScreenPlateTables(object):
         response = django_client.get(request_url,
                                      data={'query': 'Well-%s' % wellId})
         rspJson = json.loads(response.content)
-        print(rspJson)
-        assert rspJson['data'] == {
-            'rows': [[wellId, 'foobar']],
-            'columns': ['Well', 'TestColumn']}
+
+        def extractDictAFromB(A,B):
+            return dict([(k,B[k]) for k in A.keys() if k in B.keys()])
+        d1 = rspJson['data']
+        d2 = {'rows': [[wellId, 'foobar']],
+              'columns': ['Well', 'TestColumn']}
+        # Check that d2 is a subset of d1
+        values = dict([(k, d1[k]) for k in d2.keys() if k in d2.keys()])
+        assert values == d2
         assert rspJson['parentId'] == plate.id.val
         user = conn.getUser()
         userName = "%s %s" % (user.getFirstName(), user.getLastName())
