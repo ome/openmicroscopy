@@ -169,7 +169,6 @@ class TestTagging(IWebTest):
         tagNames = [t['textValue'] for t in rsp['annotations']]
         assert tagNames == [tagname]
 
-
     def test_annotate_tag(self):
 
         # Create User in a Read-Annotate group
