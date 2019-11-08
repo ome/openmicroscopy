@@ -10,7 +10,9 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
+from __future__ import print_function
 
+from builtins import range
 import omero
 from omero.gateway import BlitzGateway
 from omero.rtypes import rdouble
@@ -45,7 +47,7 @@ for shape in range(total_shape_count):
     roi.addShape(point)
 
 roi = updateService.saveAndReturnObject(roi)
-print "created {0} shapes".format(total_shape_count)
+print("created {} shapes".format(total_shape_count))
 
 
 # Query Shapes in batches
@@ -68,8 +70,8 @@ while True:
         shapes_queried += len(shapes)
         shape_batch_count += 1
 
-print "retrieved {0} shapes in {1} batches".format(shapes_queried,
-                                                   shape_batch_count)
+print("retrieved {} shapes in {} batches".format(shapes_queried,
+                                                 shape_batch_count))
 
 
 # Delete ROI with Shapes

@@ -10,7 +10,11 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
+from __future__ import division
+from __future__ import print_function
 
+from builtins import range
+from past.utils import old_div
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
@@ -54,7 +58,7 @@ i = conn.createImageFromNumpySeq(
     plane_gen(), "numpy image", size_z, size_c, size_t, description=desc,
     dataset=None)
 
-print 'Created new Image:%s Name:"%s"' % (i.getId(), i.getName())
+print('Created new Image:%s Name:"%s"' % (i.getId(), i.getName()))
 
 
 # Set the pixel size using units
@@ -101,10 +105,12 @@ def plane_gen():
                 # Here we can manipulate the data in many different ways. As
                 # an example we are doing "average"
                 # average of 2 channels
-                new_plane = (channel0 + channel1) / 2
-                print "newPlane for z,t:", z, t, new_plane.dtype, \
-                    new_plane.min(), new_plane.max()
+                new_plane = old_div((channel0 + channel1), 2)
+                print("newPlane for z,t:", z, t, new_plane.dtype,
+                      new_plane.min(), new_plane.max())
                 yield new_plane
+
+
 desc = ("Image created from Image ID: %s by averaging Channel 1 and Channel 2"
         % imageId)
 i = conn.createImageFromNumpySeq(

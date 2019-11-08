@@ -19,6 +19,8 @@ FOR TRAINING PURPOSES ONLY!
 # A more complete template, for 'real-world' scripts, is also included in this
 # folder
 # This script takes an Image ID as a parameter from the scripting service.
+from __future__ import print_function
+
 from omero.gateway import BlitzGateway
 import omero
 from omero.rtypes import rstring
@@ -36,7 +38,7 @@ image_obj = omero.model.ImageI()
 image_obj.setName(rstring("New Image"))
 image_obj = conn.getUpdateService().saveAndReturnObject(image_obj)
 image_id = image_obj.getId().getValue()
-print "New image, Id:", image_id
+print("New image, Id:", image_id)
 
 try:
     link = omero.model.DatasetImageLinkI()

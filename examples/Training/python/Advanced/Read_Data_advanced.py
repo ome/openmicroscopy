@@ -11,10 +11,12 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
+from __future__ import print_function
+
 import omero
 from omero.rtypes import rstring
 from omero.gateway import BlitzGateway
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 
 
 # Create a connection
@@ -32,7 +34,7 @@ tag_name = "MyTag"
 # Create Datasets
 # =================================================================
 object_array = list()
-for i in xrange(3):
+for i in range(3):
     dataset = omero.model.DatasetI()
     dataset.setName(rstring(dataset_name))
     object_array.append(dataset)
@@ -42,7 +44,7 @@ conn.getUpdateService().saveArray(object_array)
 # Create Tags
 # =================================================================
 object_array = list()
-for i in xrange(3):
+for i in range(3):
     tag = omero.model.TagAnnotationI()
     tag.setTextValue(rstring(tag_name))
     tag.setDescription(rstring("%s %i" % (tag_name, i)))
@@ -53,18 +55,18 @@ conn.getUpdateService().saveArray(object_array)
 # Find the datasets by name.
 # =================================================================
 datasets = conn.getObjects("Dataset", attributes={'name': dataset_name})
-print "\nList Datasets:"
+print("\nList Datasets:")
 for d in datasets:
-    print "ID:", d.getId(), "Name:", d.getName()
+    print("ID:", d.getId(), "Name:", d.getName())
 
 
 # Find the tag by textValue
 # =================================================================
 tags = conn.getObjects("TagAnnotation", attributes={'textValue': tag_name})
-print "\nList Tags:"
+print("\nList Tags:")
 for t in tags:
-    print "ID: %s Text: %s Desc: %s" % (
-        t.getId(), t.getTextValue(), t.getDescription())
+    print("ID: %s Text: %s Desc: %s" % (
+        t.getId(), t.getTextValue(), t.getDescription()))
 
 
 # Close connection:

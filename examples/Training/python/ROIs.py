@@ -10,7 +10,13 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
+from __future__ import division
+from __future__ import print_function
 
+from future.utils import native_str
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import numpy
 import struct
 import math
@@ -46,7 +52,7 @@ y = 200
 width = 100
 height = 50
 image = conn.getObject("Image", imageId)
-z = image.getSizeZ() / 2
+z = old_div(image.getSizeZ(), 2)
 t = 0
 
 
@@ -76,8 +82,8 @@ def rgba_to_int(red, green, blue, alpha=255):
 
 
 # create a Rectangle shape (added to ROI below)
-print ("Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s,"
-       " height: %s" % (z, t, x, y, width, height))
+print("Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s,"
+      " height: %s" % (z, t, x, y, width, height))
 rect = omero.model.RectangleI()
 rect.x = rdouble(x)
 rect.y = rdouble(y)
@@ -129,18 +135,19 @@ def create_mask(mask_bytes, bytes_per_pixel=1):
     else:
         message = "Format %s not supported"
         raise ValueError(message)
-    steps = math.ceil(len(mask_bytes) / divider)
+    steps = math.ceil(old_div(len(mask_bytes), divider))
     mask = []
-    for i in range(long(steps)):
+    for i in range(int(steps)):
         binary = mask_bytes[
             i * int(divider):i * int(divider) + int(divider)]
-        format = str(int(byte_factor * len(binary))) + format_string
+        format = native_str(int(byte_factor * len(binary))) + format_string
         binary = struct.unpack(format, binary)
         s = ""
         for bit in binary:
             s += str(bit)
         mask.append(int(s, 2))
     return bytearray(mask)
+
 
 mask_x = 50
 mask_y = 50
@@ -203,7 +210,7 @@ create_roi(image, [polygon])
 roi_service = conn.getRoiService()
 result = roi_service.findByImage(imageId, None)
 for roi in result.rois:
-    print "ROI:  ID:", roi.getId().getValue()
+    print("ROI:  ID:", roi.getId().getValue())
     for s in roi.copyShapes():
         shape = {}
         shape['id'] = s.getId().getValue()
@@ -241,12 +248,12 @@ for roi in result.rois:
             shape['height'] = s.getHeight().getValue()
         elif type(s) in (
                 omero.model.LabelI, omero.model.PolygonI):
-            print type(s), " Not supported by this code"
+            print(type(s), " Not supported by this code")
         # Do some processing here, or just print:
-        print "   Shape:",
-        for key, value in shape.items():
-            print "  ", key, value,
-        print ""
+        print("   Shape:", end=' ')
+        for key, value in list(shape.items()):
+            print("  ", key, value, end=' ')
+        print("")
 
 # Get Pixel Intensities for ROIs
 # ==============================
@@ -261,12 +268,12 @@ the_z = 0
 the_t = 0
 stats = roi_service.getShapeStatsRestricted(shape_ids, the_z, the_t, [ch_idx])
 for s in stats:
-    print "Points", s.pointsCount[ch_idx],
-    print "Min", s.min[ch_idx],
-    print "Mean", s.mean[ch_idx],
-    print "Max", s.max[ch_idx],
-    print "Sum", s.max[ch_idx],
-    print "StdDev", s.stdDev[ch_idx]
+    print("Points", s.pointsCount[ch_idx], end=' ')
+    print("Min", s.min[ch_idx], end=' ')
+    print("Mean", s.mean[ch_idx], end=' ')
+    print("Max", s.max[ch_idx], end=' ')
+    print("Sum", s.max[ch_idx], end=' ')
+    print("StdDev", s.stdDev[ch_idx])
 
 # Remove shape from ROI
 # =====================
@@ -275,7 +282,7 @@ for roi in result.rois:
     for s in roi.copyShapes():
         # Find and remove the Shape we added above
         if s.getTextValue() and s.getTextValue().getValue() == "test-Ellipse":
-            print "Removing Shape from ROI..."
+            print("Removing Shape from ROI...")
             roi.removeShape(s)
             roi = updateService.saveAndReturnObject(roi)
 
@@ -283,7 +290,7 @@ for roi in result.rois:
 # Delete ROIs and all the Shapes they contain
 # ===========================================
 roi_to_delete = create_roi(image, [rect])
-print "Deleting ROI:", roi.getId().getValue()
+print("Deleting ROI:", roi.getId().getValue())
 conn.deleteObjects("Roi", [roi.getId().getValue()], wait=True)
 
 

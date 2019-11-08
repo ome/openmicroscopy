@@ -11,6 +11,8 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
+from __future__ import print_function
+
 import omero.util.script_utils as scriptUtil
 from numpy import int32
 from omero.gateway import BlitzGateway
@@ -34,7 +36,7 @@ for c in image.getChannels():
     min_c = c.getWindowMin()
     max_c = c.getWindowMax()
     channel_min_max.append((min_c, max_c))
-print channel_min_max
+print(channel_min_max)
 
 
 # Go through each channel (looping through Z and T not shown - go for mid-Z

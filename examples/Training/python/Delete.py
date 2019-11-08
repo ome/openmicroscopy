@@ -11,6 +11,7 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
+from __future__ import print_function
 import omero
 import omero.callbacks
 from omero.gateway import BlitzGateway
@@ -58,13 +59,13 @@ conn.deleteObjects(
 # any errors, then we can use a callback to wait for response
 handle = conn.deleteObjects("Project", [project_id2])
 cb = omero.callbacks.CmdCallbackI(conn.c, handle)
-print "Deleting, please wait."
+print("Deleting, please wait.")
 while not cb.block(500):
-    print "."
+    print(".")
 err = isinstance(cb.getResponse(), omero.cmd.ERR)
-print "Error?", err
+print("Error?", err)
 if err:
-    print cb.getResponse()
+    print(cb.getResponse())
 cb.close(True)      # close handle too
 
 

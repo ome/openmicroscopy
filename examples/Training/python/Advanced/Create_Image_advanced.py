@@ -51,7 +51,7 @@ def plane_gen():
     for z in range(size_z):          # all Z sections
         for c in range(size_c):
             for t in range(size_t):      # all time-points
-                print "Plane: ", z, c, t
+                print("Plane: ", z, c, t)
                 if c == replace_channel:
                     yield pixels.getPlane(z, c, t)
                 else:
@@ -75,7 +75,7 @@ for ch in img.getChannels():
 
 # Save channel names and colors
 # =================================================================
-print "Applying channel Names:", c_names, " Colors:", colors
+print("Applying channel Names:", c_names, " Colors:", colors)
 for i, c in enumerate(new_img.getChannels()):
     lc = c.getLogicalChannel()
     lc.setName(c_names[i])

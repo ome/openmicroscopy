@@ -10,7 +10,10 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
+from __future__ import print_function
 
+from builtins import str
+from builtins import range
 import omero
 import os
 import omero.grid
@@ -81,22 +84,22 @@ conn.getUpdateService().saveAndReturnObject(link)
 # .. seealso:: :javadoc:` OMERO Tables <slice2html/omero/grid/Table.html>`
 
 open_table = resources.openTable(orig_file)
-print "Table Columns:"
+print("Table Columns:")
 for col in open_table.getHeaders():
-    print "   ", col.name
+    print("   ", col.name)
 rowCount = open_table.getNumberOfRows()
-print "Row count:", rowCount
+print("Row count:", rowCount)
 
 
 # Get data from every column of the specified rows
 # ================================================
 row_numbers = [3, 5, 7]
-print "\nGet All Data for rows: ", row_numbers
-data = open_table.readCoordinates(range(rowCount))
+print("\nGet All Data for rows: ", row_numbers)
+data = open_table.readCoordinates(list(range(rowCount)))
 for col in data.columns:
-    print "Data for Column: ", col.name
+    print("Data for Column: ", col.name)
     for v in col.values:
-        print "   ", v
+        print("   ", v)
 
 
 # Get data from specified columns of specified rows
@@ -104,13 +107,13 @@ for col in data.columns:
 col_numbers = [1]
 start = 3
 stop = 7
-print "\nGet Data for cols: ", col_numbers,\
-    " and between rows: ", start, "-", stop
+print("\nGet Data for cols: ", col_numbers,
+      " and between rows: ", start, "-", stop)
 data = open_table.read(col_numbers, start, stop)
 for col in data.columns:
-    print "Data for Column: ", col.name
+    print("Data for Column: ", col.name)
     for v in col.values:
-        print "   ", v
+        print("   ", v)
 
 
 # Query the table for rows where the 'Uid' is in a particular range
@@ -119,9 +122,9 @@ query_rows = open_table.getWhereList(
     "(Uid > 2) & (Uid <= 8)", variables={}, start=0, stop=rowCount, step=0)
 data = open_table.readCoordinates(query_rows)
 for col in data.columns:
-    print "Query Results for Column: ", col.name
+    print("Query Results for Column: ", col.name)
     for v in col.values:
-        print "   ", v
+        print("   ", v)
 open_table.close()           # we're done
 
 
@@ -130,7 +133,7 @@ open_table.close()           # we're done
 orig_table_file = conn.getObject(
     "OriginalFile", attributes={'name': table_name})    # if name is unique
 saved_table = resources.openTable(orig_table_file._obj)
-print "Opened table with row-count:", saved_table.getNumberOfRows()
+print("Opened table with row-count:", saved_table.getNumberOfRows())
 saved_table.close()
 
 # Populate a table on a Plate from a csv file
