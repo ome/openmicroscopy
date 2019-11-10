@@ -106,7 +106,7 @@ if __name__ == '__main__':
                                          'Channels': [1, 2]},
                                         {'Names': ['Single'],
                                          'Channels': ['not_a_number']}])
-    def test_script_inputs_outputs(self, inputs={}):
+    def test_script_inputs_outputs(self, inputs):
         """Test that inputs and outputs are passed to and from script."""
         script_id = self.upload_script()
         script_run_url = reverse('script_run', kwargs={'scriptId': script_id})
