@@ -49,7 +49,7 @@ class TestScripts(IWebTest):
 
         script = """
 import omero
-from omero.rtypes import rstring, rint, wrap, robject
+from omero.rtypes import rstring, rint, wrap, robject, rlong
 import omero.scripts as scripts
 if __name__ == '__main__':
     client = scripts.client(
