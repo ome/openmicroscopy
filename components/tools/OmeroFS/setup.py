@@ -35,4 +35,4 @@ setup(name="OmeroFS",
       package_dir={"": "target"},
       packages=[''],
       cmdclass={'test': PyTest},
-      tests_require=['pytest<3'])
+      tests_require=['pytest', 'pytest-xdist'])

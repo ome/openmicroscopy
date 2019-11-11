@@ -9,6 +9,7 @@
 from builtins import range
 from builtins import object
 import pytest
+import os
 
 
 def pytest_addoption(parser):
@@ -76,11 +77,28 @@ class Methods(object):
         raise Exception(standardMsg)
 
 
-def pytest_configure():
+def workdir(worker):
+    home = os.path.expanduser("~")
+    job = os.environ.get("JOB_NAME", "unknown_job")
+    path = [home, "omero", "pytest", job, worker]
+    return os.sep.join(path)
+
+
+def pytest_configure(config):
     """
     Add helper methods to the 'pytest' module
     """
     pytest.assertAlmostEqual = Methods.assertAlmostEqual
+
+    if not hasattr(config, 'slaveinput'):
+        workerid = 'main'
+        os.environ["OMERO_USERDIR"] = workdir(workerid)
+
+
+def pytest_configure_node(node):
+    if hasattr(node, 'slaveinput'):
+        workerid = node.slaveinput["workerid"]
+        os.environ["OMERO_USERDIR"] = workdir(workerid)
 
 
 pytest_plugins = "omero.gateway.pytest_fixtures"

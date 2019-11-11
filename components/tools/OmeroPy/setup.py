@@ -69,4 +69,4 @@ setup(
         'omero.gateway': ['pilfonts/*'],
         'omero.gateway.scripts': ['imgs/*']},
     cmdclass={'test': PyTest},
-    tests_require=['pytest<3'])
+    tests_require=['pytest', 'pytest-xdist'])
