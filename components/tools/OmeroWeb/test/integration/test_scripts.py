@@ -50,7 +50,7 @@ class TestScripts(IWebTest):
 
         script = """
 import omero
-from omero.rtypes import rstring, rint, wrap, robject, rlong
+from omero.rtypes import rint, rlong, robject, rstring, wrap
 import omero.scripts as scripts
 if __name__ == '__main__':
     client = scripts.client(
