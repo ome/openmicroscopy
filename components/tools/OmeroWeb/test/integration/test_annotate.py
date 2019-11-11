@@ -138,6 +138,37 @@ class TestTagging(IWebTest):
     Tests adding and removing Tags with annotate_tags()
     """
 
+    def test_create_tag(self):
+        # Create User and Dataset in a Read-Annotate group
+        client, user = self.new_client_and_user(perms='rwrw--')
+        omeName = client.sf.getAdminService().getEventContext().userName
+        django_client = self.new_django_client(omeName, omeName)
+        ds = self.make_dataset("test_create_tag", client=client)
+
+        tagname = "test_create_tag"
+        desc = "The description of the new tag"
+        request_url = reverse('annotate_tags')
+        data = {
+            'dataset': ds.id.val,
+            'filter_mode': 'any',
+            'filter_owner_mode': 'all',
+            'index': 0,
+            'newtags-0-tag': tagname,
+            'newtags-0-description': desc,
+            'newtags-INITIAL_FORMS': 0,
+            'newtags-MAX_NUM_FORMS': 1000,
+            'newtags-TOTAL_FORMS': 1,
+            'tags': "",
+        }
+        post(django_client, request_url, data)
+
+        # Check tag exists on Dataset
+        request_url = reverse('api_annotations')
+        data = {"dataset": ds.id.val}
+        rsp = get_json(django_client, request_url, data)
+        tagNames = [t['textValue'] for t in rsp['annotations']]
+        assert tagNames == [tagname]
+
     def test_annotate_tag(self):
 
         # Create User in a Read-Annotate group
