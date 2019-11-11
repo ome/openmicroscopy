@@ -169,8 +169,12 @@ class TestWrapper(object):
 
     def testOriginalFileWrapperGetFileInChunks(self, gatewaywrapper):
         f = self.createTestFile(gatewaywrapper)
-        assert ''.join(f.getFileInChunks()) == 'abcdefghijklmnopqrstuvwxyz'
-        assert list(f.getFileInChunks(buf=10)) == [
+        for t in f.getFileInChunks():
+            assert t.decode("utf-8") == 'abcdefghijklmnopqrstuvwxyz'
+        decoded = []
+        for t in list(f.getFileInChunks(buf=10)):
+            decoded.append(t.decode("utf-8"))
+        assert decoded == [
             'abcdefghij',
             'klmnopqrst',
             'uvwxyz',
@@ -180,26 +184,26 @@ class TestWrapper(object):
         f = self.createTestFile(gatewaywrapper)
         fobj = f.asFileObj(buf=7)
         assert fobj.pos == 0
-        assert fobj.read(5) == 'abcde'
+        assert fobj.read(5).decode("utf-8") == 'abcde'
         assert fobj.pos == 5
         fobj.seek(10)
         assert fobj.pos == 10
-        assert fobj.read(5) == 'klmno'
+        assert fobj.read(5).decode("utf-8") == 'klmno'
         assert fobj.pos == 15
         fobj.seek(5, os.SEEK_CUR)
         assert fobj.pos == 20
-        assert fobj.read(4) == 'uvwx'
+        assert fobj.read(4).decode("utf-8") == 'uvwx'
         fobj.seek(-5, os.SEEK_END)
         assert fobj.pos == 21
-        assert fobj.read(2) == 'vw'
-        assert fobj.read() == 'xyz'
-        assert fobj.read() == ''
+        assert fobj.read(2).decode("utf-8") == 'vw'
+        assert fobj.read().decode("utf-8") == 'xyz'
+        assert fobj.read().decode("utf-8") == ''
         fobj.close()
 
     def testOriginalFileWrapperAsFileObjContextManager(self, gatewaywrapper):
         f = self.createTestFile(gatewaywrapper)
         with f.asFileObj() as fobj:
-            assert fobj.read() == 'abcdefghijklmnopqrstuvwxyz'
+            assert fobj.read().decode("utf-8") == 'abcdefghijklmnopqrstuvwxyz'
         # Verify close was automatically called
         with pytest.raises(Ice.ObjectNotExistException):
             fobj.read()
