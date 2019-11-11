@@ -38,7 +38,8 @@ class TestScripts(IWebTest):
         'Do_Work': False,
         'Row_Count': 12,
         'Names': ['A', 'B'],
-        'Channels': [1, 2, 3, 4]
+        'Channels': [1, 2, 3, 4],
+        'Data_Type': 'Image',
     }
 
     def upload_script(self):
@@ -115,10 +116,11 @@ if __name__ == '__main__':
         # script basically passes inputs/defaults to outputs
         results = self.default_param_values.copy()
 
-        # Create Image and add to inputs
+        # Create Image and add IDs to inputs
         image = self.make_image("test_script_inputs_outputs")
         data["IDs"] = str(image.id.val)
-        # We expect to get Image returned:
+        # We expect to get Image returned (and IDs are passed through too)
+        results['IDs'] = [image.id.val]
         results['Image'] = {
             'id': image.id.val,
             'type': 'Image',
