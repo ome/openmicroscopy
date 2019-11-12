@@ -5,6 +5,15 @@
 OMERO version history
 =====================
 
+5.6.0-m1 (November 2019)
+------------------------
+
+First milestone of OMERO with support for Python 3. This version
+depends on omero-py and omero-web 5.6.0.dev3 and is intended for
+internal testing. Subsequent versions will include documentation
+of the necessary migration steps and a list of supported platforms.
+
+
 5.5.1 (July 2019)
 -----------------
 
