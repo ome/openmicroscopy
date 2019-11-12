@@ -10,12 +10,11 @@
 """
 
 from future import standard_library
-standard_library.install_aliases()
+standard_library.install_aliases() # noqa
 from builtins import str
 from builtins import object
 import pytest
 import os
-from path import path
 from omero.plugins.db import DatabaseControl
 from omero.util.temp_files import create_path
 from omero.cli import NonZeroReturnCode
@@ -23,6 +22,7 @@ from omero.cli import CLI
 from mox3 import mox
 import getpass
 import builtins
+import re
 
 OMERODIR = False
 if 'OMERODIR' in os.environ:
@@ -43,21 +43,6 @@ class TestDatabase(object):
         self.cli.register("db", DatabaseControl, "TEST")
         self.args = ["db"]
         self.data = {}
-
-        # FIXME: Use a different approach to get omero.db.version etc
-        # No-longer stored in "omero.properties"
-        if OMERODIR:
-            dir = path(OMERODIR).abspath()
-            cfg = dir / "etc" / "omero.properties"
-            cfg = cfg.abspath()
-            self.cli.dir = dir
-
-            for line in cfg.text().split("\n"):
-                line = line.strip()
-                for x in ("version", "patch"):
-                    key = "omero.db." + x
-                    if line.startswith(key):
-                        self.data[x] = line[len(key)+1:]
 
         self.file = create_path()
         self.script_file = ""
@@ -130,7 +115,7 @@ class TestDatabase(object):
         out, err = capsys.readouterr()
         assert out.strip() == self.password_output(user_id, no_salt)
 
-    @pytest.mark.skip(reason="Can't read omero.db.version")
+    @pytest.mark.skipif(OMERODIR is False, reason="self.script() fails")
     @pytest.mark.parametrize('file_arg', ['', '-f', '--file'])
     @pytest.mark.parametrize('no_salt', ['', '--no-salt'])
     @pytest.mark.parametrize('password', ['', '--password ome'])
@@ -143,9 +128,6 @@ class TestDatabase(object):
             args += " %s" % no_salt
         if file_arg:
             args += " %s %s" % (file_arg, str(self.file))
-            output = self.file
-        else:
-            output = self.script_file
 
         if not password:
             self.expectPassword("ome")
@@ -155,16 +137,26 @@ class TestDatabase(object):
         self.cli.invoke(args, strict=True)
 
         out, err = capsys.readouterr()
-        assert 'Using %s for version' % self.data['version'] in err
-        assert 'Using %s for patch' % self.data['patch'] in err
+        errlines = err.split('\n')
+        m1 = re.match(r'Using OMERO(\d.\d) for version', errlines[0])
+        assert m1 is not None
+        m2 = re.match(r'Using (\d) for patch', errlines[1])
+        assert m2 is not None
         if password:
-            assert 'Using password from commandline' in err
+            assert re.match('Using password from commandline', errlines[2])
+
+        if file_arg:
+            output = self.file
+        else:
+            output = "OMERO%s__%s.sql" % (m1.group(1), m2.group(1))
 
         with open(output) as f:
             lines = f.readlines()
             for line in lines:
                 if line.startswith('insert into password values (0'):
                     assert line.strip() == self.script_output(no_salt)
+        if not file_arg:
+            os.remove(output)
 
     @pytest.mark.skipif(OMERODIR is False, reason="Needs omero.db.profile")
     @pytest.mark.parametrize('file_arg', ['', '-f', '--file'])
