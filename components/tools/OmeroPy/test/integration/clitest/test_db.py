@@ -88,16 +88,6 @@ class TestDatabase(object):
     def password(self, string, strict=True):
         self.cli.invoke("db password " + string % self.data, strict=strict)
 
-    def testHelp(self):
-        self.args += ["-h"]
-        self.cli.invoke(self.args, strict=True)
-
-    @pytest.mark.parametrize(
-        'subcommand', DatabaseControl().get_subcommands())
-    def testSubcommandHelp(self, subcommand):
-        self.args += [subcommand, "-h"]
-        self.cli.invoke(self.args, strict=True)
-
     @pytest.mark.skipif(OMERODIR is False, reason="Needs omero.db.profile")
     def testBadVersionDies(self):
         with pytest.raises(NonZeroReturnCode):
