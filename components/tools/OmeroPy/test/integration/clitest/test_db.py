@@ -95,6 +95,7 @@ class TestDatabase(object):
         self.mox.ReplayAll()
         self.password("")
 
+    @pytest.mark.xfail(reason="https://github.com/ome/omero-py/issues/112")
     @pytest.mark.skipif(OMERODIR is False, reason="self.password() fails")
     @pytest.mark.parametrize('no_salt', ['', '--no-salt'])
     @pytest.mark.parametrize('user_id', ['', '0', '1'])
