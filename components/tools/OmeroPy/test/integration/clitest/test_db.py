@@ -42,15 +42,8 @@ class TestDatabase(object):
         self.cli = CLI()
         self.cli.register("db", DatabaseControl, "TEST")
         self.args = ["db"]
-        self.data = {}
 
         self.file = create_path()
-        self.script_file = ""
-        if "version" in self.data and "patch" in self.data:
-            self.script_file = "%(version)s__%(patch)s.sql" % self.data
-        if os.path.isfile(self.script_file):
-            os.rename(self.script_file, self.script_file + '.bak')
-        assert not os.path.isfile(self.script_file)
 
         self.mox = mox.Mox()
         self.mox.StubOutWithMock(getpass, 'getpass')
@@ -62,38 +55,30 @@ class TestDatabase(object):
 
     def teardown_method(self, method):
         self.file.remove()
-        if os.path.isfile(self.script_file):
-            os.remove(self.script_file)
-        if os.path.isfile(self.script_file + '.bak'):
-            os.rename(self.script_file + '.bak', self.script_file)
-
         self.mox.UnsetStubs()
         self.mox.VerifyAll()
-
-    def password(self, string, strict=True):
-        self.cli.invoke("db password " + string % self.data, strict=strict)
 
     @pytest.mark.skipif(OMERODIR is False, reason="Needs omero.db.profile")
     def testBadVersionDies(self):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke("db script NONE NONE pw", strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="self.password('') fails")
+    @pytest.mark.skipif(OMERODIR is False, reason="db password fails")
     def testPasswordIsAskedForAgainIfDiffer(self):
         self.expectPassword("ome")
         self.expectConfirmation("bad")
         self.expectPassword("ome")
         self.expectConfirmation("ome")
         self.mox.ReplayAll()
-        self.password("")
+        self.cli.invoke("db password", strict=True)
 
-    @pytest.mark.skipif(OMERODIR is False, reason="self.password('') fails")
+    @pytest.mark.skipif(OMERODIR is False, reason="db password fails")
     def testPasswordIsAskedForAgainIfEmpty(self):
         self.expectPassword("")
         self.expectPassword("ome")
         self.expectConfirmation("ome")
         self.mox.ReplayAll()
-        self.password("")
+        self.cli.invoke("db password", strict=True)
 
     @pytest.mark.xfail(reason="https://github.com/ome/omero-py/issues/112")
     @pytest.mark.skipif(OMERODIR is False, reason="self.password() fails")
@@ -101,17 +86,19 @@ class TestDatabase(object):
     @pytest.mark.parametrize('user_id', ['', '0', '1'])
     @pytest.mark.parametrize('password', ['', 'ome'])
     def testPassword(self, user_id, password, no_salt, capsys):
-        args = ""
+        args = "db password"
         if user_id:
-            args += "--user-id=%s " % user_id
+            args += " --user-id=%s " % user_id
         if no_salt:
-            args += "%s " % no_salt
+            args += " %s" % no_salt
         if password:
-            args += "%s" % password
+            args += " %s" % password
         else:
             self.expectPassword("ome", id=user_id)
             self.expectConfirmation("ome", id=user_id)
             self.mox.ReplayAll()
+        self.cli.invoke(args, strict=True)
+
         self.password(args)
         out, err = capsys.readouterr()
         assert out.strip() == self.password_output(user_id, no_salt)
@@ -174,9 +161,6 @@ class TestDatabase(object):
             args += " %s" % no_salt
         if file_arg:
             args += " %s %s" % (file_arg, str(self.file))
-            self.file
-        else:
-            self.script_file
         self.mox.ReplayAll()
 
         with pytest.raises(NonZeroReturnCode):
