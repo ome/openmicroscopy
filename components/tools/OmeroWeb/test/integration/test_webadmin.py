@@ -47,6 +47,7 @@ class TestExperimenters(IWebTest):
         """Test creation of User, Restricted Admin and Full Admin."""
         uuid = self.uuid()
         groupid = self.new_group().id.val
+        groupid2 = self.new_group().id.val
         request_url = reverse('wamanageexperimenterid', args=["create"])
         data = {
             "omename": uuid,
@@ -54,7 +55,7 @@ class TestExperimenters(IWebTest):
             "last_name": uuid,
             "active": "on",
             "default_group": groupid,
-            "other_groups": groupid,
+            "other_groups": [groupid, groupid2],
             "password": uuid,
             "confirmation": uuid,
             "role": role,
@@ -68,12 +69,15 @@ class TestExperimenters(IWebTest):
         # Check that user was created
         admin = self.client.sf.getAdminService()
         exp = admin.lookupExperimenter(uuid)
+        exp_gids = [m.parent.id.val for m in exp.copyGroupExperimenterMap()]
+        # In new groups
+        assert groupid in exp_gids
+        assert groupid2 in exp_gids
 
         # Check Role & Privileges
         privileges = [p.getValue().val for p in admin.getAdminPrivileges(exp)]
         sid = admin.getSecurityRoles().systemGroupId
-        is_admin = sid in [m.parent.id.val
-                           for m in exp.copyGroupExperimenterMap()]
+        is_admin = sid in exp_gids
 
         if role == 'user':
             assert len(privileges) == 0
