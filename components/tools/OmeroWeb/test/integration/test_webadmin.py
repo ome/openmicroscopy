@@ -381,3 +381,58 @@ class TestGroups(IWebTest):
         eids = [link.child.id.val for link in group.copyGroupExperimenterMap()]
 
         assert set(eids) == set(data['members'])
+
+    def test_save_experimenter(self):
+        """Test edit of User"""
+        # Create User in 2 groups
+        uuid = self.uuid()
+        groupid = self.new_group().id.val
+        groupid2 = self.new_group().id.val
+        groupid3 = self.new_group().id.val
+        request_url = reverse('wamanageexperimenterid', args=["create"])
+        data = {
+            "omename": uuid,
+            "first_name": uuid,
+            "last_name": uuid,
+            "active": "on",
+            "default_group": groupid,
+            "other_groups": [groupid, groupid2],
+            "password": uuid,
+            "confirmation": uuid,
+            "role": "user",
+        }
+        post(self.django_root_client, request_url, data, status_code=302)
+        # Check that user was created in groups
+        admin = self.client.sf.getAdminService()
+        exp = admin.lookupExperimenter(uuid)
+        exp_id = exp.id.val
+        exp_gids = [m.parent.id.val for m in exp.copyGroupExperimenterMap()]
+        # first group is default group
+        assert exp_gids[0] == groupid
+        assert groupid2 in exp_gids
+
+        # Edit names, change default group, add group, remove group
+        new_name = "new_name_%s" % uuid
+        new_lastname = "new_lastname_%s" % uuid
+        request_url = reverse('wamanageexperimenterid', args=["save", exp_id])
+        data = {
+            "omename": uuid,
+            "first_name": new_name,
+            "last_name": new_lastname,
+            "active": "on",
+            "default_group": groupid2,
+            "other_groups": [groupid2, groupid3],
+            "role": "user",
+        }
+        post(self.django_root_client, request_url, data, status_code=302)
+
+        # Check
+        exp = admin.lookupExperimenter(uuid)
+        assert exp.firstName.val == new_name
+        assert exp.lastName.val == new_lastname
+        exp_id = exp.id.val
+        exp_gids = [m.parent.id.val for m in exp.copyGroupExperimenterMap()]
+        # first group is default group
+        assert exp_gids[0] == groupid2
+        assert groupid not in exp_gids
+        assert groupid3 in exp_gids
