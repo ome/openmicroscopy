@@ -137,3 +137,27 @@ if __name__ == '__main__':
                 assert o['Message'] == 'Script Completed'
                 # All inputs should be passed to outputs
                 assert o['results'] == defaults
+
+
+class TestFigureScripts(IWebTest):
+    """Figure scripts run from webclient with custom dialog UI."""
+
+    @pytest.mark.parametrize("script_name", ['SplitView', 'Thumbnail',
+                                             'MakeMovie'])
+    def test_figure_script_dialog(self, script_name):
+        # Need at least one multi-dimensional image, in a Dataset
+        image = self.create_test_image(size_c=2, size_t=5)
+        image_id = image.id.val
+        dataset = self.make_dataset(client=self.root)
+        self.link(dataset, image, client=self.root)
+        script_ui_url = reverse('figure_script',
+                                kwargs={'scriptName': script_name})
+        rsp = get(self.django_root_client, script_ui_url, data={'Image': image_id})
+        html = rsp.content.decode("utf-8")
+
+        titles = {'SplitView': 'Create Split View Figure',
+                  'Thumbnail': 'Create Thumbnail Figure',
+                  'MakeMovie': 'Make Movie'}
+        # Basic check that we have some html
+        assert "script_form" in html
+        assert titles[script_name] in html
