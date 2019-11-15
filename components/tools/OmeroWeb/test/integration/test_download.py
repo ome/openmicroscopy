@@ -174,8 +174,8 @@ class TestDownloadAsPng(IWebTest):
     """
 
     @pytest.mark.parametrize("format", ['jpeg', 'png', 'tif'])
-    def test_download_image_as_png(self, format):
-
+    def test_download_image_as(self, format):
+        """Download a single image as png etc and open it."""
         width = 100
         height = 50
         name = "test_download"
@@ -188,5 +188,33 @@ class TestDownloadAsPng(IWebTest):
         assert rsp.content is not None
         assert rsp.get('Content-Disposition') == \
             "attachment; filename=%s.%s" % (name, format)
+        # Open the image and check it is the expected size
         img = Image.open(BytesIO(rsp.content))
         assert img.size == (width, height)
+
+
+    def test_download_images_as_zip(self, format='png'):
+        """Test we can download a zip with multiple images."""
+        name = "test_download_zip"
+        image1 = self.create_test_image(name=name, session=self.sf)
+        image2 = self.create_test_image(name=name, session=self.sf)
+
+        # test download placeholder html
+        request_url = reverse('download_placeholder')
+        data = {'ids': 'image-%s|image-%s' % (image1.id.val, image2.id.val),
+                'format': format}
+        rsp = get(self.django_client, request_url, data)
+        html = rsp.content.decode('utf-8')
+        assert "You have chosen to export 2 images" in html
+        assert ("Export_as_%s.zip" % format) in html
+
+        # download zip
+        zipName = 'Export_as_%s.zip' % format
+        request_url = reverse('download_as')
+        data = {'image': [image1.id.val, image2.id.val],
+                'zipname': zipName,
+                'format': format}
+        rsp = get(self.django_client, request_url, data)
+        assert rsp.get('Content-Disposition') == \
+            "attachment; filename=%s" % zipName
+        assert len(rsp.content) > 0
