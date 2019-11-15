@@ -21,6 +21,8 @@
 Test download of data.
 """
 
+from io import BytesIO
+from PIL import Image
 from omero.model import PlateI, WellI, WellSampleI
 from omero.rtypes import rstring
 
@@ -164,3 +166,27 @@ class TestDownload(IWebTest):
         request_url = reverse('download_annotation',
                               args=[fa.id.val])
         get(self.django_client, request_url)
+
+
+class TestDownloadAsPng(IWebTest):
+    """
+    Tests to check download of Image(s) as PNG.
+    """
+
+    @pytest.mark.parametrize("format", ['jpeg', 'png', 'tif'])
+    def test_download_image_as_png(self, format):
+
+        width = 100
+        height = 50
+        name = "test_download"
+        image = self.create_test_image(name=name, size_x=width, size_y=height,
+                                       session=self.sf)
+        request_url = reverse('web_render_image_download',
+                              kwargs={'iid': image.id.val})
+        data = {'format': format}
+        rsp = get(self.django_client, request_url, data)
+        assert rsp.content is not None
+        assert rsp.get('Content-Disposition') == \
+            "attachment; filename=%s.%s" % (name, format)
+        img = Image.open(BytesIO(rsp.content))
+        assert img.size == (width, height)
