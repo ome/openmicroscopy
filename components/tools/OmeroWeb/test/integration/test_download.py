@@ -192,7 +192,6 @@ class TestDownloadAsPng(IWebTest):
         img = Image.open(BytesIO(rsp.content))
         assert img.size == (width, height)
 
-
     def test_download_images_as_zip(self, format='png'):
         """Test we can download a zip with multiple images."""
         name = "test_download_zip"
