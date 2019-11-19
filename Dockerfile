@@ -18,7 +18,7 @@ ARG BUILD_IMAGE=openjdk:8
 # RUN_IMAGE for end-use. This value can also be
 # set at build time with --build-arg RUN_IMAGE=...
 ARG COMPONENT=server
-ARG RUN_IMAGE=openmicroscopy/omero-${COMPONENT}:latest
+ARG RUN_IMAGE=openmicroscopy/omero-${COMPONENT}:5.6
 
 
 FROM ${BUILD_IMAGE} as build
@@ -74,10 +74,9 @@ RUN rm -rf /opt/omero/server/OMERO.server
 COPY --chown=omero-server:omero-server --from=build /src/dist /opt/omero/server/OMERO.server
 USER root
 RUN yum install -y git
-RUN /opt/omero/server/venv/bin/pip install future
-RUN sed -i 's/#!\/usr\/bin\/env python/#!\/opt\/omero\/server\/venv\/bin\/python/' /opt/omero/server/OMERO.server/bin/omero
-RUN /opt/omero/omego/bin/pip install future
+RUN /opt/omero/server/venv3/bin/pip install future
+RUN sed -i 's/#!\/usr\/bin\/env python/#!\/opt\/omero\/server\/venv3\/bin\/python/' /opt/omero/server/OMERO.server/bin/omero
 USER omero-server
 WORKDIR /opt/omero/server/OMERO.server
-ENV VIRTUAL_ENV=/opt/omero/server/venv
+ENV VIRTUAL_ENV=/opt/omero/server/venv3
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
