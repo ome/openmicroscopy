@@ -27,7 +27,11 @@ from __future__ import print_function
 from future.utils import native_str
 from builtins import str
 from builtins import range
-import path
+try:
+    from omero_ext.path import path
+except ImportError:
+    # Python 2
+    from path import path
 import omero
 import omero.tables
 from omero.testlib import ITest
