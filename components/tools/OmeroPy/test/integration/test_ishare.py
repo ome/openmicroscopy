@@ -19,9 +19,6 @@ import Glacier2
 from omero.rtypes import rtime, rlong, rlist, rint
 from omero.gateway import BlitzGateway
 
-from test.integration.helpers import createTestImage
-import warnings
-
 try:
     int
 except Exception:
@@ -44,8 +41,10 @@ class TestIShare(ITest):
         :param experimenters: a list of users associated with the share
         :param client: The client to use to create the share
         """
-        warnings.warn(
-            "create_share is deprecated as of OMERO 5.3.0", DeprecationWarning)
+
+        # Removing previous warning since if testing is continuing,
+        # then we expect this method to be called.
+
         if client is None:
             client = cls.client
         share = client.sf.getShareService()
@@ -401,7 +400,7 @@ class TestIShare(ITest):
     # Test that in a image not in a share, the thumbnail store can be used
     # to retrieve the thumbnail. The image has been viewed by owner.
     def test1179(self):
-        createTestImage(self.root.sf)
+        self.create_test_image(session=self.root.sf)
         rdefs = self.root.sf.getQueryService().findAll("RenderingDef", None)
         if len(rdefs) == 0:
             raise Exception("Must have at least one rendering def")
@@ -969,7 +968,7 @@ class TestIShare(ITest):
 
         # create image by owner
         owner.sf.getUpdateService()
-        image_id = createTestImage(owner.sf)
+        image_id = self.create_test_image(session=owner.sf).id.val
 
         p = omero.sys.Parameters()
         p.map = {"id": rlong(int(image_id))}
@@ -1041,7 +1040,7 @@ class TestIShare(ITest):
         owner = self.new_client()
         member, mobj = self.new_client_and_user()
 
-        createTestImage(owner.sf)
+        self.create_test_image(session=owner.sf)
         image = owner.sf.getQueryService().findAll("Image", None)[0]
 
         o_share = owner.sf.getShareService()

@@ -21,11 +21,14 @@
 
 from builtins import str
 import pytest
+import warnings
 
 from omero.testlib.cli import CLITest
 from omero.cli import NonZeroReturnCode
 from omero.plugins.obj import ObjControl
-from omero.plugins.upload import UploadControl
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    from omero.plugins.upload import UploadControl
 from omero.util.temp_files import create_path
 
 
