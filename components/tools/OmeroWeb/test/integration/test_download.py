@@ -22,6 +22,7 @@ Test download of data.
 """
 
 from io import BytesIO
+from zipfile import ZipFile
 from PIL import Image
 from omero.model import PlateI, WellI, WellSampleI
 from omero.rtypes import rstring
@@ -192,11 +193,17 @@ class TestDownloadAsPng(IWebTest):
         img = Image.open(BytesIO(rsp.content))
         assert img.size == (width, height)
 
-    def test_download_images_as_zip(self, format='png'):
+
+    @pytest.mark.parametrize("format", ['jpeg', 'png', 'tif'])
+    def test_download_images_as_zip(self, format):
         """Test we can download a zip with multiple images."""
-        name = "test_download_zip"
-        image1 = self.create_test_image(name=name, session=self.sf)
-        image2 = self.create_test_image(name=name, session=self.sf)
+        name1 = "test_downloadA_zip"
+        name2 = "test_downloadB_zip"
+        xy = 50
+        image1 = self.create_test_image(name=name1, size_x=xy, size_y=xy,
+                                        session=self.sf)
+        image2 = self.create_test_image(name=name2, size_x=xy, size_y=xy,
+                                        session=self.sf)
 
         # test download placeholder html
         request_url = reverse('download_placeholder')
@@ -216,4 +223,15 @@ class TestDownloadAsPng(IWebTest):
         rsp = get(self.django_client, request_url, data)
         assert rsp.get('Content-Disposition') == \
             "attachment; filename=%s" % zipName
-        assert len(rsp.content) > 0
+        data = b"".join(rsp.streaming_content)
+        assert len(data) > 0
+        filenames = []
+        with ZipFile(BytesIO(data)) as zip:
+            for info in zip.infolist():
+                filenames.append(info.filename)
+                img_data = zip.read(info.filename)
+                img = Image.open(BytesIO(img_data))
+                assert img.size == (xy, xy)
+        assert len(filenames) == 2
+        assert "%s.%s" % (name1, format) in filenames
+        assert "%s.%s" % (name2, format) in filenames
