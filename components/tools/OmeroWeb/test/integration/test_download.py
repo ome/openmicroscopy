@@ -193,7 +193,6 @@ class TestDownloadAsPng(IWebTest):
         img = Image.open(BytesIO(rsp.content))
         assert img.size == (width, height)
 
-
     @pytest.mark.parametrize("format", ['jpeg', 'png', 'tif'])
     def test_download_images_as_zip(self, format):
         """Test we can download a zip with multiple images."""
