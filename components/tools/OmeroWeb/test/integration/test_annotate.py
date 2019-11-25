@@ -22,6 +22,7 @@ Tests adding & removing annotations
 """
 
 from builtins import str
+import pytest
 import omero
 import omero.clients
 from time import sleep
@@ -291,3 +292,65 @@ class TestFileAnnotations(IWebTest):
 
         expected_name = b"No name. ID %d" % fa.id.val
         assert expected_name in html
+
+    @pytest.mark.parametrize("link_count", [1, 2])
+    def test_batch_add_fileannotations(self, link_count):
+        """Test adding file annotation to Project(s)."""
+        client, user = self.new_client_and_user(perms='rwrw--')
+        omeName = client.sf.getAdminService().getEventContext().userName
+        django_client1 = self.new_django_client(omeName, omeName)
+
+        # User creates 2 Projects
+        pr1 = self.make_project("test_batch_file_ann1", client=client)
+        pr2 = self.make_project("test_batch_file_ann2", client=client)
+        pr_ids = [pr1.id.val, pr2.id.val]
+
+        # Create File and FileAnnotation
+        fname = "fname_%s" % client.getSessionId()
+        update = client.sf.getUpdateService()
+        f = omero.model.OriginalFileI()
+        f.name = omero.rtypes.rstring(fname)
+        f.path = omero.rtypes.rstring("")
+        f = update.saveAndReturnObject(f)
+        fa = omero.model.FileAnnotationI()
+        fa.setFile(f)
+        fa = update.saveAndReturnObject(fa)
+
+        # get form for annotating both Projects
+        request_url = reverse('annotate_file')
+        data = {
+            "project": pr_ids
+        }
+        rsp = get(django_client1, request_url, data)
+        html = rsp.content.decode('utf-8')
+        assert fname in html
+
+        # Link File Annotation to 1 or 2 Projects
+        post_data = {
+            "project": pr_ids[0: link_count],
+            "files": [fa.id.val]
+        }
+        post(django_client1, request_url, post_data)
+
+        # Check for link to first Project
+        api_ann_url = reverse('api_annotations')
+        rsp = get_json(django_client1, api_ann_url, {"project": pr1.id.val})
+        assert fa.id.val in [a['id'] for a in rsp['annotations']]
+
+        # Annotation Form should NOT show file if linked to BOTH projects
+        show_file = link_count == 1
+        rsp = get(django_client1, request_url, data)
+        html = rsp.content.decode('utf-8')
+        assert (fname in html) == show_file
+
+        # Remove file from both Projects
+        remove_url = reverse('manage_action_containers',
+                             kwargs={'action': 'remove', 'o_type': 'file',
+                                     'o_id': fa.id.val})
+        remove_data = {'parent': 'project-%s|project-%s' % (pr1.id.val,
+                                                            pr2.id.val)}
+        post(django_client1, remove_url, remove_data)
+
+        # Check for NO link
+        rsp = get_json(django_client1, api_ann_url, {"project": pr1.id.val})
+        assert fa.id.val not in [a['id'] for a in rsp['annotations']]
