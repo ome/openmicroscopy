@@ -23,7 +23,11 @@ import uuid
 import omero.all
 import omero.grid.monitors as monitors
 
-from path import path
+try:
+    from omero_ext.path import path
+except ImportError:
+    # Python 2
+    from path import path
 from omero.util import ServerContext
 from mox3 import mox
 from functools import wraps
