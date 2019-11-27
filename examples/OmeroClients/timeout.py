@@ -16,15 +16,16 @@ class KeepAlive(threading.Thread):
         self.stop = False
         while not self.stop:
             time.sleep(IDLETIME)
-            print "calling keep alive"
+            print("calling keep alive")
             # Currently, passing a null or empty array to keepAllAlive
             # would suffice. For future-proofing, however, it makes sense
             # to pass stateful services.
             try:
                 s.keepAllAlive([re])
-            except:
+            except Exception:
                 c.closeSession()
                 raise
+
 
 keepAlive = KeepAlive()
 keepAlive.start()

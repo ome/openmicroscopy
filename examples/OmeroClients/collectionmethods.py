@@ -8,14 +8,14 @@ DatasetI = omero.model.DatasetI
 EventI = omero.model.EventI
 PixelsI = omero.model.PixelsI
 
-image = ImageI(long(1), True)
-image.getDetails().setUpdateEvent(EventI(1L, False))
+image = ImageI(int(1), True)
+image.getDetails().setUpdateEvent(EventI(1, False))
 
 # On creation, all collections are
 # initialized to empty, and can be added
 # to.
 assert image.sizeOfDatasetLinks() == 0
-dataset = DatasetI(long(1), False)
+dataset = DatasetI(int(1), False)
 link = image.linkDataset(dataset)
 assert image.sizeOfDatasetLinks() == 1
 
@@ -30,17 +30,17 @@ image.unloadDatasetLinks()
 assert image.sizeOfDatasetLinks() < 0
 try:
     image.linkDataset(DatasetI())
-except:
+except Exception:
     # Can't access an unloaded collection
     pass
 
 # The reload...() method allows one instance
 # to take over a collection from another, if it
 # has been properly initialized on the server.
-# sameImage will have it's collection unloaded.
-sameImage = ImageI(1L, True)
-sameImage.getDetails().setUpdateEvent(EventI(1L, False))
-sameImage.linkDataset(DatasetI(long(1), False))
+# sameImage will have its collection unloaded.
+sameImage = ImageI(1, True)
+sameImage.getDetails().setUpdateEvent(EventI(1, False))
+sameImage.linkDataset(DatasetI(int(1), False))
 image.reloadDatasetLinks(sameImage)
 assert image.sizeOfDatasetLinks() == 1
 assert sameImage.sizeOfDatasetLinks() < 0
@@ -57,7 +57,7 @@ image.clearDatasetLinks()
 image.unloadCollections()
 
 # Ordered collections have slightly different methods.
-image = ImageI(long(1), True)
+image = ImageI(int(1), True)
 image.addPixels(PixelsI())
 image.getPixels(0)
 image.getPrimaryPixels()  # Same thing
