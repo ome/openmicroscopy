@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import omero
+import omero.scripts
+import time
+import uuid
 
 SCRIPT = """if True:
     import omero
     import omero.scripts as s
     s.client("name")"""
-
-import omero
-import omero.scripts
-import time
-import uuid
 
 launched = time.time()
 client = omero.client()
@@ -25,5 +24,5 @@ try:
         if 10.0 < (time.time() - launched):
             raise StopIteration("Too long!")
 finally:
-    print "Finished in (s): %s" % (time.time() - launched)
+    print("Finished in (s): %s" % (time.time() - launched))
     client.closeSession()

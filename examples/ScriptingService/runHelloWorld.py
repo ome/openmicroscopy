@@ -53,9 +53,9 @@ def uploadScript(scriptService, scriptPath):
     # print script
     # prints the script ID to the command line. This can be used to run the
     # script. E.g. see runHelloWorld.py
-    print "Uploading script:", scriptPath
+    print("Uploading script:", scriptPath)
     scriptId = scriptService.uploadScript(scriptPath, script)
-    print "Script uploaded with ID:", scriptId
+    print("Script uploaded with ID:", scriptId)
 
 
 def runScript(session, scriptService, scriptPath):
@@ -68,18 +68,18 @@ def runScript(session, scriptService, scriptPath):
     # returns list of OriginalFiles
     scripts = scriptService.getUserScripts(acceptsList)
     for s in scripts:
-        print s.id.val, s.path.val + s.name.val
+        print(s.id.val, s.path.val + s.name.val)
 
     namedScripts = [s.id.val for s in scripts
                     if s.path.val + s.name.val == scriptPath]
 
     if len(namedScripts) == 0:
-        print "Didn't find any scripts with specified path"
+        print("Didn't find any scripts with specified path")
 
     # use the most recent script (highest ID)
     scriptId = max(namedScripts)
 
-    print "Running script: %s with ID: %s" % (scriptPath, scriptId)
+    print("Running script: %s with ID: %s" % (scriptPath, scriptId))
 
     # Don't attempt to run script without starting user processor!
     # return
@@ -106,24 +106,24 @@ def runScript(session, scriptService, scriptPath):
     # handle any results from the script
     # print results.keys()
     if 'Message' in results:
-        print results['Message'].getValue()
+        print(results['Message'].getValue())
 
     rawFileService = session.createRawFileStore()
     queryService = session.getQueryService()
     if 'stdout' in results:
         origFile = results['stdout'].getValue()
         fileId = origFile.getId().getValue()
-        print ("\n******** Script generated StdOut in file:%s  *******"
-               % fileId)
-        print scriptUtil.readFromOriginalFile(
-            rawFileService, queryService, fileId)
+        print("\n******** Script generated StdOut in file:%s  *******"
+              % fileId)
+        print(scriptUtil.readFromOriginalFile(
+              rawFileService, queryService, fileId))
     if 'stderr' in results:
         origFile = results['stderr'].getValue()
         fileId = origFile.getId().getValue()
-        print ("\n******** Script generated StdErr in file:%s  *******"
-               % fileId)
-        print scriptUtil.readFromOriginalFile(
-            rawFileService, queryService, fileId)
+        print("\n******** Script generated StdErr in file:%s  *******"
+              % fileId)
+        print(scriptUtil.readFromOriginalFile(
+              rawFileService, queryService, fileId))
     rawFileService.close()
 
 
@@ -136,8 +136,8 @@ def readCommandArgs():
     """
 
     def usage():
-        print ("Usage: runHelloWorld.py --server server --username username"
-               " --password password --file file")
+        print("Usage: runHelloWorld.py --server server --username username"
+              " --password password --file file")
     try:
         opts, args = getopt.getopt(
             sys.argv[1:], "s:u:p:f:",
