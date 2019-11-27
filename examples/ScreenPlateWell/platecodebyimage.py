@@ -22,7 +22,7 @@ params = ParametersI()
 params.theFilter = filter
 
 images = q.findAllByQuery(GET_IMAGES_WITH_PLATES, params)
-print "Found %s images" % len(images)
+print("Found %s images" % len(images))
 
 for image in images:
 
@@ -30,6 +30,6 @@ for image in images:
     params.addId(image.getId().getValue())
     # Multiple plates per image will through an exception
     plate = q.findByQuery(GET_PLATE_FROM_IMAGE_ID, params)
-    print 'Image %s belongs to Plate %s (%s)' % (
-        image.getId().getValue(), plate.getId().getValue(),
-        plate.getName().getValue())
+    print('Image %s belongs to Plate %s (%s)' %
+          (image.getId().getValue(), plate.getId().getValue(),
+           plate.getName().getValue()))

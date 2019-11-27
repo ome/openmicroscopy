@@ -20,13 +20,14 @@ filter.offset = rint(0)
 
 plates = q.findAll("Plate", filter)
 if len(plates) == 0:
-    print "No plates"
+    print("No plates")
     sys.exit(0)
 else:
     import random
     example_plate = random.choice(plates)
-    print "Loading wells for Plate %s (%s)" % (
-        example_plate.getId().getValue(), example_plate.getName().getValue())
+    print("Loading wells for Plate %s (%s)" %
+          (example_plate.getId().getValue(),
+           example_plate.getName().getValue()))
 
 # An example of true paging
 filter.limit = rint(12)
@@ -58,5 +59,5 @@ while True:
             sizeZ = pix.sizeZ.val
             images.append(img.getId().getValue())
             planes += sizeZ*sizeT*sizeC
-        print ("Well %s (%2sx%2s) contains the images: %s with %s planes"
-               % (id, row, col, images, planes))
+        print("Well %s (%2sx%2s) contains the images: %s with %s planes"
+              % (id, row, col, images, planes))
