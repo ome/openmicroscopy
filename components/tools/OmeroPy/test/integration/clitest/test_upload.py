@@ -28,7 +28,7 @@ from omero.cli import NonZeroReturnCode
 from omero.plugins.obj import ObjControl
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
-    from omero.plugins.upload import UploadControl
+    from omero.plugins._upload_deprecated import UploadControl
 from omero.util.temp_files import create_path
 
 
