@@ -27,6 +27,7 @@ start-code
 # ===================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
+datasetId = int(datasetId)
 
 
 def print_obj(obj, indent=0):
