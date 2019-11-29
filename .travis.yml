@@ -20,7 +20,7 @@ addons:
     - git
 
 install:
-    - git clone git://github.com/ome/omero-test-infra .omero
+    - git clone -b srv-update git://github.com/joshmoore/omero-test-infra .omero
 
 
 script:
