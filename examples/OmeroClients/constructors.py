@@ -4,5 +4,5 @@ import omero
 import omero.clients
 
 image = omero.model.ImageI()
-dataset = omero.model.DatasetI(int(1), False)
+dataset = omero.model.DatasetI(1, False)
 image.linkDataset(dataset)
