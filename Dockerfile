@@ -33,8 +33,9 @@ ENV VIRTUAL_ENV=/opt/omero/server/venv3
 ENV PATH=$VIRTUAL_ENV/bin/:$PATH
 RUN mkdir -p /opt/omero/server/ \
  && python3 -m venv $VIRTUAL_ENV
-RUN python -m pip install --upgrade pip setuptools flake8 pytest future \
- && python -m pip install https://github.com/ome/zeroc-ice-ubuntu1804/releases/download/0.2.0/zeroc_ice-3.6.5-cp36-cp36m-linux_x86_64.whl
+RUN python -m pip install --upgrade pip setuptools
+RUN python -m pip install https://github.com/ome/zeroc-ice-ubuntu1804/releases/download/0.2.0/zeroc_ice-3.6.5-cp36-cp36m-linux_x86_64.whl
+RUN python -m pip install flake8 future pytest
 RUN id 1000 || useradd -u 1000 -ms /bin/bash build
 
 # TODO: would be nice to not need to copy .git since it invalidates the build frequently and takes more time
