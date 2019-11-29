@@ -91,14 +91,10 @@ build_year = "${python_build_year}"
 
         <download pkg="omero-scripts" file="omero-scripts-${versions.omero-scripts}.tar.gz" expected="${versions.omero-scripts-md5}"
                   where="../target/downloads/scripts"/>
-        <untar src="../target/downloads/scripts/omero-scripts-${versions.omero-scripts}.tar.gz" dest="../target/lib/scripts" compression="gzip">
-            <!-- Could be improved with an artifact -->
-            <patternset>
-                <include name="omero-scripts-${versions.scripts}/omero/**/*"/>
-                <include name="omero-scripts-${versions.scripts}/README*"/>
-            </patternset>
-            <globmapper from="omero-scripts-${versions.scripts}/*" to="./*" />
-        </untar>
+        <untar src="../target/downloads/scripts/omero-scripts-${versions.omero-scripts}.tar.gz" dest="../target/downloads/scripts" compression="gzip"/>
+        <copy todir="../target/lib/scripts">
+            <fileset dir="../target/downloads/scripts/omero-scripts-${versions.omero-scripts}" includes="omero/**/*,README*"/>
+        </copy>
 
 
         <download pkg="omero-web" file="omero-web-${versions.omero-web}.tar.gz" expected="${versions.omero-web-md5}"
