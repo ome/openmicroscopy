@@ -6,7 +6,7 @@
 
 # By default, building this dockerfile will use
 # the IMAGE argument below for the runtime image.
-ARG BUILD_IMAGE=openjdk:8
+ARG BUILD_IMAGE=adoptopenjdk:11-jdk-hotspot-bionic
 
 # To build code with other runtimes
 # pass a build argument, e.g.:
@@ -23,16 +23,19 @@ ARG RUN_IMAGE=openmicroscopy/omero-${COMPONENT}:5.6
 
 FROM ${BUILD_IMAGE} as build
 USER root
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
- && apt-get install -y ant gradle maven \
-      python-pip python-tables python-virtualenv python-yaml python-jinja2 \
+ && apt-get install -y ant git gradle maven python3 python3-pip python3-venv \
       zlib1g-dev python-pillow python-numpy python-sphinx \
       libssl-dev libbz2-dev libmcpp-dev libdb++-dev libdb-dev \
-      zeroc-ice-all-dev \
- && pip install --upgrade 'pip<10' setuptools flake8==2.4.0 pytest==2.7.3 future
-# TODO: unpin pip when possible
-# openjdk:8 is "stretch" or Debian 9
-RUN pip install https://github.com/ome/zeroc-ice-py-debian9/releases/download/0.1.0/zeroc_ice-3.6.4-cp27-cp27mu-linux_x86_64.whl
+      zeroc-ice-all-dev
+ENV VIRTUAL_ENV=/opt/omero/server/venv3
+ENV PATH=$VIRTUAL_ENV/bin/:$PATH
+RUN mkdir -p /opt/omero/server/ \
+ && python3 -m venv $VIRTUAL_ENV
+RUN python -m pip install --upgrade pip setuptools
+RUN python -m pip install https://github.com/ome/zeroc-ice-ubuntu1804/releases/download/0.2.0/zeroc_ice-3.6.5-cp36-cp36m-linux_x86_64.whl
+RUN python -m pip install flake8 future pytest
 RUN id 1000 || useradd -u 1000 -ms /bin/bash build
 
 # TODO: would be nice to not need to copy .git since it invalidates the build frequently and takes more time
