@@ -11,7 +11,7 @@ from builtins import object
 import omero
 import omero.gateway
 try:
-    long
+    long  # noqa
 except Exception:
     # Python 3
     long = int

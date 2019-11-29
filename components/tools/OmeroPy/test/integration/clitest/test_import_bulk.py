@@ -75,7 +75,7 @@ class TestImportBulk(CLITest):
 
     def get_object(self, err, obj_type, query=None):
         """Retrieve the created object by parsing the stderr output"""
-        pattern = re.compile('^%s:(?P<id>\d+)$' % obj_type)
+        pattern = re.compile(r'^%s:(?P<id>\d+)$' % obj_type)
         decoded = err.decode("utf-8")
         for line in reversed(decoded.split('\n')):
             match = re.match(pattern, line)
@@ -95,7 +95,7 @@ class TestImportBulk(CLITest):
 
     def get_objects(self, err, obj_type, query=None):
         """Retrieve the created objects by parsing the stderr output"""
-        pattern = re.compile('^%s:(?P<idstring>\d+)$' % obj_type)
+        pattern = re.compile(r'^%s:(?P<idstring>\d+)$' % obj_type)
         objs = []
         for line in reversed(err.split('\n')):
             match = re.match(pattern, line)

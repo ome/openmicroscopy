@@ -13,8 +13,6 @@ import sys
 
 import logging
 
-logging.basicConfig(level=0)
-
 import omero
 import omero.util
 
@@ -23,6 +21,9 @@ import Ice
 import omero.all
 import omero.grid.monitors as monitors
 from drivers import MockMonitor
+
+
+logging.basicConfig(level=0)
 
 
 class MockDropBox(Ice.Application):

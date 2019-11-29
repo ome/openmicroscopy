@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import difflib
+import psycopg2
+import sys
+
 # Calculated via:
 # grep enum components/model/resources/mappings/* | grep "id=" | perl -pe
 # 's/^.*?\".*[.](.*?)\".*?$/$1/' | sort >> sql/misc/enums.py
@@ -34,10 +38,6 @@ RenderingModel
 """.split()
 ENUMS.sort()
 
-import difflib
-import psycopg2
-import sys
-
 
 def connect(db1, user, password):
     conn1 = psycopg2.connect(
@@ -70,13 +70,14 @@ def compare(conn1, conn2, table):
             output.append("  %7s l1[%d:%d] (%s) l2[%d:%d] (%s)"
                           % (tag, i1, i2, l1[i1:i2], j1, j2, l2[j1:j2]))
     if len(output) > 0:
-        print "%s : ================== " % table
+        print("%s : ================== " % table)
         if l1_deleted:
             print " ** ADDED ** "
         elif l2_deleted:
             print " ** DELETED ** "
         for l in output:
             print l
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 5:

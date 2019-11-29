@@ -130,5 +130,6 @@ def projection():
         client.setOutput("newPixelsID", newPixelsID)
         sys.exit(0)
 
+
 if __name__ == "__main__":
     projection().__runScript()
