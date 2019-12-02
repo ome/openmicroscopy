@@ -72,16 +72,16 @@ def compare(conn1, conn2, table):
     if len(output) > 0:
         print("%s : ================== " % table)
         if l1_deleted:
-            print " ** ADDED ** "
+            print(" ** ADDED ** ")
         elif l2_deleted:
-            print " ** DELETED ** "
+            print(" ** DELETED ** ")
         for l in output:
-            print l
+            print(l)
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 5:
-        print "Usage: enums.py olddb newdb username password"
+        print("Usage: enums.py olddb newdb username password")
     else:
         a = sys.argv
         d1 = a[1]
@@ -89,9 +89,9 @@ if __name__ == "__main__":
         u = a[3]
         p = a[4]
         conn1 = connect(d1, u, p)
-        print "From: %s" % conn1
+        print("From: %s" % conn1)
         conn2 = connect(d2, u, p)
-        print "To:   %s" % conn2
+        print("To:   %s" % conn2)
 
         for enum in ENUMS:
             compare(conn1, conn2, enum)

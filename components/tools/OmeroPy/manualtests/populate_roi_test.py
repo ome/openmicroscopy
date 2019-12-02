@@ -226,7 +226,7 @@ class InCellParseRoiTest(unittest.TestCase):
         columns = ctx.parse()
         self.assertNotEqual(None, columns)
         for column in columns:
-            print 'Column: %s' % column.name
+            print('Column: %s' % column.name)
         self.assertEqual(33, len(columns))
         for column in columns:
             self.assertEqual(114149, len(column.values))
