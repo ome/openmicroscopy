@@ -171,7 +171,7 @@ class TestDownload(IWebTest):
 
 class TestDownloadAs(IWebTest):
     """
-    Tests to check download of Image(s) as PNG.
+    Tests to check download of Image(s) in multiple formats.
     """
 
     @pytest.mark.parametrize("format", ['jpeg', 'png', 'tif'])
