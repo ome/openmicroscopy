@@ -169,7 +169,7 @@ class TestDownload(IWebTest):
         get(self.django_client, request_url)
 
 
-class TestDownloadAsPng(IWebTest):
+class TestDownloadAs(IWebTest):
     """
     Tests to check download of Image(s) as PNG.
     """
