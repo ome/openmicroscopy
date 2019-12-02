@@ -477,7 +477,7 @@ class TestTables(ITest):
         lcol.values = [-1, -2]
 
         scol = columns.StringColumnI('stringcol', 'string col', 4)
-        scol.values = ["αbc", "de"]
+        scol.values = ["მიკროსკოპის პონი", "de"]
 
         mask = self.createMaskCol()
 
@@ -523,7 +523,7 @@ class TestTables(ITest):
         assert -2 == testl[1]
 
         tests = data.columns[8].values
-        assert "αbc" == tests[0]
+        assert "მიკროსკოპის პონი" == tests[0]
         assert "de" == tests[1]
 
         testm = data.columns[9]
