@@ -21,6 +21,9 @@
 Test download of data.
 """
 
+from io import BytesIO
+from zipfile import ZipFile
+from PIL import Image
 from omero.model import PlateI, WellI, WellSampleI
 from omero.rtypes import rstring
 
@@ -164,3 +167,70 @@ class TestDownload(IWebTest):
         request_url = reverse('download_annotation',
                               args=[fa.id.val])
         get(self.django_client, request_url)
+
+
+class TestDownloadAs(IWebTest):
+    """
+    Tests to check download of Image(s) in multiple formats.
+    """
+
+    @pytest.mark.parametrize("format", ['jpeg', 'png', 'tif'])
+    def test_download_image_as(self, format):
+        """Download a single image as png etc and open it."""
+        width = 100
+        height = 50
+        name = "test_download"
+        image = self.create_test_image(name=name, size_x=width, size_y=height,
+                                       session=self.sf)
+        request_url = reverse('web_render_image_download',
+                              kwargs={'iid': image.id.val})
+        data = {'format': format}
+        rsp = get(self.django_client, request_url, data)
+        assert rsp.content is not None
+        assert rsp.get('Content-Disposition') == \
+            "attachment; filename=%s.%s" % (name, format)
+        # Open the image and check it is the expected size
+        img = Image.open(BytesIO(rsp.content))
+        assert img.size == (width, height)
+
+    @pytest.mark.parametrize("format", ['jpeg', 'png', 'tif'])
+    def test_download_images_as_zip(self, format):
+        """Test we can download a zip with multiple images."""
+        name1 = "test_downloadA_zip"
+        name2 = "test_downloadB_zip"
+        xy = 50
+        image1 = self.create_test_image(name=name1, size_x=xy, size_y=xy,
+                                        session=self.sf)
+        image2 = self.create_test_image(name=name2, size_x=xy, size_y=xy,
+                                        session=self.sf)
+
+        # test download placeholder html
+        request_url = reverse('download_placeholder')
+        data = {'ids': 'image-%s|image-%s' % (image1.id.val, image2.id.val),
+                'format': format}
+        rsp = get(self.django_client, request_url, data)
+        html = rsp.content.decode('utf-8')
+        assert "You have chosen to export 2 images" in html
+        assert ("Export_as_%s.zip" % format) in html
+
+        # download zip
+        zipName = 'Export_as_%s.zip' % format
+        request_url = reverse('download_as')
+        data = {'image': [image1.id.val, image2.id.val],
+                'zipname': zipName,
+                'format': format}
+        rsp = get(self.django_client, request_url, data)
+        assert rsp.get('Content-Disposition') == \
+            "attachment; filename=%s" % zipName
+        data = b"".join(rsp.streaming_content)
+        assert len(data) > 0
+        filenames = []
+        with ZipFile(BytesIO(data)) as zip:
+            for info in zip.infolist():
+                filenames.append(info.filename)
+                img_data = zip.read(info.filename)
+                img = Image.open(BytesIO(img_data))
+                assert img.size == (xy, xy)
+        assert len(filenames) == 2
+        assert "%s.%s" % (name1, format) in filenames
+        assert "%s.%s" % (name2, format) in filenames
