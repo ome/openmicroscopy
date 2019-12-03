@@ -11,6 +11,13 @@ what you are doing:
 
 """
 
+import os
+import time
+import omero
+import omero.processor
+import omero.util
+import uuid
+
 NATIVE_WRAPPER = """
 import os
 import sys
@@ -47,13 +54,6 @@ popen = Popen([executable, target])
 sys.exit(popen.wait())
 
 """
-
-import os
-import time
-import omero
-import omero.processor
-import omero.util
-import uuid
 
 # To see the actions of the usermode
 # processor, enable logging here.
@@ -99,7 +99,7 @@ try:
 
     # Here you can print out the results or similar.
     # print proc.getResults(0)
-    print "Success"
+    print("Success")
 
 finally:
     client.closeSession()

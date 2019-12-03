@@ -16,11 +16,11 @@ try:
     p.eventType = "User"
 
     # 3 minutes to live
-    sudoSession = sessionSvc.createSessionWithTimeout(p, 3*60*1000L)
+    sudoSession = sessionSvc.createSessionWithTimeout(p, 3*60*1000)
 
     sudoSf = sudoClient.joinSession(sudoSession.getUuid().getValue())
     sudoAdminSvc = sudoSf.getAdminService()
-    print sudoAdminSvc.getEventContext().userName
+    print(sudoAdminSvc.getEventContext().userName)
 
 finally:
     sudoClient.closeSession()

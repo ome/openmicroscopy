@@ -8,13 +8,13 @@ OriginalFile and any annotation links.
 
 import omero
 import omero.callbacks
-
-c = omero.client()
-ice_config = c.getProperty("Ice.Config")
-
 from omero.rtypes import rstring
 from omero.model import DatasetI, FileAnnotationI, OriginalFileI
 from omero.model import DatasetAnnotationLinkI
+
+
+c = omero.client()
+ice_config = c.getProperty("Ice.Config")
 
 try:
     s = c.createSession()
@@ -44,12 +44,11 @@ try:
         callback.loop(loops, delay)  # Throw LockTimeout
         rsp = callback.getResponse()
         if isinstance(rsp, omero.cmd.OK):
-            print "OK"
+            print("OK")
     finally:
         if callback:
             callback.close(True)
         else:
             handle.close()
-
 finally:
     c.closeSession()

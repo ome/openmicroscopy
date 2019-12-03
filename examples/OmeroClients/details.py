@@ -14,7 +14,7 @@ details.setPermissions(p)
 # Available when returned from server
 # Possibly modifiable
 details.getOwner()
-details.setGroup(omero.model.ExperimenterGroupI(1L, False))
+details.setGroup(omero.model.ExperimenterGroupI(1, False))
 # Available when returned from server
 # Not modifiable
 details.getCreationEvent()

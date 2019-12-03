@@ -12,7 +12,7 @@ if __name__ == "__main__":
         port = sys.argv[2]
         user = sys.argv[3]
         pasw = sys.argv[4]
-    except:
+    except Exception:
         Usage.usage()
 
     client = omero.client(sys.argv)

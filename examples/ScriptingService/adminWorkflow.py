@@ -57,7 +57,7 @@ def printDuration(reset=False):
     global startTime
     if startTime == 0 or reset:
         startTime = time.time()
-    print "timer = %s secs" % (time.time() - startTime)
+    print("timer = %s secs" % (time.time() - startTime))
 
 
 def uploadScript(session, scriptService, scriptPath):
@@ -70,24 +70,24 @@ def uploadScript(session, scriptService, scriptPath):
     getScripts().
     """
 
-    file = open(scriptPath)
-    scriptText = file.read()
-    file.close()
+    with open(scriptPath) as file:
+        scriptText = file.read()
     # print scriptText
 
     # first check if the script has already been uploaded
     scriptId = scriptService.getScriptID(scriptPath)
     if scriptId is None or scriptId < 0:
-        print "Uploading script:", scriptPath
+        print("Uploading script:", scriptPath)
         # try upload new script
-        scriptId = scriptService.uploadOfficialScript(scriptPath, scriptText)
-        print "Script uploaded with ID:", scriptId
+        scriptId = scriptService.uploadOfficialScript(scriptPath,
+                                                      scriptText)
+        print("Script uploaded with ID:", scriptId)
     else:
-        print "Editing script:", scriptPath
+        print("Editing script:", scriptPath)
         # if it has, edit the existing script
         scriptFile = session.getQueryService().get("OriginalFile", scriptId)
         scriptService.editScript(scriptFile, scriptText)
-        print "Script ID: %s was edited" % scriptFile.id.val
+        print("Script ID: %s was edited" % scriptFile.id.val)
 
     return scriptId
 
@@ -98,16 +98,16 @@ def listScripts(scriptService):
     and User Scripts returned by getUserScripts()
     """
 
-    print "--OFFICIAL SCRIPTS--"
+    print("--OFFICIAL SCRIPTS--")
     scripts = scriptService.getScripts()
     for s in scripts:
-        print s.id.val, s.path.val + s.name.val
+        print(s.id.val, s.path.val + s.name.val)
 
-    print "--USER SCRIPTS--"
+    print("--USER SCRIPTS--")
     userGroups = []     # gives me available scripts for default group
     scripts = scriptService.getUserScripts(userGroups)
     for s in scripts:
-        print s.id.val, s.path.val + s.name.val
+        print(s.id.val, s.path.val + s.name.val)
 
 
 def getParams(scriptService, scriptPath):
@@ -120,34 +120,34 @@ def getParams(scriptService, scriptPath):
     """
 
     try:
-        scriptId = long(scriptPath)
-    except:
+        scriptId = int(scriptPath)
+    except Exception:
         scriptId = scriptService.getScriptID(scriptPath)
 
     params = scriptService.getParams(scriptId)
 
-    print "\nScript Name:", params.name
-    print "Authors:", ", ".join([a for a in params.authors])
-    print "Contact:", params.contact
-    print "Version:", params.version
-    print "Institutions:", ", ".join([i for i in params.institutions])
+    print("\nScript Name:", params.name)
+    print("Authors:", ", ".join([a for a in params.authors]))
+    print("Contact:", params.contact)
+    print("Version:", params.version)
+    print("Institutions:", ", ".join([i for i in params.institutions]))
 
-    print "Inputs:"
+    print("Inputs:")
     for key, param in params.inputs.items():
-        print " ", key
+        print(" ", key)
         if not param.optional:
-            print "    * Required"
+            print("    * Required")
         if param.description:
-            print "   ", param.description
+            print("   ", param.description)
         if param.min:
-            print "    min:", param.min.getValue()
+            print("    min:", param.min.getValue())
         if param.max:
-            print "    max:", param.max.getValue()
+            print("    max:", param.max.getValue())
         if param.values:
-            print "   ", ", ".join([
-                v.getValue() for v in param.values.getValue()])
+            print("   ", ", ".join([
+                  v.getValue() for v in param.values.getValue()]))
         if param.useDefault:
-            print "    default:", param.prototype.val
+            print("    default:", param.prototype.val)
 
 
 def runScript(session, scriptService, scriptPath):
@@ -158,13 +158,13 @@ def runScript(session, scriptService, scriptPath):
     """
 
     try:
-        scriptId = long(scriptPath)
-    except:
+        scriptId = int(scriptPath)
+    except Exception:
         scriptId = scriptService.getScriptID(scriptPath)
 
     # Identify the script we want to run: Get all 'official' scripts and
     # filter by path.
-    print "Running script: %s with ID: %s" % (scriptPath, scriptId)
+    print("Running script: %s with ID: %s" % (scriptPath, scriptId))
 
     # make a map of all the parameters we want to pass to the script
     # keys are strings. Values must be omero.rtypes such as rlong, rbool,
@@ -175,18 +175,18 @@ def runScript(session, scriptService, scriptPath):
     params = scriptService.getParams(scriptId)
     for key, param in params.inputs.items():
 
-        print ""
-        print key
+        print("")
+        print(key)
         if param.description:
-            print param.description
+            print(param.description)
         if not param.optional:
-            print " * Required"
+            print(" * Required")
         if param.values:
-            print "Options:", ", ".join(unwrap(param.values))
+            print("Options:", ", ".join(unwrap(param.values)))
         if param.min:
-            print "Min:", param.min.getValue()
+            print("Min:", param.min.getValue())
         if param.max:
-            print "Max:", param.max.getValue()
+            print("Max:", param.max.getValue())
 
         prototype = param.prototype
         prompt = ": "
@@ -199,25 +199,23 @@ def runScript(session, scriptService, scriptPath):
         if pclass == omero.rtypes.RListI:
             valueList = []
             listClass = omero.rtypes.rstring
-            l = prototype.val     # list
+            list_values = prototype.val     # list
             # check if a value type has been set (first item of prototype
             # list)
-            if len(l) > 0:
-                listClass = l[0].getValue().__class__
+            if len(list_values) > 0:
+                listClass = list_values[0].getValue().__class__
                 if listClass == int(1).__class__:
                     listClass = omero.rtypes.rint
-                if listClass == long(1).__class__:
-                    listClass = omero.rtypes.rlong
 
-            print "List:"
+            print("List:")
             while(True):
-                value = raw_input(prompt)
+                value = input(prompt)
                 if value == "":
                     break
                 try:
                     obj = listClass(value)
-                except:
-                    print "Invalid entry"
+                except Exception:
+                    print("Invalid entry")
                     continue
                 if isinstance(obj, omero.model.IObject):
                     valueList.append(omero.rtypes.robject(obj))
@@ -227,13 +225,13 @@ def runScript(session, scriptService, scriptPath):
                 map[key] = omero.rtypes.rlist(valueList)
 
         elif pclass == omero.rtypes.RMapI:
-            print "MAP!"
+            print("MAP!")
             # check if a value type has been set for the map
             m = prototype.val
-            print m
+            print(m)
 
         else:
-            value = raw_input(prompt)
+            value = input(prompt)
             while(True):
                 if value == "":
                     if default:
@@ -242,10 +240,10 @@ def runScript(session, scriptService, scriptPath):
                 try:
                     map[key] = pclass(value)
                     break
-                except:
-                    print "Invalid entry"
+                except Exception:
+                    print("Invalid entry")
 
-    print map
+    print(map)
 
     # The last parameter is how long to wait as an RInt
     proc = scriptService.runScript(scriptId, map, None)
@@ -261,11 +259,11 @@ def runScript(session, scriptService, scriptPath):
     # handle any results from the script
     # print results.keys()
     if 'Message' in results:
-        print "\nRESULTS:", results['Message'].getValue()
+        print("\nRESULTS:", results['Message'].getValue())
 
     for result in results.keys():
         if result not in ["Message", "stdout", "stderr"]:
-            print "\n", result, results[result].getValue().__class__
+            print("\n", result, results[result].getValue().__class__)
 
     printOutErr = True
     if printOutErr:
@@ -274,17 +272,17 @@ def runScript(session, scriptService, scriptPath):
         if 'stdout' in results:
             origFile = results['stdout'].getValue()
             fileId = origFile.getId().getValue()
-            print ("\n******** Script generated StdOut in file:%s  *******"
-                   % fileId)
-            print scriptUtil.readFromOriginalFile(
-                rawFileService, queryService, fileId)
+            print("\n******** Script generated StdOut in file:%s  *******"
+                  % fileId)
+            print(scriptUtil.readFromOriginalFile(
+                  rawFileService, queryService, fileId))
         if 'stderr' in results:
             origFile = results['stderr'].getValue()
             fileId = origFile.getId().getValue()
-            print ("\n******** Script generated StdErr in file:%s  *******"
-                   % fileId)
-            print scriptUtil.readFromOriginalFile(
-                rawFileService, queryService, fileId)
+            print("\n******** Script generated StdErr in file:%s  *******"
+                  % fileId)
+            print(scriptUtil.readFromOriginalFile(
+                  rawFileService, queryService, fileId))
         rawFileService.close()
 
 
@@ -295,10 +293,10 @@ def disableScript(session, scriptId):
     """
 
     updateService = session.getUpdateService()
-    scriptFile = session.getQueryService().get("OriginalFile", long(scriptId))
+    scriptFile = session.getQueryService().get("OriginalFile", int(scriptId))
 
-    print "Disabling script:", scriptFile.id.val, scriptFile.path.val + \
-        scriptFile.name.val
+    print("Disabling script:", scriptFile.id.val, scriptFile.path.val +
+          scriptFile.name.val)
     scriptFile.setMimetype(rstring("text/plain"))
     updateService.saveObject(scriptFile)
 
@@ -320,64 +318,63 @@ def cleanUpScriptFiles(session, scriptService):
     scriptIds = []
 
     scripts = scriptService.getScripts()
-    print "\n Scripts: "
+    print("\n Scripts: ")
     for s in scripts:
         scriptIds.append(s.id.val)
-        print s.id.val, s.path.val + s.name.val
+        print(s.id.val, s.path.val + s.name.val)
 
     userScripts = scriptService.getScripts()
-    print "\n User Scripts: "
+    print("\n User Scripts: ")
     for s in userScripts:
         scriptIds.append(s.id.val)
-        print s.id.val, s.path.val + s.name.val
+        print(s.id.val, s.path.val + s.name.val)
 
     # get all script files in the DB
     query_string = ("select o from OriginalFile o"
                     " where o.mimetype='text/x-python'")
     scriptFiles = queryService.findAllByQuery(query_string, None)
 
-    print "\n DISABLING invalid scripts.... "
+    print("\n DISABLING invalid scripts.... ")
     for s in scriptFiles:
-        # print s.id.val, s.path.val + s.name.val
         if s.id.val not in scriptIds:
-            print s.id.val, s.path.val + s.name.val
+            print(s.id.val, s.path.val + s.name.val)
             s.setMimetype(rstring("text/plain"))
             updateService.saveObject(s)
 
 
 def usage():
-    print ("USAGE: python adminWorkflow.py -s server -u username -f file"
-           " [options]")
+    print("USAGE: python adminWorkflow.py -s server -u username -f file"
+          " [options]")
 
 
 def printHelp(args):
 
-    print ""
+    print("")
     usage()
 
-    print ("\nThe -f argument to specifiy a script file (by path or ID) is"
-           " only required for some options below")
-    print ("Admin permissions are required for upload, disable and clean"
-           " options")
-    print "\nOPTIONS:"
+    print("\nThe -f argument to specifiy a script file (by path or ID) is"
+          " only required for some options below")
+    print("Admin permissions are required for upload, disable and clean"
+          " options")
+    print("\nOPTIONS:")
 
-    print "\n list"
-    print listScripts.__doc__
+    print("\n list")
+    print(listScripts.__doc__)
 
-    print "\n upload"
-    print uploadScript.__doc__
+    print("\n upload")
+    print(uploadScript.__doc__)
 
-    print "\n params"
-    print getParams.__doc__
+    print("\n params")
+    print(getParams.__doc__)
 
-    print "\n run"
-    print runScript.__doc__
+    print("\n run")
+    print(runScript.__doc__)
 
-    print "\n clean"
-    print cleanUpScriptFiles.__doc__
+    print("\n clean")
+    print(cleanUpScriptFiles.__doc__)
 
-    print "\n disable"
-    print disableScript.__doc__
+    print("\n disable")
+    print(disableScript.__doc__)
 
 
 def readCommandArgs():
@@ -417,10 +414,10 @@ def doWorkflow(client, commandArgs):
     session = client.createSession(
         commandArgs["username"], commandArgs["password"])
     scriptService = session.getScriptService()
-    print "got session..."
+    print("got session...")
     if len(args) == 0:
-        print ("Choose from these options by adding argument: help, list,"
-               " upload, params, run, disable, clean")
+        print("Choose from these options by adding argument: help, list,"
+              " upload, params, run, disable, clean")
 
     # list scripts
     if "list" in args:
@@ -456,22 +453,22 @@ if __name__ == "__main__":
         printHelp(args)
 
     elif "host" not in commandArgs:
-        print "No server specified. Use -s serverName"
-        print "For more info, use:   python adminWorkflow help"
+        print("No server specified. Use -s serverName")
+        print("For more info, use:   python adminWorkflow help")
     elif "username" not in commandArgs:
-        print "No user specified. Use -u userName"
-        print "For more info, use:   python adminWorkflow help"
+        print("No user specified. Use -u userName")
+        print("For more info, use:   python adminWorkflow help")
     else:
         client = omero.client(commandArgs["host"])
         try:
             # log on to the server, create client and session and scripting
             # service
             if "password" not in commandArgs:
-                print "NB: you can also run script with -p yourPassword"
+                print("NB: you can also run script with -p yourPassword")
                 commandArgs["password"] = getpass.getpass()
 
             doWorkflow(client, commandArgs)
-        except:
+        except Exception:
             raise
         finally:
             client.closeSession()

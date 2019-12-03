@@ -15,12 +15,12 @@ filter = omero.sys.Filter()
 plates = q.findAll('Plate', filter)
 
 
-print 'Plate:'
+print('Plate:')
 for i in range(len(plates)):
     params = ParametersI()
     params.addId(plates[i].getId().getValue())
     plate = q.findByQuery(QUERY, params)
-    print '    %d %s ' % (i, plate.getName().getValue())
+    print('    %d %s ' % (i, plate.getName().getValue()))
     wells = {}
 
     for well in plate.copyWells():
@@ -43,4 +43,4 @@ for i in range(len(plates)):
         col_list.sort()
         for col in col_list:
             msg += '%2dx%2d ' % (row, col)
-        print msg
+        print(msg)
