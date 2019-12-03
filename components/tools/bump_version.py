@@ -8,7 +8,7 @@ import argparse
 
 def check_version_format(version):
     """Check format of major minor number"""
-    pattern = '^[0-9]+[\.][0-9]+$'
+    pattern = r'^[0-9]+[\.][0-9]+$'
     return re.match(pattern, version) is not None
 
 
@@ -21,6 +21,7 @@ def replace_file(input_path, pattern, version):
             output.write(new_content)
             output.close()
         infile.close()
+
 
 docs_pattern = r"(?P<baseurl>site/support/omero)(\d+(.\d+)?)"
 latest_pattern = r"(?P<baseurl>latest/omero)(\d+(.\d+)?)"
@@ -44,6 +45,6 @@ if __name__ == "__main__":
     ns = parser.parse_args()
 
     if not check_version_format(ns.version):
-        print "Invalid version format"
+        print("Invalid version format")
     else:
         bump_version(ns.version)

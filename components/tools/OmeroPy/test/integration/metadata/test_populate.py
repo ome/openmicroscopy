@@ -1291,7 +1291,7 @@ class TestPopulateMetadataConfigFiles(TestPopulateMetadataHelperPerMethod):
 class MockMeasurementCtx(AbstractMeasurementCtx):
 
     def well_name_to_number(self, well):
-        m = re.match("(?P<COL>[a-z]+)(?P<ROW>\d+)",
+        m = re.match(r"(?P<COL>[a-z]+)(?P<ROW>\d+)",
                      well, re.IGNORECASE)
         if not m:
             raise Exception("Bad well: %s" % well)

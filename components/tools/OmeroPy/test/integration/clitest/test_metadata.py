@@ -26,13 +26,14 @@ import omero
 import omero.gateway
 from omero.constants.namespaces import NSBULKANNOTATIONS, NSMEASUREMENT
 from omero.gateway import BlitzGateway
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    from omero.plugins._metadata_deprecated import Metadata, MetadataControl
 from omero.rtypes import rdouble, unwrap
 from omero.testlib.cli import CLITest
 from omero.model.enums import UnitsLength
 from past.builtins import long
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    from omero.plugins._metadata_deprecated import Metadata, MetadataControl
 
 
 class MetadataTestBase(CLITest):

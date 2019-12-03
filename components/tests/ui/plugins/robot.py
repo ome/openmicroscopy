@@ -94,7 +94,7 @@ class RobotControl(BaseControl):
             d["WEBHOST"] = d["HOST"]
 
         # Read robot.template file and substitute keywords
-        c = file(self.ctx.dir / "etc" / "templates" / "robot.template").read()
+        c = open(self.ctx.dir / "etc" / "templates" / "robot.template").read()
         self.ctx.out(c % d)
 
 

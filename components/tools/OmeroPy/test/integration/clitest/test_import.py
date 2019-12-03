@@ -83,7 +83,10 @@ NFS = (
     NF("Plate", "--plate_name", "--description"),
     NF("Plate", "--plate_name", "--plate_description"),
 )
-xstr = lambda s: s or ""
+
+
+def xstr(s):
+    return s or ""
 
 
 NFS_names = ['%s%s%s' % (x.obj_type, xstr(x.name_arg),
@@ -191,7 +194,7 @@ class TestImport(CLITest):
 
     def get_object(self, err, obj_type, query=None):
         """Retrieve the created object by parsing the stderr output"""
-        pattern = re.compile('^%s:(?P<id>\d+)$' % obj_type)
+        pattern = re.compile(r'^%s:(?P<id>\d+)$' % obj_type)
         for line in reversed(err.split('\n')):
             match = re.match(pattern, line)
             if match:
@@ -210,7 +213,7 @@ class TestImport(CLITest):
 
     def get_objects(self, err, obj_type, query=None):
         """Retrieve the created objects by parsing the stderr output"""
-        pattern = re.compile('^%s:(?P<idstring>\d+)$' % obj_type)
+        pattern = re.compile(r'^%s:(?P<idstring>\d+)$' % obj_type)
         objs = []
         for line in reversed(err.split('\n')):
             match = re.match(pattern, line)
@@ -299,7 +302,7 @@ class TestImport(CLITest):
     def parse_summary(self, err):
         """Parse the summary output from stderr"""
 
-        return re.findall('\d:[\d]{2}:[\d]{2}\.[\d]{3}|\d',
+        return re.findall(r'\d:[\d]{2}:[\d]{2}\.[\d]{3}|\d',
                           err.split('\n')[-2])
 
     def get_thumbnail(self, iid):
@@ -442,10 +445,10 @@ class TestImport(CLITest):
             return ()
 
         def get_arg(self, client, spw=False):
-            raise NotImplemented()
+            raise NotImplementedError()
 
         def verify_containers(self, found1, found2):
-            raise NotImplemented()
+            raise NotImplementedError()
 
     class ClassTargetSource(TargetSource):
 

@@ -96,7 +96,7 @@ class AbstractTagTest(CLITest):
         if not query:
             query = self.query
 
-        pattern = re.compile('^(?P<obj_type>.*):(?P<id>\d+)$')
+        pattern = re.compile(r'^(?P<obj_type>.*):(?P<id>\d+)$')
         for line in reversed(out.split('\n')):
             print(line)
             match = re.match(pattern, line)
