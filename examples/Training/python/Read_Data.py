@@ -184,27 +184,30 @@ if int(plateId) >= 0:
 
 
 # List all annotations on an object. Filter for Tags and get textValue**
-
+ann_ids = []
 for ann in image.listAnnotations():
     print(ann.getId(), ann.OMERO_TYPE)
+    ann_ids.append(ann.id)
     print(" added by ", ann.link.getDetails().getOwner().getOmeName())
     if ann.OMERO_TYPE == omero.model.TagAnnotationI:
         print("Tag value:", ann.getTextValue())
 
 # Get Links between Objects and Annotations
-# Find Images linked to Annotation(s), unlink Images from these annotations
-# and link them to another Tag Annotation
-annotation_ids = [1, 2, 3]
-tag_id = 4
-for link in conn.getAnnotationLinks('Image', ann_ids=annotation_ids):
+# Find links to Images, unlink Images from these annotations
+# and link them to a new Tag Annotation
+tag_ann = omero.gateway.TagAnnotationWrapper(conn)
+tag_ann.setValue("Replacement Tag")
+tag_ann.save()
+ann_ids = ann_ids[:1]   # Just use first annotation
+for link in conn.getAnnotationLinks('Image', ann_ids=ann_ids):
     print("Image ID:", link.getParent().id)
     print("Annotation ID:", link.getChild().id)
     # Update the child of the underlying omero.model.ImageAnnotationLinkI
-    link._obj.child = omero.model.TagAnnotationI(tag_id, False)
+    link._obj.child = omero.model.TagAnnotationI(tag_ann.id, False)
     link.save()
 
 # Find Annotations linked to Object(s), filter by namespace (optional)
-for link in conn.getAnnotationLinks('Image', parent_ids=[1,2], ns="test.namespace"):
+for link in conn.getAnnotationLinks('Image', parent_ids=[imageId], ns="test.namespace"):
     print("Annotation ID:", link.getChild().id)
 
 
