@@ -14,7 +14,7 @@ from __future__ import division
 from __future__ import print_function
 
 from builtins import range
-from past.utils import old_div
+import omero
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import datasetId, imageId, plateId
@@ -27,6 +27,7 @@ start-code
 # ===================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
+datasetId = int(datasetId)
 
 
 def print_obj(obj, indent=0):
@@ -65,6 +66,32 @@ for project in conn.getObjects("Project", opts={'owner': my_exp_id,
         print_obj(dataset, 2)
         for image in dataset.listChildren():
             print_obj(image, 4)
+
+# Find objects by ID. NB: getObjects() returns a generator, not a list
+datasets = conn.getObjects("Dataset", [datasetId, datasetId+1])
+
+# Get a single object by ID.
+img = conn.getObject("Image", imageId)
+img_name = img.getName()
+# Can use "Annotation" for all types of annotations by ID
+annotation = conn.getObject("Annotation", 1)
+
+# Find an Object by attribute. E.g. 'name'
+images = conn.getObjects("Image", attributes={"name": img_name})
+
+
+# Get different types of Annotations
+# ==================================
+
+# Supported types are: ``tagannotation``, ``longannotation``,
+# ``booleanannotation``, ``fileannotation``, ``doubleannotation``,
+# ``termannotation``, ``timestampannotation``, ``mapannotation``
+
+# List All Tags that you have permission to access
+conn.getObjects("TagAnnotation")
+
+# Find Tags with a known text value
+tags = conn.getObjects("TagAnnotation", attributes={"textValue": "OK"})
 
 
 # Retrieve 'orphaned' objects
@@ -108,7 +135,7 @@ for channel in image.getChannels():
     print('Is reverse intensity?', channel.isReverseIntensity())
 
 # render the first timepoint, mid Z section
-z = old_div(image.getSizeZ(), 2)
+z = image.getSizeZ()// 2
 t = 0
 rendered_image = image.renderImage(z, t)
 # renderedImage.show()               # popup (use for debug only)
@@ -154,6 +181,35 @@ if int(plateId) >= 0:
             print("    Image: ",
                   well.getImage(index).getName(),
                   well.getImage(index).getId())
+
+
+# List all annotations on an object. Filter for Tags and get textValue**
+ann_ids = []
+for ann in image.listAnnotations():
+    print(ann.getId(), ann.OMERO_TYPE)
+    ann_ids.append(ann.id)
+    print(" added by ", ann.link.getDetails().getOwner().getOmeName())
+    if ann.OMERO_TYPE == omero.model.TagAnnotationI:
+        print("Tag value:", ann.getTextValue())
+
+# Get Links between Objects and Annotations
+# Find links to Images, unlink Images from these annotations
+# and link them to a new Tag Annotation
+tag_ann = omero.gateway.TagAnnotationWrapper(conn)
+tag_ann.setValue("Replacement Tag")
+tag_ann.save()
+ann_ids = ann_ids[:1]   # Just use first annotation
+for link in conn.getAnnotationLinks('Image', ann_ids=ann_ids):
+    print("Image ID:", link.getParent().id)
+    print("Annotation ID:", link.getChild().id)
+    # Update the child of the underlying omero.model.ImageAnnotationLinkI
+    link._obj.child = omero.model.TagAnnotationI(tag_ann.id, False)
+    link.save()
+
+# Find Annotations linked to Object(s), filter by namespace (optional)
+for link in conn.getAnnotationLinks('Image', parent_ids=[imageId], ns="test.namespace"):
+    print("Annotation ID:", link.getChild().id)
+
 
 # Close connection
 # ================
