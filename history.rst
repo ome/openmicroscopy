@@ -5,6 +5,14 @@
 OMERO version history
 =====================
 
+5.6.0-m4 (December 2019)
+------------------------
+
+Bump Python dependencies:
+
+- omero-py 5.6.dev9
+- omero-web 5.6.dev7
+
 5.6.0-m3 (November 2019)
 ------------------------
 
