@@ -81,7 +81,7 @@ images = conn.getObjects("Image", attributes={"name": img_name})
 
 
 # Get different types of Annotations
-# ===========================
+# ==================================
 
 # Supported types are: ``tagannotation``, ``longannotation``,
 # ``booleanannotation``, ``fileannotation``, ``doubleannotation``,
