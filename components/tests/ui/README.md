@@ -78,7 +78,7 @@ robot plugin, e.g. for a  local server:
 ```
 cd ../
 mv dist/robot_ice.config components/tests/ui/resources/
-ICE_CONFIG=$(pwd)/components/tests/ui/resources/robot_ice.config dist/bin/omero --path components/tests/ui/plugins robot config > components/tests/ui/resources/config.txt
+ICE_CONFIG=$(pwd)/components/tests/ui/resources/robot_ice.config omero --path components/tests/ui/plugins robot config > components/tests/ui/resources/config.txt
 ```
 
 Note this command will create the Robot configuration file using the

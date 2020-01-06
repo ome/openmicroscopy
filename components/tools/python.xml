@@ -80,10 +80,6 @@ build_year = "${python_build_year}"
         <copy todir="../target/lib/python">
             <fileset dir="../target/downloads/py/omero-py-${versions.omero-py}/target" includes="**/*"/>
         </copy>
-        <copy todir="../target/bin">
-            <fileset dir="../target/downloads/py/omero-py-${versions.omero-py}/bin" includes="**/*"/>
-        </copy>
-        <chmod file="../target/bin/omero" perm="ugo+x"/>
 
         <!-- hack: deleting the unpacked code to allow integration tests to pass -->
         <delete dir="../target/downloads/py/omero-py-${versions.omero-py}"/>

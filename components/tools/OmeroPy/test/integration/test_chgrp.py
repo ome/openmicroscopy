@@ -1009,7 +1009,7 @@ class TestChgrp(ITest):
             links.append(self.link(image, tag, client=to_client))
 
         # (shell) as root
-        # run bin/omero hql --all 'select parent.details.group.id,
+        # run omero hql --all 'select parent.details.group.id,
         # child.details.group.id from ImageIink'
         # and observe that for each row
         # the group ID in Col1 matches that in Col2
@@ -1021,7 +1021,7 @@ class TestChgrp(ITest):
         self.change_group([images[0]], p_group.id.val, io_client)
 
         # (shell) as root
-        # run bin/omero hql --all 'select parent.details.group.id,
+        # run omero hql --all 'select parent.details.group.id,
         # child.details.group.id from ImageAnnotationLink' and recoil in horror
         params = omero.sys.ParametersI()
         params.addId(tag.id.val)

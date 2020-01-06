@@ -41,11 +41,11 @@
         is more likely to change between releases.
 
         Also, any properties beginning with "omero" set here will
-        be passed to the servers launched via bin/omero as if via
+        be passed to the servers launched via omero as if via
         "-Domero.example=value" were set on the command line.
-        These values may be overwritten by `bin/omero config` values.
+        These values may be overwritten by `omero config` values.
       -->
-      <properties refid="__ACTIVE__"/><!-- Created in config.xml by bin/omero -->
+      <properties refid="__ACTIVE__"/><!-- Created in config.xml by omero -->
       <property name="omero.example" value="my_value"/>
     </properties>
 

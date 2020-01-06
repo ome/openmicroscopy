@@ -50,7 +50,7 @@ java_test()
 
     # make sure that the current db script has no code-generated
     # foreign key names in it
-    dist/bin/omero db script --password ome -f- | grep -LiE "fk[a-z]*[0-9]+[a-z0-9]{5}" && {
+    omero db script --password ome -f- | grep -LiE "fk[a-z]*[0-9]+[a-z0-9]{5}" && {
         echo generated FKs found
         exit 2
     } || {
