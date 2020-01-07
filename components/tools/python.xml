@@ -71,51 +71,6 @@ build_year = "${python_build_year}"
         </sequential>
     </macrodef>
 
-    <target name="python-download">
-
-        <download pkg="omero-py" file="omero-py-${versions.omero-py}.tar.gz" expected="${versions.omero-py-md5}"
-                  where="../target/downloads/py"/>
-        <!-- unfortunately more verbose than should be necessary -->
-        <untar src="../target/downloads/py/omero-py-${versions.omero-py}.tar.gz" dest="../target/downloads/py" compression="gzip"/>
-        <copy todir="../target/lib/python">
-            <fileset dir="../target/downloads/py/omero-py-${versions.omero-py}/target" includes="**/*"/>
-        </copy>
-
-        <!-- hack: deleting the unpacked code to allow integration tests to pass -->
-        <delete dir="../target/downloads/py/omero-py-${versions.omero-py}"/>
-
-
-        <download pkg="omero-scripts" file="omero-scripts-${versions.omero-scripts}.tar.gz" expected="${versions.omero-scripts-md5}"
-                  where="../target/downloads/scripts"/>
-        <untar src="../target/downloads/scripts/omero-scripts-${versions.omero-scripts}.tar.gz" dest="../target/downloads/scripts" compression="gzip"/>
-        <copy todir="../target/lib/scripts">
-            <fileset dir="../target/downloads/scripts/omero-scripts-${versions.omero-scripts}" includes="omero/**/*,README*"/>
-        </copy>
-
-
-        <download pkg="omero-web" file="omero-web-${versions.omero-web}.tar.gz" expected="${versions.omero-web-md5}"
-                  where="../target/downloads/web"/>
-        <untar src="../target/downloads/web/omero-web-${versions.omero-web}.tar.gz" dest="../target/downloads/web" compression="gzip"/>
-        <copy todir="../target/lib/python">
-            <fileset dir="../target/downloads/web/omero-web-${versions.omero-web}" includes="omeroweb/**/*,omero/**/*"/>
-        </copy>
-        <copy todir="../target/etc/templates/web">
-            <fileset dir="../target/downloads/web/omero-web-${versions.omero-web}/omeroweb/templates" includes="*"/>
-        </copy>
-
-
-        <download pkg="omero-dropbox" file="omero-dropbox-${versions.omero-dropbox}.tar.gz" expected="${versions.omero-dropbox-md5}"
-                  where="../target/downloads/dropbox"/>
-        <untar src="../target/downloads/dropbox/omero-dropbox-${versions.omero-dropbox}.tar.gz" dest="../target/lib/python" compression="gzip">
-            <!-- Could be improved with an artifact -->
-            <patternset>
-                <include name="omero-dropbox-${versions.omero-dropbox}/src/**/*"/>
-            </patternset>
-            <globmapper from="omero-dropbox-${versions.omero-dropbox}/src/*" to="./*" />
-        </untar>
-
-    </target>
-
     <target name="python-build" unless="env.NOPYTHON">
         <!-- no-op -->
     </target>
@@ -191,11 +146,11 @@ build_year = "${python_build_year}"
         </sequential>
     </macrodef>
 
-    <target name="python-install" depends="python-download" unless="env.NOPYTHON">
+    <target name="python-install" unless="env.NOPYTHON">
         <!-- no-op -->
     </target>
 
-    <target name="python-clean" depends="python-download" unless="env.NOPYTHON">
+    <target name="python-clean" unless="env.NOPYTHON">
         <setup_py>
             <arg value="clean"/>
         </setup_py>
