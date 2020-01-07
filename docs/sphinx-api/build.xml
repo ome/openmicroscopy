@@ -11,8 +11,10 @@ Type "ant -p" for a list of targets.
   <import file="${basedir}//rules.xml"/>
 
   <target name="sphinx-deps">
+    <!-- DISABLED: python code is no longer downloaded. API docs will need building elsewhere
     <apidoc source="../../dist/lib/python/omero" output="omero"/>
     <apidoc source="../../dist/lib/python/omeroweb" output="omeroweb"/>
+    -->
   </target>
 
   <target name="clean-deps">
