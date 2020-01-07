@@ -538,7 +538,7 @@
             <sequential>
                 <exec executable="python" failonerror="@{failonerror}">
                     <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
-                    <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
+                    <env key="PYTHONPATH" path="test:build/lib:${env.PYTHONPATH}"/>
                     <arg value="${basedir}/setup.py"/>
                     <args/>
                 </exec>

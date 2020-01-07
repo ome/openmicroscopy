@@ -304,7 +304,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     <target name="release-clients" description="Zip the Python and Java zips">
         <zip destfile="${omero.home}/target/OMERO.py-${omero.version}.zip">
             <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"
-                includes="bin/**,etc/**,lib/python/**,lib/fallback/**,sql/**,share/web/**"/>
+                includes="bin/**,etc/**,lib/fallback/**,sql/**,share/web/**"/>
             <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"/>
         </zip>
         <zip destfile="${omero.home}/target/OMERO.java-${omero.version}.zip">

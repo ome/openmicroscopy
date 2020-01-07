@@ -118,7 +118,7 @@ export OMERO_DEV_PLUGINS=1      # required to enable 'metadata' CLI
 omero metadata testtables && omero metadata populate Plate:$plateid --file $BULK_ANNOTATION_CSV
 
 # Run script to populate WellSamples with posX and posY values
-PYTHONPATH=./lib/python python $WELLSCRIPT $HOSTNAME $PORT $key $plateid
+python $WELLSCRIPT $HOSTNAME $PORT $key $plateid
 
 # Import Tiny Plate (single acquisition & well) and rename
 omero import $TINY_PLATE_NAME --debug ERROR > show_import.log 2>&1

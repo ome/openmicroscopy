@@ -16,8 +16,6 @@
     <!-- Note: you will also need to modify the etc/master.cfg property
          file if you want var/log to be completely unused -->
 
-    <variable name="OMEROPY_HOME"  value="lib/python/"/>
-    <variable name="OMEROPY_SERV"  value="lib/python/omero/"/>
     <variable name="PYTHONPATH"    value="PYTHONPATH=$${PYTHONPATH}:${OMEROPY_HOME}"/>
     <variable name="PYTHON"        value="python"/>
     <variable name="JAVA"          value="java"/>

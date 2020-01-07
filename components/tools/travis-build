@@ -85,7 +85,6 @@ py_test()
     # make sure all OmeroWeb Python modules can be imported
     # (this will find invalid imports that flake8 does not check for)
     echo Checking OmeroWeb Python imports
-    export PYTHONPATH=$PYTHONPATH:../target/lib/python
     ! ( cd components/tools/OmeroWeb ;
         find omeroweb -name "*.py" |
         cut -d "." -f -1 |
