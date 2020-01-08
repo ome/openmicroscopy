@@ -130,8 +130,7 @@ path: test.tsv
                       "--clientdir", old_div(old_div(self.omero_dist, "lib"),
                                              "client")]
 
-        bin = old_div(old_div(self.omero_dist, "bin"), "omero")
-        monkeypatch.setattr(sys, "argv", [str(bin)])
+        monkeypatch.setattr(sys, "argv", ["omero"])
         out, err = self.do_import(capfd)
 
         # At this point, script1.sh has been created
