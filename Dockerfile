@@ -18,7 +18,7 @@ ARG BUILD_IMAGE=adoptopenjdk:11-jdk-hotspot-bionic
 # RUN_IMAGE for end-use. This value can also be
 # set at build time with --build-arg RUN_IMAGE=...
 ARG COMPONENT=server
-ARG RUN_IMAGE=openmicroscopy/omero-${COMPONENT}:5.6
+ARG RUN_IMAGE=joshmoore/omero-${COMPONENT}:5.6
 
 
 FROM ${BUILD_IMAGE} as build
