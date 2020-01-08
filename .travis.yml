@@ -24,7 +24,7 @@ install:
 
 
 script:
-    - echo DISABLED -- .omero/docker srv
+    - .omero/docker srv
 
 notifications:
   slack:

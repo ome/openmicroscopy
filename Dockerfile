@@ -24,13 +24,35 @@ ARG RUN_IMAGE=joshmoore/omero-${COMPONENT}:5.6
 FROM ${BUILD_IMAGE} as build
 USER root
 ARG DEBIAN_FRONTEND=noninteractive
+
+# From omero-install: step01_ubuntu1804_ice_deps.sh
+RUN apt-get update && \
+    apt-get install -y -q \
+        build-essential \
+        wget \
+        db5.3-util \
+        libbz2-dev \
+        libdb++-dev \
+        libdb-dev \
+        libexpat-dev \
+        libmcpp-dev \
+        libssl-dev \
+        mcpp \
+        zlib1g-dev \
+ && cd /tmp \
+ && wget -q https://github.com/ome/zeroc-ice-ubuntu1804/releases/download/0.3.0/ice-3.6.5-0.3.0-ubuntu1804-amd64.tar.gz \
+ && tar xf ice-3.6.5-0.3.0-ubuntu1804-amd64.tar.gz \
+ && rm ice-3.6.5-0.3.0-ubuntu1804-amd64.tar.gz \
+ && mv ice-3.6.5-0.3.0 /opt \
+ && echo /opt/ice-3.6.5-0.3.0/lib/x86_64-linux-gnu > /etc/ld.so.conf.d/ice-x86_64.conf \
+ && ldconfig
+
 RUN apt-get update \
  && apt-get install -y ant git gradle maven python3 python3-pip python3-venv \
-      zlib1g-dev python-pillow python-numpy python-sphinx \
-      libssl-dev libbz2-dev libmcpp-dev libdb++-dev libdb-dev \
-      zeroc-ice-all-dev
+      python-pillow python-numpy python-sphinx
+
 ENV VIRTUAL_ENV=/opt/omero/server/venv3
-ENV PATH=$VIRTUAL_ENV/bin/:$PATH
+ENV PATH=/opt/ice-3.6.5-0.3.0/bin:$VIRTUAL_ENV/bin/:$PATH
 RUN mkdir -p /opt/omero/server/ \
  && python3 -m venv $VIRTUAL_ENV
 RUN python -m pip install --upgrade pip setuptools
