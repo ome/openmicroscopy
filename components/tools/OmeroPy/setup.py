@@ -35,7 +35,6 @@ import glob
 import sys
 import os
 
-from omero_setup import PyTest
 from setuptools import setup, find_packages
 from omero_version import omero_version as ov
 
@@ -60,5 +59,4 @@ setup(
     package_data={
         'omero.gateway': ['pilfonts/*'],
         'omero.gateway.scripts': ['imgs/*']},
-    cmdclass={'test': PyTest},
     tests_require=['pytest', 'pytest-xdist'])

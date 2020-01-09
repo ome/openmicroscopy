@@ -11,7 +11,6 @@ import glob
 import sys
 import os
 
-from omero_setup import PyTest
 from setuptools import setup
 from omero_version import omero_version as ov
 
@@ -26,5 +25,4 @@ setup(name="OmeroFS",
       download_url=url,
       package_dir={"": "target"},
       packages=[''],
-      cmdclass={'test': PyTest},
       tests_require=['pytest', 'pytest-xdist'])
