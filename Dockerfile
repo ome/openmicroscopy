@@ -18,7 +18,7 @@ ARG BUILD_IMAGE=adoptopenjdk:11-jdk-hotspot-bionic
 # RUN_IMAGE for end-use. This value can also be
 # set at build time with --build-arg RUN_IMAGE=...
 ARG COMPONENT=server
-ARG RUN_IMAGE=joshmoore/omero-${COMPONENT}:5.6
+ARG RUN_IMAGE=openmicroscopy/omero-${COMPONENT}:5.6
 
 
 FROM ${BUILD_IMAGE} as build
@@ -100,11 +100,6 @@ RUN rm -rf /opt/omero/server/OMERO.server
 COPY --chown=omero-server:omero-server --from=build /src/dist /opt/omero/server/OMERO.server
 USER root
 RUN yum install -y git
-
-# Temporarily install dev10
-WORKDIR /tmp
-RUN /opt/omero/server/venv3/bin/pip install -U 'omero-py>=5.6.dev10'
-# End temporary
 
 USER omero-server
 WORKDIR /opt/omero/server/OMERO.server
