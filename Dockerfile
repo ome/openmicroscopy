@@ -58,14 +58,8 @@ RUN mkdir -p /opt/omero/server/ \
 RUN python -m pip install --upgrade pip setuptools
 RUN python -m pip install https://github.com/ome/zeroc-ice-ubuntu1804/releases/download/0.2.0/zeroc_ice-3.6.5-cp36-cp36m-linux_x86_64.whl
 RUN python -m pip install flake8 future pytest
-RUN python -m pip install 'omero-py>=5.6.0.dev9'
+RUN python -m pip install 'omero-py>=5.6.0.dev10'
 RUN id 1000 || useradd -u 1000 -ms /bin/bash build
-
-# Temporarily install bin-omero branch
-WORKDIR /tmp
-RUN git clone -b bin-omero git://github.com/joshmoore/omero-py \
- && cd omero-py && python setup.py devtarget && python -m pip install -e .
-# End temporary
 
 # TODO: would be nice to not need to copy .git since it invalidates the build frequently and takes more time
 COPY .git /src/.git
@@ -107,10 +101,9 @@ COPY --chown=omero-server:omero-server --from=build /src/dist /opt/omero/server/
 USER root
 RUN yum install -y git
 
-# Temporarily install bin-omero branch
+# Temporarily install dev10
 WORKDIR /tmp
-RUN git clone -b bin-omero git://github.com/joshmoore/omero-py \
- && cd omero-py && python setup.py devtarget && /opt/omero/server/venv3/bin/pip install -e .
+RUN /opt/omero/server/venv3/bin/pip install -U 'omero-py>=5.6.dev10'
 # End temporary
 
 USER omero-server
