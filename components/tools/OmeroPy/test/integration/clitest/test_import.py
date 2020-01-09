@@ -44,7 +44,7 @@ ImportControl = plugin.ImportControl
 
 class NamingFixture(object):
     """
-    Fixture to test naming arguments of bin/omero import
+    Fixture to test naming arguments of `omero import`
     """
 
     def __init__(self, obj_type, name_arg, description_arg):
@@ -96,7 +96,7 @@ debug_levels = ['ALL', 'TRACE',  'DEBUG', 'INFO', 'WARN', 'ERROR']
 
 class AnnotationFixture(object):
     """
-    Fixture to test annotation arguments of bin/omero import
+    Fixture to test annotation arguments of omero import
     """
 
     def __init__(self, arg_type, n, is_deprecated):

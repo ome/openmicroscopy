@@ -272,11 +272,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
 
     <target name="release-zip" description="Zip the dist directory into ${product.name}-${omero.version}.zip">
         <zip destfile="${omero.home}/target/${product.name}-${omero.version}.zip">
-            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
-                excludes="bin/omero"/>
-            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
-                includes="bin/omero"
-                filemode="755"/>
+            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"/>
         </zip>
     </target>
 
@@ -308,9 +304,8 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     <target name="release-clients" description="Zip the Python and Java zips">
         <zip destfile="${omero.home}/target/OMERO.py-${omero.version}.zip">
             <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"
-                includes="bin/**,etc/**,lib/python/**,lib/fallback/**,sql/**,share/web/**" excludes="bin/omero"/>
-            <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"
-                includes="bin/omero" filemode="755"/>
+                includes="bin/**,etc/**,lib/fallback/**,sql/**,share/web/**"/>
+            <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"/>
         </zip>
         <zip destfile="${omero.home}/target/OMERO.java-${omero.version}.zip">
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
@@ -320,11 +315,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
 
     <target name="release-tar" description="Tar the dist directory into ${product-name}-${omero.version}.tar.bz2">
         <tar destfile="${product.name}-${omero.version}.tar.bz2" compression="bzip2">
-            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
-                excludes="bin/omero"/>
-            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
-                includes="bin/omero"
-                filemode="755"/>
+            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"/>
         </tar>
     </target>
 
@@ -484,8 +475,7 @@ omero.version=${omero.version}
     <macrodef name="ice-admin">
         <element name="args" implicit="yes"/>
         <sequential>
-            <exec executable="python" dir="${dist.dir}" failonerror="true">
-                <arg value="bin/omero"/>
+            <exec executable="omero" dir="${dist.dir}" failonerror="true">
                 <arg value="admin"/>
                 <arg value="ice"/>
                 <args/>

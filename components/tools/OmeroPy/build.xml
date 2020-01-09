@@ -34,7 +34,7 @@
 
     <target name="integration" depends="python-integration" unless="env.NOPYTHON"/>
 
-    <target name="tools-init" depends="retrieve,python-download" unless="env.NOPYTHON"/>
+    <target name="tools-init" depends="retrieve" unless="env.NOPYTHON"/>
 
     <!-- Copied prefs.class for testing the prefs plugin. -->
     <target name="tools-build" depends="tools-init" description="Uses setup.py to build artifacts" unless="env.NOPYTHON"/>

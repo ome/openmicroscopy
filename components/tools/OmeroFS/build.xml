@@ -32,7 +32,7 @@
 
     <target name="integration" depends="python-integration" unless="env.NOPYTHON"/>
 
-    <target name="tools-init" depends="python-download" unless="env.NOPYTHON"/>
+    <target name="tools-init" unless="env.NOPYTHON"/>
 
     <target name="tools-build" depends="tools-init" description="Creates all artifacts for tools/target" unless="env.NOPYTHON"/>
 

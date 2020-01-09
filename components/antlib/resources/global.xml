@@ -538,10 +538,51 @@
             <sequential>
                 <exec executable="python" failonerror="@{failonerror}">
                     <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
-                    <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
+                    <env key="PYTHONPATH" path="test:build/lib:${env.PYTHONPATH}"/>
                     <arg value="${basedir}/setup.py"/>
                     <args/>
                 </exec>
+            </sequential>
+        </macrodef>
+
+        <macrodef name="download">
+            <attribute name="pkg"/>
+            <attribute name="file"/>
+            <attribute name="expected"/>
+            <attribute name="where"/>
+            <sequential>
+                <mkdir dir="@{where}"/>
+                <mkdir dir="../target/build/lib"/>
+                <local name="url_input"/>
+                <local name="url_output"/>
+                <local name="dest"/>
+                <local name="calculated"/>
+                <local name="mismatch"/>
+                <property name="dest" value="@{where}/@{file}"/>
+                <property name="url_input" value="${versions.@{pkg}-url}"/>
+                <propertyregex property="url_output"
+                  input="${url_input}"
+                  regexp="PACKAGE"
+                  replace="@{pkg}"
+                  global="true"
+                  casesensitive="true" />
+                <get dest="${dest}" usetimestamp="true">
+                    <url url="${url_output}/@{file}"/>
+                </get>
+                <checksum file="${dest}" algorithm="MD5" fileext=".md5"/>
+                <loadfile property="calculated" srcFile="${dest}.md5"/>
+                <condition property="mismatch">
+                    <and>
+                        <isset property="versions.@{pkg}-md5"/><!-- TODO: remove others -->
+                        <not>
+                            <equals arg1="@{expected}" arg2="" trim="true"/>
+                        </not>
+                        <not>
+                            <equals arg1="@{expected}" arg2="${calculated}" trim="true"/>
+                        </not>
+                    </and>
+                </condition>
+                <fail if="${mismatch}" message="@{file}: checksum error"/>
             </sequential>
         </macrodef>
 

@@ -29,7 +29,7 @@ CURR ?= $(CURRDBVERS)__$(CURRDBPATCH)
 # Tools
 OMERO_SOURCE ?= ../..
 OMERO_HOME ?= $(OMERO_SOURCE)/dist
-OMERO_EXE ?= $(OMERO_HOME)/bin/omero
+OMERO_EXE ?= omero
 DIFF_JAR ?= "apgdiff-2.3.jar"
 DIFF_CMD ?= java -jar $(DIFF_JAR) --ignore-start-with
 PSQL_HOST ?= localhost

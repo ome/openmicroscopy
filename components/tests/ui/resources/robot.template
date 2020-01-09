@@ -36,4 +36,4 @@ ${WEBCLIENT LOGIN URL}      ${LOGIN URL}?url=%(QWEBPREFIX)s%(QSEP)swebclient%(QS
 ${USERS URL}            ${WEBADMIN WELCOME URL}experimenters/
 ${GROUPS URL}           ${WEBADMIN WELCOME URL}groups/
 
-${COMMAND}       		bin/omero
+${COMMAND}       		omero
