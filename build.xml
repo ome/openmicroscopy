@@ -170,10 +170,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     <target name="build-web" description="Prepare OmeroWeb tests" depends="init">
         <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
-        <!-- Parts of build-dist -->
-        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
-        <antcall target="copy-web-requirements" inheritRefs="true" inheritAll="true"/>
-        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="eclipse" depends="init">
@@ -366,7 +362,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     Top-level helpers (shared helpers are in components/antlib/resources)
     =====================================================================
     -->
-    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,copy-web-requirements,update-version,create-workdirs, copy-luts"
+    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,update-version,create-workdirs,copy-luts"
         description="Copy all components to dist/; called at the end of build-* targets"/>
 
     <target name="copy-licenses" depends="init">
@@ -391,15 +387,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
             <copy file="${omero.home}/components/tests/ui/resources/robot.template" todir="${dist.dir}/etc/templates"/>
 
             <replace dir="${dist.dir}/etc" token="@ICE_LIB_VERSION@" value="${versions.ice_lib}"/>
-    </target>
-
-    <target name="copy-web-requirements" depends="init">
-        <mkdir dir="${dist.dir}/share/web"/>
-        <copy todir="${dist.dir}/share/web">
-            <fileset dir="components/tools/OmeroWeb">
-                <include name="requirements*.txt"/>
-            </fileset>
-        </copy>
     </target>
 
     <target name="copy-sql" depends="init">
