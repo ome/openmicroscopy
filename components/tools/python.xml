@@ -156,7 +156,6 @@ build_year = "${python_build_year}"
         </setup_py>
         <delete dir="${basedir}/build"/>
         <delete dir="${basedir}/dist"/>
-        <delete file="${basedir}/ez_setup.pyc"/>
         <delete file="${basedir}/omero_version.py"/>
         <delete>
             <fileset dir="${basedir}" includes="setuptools*egg"/>
