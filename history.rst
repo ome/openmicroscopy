@@ -5,46 +5,19 @@
 OMERO version history
 =====================
 
-5.6.0-m5 (December 2019)
-------------------------
+5.6.0 (January 2020)
+--------------------
+
+First release of OMERO with support for Python 3. All Python
+code has been removed from the distributed ZIP file and will
+need to be installed from PyPI. This version has been tested
+with:
 
 - omero-blitz 5.5.5
 - omero-gateway-java 5.6.2
-
-5.6.0-m4 (December 2019)
-------------------------
-
-Bump Python dependencies:
-
-- omero-py 5.6.dev9
-- omero-web 5.6.dev7
-
-5.6.0-m3 (November 2019)
-------------------------
-
-Bump Python dependencies:
-
-- omero-py 5.6.dev6
-- omero-web 5.6.dev6
-- omero-dropbox 5.6.dev3
-
-5.6.0-m2 (November 2019)
-------------------------
-
-Bump Python dependencies:
-
-- omero-py 5.6.dev5
-- omero-web 5.6.dev5
-- omero-dropbox 5.6.dev2
-
-5.6.0-m1 (November 2019)
-------------------------
-
-First milestone of OMERO with support for Python 3. This version
-depends on omero-py and omero-web 5.6.0.dev3 and is intended for
-internal testing. Subsequent versions will include documentation
-of the necessary migration steps and a list of supported platforms.
-
+- omero-py 5.6.0
+- omero-web 5.6.0
+- omero-dropbox 5.6.0
 
 5.5.1 (July 2019)
 -----------------

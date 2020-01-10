@@ -92,16 +92,15 @@ build_year = "${python_build_year}"
         <attribute name="target" default="${basedir}/test"/>
         <element name="optionalArgs" optional="y"/>
         <sequential>
-            <setup_py failonerror="${test.with.fail}">
-                <env key="OMERODIR" value="${dist.dir}"/>
+            <exec executable="pytest" failonerror="${test.with.fail}" dir="${basedir}">
                 <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
-                <arg value="test"/>
+                <env key="OMERODIR" value="${dist.dir}"/>
+                <env key="PYTHONPATH" path="test:build/lib:${env.PYTHONPATH}"/>
                 <optionalArgs/>
                 <arg value="-v"/>
-                <arg value="-t"/>
-                <arg file="@{target}"/>
                 <arg value="--junitxml=${testreports.dir}/junit-results.xml"/>
-            </setup_py>
+                <arg file="@{target}"/>
+            </exec>
         </sequential>
     </macrodef>
 

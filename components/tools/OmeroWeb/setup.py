@@ -10,7 +10,6 @@ import glob
 import sys
 import os
 
-from omero_setup import PyTest
 from setuptools import setup
 from omero_version import omero_version as ov
 
@@ -34,6 +33,5 @@ OmeroWeb is the container of the web clients for OMERO."
       download_url="https://github.com/openmicroscopy/openmicroscopy/",
       packages=[''],
       test_suite='test.suite',
-      cmdclass={'test': PyTest},
       tests_require=['pytest', 'pytest-xdist'],
       )
