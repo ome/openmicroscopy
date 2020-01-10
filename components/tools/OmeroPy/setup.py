@@ -35,15 +35,6 @@ import glob
 import sys
 import os
 
-sys.path.append("../target/lib/python")
-from omero_setup import PyTest
-
-for tools in glob.glob("../../../lib/repository/setuptools*.egg"):
-    if tools.find(".".join(map(str, sys.version_info[0:2]))) > 0:
-        sys.path.insert(0, os.path.abspath(tools))
-
-from ez_setup import use_setuptools
-use_setuptools(to_dir='../../../lib/repository')
 from setuptools import setup, find_packages
 from omero_version import omero_version as ov
 
@@ -68,5 +59,4 @@ setup(
     package_data={
         'omero.gateway': ['pilfonts/*'],
         'omero.gateway.scripts': ['imgs/*']},
-    cmdclass={'test': PyTest},
     tests_require=['pytest', 'pytest-xdist', 'mox3'])

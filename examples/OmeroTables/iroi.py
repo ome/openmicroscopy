@@ -42,4 +42,4 @@ roi_meas = roi_svc.getRoiMeasurements(image_id, None)
 if len(roi_meas) > 0:
     roi_result = roi_svc.getMeasuredRois(image_id, roi_meas[0].id.val, None)
     table = roi_svc.getTable(roi_meas[0].id.val)
-    print table.slice([0], None)  # All of column 1
+    print(table.slice([0], None))  # All of column 1

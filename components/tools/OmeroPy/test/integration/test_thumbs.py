@@ -105,7 +105,9 @@ class TestThumbs(ITest):
              "order by tb.id desc ")
         q = q % pix
         p = ParametersI().page(0, 1)
-        get = lambda: self.query.findByQuery(q, p)
+
+        def get():
+            return self.query.findByQuery(q, p)
 
         # Before anything has been called, there
         # should be no thumbnail

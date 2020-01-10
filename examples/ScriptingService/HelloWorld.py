@@ -64,12 +64,12 @@ if __name__ == "__main__":
 
         # now we can work with arguments in our parameterMap
         if "Input_Message" in parameterMap:
-            print "Hello World"
-            print parameterMap["Input_Message"]
+            print("Hello World")
+            print(parameterMap["Input_Message"])
         else:
             # Any print statments (std.out) will go into one file on the
             # server (E.g. /OMERO/Files/001)
-            print "No message parameter"
+            print("No message parameter")
 
             # Any Exceptions (std.err) will go in another file on the server
             # (E.g. /OMERO/Files/002)

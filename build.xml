@@ -143,7 +143,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
 
     <target name="build-blitz" description="Alias for 'build-server'" depends="build-server"/>
 
-    <target name="build-server" description="Build blitz and copy to dist/blitz" depends="init">
+    <target name="build-server" description="Build the server distribution" depends="init">
         <!-- Must also build python since it provides our command lines -->
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroFs.buildpath" target="tools-dist"/>
@@ -157,23 +157,19 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-java" description="Build Java bindings to the OMERO server" depends="init">
+    <target name="build-java" description="Build Java tests for the OMERO server" depends="init">
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-py" description="Build Python bindings to the OMERO server" depends="init">
+    <target name="build-py" description="Prepare Python tests for the OMERO server" depends="init">
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-web" description="Build OmeroWeb and copy to dist. May require 'build-py'" depends="init">
+    <target name="build-web" description="Prepare OmeroWeb tests" depends="init">
         <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
-        <!-- Parts of build-dist -->
-        <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
-        <antcall target="copy-web-requirements" inheritRefs="true" inheritAll="true"/>
-        <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="eclipse" depends="init">
@@ -272,11 +268,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
 
     <target name="release-zip" description="Zip the dist directory into ${product.name}-${omero.version}.zip">
         <zip destfile="${omero.home}/target/${product.name}-${omero.version}.zip">
-            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
-                excludes="bin/omero"/>
-            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
-                includes="bin/omero"
-                filemode="755"/>
+            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"/>
         </zip>
     </target>
 
@@ -305,13 +297,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     <target name="release-src" description="Package the git source tree into openmicroscopy-${omero.plainversion}.zip"
             depends="release-src-embed,release-src-git"/>
 
-    <target name="release-clients" description="Zip the Python and Java zips">
-        <zip destfile="${omero.home}/target/OMERO.py-${omero.version}.zip">
-            <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"
-                includes="bin/**,etc/**,lib/python/**,lib/fallback/**,sql/**,share/web/**" excludes="bin/omero"/>
-            <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"
-                includes="bin/omero" filemode="755"/>
-        </zip>
+    <target name="release-clients" description="Zip the Java zip">
         <zip destfile="${omero.home}/target/OMERO.java-${omero.version}.zip">
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
         </zip>
@@ -320,11 +306,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
 
     <target name="release-tar" description="Tar the dist directory into ${product-name}-${omero.version}.tar.bz2">
         <tar destfile="${product.name}-${omero.version}.tar.bz2" compression="bzip2">
-            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
-                excludes="bin/omero"/>
-            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
-                includes="bin/omero"
-                filemode="755"/>
+            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"/>
         </tar>
     </target>
 
@@ -375,7 +357,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     Top-level helpers (shared helpers are in components/antlib/resources)
     =====================================================================
     -->
-    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,copy-web-requirements,update-version,create-workdirs, copy-luts"
+    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,update-version,create-workdirs,copy-luts"
         description="Copy all components to dist/; called at the end of build-* targets"/>
 
     <target name="copy-licenses" depends="init">
@@ -400,15 +382,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
             <copy file="${omero.home}/components/tests/ui/resources/robot.template" todir="${dist.dir}/etc/templates"/>
 
             <replace dir="${dist.dir}/etc" token="@ICE_LIB_VERSION@" value="${versions.ice_lib}"/>
-    </target>
-
-    <target name="copy-web-requirements" depends="init">
-        <mkdir dir="${dist.dir}/share/web"/>
-        <copy todir="${dist.dir}/share/web">
-            <fileset dir="components/tools/OmeroWeb">
-                <include name="requirements*.txt"/>
-            </fileset>
-        </copy>
     </target>
 
     <target name="copy-sql" depends="init">
@@ -484,8 +457,7 @@ omero.version=${omero.version}
     <macrodef name="ice-admin">
         <element name="args" implicit="yes"/>
         <sequential>
-            <exec executable="python" dir="${dist.dir}" failonerror="true">
-                <arg value="bin/omero"/>
+            <exec executable="omero" dir="${dist.dir}" failonerror="true">
                 <arg value="admin"/>
                 <arg value="ice"/>
                 <args/>

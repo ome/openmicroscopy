@@ -47,8 +47,11 @@ if project is None:
     sys.stderr.write("Error: Object does not exist.\n")
     sys.exit(1)
 link = omero.model.ProjectDatasetLinkI()
-link.setParent(omero.model.ProjectI(project.getId(), False))
-link.setChild(dataset_obj)
+# We can use a 'loaded' object, but we might get an Exception
+# link.setChild(dataset_obj)
+# Better to use an 'unloaded' object (loaded = False)
+link.setChild(omero.model.DatasetI(dataset_obj.id.val, False))
+link.setParent(omero.model.ProjectI(projectId, False))
 conn.getUpdateService().saveObject(link)
 
 
@@ -56,6 +59,7 @@ conn.getUpdateService().saveObject(link)
 # =================================
 tag_ann = omero.gateway.TagAnnotationWrapper(conn)
 tag_ann.setValue("New Tag")
+tag_ann.setDescription("Add optional description")
 tag_ann.save()
 project = conn.getObject("Project", projectId)
 project.linkAnnotation(tag_ann)
@@ -87,6 +91,22 @@ for ann in project.listAnnotations():
     print(" added by ", ann.link.getDetails().getOwner().getOmeName())
     if ann.OMERO_TYPE == omero.model.TagAnnotationI:
         print("Tag value:", ann.getTextValue())
+
+
+# Remove Annotations from an Object (delete link)
+project = conn.getObject("Project", projectId)
+to_delete = []
+for ann in project.listAnnotations():
+    if ann.ns != namespace:
+        to_delete.append(ann.link.id)
+conn.deleteObjects("ProjectAnnotationLink", to_delete, wait=True)
+
+# Delete Annotations from an Object
+to_delete = []
+# Optionally to filter by namespace
+for ann in project.listAnnotations(ns=namespace):
+    to_delete.append(ann.id)
+conn.deleteObjects('Annotation', to_delete, wait=True)
 
 
 # How to create a file annotation and link to a Dataset

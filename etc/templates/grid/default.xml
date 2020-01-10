@@ -16,9 +16,6 @@
     <!-- Note: you will also need to modify the etc/master.cfg property
          file if you want var/log to be completely unused -->
 
-    <variable name="OMEROPY_HOME"  value="lib/python/"/>
-    <variable name="OMEROPY_SERV"  value="lib/python/omero/"/>
-    <variable name="PYTHONPATH"    value="PYTHONPATH=$${PYTHONPATH}:${OMEROPY_HOME}"/>
     <variable name="PYTHON"        value="python"/>
     <variable name="JAVA"          value="java"/>
     <variable name="ROUTERPORT"    value="@omero.ports.prefix@@omero.ports.ssl@"/>
@@ -32,11 +29,11 @@
         is more likely to change between releases.
 
         Also, any properties beginning with "omero" set here will
-        be passed to the servers launched via bin/omero as if via
+        be passed to the servers launched via omero as if via
         "-Domero.example=value" were set on the command line.
-        These values may be overwritten by `bin/omero config` values.
+        These values may be overwritten by `omero config` values.
       -->
-      <properties refid="__ACTIVE__"/><!-- Created in config.xml by bin/omero -->
+      <properties refid="__ACTIVE__"/><!-- Created in config.xml by omero -->
       <property name="omero.example" value="my_value"/>
     </properties>
 

@@ -4,5 +4,5 @@ import sys
 
 
 def usage():
-    print"TreeList.Main host port username password"
+    print("TreeList.Main host port username password")
     sys.exit(-2)

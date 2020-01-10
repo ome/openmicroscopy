@@ -4,7 +4,7 @@
 
 def print_(projects):
     for project in projects:
-        print project.getName().val
+        print(project.getName().val)
         for pdl in project.copyDatasetLinks():
             dataset = pdl.getChild()
-            print "  " + dataset.getName().val
+            print("  " + dataset.getName().val)

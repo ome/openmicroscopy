@@ -106,7 +106,6 @@ class TestScripts(ITest):
         # First upload a number of scripts to a single directory
         noOfScripts = 5
         svc = self.root.sf.getScriptService()
-        scrCount = len(svc.getScripts())
         dirUuid = self.uuid()
         ids = []
         for x in range(noOfScripts):
@@ -117,13 +116,19 @@ class TestScripts(ITest):
             ofile = self.query.get("OriginalFile", ids[x])
             assert "/%s/" % dirUuid == ofile.path.val
             assert "%s.py" % uuid == ofile.name.val
+
+        # Note: no longer depending on absolute numbers due to parallelism
         # There should now be five more
-        assert scrCount + noOfScripts == len(svc.getScripts())
+        currentScriptIds = [x.id.val for x in svc.getScripts()]
+        for newId in ids:
+            assert newId in currentScriptIds
 
         # Now delete just one script
         svc.deleteScript(ids[0])
+
         # There should now be one fewer
-        assert scrCount + noOfScripts - 1 == len(svc.getScripts())
+        currentScriptIds = [x.id.val for x in svc.getScripts()]
+        assert ids[0] not in currentScriptIds
 
     @pytest.mark.broken(ticket="11610")
     def testParseErrorTicket2185(self):

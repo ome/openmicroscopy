@@ -298,10 +298,12 @@ class TestSplitFilesets(ITest):
 
         # create test entities named in test case input values
 
-        parents = lambda hierarchy: [
-            from_index for from_index, to_indices in hierarchy]
-        children = lambda hierarchy: sum(
-            [to_indices for from_index, to_indices in hierarchy], [])
+        def parents(hierarchy):
+            return [from_index for from_index, to_indices in hierarchy]
+
+        def children(hierarchy):
+            val = [to_indices for from_index, to_indices in hierarchy]
+            return sum(val, [])
 
         for project_index in set(all_inputs['Project']
                                  + parents(project_dataset_hierarchy)):

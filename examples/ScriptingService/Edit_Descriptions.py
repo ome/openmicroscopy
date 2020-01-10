@@ -65,18 +65,18 @@ def editDescriptions(conn, scriptParams):
     objects = list(obs)
 
     if len(objects) == 0:
-        print "No %ss found for specified IDs" % dataType
+        print("No %ss found for specified IDs" % dataType)
         return
 
     images = []
 
     if dataType == 'Dataset':
         for ds in objects:
-            print "Processing Images from Dataset: %s" % ds.getName()
+            print("Processing Images from Dataset: %s" % ds.getName())
             imgs = list(ds.listChildren())
             images.extend(imgs)
     else:
-        print "Processing Images identified by ID"
+        print("Processing Images identified by ID")
         images = objects
 
     # for optional parameters - need to test if present
@@ -84,12 +84,12 @@ def editDescriptions(conn, scriptParams):
     if "New_Description" in scriptParams:
         newDescription = scriptParams["New_Description"]
 
-    print "Editing images with this description: \n%s\n" % newDescription
+    print("Editing images with this description: \n%s\n" % newDescription)
 
     # keep track of what we've edited, to provide feedback message
     editedImgIds = []
     for i in images:
-        print "   Editing image ID: %d Name: %s" % (i.id, i.name)
+        print("   Editing image ID: %d Name: %s" % (i.id, i.name))
         i.setDescription(newDescription)
         i.save()
         editedImgIds.append(i.id)
@@ -140,7 +140,7 @@ if __name__ == "__main__":
                 # unwrap rtypes to String, Integer etc
                 scriptParams[key] = client.getInput(key, unwrap=True)
 
-        print scriptParams    # handy to have inputs in the std-out log
+        print(scriptParams)    # handy to have inputs in the std-out log
 
         # wrap client to use the Blitz Gateway
         conn = BlitzGateway(client_obj=client)

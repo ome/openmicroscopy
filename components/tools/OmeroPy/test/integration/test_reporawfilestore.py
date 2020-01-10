@@ -21,7 +21,11 @@ import pytest
 import omero
 import omero.gateway
 
-from path import path
+try:
+    from omero_ext.path import path
+except ImportError:
+    # Python 2
+    from path import path
 from omero.testlib import AbstractRepoTest
 
 

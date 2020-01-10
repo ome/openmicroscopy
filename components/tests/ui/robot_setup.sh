@@ -28,12 +28,12 @@ FILE_ANNOTATION=${FILE_ANNOTATION:-robot_file_annotation.txt}
 FILE_ANNOTATION2=${FILE_ANNOTATION2:-robot_file_annotation2.txt}
 
 # Create robot user and group
-bin/omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
-bin/omero group add $GROUP_NAME --ignore-existing --perms $GROUP_PERMS
-bin/omero group add $GROUP_NAME_2 --ignore-existing
-bin/omero user add $USER_NAME $USER_NAME $USER_NAME $GROUP_NAME $GROUP_NAME_2 --ignore-existing -P $USER_PASSWORD
-bin/omero user joingroup --name $USER_NAME --group-name $GROUP_NAME --as-owner
-bin/omero logout
+omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
+omero group add $GROUP_NAME --ignore-existing --perms $GROUP_PERMS
+omero group add $GROUP_NAME_2 --ignore-existing
+omero user add $USER_NAME $USER_NAME $USER_NAME $GROUP_NAME $GROUP_NAME_2 --ignore-existing -P $USER_PASSWORD
+omero user joingroup --name $USER_NAME --group-name $GROUP_NAME --as-owner
+omero logout
 
 # Create fake files
 touch $IMAGE_NAME
@@ -58,9 +58,9 @@ echo "Robot test file annotations" > "$FILE_ANNOTATION"
 echo "Another test file annotation" > "$FILE_ANNOTATION2"
 
 # Create robot setup
-bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD
+omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD
 # Parse the sessions file to get session key
-key=$(bin/omero sessions key)
+key=$(omero sessions key)
 echo "Session key: $key"
 nProjects=1
 nDatasets=1
@@ -68,94 +68,94 @@ nImages=10
 echo "Creating projects and datasets"
 for (( i=1; i<=$nProjects; i++ ))
 do
-  project=$(bin/omero obj new Project name='Project '$i)
+  project=$(omero obj new Project name='Project '$i)
   for (( j=1; j<=$nDatasets; j++ ))
   do
-    dataset=$(bin/omero obj new Dataset name='Dataset '$i-$j)
-    bin/omero obj new ProjectDatasetLink parent=$project child=$dataset
+    dataset=$(omero obj new Dataset name='Dataset '$i-$j)
+    omero obj new ProjectDatasetLink parent=$project child=$dataset
     echo "Importing images into dataset"
     for (( k=1; k<=$nImages; k++ ))
     do
-      bin/omero import -d $dataset $IMAGE_NAME --debug ERROR > show_import.log 2>&1
+      omero import -d $dataset $IMAGE_NAME --debug ERROR > show_import.log 2>&1
       imageid=$(sed -n -e 's/^Image://p' show_import.log)
-      bin/omero obj update Image:$imageid name=test_view$k
+      omero obj update Image:$imageid name=test_view$k
     done
   done
 done
 
 # Create Dataset with images for deleting
-delDs=$(bin/omero obj new Dataset name='Delete')
+delDs=$(omero obj new Dataset name='Delete')
 for (( k=1; k<=10; k++ ))
 do
-  bin/omero import -d $delDs $TINY_IMAGE_NAME --debug ERROR
+  omero import -d $delDs $TINY_IMAGE_NAME --debug ERROR
 done
 
 # Create Dataset with MIF images
-mifDs=$(bin/omero obj new Dataset name='MIF Images')
+mifDs=$(omero obj new Dataset name='MIF Images')
 for (( k=1; k<=2; k++ ))
 do
-  bin/omero import -d $mifDs $MIF_IMAGE_NAME --debug ERROR
+  omero import -d $mifDs $MIF_IMAGE_NAME --debug ERROR
 done
 
 # Create Dataset with multi channel images
-mcDs=$(bin/omero obj new Dataset name='MultiChannel Images')
+mcDs=$(omero obj new Dataset name='MultiChannel Images')
 for (( k=1; k<=2; k++ ))
 do
-  bin/omero import -d $mcDs $MULTI_C_IMAGE_NAME --debug ERROR
+  omero import -d $mcDs $MULTI_C_IMAGE_NAME --debug ERROR
 done
 
 # Create Dataset with Big Image
-bigDs=$(bin/omero obj new Dataset name='Big Images')
-bin/omero import -d $bigDs $BIG_IMAGE_NAME --debug ERROR
+bigDs=$(omero obj new Dataset name='Big Images')
+omero import -d $bigDs $BIG_IMAGE_NAME --debug ERROR
 
 # Import Plate and rename
-bin/omero import $PLATE_NAME --debug ERROR > plate_import.log 2>&1
+omero import $PLATE_NAME --debug ERROR > plate_import.log 2>&1
 plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
-bin/omero obj update Plate:$plateid name=spwTests
+omero obj update Plate:$plateid name=spwTests
 # Use populate_metadata to upload and attach bulk annotation csv
 # We use testtables to only try populate if tables are working
 export OMERO_DEV_PLUGINS=1      # required to enable 'metadata' CLI
-bin/omero metadata testtables && bin/omero metadata populate Plate:$plateid --file $BULK_ANNOTATION_CSV
+omero metadata testtables && omero metadata populate Plate:$plateid --file $BULK_ANNOTATION_CSV
 
 # Run script to populate WellSamples with posX and posY values
-PYTHONPATH=./lib/python python $WELLSCRIPT $HOSTNAME $PORT $key $plateid
+python $WELLSCRIPT $HOSTNAME $PORT $key $plateid
 
 # Import Tiny Plate (single acquisition & well) and rename
-bin/omero import $TINY_PLATE_NAME --debug ERROR > show_import.log 2>&1
+omero import $TINY_PLATE_NAME --debug ERROR > show_import.log 2>&1
 plateid=$(sed -n -e 's/^Plate://p' show_import.log)
-bin/omero obj update Plate:$plateid name=tinyPlate
+omero obj update Plate:$plateid name=tinyPlate
 # Import Image into Project/Dataset and rename for test
-showP=$(bin/omero obj new Project name='showProject')
-showD=$(bin/omero obj new Dataset name='showDataset')
-bin/omero obj new ProjectDatasetLink parent=$showP child=$showD
+showP=$(omero obj new Project name='showProject')
+showD=$(omero obj new Dataset name='showDataset')
+omero obj new ProjectDatasetLink parent=$showP child=$showD
 for (( k=1; k<=2; k++ ))
 do
-  bin/omero import -d $showD $IMAGE_NAME --debug ERROR > show_import.log 2>&1
+  omero import -d $showD $IMAGE_NAME --debug ERROR > show_import.log 2>&1
   imageid=$(sed -n -e 's/^Image://p' show_import.log)
-  bin/omero obj update Image:$imageid name=testShowImage$k
+  omero obj update Image:$imageid name=testShowImage$k
 done
 
 # Create Screen with empty plates for Create Scenario
-scrDs=$(bin/omero obj new Screen name='CreateScenario')
+scrDs=$(omero obj new Screen name='CreateScenario')
 for (( k=1; k<=6; k++ ))
 do
-  bin/omero import -r $scrDs $TINY_PLATE_NAME --debug ERROR
+  omero import -r $scrDs $TINY_PLATE_NAME --debug ERROR
 done
 
 # Create Orphaned Images for Create Scenario
 for (( k=1; k<=10; k++ ))
 do
-  bin/omero import $TINY_IMAGE_NAME --debug ERROR
+  omero import $TINY_IMAGE_NAME --debug ERROR
 done
 
 # Upload files and create FileAnnotations
-ofile=$(bin/omero upload $FILE_ANNOTATION)
-bin/omero obj new FileAnnotation file=$ofile
-ofile2=$(bin/omero upload $FILE_ANNOTATION2)
-bin/omero obj new FileAnnotation file=$ofile2
+ofile=$(omero upload $FILE_ANNOTATION)
+omero obj new FileAnnotation file=$ofile
+ofile2=$(omero upload $FILE_ANNOTATION2)
+omero obj new FileAnnotation file=$ofile2
 
 # Logout
-bin/omero logout
+omero logout
 
 # Create ice.config file
 echo "omero.host=$HOSTNAME" > "$CONFIG_FILENAME"

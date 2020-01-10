@@ -30,100 +30,6 @@ build_year = "${python_build_year}"
         </sequential>
     </macrodef>
 
-    <macrodef name="download">
-        <attribute name="pkg"/>
-        <attribute name="file"/>
-        <attribute name="expected"/>
-        <attribute name="where"/>
-        <sequential>
-            <mkdir dir="@{where}"/>
-            <mkdir dir="../target/build/lib"/>
-            <local name="url_input"/>
-            <local name="url_output"/>
-            <local name="dest"/>
-            <local name="calculated"/>
-            <local name="mismatch"/>
-            <property name="dest" value="@{where}/@{file}"/>
-            <property name="url_input" value="${versions.@{pkg}-url}"/>
-            <propertyregex property="url_output"
-              input="${url_input}"
-              regexp="PACKAGE"
-              replace="@{pkg}"
-              global="true"
-              casesensitive="true" />
-            <get dest="${dest}" usetimestamp="true">
-                <url url="${url_output}/@{file}"/>
-            </get>
-            <checksum file="${dest}" algorithm="MD5" fileext=".md5"/>
-            <loadfile property="calculated" srcFile="${dest}.md5"/>
-            <condition property="mismatch">
-                <and>
-                    <isset property="versions.@{pkg}-md5"/><!-- TODO: remove others -->
-                    <not>
-                        <equals arg1="@{expected}" arg2="" trim="true"/>
-                    </not>
-                    <not>
-                        <equals arg1="@{expected}" arg2="${calculated}" trim="true"/>
-                    </not>
-                </and>
-            </condition>
-            <fail if="${mismatch}" message="@{file}: checksum error"/>
-        </sequential>
-    </macrodef>
-
-    <target name="python-download">
-
-        <download pkg="omero-py" file="omero-py-${versions.omero-py}.tar.gz" expected="${versions.omero-py-md5}"
-                  where="../target/downloads/py"/>
-        <!-- unfortunately more verbose than should be necessary -->
-        <untar src="../target/downloads/py/omero-py-${versions.omero-py}.tar.gz" dest="../target/downloads/py" compression="gzip"/>
-        <copy todir="../target/lib/python">
-            <fileset dir="../target/downloads/py/omero-py-${versions.omero-py}/target" includes="**/*"/>
-        </copy>
-        <copy todir="../target/bin">
-            <fileset dir="../target/downloads/py/omero-py-${versions.omero-py}/bin" includes="**/*"/>
-        </copy>
-        <chmod file="../target/bin/omero" perm="ugo+x"/>
-
-        <!-- hack: deleting the unpacked code to allow integration tests to pass -->
-        <delete dir="../target/downloads/py/omero-py-${versions.omero-py}"/>
-
-
-        <download pkg="scripts" file="v${versions.scripts}.tar.gz" expected="${versions.scripts-md5}"
-                  where="../target/downloads/scripts"/>
-        <untar src="../target/downloads/scripts/v${versions.scripts}.tar.gz" dest="../target/lib/scripts" compression="gzip">
-            <!-- Could be improved with an artifact -->
-            <patternset>
-                <include name="scripts-${versions.scripts}/omero/**/*"/>
-                <include name="scripts-${versions.scripts}/README*"/>
-            </patternset>
-            <globmapper from="scripts-${versions.scripts}/*" to="./*" />
-        </untar>
-
-
-        <download pkg="omero-web" file="omero-web-${versions.omero-web}.tar.gz" expected="${versions.omero-web-md5}"
-                  where="../target/downloads/web"/>
-        <untar src="../target/downloads/web/omero-web-${versions.omero-web}.tar.gz" dest="../target/downloads/web" compression="gzip"/>
-        <copy todir="../target/lib/python">
-            <fileset dir="../target/downloads/web/omero-web-${versions.omero-web}" includes="omeroweb/**/*,omero/**/*"/>
-        </copy>
-        <copy todir="../target/etc/templates/web">
-            <fileset dir="../target/downloads/web/omero-web-${versions.omero-web}/omeroweb/templates" includes="*"/>
-        </copy>
-
-
-        <download pkg="omero-dropbox" file="omero-dropbox-${versions.omero-dropbox}.tar.gz" expected="${versions.omero-dropbox-md5}"
-                  where="../target/downloads/dropbox"/>
-        <untar src="../target/downloads/dropbox/omero-dropbox-${versions.omero-dropbox}.tar.gz" dest="../target/lib/python" compression="gzip">
-            <!-- Could be improved with an artifact -->
-            <patternset>
-                <include name="omero-dropbox-${versions.omero-dropbox}/src/**/*"/>
-            </patternset>
-            <globmapper from="omero-dropbox-${versions.omero-dropbox}/src/*" to="./*" />
-        </untar>
-
-    </target>
-
     <target name="python-build" unless="env.NOPYTHON">
         <!-- no-op -->
     </target>
@@ -186,30 +92,28 @@ build_year = "${python_build_year}"
         <attribute name="target" default="${basedir}/test"/>
         <element name="optionalArgs" optional="y"/>
         <sequential>
-            <setup_py failonerror="${test.with.fail}">
-                <env key="OMERODIR" value="${dist.dir}"/>
+            <exec executable="pytest" failonerror="${test.with.fail}" dir="${basedir}">
                 <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
-                <arg value="test"/>
+                <env key="OMERODIR" value="${dist.dir}"/>
+                <env key="PYTHONPATH" path="test:build/lib:${env.PYTHONPATH}"/>
                 <optionalArgs/>
                 <arg value="-v"/>
-                <arg value="-t"/>
-                <arg file="@{target}"/>
                 <arg value="--junitxml=${testreports.dir}/junit-results.xml"/>
-            </setup_py>
+                <arg file="@{target}"/>
+            </exec>
         </sequential>
     </macrodef>
 
-    <target name="python-install" depends="python-download" unless="env.NOPYTHON">
+    <target name="python-install" unless="env.NOPYTHON">
         <!-- no-op -->
     </target>
 
-    <target name="python-clean" depends="python-download" unless="env.NOPYTHON">
+    <target name="python-clean" unless="env.NOPYTHON">
         <setup_py>
             <arg value="clean"/>
         </setup_py>
         <delete dir="${basedir}/build"/>
         <delete dir="${basedir}/dist"/>
-        <delete file="${basedir}/ez_setup.pyc"/>
         <delete file="${basedir}/omero_version.py"/>
         <delete>
             <fileset dir="${basedir}" includes="setuptools*egg"/>

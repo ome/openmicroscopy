@@ -20,16 +20,20 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import pytest
+import warnings
 
 import omero
 import omero.gateway
 from omero.constants.namespaces import NSBULKANNOTATIONS, NSMEASUREMENT
 from omero.gateway import BlitzGateway
-from omero.plugins.metadata import Metadata, MetadataControl
 from omero.rtypes import rdouble, unwrap
 from omero.testlib.cli import CLITest
 from omero.model.enums import UnitsLength
 from past.builtins import long
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    from omero.plugins._metadata_deprecated import Metadata, MetadataControl
 
 
 class MetadataTestBase(CLITest):

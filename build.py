@@ -121,6 +121,7 @@ def handle_relative(args):
             additions.append(build_xml)
     return additions + args
 
+
 if __name__ == "__main__":
     #
     # use java_omero which will specially configure the build system.
