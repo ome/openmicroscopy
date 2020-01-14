@@ -16,8 +16,8 @@ with:
 - omero-blitz 5.5.5
 - omero-gateway-java 5.6.2
 - omero-py 5.6.0
-- omero-web 5.6.0
-- omero-dropbox 5.6.0
+- omero-web 5.6.1
+- omero-dropbox 5.6.1
 
 5.5.1 (July 2019)
 -----------------
