@@ -13,13 +13,6 @@ import os
 from setuptools import setup
 from omero_version import omero_version as ov
 
-if "test" in sys.argv:
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "omeroweb.settings")
-
-    import django
-    if django.VERSION > (1, 7):
-        django.setup()
-
 
 setup(name="OmeroWeb",
       version=ov,
@@ -33,5 +26,5 @@ OmeroWeb is the container of the web clients for OMERO."
       download_url="https://github.com/openmicroscopy/openmicroscopy/",
       packages=[''],
       test_suite='test.suite',
-      tests_require=['pytest', 'pytest-xdist'],
+      tests_require=['pytest', 'pytest-xdist', 'pytest-django'],
       )
