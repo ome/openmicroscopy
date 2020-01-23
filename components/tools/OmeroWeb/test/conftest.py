@@ -12,3 +12,14 @@ def pytest_configure(config):
     if not hasattr(config, 'slaveinput'):
         workerid = 'main'
         os.environ["OMERO_USERDIR"] = workdir(workerid)
+
+
+try:
+    import xdist  # noqa
+
+    def pytest_configure_node(node):
+        if hasattr(node, 'slaveinput'):
+            workerid = node.slaveinput["workerid"]
+            os.environ["OMERO_USERDIR"] = workdir(workerid)
+except ImportError:
+    pass
