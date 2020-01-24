@@ -95,10 +95,15 @@ def pytest_configure(config):
         os.environ["OMERO_USERDIR"] = workdir(workerid)
 
 
-def pytest_configure_node(node):
-    if hasattr(node, 'slaveinput'):
-        workerid = node.slaveinput["workerid"]
-        os.environ["OMERO_USERDIR"] = workdir(workerid)
+try:
+    import xdist  # noqa
+
+    def pytest_configure_node(node):
+        if hasattr(node, 'slaveinput'):
+            workerid = node.slaveinput["workerid"]
+            os.environ["OMERO_USERDIR"] = workdir(workerid)
+except ImportError:
+    pass
 
 
 pytest_plugins = "omero.gateway.pytest_fixtures"
