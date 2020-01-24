@@ -237,6 +237,7 @@ def plate_well_table(itest, well_grid_factory, update_service, conn):
     data2 = StringColumn('TestColumn', '', 64, ["foobar"])
     data = [data1, data2]
     table.addData(data)
+
     orig_file = table.getOriginalFile()
     table.close()
 
@@ -432,6 +433,7 @@ class TestScreenPlateTables(object):
         print(rspJson)
         assert rspJson['data'] == {
             'rows': [[wellId, 'foobar']],
+            'column_types': ['WellColumn', 'StringColumn'],
             'columns': ['Well', 'TestColumn']}
         assert rspJson['parentId'] == plate.id.val
         user = conn.getUser()
