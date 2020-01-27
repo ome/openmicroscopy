@@ -269,7 +269,7 @@ class TestSessions(CLITest):
         o, e = capsys.readouterr()
         assert o == "300.0\n"
 
-        self.args = ["-q", "sessions", "timeout", "1000000"]
+        self.args = ["-q", "sessions", "timeout", "10000000"]
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
