@@ -68,22 +68,35 @@ class TestUser(CLITest):
         self.cli.invoke(self.args, strict=True)
 
         # Read from the stdout
+        before = self.sf.getAdminService().lookupExperimenters()
         out, err = capsys.readouterr()
         ids = get_user_ids(out, sort_key=sort_key)
+        after = self.sf.getAdminService().lookupExperimenters()
 
-        # Check all users are listed
+        # Check all users are listed under the assumption that
+        # users won't be _deleted_ by other threads.
         if sort_key == 'login':
-            sorted_list = sorted(self.users, key=lambda x: x.omeName.val)
+            sorted_before = sorted(before, key=lambda x: x.omeName.val)
+            sorted_after = sorted(after, key=lambda x: x.omeName.val)
         elif sort_key == 'first-name':
-            sorted_list = sorted(self.users, key=lambda x: x.firstName.val)
+            sorted_before = sorted(before, key=lambda x: x.firstName.val)
+            sorted_after = sorted(after, key=lambda x: x.firstName.val)
         elif sort_key == 'last-name':
-            sorted_list = sorted(self.users, key=lambda x: x.lastName.val)
+            sorted_before = sorted(before, key=lambda x: x.lastName.val)
+            sorted_after = sorted(after, key=lambda x: x.lastName.val)
         elif sort_key == 'email':
-            sorted_list = sorted(self.users, key=lambda x: (
+            sorted_before = sorted(before, key=lambda x: (
+                x.email and x.email.val or ""))
+            sorted_after = sorted(after, key=lambda x: (
                 x.email and x.email.val or ""))
         else:
-            sorted_list = sorted(self.users, key=lambda x: x.id.val)
-        assert ids == [user.id.val for user in sorted_list]
+            sorted_before = sorted(before, key=lambda x: x.id.val)
+            sorted_after = sorted(after, key=lambda x: x.id.val)
+
+        for lhs, rhs in (([user.id.val for user in sorted_before], ids),
+                         (ids, [user.id.val for user in sorted_after])):
+            assert len(lhs) <= len(rhs)
+            assert lhs == rhs[0:len(lhs)]
 
     @pytest.mark.parametrize("style", [None, "sql", "csv", "plain", "json"])
     def testListWithStyles(self, capsys, style):
