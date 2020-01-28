@@ -104,7 +104,7 @@ class TestISession(ITest):
         ("root", -1, None),
         ("root", 1, None),
         ("user", -1, None),
-        ("user", 1, None)))
+        ("user", 1, None),
         ("baduser", 1, None)))
     def testUpdateSessions(self, who):
         who, idlediff, livediff = who
