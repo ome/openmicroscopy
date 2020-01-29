@@ -34,7 +34,7 @@ from mox3 import mox
 
 
 class AbstractCLITest(ITest):
-    warnings.warn("Deprecated in 5.4.2."
+    warnings.warn("Deprecated in 5.4.2. "
                   "Use omero.testlib.cli",
                   DeprecationWarning)
 
@@ -53,7 +53,7 @@ class AbstractCLITest(ITest):
 
 
 class CLITest(AbstractCLITest):
-    warnings.warn("Deprecated in 5.4.2."
+    warnings.warn("Deprecated in 5.4.2. "
                   "Use omero.testlib.cli",
                   DeprecationWarning)
 
@@ -92,7 +92,7 @@ class CLITest(AbstractCLITest):
 
 
 class RootCLITest(AbstractCLITest):
-    warnings.warn("Deprecated in 5.4.2."
+    warnings.warn("Deprecated in 5.4.2. "
                   "Use omero.testlib.cli",
                   DeprecationWarning)
 
@@ -105,7 +105,7 @@ class ArgumentFixture(object):
     """
     Used to test the user/group argument
     """
-    warnings.warn("Deprecated in 5.4.2."
+    warnings.warn("Deprecated in 5.4.2. "
                   "Use omero.testlib.cli",
                   DeprecationWarning)
 
