@@ -265,7 +265,6 @@ class TestSearch(ITest):
                 ("%s*" % uuid[:-1], supported),
                 (uuid, supported),
                 #
-                ("*.fake", unsupported),
                 ("%s*.fake" % uuid[:-1], unsupported)):
 
             m(x)
