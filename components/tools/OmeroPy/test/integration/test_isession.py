@@ -104,8 +104,7 @@ class TestISession(ITest):
         ("root", -1, None),
         ("root", 1, None),
         ("user", -1, None),
-        ("user", 1, None),
-        ("baduser", 1, None)))
+        ("user", 1, None)))
     def testUpdateSessions(self, who):
         who, idlediff, livediff = who
         if who.startswith("root"):
@@ -129,15 +128,10 @@ class TestISession(ITest):
             cb = client.submit(req)
             cb.getResponse()
             cb.close(True)
-            assert not who.startswith("bad")  # must throw
         except omero.CmdError as ce:
-            if who.startswith("bad"):
-                assert ce.err.name == "non-admin-increase"
-                return
-            else:
-                print(ce.err.parameters.get("stacktrace"))
-                raise Exception(ce.err.category,
-                                ce.err.name)
+            print(ce.err.parameters.get("stacktrace"))
+            raise Exception(ce.err.category,
+                            ce.err.name)
 
         obj_after = client.sf.getQueryService().findByQuery(
             ("select s from Session s "
@@ -152,6 +146,21 @@ class TestISession(ITest):
         # Now try again! (required SessionManager fix)
         obj_after = service.getSession(uuid)
         assert req.timeToIdle.val == obj_after.timeToIdle.val
+
+    def testUpdateSessionsNonAdminDisabling(self):
+        client = self.client
+
+        uuid = client.getSessionId()
+
+        req = UpdateSessionTimeoutRequest()
+        req.session = uuid
+        req.timeToLive = 0
+        try:
+            cb = client.submit(req)
+            cb.getResponse()
+            cb.close(True)
+        except omero.CmdError as ce:
+            assert ce.err.name == "non-admin-disabling"
 
     def testCreateSessionForGuest(self):
         p = omero.sys.Principal()
