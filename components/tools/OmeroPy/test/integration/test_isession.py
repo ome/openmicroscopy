@@ -154,7 +154,7 @@ class TestISession(ITest):
 
         req = UpdateSessionTimeoutRequest()
         req.session = uuid
-        req.timeToLive = 0
+        req.timeToLive = rlong(0)
         try:
             cb = client.submit(req)
             cb.getResponse()
