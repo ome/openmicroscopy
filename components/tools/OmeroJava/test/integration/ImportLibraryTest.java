@@ -157,10 +157,13 @@ public class ImportLibraryTest extends AbstractServerTest {
         // FIXME: Using importImage here to keep the tests working
         // but this is not the method under test (which has been removed)
         Assert.assertTrue(library.importCandidates(config, candidates));
-        // omero.grid.Import data = library.uploadFilesToRepository(ic);
-        // List<Pixels> pixels = repo.importMetadata(data);
-        // assertNotNull(pixels);
-        // assertEquals(pixels.size(), 1);
+        ImportContainer ic = candidates.getContainers().get(0);
+        String[] paths = new String[1];
+        paths[0] = f.getAbsolutePath();
+        final omero.grid.ImportProcessPrx proc = library.createImport(ic);
+        List<String> data = library.uploadFilesToRepository(paths, proc);
+        Assert.assertNotNull(data);
+        Assert.assertEquals(data.size(), 1);
     }
 
     /**
