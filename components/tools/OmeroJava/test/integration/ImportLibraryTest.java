@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import loci.formats.in.FakeReader;
 
@@ -191,9 +193,14 @@ public class ImportLibraryTest extends AbstractServerTest {
                 config));
         ImportContainer ic = getCandidates(f).getContainers().get(0);
         ic = new ImportContainer(f, null, null, null, ic.getUsedFiles(), null);
-        List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-        Assert.assertNotNull(pixels);
-        Assert.assertEquals(1, pixels.size());
+        ExecutorService threadPool = Executors.newSingleThreadExecutor();
+        try {
+            List<Pixels> pixels = library.importImage(ic, threadPool, 0);
+            Assert.assertNotNull(pixels);
+            Assert.assertEquals(1, pixels.size());
+        } finally {
+            threadPool.shutdownNow();
+        }
     }
 
     /**
