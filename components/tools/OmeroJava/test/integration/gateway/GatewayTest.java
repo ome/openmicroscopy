@@ -109,7 +109,7 @@ public class GatewayTest {
         String port = client.getProperty("omero.port");
         
         LoginCredentials c = new LoginCredentials();
-        c.getServer().setHostname(host);
+        c.getServer().setHost(host);
         c.getServer().setPort(Integer.parseInt(port));
         c.getUser().setUsername("root");
         c.getUser().setPassword(pass);

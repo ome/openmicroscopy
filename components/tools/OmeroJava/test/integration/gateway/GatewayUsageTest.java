@@ -61,7 +61,7 @@ public class GatewayUsageTest extends AbstractServerTest
         omero.client client =  new omero.client();
         String port = client.getProperty("omero.port");
         LoginCredentials c = new LoginCredentials();
-        c.getServer().setHostname(client.getProperty("omero.host"));
+        c.getServer().setHost(client.getProperty("omero.host"));
         c.getServer().setPort(Integer.parseInt(port));
         c.getUser().setUsername("root");
         c.getUser().setPassword(client.getProperty("omero.rootpass"));
