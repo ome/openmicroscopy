@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
@@ -287,6 +289,7 @@ public class AbstractServerTest extends AbstractTest {
         if (newScalingFactor > scalingFactor) {
             scalingFactor = newScalingFactor;
         }
+
     }
 
     /**
@@ -1438,9 +1441,15 @@ public class AbstractServerTest extends AbstractTest {
         ic.setUserSpecifiedName(format);
         ic.setTarget(target);
         // ic = library.uploadFilesToRepository(ic);
-        List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-        Assert.assertNotNull(pixels);
-        Assert.assertTrue(CollectionUtils.isNotEmpty(pixels));
+        ExecutorService threadPool = Executors.newSingleThreadExecutor();
+        List<Pixels> pixels;
+        try {
+            pixels = library.importImage(ic, threadPool, 0);
+            Assert.assertNotNull(pixels);
+            Assert.assertTrue(CollectionUtils.isNotEmpty(pixels));
+        } finally {
+            threadPool.shutdownNow();
+        }
         return pixels;
     }
 

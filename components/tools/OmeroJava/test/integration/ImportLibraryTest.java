@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import loci.formats.in.FakeReader;
 
@@ -100,10 +102,8 @@ public class ImportLibraryTest extends AbstractServerTest {
         ImportConfig config = new ImportConfig();
         ImportLibrary library = new ImportLibrary(createImporter(), new OMEROWrapper(
                 config));
-        ImportContainer ic = getCandidates(f).getContainers().get(0);
-        List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-        Assert.assertNotNull(pixels);
-        Assert.assertEquals(1, pixels.size());
+        ImportCandidates candidates = getCandidates(f);
+        Assert.assertTrue(library.importCandidates(config, candidates));
     }
 
     /**
@@ -154,17 +154,18 @@ public class ImportLibraryTest extends AbstractServerTest {
         ImportConfig config = new ImportConfig();
         ImportLibrary library = new ImportLibrary(createImporter(), new OMEROWrapper(
                 config));
-        ImportContainer ic = getCandidates(f).getContainers().get(0);
 
+        ImportCandidates candidates = getCandidates(f);
         // FIXME: Using importImage here to keep the tests working
         // but this is not the method under test (which has been removed)
-        List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-        Assert.assertNotNull(pixels);
-        Assert.assertEquals(1, pixels.size());
-        // omero.grid.Import data = library.uploadFilesToRepository(ic);
-        // List<Pixels> pixels = repo.importMetadata(data);
-        // assertNotNull(pixels);
-        // assertEquals(pixels.size(), 1);
+        Assert.assertTrue(library.importCandidates(config, candidates));
+        ImportContainer ic = candidates.getContainers().get(0);
+        String[] paths = new String[1];
+        paths[0] = f.getAbsolutePath();
+        final omero.grid.ImportProcessPrx proc = library.createImport(ic);
+        List<String> data = library.uploadFilesToRepository(paths, proc);
+        Assert.assertNotNull(data);
+        Assert.assertEquals(data.size(), 1);
     }
 
     /**
@@ -192,9 +193,14 @@ public class ImportLibraryTest extends AbstractServerTest {
                 config));
         ImportContainer ic = getCandidates(f).getContainers().get(0);
         ic = new ImportContainer(f, null, null, null, ic.getUsedFiles(), null);
-        List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-        Assert.assertNotNull(pixels);
-        Assert.assertEquals(1, pixels.size());
+        ExecutorService threadPool = Executors.newSingleThreadExecutor();
+        try {
+            List<Pixels> pixels = library.importImage(ic, threadPool, 0);
+            Assert.assertNotNull(pixels);
+            Assert.assertEquals(1, pixels.size());
+        } finally {
+            threadPool.shutdownNow();
+        }
     }
 
     /**
