@@ -23,8 +23,11 @@ omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
 omero group add $GROUP_NAME --type read-only --ignore-existing
 omero group add $GROUP_NAME_2 --type read-only --ignore-existing
 omero user add $USER_NAME $USER_NAME $USER_NAME $GROUP_NAME $GROUP_NAME_2 --ignore-existing -P $USER_PASSWORD
+omero user joingroup --name $USER_NAME --group-name $GROUP_NAME $GROUP_NAME_2
 omero user add $USER_NAME_2 $USER_NAME_2 $USER_NAME_2 $GROUP_NAME $GROUP_NAME_2 --ignore-existing -P $USER_PASSWORD
+omero user joingroup --name $USER_NAME_2 --group-name $GROUP_NAME $GROUP_NAME_2
 omero user add $LIGHTADMIN_USER_NAME $LIGHTADMIN_USER_NAME $LIGHTADMIN_USER_NAME $GROUP_NAME $GROUP_NAME_2 -a --ignore-existing -P $USER_PASSWORD
+omero user joingroup --name $LIGHTADMIN_USER_NAME --group-name $GROUP_NAME $GROUP_NAME_2
 id=$(omero user info $LIGHTADMIN_USER_NAME  --style plain |  cut -d, -f1)
 omero obj map-set Experimenter:$id config AdminPrivilege:Sudo true
 omero logout
