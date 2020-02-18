@@ -45,9 +45,14 @@ dependencies {
 }
 
 test {
+
     // enable TestNG support (default is JUnit)
     useTestNG() {
-        suites "test/unit.testng.xml"
+        suites './test/unit.testng.xml'
+        suites './test/gateway.testng.xml'
+        suites './test/fs.testng.xml'
+        suites './test/integration.testng.xml'
+        useDefaultListeners = true
     }
 }
 
