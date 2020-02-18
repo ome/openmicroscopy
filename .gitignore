@@ -58,3 +58,8 @@ eclipse.log
 velocity.log*
 .idea
 .vscode
+.gradle
+/components/tools/OmeroJava/build/
+/components/tools/OmeroJava/gradle/
+/components/tools/OmeroJava/gradlew*
+
