@@ -24,8 +24,10 @@
 
 """
 
+
 from builtins import str
 import pytest
+
 from omero.testlib import ITest
 
 from omero.util.temp_files import create_path
@@ -72,3 +74,17 @@ class TestFiles(ITest):
         sha1_download = self.client.sha1(str(downloaded))
         assert sha1_upload == sha1_download, "%s!=%s" % (
             sha1_upload, sha1_download)
+
+    def test_download_null_size(self):
+        uploaded = tmpfile()
+        ofile = self.client.upload(str(uploaded), type="text/plain")
+        ofile = self.query.get("OriginalFile", ofile.id.val)
+        # Synthetically null the size
+        ofile.size = None
+        self.update.saveObject(ofile)
+        ofile = self.query.get("OriginalFile", ofile.id.val)
+        assert ofile.size is None
+        downloaded = create_path()
+        self.client.download(ofile, str(downloaded))
+        lines = downloaded.lines()
+        assert 3 == len(lines)
