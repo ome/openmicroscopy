@@ -51,15 +51,9 @@ test {
     }
     // enable TestNG support (default is JUnit)
     useTestNG() {
-        // Run the unit test only
-        if (project.hasProperty('test-unit')) {
-            suites './test/unit.testng.xml'
-        } else {
-            suites './test/unit.testng.xml'
-            suites './test/gateway.testng.xml'
-            suites './test/fs.testng.xml'
-            suites './test/integration.testng.xml'
-        }
+        suites './test/gateway.testng.xml'
+        suites './test/fs.testng.xml'
+        suites './test/integration.testng.xml'
     }
     dependsOn cleanTest 
 }
