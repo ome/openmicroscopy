@@ -52,7 +52,7 @@ test {
     // enable TestNG support (default is JUnit)
     useTestNG() {
         // Run the unit test only
-        if (project.hasProperty('unit')) {
+        if (project.hasProperty('test-unit')) {
             suites './test/unit.testng.xml'
         } else {
             suites './test/unit.testng.xml'
