@@ -46,14 +46,22 @@ dependencies {
 
 test {
 
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
     // enable TestNG support (default is JUnit)
     useTestNG() {
-        suites './test/unit.testng.xml'
-        suites './test/gateway.testng.xml'
-        suites './test/fs.testng.xml'
-        suites './test/integration.testng.xml'
-        useDefaultListeners = true
+        // Run the unit test only
+        if (project.hasProperty('unit')) {
+            suites './test/unit.testng.xml'
+        } else {
+            suites './test/unit.testng.xml'
+            suites './test/gateway.testng.xml'
+            suites './test/fs.testng.xml'
+            suites './test/integration.testng.xml'
+        }
     }
+    dependsOn cleanTest 
 }
 
 Properties loadOmeroProperties() {
