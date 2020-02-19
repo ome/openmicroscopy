@@ -72,6 +72,8 @@
 
     </target>
 
+    <target name="test">
+    </target>
     <target name="tools-build" depends="tools-init,install"
         description="Creates all artifacts for tools/target"/>
 
