@@ -222,7 +222,7 @@ public class GatewayUsageTest extends AbstractServerTest
         String port = client.getProperty("omero.port");
 
         LoginCredentials c = new LoginCredentials();
-        c.getServer().setHostname(client.getProperty("omero.host"));
+        c.getServer().setHost(client.getProperty("omero.host"));
         c.getServer().setPort(Integer.parseInt(port));
         c.getUser().setUsername("root");
         c.getUser().setPassword("wrongPassword");
@@ -235,7 +235,7 @@ public class GatewayUsageTest extends AbstractServerTest
             Assert.assertTrue(e.getMessage().contains("credentials"));
         }
 
-        c.getServer().setHostname("UnknownHost");
+        c.getServer().setHost("UnknownHost");
         
         try (Gateway gw = new Gateway(new SimpleLogger())) {
             gw.connect(c);
