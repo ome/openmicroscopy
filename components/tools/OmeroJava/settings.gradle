@@ -6,4 +6,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "omero-java"
+rootProject.name = "omero-java-test"
