@@ -30,8 +30,6 @@
     <!-- after python.xml for the overriding of test-* tasks -->
     <import file="${import.dir}/lifecycle.xml"/>
 
-    <target name="test" depends="python-test" unless="env.NOPYTHON"/>
-
     <target name="integration" depends="python-integration" unless="env.NOPYTHON"/>
 
     <target name="tools-init" depends="retrieve" unless="env.NOPYTHON"/>
@@ -39,9 +37,10 @@
     <!-- Copied prefs.class for testing the prefs plugin. -->
     <target name="tools-build" depends="tools-init" description="Uses setup.py to build artifacts" unless="env.NOPYTHON"/>
 
-    <target name="tools-test" depends="tools-build,python-test" description="Runs test target of setup.py" unless="env.NOPYTHON"/>
-
     <target name="tools-dist" depends="tools-build" description="Copies files into tools/target" unless="env.NOPYTHON">
+    </target>
+
+    <target name="test">
     </target>
 
    <target name="tools-clean" depends="python-clean">

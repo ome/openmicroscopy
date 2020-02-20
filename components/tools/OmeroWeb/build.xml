@@ -29,7 +29,7 @@
     <import file="${up-two}/common.xml"/>
     <import file="${up-two}/python.xml"/>
 
-    <target name="test" depends="python-test" unless="env.NOPYTHON"/>
+    <target name="test"/>
 
     <target name="integration" depends="python-integration" unless="env.NOPYTHON"/>
 

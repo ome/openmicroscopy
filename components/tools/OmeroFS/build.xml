@@ -28,8 +28,6 @@
     <import file="../common.xml"/>
     <import file="../python.xml"/>
 
-    <target name="test" depends="python-test" unless="env.NOPYTHON"/>
-
     <target name="integration" depends="python-integration" unless="env.NOPYTHON"/>
 
     <target name="tools-init" unless="env.NOPYTHON"/>
@@ -37,6 +35,9 @@
     <target name="tools-build" depends="tools-init" description="Creates all artifacts for tools/target" unless="env.NOPYTHON"/>
 
     <target name="tools-dist" depends="tools-build" description="Copied artifacts to tools/target" unless="env.NOPYTHON"/>
+
+    <target name="test">
+    </target>
 
     <target name="tools-clean" depends="python-clean">
         <delete dir="${copy.dir}"/>
