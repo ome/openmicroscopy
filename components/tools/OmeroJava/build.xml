@@ -73,6 +73,7 @@
     </target>
 
     <target name="test">
+    <echo message="This task is deprecated"/>
     </target>
     <target name="tools-build" depends="tools-init,install"
         description="Creates all artifacts for tools/target"/>

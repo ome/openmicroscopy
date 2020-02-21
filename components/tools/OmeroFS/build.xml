@@ -37,6 +37,7 @@
     <target name="tools-dist" depends="tools-build" description="Copied artifacts to tools/target" unless="env.NOPYTHON"/>
 
     <target name="test">
+        <echo message="This task is deprecated"/>
     </target>
 
     <target name="tools-clean" depends="python-clean">
