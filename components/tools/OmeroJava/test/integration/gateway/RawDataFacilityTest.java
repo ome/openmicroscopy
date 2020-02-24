@@ -21,6 +21,7 @@
 package integration.gateway;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -89,9 +90,8 @@ public class RawDataFacilityTest extends GatewayTest {
             expPixelData[x][y] = (double) Byte.toUnsignedInt(plane
                     .getRawValue(y * 100 + x));
         }
-
-        Assert.assertEquals(pixelData, expPixelData);
-        Assert.assertEquals(plane.getPixelValues(), expPixelData);
+        Assert.assertTrue(Arrays.deepEquals(pixelData, expPixelData));
+        Assert.assertTrue(Arrays.deepEquals(plane.getPixelValues(), expPixelData));
     }
     
     @Test
