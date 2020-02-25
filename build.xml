@@ -204,6 +204,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     </target>
 
     <target name="test-unit" description="Run all unit tests" depends="init">
+        <echo message="This task is deprecated"/>
         <launchSuite suite="test"/>
     </target>
 
