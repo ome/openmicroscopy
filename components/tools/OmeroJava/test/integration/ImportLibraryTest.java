@@ -29,12 +29,9 @@ import java.util.concurrent.Executors;
 
 import loci.formats.in.FakeReader;
 
-import ome.formats.importer.IObservable;
-import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
-import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
@@ -95,15 +92,7 @@ public class ImportLibraryTest extends AbstractServerTest {
             throws Throwable {
         // create a new group and user
         login(permissions, userRole);
-        File f = File.createTempFile(name + ModelMockFactory.FORMATS[0], "."
-                + ModelMockFactory.FORMATS[0]);
-        mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
-        f.deleteOnExit();
-        ImportConfig config = new ImportConfig();
-        ImportLibrary library = new ImportLibrary(createImporter(), new OMEROWrapper(
-                config));
-        ImportCandidates candidates = getCandidates(f);
-        Assert.assertTrue(library.importCandidates(config, candidates));
+        Assert.assertTrue(importImageFile(name));
     }
 
     /**
@@ -222,26 +211,6 @@ public class ImportLibraryTest extends AbstractServerTest {
     @Override
     @AfterClass
     public void tearDown() throws Exception {
-    }
-
-    /**
-     * Returns the import candidates corresponding to the specified file.
-     *
-     * @param f
-     *            The file to handle.
-     * @return See above.
-     */
-    private ImportCandidates getCandidates(File f) throws Exception {
-        ImportConfig config = new ImportConfig();
-        OMEROWrapper reader = new OMEROWrapper(config);
-        String[] paths = new String[1];
-        paths[0] = f.getAbsolutePath();
-        IObserver o = new IObserver() {
-            public void update(IObservable importLibrary, ImportEvent event) {
-
-            }
-        };
-        return new ImportCandidates(reader, paths, o);
     }
 
     /**

@@ -2528,4 +2528,45 @@ public class AbstractServerTest extends AbstractTest {
         }
         return newUser;
     }
+
+    /**
+     * Returns the import candidates corresponding to the specified file.
+     *
+     * @param f
+     *            The file to handle.
+     * @return See above.
+     */
+    protected ImportCandidates getCandidates(File f)
+        throws Exception
+    {
+        ImportConfig config = new ImportConfig();
+        OMEROWrapper reader = new OMEROWrapper(config);
+        String[] paths = new String[1];
+        paths[0] = f.getAbsolutePath();
+        IObserver o = new IObserver() {
+            public void update(IObservable importLibrary, ImportEvent event) {
+
+            }
+        };
+        return new ImportCandidates(reader, paths, o);
+    }
+
+    /**
+     * Import the image with the specified file name
+     *
+     * @param name The name of the file
+     */
+    protected boolean importImageFile(String name)
+        throws Throwable
+    {
+        File f = File.createTempFile(name + ModelMockFactory.FORMATS[0], "."
+                + ModelMockFactory.FORMATS[0]);
+        mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
+        f.deleteOnExit();
+        ImportConfig config = new ImportConfig();
+        ImportLibrary library = new ImportLibrary(createImporter(), new OMEROWrapper(
+                config));
+        ImportCandidates candidates = getCandidates(f);
+        return library.importCandidates(config, candidates);
+    }
 }
