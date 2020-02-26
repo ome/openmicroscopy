@@ -19,13 +19,9 @@
  */
 package integration;
 
-import java.util.Collections;
-
 
 import omero.SecurityViolation;
 import omero.api.ISessionPrx;
-import omero.model.ExperimenterGroup;
-import omero.model.ExperimenterGroupI;
 import omero.model.Session;
 import omero.sys.EventContext;
 import omero.sys.Principal;
@@ -45,21 +41,14 @@ import org.testng.annotations.Test;
 public class ImportAsTest extends AbstractServerTest {
 
 
-    @DataProvider(name = "role")
+    @DataProvider(name = "permission")
     public Object[][] dataProviderMethod() {
-        return new Object[][] { { "owner" }, { "admin" } };
+        return new Object[][] { { "rwr---" }, { "rwra--" }, {"rwrw--"} };
     }
 
-    @Test(dataProvider = "role")
-    public void testImportAs(String role) throws Throwable {
-        EventContext sudoer;
-        if (role.equals("owner")) {
-           sudoer = newUserAndGroup("rwr---", true);
-        } else {
-           sudoer = newUserAndGroup("rwr---");
-           ExperimenterGroup systemGroup = new ExperimenterGroupI(roles.systemGroupId, false);
-           addUsers(systemGroup, Collections.singletonList(sudoer.userId), false);
-        }
+    @Test(dataProvider = "permission", groups = "broken")
+    public void testImportAsGroupOwner(String permission) throws Throwable {
+        final EventContext sudoer = newUserAndGroup(permission, true);
         final EventContext scientist = addUser(sudoer, false, false);
 
         /* The sudoer takes on the scientist's identity. */
@@ -75,11 +64,7 @@ public class ImportAsTest extends AbstractServerTest {
         init(client);
         // Now we create an importer for that user
         boolean value = importImageFile("testImportAsGroupOwner");
-        if (role.equals("owner")) {
-            Assert.assertFalse(value); // This should be true
-        } else {
-            Assert.assertTrue(value);
-        }
+        Assert.assertTrue(value);
     }
 
 }
