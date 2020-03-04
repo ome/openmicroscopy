@@ -38,7 +38,7 @@ import org.testng.annotations.Test;
  * @since 5.6.1
  */
 @Test(groups = { "import", "integration"})
-public class ImportAsTest extends AbstractServerTest {
+public class ImportAsTest extends AbstractServerImportTest {
 
 
     @DataProvider(name = "permission")

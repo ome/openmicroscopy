@@ -73,7 +73,7 @@ import com.google.common.collect.ImmutableMap;
  * @since 5.0.0
  */
 @Test(groups = { "import", "integration", "fs" })
-public class ImportLibraryTest extends AbstractServerTest {
+public class ImportLibraryTest extends AbstractServerImportTest {
 
     /**
      * Tests the <code>ImportImage</code> method using an import container
