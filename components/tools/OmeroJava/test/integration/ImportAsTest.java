@@ -20,7 +20,6 @@
 package integration;
 
 
-import omero.SecurityViolation;
 import omero.api.ISessionPrx;
 import omero.model.Session;
 import omero.sys.EventContext;
