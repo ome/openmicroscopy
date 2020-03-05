@@ -52,3 +52,37 @@ class TestChown(ITest):
         # check owner...
         pro = client.sf.getQueryService().get("Project", project.id.val)
         assert pro.details.owner.id.val == oid
+
+    def test_chown_pdi(self):
+        """
+        Tests chown for a Project, Dataset and Image hierarchy
+        """
+        # Two users in new group. First user is group owner.
+        client, exp = self.new_client_and_user(owner=True)
+        gid = client.sf.getAdminService().getEventContext().groupId
+        new_owner = self.new_user(ExperimenterGroupI(gid, False))
+        oid = new_owner.id.val
+
+        # project belongs to first user
+        project = self.make_project(name="chown-test", client=client)
+        assert project.details.owner.id.val == exp.id.val
+
+        # Data Setup (image in the P/D hierarchy)
+        project = self.make_project(name="chown-test", client=client)
+        dataset = self.make_dataset(name="chown-test", client=client)
+        image = self.make_image(client=client)
+        self.link(dataset, image, client=client)
+        self.link(project, dataset, client=client)
+
+        # Chown
+        chown = Chown2(targetObjects={'Project': [project.id.val]})
+        chown.userId = oid
+        self.do_submit(chown, client)
+
+        # check owner of each object...
+        project = client.sf.getQueryService().get("Project", project.id.val)
+        assert project.details.owner.id.val == oid
+        dataset = client.sf.getQueryService().get("Dataset", dataset.id.val)
+        assert dataset.details.owner.id.val == oid
+        image = client.sf.getQueryService().get("Image", image.id.val)
+        assert image.details.owner.id.val == oid
