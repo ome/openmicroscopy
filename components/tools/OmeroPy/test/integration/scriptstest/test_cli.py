@@ -32,7 +32,7 @@ import omero.model
 import omero.api
 
 from omero.util.temp_files import create_path, remove_path
-from omero.rtypes import rlong
+from omero.rtypes import rlong, rmap
 from omero.scripts import wait
 
 SCRIPT = """
@@ -144,5 +144,6 @@ class TestCLI(ITest):
 
     def testCLI(self):
         p = self._getProcessor()
+        input = rmap({})
         process = p.execute(input)
         self.assertSuccess(p, process)
