@@ -62,15 +62,15 @@ print("Session", client.getSession())
 import omero.cli as cli
 c = cli.CLI()
 c.loadplugins()
-c._client = client.createClient(secure = True)
-cli.invoke(["login"])
+c._client = client.createClient(secure = True)  # TODO: setter?
+c.invoke(["login"])
 
 #
 # Try an import
 #
 with open("a.fake", "a"):
     pass
-cli.invoke(["import", "a.fake"])
+c.invoke(["import", "a.fake"])
 """
 
 
@@ -146,4 +146,5 @@ class TestCLI(ITest):
         p = self._getProcessor()
         input = rmap({})
         process = p.execute(input)
-        self.assertSuccess(p, process)
+        stdout, stderr = self.assertIO(self.assertSuccess(p, process))
+        print("STDOUT:\n%s\nSTDERR:\n%s\n" % (stdout, stderr))
