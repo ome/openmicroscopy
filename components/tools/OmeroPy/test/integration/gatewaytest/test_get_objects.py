@@ -378,33 +378,32 @@ class TestGetObject (object):
 
     def testListExperimentersAndGroups(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
-        # experimenters
+        # experimenters - load_experimentergroups True by default
         exps = gatewaywrapper.gateway.getObjects(
-            "Experimenter", opts={'load_groups': True, 'limit': 10})
+            "Experimenter", opts={'limit': 10})
         for e in exps:
             # check iQuery has loaded at least one group
             assert e._obj.groupExperimenterMapLoaded
             e.copyGroupExperimenterMap()
 
         # load experimenters without groups
-        exps = gatewaywrapper.gateway.getObjects(
-            "Experimenter", opts={'limit': 10})
+        exps = gatewaywrapper.gateway.getObjects("Experimenter",
+            opts={'load_experimentergroups': False, 'limit': 10})
         for e in exps:
             assert not e._obj.groupExperimenterMapLoaded
             # Lazy load groups
             e.copyGroupExperimenterMap()
 
-        # groups
+        # groups. load_experimenters True by default
         gps = gatewaywrapper.gateway.getObjects(
-            "ExperimenterGroup",
-            opts={'load_experimenters': True, 'limit': 10})
+            "ExperimenterGroup", opts={'limit': 10})
         for grp in gps:
             assert grp._obj.groupExperimenterMapLoaded
             grp.copyGroupExperimenterMap()
 
         # Load groups 'without' experimenters
-        gps = gatewaywrapper.gateway.getObjects(
-            "ExperimenterGroup", opts={'limit': 10})
+        gps = gatewaywrapper.gateway.getObjects("ExperimenterGroup",
+            opts={'load_experimenters': False, 'limit': 10})
         for grp in gps:
             assert not grp._obj.groupExperimenterMapLoaded
             # lazy loading of experimenters
@@ -418,8 +417,7 @@ class TestGetObject (object):
 
         # check we can find some groups
         exp = gatewaywrapper.gateway.getObject(
-            "Experimenter", attributes={'omeName': gatewaywrapper.USER.name},
-            opts={'load_groups': True})
+            "Experimenter", attributes={'omeName': gatewaywrapper.USER.name})
         for groupExpMap in exp.copyGroupExperimenterMap():
             gName = groupExpMap.parent.name.val
             gId = groupExpMap.parent.id.val
@@ -436,7 +434,7 @@ class TestGetObject (object):
         findExp = gatewaywrapper.gateway.getObject(
             "Experimenter", attributes={'omeName': gatewaywrapper.USER.name})
         exp = gatewaywrapper.gateway.getObject(
-            "Experimenter", findExp.id, opts={'load_groups': True})
+            "Experimenter", findExp.id)
         assert exp.omeName == findExp.omeName
 
         # check groupExperimenterMap loaded for exp
@@ -753,8 +751,7 @@ class TestLeaderAndMemberOfGroup(object):
         grs = [g.id for g in gatewaywrapper.gateway.getGroupsLeaderOf()]
         assert len(grs) > 0
         exp = gatewaywrapper.gateway.getObject(
-            "Experimenter", attributes={'omeName': 'group_owner'},
-            opts={'load_groups': True})
+            "Experimenter", attributes={'omeName': 'group_owner'})
         assert exp.sizeOfGroupExperimenterMap() > 0
         filter_system_groups = [gatewaywrapper.gateway.getAdminService()
                                 .getSecurityRoles().userGroupId]
@@ -777,8 +774,7 @@ class TestLeaderAndMemberOfGroup(object):
         grs = [g.id for g in gatewaywrapper.gateway.getGroupsMemberOf()]
         assert len(grs) > 0
         exp = gatewaywrapper.gateway.getObject(
-            "Experimenter", attributes={'omeName': "group_member"},
-            opts={'load_groups': True})
+            "Experimenter", attributes={'omeName': "group_member"})
         assert exp.sizeOfGroupExperimenterMap() > 0
         filter_system_groups = [gatewaywrapper.gateway.getAdminService()
                                 .getSecurityRoles().userGroupId]
