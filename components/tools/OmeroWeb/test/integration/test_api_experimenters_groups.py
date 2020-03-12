@@ -69,7 +69,7 @@ class TestExperimenters(IWebTest):
         # Delete (fake url - object doesn't need to exist for test)
         url_name = 'api_%s' % dtype.lower()
         # NB: here the dtype and url_name do not map as they do elsewhere
-        if dtype is 'ExperimenterGroup':
+        if dtype == 'ExperimenterGroup':
             url_name = 'api_experimentergroup'
         delete_url = reverse(url_name, kwargs={'api_version': version,
                                                'object_id': 1})
