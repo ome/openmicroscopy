@@ -74,23 +74,6 @@ c.invoke(["import", "a.fake"])
 """
 
 
-class CallbackI(omero.grid.ProcessCallback):
-
-    def __init__(self):
-        self.finish = []
-        self.cancel = []
-        self.kill = []
-
-    def processFinished(self, rv, current=True):
-        self.finish.append(rv)
-
-    def processCancelled(self, rv, current=True):
-        self.cancel.append(rv)
-
-    def processKilled(self, rv, current=True):
-        self.kill.append(rv)
-
-
 class TestCLI(ITest):
 
     """
