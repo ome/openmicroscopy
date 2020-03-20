@@ -12,7 +12,7 @@ set -x
 source docs/hudson/functions.sh
 echo Building $OMERO_BRANCH
 
-./build.py build-dev release-all
+./build.py -Divy.retrieve.log=default build-dev release-all
 if [ -d .git ]
 then
   ./build.py release-src
