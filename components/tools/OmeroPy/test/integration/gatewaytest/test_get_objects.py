@@ -387,8 +387,8 @@ class TestGetObject (object):
             e.copyGroupExperimenterMap()
 
         # load experimenters without groups
-        exps = gatewaywrapper.gateway.getObjects("Experimenter",
-            opts={'load_experimentergroups': False, 'limit': 10})
+        opts = {'load_experimentergroups': False, 'limit': 10}
+        exps = gatewaywrapper.gateway.getObjects("Experimenter", opts=opts)
         for e in exps:
             assert not e._obj.groupExperimenterMapLoaded
             # Lazy load groups
@@ -402,8 +402,8 @@ class TestGetObject (object):
             grp.copyGroupExperimenterMap()
 
         # Load groups 'without' experimenters
-        gps = gatewaywrapper.gateway.getObjects("ExperimenterGroup",
-            opts={'load_experimenters': False, 'limit': 10})
+        opts = {'load_experimenters': False, 'limit': 10}
+        gps = gatewaywrapper.gateway.getObjects("ExperimenterGroup", opts=opts)
         for grp in gps:
             assert not grp._obj.groupExperimenterMapLoaded
             # lazy loading of experimenters
