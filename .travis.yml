@@ -20,10 +20,10 @@ addons:
     - git
 
 install:
-    - echo "ivy.retrieve.log=default" >> etc/local.properties
-    - echo "artifactory.host=artifacts.glencoesoftware.com" >> etc/local.properties
-    - echo "artifactory.baseurl=https://${artifactory.host}/artifactory" >> etc/local.properties
-    - echo "artifactory.repo=repo" >> etc/local.properties
+    - echo 'ivy.retrieve.log=default' >> etc/local.properties
+    - echo 'artifactory.host=artifacts.glencoesoftware.com' >> etc/local.properties
+    - echo 'artifactory.baseurl=https://${artifactory.host}/artifactory' >> etc/local.properties
+    - echo 'artifactory.repo=repo' >> etc/local.properties
     - git clone git://github.com/ome/omero-test-infra .omero
 
 
