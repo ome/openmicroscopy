@@ -1412,6 +1412,25 @@ class TestShow(IWebTest):
 
         assert paths == expected
 
+    def test_roi(self, project_dataset_image_roi):
+        """Test path to ROI."""
+        project, roi = project_dataset_image_roi
+        dataset, = project.linkedDatasetList()
+        image, = dataset.linkedImageList()
+
+        paths = paths_to_object(self.conn, None, None, None, None, None,
+                                None, None, None, None, None, roi.id.val)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project.details.owner.id.val},
+             {'type': 'project', 'id': project.id.val},
+             {'type': 'dataset', 'id': dataset.id.val, 'childCount': 1},
+             {'type': 'image', 'id': image.id.val},
+             {'type': 'roi', 'id': roi.id.val}]]
+
+        assert paths == expected
+
+
     def test_image_orphan(self, image):
         """
         Test image path for orphaned Image
