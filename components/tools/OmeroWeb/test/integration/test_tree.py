@@ -112,8 +112,6 @@ def expected_experimenter(user):
         'firstName': user[1].firstName.val,
         'lastName': user[1].lastName.val
     }
-    if user[1].email is not None:
-        expected['email'] = user[1].email.val
     return expected
 
 
@@ -1505,33 +1503,17 @@ class TestTree(ITest):
         return [projectA, datasetA, imageA]
 
     # TESTS ###
-    def test_marshal_experimenter(self, userA):
+    def test_marshal_experimenter(self, userA, userB, userC):
         """
         Test marshalling experimenter
         """
         conn = get_connection(userA)
-        expected = expected_experimenter(userA)
-        marshaled = marshal_experimenter(conn, userA[1].id.val)
-        assert marshaled == expected
-
-    # TODO Testing experimenters is difficult because the database of users
-    # is a moving target
-
-    # def test_marshal_experimenters(self, userA):
-    #     conn = get_connection(userA)
-    #     marshaled = marshal_experimenters(conn)
-    #     for x in marshaled:
-    #         print x
-    #     assert False
-
-    # TODO Testing groups is difficult for the same reason as experimenters
-
-    # def test_marshal_groups(self, userA):
-    #     conn = get_connection(userA)
-    #     marshaled = marshal_groups(conn, member_id=userA[1].id.val)
-    #     for x in marshaled:
-    #         print x
-    #     assert False
+        # Should only be able to see users in your own groups
+        users = ([userA, True], [userB, True], [userC, False])
+        for user, same_group in users:
+            marshaled = marshal_experimenter(conn, user[1].id.val)
+            expected = expected_experimenter(user) if same_group else None
+            assert marshaled == expected
 
     def test_marshal_projects_no_results(self, userA):
         """
