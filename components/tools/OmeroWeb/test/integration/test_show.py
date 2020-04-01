@@ -1430,7 +1430,6 @@ class TestShow(IWebTest):
 
         assert paths == expected
 
-
     def test_image_orphan(self, image):
         """
         Test image path for orphaned Image
