@@ -150,3 +150,67 @@ class TestExperimenters(IWebTest):
         assert set(eids) == set(exp_ids)
 
         assert_objects(conn, exps_json, exp_ids, dtype="Experimenter")
+
+    def test_filter_groups(self, user1):
+        """
+        Test filtering groups by experimenter
+        """
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        user_id = conn.getUserId()
+        group_id = conn.getEventContext().groupId
+        django_client = self.new_django_client(user_name, user_name)
+        request_url = reverse(
+            'api_experimentergroups',
+            kwargs={'api_version': api_settings.API_VERSIONS[-1]})
+        # Test /experimentergroups/?experimenter=1
+        data = {'experimenter': user_id}
+        rsp = get_json(django_client, request_url, data)
+        groups_json = rsp['data']
+        # user1 is in a single group AND the 'user' group
+        assert len(groups_json) == 2
+        user_group_id = conn.getAdminService().getSecurityRoles().userGroupId
+        user_group = [g for g in groups_json if g["@id"] == user_group_id]
+        assert user_group[0]['Name'] == 'user'
+        other_group = [g for g in groups_json if g["@id"] != user_group_id]
+        assert other_group[0]['Name'] == conn.getGroupFromContext().name
+        assert other_group[0]['@id'] == group_id
+
+        # Test same result with experimenters/1/experimentergroups/
+        request_url = reverse(
+            'api_experimenter_experimentergroups',
+            kwargs={'api_version': api_settings.API_VERSIONS[-1],
+                    'experimenter_id': user_id})
+        rsp = get_json(django_client, request_url)
+        groups_json2 = rsp['data']
+        assert groups_json == groups_json2
+
+    def test_filter_experimenters(self, user1):
+        """
+        Test filtering experimenters by group
+        """
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        user_id = conn.getUserId()
+        group_id = conn.getEventContext().groupId
+        django_client = self.new_django_client(user_name, user_name)
+        request_url = reverse(
+            'api_experimenters',
+            kwargs={'api_version': api_settings.API_VERSIONS[-1]})
+        # Test /experimenters/?experimentergroup=1
+        data = {'experimentergroup': group_id}
+        rsp = get_json(django_client, request_url, data)
+        exps_json = rsp['data']
+        # user1 is in a single group AND the 'user' group
+        assert len(exps_json) == 1
+        assert exps_json[0]['@id'] == user_id
+        assert exps_json[0]['UserName'] == user_name
+
+        # Test same result with experimentergroups/1/experimenters/
+        request_url = reverse(
+            'api_experimentergroup_experimenters',
+            kwargs={'api_version': api_settings.API_VERSIONS[-1],
+                    'group_id': group_id})
+        rsp = get_json(django_client, request_url)
+        exps_json2 = rsp['data']
+        assert exps_json == exps_json2
