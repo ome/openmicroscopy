@@ -23,6 +23,9 @@
 
   <settings defaultResolver="${omero.resolver}"/>
 
+  <credentials host="${artifactory.host}" realm="Artifactory Realm"
+               username="${artifactory.username}" passwd="${artifactory.password}"/>
+
   <caches default="local" defaultCacheDir="${ivy.settings.dir}/../lib/cache">
       <!-- local is intended for all products built from this repository,
            while maven is for any stable, unchanging jar that is being
@@ -68,12 +71,12 @@
       <ibiblio name="ome-simple-artifactory"
           usepoms="true" useMavenMetadata="true"
           m2compatible="true"
-           root="https://artifacts.openmicroscopy.org/artifactory/simple/${simple.repository}/"/>
+          root="${artifactory.baseurl}/simple/${simple.repository}/"/>
       <ibiblio name="ome-artifactory" cache="maven"
           usepoms="true" useMavenMetadata="true"
           m2compatible="true"
           pattern="[orgPath]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
-          root="https://artifacts.openmicroscopy.org/artifactory/maven/"/>
+          root="${artifactory.baseurl}/${artifactory.repo}/"/>
       <ibiblio name="unidata.releases" cache="maven"
           usepoms="true" useMavenMetadata="true"
           m2compatible="true"

@@ -252,6 +252,7 @@
         <!-- These are default values. If you'd like to override, due so before import-->
         <property name="ivy.buildlist.ivyfilepath" value="ivy.xml"/>
         <property name="ivy.dep.file"              value="ivy.xml"/>
+        <property name="ivy.retrieve.log" value="quiet"/>
 
         <!-- Post-import properties -->
         <property name="sql.dir"  value="${omero.home}/sql/${omero.db.profile}/${omero.db.version}__${omero.db.patch}"/>

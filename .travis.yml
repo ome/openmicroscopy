@@ -20,6 +20,7 @@ addons:
     - git
 
 install:
+    - echo 'ivy.retrieve.log=default' >> etc/local.properties
     - git clone git://github.com/ome/omero-test-infra .omero
 
 
