@@ -63,14 +63,16 @@ import omero.cli as cli
 c = cli.CLI()
 c.loadplugins()
 c._client = client.createClient(secure = True)  # TODO: setter?
-c.invoke(["login"])
+c.onecmd(["login"])
+c.assertRC()
 
 #
 # Try an import
 #
 with open("a.fake", "a"):
     pass
-c.invoke(["import", "a.fake"])
+c.onecmd(["import", "a.fake"])
+c.assertRC()
 """
 
 
