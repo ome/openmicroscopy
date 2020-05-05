@@ -17,6 +17,9 @@ Security release focused on fixing :secvuln:`vulnerabilities <>`
 - omero-web 5.6.3
 - omero-dropbox 5.6.1
 
+**Note:** this upgrade will invalidate the Bio-Formats Memoizer cache. Please
+see the upgrade guide for further information.
+
 5.6.0 (January 2020)
 --------------------
 
