@@ -897,14 +897,14 @@ public class AbstractServerTest extends AbstractTest {
     /**
      * Logs in the user.
      *
-     * @param ownerName
+     * @param omeName
      *            The OME name of the user.
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    protected void loginUser(String ownerName) throws Exception {
+    protected void loginUser(String omeName) throws Exception {
         omero.client client = newOmeroClient();
-        client.createSession(ownerName, ownerName);
+        client.createSession(omeName, omeName);
         init(client);
     }
 
