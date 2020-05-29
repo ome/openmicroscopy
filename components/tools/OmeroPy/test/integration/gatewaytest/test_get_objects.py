@@ -425,7 +425,14 @@ class TestGetObject (ITest):
                 "ExperimenterGroup", attributes={'name': gName})
             assert gId == findG.id, "Check we found the same group"
 
-    def testGetExperimentersByGroup(self, gatewaywrapper):
+    @pytest.mark.parametrize("load", [True, False])
+    def testGetExperimentersByGroup(self, gatewaywrapper, load):
+        """
+        Filter Groups by Experimenters and vice versa.
+
+        We test with and without loading experimenters/groups to check
+        that the query is built correctly in both cases
+        """
         gatewaywrapper.loginAsAdmin()
         conn = gatewaywrapper.gateway
 
@@ -437,24 +444,26 @@ class TestGetObject (ITest):
         # Another group with one user
         grp2 = self.new_group(experimenters=[exp1])
 
-        # get Groups by Experimenters (in 1 or 2 groups)
+        # get Groups by Experimenters (in 1 or 2 groups + user group)
         groups = list(conn.getObjects("ExperimenterGroup",
-            opts={"experimenter": exp2.id.val}))
-        assert len(groups) == 1
-        assert groups[0].id.val == grp1_id
+            opts={"experimenter": exp2.id.val, 'load_experimenters': load}))
+        assert len(groups) == 2
+        assert grp1_id in [g.id for g in groups]
 
         groups = list(conn.getObjects("ExperimenterGroup",
-            opts={"experimenter": exp1.id.val}))
-        assert len(groups) == 2
+            opts={"experimenter": exp1.id.val, 'load_experimenters': load}))
+        assert len(groups) == 3
 
         # get Experimenters by Group (returns 1 or 2 exps)
         exps = list(conn.getObjects("Experimenter",
-            opts={"experimentergroup": grp2.id.val}))
+            opts={"experimentergroup": grp2.id.val,
+                  "load_experimentergroups": load}))
         assert len(exps) == 1
-        assert exps[0].id.val == exp1.id.val
+        assert exps[0].id == exp1.id.val
 
         exps = list(conn.getObjects("Experimenter",
-            opts={"experimentergroup": grp1_id}))
+            opts={"experimentergroup": grp1_id,
+                  "load_experimentergroups": load}))
         assert len(exps) == 2
 
     def testGetExperimenter(self, gatewaywrapper):
