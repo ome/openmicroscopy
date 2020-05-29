@@ -291,7 +291,7 @@ class TestFindObject (object):
         assert gatewaywrapper.gateway.getObject("Annotation", tagId) is None
 
 
-class TestGetObject (object):
+class TestGetObject (ITest):
 
     def testSearchObjects(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
@@ -378,8 +378,9 @@ class TestGetObject (object):
 
     def testListExperimentersAndGroups(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
+        conn = gatewaywrapper.gateway
         # experimenters - load_experimentergroups True by default
-        exps = gatewaywrapper.gateway.getObjects(
+        exps = conn.getObjects(
             "Experimenter", opts={'limit': 10})
         for e in exps:
             # check iQuery has loaded at least one group
@@ -388,22 +389,21 @@ class TestGetObject (object):
 
         # load experimenters without groups
         opts = {'load_experimentergroups': False, 'limit': 10}
-        exps = gatewaywrapper.gateway.getObjects("Experimenter", opts=opts)
+        exps = conn.getObjects("Experimenter", opts=opts)
         for e in exps:
             assert not e._obj.groupExperimenterMapLoaded
             # Lazy load groups
             e.copyGroupExperimenterMap()
 
         # groups. load_experimenters True by default
-        gps = gatewaywrapper.gateway.getObjects(
-            "ExperimenterGroup", opts={'limit': 10})
+        gps = conn.getObjects("ExperimenterGroup", opts={'limit': 10})
         for grp in gps:
             assert grp._obj.groupExperimenterMapLoaded
             grp.copyGroupExperimenterMap()
 
         # Load groups 'without' experimenters
         opts = {'load_experimenters': False, 'limit': 10}
-        gps = gatewaywrapper.gateway.getObjects("ExperimenterGroup", opts=opts)
+        gps = conn.getObjects("ExperimenterGroup", opts=opts)
         for grp in gps:
             assert not grp._obj.groupExperimenterMapLoaded
             # lazy loading of experimenters
@@ -411,12 +411,12 @@ class TestGetObject (object):
 
         # uses gateway.getObjects("ExperimenterGroup") - check this doesn't
         # throw
-        colleagues = gatewaywrapper.gateway.listColleagues()
+        colleagues = conn.listColleagues()
         for e in colleagues:
             e.getOmeName()
 
         # check we can find some groups
-        exp = gatewaywrapper.gateway.getObject(
+        exp = conn.getObject(
             "Experimenter", attributes={'omeName': gatewaywrapper.USER.name})
         for groupExpMap in exp.copyGroupExperimenterMap():
             gName = groupExpMap.parent.name.val
