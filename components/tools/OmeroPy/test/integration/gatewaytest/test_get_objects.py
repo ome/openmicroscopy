@@ -425,6 +425,38 @@ class TestGetObject (ITest):
                 "ExperimenterGroup", attributes={'name': gName})
             assert gId == findG.id, "Check we found the same group"
 
+    def testGetExperimentersByGroup(self, gatewaywrapper):
+        gatewaywrapper.loginAsAdmin()
+        conn = gatewaywrapper.gateway
+
+        # Two users in the same group...
+        client, exp1 = self.new_client_and_user()
+        grp1_id = client.sf.getAdminService().getEventContext().groupId
+        exp2 = self.new_user(group=grp1_id)
+
+        # Another group with one user
+        grp2 = self.new_group(experimenters=[exp1])
+
+        # get Groups by Experimenters (in 1 or 2 groups)
+        groups = list(conn.getObjects("ExperimenterGroup",
+            opts={"experimenter": exp2.id.val}))
+        assert len(groups) == 1
+        assert groups[0].id.val == grp1_id
+
+        groups = list(conn.getObjects("ExperimenterGroup",
+            opts={"experimenter": exp1.id.val}))
+        assert len(groups) == 2
+
+        # get Experimenters by Group (returns 1 or 2 exps)
+        exps = list(conn.getObjects("Experimenter",
+            opts={"experimentergroup": grp2.id.val}))
+        assert len(exps) == 1
+        assert exps[0].id.val == exp1.id.val
+
+        exps = list(conn.getObjects("Experimenter",
+            opts={"experimentergroup": grp1_id}))
+        assert len(exps) == 2
+
     def testGetExperimenter(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         noExp = gatewaywrapper.gateway.getObject(
