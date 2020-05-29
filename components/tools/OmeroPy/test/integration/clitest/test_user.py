@@ -359,7 +359,7 @@ class TestUserRoot(RootCLITest):
         self.cli.invoke(self.args, strict=True)
 
         # Check user has been added to the list of member/owners
-        user = self.sf.getAdminService().lookupExperimenter(login)
+        user = self.root.sf.getAdminService().lookupExperimenter(login)
         for key, value in kwargs.items():
             assert getattr(user, key).val == kwargs[key]
 
@@ -381,7 +381,7 @@ class TestUserRoot(RootCLITest):
         self.cli.invoke(self.args, strict=True)
 
         # Check user has been added to the list of member/owners
-        user = self.sf.getAdminService().lookupExperimenter(login)
+        user = self.root.sf.getAdminService().lookupExperimenter(login)
         assert user.omeName.val == login
         assert user.firstName.val == firstname
         assert user.lastName.val == lastname
@@ -417,7 +417,7 @@ class TestUserRoot(RootCLITest):
             self.teardown_mock()
 
         # Check user has been added to the list of member/owners
-        user = self.sf.getAdminService().lookupExperimenter(login)
+        user = self.root.sf.getAdminService().lookupExperimenter(login)
         assert user.omeName.val == login
         assert user.firstName.val == firstname
         assert user.lastName.val == lastname

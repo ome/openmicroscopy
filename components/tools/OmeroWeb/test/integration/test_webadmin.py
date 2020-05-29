@@ -403,7 +403,7 @@ class TestGroups(IWebTest):
         }
         post(self.django_root_client, request_url, data, status_code=302)
         # Check that user was created in groups
-        admin = self.client.sf.getAdminService()
+        admin = self.root.sf.getAdminService()
         exp = admin.lookupExperimenter(uuid)
         exp_id = exp.id.val
         exp_gids = [m.parent.id.val for m in exp.copyGroupExperimenterMap()]

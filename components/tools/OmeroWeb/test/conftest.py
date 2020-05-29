@@ -15,7 +15,7 @@ def pytest_configure(config):
 
 
 try:
-    import xdist  # noqa
+    import xdist.plugin  # noqa
 
     def pytest_configure_node(node):
         if hasattr(node, 'slaveinput'):

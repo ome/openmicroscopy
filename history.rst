@@ -5,6 +5,18 @@
 OMERO version history
 =====================
 
+5.6.1 (March 2020)
+------------------
+
+Security release focused on fixing :secvuln:`vulnerabilities <>`
+2019-SV1 through 2019-SV6. This version has been tested with:
+
+- omero-blitz 5.5.6
+- omero-gateway-java 5.6.3
+- omero-py 5.6.2
+- omero-web 5.6.3
+- omero-dropbox 5.6.1
+
 5.6.0 (January 2020)
 --------------------
 

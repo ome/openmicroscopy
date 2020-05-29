@@ -326,7 +326,7 @@ class TestISession(ITest):
             res = s.getQueryService().findByQuery(
                 "from Session where uuid=:uuid", p)
 
-            assert client_ip == res.getUserIP().val
+            assert res.getUserIP() is None
 
             s.closeOnDestroy()
             c.closeSession()
