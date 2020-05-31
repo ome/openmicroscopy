@@ -177,7 +177,7 @@ class TestRoiThumbnails(IWebTest):
     def test_roi_thumbnail(self, theT, theZ):
         update_service = self.sf.getUpdateService()
         img = self.create_test_image(size_x=125, size_y=125, size_z=2,
-            size_t=2, session=self.sf)
+                                     size_t=2, session=self.sf)
 
         for s in self.shapes():
             if theT is not None:
