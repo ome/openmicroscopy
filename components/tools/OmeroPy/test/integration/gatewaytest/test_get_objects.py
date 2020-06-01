@@ -253,9 +253,9 @@ class TestFindObject (object):
             assert t.OMERO_TYPE == tag.OMERO_TYPE
         assert tagId in [t.getId() for t in tags]
         longs = list(gatewaywrapper.gateway.getObjects("LongAnnotation"))
-        for l in longs:
-            assert l.OMERO_TYPE == longAnn.OMERO_TYPE
-        assert longId in [l.getId() for l in longs]
+        for lng in longs:
+            assert lng.OMERO_TYPE == longAnn.OMERO_TYPE
+        assert longId in [lng.getId() for lng in longs]
         bools = list(gatewaywrapper.gateway.getObjects("BooleanAnnotation"))
         for b in bools:
             assert b.OMERO_TYPE == boolAnn.OMERO_TYPE

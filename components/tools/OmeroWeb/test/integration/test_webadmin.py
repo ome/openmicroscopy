@@ -203,7 +203,8 @@ class TestExperimenters(IWebTest):
             assert enabled == expected, p_name
 
         # Shouldn't be able to create a Full Admin
-        admin_option = [l for l in form_lines if 'value="administrator"' in l]
+        admin_option = [line for line in form_lines
+                        if 'value="administrator"' in line]
         assert 'disabled' in admin_option[0]
 
     def test_restricted_admin_create_edit_user(self):
