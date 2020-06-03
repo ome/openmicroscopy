@@ -75,8 +75,8 @@ def compare(conn1, conn2, table):
             print(" ** ADDED ** ")
         elif l2_deleted:
             print(" ** DELETED ** ")
-        for l in output:
-            print(l)
+        for line in output:
+            print(line)
 
 
 if __name__ == "__main__":

@@ -252,8 +252,8 @@ class TestDelete(ITest):
 
         # Remove comment from first image
         linkIds = []
-        for l in images[0].copyAnnotationLinks():
-            linkIds.append(l.id.val)
+        for link in images[0].copyAnnotationLinks():
+            linkIds.append(link.id.val)
         command = Delete2(targetObjects={"ImageAnnotationLink": linkIds})
         handle = self.client.sf.submit(command)
         self.wait_on_cmd(self.client, handle)

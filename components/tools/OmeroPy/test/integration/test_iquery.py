@@ -110,10 +110,10 @@ class TestQuery(ITest):
 
         # Root also links user's tag to images
         rootLinks = []
-        for l in links:
+        for lnk in links:
             link = ImageAnnotationLinkI()
-            link.parent = ImageI(l.parent.id, False)
-            link.child = TagAnnotationI(l.child.id, False)
+            link.parent = ImageI(lnk.parent.id, False)
+            link.child = TagAnnotationI(lnk.child.id, False)
             rootLinks.append(link)
         rootUpdate.saveAndReturnArray(rootLinks, {'omero.group':
                                                   native_str(groupId)})

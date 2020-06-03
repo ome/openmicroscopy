@@ -397,8 +397,8 @@ class TestTickets2000(ITest):
         p = self.new_project(name="ticket1183")
         p.linkAnnotation(omero.model.CommentAnnotationI())
         p = self.update.saveAndReturnObject(p)
-        for l in p.copyAnnotationLinks():
-            l.child.unload()
+        for link in p.copyAnnotationLinks():
+            link.child.unload()
         p.description = rstring("desc")
         p = self.update.saveAndReturnObject(p)
         p = self.update.saveAndReturnObject(p)
