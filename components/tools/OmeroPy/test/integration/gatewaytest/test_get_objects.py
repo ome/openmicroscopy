@@ -445,25 +445,25 @@ class TestGetObject (ITest):
         grp2 = self.new_group(experimenters=[exp1])
 
         # get Groups by Experimenters (in 1 or 2 groups + user group)
-        groups = list(conn.getObjects("ExperimenterGroup",
-            opts={"experimenter": exp2.id.val, 'load_experimenters': load}))
+        groups = list(conn.getObjects("ExperimenterGroup", opts={
+            "experimenter": exp2.id.val, 'load_experimenters': load}))
         assert len(groups) == 2
         assert grp1_id in [g.id for g in groups]
 
-        groups = list(conn.getObjects("ExperimenterGroup",
-            opts={"experimenter": exp1.id.val, 'load_experimenters': load}))
+        groups = list(conn.getObjects("ExperimenterGroup", opts={
+            "experimenter": exp1.id.val, 'load_experimenters': load}))
         assert len(groups) == 3
 
         # get Experimenters by Group (returns 1 or 2 exps)
-        exps = list(conn.getObjects("Experimenter",
-            opts={"experimentergroup": grp2.id.val,
-                  "load_experimentergroups": load}))
+        exps = list(conn.getObjects("Experimenter", opts={
+            "experimentergroup": grp2.id.val,
+            "load_experimentergroups": load}))
         assert len(exps) == 1
         assert exps[0].id == exp1.id.val
 
-        exps = list(conn.getObjects("Experimenter",
-            opts={"experimentergroup": grp1_id,
-                  "load_experimentergroups": load}))
+        exps = list(conn.getObjects("Experimenter", opts={
+            "experimentergroup": grp1_id,
+            "load_experimentergroups": load}))
         assert len(exps) == 2
 
     def testGetExperimenter(self, gatewaywrapper):
