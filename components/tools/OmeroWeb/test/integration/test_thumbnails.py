@@ -29,7 +29,7 @@ from omero.model.enums import UnitsLength
 from omero.rtypes import rstring, rint, rdouble
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get
-# from test_api_rois import rgba_to_int
+from test_api_rois import rgba_to_int
 
 from io import BytesIO
 import pytest
@@ -39,18 +39,6 @@ try:
 except Exception:
     import Image
 standard_library.install_aliases()
-
-
-def rgba_to_int(red, green, blue, alpha=255):
-    """Return the color as an Integer in RGBA encoding."""
-    r = red << 24
-    g = green << 16
-    b = blue << 8
-    a = alpha
-    rgba_int = r+g+b+a
-    if (rgba_int > (2**31-1)):       # convert to signed 32-bit int
-        rgba_int = rgba_int - 2**32
-    return rgba_int
 
 
 class TestThumbnails(IWebTest):
