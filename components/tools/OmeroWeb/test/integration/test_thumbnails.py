@@ -185,14 +185,20 @@ class TestRoiThumbnails(IWebTest):
             request_url = reverse('webgateway_render_roi_thumbnail',
                                   kwargs={'roiId': roi.id.val})
             rsp = get(self.django_client, request_url)
-
-            thumb = Image.open(BytesIO(rsp.content))
+            thumb_bytes = BytesIO(rsp.content)
+            try:
+                thumb = Image.open(thumb_bytes)
+            finally:
+                thumb_bytes.close()
             assert thumb.size == (250, 166)
 
             # and Shape thumbnail...
             request_url = reverse('webgateway_render_shape_thumbnail',
                                   kwargs={'shapeId': shape.id.val})
             rsp = get(self.django_client, request_url)
-
-            thumb = Image.open(BytesIO(rsp.content))
+            thumb_bytes = BytesIO(rsp.content)
+            try:
+                thumb = Image.open(thumb_bytes)
+            finally:
+                thumb_bytes.close()
             assert thumb.size == (250, 166)
