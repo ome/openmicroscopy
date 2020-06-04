@@ -24,7 +24,7 @@ from builtins import range
 import base64
 import json
 from omero.model import RoiI, EllipseI, RectangleI, LineI, \
-    PointI, PolygonI, LengthI
+    PointI, PolygonI, LengthI, PolylineI
 from omero.model.enums import UnitsLength
 from omero.rtypes import rstring, rint, rdouble
 from omeroweb.testlib import IWebTest
@@ -158,7 +158,10 @@ class TestRoiThumbnails(IWebTest):
         points = "10,20, 50,150, 100,100, 150,75"
         polygon.points = rstring(points)
 
-        return [rect, ellipse, line, point, polygon]
+        polyline = PolylineI()
+        polyline.points = rstring(points)
+
+        return [rect, ellipse, line, point, polygon, polyline]
 
     @pytest.mark.parametrize("theT", [1, 0])
     @pytest.mark.parametrize("theZ", [0, 1])
