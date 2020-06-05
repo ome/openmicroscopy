@@ -11,6 +11,8 @@
   <dependencies>
     <dependency org="org.openmicroscopy" name="omero-blitz" rev="${versions.omero-blitz}"/>
     <dependency org="org.openmicroscopy" name="omero-gateway" rev="${versions.omero-gateway}"/>
+    <dependency org="org.slf4j" name="jul-to-slf4j" rev="1.7.30"/>
+    <dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.7.30"/>
     <!-- runtime dependencies from dsl/ivy.xml -->
     <dependency org="janino" name="janino" rev="${versions.janino}"/>
     <!-- Useful for globally overriding the Bio-Formats version, empty version is ignored by default -->
