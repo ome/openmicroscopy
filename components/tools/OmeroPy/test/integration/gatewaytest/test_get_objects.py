@@ -827,7 +827,7 @@ class TestLeaderAndMemberOfGroup(object):
         assert memberOf == grs
 
     def testGroupSummaryAsOwner(self, gatewaywrapper):
-        """Test groupSummary() when Group loded without experimenters."""
+        """Test groupSummary() when Group loaded without experimenters."""
         gatewaywrapper.doLogin(dbhelpers.USERS['group_owner'])
 
         expGr = gatewaywrapper.gateway.getObject(
