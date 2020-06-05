@@ -29,7 +29,7 @@ from omero.model.enums import UnitsLength
 from omero.rtypes import rstring, rint, rdouble
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get
-from test_api_rois import rgba_to_int
+from utils import rgba_to_int
 
 from io import BytesIO
 import pytest

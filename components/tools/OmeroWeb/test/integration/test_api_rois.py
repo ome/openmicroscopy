@@ -26,6 +26,7 @@ import pytest
 from test_api_projects import get_update_service, \
     get_connection
 from test_api_images import assert_objects
+from utils import rgba_to_int
 from omero.model import EllipseI, \
     ImageI, \
     LengthI, \
@@ -49,18 +50,6 @@ def build_url(client, url_name, url_kwargs):
     url = reverse(url_name, kwargs=url_kwargs)
     url = webclient_url.replace('/webclient/', url)
     return url
-
-
-def rgba_to_int(red, green, blue, alpha=255):
-    """Return the color as an Integer in RGBA encoding."""
-    r = red << 24
-    g = green << 16
-    b = blue << 8
-    a = alpha
-    rgba_int = r+g+b+a
-    if (rgba_int > (2**31-1)):       # convert to signed 32-bit int
-        rgba_int = rgba_int - 2**32
-    return rgba_int
 
 
 class TestContainers(IWebTest):
