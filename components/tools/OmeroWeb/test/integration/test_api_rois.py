@@ -26,7 +26,6 @@ import pytest
 from test_api_projects import get_update_service, \
     get_connection
 from test_api_images import assert_objects
-from utils import rgba_to_int
 from omero.model import EllipseI, \
     ImageI, \
     LengthI, \
@@ -40,6 +39,11 @@ from omero.model import EllipseI, \
 from omero.model.enums import UnitsLength
 from omero.rtypes import rstring, rint, rdouble
 from omero import ValidationException
+
+
+def rgba_to_int(red, green, blue, alpha=255):
+    """Return the color as an Integer in RGBA encoding."""
+    return int.from_bytes([red, green, blue, alpha], byteorder='big', signed=True)
 
 
 def build_url(client, url_name, url_kwargs):
