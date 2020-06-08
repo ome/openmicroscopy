@@ -381,7 +381,7 @@ class TestGetObject (ITest):
         gatewaywrapper.loginAsAuthor()
         conn = gatewaywrapper.gateway
         # experimenters - load_experimentergroups True by default
-        opts={'limit': 10}
+        opts = {'limit': 10}
         if not load_gem:
             opts['load_experimentergroups'] = False
         exps = conn.getObjects("Experimenter", opts=opts)
@@ -391,7 +391,7 @@ class TestGetObject (ITest):
             e.copyGroupExperimenterMap()
 
         # groups. load_experimenters True by default
-        opts={'limit': 10}
+        opts = {'limit': 10}
         if not load_gem:
             opts['load_experimenters'] = False
         gps = conn.getObjects("ExperimenterGroup", opts=opts)
