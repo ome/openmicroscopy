@@ -376,45 +376,41 @@ class TestGetObject (ITest):
         for d in datasets:
             assert d.id in dsIds
 
-    def testListExperimentersAndGroups(self, gatewaywrapper):
+    @pytest.mark.parametrize("load_gem", [True, False])
+    def testListExperimentersAndGroups(self, gatewaywrapper, load_gem):
         gatewaywrapper.loginAsAuthor()
         conn = gatewaywrapper.gateway
         # experimenters - load_experimentergroups True by default
-        exps = conn.getObjects(
-            "Experimenter", opts={'limit': 10})
-        for e in exps:
-            # check iQuery has loaded at least one group
-            assert e._obj.groupExperimenterMapLoaded
-            e.copyGroupExperimenterMap()
-
-        # load experimenters without groups
-        opts = {'load_experimentergroups': False, 'limit': 10}
+        opts={'limit': 10}
+        if not load_gem:
+            opts['load_experimentergroups'] = False
         exps = conn.getObjects("Experimenter", opts=opts)
         for e in exps:
-            assert not e._obj.groupExperimenterMapLoaded
-            # Lazy load groups
+            # check iQuery has loaded at least one group
+            assert e._obj.groupExperimenterMapLoaded == load_gem
             e.copyGroupExperimenterMap()
 
         # groups. load_experimenters True by default
-        gps = conn.getObjects("ExperimenterGroup", opts={'limit': 10})
-        for grp in gps:
-            assert grp._obj.groupExperimenterMapLoaded
-            grp.copyGroupExperimenterMap()
-
-        # Load groups 'without' experimenters
-        opts = {'load_experimenters': False, 'limit': 10}
+        opts={'limit': 10}
+        if not load_gem:
+            opts['load_experimenters'] = False
         gps = conn.getObjects("ExperimenterGroup", opts=opts)
         for grp in gps:
-            assert not grp._obj.groupExperimenterMapLoaded
-            # lazy loading of experimenters
+            assert grp._obj.groupExperimenterMapLoaded == load_gem
             grp.copyGroupExperimenterMap()
 
+    def testListColleagues(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        conn = gatewaywrapper.gateway
         # uses gateway.getObjects("ExperimenterGroup") - check this doesn't
         # throw
         colleagues = conn.listColleagues()
         for e in colleagues:
             e.getOmeName()
 
+    def testFindExperimenterWithGroups(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        conn = gatewaywrapper.gateway
         # check we can find some groups
         exp = conn.getObject(
             "Experimenter", attributes={'omeName': gatewaywrapper.USER.name})
