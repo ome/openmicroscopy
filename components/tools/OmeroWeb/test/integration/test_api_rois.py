@@ -43,7 +43,8 @@ from omero import ValidationException
 
 def rgba_to_int(red, green, blue, alpha=255):
     """Return the color as an Integer in RGBA encoding."""
-    return int.from_bytes([red, green, blue, alpha], byteorder='big', signed=True)
+    return int.from_bytes([red, green, blue, alpha],
+                          byteorder='big', signed=True)
 
 
 def build_url(client, url_name, url_kwargs):
