@@ -23,8 +23,8 @@ from future import standard_library
 from builtins import range
 import base64
 import json
-from omero.model import RoiI, EllipseI, RectangleI, LineI, \
-    PointI, PolygonI, LengthI, PolylineI
+from omero.model import EllipseI, LengthI, LineI, \
+    PointI, PolygonI, PolylineI, RectangleI, RoiI
 from omero.model.enums import UnitsLength
 from omero.rtypes import rstring, rint, rdouble
 from omeroweb.testlib import IWebTest
