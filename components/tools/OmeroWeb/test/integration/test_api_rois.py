@@ -41,6 +41,12 @@ from omero.rtypes import rstring, rint, rdouble
 from omero import ValidationException
 
 
+def rgba_to_int(red, green, blue, alpha=255):
+    """Return the color as an Integer in RGBA encoding."""
+    return int.from_bytes([red, green, blue, alpha],
+                          byteorder='big', signed=True)
+
+
 def build_url(client, url_name, url_kwargs):
     """Build an absolute url using client response url."""
     response = client.request()
@@ -49,18 +55,6 @@ def build_url(client, url_name, url_kwargs):
     url = reverse(url_name, kwargs=url_kwargs)
     url = webclient_url.replace('/webclient/', url)
     return url
-
-
-def rgba_to_int(red, green, blue, alpha=255):
-    """Return the color as an Integer in RGBA encoding."""
-    r = red << 24
-    g = green << 16
-    b = blue << 8
-    a = alpha
-    rgba_int = r+g+b+a
-    if (rgba_int > (2**31-1)):       # convert to signed 32-bit int
-        rgba_int = rgba_int - 2**32
-    return rgba_int
 
 
 class TestContainers(IWebTest):
