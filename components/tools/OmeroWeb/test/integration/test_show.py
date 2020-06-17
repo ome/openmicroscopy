@@ -23,8 +23,8 @@ from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper, \
     ImageWrapper, TagAnnotationWrapper, ScreenWrapper, PlateWrapper, \
     PlateAcquisitionWrapper
 from omero.model import ProjectI, DatasetI, TagAnnotationI, ScreenI, PlateI, \
-    WellI, WellSampleI, PlateAcquisitionI, RoiI, ImageI
-from omero.rtypes import rstring, rint
+    WellI, WellSampleI, PlateAcquisitionI, RoiI, ImageI, PointI
+from omero.rtypes import rstring, rint, rdouble
 from omeroweb.webclient.show import Show, IncorrectMenuError, \
     paths_to_object, get_image_ids
 from django.test.client import RequestFactory
@@ -145,7 +145,11 @@ class TestShow(IWebTest):
         project = self.update.saveAndReturnObject(project)
 
         print("Fixture project_dataset_image_roi image", image.id.val)
+        point = PointI()
+        point.x = rdouble(1)
+        point.y = rdouble(1)
         roi = RoiI()
+        roi.addShape(point)
         roi.image = ImageI(image.id.val, False)
         roi = self.update.saveAndReturnObject(roi)
 
@@ -1429,6 +1433,31 @@ class TestShow(IWebTest):
              {'type': 'roi', 'id': roi.id.val}]]
 
         assert paths == expected
+
+    def test_shape(self, project_dataset_image_roi):
+        """Test path to Shape."""
+        project, roi = project_dataset_image_roi
+        shape_id = roi.copyShapes()[0].id.val
+        dataset, = project.linkedDatasetList()
+        image, = dataset.linkedImageList()
+
+        paths = paths_to_object(self.conn, None, None, None, None, None,
+                                None, None, None, None, None, None, shape_id)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project.details.owner.id.val},
+             {'type': 'project', 'id': project.id.val},
+             {'type': 'dataset', 'id': dataset.id.val, 'childCount': 1},
+             {'type': 'image', 'id': image.id.val},
+             {'type': 'roi', 'id': roi.id.val},
+             {'type': 'shape', 'id': shape_id}]]
+
+        assert paths == expected
+
+        # check invalid shape_id doesn't cause error
+        paths = paths_to_object(self.conn, None, None, None, None, None,
+                                None, None, None, None, None, None, 1)
+        assert len(paths) == 0
 
     def test_image_orphan(self, image):
         """
