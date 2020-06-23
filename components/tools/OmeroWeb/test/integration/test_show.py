@@ -1847,16 +1847,20 @@ class TestShow(IWebTest):
             sorted(plate.copyWells(), key=lambda x: x.column.val)
         ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
+        ws_id = ws_a1.id.val
+        image_id = ws_a1.image.id.val
 
         expected = [
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
              {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'well', 'id': well_a.id.val}]]
+             {'type': 'well', 'id': well_a.id.val},
+             {'type': 'wellsample', 'id': ws_id},
+             {'type': 'image', 'id': image_id}]]
         # Path to image in well... (Image is only in ONE acquisition)
         paths = paths_to_object(self.conn, None, None, None,
-                                ws_a1.image.id.val, None, None, None, None)
+                                image_id, None, None, None, None)
         assert len(paths) == 1
         assert paths[0] == expected[0]
 
