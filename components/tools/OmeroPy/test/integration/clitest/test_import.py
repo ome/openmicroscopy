@@ -1356,7 +1356,7 @@ path: test.tsv
                       "--file", "log.out", "--err", "log.err"]
         self.cli.invoke(self.args, strict=True)
 
-        with open("%s/log.out" % logdir, "r") as l:
-            out = "\n".join(l.readlines())
-            o = self.get_objects(out, 'Image')
-            assert len(o) == 2, "Found %s images" % len(o)
+        with open("%s/log.out" % logdir, "r") as logfile:
+            out = "\n".join(logfile.readlines())
+            objects = self.get_objects(out, 'Image')
+            assert len(objects) == 2, "Found %s images" % len(objects)
