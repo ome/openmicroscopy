@@ -274,6 +274,22 @@ class TestShow(IWebTest):
         return self.update.saveAndReturnObject(screen)
 
     @pytest.fixture
+    def screen_plate_run_well_roi_shape(self, screen_plate_run_well):
+        plate, = screen_plate_run_well.linkedPlateList()
+        wells = sorted(plate.copyWells(), key=lambda x: x.column.val)
+        ws_a, ws_b = wells[0].copyWellSamples()
+        image = ws_a.image
+        # Add ROI and shape to the Image
+        point = PointI()
+        point.x = rdouble(1)
+        point.y = rdouble(1)
+        roi = RoiI()
+        roi.addShape(point)
+        roi.image = ImageI(image.id.val, False)
+        roi = self.update.saveAndReturnObject(roi)
+        return (screen_plate_run_well, roi)
+
+    @pytest.fixture
     def project_path_request(self, project):
         """
         Returns a simple GET request object with the 'path' query string
@@ -1458,6 +1474,32 @@ class TestShow(IWebTest):
         paths = paths_to_object(self.conn, None, None, None, None, None,
                                 None, None, None, None, None, None, 1)
         assert len(paths) == 0
+
+    def test_well_image_shape(self, screen_plate_run_well_roi_shape):
+
+        screen, roi = screen_plate_run_well_roi_shape
+        plate, = screen.linkedPlateList()
+        wells = sorted(plate.copyWells(), key=lambda x: x.column.val)
+        ws_a, ws_b = wells[0].copyWellSamples()
+        plate_acquisition = ws_a.plateAcquisition
+        image_id = ws_a.image.id.val
+        shape_id = roi.copyShapes()[0].id.val
+
+        paths = paths_to_object(self.conn, None, None, None, None, None,
+                                None, None, None, None, None, None, shape_id)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition.id.val},
+             {'type': 'well', 'id': wells[0].id.val},
+             {'type': 'wellsample', 'id': ws_a.id.val},
+             {'type': 'image', 'id': image_id},
+             {'type': 'roi', 'id': roi.id.val},
+             {'type': 'shape', 'id': shape_id}]]
+
+        assert paths == expected
 
     def test_image_orphan(self, image):
         """
