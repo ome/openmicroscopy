@@ -23,8 +23,8 @@ from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper, \
     ImageWrapper, TagAnnotationWrapper, ScreenWrapper, PlateWrapper, \
     PlateAcquisitionWrapper
 from omero.model import ProjectI, DatasetI, TagAnnotationI, ScreenI, PlateI, \
-    WellI, WellSampleI, PlateAcquisitionI, RoiI, ImageI
-from omero.rtypes import rstring, rint
+    WellI, WellSampleI, PlateAcquisitionI, RoiI, ImageI, PointI
+from omero.rtypes import rstring, rint, rdouble
 from omeroweb.webclient.show import Show, IncorrectMenuError, \
     paths_to_object, get_image_ids
 from django.test.client import RequestFactory
@@ -145,7 +145,11 @@ class TestShow(IWebTest):
         project = self.update.saveAndReturnObject(project)
 
         print("Fixture project_dataset_image_roi image", image.id.val)
+        point = PointI()
+        point.x = rdouble(1)
+        point.y = rdouble(1)
         roi = RoiI()
+        roi.addShape(point)
         roi.image = ImageI(image.id.val, False)
         roi = self.update.saveAndReturnObject(roi)
 
@@ -268,6 +272,22 @@ class TestShow(IWebTest):
         plate.addWell(well_b)
         screen.linkPlate(plate)
         return self.update.saveAndReturnObject(screen)
+
+    @pytest.fixture
+    def screen_plate_run_well_roi_shape(self, screen_plate_run_well):
+        plate, = screen_plate_run_well.linkedPlateList()
+        wells = sorted(plate.copyWells(), key=lambda x: x.column.val)
+        ws_a, ws_b = wells[0].copyWellSamples()
+        image = ws_a.image
+        # Add ROI and shape to the Image
+        point = PointI()
+        point.x = rdouble(1)
+        point.y = rdouble(1)
+        roi = RoiI()
+        roi.addShape(point)
+        roi.image = ImageI(image.id.val, False)
+        roi = self.update.saveAndReturnObject(roi)
+        return (screen_plate_run_well, roi)
 
     @pytest.fixture
     def project_path_request(self, project):
@@ -1430,6 +1450,57 @@ class TestShow(IWebTest):
 
         assert paths == expected
 
+    def test_shape(self, project_dataset_image_roi):
+        """Test path to Shape."""
+        project, roi = project_dataset_image_roi
+        shape_id = roi.copyShapes()[0].id.val
+        dataset, = project.linkedDatasetList()
+        image, = dataset.linkedImageList()
+
+        paths = paths_to_object(self.conn, None, None, None, None, None,
+                                None, None, None, None, None, None, shape_id)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project.details.owner.id.val},
+             {'type': 'project', 'id': project.id.val},
+             {'type': 'dataset', 'id': dataset.id.val, 'childCount': 1},
+             {'type': 'image', 'id': image.id.val},
+             {'type': 'roi', 'id': roi.id.val},
+             {'type': 'shape', 'id': shape_id}]]
+
+        assert paths == expected
+
+        # check invalid shape_id doesn't cause error
+        paths = paths_to_object(self.conn, None, None, None, None, None,
+                                None, None, None, None, None, None, 1)
+        assert len(paths) == 0
+
+    def test_well_image_shape(self, screen_plate_run_well_roi_shape):
+
+        screen, roi = screen_plate_run_well_roi_shape
+        plate, = screen.linkedPlateList()
+        wells = sorted(plate.copyWells(), key=lambda x: x.column.val)
+        ws_a, ws_b = wells[0].copyWellSamples()
+        plate_acquisition = ws_a.plateAcquisition
+        image_id = ws_a.image.id.val
+        shape_id = roi.copyShapes()[0].id.val
+
+        paths = paths_to_object(self.conn, None, None, None, None, None,
+                                None, None, None, None, None, None, shape_id)
+
+        expected = [
+            [{'type': 'experimenter', 'id': screen.details.owner.id.val},
+             {'type': 'screen', 'id': screen.id.val},
+             {'type': 'plate', 'id': plate.id.val},
+             {'type': 'acquisition', 'id': plate_acquisition.id.val},
+             {'type': 'well', 'id': wells[0].id.val},
+             {'type': 'wellsample', 'id': ws_a.id.val},
+             {'type': 'image', 'id': image_id},
+             {'type': 'roi', 'id': roi.id.val},
+             {'type': 'shape', 'id': shape_id}]]
+
+        assert paths == expected
+
     def test_image_orphan(self, image):
         """
         Test image path for orphaned Image
@@ -1818,16 +1889,20 @@ class TestShow(IWebTest):
             sorted(plate.copyWells(), key=lambda x: x.column.val)
         ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
+        ws_id = ws_a1.id.val
+        image_id = ws_a1.image.id.val
 
         expected = [
             [{'type': 'experimenter', 'id': screen.details.owner.id.val},
              {'type': 'screen', 'id': screen.id.val},
              {'type': 'plate', 'id': plate.id.val},
              {'type': 'acquisition', 'id': plate_acquisition1.id.val},
-             {'type': 'well', 'id': well_a.id.val}]]
+             {'type': 'well', 'id': well_a.id.val},
+             {'type': 'wellsample', 'id': ws_id},
+             {'type': 'image', 'id': image_id}]]
         # Path to image in well... (Image is only in ONE acquisition)
         paths = paths_to_object(self.conn, None, None, None,
-                                ws_a1.image.id.val, None, None, None, None)
+                                image_id, None, None, None, None)
         assert len(paths) == 1
         assert paths[0] == expected[0]
 
