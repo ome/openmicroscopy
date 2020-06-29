@@ -1338,3 +1338,25 @@ path: test.tsv
         images = self.get_objects(out, 'Image')
         imagenames = set([image.name.val for image in images])
         assert filenames == imagenames
+
+    def testBulkImportLogs(self, tmpdir):
+        """Test out/err logs of bulk import command"""
+
+        tmpdir.join("test1.fake").write('')
+        tmpdir.join("test2.fake").write('')
+
+        tmpdir.join("filelist.tsv").write("test1.fake\ntest2.fake")
+
+        yml = tmpdir.join("bulk.yml")
+        yml.write("---\npath: filelist.tsv")
+
+        logdir = str(tmpdir.mkdir("logs"))
+
+        self.args += ["--bulk", str(yml), "--logprefix", logdir,
+                      "--file", "log.out", "--err", "log.err"]
+        self.cli.invoke(self.args, strict=True)
+
+        with open("%s/log.out" % logdir, "r") as logfile:
+            out = "\n".join(logfile.readlines())
+            objects = self.get_objects(out, 'Image')
+            assert len(objects) == 2, "Found %s images" % len(objects)
