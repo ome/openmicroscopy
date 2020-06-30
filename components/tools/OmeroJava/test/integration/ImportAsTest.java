@@ -45,7 +45,7 @@ public class ImportAsTest extends AbstractServerImportTest {
         return new Object[][] { { "rwr---" }, { "rwra--" }, {"rwrw--"} };
     }
 
-    @Test(dataProvider = "permission", groups = "broken")
+    @Test(dataProvider = "permission")
     public void testImportAsGroupOwner(String permission) throws Throwable {
         final EventContext sudoer = newUserAndGroup(permission, true);
         final EventContext scientist = addUser(sudoer, false, false);
