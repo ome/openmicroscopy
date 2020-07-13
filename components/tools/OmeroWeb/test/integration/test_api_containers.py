@@ -23,6 +23,7 @@ from __future__ import print_function
 from builtins import zip
 from builtins import str
 from builtins import range
+import copy
 from omeroweb.testlib import IWebTest, get_json, \
     post_json, put_json, delete_json
 from django.core.urlresolvers import reverse
@@ -93,6 +94,7 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
         if extra is not None and i < len(extra):
             o2.update(extra[i])
         # remove any urls from json, if not in both objects
+        o1 = copy.deepcopy(o1)      # don't modify original
         for key in list(o1.keys()):
             if key.startswith('url:') and key not in o2:
                 del(o1[key])

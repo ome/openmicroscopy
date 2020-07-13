@@ -291,7 +291,7 @@ class TestFindObject (object):
         assert gatewaywrapper.gateway.getObject("Annotation", tagId) is None
 
 
-class TestGetObject (object):
+class TestGetObject (ITest):
 
     def testSearchObjects(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
@@ -376,54 +376,43 @@ class TestGetObject (object):
         for d in datasets:
             assert d.id in dsIds
 
-    def testListExperimentersAndGroups(self, gatewaywrapper):
+    @pytest.mark.parametrize("load_gem", [True, False])
+    def testListExperimentersAndGroups(self, gatewaywrapper, load_gem):
         gatewaywrapper.loginAsAuthor()
-        # experimenters
-        # experimenters = list( gatewaywrapper.gateway.listExperimenters() ) #
-        # removed from blitz gateway
-        # all experimenters
-        exps = list(gatewaywrapper.gateway.getObjects("Experimenter"))
-
-        # self.assertEqual(len(exps), len(experimenters))  # check unordered
-        # lists are the same length & ids
-        # eIds = [e.getId() for e in experimenters]
+        conn = gatewaywrapper.gateway
+        # experimenters - load_experimentergroups True by default
+        opts = {'limit': 10}
+        if not load_gem:
+            opts['load_experimentergroups'] = False
+        exps = conn.getObjects("Experimenter", opts=opts)
         for e in exps:
-            # assert e.getId() in eIds
             # check iQuery has loaded at least one group
-            loaded = False
-            for groupExpMap in e.copyGroupExperimenterMap():
-                if groupExpMap is not None and \
-                        e.id == groupExpMap.child.id.val:
-                    loaded = True
-            assert loaded
+            assert e._obj.groupExperimenterMapLoaded == load_gem
+            e.copyGroupExperimenterMap()
 
-        # returns all experimenters except current user - now moved to
-        # webclient_gateway
-        # allBarOne = list( gatewaywrapper.gateway.getExperimenters() )
-        # assert len(allBarOne)+1 ==  len(exps)
-        # for e in allBarOne:
-        #    assert e.getId() in eIds
-
-        # groups
-        # groups = list( gatewaywrapper.gateway.listGroups() )
-        # now removed from blitz gateway.
-        gps = list(gatewaywrapper.gateway.getObjects("ExperimenterGroup"))
+        # groups. load_experimenters True by default
+        opts = {'limit': 10}
+        if not load_gem:
+            opts['load_experimenters'] = False
+        gps = conn.getObjects("ExperimenterGroup", opts=opts)
         for grp in gps:
+            assert grp._obj.groupExperimenterMapLoaded == load_gem
             grp.copyGroupExperimenterMap()
-        # self.assertEqual(len(gps), len(groups))  # check unordered lists are
-        # the same length & ids
-        # gIds = [g.getId() for g in gps]
-        # for g in groups:
-        #    assert g.getId() in gIds
 
+    def testListColleagues(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        conn = gatewaywrapper.gateway
         # uses gateway.getObjects("ExperimenterGroup") - check this doesn't
         # throw
-        colleagues = gatewaywrapper.gateway.listColleagues()
+        colleagues = conn.listColleagues()
         for e in colleagues:
             e.getOmeName()
 
+    def testFindExperimenterWithGroups(self, gatewaywrapper):
+        gatewaywrapper.loginAsAuthor()
+        conn = gatewaywrapper.gateway
         # check we can find some groups
-        exp = gatewaywrapper.gateway.getObject(
+        exp = conn.getObject(
             "Experimenter", attributes={'omeName': gatewaywrapper.USER.name})
         for groupExpMap in exp.copyGroupExperimenterMap():
             gName = groupExpMap.parent.name.val
@@ -431,6 +420,47 @@ class TestGetObject (object):
             findG = gatewaywrapper.gateway.getObject(
                 "ExperimenterGroup", attributes={'name': gName})
             assert gId == findG.id, "Check we found the same group"
+
+    @pytest.mark.parametrize("load", [True, False])
+    def testGetExperimentersByGroup(self, gatewaywrapper, load):
+        """
+        Filter Groups by Experimenters and vice versa.
+
+        We test with and without loading experimenters/groups to check
+        that the query is built correctly in both cases
+        """
+        gatewaywrapper.loginAsAdmin()
+        conn = gatewaywrapper.gateway
+
+        # Two users in the same group...
+        client, exp1 = self.new_client_and_user()
+        grp1_id = client.sf.getAdminService().getEventContext().groupId
+        exp2 = self.new_user(group=grp1_id)
+
+        # Another group with one user
+        grp2 = self.new_group(experimenters=[exp1])
+
+        # get Groups by Experimenters (in 1 or 2 groups + user group)
+        groups = list(conn.getObjects("ExperimenterGroup", opts={
+            "experimenter": exp2.id.val, 'load_experimenters': load}))
+        assert len(groups) == 2
+        assert grp1_id in [g.id for g in groups]
+
+        groups = list(conn.getObjects("ExperimenterGroup", opts={
+            "experimenter": exp1.id.val, 'load_experimenters': load}))
+        assert len(groups) == 3
+
+        # get Experimenters by Group (returns 1 or 2 exps)
+        exps = list(conn.getObjects("Experimenter", opts={
+            "experimentergroup": grp2.id.val,
+            "load_experimentergroups": load}))
+        assert len(exps) == 1
+        assert exps[0].id == exp1.id.val
+
+        exps = list(conn.getObjects("Experimenter", opts={
+            "experimentergroup": grp1_id,
+            "load_experimentergroups": load}))
+        assert len(exps) == 2
 
     def testGetExperimenter(self, gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
@@ -441,7 +471,7 @@ class TestGetObject (object):
         findExp = gatewaywrapper.gateway.getObject(
             "Experimenter", attributes={'omeName': gatewaywrapper.USER.name})
         exp = gatewaywrapper.gateway.getObject(
-            "Experimenter", findExp.id)  # uses iQuery
+            "Experimenter", findExp.id)
         assert exp.omeName == findExp.omeName
 
         # check groupExperimenterMap loaded for exp
@@ -453,11 +483,8 @@ class TestGetObject (object):
         #    assert findExp.id ==  groupExpMap.child.id.val
 
         groupGen = gatewaywrapper.gateway.getObjects(
-            "ExperimenterGroup", groupIds)
-        # gGen = gatewaywrapper.gateway.getExperimenterGroups(groupIds)  #
-        # removed from blitz gateway
+            "ExperimenterGroup", groupIds, opts={'load_experimenters': True})
         groups = list(groupGen)
-        # gs = list(gGen)
         assert len(groups) == len(groupIds)
         for g in groups:
             assert g.getId() in groupIds
@@ -796,6 +823,7 @@ class TestLeaderAndMemberOfGroup(object):
         assert memberOf == grs
 
     def testGroupSummaryAsOwner(self, gatewaywrapper):
+        """Test groupSummary() when Group loaded without experimenters."""
         gatewaywrapper.doLogin(dbhelpers.USERS['group_owner'])
 
         expGr = gatewaywrapper.gateway.getObject(
