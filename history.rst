@@ -9,8 +9,9 @@ OMERO version history
 -----------------
 
 This release adds installation documentation for server and web on
-CentOS 8 and Ubuntu 20.04, and it removes installation instructions
-for Ubuntu 16.04.
+CentOS 8 and Ubuntu 20.04.
+We have dropped support for Ubuntu 16.04 and removes the corresponding
+installation instructions.
 
 This version has been tested with:
 
