@@ -5,6 +5,25 @@
 OMERO version history
 =====================
 
+5.6.2 (July 2020)
+-----------------
+
+This release adds installation documentation for server and web on
+CentOS 8 and Ubuntu 20.04.
+We have dropped support for Ubuntu 16.04 and removes the corresponding
+installation instructions.
+
+This version has been tested with:
+
+- omero-blitz 5.5.7
+- omero-gateway-java 5.6.4
+- omero-py 5.7.1
+- omero-web 5.7.0
+- omero-dropbox 5.6.2
+
+**Note:** This upgrade will invalidate the Bio-Formats Memoizer cache. Please
+see the upgrade guide for further information.
+
 5.6.1 (March 2020)
 ------------------
 
