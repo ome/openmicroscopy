@@ -70,15 +70,9 @@ def create_roi(img, shapes):
 
 # Another helper for generating the color integers for shapes
 def rgba_to_int(red, green, blue, alpha=255):
-    """ Return the color as an Integer in RGBA encoding """
-    r = red << 24
-    g = green << 16
-    b = blue << 8
-    a = alpha
-    rgba_int = r+g+b+a
-    if (rgba_int > (2**31-1)):       # convert to signed 32-bit int
-        rgba_int = rgba_int - 2**32
-    return rgba_int
+    """Return the color as an Integer in RGBA encoding."""
+    return int.from_bytes([red, green, blue, alpha],
+                          byteorder='big', signed=True)
 
 
 # create a Rectangle shape (added to ROI below)
