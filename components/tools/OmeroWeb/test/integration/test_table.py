@@ -132,7 +132,8 @@ class TestOmeroTables(IWebTest):
         # GET csv
         request_url = reverse("omero_table", args=[file_id, 'csv'])
         rsp = get(django_client, request_url)
-        csv_data = rsp.content.decode("utf-8")
+        chunks = [c.decode("utf-8") for c in rsp.streaming_content]
+        csv_data = "".join(chunks)
         cols_csv = ','.join(col_names)
         rows_csv = '\n'.join([','.join(
             [str(td) for td in row]) for row in rows])
