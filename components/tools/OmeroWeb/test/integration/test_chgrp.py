@@ -64,7 +64,7 @@ class TestChgrp(IWebTest):
 
     @pytest.fixture
     def dataset(self):
-        """Returns a new OMERO Project with required fields set."""
+        """Returns a new OMERO Dataset with required fields set."""
         dataset = DatasetI()
         dataset.name = rstring(self.uuid())
         return self.update.saveAndReturnObject(dataset)
