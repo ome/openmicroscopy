@@ -160,8 +160,9 @@ class TestChgrp(IWebTest):
         }
         assert rsp['includedObjects'] == {'Projects': [projectId]}
         assert rsp['unlinkedAnnotations'] == unlinked_anns
-        assert rsp['unlinkedChildren'] == {'Datasets': [{'id': dataset.id.val,
-                                                         'name': dataset.name.val}]}
+        assert rsp['unlinkedChildren'] == {
+            'Datasets': [{'id': dataset.id.val, 'name': dataset.name.val}]
+        }
         assert rsp['unlinkedParents'] == {}
 
         # If we try to move both Projects all data moves
