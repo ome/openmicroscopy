@@ -29,10 +29,7 @@ import time
 from omeroweb.testlib import IWebTest, post, get_json
 from django.core.urlresolvers import reverse
 
-PRIVATE = "rw----"
-READONLY = "rwr---"
-READANNOTATE = "rwra--"
-COLLAB = "rwrw--"
+READANNOTATE = 'rwra--'
 
 
 class TestChown(IWebTest):
@@ -40,15 +37,15 @@ class TestChown(IWebTest):
     Tests chown
     """
 
+    DEFAULT_PERMS = READANNOTATE
+
     @classmethod
     def setup_class(cls):
         """Returns a logged in Django test client."""
         super(TestChown, cls).setup_class()
         # Add 2nd user to group
         gid = cls.sf.getAdminService().getEventContext().groupId
-        print("gid", gid)
         cls.user2 = cls.new_user(group=gid)
-        print("user2", cls.user2)
         # Refresh client
         cls.ctx = cls.sf.getAdminService().getEventContext()
         cls.django_client = cls.new_django_client(cls.ctx.userName,
@@ -129,17 +126,17 @@ class TestChown(IWebTest):
         # If we try to move single Project, Dataset, Tag remain
         data = {"owner_id": self.user2.id.val, "Project": projectId}
         rsp = doDryRun(data)
-        unlinked = {
-            "Files": [],
-            "Tags": [{"id": tag.id.val, "name": "ChownTag"}],
-            "Datasets": [{"id": dataset.id.val, "name": dataset.name.val}],
-            "Comments": 0,
-            "Others": 0,
+        unlinked_anns = {
+            'Files': [],
+            'Tags': [],
+            'Comments': [],
+            'Others': 0
         }
-        assert "includedObjects" in rsp
-        assert rsp["includedObjects"] == {"Projects": [projectId]}
-        assert "unlinkedDetails" in rsp
-        assert rsp["unlinkedDetails"] == unlinked
+        assert rsp['includedObjects'] == {'Projects': [projectId]}
+        assert rsp['unlinkedAnnotations'] == unlinked_anns
+        assert rsp['unlinkedChildren'] == {'Datasets': [{'id': dataset.id.val,
+                                                         'name': dataset.name.val}]}
+        assert rsp['unlinkedParents'] == {}
 
         # If we try to move both Projects all data moves
         data = {
@@ -149,14 +146,24 @@ class TestChown(IWebTest):
         rsp = doDryRun(data)
         pids = [projectId, projectId2]
         pids.sort()
-        assert rsp["includedObjects"] == {
-            "Projects": pids,
-            "Datasets": [dataset.id.val],
-            "Images": [image.id.val],
+        assert rsp['includedObjects'] == {'Projects': pids,
+                                          'Datasets': [dataset.id.val],
+                                          'Images': [image.id.val]}
+        assert rsp['unlinkedAnnotations'] == {'Files': [], 'Tags': [],
+                                              'Comments': [], 'Others': 0}
+        assert rsp['unlinkedChildren'] == {}
+        assert rsp['unlinkedParents'] == {}
+
+        # Move just the Dataset - Both Projects remain
+        data = {
+            "owner_id": self.user2.id.val,
+            "Dataset": dataset.id.val
         }
-        assert rsp["unlinkedDetails"] == {
-            "Files": [],
-            "Tags": [],
-            "Comments": 0,
-            "Others": 0,
-        }
+        rsp = doDryRun(data)
+        projs = [{'id': p.id.val, 'name': p.name.val} for p in pdit]
+        assert rsp['includedObjects'] == {'Datasets': [dataset.id.val],
+                                          'Images': [image.id.val]}
+        assert rsp['unlinkedAnnotations'] == {'Files': [], 'Tags': [],
+                                              'Comments': [], 'Others': 0}
+        assert rsp['unlinkedChildren'] == {}
+        assert rsp['unlinkedParents'] == {'Projects': projs}
