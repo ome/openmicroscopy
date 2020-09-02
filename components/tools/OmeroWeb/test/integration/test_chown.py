@@ -162,6 +162,7 @@ class TestChown(IWebTest):
         }
         rsp = doDryRun(data)
         projs = [{'id': p.id.val, 'name': p.name.val} for p in pdit]
+        projs.sort(key=lambda x: x['name'])
         assert rsp['includedObjects'] == {'Datasets': [dataset.id.val],
                                           'Images': [image.id.val]}
         assert rsp['unlinkedAnnotations'] == {'Files': [], 'Tags': [],
