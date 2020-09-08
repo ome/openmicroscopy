@@ -1242,7 +1242,7 @@ public class DuplicationTest extends AbstractServerTest {
      * Test duplication of a dataset's image. {@link SkipHead} is used to identify the image via its dataset.
      * @throws Exception unexpected
      */
-    @Test(groups = {"ticket:13197", "broken"})
+    @Test(groups = "ticket:13197")
     public void testDuplicateImageViaSkipHead() throws Exception {
         newUserAndGroup("rwr---");
 
