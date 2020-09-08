@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package integration;
 
 import java.util.ArrayList;
@@ -718,7 +719,7 @@ public class DuplicationTest extends AbstractServerTest {
 
 
     /**
-     * Test duplication of an annotated image such that it does not duplicate an attachment.
+     * Test duplication of an image along with its attachment.
      * @throws Exception unexpected
      */
     @Test
