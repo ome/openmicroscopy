@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2016-2020 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -217,6 +217,139 @@ class TestDuplicate(CLITest):
         # Check the duplicated image is linked to just the duplicated Dataset
         assert len(dat_linked) == 1
         assert dat_linked[0].id.val == did
+
+    def testIgnoreLinks(self, capfd):
+        namep = self.uuid()
+        named = self.uuid()
+        proj = self.make_project(namep)
+        dset = self.make_dataset(named)
+
+        self.link(proj, dset)
+
+        self.args += ['Project:%s' % proj.id.val]
+        self.args += ['--ignore-classes=ILink']
+        self.args += ['--report']
+        out = self.duplicate(capfd)
+
+        pp = omero.sys.ParametersI()
+        pp.addString("name", namep)
+        query = "select obj from Project obj where obj.name=:name"
+        objsp = self.query.findAllByQuery(query, pp)
+
+        # Check the Project has been duplicated
+        assert len(objsp) == 2
+        assert objsp[0].id.val != objsp[1].id.val
+
+        pid = max(objsp[0].id.val, objsp[1].id.val)
+
+        # Check the duplicated Project is in the --report output
+        assert 'Project:%s' % pid in out
+
+        pd = omero.sys.ParametersI()
+        pd.addString("name", named)
+        query = "select obj from Dataset obj where obj.name=:name"
+        objsd = self.query.findAllByQuery(query, pd)
+
+        # Check the Dataset has not been duplicated
+        assert len(objsd) == 1
+
+        # Check there is no Dataset is in the --report output
+        assert 'Dataset:' not in out
+
+    def testIgnoreLinksOverridden(self, capfd):
+        namep = self.uuid()
+        named = self.uuid()
+        proj = self.make_project(namep)
+        dset = self.make_dataset(named)
+
+        self.link(proj, dset)
+
+        self.args += ['Project:%s' % proj.id.val]
+        self.args += ['--ignore-classes=ILink']
+        self.args += ['--duplicate-classes=ProjectDatasetLink']
+        self.args += ['--report']
+        out = self.duplicate(capfd)
+
+        pp = omero.sys.ParametersI()
+        pp.addString("name", namep)
+        query = "select obj from Project obj where obj.name=:name"
+        objsp = self.query.findAllByQuery(query, pp)
+
+        # Check the Project has been duplicated
+        assert len(objsp) == 2
+        assert objsp[0].id.val != objsp[1].id.val
+
+        pid = max(objsp[0].id.val, objsp[1].id.val)
+
+        # Check the duplicated Project is in the --report output
+        assert 'Project:%s' % pid in out
+
+        pd = omero.sys.ParametersI()
+        pd.addString("name", named)
+        query = "select obj from Dataset obj where obj.name=:name"
+        objsd = self.query.findAllByQuery(query, pd)
+
+        # Check the Dataset has been duplicated
+        assert len(objsd) == 2
+        assert objsd[0].id.val != objsd[1].id.val
+
+        # Find the Projects linked to the duplicated dataset
+        did = max(objsd[0].id.val, objsd[1].id.val)
+        proj_linked = self.get_project(did)
+
+        # Check the duplicated Dataset is in the --report output
+        assert 'Dataset:%s' % did in out
+
+        # Check the duplicated Dataset is linked to just the duplicated Project
+        assert len(proj_linked) == 1
+        assert proj_linked[0].id.val == pid
+
+    def testReferencing(self, capfd):
+        namep = self.uuid()
+        named = self.uuid()
+        proj = self.make_project(namep)
+        dset = self.make_dataset(named)
+
+        self.link(proj, dset)
+
+        self.args += ['Project:%s' % proj.id.val]
+        self.args += ['--reference-classes=Dataset']
+        self.args += ['--report']
+        out = self.duplicate(capfd)
+
+        pp = omero.sys.ParametersI()
+        pp.addString("name", namep)
+        query = "select obj from Project obj where obj.name=:name"
+        objsp = self.query.findAllByQuery(query, pp)
+
+        # Check the Project has been duplicated
+        assert len(objsp) == 2
+        assert objsp[0].id.val != objsp[1].id.val
+
+        pid = max(objsp[0].id.val, objsp[1].id.val)
+
+        # Check the duplicated Project is in the --report output
+        assert 'Project:%s' % pid in out
+
+        pd = omero.sys.ParametersI()
+        pd.addString("name", named)
+        query = "select obj from Dataset obj where obj.name=:name"
+        objsd = self.query.findAllByQuery(query, pd)
+
+        # Check the Dataset has not been duplicated
+        assert len(objsd) == 1
+
+        # Find the Projects linked to the dataset
+        did = objsd[0].id.val
+        proj_linked = self.get_project(did)
+
+        # Check there is no Dataset is in the --report output
+        assert 'Dataset:' not in out
+
+        # Check the Dataset is now also linked to the duplicated Project
+        assert len(proj_linked) == 2
+        assert min(objsp[0].id.val, objsp[1].id.val) == proj.id.val
+        assert max(objsp[0].id.val, objsp[1].id.val) == pid
 
     def testSkipheadDuplication(self, capfd):
         namep = self.uuid()
