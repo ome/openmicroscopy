@@ -112,19 +112,6 @@ omero.version=${omero.version}
             </then></if>
             </sequential>
         </for>
-        <!-- Used (at least) by server.xml and omero.xml -->
-        <property name="omero.db.url" value="jdbc:postgresql://${omero.db.host}/${omero.db.name}"/>
-        <presetdef name="sql_run">
-            <sql
-                driver="${omero.db.driver}"
-                url="${omero.db.url}"
-                userid="${omero.db.user}"
-                password="${omero.db.pass}"
-                print="false"
-                                delimiter=";;"
-                classpathref="omero.classpath">
-            </sql>
-        </presetdef>
     </target>
 
     <target name="generate" depends="prepare">
