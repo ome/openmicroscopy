@@ -227,7 +227,7 @@ class TestDuplicate(CLITest):
         self.link(proj, dset)
 
         self.args += ['Project:%s' % proj.id.val]
-        self.args += ['--ignore-classes=ILink']
+        self.args += ['--ignore=ILink']
         self.args += ['--report']
         out = self.duplicate(capfd)
 
@@ -265,8 +265,8 @@ class TestDuplicate(CLITest):
         self.link(proj, dset)
 
         self.args += ['Project:%s' % proj.id.val]
-        self.args += ['--ignore-classes=ILink']
-        self.args += ['--duplicate-classes=ProjectDatasetLink']
+        self.args += ['--ignore=ILink']
+        self.args += ['--duplicate=ProjectDatasetLink']
         self.args += ['--report']
         out = self.duplicate(capfd)
 
@@ -313,7 +313,7 @@ class TestDuplicate(CLITest):
         self.link(proj, dset)
 
         self.args += ['Project:%s' % proj.id.val]
-        self.args += ['--reference-classes=Dataset']
+        self.args += ['--reference=Dataset']
         self.args += ['--report']
         out = self.duplicate(capfd)
 
