@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2020 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package integration;
 
 import java.util.ArrayList;
@@ -718,7 +719,7 @@ public class DuplicationTest extends AbstractServerTest {
 
 
     /**
-     * Test duplication of an annotated image such that it does not duplicate an attachment.
+     * Test duplication of an image along with its attachment.
      * @throws Exception unexpected
      */
     @Test
@@ -746,25 +747,31 @@ public class DuplicationTest extends AbstractServerTest {
         final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
-        /* check that the response includes duplication of an image and link, but not the attachment */
+        /* check that the response includes duplication of an image, link and attachment */
 
         final Set<Long> reportedImageIds = new HashSet<Long>(response.duplicates.get("ome.model.core.Image"));
-        Assert.assertFalse(response.duplicates.containsKey("ome.model.annotations.FileAnnotation"));
-        Assert.assertFalse(response.duplicates.containsKey("ome.model.annotations.ImageAnnotationLink"));
+        final Set<Long> reportedAttachmentIds = new HashSet<Long>(response.duplicates.get("ome.model.annotations.FileAnnotation"));
+        final Set<Long> reportedLinkIds = new HashSet<Long>(response.duplicates.get("ome.model.annotations.ImageAnnotationLink"));
 
         Assert.assertEquals(reportedImageIds.size(), 1);
+        Assert.assertEquals(reportedAttachmentIds.size(), 1);
+        Assert.assertEquals(reportedLinkIds.size(), 1);
 
         /* check that the reported image and annotation each have a new ID */
 
         final long reportedImageId = reportedImageIds.iterator().next();
+        final long reportedAttachmentId = reportedAttachmentIds.iterator().next();
+        final long reportedLinkId = reportedLinkIds.iterator().next();
         testImages.add(reportedImageId);
 
         Assert.assertNotEquals(originalImageId, reportedImageId);
+        Assert.assertNotEquals(originalAttachmentId, reportedAttachmentId);
+        Assert.assertNotEquals(originalLinkId, reportedLinkId);
 
         /* check that the annotations on the images are exactly as expected */
 
         Assert.assertEquals(getImageAnnotations(originalImageId), Collections.singleton(originalAttachmentId));
-        Assert.assertEquals(getImageAnnotations(reportedImageId), Collections.emptySet());
+        Assert.assertEquals(getImageAnnotations(reportedImageId), Collections.singleton(reportedAttachmentId));
     }
 
     /**
