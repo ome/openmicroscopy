@@ -52,6 +52,7 @@ import omero.model.DatasetImageLinkI;
 import omero.model.DoubleAnnotationI;
 import omero.model.Ellipse;
 import omero.model.EllipseI;
+import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Folder;
@@ -1288,6 +1289,61 @@ public class DuplicationTest extends AbstractServerTest {
     }
 
     /**
+     * Test duplication of an image that is not in the current group.
+     * @param isExplicitGroupContext if the group context should be set for the duplication
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "group context test cases", groups = "broken")
+    public void testDuplicateImageDifferentGroup(boolean isExplicitGroupContext) throws Exception {
+        final EventContext ec = newUserAndGroup("rwra--");
+        final ExperimenterGroup otherGroup = newGroupAddUser("rwra--", ec.userId);
+        final long otherGroupId = otherGroup.getId().getValue();
+        loginUser(ec);
+
+        /* save an image then put it in another group */
+
+        final Image originalImage = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage());
+        final long originalImageId = originalImage.getId().getValue();
+        testImages.add(originalImageId);
+
+        doChange(Requests.chgrp().target(originalImage).toGroup(otherGroup).build());
+
+        /* duplicate the image even though it is not in the current group */
+
+        final long currentGroupId = iAdmin.getEventContext().groupId;
+        Assert.assertNotEquals(currentGroupId, otherGroupId);
+
+        final Duplicate dup = Requests.duplicate().target(originalImage).build();
+        final DuplicateResponse response;
+
+        if (isExplicitGroupContext) {
+            response = (DuplicateResponse) doChange(dup, otherGroupId);
+        } else {
+            response = (DuplicateResponse) doChange(dup);
+        }
+
+        /* check that the response includes duplication of the image */
+
+        final Set<Long> reportedImageIds = new HashSet<Long>(response.duplicates.get("ome.model.core.Image"));
+
+        Assert.assertEquals(reportedImageIds.size(), 1);
+
+        /* check that the reported image has a new ID */
+
+        final long reportedImageId = reportedImageIds.iterator().next();
+        testImages.add(reportedImageId);
+
+        Assert.assertNotEquals(originalImageId, reportedImageId);
+
+        /* check that the reported image is in the other group */
+
+        loginUser(otherGroup);
+        final Image reportedImage = (Image) iQuery.get("Image", reportedImageId);
+        final long reportedImageGroup = reportedImage.getDetails().getGroup().getId().getValue();
+        Assert.assertEquals(reportedImageGroup, otherGroupId);
+    }
+
+    /**
      * Test duplication of links depending on ownership and group permissions.
      * @param groupPerms the permissions on the group in which to test
      * @param myContainer if the parent of the link is owned by the user doing the duplication
@@ -1441,6 +1497,14 @@ public class DuplicationTest extends AbstractServerTest {
             Assert.assertEquals(parentId, container.getId().getValue());
             Assert.assertNotEquals(childId, contained.getId().getValue());
         }
+    }
+
+    /**
+     * @return context for group context test cases
+     */
+    @DataProvider(name = "group context test cases")
+    public Object[][] provideGroupContextCases() {
+        return new Boolean[][] { new Boolean[] {false}, new Boolean[] {true} };
     }
 
     /**
