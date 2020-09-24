@@ -22,7 +22,7 @@ obsolete code. More importantly, it has been tested with:
 
 This release adds installation documentation for server and web on
 CentOS 8 and Ubuntu 20.04.
-We have dropped support for Ubuntu 16.04 and removes the corresponding
+We have dropped support for Ubuntu 16.04 and removed the corresponding
 installation instructions.
 
 This version has been tested with:
