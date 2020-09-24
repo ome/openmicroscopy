@@ -5,12 +5,24 @@
 OMERO version history
 =====================
 
+5.6.3 (September 2020)
+----------------------
+
+This release improves and expands integration testing and removes
+obsolete code. More importantly, it has been tested with:
+
+- omero-blitz 5.5.8
+- omero-gateway-java 5.6.5
+- omero-py 5.8.0
+- omero-web 5.8.0
+- omero-dropbox 5.6.2
+
 5.6.2 (July 2020)
 -----------------
 
 This release adds installation documentation for server and web on
 CentOS 8 and Ubuntu 20.04.
-We have dropped support for Ubuntu 16.04 and removes the corresponding
+We have dropped support for Ubuntu 16.04 and removed the corresponding
 installation instructions.
 
 This version has been tested with:
