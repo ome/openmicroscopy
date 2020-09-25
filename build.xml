@@ -301,6 +301,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     <target name="release-clients" description="Zip the Java zip">
         <zip destfile="${omero.home}/target/OMERO.java-${omero.version}.zip">
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
+            <zipfileset dir="${dist.dir}/etc" prefix="OMERO.java-${omero.version}/libs" includes="logback-cli.xml"/>
         </zip>
 
     </target>
