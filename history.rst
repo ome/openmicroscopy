@@ -5,15 +5,15 @@
 OMERO version history
 =====================
 
-5.6.3 (September 2020)
-----------------------
+5.6.3 (October 2020)
+--------------------
 
 This release improves and expands integration testing and removes
 obsolete code. More importantly, it has been tested with:
 
 - omero-blitz 5.5.8
 - omero-gateway-java 5.6.5
-- omero-py 5.8.0
+- omero-py 5.8.1
 - omero-web 5.8.0
 - omero-dropbox 5.6.2
 
