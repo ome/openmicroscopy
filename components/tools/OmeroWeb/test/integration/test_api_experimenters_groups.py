@@ -148,7 +148,8 @@ class TestExperimenters(IWebTest):
 
             # Check if eids are same for group (won't be ordered)
             grp = conn.getObject("ExperimenterGroup", group_json['@id'])
-            eids = [link.child.id.val for link in grp.copyGroupExperimenterMap()]
+            eids = [link.child.id.val
+                    for link in grp.copyGroupExperimenterMap()]
             assert set(eids) == set(exp_ids)
 
             if len(exp_ids) > 0:
