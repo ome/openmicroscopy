@@ -138,18 +138,22 @@ class TestExperimenters(IWebTest):
 
         assert_objects(conn, groups_json, groups, dtype="ExperimenterGroup")
 
-        # Check we can follow link to Experimenters for first Group
-        expimenters_url = groups_json[0]["url:experimenters"]
-        rsp = get_json(django_client, expimenters_url)
-        exps_json = rsp['data']
-        exp_ids = [e['@id'] for e in exps_json]
+        # Check experimenters_url for all groups above
+        for group_json in groups_json:
+            # Check we can follow link to Experimenters for first Group
+            expimenters_url = group_json["url:experimenters"]
+            rsp = get_json(django_client, expimenters_url)
+            exps_json = rsp['data']
+            exp_ids = [e['@id'] for e in exps_json]
 
-        # Check if eids are same for group (won't be ordered)
-        grp = conn.getObject("ExperimenterGroup", groups_json[0]['@id'])
-        eids = [link.child.id.val for link in grp.copyGroupExperimenterMap()]
-        assert set(eids) == set(exp_ids)
+            # Check if eids are same for group (won't be ordered)
+            grp = conn.getObject("ExperimenterGroup", group_json['@id'])
+            eids = [link.child.id.val
+                    for link in grp.copyGroupExperimenterMap()]
+            assert set(eids) == set(exp_ids)
 
-        assert_objects(conn, exps_json, exp_ids, dtype="Experimenter")
+            if len(exp_ids) > 0:
+                assert_objects(conn, exps_json, exp_ids, dtype="Experimenter")
 
     def test_filter_groups(self, user1):
         """
