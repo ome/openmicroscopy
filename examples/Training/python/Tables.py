@@ -102,6 +102,17 @@ for col in data.columns:
         print("   ", v)
 
 
+# Get data from every column of the specified rows using slice
+# ============================================================
+row_numbers = [3, 5, 7]
+print("\nGet All Data for rows with slice: ", row_numbers)
+data = open_table.slice(range(len(open_table.getHeaders()), row_numbers))
+for col in data.columns:
+    print("Data for Column: ", col.name)
+    for v in col.values:
+        print("   ", v)
+
+
 # Get data from specified columns of specified rows
 # =================================================
 col_numbers = [1]
@@ -110,6 +121,21 @@ stop = 7
 print("\nGet Data for cols: ", col_numbers,
       " and between rows: ", start, "-", stop)
 data = open_table.read(col_numbers, start, stop)
+for col in data.columns:
+    print("Data for Column: ", col.name)
+    for v in col.values:
+        print("   ", v)
+
+
+# Get data from specified columns of specified rows using slice
+# =============================================================
+col_numbers = [1]
+start = 3
+stop = 7
+print("\nGet Data for cols: ", col_numbers,
+      " and between rows: ", start, "-", stop,
+      " with slice")
+data = open_table.slice(col_numbers, range(start, stop))
 for col in data.columns:
     print("Data for Column: ", col.name)
     for v in col.values:
