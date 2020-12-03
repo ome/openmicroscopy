@@ -30,7 +30,7 @@ jobs:
           repository: ome/omero-test-infra
           path: .omero
           ref: ${{ secrets.OMERO_TEST_INFRA_REF }}
-      - name: Set up log
+      - name: Set up log level
         run: |
           echo 'ivy.retrieve.log=default' >> etc/local.properties
       - name: Build and run OMERO tests
