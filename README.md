@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ome/openmicroscopy.svg?branch=develop)](https://travis-ci.org/ome/openmicroscopy)
+[![Actions Status](https://github.com/ome/openmicroscopy/workflows/OMERO/badge.svg)](https://github.com/ome/openmicroscopy/actions)
 
 Also see [CONTRIBUTING.md](./CONTRIBUTING.md) and [SUPPORT.md](./SUPPORT.md)
 
