@@ -106,7 +106,7 @@ for col in data.columns:
 # ============================================================
 row_numbers = [3, 5, 7]
 print("\nGet All Data for rows with slice: ", row_numbers)
-data = open_table.slice(range(len(open_table.getHeaders()), row_numbers))
+data = open_table.slice(range(len(open_table.getHeaders())), row_numbers)
 for col in data.columns:
     print("Data for Column: ", col.name)
     for v in col.values:
