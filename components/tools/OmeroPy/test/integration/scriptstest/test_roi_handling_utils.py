@@ -36,5 +36,15 @@ class TestRoiHandlingUtils(ITest):
         conn = BlitzGateway(client_obj=client)
         image = conn.getObject("Image", id)
         pixels = image.getPrimaryPixels()
-        line = get_line_data(pixels, 10, 0, 10, 20, 10)
-        assert len(line) == 10
+        line_width = 10
+        # vertical line
+        x = 10
+        line = get_line_data(pixels, x, 0, x, 20, line_width)
+        assert line.shape == (line_width, 20)
+        # horizontal line
+        y = 5
+        line = get_line_data(pixels, 10, y, 50, y, line_width)
+        assert line.shape == (line_width, 40)
+        # diagonal line
+        line = get_line_data(pixels, 0, 0, 50, 40, line_width)
+        assert line.shape[0] == line_width
