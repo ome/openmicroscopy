@@ -390,3 +390,14 @@ class TestObj(CLITest):
         type, id = ann.split(":")
         ann3 = self.client.sf.getQueryService().get(type, int(id))
         assert ann3.ns is None
+
+    def test_newines(self):
+        desc = "A\nB"
+        self.args = self.login_args() + [
+            "obj", "new", "Dataset", "name=test", "description="+desc]
+        state = self.go()
+        ds = state.get_row(0)
+
+        type, id = ds.split(":")
+        ds2 = self.client.sf.getQueryService().get(type, int(id))
+        assert ds2.description.val == desc
