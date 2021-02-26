@@ -391,7 +391,7 @@ class TestObj(CLITest):
         ann3 = self.client.sf.getQueryService().get(type, int(id))
         assert ann3.ns is None
 
-    def test_newines(self):
+    def test_newlines(self):
         desc = "A\nB"
         self.args = self.login_args() + [
             "obj", "new", "Dataset", "name=test", "description="+desc]
