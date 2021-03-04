@@ -64,7 +64,7 @@ class TestChgrp(IWebTest):
 
     @pytest.fixture
     def dataset(self):
-        """Returns a new OMERO Project with required fields set."""
+        """Returns a new OMERO Dataset with required fields set."""
         dataset = DatasetI()
         dataset.name = rstring(self.uuid())
         return self.update.saveAndReturnObject(dataset)
@@ -84,12 +84,12 @@ class TestChgrp(IWebTest):
         set. Also a Tag linked to both Projects.
         """
         project1 = ProjectI()
-        project1.name = rstring(self.uuid())
+        project1.name = rstring(f'P1_{self.uuid()}')
         project2 = ProjectI()
-        project2.name = rstring(self.uuid())
+        project2.name = rstring(f'P2_{self.uuid()}')
         dataset = DatasetI()
-        dataset.name = rstring(self.uuid())
-        image = self.new_image(name=self.uuid())
+        dataset.name = rstring(f'D{self.uuid()}')
+        image = self.new_image(f'I{self.uuid()}')
         dataset.linkImage(image)
         project1.linkDataset(dataset)
         project2.linkDataset(dataset)
@@ -151,16 +151,19 @@ class TestChgrp(IWebTest):
             "Project": projectId
         }
         rsp = doDryRun(data)
-        unlinked = {'Files': [],
-                    'Tags': [{'id': tag.id.val,
-                              'name': 'ChgrpTag'}],
-                    'Datasets': [{'id': dataset.id.val,
-                                  'name': dataset.name.val}],
-                    'Comments': 0, 'Others': 0}
-        assert 'includedObjects' in rsp
+        unlinked_anns = {
+            'Files': [],
+            'Tags': [{'id': tag.id.val,
+                      'name': 'ChgrpTag'}],
+            'Comments': [],
+            'Others': 0
+        }
         assert rsp['includedObjects'] == {'Projects': [projectId]}
-        assert 'unlinkedDetails' in rsp
-        assert rsp['unlinkedDetails'] == unlinked
+        assert rsp['unlinkedAnnotations'] == unlinked_anns
+        assert rsp['unlinkedChildren'] == {
+            'Datasets': [{'id': dataset.id.val, 'name': dataset.name.val}]
+        }
+        assert rsp['unlinkedParents'] == {}
 
         # If we try to move both Projects all data moves
         data = {
@@ -173,8 +176,25 @@ class TestChgrp(IWebTest):
         assert rsp['includedObjects'] == {'Projects': pids,
                                           'Datasets': [dataset.id.val],
                                           'Images': [image.id.val]}
-        assert rsp['unlinkedDetails'] == {'Files': [], 'Tags': [],
-                                          'Comments': 0, 'Others': 0}
+        assert rsp['unlinkedAnnotations'] == {'Files': [], 'Tags': [],
+                                              'Comments': [], 'Others': 0}
+        assert rsp['unlinkedChildren'] == {}
+        assert rsp['unlinkedParents'] == {}
+
+        # Move just the Dataset - Both Projects remain
+        data = {
+            "group_id": self.group2.id.val,
+            "Dataset": dataset.id.val
+        }
+        rsp = doDryRun(data)
+        projs = [{'id': p.id.val, 'name': p.name.val} for p in pdit]
+        projs.sort(key=lambda x: x['name'])
+        assert rsp['includedObjects'] == {'Datasets': [dataset.id.val],
+                                          'Images': [image.id.val]}
+        assert rsp['unlinkedAnnotations'] == {'Files': [], 'Tags': [],
+                                              'Comments': [], 'Others': 0}
+        assert rsp['unlinkedChildren'] == {}
+        assert rsp['unlinkedParents'] == {'Projects': projs}
 
     @pytest.mark.parametrize("credentials", ['user', 'admin'])
     def test_chgrp_new_container(self, dataset, credentials):
