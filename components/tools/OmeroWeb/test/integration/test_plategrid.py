@@ -115,17 +115,22 @@ def well_grid_factory(well_factory):
 
 
 @pytest.fixture()
-def plate_wells(itest, well_grid_factory, update_service):
+def plate_well_coords():
+    # Well A10 has two WellSamples
+    # Well A11 has no WellSamples
+    # Well D3 has one WellSample
+    return {(0, 9): 2, (0, 10): 0, (3, 2): 1}
+
+
+@pytest.fixture()
+def plate_wells(itest, well_grid_factory, plate_well_coords, update_service):
     """
     Returns a new OMERO Plate, linked Wells, linked WellSamples, and linked
     Images populated by an L{omeroweb.testlib.IWebTest} instance.
     """
     plate = PlateI()
     plate.name = rstring(itest.uuid())
-    # Well A10 has two WellSamples
-    # Well A11 has no WellSamples
-    # Well D3 has one WellSample
-    wells = well_grid_factory({(0, 9): 2, (0, 10): 0, (3, 2): 1})
+    wells = well_grid_factory(plate_well_coords)
     for well in wells:
         plate.addWell(well)
     return update_service.saveAndReturnObject(plate)
@@ -283,25 +288,40 @@ class TestPlateGrid(object):
     expected.
     """
 
-    def test_get_plate_grid_metadata(self, django_client, plate_wells, conn):
+    @pytest.mark.parametrize('layout', ['normal', 'expand', 'shrink'])
+    def test_get_plate_grid_metadata(self, django_client, plate_wells,
+            plate_well_coords, conn, layout):
         """
         Do a simple GET request to retrieve the metadata for a plate in JSON
         form
         """
+        min_col = min([coord[1] for coord in plate_well_coords.keys()])
+        min_row = min([coord[0] for coord in plate_well_coords.keys()])
+        max_col = max([coord[1] for coord in plate_well_coords.keys()])
+        max_row = max([coord[0] for coord in plate_well_coords.keys()])
+        if layout in ('normal', 'expand'):
+            min_col = 0
+            min_row = 0
+        if layout == 'expand':
+            max_col = 11
+            max_row = 7
         for field in range(2):
             request_url = reverse('webgateway_plategrid_json',
                                   args=(plate_wells.id.val, field))
 
-            response = django_client.get(request_url)
+            data = {'layout': layout}
+            response = django_client.get(request_url, data)
             assert response.status_code == 200
 
             plate_metadata = json.loads(response.content)
-            assert len(plate_metadata['rowlabels']) == 8
-            assert len(plate_metadata['collabels']) == 12
+            # default layout is from 0,0 to the max row/column with a Well
+            assert len(plate_metadata['rowlabels']) == (max_row - min_row) + 1
+            assert len(plate_metadata['collabels']) == (max_col - min_col) + 1
 
             grid = plate_metadata['grid']
             for well in plate_wells.copyWells():
-                well_metadata = grid[well.row.val][well.column.val]
+                row = well.row.val - min_row
+                well_metadata = grid[row][well.column.val - min_col]
                 well_samples = well.copyWellSamples()
                 if len(well_samples) > field:
                     img = well_samples[field].getImage()
@@ -350,8 +370,8 @@ class TestPlateGrid(object):
         Check that the grid represented in the metadata is the correct size
         """
         plate_grid = PlateGrid(conn, plate_wells.id.val, 0)
-        assert len(plate_grid.metadata['grid']) == 8
-        assert len(plate_grid.metadata['grid'][0]) == 12
+        assert len(plate_grid.metadata['grid']) == 4
+        assert len(plate_grid.metadata['grid'][0]) == 11
 
     def test_metadata_thumbnail_url(self, plate_wells, conn):
         """
