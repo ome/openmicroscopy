@@ -290,7 +290,7 @@ class TestPlateGrid(object):
 
     @pytest.mark.parametrize('layout', ['normal', 'expand', 'shrink'])
     def test_get_plate_grid_metadata(self, django_client, plate_wells,
-            plate_well_coords, conn, layout):
+                                     plate_well_coords, conn, layout):
         """
         Do a simple GET request to retrieve the metadata for a plate in JSON
         form
