@@ -160,20 +160,6 @@ class TestContainers(IWebTest):
         # Response will contain remaining links from image (see test_links.py)
         assert response == {"success": True}
 
-    def test_create_share(self):
-
-        img = self.make_image()
-        request_url = reverse("manage_action_containers",
-                              args=["add", "share"])
-        data = {
-            'enable': 'on',
-            'image': img.id.val,
-            'members': self.user.id.val,
-            'message': 'foobar'
-        }
-
-        post(self.django_client, request_url, data)
-
     def test_edit_share(self):
 
         # create images
