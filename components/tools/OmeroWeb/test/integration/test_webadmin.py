@@ -39,7 +39,8 @@ class TestUserSettings(IWebTest):
 
     def test_user_settings_page(self):
         request_url = reverse("wamyaccount", args=['edit'])
-        admin_link = """<a href="/webadmin/" title="Web-Admin: Edit users and groups">Admin</a>"""
+        admin_link = ("""<a href="/webadmin/" title="Web-Admin:"""
+                      """ Edit users and groups">Admin</a>""")
         # regular user
         exp = self.new_user()
         ome_name = exp.omeName.val
