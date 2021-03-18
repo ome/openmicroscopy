@@ -35,6 +35,28 @@ def get_all_privileges(client):
     return [e.getValue().val for e in types.allEnumerations("AdminPrivilege")]
 
 
+class TestUserSettings(IWebTest):
+
+    def test_user_settings_page(self):
+        request_url = reverse("wamyaccount", args=['edit'])
+        admin_link = ("""<a href="/webadmin/" title="Web-Admin:"""
+                      """ Edit users and groups">Admin</a>""")
+        # regular user
+        exp = self.new_user()
+        ome_name = exp.omeName.val
+        django_client = self.new_django_client(ome_name, ome_name)
+        rsp = get(django_client, request_url)
+        page_html = rsp.content.decode("utf-8")
+        assert "Username:" in page_html
+        assert admin_link not in page_html
+        # admin
+        rsp = get(self.django_root_client, request_url)
+        page_html = rsp.content.decode("utf-8")
+        assert "Username:" in page_html
+        # Admin should see link at top of webclient:
+        assert admin_link in page_html
+
+
 class TestExperimenters(IWebTest):
     """Test creation and editing of Experimenters."""
 
