@@ -37,8 +37,8 @@ def get_all_privileges(client):
 
 class TestUserSettings(IWebTest):
 
-    def validate_settings_page(self, django_client, ome_name, first_name, last_name,
-                               default_group_id, admin=False):
+    def validate_settings_page(self, django_client, ome_name, first_name,
+                               last_name, default_group_id, admin=False):
         request_url = reverse("wamyaccount", args=['edit'])
         rsp = get(django_client, request_url)
         html = rsp.content.decode("utf-8")
@@ -60,11 +60,12 @@ class TestUserSettings(IWebTest):
         first_name = exp.firstName.val
         last_name = exp.lastName.val
         django_client = self.new_django_client(ome_name, ome_name)
-        self.validate_settings_page(django_client, ome_name, first_name, last_name, gid)
+        self.validate_settings_page(django_client, ome_name, first_name,
+                                    last_name, gid)
         # admin
         gid = self.root.sf.getAdminService().getEventContext().groupId
-        self.validate_settings_page(self.django_root_client, "root", "root", "root",
-                                    gid, admin=True)
+        self.validate_settings_page(self.django_root_client, "root", "root",
+                                    "root", gid, admin=True)
 
     def test_edit_settings(self):
         request_url = reverse("wamyaccount", args=['save'])
@@ -72,7 +73,6 @@ class TestUserSettings(IWebTest):
         ome_name = exp.omeName.val
         first = "Ben"
         last = "Nevis"
-        email = "ben@openmicroscopy.org"
         # Add user to a 2nd group
         groupid = self.new_group(experimenters=[exp]).id.val
         django_client = self.new_django_client(ome_name, ome_name)
@@ -88,7 +88,8 @@ class TestUserSettings(IWebTest):
         rsp = post(django_client, request_url, data, status_code=302)
         assert rsp.get('Location').endswith(reverse("wamyaccount"))
         # Check fields and default group have been saved
-        self.validate_settings_page(django_client, ome_name, first, last, groupid)
+        self.validate_settings_page(django_client, ome_name, first, last,
+                                    groupid)
 
 
 class TestExperimenters(IWebTest):
