@@ -37,24 +37,33 @@ def get_all_privileges(client):
 
 class TestUserSettings(IWebTest):
 
-    def test_user_settings_page(self):
-        request_url = reverse("wamyaccount", args=['edit'])
+    def validate_settings_page(self, html, ome_name, first_name, last_name,
+                               admin=False):
+
         admin_link = ("""<a href="/webadmin/" title="Web-Admin:"""
                       """ Edit users and groups">Admin</a>""")
+        assert "Username:" in html
+        assert (admin_link in html) == admin
+        assert ("name=\"omename\" value=\"%s\"" % ome_name) in html
+        assert ("name=\"first_name\" value=\"%s\"" % first_name) in html
+        assert ("name=\"last_name\" value=\"%s\"" % last_name) in html
+
+    def test_user_settings_page(self):
+        request_url = reverse("wamyaccount", args=['edit'])
         # regular user
         exp = self.new_user()
         ome_name = exp.omeName.val
+        first_name = exp.firstName.val
+        last_name = exp.lastName.val
         django_client = self.new_django_client(ome_name, ome_name)
         rsp = get(django_client, request_url)
         page_html = rsp.content.decode("utf-8")
-        assert "Username:" in page_html
-        assert admin_link not in page_html
+        self.validate_settings_page(page_html, ome_name, first_name, last_name)
         # admin
         rsp = get(self.django_root_client, request_url)
         page_html = rsp.content.decode("utf-8")
-        assert "Username:" in page_html
-        # Admin should see link at top of webclient:
-        assert admin_link in page_html
+        self.validate_settings_page(page_html, "root", "root", "root",
+                                    admin=True)
 
 
 class TestExperimenters(IWebTest):
