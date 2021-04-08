@@ -24,7 +24,8 @@ import pytest
 from omero.gateway.scripts import dbhelpers
 from omero.rtypes import wrap, rlong
 from omero.testlib import ITest
-from omero.gateway import BlitzGateway, KNOWN_WRAPPERS
+from omero.gateway import BlitzGateway, KNOWN_WRAPPERS, DatasetWrapper, \
+    ProjectWrapper, ImageWrapper, ScreenWrapper, PlateWrapper
 from omero.model import DatasetI, \
     ImageI, \
     PlateI, \
@@ -759,6 +760,112 @@ class TestGetObject (ITest):
             gatewaywrapper.gateway._waitOnCmd(handle)
         finally:
             handle.close()
+
+    @pytest.mark.parametrize("datatype", ['Image', 'Dataset', 'Project',
+                                          'Screen', 'Plate'])
+    def testGetObjectsByMapAnnotations(self, datatype):
+        client, exp = self.new_client_and_user()
+        conn = BlitzGateway(client_obj=client)
+
+        def createTarget(datatype, name, key="", value="", ns=None):
+            """ Creates an object and attaches a map annotation to it """
+            if datatype == "Image":
+                tgt = ImageWrapper(conn, omero.model.ImageI())
+                tgt.setName(name)
+                tgt.save()
+            if datatype == "Dataset":
+                tgt = DatasetWrapper(conn, omero.model.DatasetI())
+                tgt.setName(name)
+                tgt.save()
+            if datatype == "Project":
+                tgt = ProjectWrapper(conn, omero.model.ProjectI())
+                tgt.setName(name)
+                tgt.save()
+            if datatype == "Screen":
+                tgt = ScreenWrapper(conn, omero.model.ScreenI())
+                tgt.setName(name)
+                tgt.save()
+            if datatype == "Plate":
+                tgt = PlateWrapper(conn, omero.model.PlateI())
+                tgt.setName(name)
+                tgt.save()
+
+            map_ann = omero.gateway.MapAnnotationWrapper(conn)
+            map_ann.setValue([(key, value)])
+            if ns:
+                map_ann.setNs(ns)
+            map_ann.save()
+            tgt.linkAnnotation(map_ann)
+            return tgt
+
+        name = str(uuid.uuid4())
+        key = str(uuid.uuid4())
+        value = str(uuid.uuid4())
+        ns = str(uuid.uuid4())
+
+        kv = createTarget(datatype, name, key=key, value=value)
+        v = createTarget(datatype, name, key=str(uuid.uuid4()), value=value)
+        k = createTarget(datatype, name, key=key, value=str(uuid.uuid4()))
+        kvn = createTarget(datatype, name, key=key, value=value, ns=ns)
+        n = createTarget(datatype, name, key=str(uuid.uuid4()), value=str(uuid.uuid4()), ns=ns)
+        # 3x key matches, 3x value matches, 2x key+value matches, 2x ns matches,
+        # 1x key+value+ns matches
+
+        # No match
+        results = list(conn.getObjectsByMapAnnotations(datatype, key=str(uuid.uuid4())))
+        assert len(results) == 0
+
+        # Key match
+        results = list(conn.getObjectsByMapAnnotations(datatype, key=key))
+        assert len(results) == 3
+        ids = [r.getId() for r in results]
+        assert k.getId() in ids
+        assert kv.getId() in ids
+        assert kvn.getId() in ids
+
+        # Key wildcard match
+        wc = "*"+key[2:12]+"*"
+        results = list(conn.getObjectsByMapAnnotations(datatype, key=wc))
+        assert len(results) == 3
+        ids = [r.getId() for r in results]
+        assert k.getId() in ids
+        assert kv.getId() in ids
+        assert kvn.getId() in ids
+
+        # Value match
+        results = list(conn.getObjectsByMapAnnotations(datatype, value=value))
+        assert len(results) == 3
+        ids = [r.getId() for r in results]
+        assert v.getId() in ids
+        assert kv.getId() in ids
+        assert kvn.getId() in ids
+
+        # Key+Value match
+        results = list(conn.getObjectsByMapAnnotations(datatype, key=key, value=value))
+        assert len(results) == 2
+        ids = [r.getId() for r in results]
+        assert kv.getId() in ids
+        assert kvn.getId() in ids
+
+        # Key+Value wildcard match
+        wc = "*"+value[2:12]+"*"
+        results = list(conn.getObjectsByMapAnnotations(datatype, key=key, value=wc))
+        assert len(results) == 2
+        ids = [r.getId() for r in results]
+        assert kv.getId() in ids
+        assert kvn.getId() in ids
+
+        # NS match
+        results = list(conn.getObjectsByMapAnnotations(datatype, ns=ns))
+        assert len(results) == 2
+        ids = [r.getId() for r in results]
+        assert n.getId() in ids
+        assert kvn.getId() in ids
+
+        # Key+Value+NS match
+        results = list(conn.getObjectsByMapAnnotations(datatype,  key=key, value=value, ns=ns))
+        assert len(results) == 1
+        assert kvn.getId() == results[0].getId()
 
 
 class TestLeaderAndMemberOfGroup(object):
