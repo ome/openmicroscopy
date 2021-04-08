@@ -807,12 +807,14 @@ class TestGetObject (ITest):
         v = createTarget(datatype, name, key=str(uuid.uuid4()), value=value)
         k = createTarget(datatype, name, key=key, value=str(uuid.uuid4()))
         kvn = createTarget(datatype, name, key=key, value=value, ns=ns)
-        n = createTarget(datatype, name, key=str(uuid.uuid4()), value=str(uuid.uuid4()), ns=ns)
-        # 3x key matches, 3x value matches, 2x key+value matches, 2x ns matches,
-        # 1x key+value+ns matches
+        n = createTarget(datatype, name, key=str(uuid.uuid4()),
+                         value=str(uuid.uuid4()), ns=ns)
+        # 3x key matches, 3x value matches, 2x key+value matches,
+        # 2x ns matches, 1x key+value+ns matches
 
         # No match
-        results = list(conn.getObjectsByMapAnnotations(datatype, key=str(uuid.uuid4())))
+        results = list(conn.getObjectsByMapAnnotations(datatype,
+                                                       key=str(uuid.uuid4())))
         assert len(results) == 0
 
         # Key match
@@ -841,7 +843,8 @@ class TestGetObject (ITest):
         assert kvn.getId() in ids
 
         # Key+Value match
-        results = list(conn.getObjectsByMapAnnotations(datatype, key=key, value=value))
+        results = list(conn.getObjectsByMapAnnotations(datatype, key=key,
+                                                       value=value))
         assert len(results) == 2
         ids = [r.getId() for r in results]
         assert kv.getId() in ids
@@ -849,7 +852,8 @@ class TestGetObject (ITest):
 
         # Key+Value wildcard match
         wc = "*"+value[2:12]+"*"
-        results = list(conn.getObjectsByMapAnnotations(datatype, key=key, value=wc))
+        results = list(conn.getObjectsByMapAnnotations(datatype, key=key,
+                                                       value=wc))
         assert len(results) == 2
         ids = [r.getId() for r in results]
         assert kv.getId() in ids
@@ -863,7 +867,8 @@ class TestGetObject (ITest):
         assert kvn.getId() in ids
 
         # Key+Value+NS match
-        results = list(conn.getObjectsByMapAnnotations(datatype,  key=key, value=value, ns=ns))
+        results = list(conn.getObjectsByMapAnnotations(datatype,  key=key,
+                                                       value=value, ns=ns))
         assert len(results) == 1
         assert kvn.getId() == results[0].getId()
 
