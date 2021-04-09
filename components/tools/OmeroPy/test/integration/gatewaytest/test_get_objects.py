@@ -790,12 +790,15 @@ class TestGetObject (ITest):
                 tgt.setName(name)
                 tgt.save()
 
-            map_ann = omero.gateway.MapAnnotationWrapper(conn)
-            map_ann.setValue([(key, value)])
-            if ns:
-                map_ann.setNs(ns)
-            map_ann.save()
-            tgt.linkAnnotation(map_ann)
+            for _ in range(0, 2):
+                # Add two map annotations to check that each object
+                # is still just returned once.
+                map_ann = omero.gateway.MapAnnotationWrapper(conn)
+                map_ann.setValue([(key, value)])
+                if ns:
+                    map_ann.setNs(ns)
+                map_ann.save()
+                tgt.linkAnnotation(map_ann)
             return tgt
 
         name = str(uuid.uuid4())
@@ -859,6 +862,12 @@ class TestGetObject (ITest):
         assert kv.getId() in ids
         assert kvn.getId() in ids
 
+        # Key+Value wildcard doesn't match
+        wc = value[2:12]+"*"
+        results = list(conn.getObjectsByMapAnnotations(datatype, key=key,
+                                                       value=wc))
+        assert len(results) == 0
+
         # NS match
         results = list(conn.getObjectsByMapAnnotations(datatype, ns=ns))
         assert len(results) == 2
@@ -871,6 +880,13 @@ class TestGetObject (ITest):
                                                        value=value, ns=ns))
         assert len(results) == 1
         assert kvn.getId() == results[0].getId()
+
+        # Test limit
+        results = list(conn.getObjectsByMapAnnotations(datatype))
+        assert len(results) == 5
+        results = list(conn.getObjectsByMapAnnotations(datatype,
+                                                       opts={"limit": 4}))
+        assert len(results) == 4
 
 
 class TestLeaderAndMemberOfGroup(object):
