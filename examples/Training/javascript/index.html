@@ -126,6 +126,21 @@ var latest_base_url;
 var base_urls;
 var csrf_token;
 
+function getCookie(name) {
+  var cookieValue = null;
+  if (document.cookie && document.cookie != '') {
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+      var cookie = cookies[i].trim();
+      // Does this cookie string begin with the name we want?
+      if (cookie.substring(0, name.length + 1) == (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
 
 function createCORSRequest(method, url) {
   var xhr = new XMLHttpRequest();
@@ -202,7 +217,8 @@ function prepareLogin() {
   // Also get CSRF token needed for login and other POST requests
   var token_url = base_urls['url:token'];
   makeJSONRequest('GET', token_url, function(rsp) {
-    csrf_token = rsp.data;
+    csrf_token = getCookie('csrftoken');
+    console.log('csrf_token from cookie', csrf_token);
   });
 }
 
