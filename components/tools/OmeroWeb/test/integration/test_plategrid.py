@@ -288,7 +288,7 @@ class TestPlateGrid(object):
     expected.
     """
 
-    @pytest.mark.parametrize('layout', ['normal', 'expand', 'shrink'])
+    @pytest.mark.parametrize('layout', ['shrink', 'trim', 'expand'])
     def test_get_plate_grid_metadata(self, django_client, plate_wells,
                                      plate_well_coords, conn, layout):
         """
@@ -299,7 +299,7 @@ class TestPlateGrid(object):
         min_row = min([coord[0] for coord in plate_well_coords.keys()])
         max_col = max([coord[1] for coord in plate_well_coords.keys()])
         max_row = max([coord[0] for coord in plate_well_coords.keys()])
-        if layout in ('normal', 'expand'):
+        if layout in ('trim', 'expand'):
             min_col = 0
             min_row = 0
         if layout == 'expand':
