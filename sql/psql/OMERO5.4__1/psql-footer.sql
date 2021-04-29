@@ -3434,8 +3434,8 @@ CREATE INDEX node_down ON node(down);
 
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.4' and
-        currentPatch = 0 and
+        currentPatch = 1 and
         previousVersion = 'OMERO5.4' and
-        previousPatch = 0;
+        previousPatch = 1;
 
 COMMIT;
