@@ -2042,7 +2042,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.4',  0,    'OMERO5.4',   0,             'Initializing');
+             values ('OMERO5.4',  1,    'OMERO5.4',   1,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
