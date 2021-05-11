@@ -287,11 +287,9 @@ class TestCsrf(IWebTest):
         post(self.django_client, request_url, data, status_code=302)
 
     def test_avatar(self):
-
-        user_id = self.user.id.val
-
-        # Due to EOF both posts must be test separately
-        # Bad post
+        photo_url = reverse('wamyphoto')
+        # first get the placeholder photo
+        old_photo = get(self.django_client, photo_url)
         try:
             temp = tempfile.NamedTemporaryFile(suffix='.png')
 
@@ -303,31 +301,10 @@ class TestCsrf(IWebTest):
                 draw.line((i, 0, i, 200), fill=(int(r), int(g), int(b)))
             img.save(temp, "PNG")
             temp.seek(0)
-
-            request_url = reverse('wamanageavatar', args=[user_id, "upload"])
-            data = {
-                'filename': 'avatar.png',
-                "photo": temp
-            }
-            csrf_response(self.django_client, request_url, 'post', data,
-                          status_code=302, test_csrf_required=False)
-        finally:
-            temp.close()
-
-        # Good post
-        try:
-            temp = tempfile.NamedTemporaryFile(suffix='.png')
-
-            img = Image.new("RGB", (200, 200), "#FFFFFF")
-            draw = ImageDraw.Draw(img)
-
-            r, g, b = rint(0, 255), rint(0, 255), rint(0, 255)
-            for i in range(200):
-                draw.line((i, 0, i, 200), fill=(int(r), int(g), int(b)))
-            img.save(temp, "PNG")
+            img_data = temp.read()
             temp.seek(0)
 
-            request_url = reverse('wamanageavatar', args=[user_id, "upload"])
+            request_url = reverse('wamanageavatar', args=["upload"])
             data = {
                 'filename': 'avatar.png',
                 "photo": temp
@@ -337,16 +314,18 @@ class TestCsrf(IWebTest):
         finally:
             temp.close()
 
-        # Crop avatar
-        request_url = reverse('wamanageavatar', args=[user_id, "crop"])
-        data = {
-            'x1': 50,
-            'x2': 150,
-            'y1': 50,
-            'y2': 150
-        }
-        csrf_response(self.django_client, request_url, 'post', data,
+        # check photo has changed and matches what we uploaded
+        rsp = get(self.django_client, photo_url)
+        assert old_photo.content != rsp.content
+        assert rsp.content == img_data
+
+        # Delete photo
+        request_url = reverse('wamanageavatar', args=["deletephoto"])
+        csrf_response(self.django_client, request_url, 'post', {},
                       status_code=302, test_csrf_required=False)
+        # Should get placeholder photo again
+        rsp = get(self.django_client, photo_url)
+        assert rsp.content == old_photo.content
 
     def test_create_group(self):
         uuid = self.uuid()
