@@ -337,15 +337,9 @@ class TestCsrf(IWebTest):
         finally:
             temp.close()
 
-        # Crop avatar
-        request_url = reverse('wamanageavatar', args=[user_id, "crop"])
-        data = {
-            'x1': 50,
-            'x2': 150,
-            'y1': 50,
-            'y2': 150
-        }
-        csrf_response(self.django_client, request_url, 'post', data,
+        # Delete avatar - check we get a redirect
+        request_url = reverse('wamanageavatar', args=[user_id, "deletephoto"])
+        csrf_response(self.django_client, request_url, 'post',
                       status_code=302, test_csrf_required=False)
 
     def test_create_group(self):
