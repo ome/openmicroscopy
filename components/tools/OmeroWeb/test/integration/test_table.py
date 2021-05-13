@@ -24,6 +24,7 @@ from omeroweb.testlib import IWebTest, get, get_json
 from test_api_projects import get_connection
 
 from omero.grid import WellColumn, StringColumn, DoubleColumn
+from omero.rtypes import rint, rstring
 
 from django.core.urlresolvers import reverse
 from random import random
@@ -77,6 +78,8 @@ class TestOmeroTables(IWebTest):
         tablename = "omero_table_test:%s" % str(random())
         table = client.sf.sharedResources().newTable(1, tablename)
         table.initialize(columns)
+        table.setMetadata("test", rstring("value"))
+        table.setMetadata("my_number", rint(100))
 
         data = []
         for col_type, name, idx in zip(col_types, col_names,
@@ -174,3 +177,21 @@ class TestOmeroTables(IWebTest):
             request_url += '?query=%s' % query
             rsp = get_json(django_client, request_url)
             assert rsp['data']['rows'] == expected
+
+    def test_table_metadata(self, omero_table_file, django_client, table_data):
+        """Test webgateway/table/FILEID/metadata"""
+
+        file_id = omero_table_file
+        # expected table data
+        col_types, col_names, rows = table_data
+        request_url = reverse("webgateway_table_metadata", args=[file_id])
+        rsp = get_json(django_client, request_url)
+
+        for col, name in enumerate(col_names):
+            assert rsp['columns'][col]['name'] == name
+            # e.g. col_types[col] is <class 'omero.grid.WellColumn'>
+            ctype = col_types[col].__name__
+            assert rsp['columns'][col]['type'] in ctype
+
+        assert rsp['user_metadata']['test'] == 'value'
+        assert rsp['user_metadata']['my_number'] == 100
