@@ -62,6 +62,10 @@ class TestUserSettings(IWebTest):
         django_client = self.new_django_client(ome_name, ome_name)
         self.validate_settings_page(django_client, ome_name, first_name,
                                     last_name, gid)
+        # check when experimenter -1. See https://github.com/ome/omero-web/pull/285
+        rsp = get(django_client, reverse("userdata"), {'experimenter': '-1'})
+        self.validate_settings_page(django_client, ome_name, first_name,
+                                    last_name, gid)
         # admin
         gid = self.root.sf.getAdminService().getEventContext().groupId
         self.validate_settings_page(self.django_root_client, "root", "root",
