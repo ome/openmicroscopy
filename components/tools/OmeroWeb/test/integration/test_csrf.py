@@ -304,7 +304,7 @@ class TestCsrf(IWebTest):
             img_data = temp.read()
             temp.seek(0)
 
-            request_url = reverse('wamanageavatar', args=["upload"])
+            request_url = reverse('wamanageavatar', kwargs={"action": "upload"})
             data = {
                 'filename': 'avatar.png',
                 "photo": temp
@@ -320,7 +320,7 @@ class TestCsrf(IWebTest):
         assert rsp.content == img_data
 
         # Delete photo
-        request_url = reverse('wamanageavatar', args=["deletephoto"])
+        request_url = reverse('wamanageavatar', kwargs={"action": "deletephoto"})
         csrf_response(self.django_client, request_url, 'post', {},
                       status_code=302, test_csrf_required=False)
         # Should get placeholder photo again
