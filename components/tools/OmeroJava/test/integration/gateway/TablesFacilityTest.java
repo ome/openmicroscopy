@@ -18,6 +18,7 @@
  */
 package integration.gateway;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
@@ -26,9 +27,14 @@ import java.util.UUID;
 import omero.gateway.facility.TablesFacility;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.MaskData;
+import omero.gateway.model.PlateData;
 import omero.gateway.model.ProjectData;
+import omero.gateway.model.ROIData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
+import omero.gateway.model.WellData;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -64,6 +70,53 @@ public class TablesFacilityTest extends GatewayTest {
         ds.setName(UUID.randomUUID().toString());
         this.ds = (DatasetData) datamanagerFacility.createDataset(rootCtx, ds,
                 null);
+    }
+
+    @Test(timeOut = 60000)
+    public void testAddTableOmeroTypes() throws Exception {
+        Class<?>[] types = new Class<?>[] { ImageData.class, PlateData.class,
+                WellData.class,  FileAnnotationData.class,
+                ROIData.class, MaskData.class};
+        TableDataColumn[] header = new TableDataColumn[nCols];
+        header[0] = new TableDataColumn("column0", 0, String.class);
+        for (int i = 1; i < header.length; i++) {
+            header[i] = new TableDataColumn("column" + i, i,
+                     types[rand.nextInt(types.length)]);
+        }
+
+        Object[][] data = new Object[header.length][nRows];
+        for (int c = 0; c < nCols; c++) {
+            Object[] column = new Object[nRows];
+            Class<?> type = header[c].getType();
+            for (int r = 0; r < nRows; r++) {
+                if (type.equals(ImageData.class)) {
+                    ImageData img = new ImageData();
+                    img.setName("" + rand.nextInt());
+                    column[r] = img;
+                } else if (type.equals(WellData.class)) {
+                    column[r] = new WellData();
+                } else if (type.equals(PlateData.class)) {
+                    PlateData plate = new PlateData();
+                    plate.setName("" + rand.nextInt());
+                    column[r] = plate;
+                } else if (type.equals(ROIData.class)) {
+                    column[r] = new ROIData();
+                } else if (type.equals(MaskData.class)) {
+                    column[r] = new MaskData();
+                } else if (type.equals(FileAnnotationData.class)) {
+                    File f = File.createTempFile("Annotation", ".tmp");
+                    f.deleteOnExit();
+                    column[r] = new FileAnnotationData(f);
+                }
+            }
+            data[c] = column;
+        }
+
+        original = new TableData(header, data);
+        TableData stored = tablesFacility.addTable(rootCtx, ds, "Table",
+                original);
+        Assert.assertEquals(stored.getNumberOfRows(), nRows);
+        original.setOriginalFileId(stored.getOriginalFileId());
     }
 
     @Test(timeOut = 60000)
