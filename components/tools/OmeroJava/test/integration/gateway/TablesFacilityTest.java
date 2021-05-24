@@ -69,12 +69,13 @@ public class TablesFacilityTest extends GatewayTest {
     @Test(timeOut = 60000)
     public void testAddTable() throws Exception {
         Class<?>[] types = new Class<?>[] { String.class, Long.class,
-                Double.class, Double[].class };
+                Double.class, Double[].class, Float[].class,
+                Boolean.class };
         TableDataColumn[] header = new TableDataColumn[nCols];
         header[0] = new TableDataColumn("column0", 0, String.class);
         for (int i = 1; i < header.length; i++) {
             header[i] = new TableDataColumn("column" + i, i,
-                    types[rand.nextInt(types.length)]);
+                     types[rand.nextInt(types.length)]);
         }
 
         Object[][] data = new Object[header.length][nRows];
@@ -99,6 +100,13 @@ public class TablesFacilityTest extends GatewayTest {
                     for (int i = 0; i < 4; i++)
                         d[i] = rand.nextDouble();
                     column[r] = d;
+                } else if (type.equals(Float[].class)) {
+                    Float[] d = new Float[4];
+                    for (int i = 0; i < 4; i++)
+                        d[i] = rand.nextFloat();
+                    column[r] = d;
+                } else if (type.equals(Boolean.class)) {
+                    column[r] = Boolean.TRUE;
                 }
             }
             data[c] = column;
