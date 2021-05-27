@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2017 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2017-2021 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -203,3 +203,26 @@ class TestContainers(IWebTest):
         # Check that Shape has also been deleted
         with pytest.raises(ValidationException):
             shape = conn.getQueryService().get(shape_class, shape_id)
+
+    def test_shapes(self, user1, image_rois, shapes):
+        """Test listing Shapes"""
+        image, rois = image_rois
+        conn = get_connection(user1)
+        user_name = conn.getUser().getName()
+        client = self.new_django_client(user_name, user_name)
+        version = api_settings.API_VERSIONS[-1]
+
+        # List ALL shapes
+        shapes_url = reverse('api_shapes', kwargs={'api_version': version})
+        rsp = get_json(client, shapes_url)
+        shapes_json = rsp['data']
+        shape_ids = [shape['@id'] for shape in shapes_json]
+        assert len(shape_ids) == len(shapes)
+        assert_objects(conn, shapes_json, shape_ids, dtype="Shape")
+
+        for shape_id in shape_ids:
+            # Get a single Shape
+            url = reverse('api_shape', kwargs={'api_version': version,
+                                               'object_id': shape_id})
+            rsp = get_json(client, url, {'image': image.id.val})
+            assert_objects(conn, [rsp['data']], [shape_id], dtype="Shape")
