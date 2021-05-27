@@ -79,7 +79,7 @@ public class TablesFacilityTest extends GatewayTest {
                 Double.class, Double[].class, Float[].class,
                 Boolean.class, ImageData.class, PlateData.class,
                 WellData.class,  FileAnnotationData.class,
-                ROIData.class };
+                ROIData.class, MaskData.class };
         TableDataColumn[] header = new TableDataColumn[nCols];
         header[0] = new TableDataColumn("column0", 0, String.class);
         for (int i = 1; i < header.length; i++) {
