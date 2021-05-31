@@ -48,7 +48,7 @@ public class TablesFacilityTest extends GatewayTest {
     
     private static Random rand = new Random();
 
-    private static final int nCols = 10;
+    private static final int nCols = 12;
 
     // must be > DEFAULT_MAX_ROWS_TO_FETCH
     // otherwise testThreshold() is useless
@@ -81,10 +81,8 @@ public class TablesFacilityTest extends GatewayTest {
                 WellData.class,  FileAnnotationData.class,
                 ROIData.class, MaskData.class };
         TableDataColumn[] header = new TableDataColumn[nCols];
-        header[0] = new TableDataColumn("column0", 0, String.class);
-        for (int i = 1; i < header.length; i++) {
-            header[i] = new TableDataColumn("column" + i, i,
-                     types[rand.nextInt(types.length)]);
+        for (int i = 0; i < header.length; i++) {
+            header[i] = new TableDataColumn("column" + i, i, types[i]);
         }
 
         Object[][] data = new Object[header.length][nRows];
