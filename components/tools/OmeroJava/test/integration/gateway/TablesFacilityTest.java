@@ -335,7 +335,7 @@ public class TablesFacilityTest extends GatewayTest {
     public void testUpdateTable() throws Exception {
         // modify values for row 10 to 20, columns 5, 6 and 7
         TableData td = tablesFacility.getTable(rootCtx,
-                original.getOriginalFileId(), 10, 20, new int[] { 5, 6, 7 });
+                original.getOriginalFileId(), 10, 20);
 
         for (int c = 0; c < td.getColumns().length; c++) {
             Class<?> type = td.getColumns()[c].getType();
@@ -360,6 +360,8 @@ public class TablesFacilityTest extends GatewayTest {
                     td.getData()[c][r] = new WellData();
                 } else if (type.equals(ROIData.class)) {
                     td.getData()[c][r] = new ROIData();
+                } else if (type.equals(MaskData.class)) {
+                    td.getData()[c][r] = new MaskData();
                 } else if (type.equals(FileAnnotationData.class)) {
                     File f = File.createTempFile("AnnotationNew", ".tmp");
                     f.deleteOnExit();
@@ -377,10 +379,10 @@ public class TablesFacilityTest extends GatewayTest {
         // while the other values were not modified.
         for (int c = 0; c < td2.getColumns().length; c++) {
             for (int r = 0; r < td2.getData()[0].length; r++) {
-                if (c < 5 || c > 7 || r < 10 || r > 20) {
+                if (r < 10 || r > 20) {
                     checkData(td2.getData()[c][r], original.getData()[c][r]);
                 } else {
-                    checkData(td2.getData()[c][r], td.getData()[c - 5][r - 10]);
+                    checkData(td2.getData()[c][r], td.getData()[c][r - 10]);
                 }
             }
         }
