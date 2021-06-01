@@ -48,7 +48,7 @@ public class TablesFacilityTest extends GatewayTest {
     
     private static Random rand = new Random();
 
-    private static final int nCols = 12;
+    private static final int nCols = 11;
 
     // must be > DEFAULT_MAX_ROWS_TO_FETCH
     // otherwise testThreshold() is useless
