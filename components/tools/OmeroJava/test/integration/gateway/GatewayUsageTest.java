@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2018 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2021 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,7 @@ package integration.gateway;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collections;
 import java.util.UUID;
 
 import integration.AbstractServerTest;
@@ -37,6 +38,7 @@ import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
+import omero.log.LogMessage;
 import omero.log.SimpleLogger;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
@@ -45,6 +47,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+
 
 /**
  * Tests the login options supported by gateway
@@ -90,6 +93,72 @@ public class GatewayUsageTest extends AbstractServerTest
             Assert.fail("Gateway args login failed.", e);
         }
     }
+
+    @Test
+    public void testLoginFallback()
+            throws Exception {
+        omero.client client =  new omero.client();
+        String port = client.getProperty("omero.port");
+        LoginCredentials c = new LoginCredentials();
+        c.getServer().setHost(client.getProperty("omero.host"));
+        c.getServer().setPort(Integer.parseInt(port));
+        c.getUser().setUsername("root");
+        c.getUser().setPassword(client.getProperty("omero.rootpass"));
+        Gateway gw = new Gateway(new SimpleLogger());
+        ExperimenterData root = gw.connect(c);
+
+        // Create a user with weird password
+        SecurityContext ctx = new SecurityContext(root.getDefaultGroup().getGroupId());
+        GroupData group = new GroupData();
+        group.setName(UUID.randomUUID().toString());
+        group = gw.getFacility(AdminFacility.class).createGroup(ctx, group, null, GroupData.PERMISSIONS_GROUP_READ_WRITE);
+        ExperimenterData exp = new ExperimenterData();
+        exp.setFirstName("Just");
+        exp.setMiddleName("a");
+        exp.setLastName(("Test"));
+        String user = UUID.randomUUID().toString();
+        String pw = " #\\pass=word\uD83D\uDE1C\t";
+        exp = gw.getFacility(AdminFacility.class).createExperimenter(ctx, exp, user,
+                pw, Collections.singletonList(group), false, false);
+        gw.disconnect();
+
+        class MyLog extends SimpleLogger {
+            public boolean warning = false;
+            @Override
+            public void warn(Object originator, LogMessage msg) {
+                System.out.println(msg.toString());
+                warning = true;
+            }
+
+            @Override
+            public void warn(Object originator, String logMsg) {
+                System.out.println(logMsg);
+                warning = true;
+            }
+        };
+        MyLog log = new MyLog();
+
+        // Try to login with this user via ice args.
+        // args[] login has priority and will fail because the password is not escaped properly.
+        // Fallback using the explicitly set credentials will work.
+        try (Gateway g = new Gateway(log)) {
+            String[] args = new String[4];
+            args[0] = "--omero.user="+user;
+            args[1] = "--omero.pass="+pw;
+            args[2] = "--omero.host="+client.getProperty("omero.host");
+            args[3] = "--omero.port="+Integer.parseInt(port);
+            c = new LoginCredentials(args);
+            c.getServer().setHost(client.getProperty("omero.host"));
+            c.getServer().setPort(Integer.parseInt(port));
+            c.getUser().setUsername(user);
+            c.getUser().setPassword(pw);
+            g.connect(c);
+            Assert.assertTrue(log.warning, "Didn't get a warning about failed first login attempt.");
+        }
+        catch (Exception e1) {
+            Assert.fail("Fallback Login failed.", e1);
+        }
+    }
     
     @Test
     public void testLoginWithSessionID() throws DSOutOfServiceException {
@@ -100,7 +169,7 @@ public class GatewayUsageTest extends AbstractServerTest
         args[2] = "--omero.user=root";
         args[3] = "--omero.pass=" + client.getProperty("omero.rootpass");
         LoginCredentials c = new LoginCredentials(args);
-        
+
         try (Gateway gw = new Gateway(new SimpleLogger())) {
             ExperimenterData root = gw.connect(c);
             String sessionId = gw.getSessionId(root);
@@ -177,7 +246,7 @@ public class GatewayUsageTest extends AbstractServerTest
             // expected to fail
         }
     }
-    
+
     Boolean sessionActive = null;
 
     @Test
@@ -215,7 +284,7 @@ public class GatewayUsageTest extends AbstractServerTest
         }
         Assert.assertFalse(sessionActive);
     }
-    
+
     @Test
     public void testFailedLogin() throws DSOutOfServiceException {
         omero.client client = new omero.client();
@@ -236,7 +305,7 @@ public class GatewayUsageTest extends AbstractServerTest
         }
 
         c.getServer().setHost("UnknownHost");
-        
+
         try (Gateway gw = new Gateway(new SimpleLogger())) {
             gw.connect(c);
             Assert.fail("Connection should have failed");
