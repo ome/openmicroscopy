@@ -693,4 +693,33 @@ class TestTables(ITest):
         table.delete()
         table.close()
 
+    def testColumnSpaceNames(self):
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/testColumnSpaceNames")
+        assert table
+        cols = []
+        lc = columns.LongColumnI("Long column", None, [1])
+        sc = columns.StringColumnI("String column", None, 4)
+        cols.append(lc)
+        cols.append(sc)
+        table.initialize(cols)
+        lc.values = [1, 2, 3, 4]
+        sc.values = ["foo", "bar", "foo", "spam"]
+        table.addData(cols)
+
+        assert [1, 2, 3] == table.getWhereList(
+            "x>1",  {'x': rstring("Long column")}, 0, 4, 0)
+        assert [1] == table.getWhereList(
+            "x=='bar'", {'x': rstring("String column")}, 0, 4, 0)
+        assert [0, 2] == table.getWhereList(
+            "x=='foo'", {'x': rstring("String column")}, 0, 4, 0)
+        assert [1, 2] == table.getWhereList(
+            "(x>1)&(y!='spam')",
+            {'x': rstring("Long column"), 'y': rstring("String column")},
+            0, 4, 0)
+        table.delete()
+        table.close()
+
 # TODO: Add tests for error conditions
