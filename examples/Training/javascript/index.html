@@ -135,11 +135,15 @@ body {
 
 var base_urls;
 
+function getUrl(name){
+  return base_urls[name].replace("http", protocol);
+}
+
 async function prepareLogin() {
   // show login form
   document.getElementById('login_container').style.display = 'block';
   // Get available servers
-  var servers_url = base_urls['url:servers'];
+  var servers_url = getUrl('url:servers');
   const data = await makeJSONRequest('GET', servers_url).then(rsp => rsp.data);
   var serversHtml = data.map(function(s){
     return '<option value="' + s.id + '">' + s.server + ':' + s.port + '</option>';
@@ -149,7 +153,7 @@ async function prepareLogin() {
 
 
 async function loadProjects() {
-  var projects_url = base_urls['url:projects'];
+  var projects_url = getUrl('url:projects');
   const data = await makeJSONRequest('GET', projects_url).then(rsp => {
     // hide login form
     document.getElementById('login_container').style.display = 'none';
@@ -169,7 +173,7 @@ async function loadProjects() {
 
 
 async function login() {
-  var login_url = base_urls['url:login'];
+  var login_url = getUrl('url:login');
 
   var fields = ['username', 'password', 'server'];
   const formData = new FormData();
@@ -221,14 +225,14 @@ async function init_connection() {
   const versions = await makeJSONRequest('GET', server_url + 'api/').then(rsp => rsp.data);
 
   // Get base_url from last version in the list
-  latest_base_url = versions[versions.length - 1]["url:base"];
+  latest_base_url = versions[versions.length - 1]["url:base"].replace("http", protocol);
 
   // Get the list of top-level urls as starting points,
   base_urls = await makeJSONRequest('GET', latest_base_url);
 
   // Also get CSRF token needed for any POST requests (login, logout etc)
   // Header of this response sets a cookie. NB: We can ingore the response JSON
-  await makeJSONRequest('GET', base_urls['url:token']);
+  await makeJSONRequest('GET', getUrl('url:token'));
 
   // Try to load Projects (will show Login form if we're not logged in)
   loadProjects();
@@ -236,6 +240,7 @@ async function init_connection() {
 
 // When page first loads, if we have a server...
 const server_url = getParameterByName("server");
+const protocol = server_url.includes("https") ? "https" : "http";
 if (server_url) {
   // Hide server form and load BASE url...
   document.getElementById('server_form_container').style.display = 'none';
