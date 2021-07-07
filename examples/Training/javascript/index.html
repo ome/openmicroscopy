@@ -244,7 +244,7 @@ if (server_url) {
   // If no server_url, add listener to the "server_form". Submit updates url ?server=server
   document.getElementById('server_form').addEventListener('submit', function (event) {
     event.preventDefault();
-    const url = document.getElementById('base_url').value;
+    var url = document.getElementById('base_url').value;
     if (!url.endsWith("/")) {
       url = url + '/';
     }
