@@ -23,7 +23,6 @@ Simple integration tests for the "tree" module.
 from __future__ import division
 
 from builtins import str
-from past.utils import old_div
 import pytest
 from omero.testlib import ITest
 
@@ -1849,17 +1848,16 @@ class TestTree(ITest):
         dataset = project_hierarchy_userA_groupA[2]
         images = project_hierarchy_userA_groupA[4:6]
         utcAcq = 1444129810716
-        acqDate = '2015-10-06T12:10:10Z'
         for i in images:
             # get Creation date and set Acquisition Date.
             utcCreate = i.details.creationEvent._time.val
             i.setAcquisitionDate(rtime(utcAcq))
         images = conn.getUpdateService().saveAndReturnArray(images)
         # All images created at same time
-        utcCreate = datetime.fromtimestamp(
-            old_div(utcCreate, 1000)).isoformat() + 'Z'
+        creDate = datetime.fromtimestamp(utcCreate//1000).isoformat() + 'Z'
+        acqDate = datetime.fromtimestamp(utcAcq//1000).isoformat() + 'Z'
         extraValues = {'acqDate': acqDate,
-                       'date': utcCreate}
+                       'date': creDate}
         expected = expected_images(userA, images,
                                    extraValues=extraValues)
         marshaled = marshal_images(conn=conn,
