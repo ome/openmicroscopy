@@ -39,6 +39,8 @@ from omeroweb.webclient.tree import marshal_experimenter, \
     marshal_screens, marshal_plate_acquisitions, marshal_orphaned, \
     marshal_tags, marshal_tagged, marshal_shares, marshal_discussions
 
+from test_tree_annotations import expected_date
+
 from datetime import datetime
 
 
@@ -191,8 +193,8 @@ def expected_plate_acquisitions(user, plate_acquisitions):
         if acq.name is not None:
             acq_name = acq.name.val
         elif acq.startTime is not None and acq.endTime is not None:
-            start_time = datetime.utcfromtimestamp(acq.startTime.val / 1000.0)
-            end_time = datetime.utcfromtimestamp(acq.endTime.val / 1000.0)
+            start_time = expected_date(acq.startTime.val)
+            end_time = expected_date(acq.endTime.val)
             acq_name = '%s - %s' % (start_time, end_time)
         else:
             acq_name = 'Run %d' % acq.id.val
@@ -1854,8 +1856,8 @@ class TestTree(ITest):
             i.setAcquisitionDate(rtime(utcAcq))
         images = conn.getUpdateService().saveAndReturnArray(images)
         # All images created at same time
-        creDate = datetime.fromtimestamp(utcCreate//1000).isoformat() + 'Z'
-        acqDate = datetime.fromtimestamp(utcAcq//1000).isoformat() + 'Z'
+        creDate = expected_date(utcCreate)
+        acqDate = expected_date(utcAcq)
         extraValues = {'acqDate': acqDate,
                        'date': creDate}
         expected = expected_images(userA, images,
