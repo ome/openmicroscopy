@@ -41,8 +41,6 @@ from omeroweb.webclient.tree import marshal_experimenter, \
 
 from test_tree_annotations import expected_date
 
-from datetime import datetime
-
 
 def unwrap(x):
     """Handle case where there is no value because attribute is None"""
