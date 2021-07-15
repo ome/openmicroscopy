@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2018 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2021 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -257,11 +257,11 @@ public class ROIFacilityTest extends GatewayTest {
         folder = createRoiFolder(rootCtx, folderRois);
     }
     
-    private ROIData createRectangleROI(int x, int y, int w, int h) {
+    ROIData createRectangleROI(int x, int y, int w, int h) {
         return createRectangleROI(x, y, w, h, null);
     }
 
-    private ROIData createRectangleROI(int x, int y, int w, int h, Boolean plane) {
+    ROIData createRectangleROI(int x, int y, int w, int h, Boolean plane) {
         ROIData roiData = new ROIData();
         RectangleData rectangle = new RectangleData(x, y, w, h);
         if (plane != null) {
@@ -280,7 +280,7 @@ public class ROIFacilityTest extends GatewayTest {
         return roiData;
     }
     
-    private FolderData createRoiFolder(SecurityContext ctx,
+    FolderData createRoiFolder(SecurityContext ctx,
             Collection<ROIData> rois) throws DSOutOfServiceException,
             DSAccessException {
         FolderData folder = new FolderData();

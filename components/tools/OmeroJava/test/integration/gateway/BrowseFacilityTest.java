@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2017 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2021 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -19,8 +19,6 @@
  *------------------------------------------------------------------------------
  */
 package integration.gateway;
-
-import integration.ModelMockFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -455,9 +453,7 @@ public class BrowseFacilityTest extends GatewayTest {
         
         this.user2Folder = createFolder(ctx);
         
-        ModelMockFactory mf = new ModelMockFactory(gw.getTypesService(rootCtx));
-        this.wellsPlate = new PlateData(mf.createPlate(3, 3, 2, 1, false));
-        this.wellsPlate = (PlateData) datamanagerFacility.saveAndReturnObject(rootCtx, wellsPlate);
+        this.wellsPlate = createPlateWithWells();
         
         this.wellIds = new ArrayList<Long>();
         Plate p = this.wellsPlate.asPlate();
