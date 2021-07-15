@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2016-2021 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 package integration.gateway;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
@@ -37,6 +38,8 @@ import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
 import omero.gateway.model.WellData;
 
+import omero.model.OriginalFile;
+
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -47,8 +50,6 @@ public class TablesFacilityTest extends GatewayTest {
     //       to make sure tests run in the order they are listed!
     
     private static Random rand = new Random();
-
-    private static final int nCols = 11;
 
     // must be > DEFAULT_MAX_ROWS_TO_FETCH
     // otherwise testThreshold() is useless
@@ -73,17 +74,30 @@ public class TablesFacilityTest extends GatewayTest {
                 null);
     }
 
-    @Test(timeOut = 60000)
+    @Test(timeOut = 600000)
     public void testAddTable() throws Exception {
         Class<?>[] types = new Class<?>[] { String.class, Long.class,
                 Double.class, Double[].class, Float[].class,
-                Boolean.class, ImageData.class, PlateData.class,
-                WellData.class,  FileAnnotationData.class,
+                Boolean.class, ImageData.class, // DatasetData.class,
+                PlateData.class, WellData.class,  OriginalFile.class,
                 ROIData.class, MaskData.class };
+        int nCols = types.length;
+
         TableDataColumn[] header = new TableDataColumn[nCols];
         for (int i = 0; i < header.length; i++) {
             header[i] = new TableDataColumn("column" + i, i, types[i]);
         }
+
+        ImageData img = createImage();
+        ProjectData pr = createProject(rootCtx);
+        DatasetData dat = createDataset(rootCtx, pr);
+        PlateData plate = createPlateWithWells();
+        ArrayList tmp = new ArrayList<ROIData>();
+        tmp.add(createRectangleROI(0, 0, 10, 10, img.getId()));
+        ROIData roi = (ROIData) roiFacility.saveROIs(rootCtx, img.getId(), tmp).iterator().next();
+        File f = createFile(1);
+        FileAnnotationData fa = datamanagerFacility.attachFile(rootCtx, f, null,
+                null, null, pr).get();
 
         Object[][] data = new Object[header.length][nRows];
         for (int c = 0; c < nCols; c++) {
@@ -115,23 +129,26 @@ public class TablesFacilityTest extends GatewayTest {
                 } else if (type.equals(Boolean.class)) {
                     column[r] = Boolean.TRUE;
                 } else if (type.equals(ImageData.class)) {
-                    ImageData img = new ImageData();
-                    img.setName("" + rand.nextInt());
                     column[r] = img;
+                } else if (type.equals(DatasetData.class)) {
+                    column[r] = dat;
                 } else if (type.equals(WellData.class)) {
-                    column[r] = new WellData();
+                    column[r] = new WellData(plate.asPlate().copyWells().get(0));
                 } else if (type.equals(PlateData.class)) {
-                    PlateData plate = new PlateData();
-                    plate.setName("" + rand.nextInt());
                     column[r] = plate;
                 } else if (type.equals(ROIData.class)) {
-                    column[r] = new ROIData(); 
+                    column[r] = roi;
                 } else if (type.equals(MaskData.class)) {
-                    column[r] = new MaskData();
-                } else if (type.equals(FileAnnotationData.class)) {
-                    File f = File.createTempFile("Annotation", ".tmp");
-                    f.deleteOnExit();
-                    column[r] = new FileAnnotationData(f);
+                    MaskData m = new MaskData();
+                    m.setImage(img);
+                    m.setX(0);
+                    m.setY(0);
+                    m.setWidth(4);
+                    m.setHeight(4);
+                    m.setMask(new int[] {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1});
+                    column[r] = m;
+                } else if (type.equals(OriginalFile.class)) {
+                    column[r] = fa.getFile();
                 }
             }
             data[c] = column;
@@ -265,11 +282,19 @@ public class TablesFacilityTest extends GatewayTest {
         // request maximum of 100 rows
         int rowFrom = rand.nextInt(rows - 100);
         int rowTo = rowFrom + rand.nextInt(100);
-        int[] columns = new int[rand.nextInt(cols)];
+        int nCol = rand.nextInt(cols);
+        ArrayList<Integer> tmp = new ArrayList<>(nCol);
+        while (tmp.size() < nCol) {
+            int t =  rand.nextInt(cols);
+            while (tmp.contains(t))
+                t =  rand.nextInt(cols);
+            tmp.add(t);
+        }
+        int[] columns = new int[nCol];
+        for (int i=0; i < nCol; i++)
+            columns[i] = tmp.get(i);
 
-        for (int x = 0; x < columns.length; x++)
-            columns[x] = rand.nextInt(cols);
-
+        System.out.println("Request rows "+rowFrom+" to "+rowTo+"; columns "+Arrays.toString(columns));
         TableData td2 = tablesFacility.getTable(rootCtx,
                 original.getOriginalFileId(), rowFrom, rowTo, columns);
 
@@ -306,10 +331,15 @@ public class TablesFacilityTest extends GatewayTest {
                 } else if (type.equals(ImageData.class) ||
                            type.equals(PlateData.class) ||
                            type.equals(WellData.class) ||
-                           type.equals(ROIData.class) ||
-                           type.equals(FileAnnotationData.class)) {
+                           type.equals(DatasetData.class) ||
+                           type.equals(ROIData.class)) {
                     DataObject d1 = (DataObject) data2[c][r - (int) td2.getOffset()];
                     DataObject d2 = (DataObject) origData[index][r];
+                    Assert.assertEquals(d1.getId(), d2.getId());
+                }
+                else if (type.equals(OriginalFile.class)) {
+                    OriginalFile d1 = (OriginalFile) data2[c][r - (int) td2.getOffset()];
+                    OriginalFile d2 = (OriginalFile) origData[index][r];
                     Assert.assertEquals(d1.getId(), d2.getId());
                 }
             }
@@ -329,63 +359,6 @@ public class TablesFacilityTest extends GatewayTest {
                 "Test setup failure, nRows must be greater than DEFAULT_MAX_ROWS_TO_FETCH");
         Assert.assertEquals(td.getData()[0].length,
                 TablesFacility.DEFAULT_MAX_ROWS_TO_FETCH);
-    }
-    
-    @Test(dependsOnMethods = { "testThreshold" })
-    public void testUpdateTable() throws Exception {
-        // modify values for row 10 to 20, columns 5, 6 and 7
-        TableData td = tablesFacility.getTable(rootCtx,
-                original.getOriginalFileId(), 10, 20);
-
-        for (int c = 0; c < td.getColumns().length; c++) {
-            Class<?> type = td.getColumns()[c].getType();
-            for (int r = 0; r < td.getData()[0].length; r++) {
-                if (type.equals(String.class)) {
-                    td.getData()[c][r] = "newValue";
-                } else if (type.equals(Long.class)) {
-                    td.getData()[c][r] = new Long(9999);
-                } else if (type.equals(Double.class)) {
-                    td.getData()[c][r] = new Double(9.999);
-                } else if (type.equals(Double[].class)) {
-                    td.getData()[c][r] = new Double[] { 6.666, 7.777, 8.888,
-                            9.999 };
-                } else if (type.equals(Float[].class)) {
-                    td.getData()[c][r] = new Float[] { 6.666f, 7.777f, 8.888f,
-                            9.999f };
-                } else if (type.equals(Boolean.class)) {
-                    td.getData()[c][r] = Boolean.FALSE;
-                } else if (type.equals(ImageData.class)) {
-                    td.getData()[c][r] = new ImageData();
-                } else if (type.equals(WellData.class)) {
-                    td.getData()[c][r] = new WellData();
-                } else if (type.equals(ROIData.class)) {
-                    td.getData()[c][r] = new ROIData();
-                } else if (type.equals(MaskData.class)) {
-                    td.getData()[c][r] = new MaskData();
-                } else if (type.equals(FileAnnotationData.class)) {
-                    File f = File.createTempFile("AnnotationNew", ".tmp");
-                    f.deleteOnExit();
-                    td.getData()[c][r] = new FileAnnotationData(f);
-                }
-            }
-        }
-
-        tablesFacility.updateTable(rootCtx, td);
-
-        TableData td2 = tablesFacility.getTable(rootCtx,
-                original.getOriginalFileId(), 0, 30);
-
-        // check that the modified values were saved,
-        // while the other values were not modified.
-        for (int c = 0; c < td2.getColumns().length; c++) {
-            for (int r = 0; r < td2.getData()[0].length; r++) {
-                if (r < 10 || r > 20) {
-                    checkData(td2.getData()[c][r], original.getData()[c][r]);
-                } else {
-                    checkData(td2.getData()[c][r], td.getData()[c][r - 10]);
-                }
-            }
-        }
     }
 
     /** 
