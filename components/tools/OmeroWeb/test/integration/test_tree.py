@@ -39,6 +39,7 @@ from omeroweb.webclient.tree import marshal_experimenter, \
     marshal_screens, marshal_plate_acquisitions, marshal_orphaned, \
     marshal_tags, marshal_tagged, marshal_shares, marshal_discussions
 
+from datetime import datetime
 from test_tree_annotations import expected_date
 
 
@@ -191,8 +192,8 @@ def expected_plate_acquisitions(user, plate_acquisitions):
         if acq.name is not None:
             acq_name = acq.name.val
         elif acq.startTime is not None and acq.endTime is not None:
-            start_time = expected_date(acq.startTime.val)
-            end_time = expected_date(acq.endTime.val)
+            start_time = datetime.utcfromtimestamp(unwrap(acq.startTime) / 1000.0)
+            end_time = datetime.utcfromtimestamp(unwrap(acq.endTime) / 1000.0)
             acq_name = '%s - %s' % (start_time, end_time)
         else:
             acq_name = 'Run %d' % acq.id.val
