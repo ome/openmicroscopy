@@ -27,6 +27,7 @@ from builtins import zip
 from future.utils import native_str
 from past.utils import old_div
 import pytest
+import pytz
 from omero.testlib import ITest
 from datetime import datetime
 
@@ -165,7 +166,10 @@ def annotate_project(ann, project, user):
 
 def expected_date(time):
     d = datetime.fromtimestamp(old_div(time, 1000))
-    return d.isoformat() + 'Z'
+    # Add time-zone awareness. Use default TIME_ZONE setting
+    tz = pytz.timezone("Europe/London")
+    d = tz.localize(d)
+    return d.isoformat()
 
 
 def expected_experimenter(experimenter):
