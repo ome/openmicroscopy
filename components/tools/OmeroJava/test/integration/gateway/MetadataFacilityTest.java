@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2021 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -33,12 +33,17 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.MetadataFacility;
+import omero.gateway.model.PlaneInfoData;
 import omero.model.IObject;
 import omero.model.ImagingEnvironment;
 import omero.model.ImagingEnvironmentI;
 import omero.model.PixelsType;
+import omero.model.PlaneInfo;
+import omero.model.PlaneInfoI;
 import omero.model.Temperature;
 import omero.model.TemperatureI;
+import omero.model.Time;
+import omero.model.TimeI;
 import omero.model.enums.UnitsTemperature;
 
 import org.testng.Assert;
@@ -171,5 +176,31 @@ public class MetadataFacilityTest extends GatewayTest {
         types.add(TagAnnotationData.class);
 
         mdf.getAnnotations(rootCtx, objs, types, null);
+    }
+
+    @Test
+    public void testGetPlaneInfo() throws Exception {
+
+        ImageData img = createImage(rootCtx, null);
+        PlaneInfo p = new PlaneInfoI();
+        p.setTheC(omero.rtypes.rint(0));
+        p.setTheZ(omero.rtypes.rint(0));
+        p.setTheT(omero.rtypes.rint(0));
+        Time t = new TimeI();
+        t.setUnit(omero.model.enums.UnitsTime.DAY);
+        t.setValue(1.0);
+        p.setDeltaT(t);
+        p.setPixels(img.getDefaultPixels().asPixels());
+        gw.getUpdateService(rootCtx).saveAndReturnObject(p);
+
+        MetadataFacility mdf = gw.getFacility(MetadataFacility.class);
+        List<PlaneInfoData> pis = mdf.getPlaneInfos(rootCtx, img.getDefaultPixels());
+        Assert.assertEquals(pis.size(), 1);
+        PlaneInfoData pi = pis.iterator().next();
+        Assert.assertEquals(pi.getTheC(), 0);
+        Assert.assertEquals(pi.getTheZ(), 0);
+        Assert.assertEquals(pi.getTheT(), 0);
+        Assert.assertEquals(pi.getDeltaT().getValue(), 1.0);
+        Assert.assertEquals(pi.getDeltaT().getUnit(), omero.model.enums.UnitsTime.DAY);
     }
 }
