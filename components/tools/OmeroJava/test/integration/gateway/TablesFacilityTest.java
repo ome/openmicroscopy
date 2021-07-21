@@ -79,7 +79,7 @@ public class TablesFacilityTest extends GatewayTest {
         Class<?>[] types = new Class<?>[] { String.class, Long.class,
                 Double.class, Double[].class, Float[].class,
                 Boolean.class, ImageData.class, // DatasetData.class,
-                PlateData.class, WellData.class,  OriginalFile.class,
+                PlateData.class, WellData.class, FileAnnotationData.class, //  OriginalFile.class,
                 ROIData.class, MaskData.class };
         int nCols = types.length;
 
@@ -149,6 +149,9 @@ public class TablesFacilityTest extends GatewayTest {
                     column[r] = m;
                 } else if (type.equals(OriginalFile.class)) {
                     column[r] = fa.getFile();
+                }
+                else if (type.equals(FileAnnotationData.class)) {
+                    column[r] = fa;
                 }
             }
             data[c] = column;
@@ -265,7 +268,7 @@ public class TablesFacilityTest extends GatewayTest {
                 original.getOriginalFileId());
     }
 
-    @Test(dependsOnMethods = { "testGetAvailableTables" }, invocationCount = 10)
+    @Test(dependsOnMethods = { "testGetAvailableTables" }, invocationCount = 5)
     /**
      * Read a random subset from the table and compare to the original data
      * 
