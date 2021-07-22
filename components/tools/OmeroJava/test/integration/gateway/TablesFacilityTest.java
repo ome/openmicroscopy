@@ -59,6 +59,8 @@ public class TablesFacilityTest extends GatewayTest {
 
     private TableData original;
 
+    private Object[][] origData;
+
     private final String searchForThis = "searchForThis";
     
     private final long searchForThisResult = 123456789l;
@@ -80,11 +82,11 @@ public class TablesFacilityTest extends GatewayTest {
                 Double.class, Double[].class, Float[].class,
                 Boolean.class, ImageData.class, // DatasetData.class,
                 PlateData.class, WellData.class, FileAnnotationData.class, //  OriginalFile.class,
-                ROIData.class, MaskData.class };
+                ROIData.class};//, MaskData.class };
         int nCols = types.length;
 
         TableDataColumn[] header = new TableDataColumn[nCols];
-        for (int i = 0; i < header.length; i++) {
+        for (int i = 0; i < nCols; i++) {
             header[i] = new TableDataColumn("column" + i, i, types[i]);
         }
 
@@ -98,6 +100,13 @@ public class TablesFacilityTest extends GatewayTest {
         File f = createFile(1);
         FileAnnotationData fa = datamanagerFacility.attachFile(rootCtx, f, null,
                 null, null, pr).get();
+        MaskData m = new MaskData(0, 0, 5, 5,new byte[] {0,0,0,0,0 ,0,1,1,1,0,0, 1,1,1,0, 0,1,1,1,0, 0,0,0,0,0});
+        m.setImage(img);
+        ROIData rd = new ROIData();
+        rd.addShapeData(m);
+        tmp.clear();
+        tmp.add(rd);
+        roiFacility.saveROIs(rootCtx, img.getId(), tmp).iterator().next();
 
         Object[][] data = new Object[header.length][nRows];
         for (int c = 0; c < nCols; c++) {
@@ -127,7 +136,7 @@ public class TablesFacilityTest extends GatewayTest {
                         d[i] = rand.nextFloat();
                     column[r] = d;
                 } else if (type.equals(Boolean.class)) {
-                    column[r] = Boolean.TRUE;
+                    column[r] = rand.nextBoolean();
                 } else if (type.equals(ImageData.class)) {
                     column[r] = img;
                 } else if (type.equals(DatasetData.class)) {
@@ -139,16 +148,9 @@ public class TablesFacilityTest extends GatewayTest {
                 } else if (type.equals(ROIData.class)) {
                     column[r] = roi;
                 } else if (type.equals(MaskData.class)) {
-                    MaskData m = new MaskData();
-                    m.setImage(img);
-                    m.setX(0);
-                    m.setY(0);
-                    m.setWidth(4);
-                    m.setHeight(4);
-                    m.setMask(new int[] {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1});
                     column[r] = m;
                 } else if (type.equals(OriginalFile.class)) {
-                    column[r] = fa.getFile();
+                    column[r] = fa;
                 }
                 else if (type.equals(FileAnnotationData.class)) {
                     column[r] = fa;
@@ -160,6 +162,7 @@ public class TablesFacilityTest extends GatewayTest {
         original = new TableData(header, data);
         TableData stored = tablesFacility.addTable(rootCtx, ds, "Table",
                 original);
+        origData = original.getData();
         Assert.assertEquals(stored.getNumberOfRows(), nRows);
         original.setOriginalFileId(stored.getOriginalFileId());
     }
@@ -172,7 +175,7 @@ public class TablesFacilityTest extends GatewayTest {
         Assert.assertEquals(info.getColumns(), original.getColumns());
     }
 
-    @Test(dependsOnMethods = { "testGetTableInfo" })
+    @Test(dependsOnMethods = { "testAddTable" })
     public void testSearch() throws Exception {
         long[] rows = tablesFacility.query(rootCtx,
                 original.getOriginalFileId(), "(column0=='" + searchForThis
@@ -194,7 +197,7 @@ public class TablesFacilityTest extends GatewayTest {
             }
     }
 
-    @Test(dependsOnMethods = { "testSearch" })
+    @Test(dependsOnMethods = { "testAddTable" })
     public void testInvalidParams() throws Exception {
         try {
             // start > stop
@@ -228,7 +231,7 @@ public class TablesFacilityTest extends GatewayTest {
         }
     }
 
-    @Test(dependsOnMethods = { "testInvalidParams" })
+    @Test(dependsOnMethods = { "testAddTable" })
     public void testObjectColumnType() throws Exception {
         // Create an object where the table can be attached to
         // (can't use this.ds to not interfere with other tests)
@@ -259,7 +262,7 @@ public class TablesFacilityTest extends GatewayTest {
         Assert.assertEquals(td2.getNumberOfRows(), 1);
     }
 
-    @Test(dependsOnMethods = { "testObjectColumnType" })
+    @Test(dependsOnMethods = { "testAddTable" })
     public void testGetAvailableTables() throws Exception {
         Collection<FileAnnotationData> tablesFiles = tablesFacility
                 .getAvailableTables(rootCtx, ds);
@@ -268,15 +271,13 @@ public class TablesFacilityTest extends GatewayTest {
                 original.getOriginalFileId());
     }
 
-    @Test(dependsOnMethods = { "testGetAvailableTables" }, invocationCount = 5)
+    @Test(dependsOnMethods = { "testAddTable" }, invocationCount = 5)
     /**
      * Read a random subset from the table and compare to the original data
      * 
      * @throws Exception
      */
     public void testReadTable() throws Exception {
-        Object[][] origData = original.getData();
-
         TableData info = tablesFacility.getTableInfo(rootCtx,
                 original.getOriginalFileId());
         int rows = (int) info.getNumberOfRows();
@@ -301,7 +302,7 @@ public class TablesFacilityTest extends GatewayTest {
         TableData td2 = tablesFacility.getTable(rootCtx,
                 original.getOriginalFileId(), rowFrom, rowTo, columns);
 
-        Object[][] data2 = td2.getData();
+        Object[][] data = td2.getData();
 
         for (int r = rowFrom; r < rowTo; r++) {
             for (int c = 0; c < columns.length; c++) {
@@ -309,40 +310,50 @@ public class TablesFacilityTest extends GatewayTest {
                 Class<?> type = info.getColumns()[index].getType();
                 if (type.equals(String.class)) {
                     Assert.assertEquals(
-                            (String) data2[c][r - (int) td2.getOffset()],
+                            (String) data[c][r - (int) td2.getOffset()],
                             (String) origData[index][r]);
                 } else if (type.equals(Long.class)) {
                     Assert.assertEquals(
-                            (Long) data2[c][r - (int) td2.getOffset()],
+                            (Long) data[c][r - (int) td2.getOffset()],
                             (Long) origData[index][r]);
                 } else if (type.equals(Double.class)) {
                     Assert.assertEquals(
-                            (Double) data2[c][r - (int) td2.getOffset()],
+                            (Double) data[c][r - (int) td2.getOffset()],
                             (Double) origData[index][r]);
                 } else if (type.equals(Double[].class)) {
                     Assert.assertEquals(
-                            (Double[]) data2[c][r - (int) td2.getOffset()],
+                            (Double[]) data[c][r - (int) td2.getOffset()],
                             (Double[]) origData[index][r]);
                 } else if (type.equals(Boolean.class)) {
                     Assert.assertEquals(
-                            (Boolean) data2[c][r - (int) td2.getOffset()],
+                            (Boolean) data[c][r - (int) td2.getOffset()],
                             (Boolean) origData[index][r]);
                 } else if (type.equals(Float[].class)) {
                     Assert.assertEquals(
-                            (Float[]) data2[c][r - (int) td2.getOffset()],
+                            (Float[]) data[c][r - (int) td2.getOffset()],
                             (Float[]) origData[index][r]);
                 } else if (type.equals(ImageData.class) ||
                            type.equals(PlateData.class) ||
                            type.equals(WellData.class) ||
                            type.equals(DatasetData.class) ||
                            type.equals(ROIData.class)) {
-                    DataObject d1 = (DataObject) data2[c][r - (int) td2.getOffset()];
+                    DataObject d1 = (DataObject) data[c][r - (int) td2.getOffset()];
                     DataObject d2 = (DataObject) origData[index][r];
                     Assert.assertEquals(d1.getId(), d2.getId());
                 }
                 else if (type.equals(OriginalFile.class)) {
-                    OriginalFile d1 = (OriginalFile) data2[c][r - (int) td2.getOffset()];
+                    OriginalFile d1 = (OriginalFile) data[c][r - (int) td2.getOffset()];
                     OriginalFile d2 = (OriginalFile) origData[index][r];
+                    Assert.assertEquals(d1.getId(), d2.getId());
+                }
+                else if (type.equals(FileAnnotationData.class)) {
+                    FileAnnotationData d1 = (FileAnnotationData) data[c][r - (int) td2.getOffset()];
+                    FileAnnotationData d2 = (FileAnnotationData) origData[index][r];
+                    Assert.assertEquals(d1.getFileID(), d2.getFileID());
+                }
+                else if (type.equals(MaskData.class)) {
+                    MaskData d1 = (MaskData) data[c][r - (int) td2.getOffset()];
+                    MaskData d2 = (MaskData) origData[index][r];
                     Assert.assertEquals(d1.getId(), d2.getId());
                 }
             }
