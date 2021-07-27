@@ -22,6 +22,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -269,6 +271,31 @@ public class TablesFacilityTest extends GatewayTest {
         Assert.assertEquals(1, tablesFiles.size());
         Assert.assertEquals(tablesFiles.iterator().next().getFileID(),
                 original.getOriginalFileId());
+    }
+
+    @Test
+    public void testMaskData() throws Exception {
+        ImageData img = createImage();
+        List<TableDataColumn> cols = new ArrayList<>();
+        cols.add(new TableDataColumn("first", "blah", 0, MaskData.class));
+        List<List<Object>> data = new ArrayList<>();
+        MaskData m = new MaskData();
+        m.setImage(img);
+        m.setX(0);
+        m.setY(0);
+        m.setWidth(5);
+        m.setHeight(5);
+        m.setMask(new int[]{0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0});
+        data.add(Collections.singletonList(m));
+
+        TableData td = new TableData(cols, data);
+        td = tablesFacility.addTable(rootCtx, img, "Table", td);
+        Assert.assertTrue(td.getOriginalFileId() > -1);
+
+        TableData td2 = tablesFacility.getTable(rootCtx, td.getOriginalFileId());
+        Assert.assertEquals(td.getNumberOfRows(), 1);
+        MaskData m2 = (MaskData) td2.getData()[0][0];
+        Assert.assertEquals(m2.getMask().length, 25);
     }
 
     @Test(dependsOnMethods = { "testAddTable" }, invocationCount = 5)
