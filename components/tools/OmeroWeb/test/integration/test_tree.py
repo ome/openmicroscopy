@@ -192,7 +192,8 @@ def expected_plate_acquisitions(user, plate_acquisitions):
         if acq.name is not None:
             acq_name = acq.name.val
         elif acq.startTime is not None and acq.endTime is not None:
-            start_time = datetime.utcfromtimestamp(unwrap(acq.startTime) / 1000.0)
+            start_time = datetime.utcfromtimestamp(
+                unwrap(acq.startTime) / 1000.0)
             end_time = datetime.utcfromtimestamp(unwrap(acq.endTime) / 1000.0)
             acq_name = '%s - %s' % (start_time, end_time)
         else:
