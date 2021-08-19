@@ -191,10 +191,11 @@ class TestDownload(CLITest):
     def testSingleImageWithCompanion(self, tmpdir):
         images = self.import_fake_file(with_companion=True)
         image = images[0]
-        tmpfile = tmpdir.join('test')
-        self.args += ["Image:%s" % image.id.val, str(tmpfile)]
-        with pytest.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
+        out_dir = tmpdir.join('test')
+        self.args += ["Image:%s" % image.id.val, str(out_dir)]
+        self.cli.invoke(self.args, strict=True)
+        files = list(os.listdir(out_dir))
+        assert len(files) == 2
 
     def testMIF(self, tmpdir):
         images = self.import_fake_file(2)
