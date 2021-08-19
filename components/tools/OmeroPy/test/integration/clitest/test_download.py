@@ -199,12 +199,11 @@ class TestDownload(CLITest):
 
     def testMIF(self, tmpdir):
         images = self.import_fake_file(2)
-        tmpfile = tmpdir.join('test')
-        self.args += ["Image:%s" % images[0].id.val, str(tmpfile)]
+        out_dir = tmpdir.join('test')
+        self.args += ["Image:%s" % images[0].id.val, str(out_dir)]
         self.cli.invoke(self.args, strict=True)
-        with open(str(tmpfile)) as f:
-            bytes = f.read()
-        assert not bytes
+        files = list(os.listdir(out_dir))
+        assert len(files) == 1
 
     def testImageNoFileset(self, tmpdir):
         pixels = self.create_pixels()
