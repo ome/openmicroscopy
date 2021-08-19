@@ -1695,7 +1695,7 @@ stored in an installation of OMERO.server. Finally, we are releasing our first
 examples of clients that use the OMERO.blitz server, a flexible, distributed
 interface that supports a range of client environments. One very exciting
 addition is OMERO matlab, a gateway that can be used to access OMERO from
-Matlab®.
+MATLAB®.
 
 OMERO Beta3.0 includes a substantial reworking of our clients as well.
 OMERO.insight has been substantially updated, with an updated interface to

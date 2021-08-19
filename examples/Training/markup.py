@@ -326,7 +326,7 @@ class PythonParser(Parser):
 
 class MatlabParser(Parser):
     """
-    A specific Parser that adds rules for Matlab
+    A specific Parser that adds rules for MATLAB
     """
     def __init__(self, handler):
         Parser.__init__(self, handler)
@@ -372,7 +372,7 @@ def check_header(file_lines, quiet=False):
 
 def parseMatlab(Parser):
     """
-    Generates a doc page for the Matlab files.
+    Generates a doc page for the MATLAB files.
     """
     exclude = [
         'exampleSuite.m',
