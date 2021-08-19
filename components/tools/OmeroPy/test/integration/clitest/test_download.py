@@ -172,7 +172,8 @@ class TestDownload(CLITest):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    def testImage(self, tmpdir):
+    @pytest.mark.parametrize('use_fileset', [True, False])
+    def testImageFileset(self, tmpdir, use_fileset):
         fake = create_path("test", "&sizeT=2&sizeZ=5&sizeC=3.fake")
         with open(fake.abspath(), 'w+') as f:
             bytes1 = f.read()
@@ -180,7 +181,12 @@ class TestDownload(CLITest):
         pix_ids = self.import_image(f.name)
         pixels = self.query.get("Pixels", int(pix_ids[0]))
         out_dir = tmpdir.join('test')
-        self.args += ["Image:%s" % pixels.getImage().id.val, str(out_dir)]
+        image_id = pixels.getImage().id.val
+        object = "Image:%s" % image_id
+        if use_fileset:
+            image = self.query.get("Image", image_id)
+            object = "Fileset:%s" % image.fileset.id.val
+        self.args += [object, str(out_dir)]
         self.cli.invoke(self.args, strict=True)
         f.close()
         with open(str(out_dir.join(image_name))) as f:
