@@ -21,6 +21,7 @@
 
 from builtins import str
 from builtins import object
+import os
 import pytest
 import omero
 
@@ -172,17 +173,17 @@ class TestDownload(CLITest):
             self.cli.invoke(self.args, strict=True)
 
     def testImage(self, tmpdir):
-        append = "sizeT=10&sizeZ=5&sizeC=3"
-        fake = create_path("test", "&%s.fake" % append)
+        fake = create_path("test", "&sizeT=2&sizeZ=5&sizeC=3.fake")
         with open(fake.abspath(), 'w+') as f:
             bytes1 = f.read()
+        image_name = os.path.basename(f.name)
         pix_ids = self.import_image(f.name)
         pixels = self.query.get("Pixels", int(pix_ids[0]))
-        tmpfile = tmpdir.join('test')
-        self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]
+        out_dir = tmpdir.join('test')
+        self.args += ["Image:%s" % pixels.getImage().id.val, str(out_dir)]
         self.cli.invoke(self.args, strict=True)
         f.close()
-        with open(str(tmpfile)) as f:
+        with open(str(out_dir.join(image_name))) as f:
             bytes2 = f.read()
         assert bytes1 == bytes2
         f.close()
@@ -214,18 +215,18 @@ class TestDownload(CLITest):
     def testImageMultipleGroups(self, tmpdir):
         user, group1, group2 = self.setup_user_and_two_groups()
         client = self.new_client(user=user)
-        append = "sizeT=10&sizeZ=5&sizeC=3"
-        fake = create_path("test", "&%s.fake" % append)
+        fake = create_path("test", "&sizeT=2&sizeZ=5&sizeC=3.fake")
         with open(fake.abspath(), 'w+') as f:
             bytes1 = f.read()
+        image_name = os.path.basename(f.name)
         pix_ids = self.import_image(f.name)
         pixels = self.query.get("Pixels", int(pix_ids[0]))
-        tmpfile = tmpdir.join('test')
+        out_dir = tmpdir.join('test')
         self.set_context(client, group2.id.val)
-        self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]
+        self.args += ["Image:%s" % pixels.getImage().id.val, str(out_dir)]
         self.cli.invoke(self.args, strict=True)
         f.close()
-        with open(str(tmpfile)) as f:
+        with open(str(out_dir.join(image_name))) as f:
             bytes2 = f.read()
         assert bytes1 == bytes2
         f.close()
