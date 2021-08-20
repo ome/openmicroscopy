@@ -303,8 +303,6 @@ class TestDownload(CLITest):
 
     def do_restrictions(self, fixture, tmpdir, group):
 
-        tmpfile = tmpdir.join('%s.test' % fixture)
-
         upper = self.new_client(group=group)
         upper_q = upper.sf.getQueryService()
 
@@ -354,10 +352,13 @@ class TestDownload(CLITest):
                 assert will_pass != restricted, (
                     "%s:%s. Expected: %s") % (kls, oid, will_pass)
 
+                # avoid trying to overwrite files and dirs
+                target = tmpdir.join('%s.%stest' % (fixture, oid))
+
                 if "Plate" != kls:  # Plate is not implemented
                     self.args = ["download"]
                     self.args += self.login_args(downer)
-                    self.args += ["%s:%s" % (kls, oid), str(tmpfile)]
+                    self.args += ["%s:%s" % (kls, oid), str(target)]
                     if will_pass:
                         self.cli.invoke(self.args, strict=True)
                     else:
