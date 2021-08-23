@@ -159,7 +159,7 @@ class TestOmeroTables(IWebTest):
             assert rsp['data']['rows'] == rows[offset: offset + limit]
 
     def test_table_query(self, omero_table_file, django_client, table_data):
-        """Test pagination of table data as JSON."""
+        """Test query of table data as JSON."""
         file_id = omero_table_file
 
         # expected table data
@@ -177,6 +177,42 @@ class TestOmeroTables(IWebTest):
             request_url += '?query=%s' % query
             rsp = get_json(django_client, request_url)
             assert rsp['data']['rows'] == expected
+
+    def test_table_bitmask(self, omero_table_file, django_client, table_data):
+        """Test query of table data as bitmask."""
+        file_id = omero_table_file
+
+        # expected table data
+        col_types, col_names, rows = table_data
+        queries = ['Well>0', 'Well>1', 'Well>2', 'Well>3', 'Well>4', 'Well>5']
+
+        filtered_rows = [
+            "".join(['1' if r[0] > 0 else '0' for r in rows]),
+            "".join(['1' if r[0] > 1 else '0' for r in rows]),
+            "".join(['1' if r[0] > 2 else '0' for r in rows]),
+            "".join(['1' if r[0] > 3 else '0' for r in rows]),
+            "".join(['1' if r[0] > 4 else '0' for r in rows]),
+            "".join(['1' if r[0] > 5 else '0' for r in rows])
+        ]
+
+        def getByteStr(bt):
+            bstr = ''
+            for i in range(0, 8):
+                bstr = bstr + ('1' if (bt & 2 ** i) != 0 else '0')
+            return bstr
+
+        request_url = reverse("webgateway_table_obj_id_bitmask", args=[file_id])
+        for query, expected in zip(queries, filtered_rows):
+            url = request_url + '?query=%s' % query
+            rsp = get(django_client, url)
+            bitmask = rsp.content
+            bitStr = ''
+            for i in range(0, len(bitmask)):
+                bitStr = bitStr + getByteStr(int(bitmask[i]))
+            print('bitStr', bitStr)
+            print('expected', expected)
+            assert expected in bitStr
+            assert bitStr.startswith('0' + expected)
 
     def test_table_metadata(self, omero_table_file, django_client, table_data):
         """Test webgateway/table/FILEID/metadata"""
