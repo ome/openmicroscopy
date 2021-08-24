@@ -201,7 +201,8 @@ class TestOmeroTables(IWebTest):
                 bstr = bstr + ('1' if (bt & 2 ** i) != 0 else '0')
             return bstr
 
-        request_url = reverse("webgateway_table_obj_id_bitmask", args=[file_id])
+        request_url = reverse("webgateway_table_obj_id_bitmask",
+                              args=[file_id])
         for query, expected in zip(queries, filtered_rows):
             url = request_url + '?query=%s' % query
             rsp = get(django_client, url)
