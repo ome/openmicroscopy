@@ -23,7 +23,8 @@ import pytest
 from omeroweb.testlib import IWebTest, get, get_json
 from test_api_projects import get_connection
 
-from omero.grid import WellColumn, StringColumn, DoubleColumn
+from omero.grid import WellColumn, StringColumn, \
+    DoubleColumn, LongColumn
 from omero.rtypes import rint, rstring
 
 from django.core.urlresolvers import reverse
@@ -50,15 +51,15 @@ class TestOmeroTables(IWebTest):
     def table_data(self):
         """Return column classes, column names & row data."""
         col_types = [
-            WellColumn, StringColumn, DoubleColumn, DoubleColumn
+            WellColumn, StringColumn, DoubleColumn, DoubleColumn, LongColumn
         ]
-        col_names = ["Well", "TestColumn", "SmallNumbers", "BigNumbers"]
+        col_names = ["Well", "TestColumn", "SmallNumbers", "BigNumbers", "IDs"]
         rows = [
-            [1, 'test', 0.5, 135345.0],
-            [2, 'string', 1.0, 345345.121],
-            [3, 'column', 0.75, 356575.012],
-            [4, 'data', 0.12345, 13579.0],
-            [5, 'five', 0.01, 500.05]
+            [1, 'test', 0.5, 135345.0, 2],
+            [2, 'string', 1.0, 345345.121, 4],
+            [3, 'column', 0.75, 356575.012, 6],
+            [4, 'data', 0.12345, 13579.0, 8],
+            [5, 'five', 0.01, 500.05, 10]
         ]
         return (col_types, col_names, rows)
 
@@ -178,22 +179,20 @@ class TestOmeroTables(IWebTest):
             rsp = get_json(django_client, request_url)
             assert rsp['data']['rows'] == expected
 
-    def test_table_bitmask(self, omero_table_file, django_client, table_data):
-        """Test query of table data as bitmask."""
+    @pytest.mark.parametrize("query_result", [
+        ['query=Well>2', "000111"],   # Wells 3,4,5 are True for query
+        ['query=SmallNumbers>0.5', "001100"],   # Wells 2 & 3 are True for query
+        ["query=SmallNumbers<0.1&col_name=Well", "000001"], # Well 5 is True for query
+        ['query=SmallNumbers>0.5&col_name=IDs', "0000101"],  # IDs 4 & 6 are True for query
+    ])
+    def test_table_bitmask(self, omero_table_file, django_client, query_result):
+        """
+        Test query of table data as bitmask.
+
+        Resulting IDs are represented as a bit mask where the index of ID in the
+        bit mask is shown as 1. E.g. 1,3 & 6 => "0101001" (maybe extra 0 added)
+        """
         file_id = omero_table_file
-
-        # expected table data
-        col_types, col_names, rows = table_data
-        queries = ['Well>0', 'Well>1', 'Well>2', 'Well>3', 'Well>4', 'Well>5']
-
-        filtered_rows = [
-            "".join(['1' if r[0] > 0 else '0' for r in rows]),
-            "".join(['1' if r[0] > 1 else '0' for r in rows]),
-            "".join(['1' if r[0] > 2 else '0' for r in rows]),
-            "".join(['1' if r[0] > 3 else '0' for r in rows]),
-            "".join(['1' if r[0] > 4 else '0' for r in rows]),
-            "".join(['1' if r[0] > 5 else '0' for r in rows])
-        ]
 
         def getByteStr(bt):
             bstr = ''
@@ -203,17 +202,16 @@ class TestOmeroTables(IWebTest):
 
         request_url = reverse("webgateway_table_obj_id_bitmask",
                               args=[file_id])
-        for query, expected in zip(queries, filtered_rows):
-            url = request_url + '?query=%s' % query
-            rsp = get(django_client, url)
-            bitmask = rsp.content
-            bitStr = ''
-            for i in range(0, len(bitmask)):
-                bitStr = bitStr + getByteStr(int(bitmask[i]))
-            print('bitStr', bitStr)
-            print('expected', expected)
-            assert expected in bitStr
-            assert bitStr.startswith('0' + expected)
+        query, expected = query_result
+        url = request_url + '?%s' % query
+        rsp = get(django_client, url)
+        bitmask = rsp.content
+        bitStr = ''
+        for i in range(0, len(bitmask)):
+            bitStr = bitStr + getByteStr(int(bitmask[i]))
+        assert bitStr.startswith(expected)
+        # Any extra 0 padding should contain no "1"
+        assert "1" not in bitStr.replace(expected, "")
 
     def test_table_metadata(self, omero_table_file, django_client, table_data):
         """Test webgateway/table/FILEID/metadata"""
