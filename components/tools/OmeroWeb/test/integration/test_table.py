@@ -180,17 +180,23 @@ class TestOmeroTables(IWebTest):
             assert rsp['data']['rows'] == expected
 
     @pytest.mark.parametrize("query_result", [
-        ['query=Well>2', "000111"],   # Wells 3,4,5 are True for query
-        ['query=SmallNumbers>0.5', "001100"],   # Wells 2 & 3 are True for query
-        ["query=SmallNumbers<0.1&col_name=Well", "000001"], # Well 5 is True for query
-        ['query=SmallNumbers>0.5&col_name=IDs', "0000101"],  # IDs 4 & 6 are True for query
+        # Wells 3,4,5 are True for query
+        ['query=Well>2', "000111"],
+        # Wells 2 & 3 are True for query
+        ['query=SmallNumbers>0.5', "001100"],
+        # Well 5 is True for query
+        ["query=SmallNumbers<0.1&col_name=Well", "000001"],
+        # IDs 4 & 6 are True for query
+        ['query=SmallNumbers>0.5&col_name=IDs', "0000101"],
     ])
-    def test_table_bitmask(self, omero_table_file, django_client, query_result):
+    def test_table_bitmask(self, omero_table_file,
+                           django_client, query_result):
         """
         Test query of table data as bitmask.
 
-        Resulting IDs are represented as a bit mask where the index of ID in the
-        bit mask is shown as 1. E.g. 1,3 & 6 => "0101001" (maybe extra 0 added)
+        Resulting IDs are represented as a bit mask where the index of each ID
+        in the bit mask is shown as 1.
+        E.g. 1,3 & 6 => "0101001" (maybe extra 0 added)
         """
         file_id = omero_table_file
 
