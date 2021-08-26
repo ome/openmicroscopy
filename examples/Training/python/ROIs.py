@@ -195,8 +195,9 @@ polygon.theT = rint(t)
 polygon.fillColor = rint(rgba_to_int(255, 0, 255, 50))
 polygon.strokeColor = rint(rgba_to_int(255, 255, 0))
 polygon.strokeWidth = omero.model.LengthI(10, UnitsLength.PIXEL)
-points = "10,20, 50,150, 200,200, 250,75"
+points = "10,20 50,150 200,200 250,75"
 polygon.points = rstring(points)
+polygon.textValue = rstring("test-Polygon")
 create_roi(image, [polygon])
 
 # Retrieve ROIs linked to an Image
