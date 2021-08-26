@@ -295,7 +295,10 @@ public class TablesFacilityTest extends GatewayTest {
         TableData td2 = tablesFacility.getTable(rootCtx, td.getOriginalFileId());
         Assert.assertEquals(td.getNumberOfRows(), 1);
         MaskData m2 = (MaskData) td2.getData()[0][0];
-        Assert.assertEquals(m2.getMask().length, 25);
+        Assert.assertEquals(m2.getMask().length, m.getMask().length);
+        for(int i=0; i<m.getMask().length; i++) {
+            Assert.assertEquals(m2.getMask()[i], m.getMask()[i]);
+        }
     }
 
     @Test(dependsOnMethods = { "testAddTable" }, invocationCount = 5)
