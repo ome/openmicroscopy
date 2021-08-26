@@ -79,12 +79,12 @@ class RobotControl(BaseControl):
         }
 
         # Add OMERO.web substitutions
-        import urllib
+        import urllib.parse
         from omeroweb import settings
         static_prefix = getattr(settings, 'FORCE_SCRIPT_NAME', '')
         d["WEBPREFIX"] = static_prefix
-        d["QWEBPREFIX"] = urllib.quote(static_prefix, '')
-        d["QSEP"] = urllib.quote('/', '')
+        d["QWEBPREFIX"] = urllib.parse.quote(static_prefix, '')
+        d["QSEP"] = urllib.parse.quote('/', '')
         if args.webhost:
             d["WEBHOST"] = args.webhost
         elif settings.APPLICATION_SERVER not in settings.WSGI_TYPES:
