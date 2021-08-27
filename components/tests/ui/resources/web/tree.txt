@@ -339,8 +339,8 @@ Edit Object Name
 
 Get NodeId By Icon And Text
     [Arguments]                     ${icon}    ${text}
-    Wait Until Element Is Visible                            xpath=//i[contains(@style, '${icon}')]/parent::a[contains(text(), '${text}')]/parent::li
-    ${nodeId}=                      Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/parent::a[contains(text(), '${text}')]/parent::li    attribute=id
+    Wait Until Element Is Visible                            xpath=//i[contains(@style, '${icon}')]/parent::span[contains(text(), '${text}')]/parent::li
+    ${nodeId}=                      Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/parent::span[contains(text(), '${text}')]/parent::li    attribute=id
     [Return]                        ${nodeId}
 
 Wait For Project Node Text

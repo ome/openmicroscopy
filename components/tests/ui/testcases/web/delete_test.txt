@@ -107,7 +107,7 @@ Test Delete MIF Images
     Check Fileset Delete Warning
     Click Dialog Button                     Cancel
     # ...and from right-click menu
-    Open Context Menu                       xpath=//li[@id='${nodeId}']/a
+    Open Context Menu                       xpath=//li[@id='${nodeId}']/span
     Wait Until Element Is Visible           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Delete')]
     Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Delete')]
     Check Fileset Delete Warning
