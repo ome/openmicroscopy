@@ -14,7 +14,7 @@ ${PLATE_NAME}               spwTests
 *** Keywords ***
 
 Get Number Of Selected Objects From Tree
-    ${numOfObjects}=                Get Element Count        xpath=//li[contains(@role, 'treeitem')]//a[contains(@class, 'jstree-clicked')]
+    ${numOfObjects}=                Get Element Count        xpath=//li[contains(@class, 'jstree-node')]//span[contains(@class, 'jstree-clicked')]
     [return]                        ${numOfObjects}
 
 Get Number Of Selected Objects From Center Panel
@@ -55,6 +55,7 @@ Test Multi Selections
     Click Next Thumbnail
     ${imageId1}                     Get Id From Selected Thumbnail
     Meta Click Thumbnail            ${imageId}
+    Wait Until Page Contains Element    xpath=//h1[@id='batch_ann_title']/span[contains(text(), '2 objects')]
 
     ${numOfObjects}                 Get Number Of Selected Objects From Tree
     ${numOfObjects1}                Get Number Of Selected Objects From Center Panel

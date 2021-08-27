@@ -145,7 +145,7 @@ Key Down
 Popup Menu Item Should Be Enabled
     [Arguments]                         ${menuItem}    ${enabled}
     # Right Click on the currently selected tree node ('tree-clicked')
-    Open Context Menu                   xpath=//a[contains(@class, 'tree-clicked')]
+    Open Context Menu                   xpath=//span[contains(@class, 'tree-clicked')]
     Wait Until Element Is Visible       xpath=//ul[contains(@class, 'jstree-contextmenu')]
     Run Keyword If                      ${enabled}     Page Should Contain Element    //li[contains(@class, 'vakata-contextmenu-disabled')]/span[contains(text(), '${menuItem}')]    limit=0
     ...                                 ELSE           Page Should Contain Element    //li[contains(@class, 'vakata-contextmenu-disabled')]/span[contains(text(), '${menuItem}')]    limit=1
@@ -504,8 +504,8 @@ User Should Not Be Selected
 
 Node Should Be Selected By Icon
     [Arguments]                         ${icon}
-    Wait Until Page Contains Element    xpath=//i[contains(@style, '${icon}')]/parent::a[contains(@class, 'jstree-clicked')]/parent::li
-    ${nodeId}=                          Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/parent::a[contains(@class, 'jstree-clicked')]/parent::li    attribute=id
+    Wait Until Page Contains Element    xpath=//i[contains(@style, '${icon}')]/parent::span[contains(@class, 'jstree-clicked')]/parent::li
+    ${nodeId}=                          Get Element Attribute    xpath=//i[contains(@style, '${icon}')]/parent::span[contains(@class, 'jstree-clicked')]/parent::li    attribute=id
     [Return]                            ${nodeId}
 
 Dataset Should Be Selected
@@ -520,7 +520,7 @@ Plate Should Be Selected By Name
 
 # Get the Object Id of the currently seleted Node
 Get Selected Id From Tree
-    ${objectId}=        Get Element Attribute    xpath=//a[contains(@class, 'jstree-clicked')]/parent::li    attribute=data-id
+    ${objectId}=        Get Element Attribute    xpath=//span[contains(@class, 'jstree-clicked')]/parent::li    attribute=data-id
     [Return]            ${objectId}
 
 
@@ -582,7 +582,7 @@ Thumbnail Should Not Be Selected
 
 Get Id From Selected Item In Tree
     # Wait Until Element Is Visible xpath=//li::a[contains(@class, 'jstree-clicked')]
-    ${dataId}=                      Get Element Attribute    xpath=//li[contains(@class,'jstree-leaf')][descendant::a[contains(@class, 'jstree-clicked')]]     attribute=data-id
+    ${dataId}=                      Get Element Attribute    xpath=//li[contains(@class,'jstree-leaf')][descendant::span[contains(@class, 'jstree-clicked')]]     attribute=data-id
     [return]                        ${dataId}
 
 Get Id From Selected Thumbnail
