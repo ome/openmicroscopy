@@ -96,6 +96,13 @@ Test Cut Paste Plate
     Click Node                              ${screenNode1}                     
     Wait Until Page Contains Element        xpath=//li[@id='${screenNode1}']//li[@data-id='${plateId}']
 
+    # Cut and paste Plate to original Screen
+    Select First Plate
+    Click Element                           id=cutButton
+    Click Node                              ${screenNode}
+    Click Element                           id=pasteButton
+
+    # Delete new Screen
     Select Screen By Id                     ${s1id}
     Delete Container
 
