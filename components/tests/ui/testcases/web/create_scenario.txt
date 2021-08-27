@@ -22,7 +22,7 @@ ${notOrphaned}                      False
 
 Right Click Create P/D/S
     [Arguments]                             ${rootId}       ${optionText}       ${P/D/S Name}
-    Open Context Menu                       xpath=//li[@id='${rootId}']/a
+    Open Context Menu                       xpath=//li[@id='${rootId}']/span
     Wait Until Element Is Visible           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Create new')]
     Mouse Over                              xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Create new')]
     Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), "${optionText}")]
@@ -31,7 +31,7 @@ Right Click Create P/D/S
 
 P/D/S Should Be Clicked And Visible
     [Arguments]                             ${NodeName}
-    Wait Until Page Contains Element        xpath=//a[contains(text(),'${NodeName}')][contains(@class, 'jstree-clicked')]
+    Wait Until Page Contains Element        xpath=//span[contains(text(),'${NodeName}')][contains(@class, 'jstree-clicked')]
     Wait Until Page Contains Element        xpath=//div[contains(@class, 'data_heading')]//span[contains(text(),'${NodeName}')]
 
 Check Right And Center Panels For Active Container

@@ -147,8 +147,8 @@ Popup Menu Item Should Be Enabled
     # Right Click on the currently selected tree node ('tree-clicked')
     Open Context Menu                   xpath=//span[contains(@class, 'tree-clicked')]
     Wait Until Element Is Visible       xpath=//ul[contains(@class, 'jstree-contextmenu')]
-    Run Keyword If                      ${enabled}     Page Should Contain Element    //li[contains(@class, 'vakata-contextmenu-disabled')]/span[contains(text(), '${menuItem}')]    limit=0
-    ...                                 ELSE           Page Should Contain Element    //li[contains(@class, 'vakata-contextmenu-disabled')]/span[contains(text(), '${menuItem}')]    limit=1
+    Run Keyword If                      ${enabled}     Page Should Contain Element    //li[contains(@class, 'vakata-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    limit=0
+    ...                                 ELSE           Page Should Contain Element    //li[contains(@class, 'vakata-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    limit=1
     # Click elsewhere to hide the context menu
     Click Element                       content
 
