@@ -42,7 +42,7 @@ Test Chgrp
     ${pid}=                                 Create project      robot test chgrp
     Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Click Element                           refreshButton
     ${nodeId}=                              Select Project By Id            ${pid}
-    Open Context Menu                       xpath=//li[@id='${nodeId}']/a
+    Open Context Menu                       xpath=//li[@id='${nodeId}']/span
     Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Move to Group...')]
     Wait Until Element Is Visible           id=group_chooser
     Wait Until Element Is Visible           xpath=//div[@id='group_chooser']/div[contains(@class, 'chgrpGroup')]
