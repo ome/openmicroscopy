@@ -40,17 +40,18 @@ Invalid Login
     Go To                   ${WEBADMIN WELCOME URL}
     Log In As               foo                             secret              ${SERVER_ID}
     Page Should Be Open     ${WEBADMIN LOGIN URL}           OMERO.web - Login
-    Page Should Contain     Error: Connection not available, please check your user name and password.
+    Page Should Contain     Error: Connection not available, please check your credentials and version compatibility.
     
     Go To                   ${WEBADMIN WELCOME URL}
+
+    # Browsers now prevent 'submit' if 'required' fields are empty
+    # Log In As               foo                             ${EMPTY}            ${SERVER_ID}
+    # Page Should Be Open     ${WEBADMIN LOGIN URL}           OMERO.web - Login
+    # Page Should Contain     This field is required.
     
-    Log In As               foo                             ${EMPTY}            ${SERVER_ID}
-    Page Should Be Open     ${WEBADMIN LOGIN URL}           OMERO.web - Login
-    Page Should Contain     This field is required.
-    
-    Log In As               ${EMPTY}                        secret              ${SERVER_ID}
-    Page Should Be Open     ${WEBADMIN LOGIN URL}           OMERO.web - Login
-    Page Should Contain     This field is required.
+    # Log In As               ${EMPTY}                        secret              ${SERVER_ID}
+    # Page Should Be Open     ${WEBADMIN LOGIN URL}           OMERO.web - Login
+    # Page Should Contain     This field is required.
 
 Guest Login
 
@@ -58,7 +59,7 @@ Guest Login
     # Check that 'g' is not mistaken for 'guest' https://github.com/openmicroscopy/openmicroscopy/pull/4686
     Log In As               g                               secret                  ${SERVER_ID}
     Page Should Be Open     ${LOGIN URL}                    OMERO.web - Login
-    Page Should Contain     Error: Connection not available, please check your user name and password.
+    Page Should Contain     Error: Connection not available, please check your credentials and version compatibility.
     Go To                   ${LOGIN URL}
     Log In As               guest                           secret                  ${SERVER_ID}
     Page Should Be Open     ${LOGIN URL}                    OMERO.web - Login
