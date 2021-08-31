@@ -9,8 +9,8 @@ Suite Setup         User "${USERNAME}" logs in with password "${PASSWORD}"
 
 *** Variables ***
 
-${imageName1}                       testShowImage1
-${imageName2}                       testShowImage2
+${imageName1}                       FilterImageOne
+${imageName2}                       FilterImageTwo
 ${plateName}                        spwTests
 ${FIELD_COUNT}                      5
 # Full Well name may make test fragile?
@@ -29,7 +29,7 @@ Wait For Right Panel
 Check Well Selected
     [Arguments]                             ${wellName}       ${wellId}
     Wait Until Page Contains Element        xpath=//td[@id='well-${wellId}'][contains(@class,'well')][contains(@class,'ui-selected')]
-    Wait Until Page Contains Element        xpath=//td[@id='well-${wellId}']/img[@name='${wellName}']
+    Wait Until Page Contains Element        xpath=//td[@id='well-${wellId}']/div/img[@name='${wellName}']
 
 Get Link Button Url
     Click Element                           id=show_link_btn
@@ -91,7 +91,7 @@ Test Show Well Images
     Page Should Contain Element             //div[@id='wellImages']//li/a                 limit=${FIELD_COUNT}
 
     # Select Range: Shift-click 5th image
-    Click Element                           xpath=//div[@id='wellImages']//li/a/img[1]
+    Click Element                           xpath=//div[@id='wellImages']//li/a/div/img[1]
     Shift Click Element                     "#wellImages img:eq(4)"
     Wait Until Page Contains Element        //h1[@id='batch_ann_title']/span[contains(text(), '5 objects')]
 
