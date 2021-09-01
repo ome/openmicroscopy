@@ -48,11 +48,11 @@ If you are running the tests on Mac OS X, you can install with the following
 brew install geckodriver
 ```
 
-NB: this took too long for me, and manually installing geckodriver
+NB: If this takes too long, and manually installing geckodriver
 from [releases](https://github.com/mozilla/geckodriver/releases)
-didn't work either. But using Chrome did work (see below)
+doesn't work, try using Chrome.
 
-If you want to run the tests on Chrome, you need to install the chromedriver.
+To run the tests on Chrome, you need to install the chromedriver.
 See https://sites.google.com/a/chromium.org/chromedriver/downloads
 Download the correct driver for your version of Chrome and save it to
 a directory on your `$PATH`.
