@@ -21,6 +21,7 @@
 
 from builtins import str
 from builtins import object
+import os
 import pytest
 import omero
 
@@ -171,18 +172,24 @@ class TestDownload(CLITest):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    def testImage(self, tmpdir):
-        append = "sizeT=10&sizeZ=5&sizeC=3"
-        fake = create_path("test", "&%s.fake" % append)
+    @pytest.mark.parametrize('use_fileset', [True, False])
+    def testImageFileset(self, tmpdir, use_fileset):
+        fake = create_path("test", "&sizeT=2&sizeZ=5&sizeC=3.fake")
         with open(fake.abspath(), 'w+') as f:
             bytes1 = f.read()
+        image_name = os.path.basename(f.name)
         pix_ids = self.import_image(f.name)
         pixels = self.query.get("Pixels", int(pix_ids[0]))
-        tmpfile = tmpdir.join('test')
-        self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]
+        out_dir = tmpdir.join('test')
+        image_id = pixels.getImage().id.val
+        object = "Image:%s" % image_id
+        if use_fileset:
+            image = self.query.get("Image", image_id)
+            object = "Fileset:%s" % image.fileset.id.val
+        self.args += [object, str(out_dir)]
         self.cli.invoke(self.args, strict=True)
         f.close()
-        with open(str(tmpfile)) as f:
+        with open(str(out_dir.join(image_name))) as f:
             bytes2 = f.read()
         assert bytes1 == bytes2
         f.close()
@@ -190,19 +197,19 @@ class TestDownload(CLITest):
     def testSingleImageWithCompanion(self, tmpdir):
         images = self.import_fake_file(with_companion=True)
         image = images[0]
-        tmpfile = tmpdir.join('test')
-        self.args += ["Image:%s" % image.id.val, str(tmpfile)]
-        with pytest.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
+        out_dir = tmpdir.join('test')
+        self.args += ["Image:%s" % image.id.val, str(out_dir)]
+        self.cli.invoke(self.args, strict=True)
+        files = list(os.listdir(out_dir))
+        assert len(files) == 2
 
     def testMIF(self, tmpdir):
         images = self.import_fake_file(2)
-        tmpfile = tmpdir.join('test')
-        self.args += ["Image:%s" % images[0].id.val, str(tmpfile)]
+        out_dir = tmpdir.join('test')
+        self.args += ["Image:%s" % images[0].id.val, str(out_dir)]
         self.cli.invoke(self.args, strict=True)
-        with open(str(tmpfile)) as f:
-            bytes = f.read()
-        assert not bytes
+        files = list(os.listdir(out_dir))
+        assert len(files) == 1
 
     def testImageNoFileset(self, tmpdir):
         pixels = self.create_pixels()
@@ -214,18 +221,18 @@ class TestDownload(CLITest):
     def testImageMultipleGroups(self, tmpdir):
         user, group1, group2 = self.setup_user_and_two_groups()
         client = self.new_client(user=user)
-        append = "sizeT=10&sizeZ=5&sizeC=3"
-        fake = create_path("test", "&%s.fake" % append)
+        fake = create_path("test", "&sizeT=2&sizeZ=5&sizeC=3.fake")
         with open(fake.abspath(), 'w+') as f:
             bytes1 = f.read()
+        image_name = os.path.basename(f.name)
         pix_ids = self.import_image(f.name)
         pixels = self.query.get("Pixels", int(pix_ids[0]))
-        tmpfile = tmpdir.join('test')
+        out_dir = tmpdir.join('test')
         self.set_context(client, group2.id.val)
-        self.args += ["Image:%s" % pixels.getImage().id.val, str(tmpfile)]
+        self.args += ["Image:%s" % pixels.getImage().id.val, str(out_dir)]
         self.cli.invoke(self.args, strict=True)
         f.close()
-        with open(str(tmpfile)) as f:
+        with open(str(out_dir.join(image_name))) as f:
             bytes2 = f.read()
         assert bytes1 == bytes2
         f.close()
@@ -296,8 +303,6 @@ class TestDownload(CLITest):
 
     def do_restrictions(self, fixture, tmpdir, group):
 
-        tmpfile = tmpdir.join('%s.test' % fixture)
-
         upper = self.new_client(group=group)
         upper_q = upper.sf.getQueryService()
 
@@ -347,10 +352,13 @@ class TestDownload(CLITest):
                 assert will_pass != restricted, (
                     "%s:%s. Expected: %s") % (kls, oid, will_pass)
 
+                # avoid trying to overwrite files and dirs
+                target = tmpdir.join('%s.%stest' % (fixture, oid))
+
                 if "Plate" != kls:  # Plate is not implemented
                     self.args = ["download"]
                     self.args += self.login_args(downer)
-                    self.args += ["%s:%s" % (kls, oid), str(tmpfile)]
+                    self.args += ["%s:%s" % (kls, oid), str(target)]
                     if will_pass:
                         self.cli.invoke(self.args, strict=True)
                     else:
