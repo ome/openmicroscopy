@@ -114,7 +114,6 @@ plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 omero obj update Plate:$plateid name=spwTests
 # Use populate_metadata to upload and attach bulk annotation csv
 # We use testtables to only try populate if tables are working
-export OMERO_DEV_PLUGINS=1      # required to enable 'metadata' CLI
 omero metadata testtables && omero metadata populate Plate:$plateid --file $BULK_ANNOTATION_CSV
 
 # Run script to populate WellSamples with posX and posY values
