@@ -23,7 +23,6 @@ Simple integration tests for the "tree" module.
 from __future__ import division
 
 from builtins import str
-from past.utils import old_div
 import pytest
 from omero.testlib import ITest
 
@@ -41,6 +40,7 @@ from omeroweb.webclient.tree import marshal_experimenter, \
     marshal_tags, marshal_tagged, marshal_shares, marshal_discussions
 
 from datetime import datetime
+from test_tree_annotations import expected_date
 
 
 def unwrap(x):
@@ -192,8 +192,9 @@ def expected_plate_acquisitions(user, plate_acquisitions):
         if acq.name is not None:
             acq_name = acq.name.val
         elif acq.startTime is not None and acq.endTime is not None:
-            start_time = datetime.utcfromtimestamp(acq.startTime.val / 1000.0)
-            end_time = datetime.utcfromtimestamp(acq.endTime.val / 1000.0)
+            start_time = datetime.utcfromtimestamp(
+                unwrap(acq.startTime) / 1000.0)
+            end_time = datetime.utcfromtimestamp(unwrap(acq.endTime) / 1000.0)
             acq_name = '%s - %s' % (start_time, end_time)
         else:
             acq_name = 'Run %d' % acq.id.val
@@ -1849,17 +1850,16 @@ class TestTree(ITest):
         dataset = project_hierarchy_userA_groupA[2]
         images = project_hierarchy_userA_groupA[4:6]
         utcAcq = 1444129810716
-        acqDate = '2015-10-06T12:10:10Z'
         for i in images:
             # get Creation date and set Acquisition Date.
             utcCreate = i.details.creationEvent._time.val
             i.setAcquisitionDate(rtime(utcAcq))
         images = conn.getUpdateService().saveAndReturnArray(images)
         # All images created at same time
-        utcCreate = datetime.fromtimestamp(
-            old_div(utcCreate, 1000)).isoformat() + 'Z'
+        creDate = expected_date(utcCreate)
+        acqDate = expected_date(utcAcq)
         extraValues = {'acqDate': acqDate,
-                       'date': utcCreate}
+                       'date': creDate}
         expected = expected_images(userA, images,
                                    extraValues=extraValues)
         marshaled = marshal_images(conn=conn,
