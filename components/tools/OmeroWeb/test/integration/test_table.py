@@ -29,6 +29,7 @@ from omero.rtypes import rint, rstring
 
 from django.core.urlresolvers import reverse
 from random import random
+import numpy as np
 
 
 class TestOmeroTables(IWebTest):
@@ -200,21 +201,17 @@ class TestOmeroTables(IWebTest):
         """
         file_id = omero_table_file
 
-        def getByteStr(bt):
-            bstr = ''
-            for i in range(0, 8):
-                bstr = bstr + ('1' if (bt & 2 ** i) != 0 else '0')
-            return bstr
-
         request_url = reverse("webgateway_table_obj_id_bitmask",
                               args=[file_id])
         query, expected = query_result
         url = request_url + '?%s' % query
         rsp = get(django_client, url)
         bitmask = rsp.content
-        bitStr = ''
-        for i in range(0, len(bitmask)):
-            bitStr = bitStr + getByteStr(int(bitmask[i]))
+        # convert string into byte array and unpack
+        numbers = [int(by) for by in bitmask]
+        bits = np.unpackbits(np.array(numbers, dtype=np.uint8))
+        # convert bits to string for comparison
+        bitStr = ''.join([str(b) for b in bits])
         assert bitStr.startswith(expected)
         # Any extra 0 padding should contain no "1"
         assert "1" not in bitStr.replace(expected, "")
