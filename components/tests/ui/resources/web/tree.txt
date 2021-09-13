@@ -49,6 +49,11 @@ Wait For Node To Be Visible
     # Node identified by text value
     Wait Until Page Contains Element    xpath=//div[@id='dataTree']//span[contains(text(),'${nodeText}')]
 
+Node Context Menu Select Item
+    [Arguments]             ${nodeId}       ${menuItemText}
+    Open Context Menu                       xpath=//li[@id='${nodeId}']/span
+    Wait Until Element Is Visible           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), '${menuItemText}')]
+    Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), '${menuItemText}')]
 
 Node Popup Menu Item Should Be Enabled
     [Arguments]       ${menuItem}              ${nodeText}=${None}

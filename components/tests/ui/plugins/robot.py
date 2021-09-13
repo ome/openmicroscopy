@@ -76,6 +76,8 @@ class RobotControl(BaseControl):
             "PROTOCOL": args.protocol,
             "REMOTEURL": args.remoteurl,
             "DC": args.dc,
+            "GROUP_NAME": p.getPropertyWithDefault("group_name", "group_name"),
+            "GROUP_NAME_2": p.getPropertyWithDefault("group_name_2", "group_name_2"),
         }
 
         # Add OMERO.web substitutions

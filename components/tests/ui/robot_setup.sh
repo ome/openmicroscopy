@@ -164,6 +164,10 @@ echo "omero.pass=$USER_PASSWORD" >> "$CONFIG_FILENAME"
 echo "omero.projectid=${project##*:}" >> "$CONFIG_FILENAME"
 echo "omero.datasetid=${dataset##*:}" >> "$CONFIG_FILENAME"
 
+# Add custom properties that we need in the robot config file
+echo "group_name=$GROUP_NAME" >> "$CONFIG_FILENAME"
+echo "group_name_2=$GROUP_NAME_2" >> "$CONFIG_FILENAME"
+
 # Remove fake file and logs
 rm *.fake
 rm plate_import.log
