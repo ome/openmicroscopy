@@ -114,7 +114,20 @@ Create Edit User
     Click Element           xpath=//div[@id='id_other_groups_chosen']/ul[@class='chosen-choices']
     Page Should Contain Element             xpath=//div[@id='id_other_groups_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']
     Click Element           xpath=//div[@id='id_other_groups_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']/li[contains(text(),'test_group')]
-    
+
+    # Add to 'system' group - Role should be 'administrator'
+    Click Element           xpath=//div[@id='id_other_groups_chosen']/ul[@class='chosen-choices']
+    Click Element           xpath=//div[@id='id_other_groups_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']/li[contains(text(),'system')]
+    Radio Button Should Be Set To       role        administrator
+
+    # Editing 'Role' should update 'system' group in "Groups" selection
+    Select Radio Button     role        user
+    Page Should Not Contain Element     xpath=//ul[@class='chosen-choices']//span[contains(text(),'system')]
+    Select Radio Button     role        administrator
+    Wait Until Page Contains Element    xpath=//ul[@class='chosen-choices']//span[contains(text(),'system')]
+    Select Radio Button     role        user
+    Page Should Not Contain Element     xpath=//ul[@class='chosen-choices']//span[contains(text(),'system')]
+
     Click Button            Save
     Location Should Be      ${USERS URL}
     Page Should Contain     ${user_name}
@@ -124,6 +137,9 @@ Create Edit User
     Wait Until Page Contains Element    id=id_first_name    ${WAIT}
     ${createdName}=                     Get Element Attribute   xpath=//input[@id='id_first_name']    attribute=value
     Should Be Equal                     "${user_name}"    "${createdName}"
+
+    # Role should be saved as User
+    Radio Button Should Be Set To       role        user
 
     # Edit Password
     Click Element           id=change_password
