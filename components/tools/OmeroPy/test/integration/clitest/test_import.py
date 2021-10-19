@@ -969,7 +969,7 @@ class TestImport(CLITest):
 
         self.args += [str(fakefile)]
         o, e = self.do_import(capfd)
-        yo = yaml.load(o)
+        yo = yaml.load(o, Loader=yaml.FullLoader)
         # Check the contents of "yo",
         # and the existence of the newly created fileset and image
         self.assert_object("Fileset", int(yo[0]['Fileset']))
