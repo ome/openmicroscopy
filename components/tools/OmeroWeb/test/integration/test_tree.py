@@ -1721,6 +1721,7 @@ class TestTree(ITest):
         expected[0]['sizeX'] = 50
         expected[0]['sizeY'] = 50
         expected[0]['sizeZ'] = 5
+        expected[0]['sizeT'] = 1
         marshaled = marshal_images(conn=conn,
                                    load_pixels=True,
                                    experimenter_id=userA[1].id.val)
@@ -1826,7 +1827,7 @@ class TestTree(ITest):
                                               project_hierarchy_userA_groupA):
         """
         Test marshalling images for userA, groupA, datasetA
-        Images have no pixels, so should load with 'null' sizeX/Y/Z
+        Images have no pixels, so should load with 'null' sizeX/Y/Z/T
         """
         conn = get_connection(userA)
         dataset = project_hierarchy_userA_groupA[2]
@@ -1834,6 +1835,7 @@ class TestTree(ITest):
         expected = expected_images(userA, images,
                                    extraValues={'sizeX': None,
                                                 'sizeY': None,
+                                                'sizeT': None,
                                                 'sizeZ': None})
         marshaled = marshal_images(conn=conn,
                                    dataset_id=dataset.id.val,
@@ -2313,7 +2315,7 @@ class TestTree(ITest):
                                          tag_image_pixels):
         """
         Test that tagged images queries support loading
-        of pixels to get sizeX, sizeY, sizeZ
+        of pixels to get sizeX, sizeY, sizeZ, sizeT
         """
         tag = tag_image_pixels[0]
         image = tag_image_pixels[1]
@@ -2322,6 +2324,7 @@ class TestTree(ITest):
         expected[0]['sizeX'] = 50
         expected[0]['sizeY'] = 50
         expected[0]['sizeZ'] = 5
+        expected[0]['sizeT'] = 1
         marshaled = marshal_tagged(conn=conn,
                                    tag_id=tag.id.val,
                                    load_pixels=True)
