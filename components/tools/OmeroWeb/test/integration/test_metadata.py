@@ -33,7 +33,7 @@ from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.model.enums import UnitsLength
 from omero_model_ImageI import ImageI
 
-from omero.rtypes import rstring, rdouble
+from omero.rtypes import rbool, rstring, rdouble
 from omero.rtypes import wrap
 
 
@@ -55,6 +55,7 @@ class TestAcquisitionMetadata(IWebTest):
         objective.calibratedMagnification = rdouble(100.1)
         objective.lotNumber = rstring("123")
         objective.serialNumber = rstring("abcdefX")
+        objective.iris = rbool(True)
 
         immersions = list(conn.getEnumerationEntries("ImmersionI"))
         corrections = list(conn.getEnumerationEntries("CorrectionI"))
@@ -87,7 +88,8 @@ class TestAcquisitionMetadata(IWebTest):
                 "lotNumber": "123",
                 "serialNumber": "abcdefX",
                 "immersion": immersions[0].value,
-                "correction": corrections[0].value
+                "correction": corrections[0].value,
+                "iris": True
             }
         }
 
