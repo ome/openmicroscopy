@@ -26,15 +26,60 @@ import pytest
 
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get, _get_response
+from omeroweb.webgateway.marshal import acquisitionMetadataMarshal
 
 from django.core.urlresolvers import reverse
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.model.enums import UnitsLength
 from omero_model_ImageI import ImageI
 
-from omero.rtypes import rstring
+from omero.rtypes import rlong, rstring, rdouble, rint
 from omero.rtypes import wrap
 
+
+class TestAcquisitionMetadata(IWebTest):
+
+    def test_objective_settings(self):
+
+        iid = self.create_test_image(size_c=2, session=self.sf).id.val
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
+        image = conn.getObject("Image", iid)
+
+        # Create Objective
+        update = conn.getUpdateService()
+        objective = omero.model.ObjectiveI()
+        # id, model, manufacturer, serialNumber, lotNumber, calibratedMagnification, nominalMagnification, lensNA
+        objective.model = rstring("ImageCo ABC")
+        objective.lensNA = rdouble(1.4)
+
+        immersions = list(conn.getEnumerationEntries("ImmersionI"))
+        corrections = list(conn.getEnumerationEntries("CorrectionI"))
+        objective.correction = corrections[0]._obj
+        objective.immersion = immersions[0]._obj
+        objective.instrument = update.saveAndReturnObject(omero.model.InstrumentI())
+        objective = update.saveAndReturnObject(objective)
+
+        settings = omero.model.ObjectiveSettingsI()
+        settings.objective = objective
+        settings = update.saveAndReturnObject(settings)
+
+        image._obj.objectiveSettings = settings
+        update.saveAndReturnObject(image._obj)
+
+        # reload...
+        image = conn.getObject("Image", iid)
+        json_data = acquisitionMetadataMarshal(image)
+        print(json_data)
+        assert json_data["objectiveSettings"] == {
+            "id": settings.id.val,
+            "objective": {
+                "id": objective.id.val,
+                "model": "ImageCo ABC",
+                "lensNA": 1.4,
+                "immersion": immersions[0].value,
+                "correction": corrections[0].value
+            }
+        }
 
 class TestCoreMetadata(IWebTest):
     """
