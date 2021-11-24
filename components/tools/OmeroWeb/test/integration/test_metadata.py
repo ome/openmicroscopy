@@ -33,7 +33,7 @@ from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.model.enums import UnitsLength
 from omero_model_ImageI import ImageI
 
-from omero.rtypes import rlong, rstring, rdouble, rint
+from omero.rtypes import rstring, rdouble
 from omero.rtypes import wrap
 
 
@@ -48,15 +48,20 @@ class TestAcquisitionMetadata(IWebTest):
         # Create Objective
         update = conn.getUpdateService()
         objective = omero.model.ObjectiveI()
-        # id, model, manufacturer, serialNumber, lotNumber, calibratedMagnification, nominalMagnification, lensNA
-        objective.model = rstring("ImageCo ABC")
+        objective.model = rstring("SuperZoom ABC")
+        objective.manufacturer = rstring("ImageCo")
         objective.lensNA = rdouble(1.4)
+        objective.nominalMagnification = rdouble(100)
+        objective.calibratedMagnification = rdouble(100.1)
+        objective.lotNumber = rstring("123")
+        objective.serialNumber = rstring("abcdefX")
 
         immersions = list(conn.getEnumerationEntries("ImmersionI"))
         corrections = list(conn.getEnumerationEntries("CorrectionI"))
         objective.correction = corrections[0]._obj
         objective.immersion = immersions[0]._obj
-        objective.instrument = update.saveAndReturnObject(omero.model.InstrumentI())
+        objective.instrument = update.saveAndReturnObject(
+            omero.model.InstrumentI())
         objective = update.saveAndReturnObject(objective)
 
         settings = omero.model.ObjectiveSettingsI()
@@ -74,12 +79,18 @@ class TestAcquisitionMetadata(IWebTest):
             "id": settings.id.val,
             "objective": {
                 "id": objective.id.val,
-                "model": "ImageCo ABC",
+                "model": "SuperZoom ABC",
+                "manufacturer": "ImageCo",
                 "lensNA": 1.4,
+                "nominalMagnification": 100,
+                "calibratedMagnification": 100.1,
+                "lotNumber": "123",
+                "serialNumber": "abcdefX",
                 "immersion": immersions[0].value,
                 "correction": corrections[0].value
             }
         }
+
 
 class TestCoreMetadata(IWebTest):
     """
