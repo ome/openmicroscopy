@@ -23,11 +23,13 @@ import pytest
 from omeroweb.testlib import IWebTest, get, get_json
 from test_api_projects import get_connection
 
-from omero.grid import WellColumn, StringColumn, DoubleColumn
+from omero.grid import WellColumn, StringColumn, \
+    DoubleColumn, LongColumn
 from omero.rtypes import rint, rstring
 
 from django.core.urlresolvers import reverse
 from random import random
+import numpy as np
 
 
 class TestOmeroTables(IWebTest):
@@ -50,15 +52,15 @@ class TestOmeroTables(IWebTest):
     def table_data(self):
         """Return column classes, column names & row data."""
         col_types = [
-            WellColumn, StringColumn, DoubleColumn, DoubleColumn
+            WellColumn, StringColumn, DoubleColumn, DoubleColumn, LongColumn
         ]
-        col_names = ["Well", "TestColumn", "SmallNumbers", "BigNumbers"]
+        col_names = ["Well", "TestColumn", "SmallNumbers", "BigNumbers", "IDs"]
         rows = [
-            [1, 'test', 0.5, 135345.0],
-            [2, 'string', 1.0, 345345.121],
-            [3, 'column', 0.75, 356575.012],
-            [4, 'data', 0.12345, 13579.0],
-            [5, 'five', 0.01, 500.05]
+            [1, 'test', 0.5, 135345.0, 2],
+            [2, 'string', 1.0, 345345.121, 4],
+            [3, 'column', 0.75, 356575.012, 6],
+            [4, 'data', 0.12345, 13579.0, 8],
+            [5, 'five', 0.01, 500.05, 10]
         ]
         return (col_types, col_names, rows)
 
@@ -159,7 +161,7 @@ class TestOmeroTables(IWebTest):
             assert rsp['data']['rows'] == rows[offset: offset + limit]
 
     def test_table_query(self, omero_table_file, django_client, table_data):
-        """Test pagination of table data as JSON."""
+        """Test query of table data as JSON."""
         file_id = omero_table_file
 
         # expected table data
@@ -177,6 +179,42 @@ class TestOmeroTables(IWebTest):
             request_url += '?query=%s' % query
             rsp = get_json(django_client, request_url)
             assert rsp['data']['rows'] == expected
+
+    @pytest.mark.parametrize("query_result", [
+        # Wells 3,4,5 are True for query
+        ['query=Well>2', "000111"],
+        # Wells 2 & 3 are True for query
+        ['query=SmallNumbers>0.5', "001100"],
+        # Well 5 is True for query
+        ["query=SmallNumbers<0.1&col_name=Well", "000001"],
+        # IDs 4 & 6 are True for query
+        ['query=SmallNumbers>0.5&col_name=IDs', "0000101"],
+    ])
+    def test_table_bitmask(self, omero_table_file,
+                           django_client, query_result):
+        """
+        Test query of table data as bitmask.
+
+        Resulting IDs are represented as a bit mask where the index of each ID
+        in the bit mask is shown as 1.
+        E.g. 1,3 & 6 => "0101001" (maybe extra 0 added)
+        """
+        file_id = omero_table_file
+
+        request_url = reverse("webgateway_table_obj_id_bitmask",
+                              args=[file_id])
+        query, expected = query_result
+        url = request_url + '?%s' % query
+        rsp = get(django_client, url)
+        bitmask = rsp.content
+        # convert string into byte array and unpack
+        numbers = [int(by) for by in bitmask]
+        bits = np.unpackbits(np.array(numbers, dtype=np.uint8))
+        # convert bits to string for comparison
+        bitStr = ''.join([str(b) for b in bits])
+        assert bitStr.startswith(expected)
+        # Any extra 0 padding should contain no "1"
+        assert "1" not in bitStr.replace(expected, "")
 
     def test_table_metadata(self, omero_table_file, django_client, table_data):
         """Test webgateway/table/FILEID/metadata"""
