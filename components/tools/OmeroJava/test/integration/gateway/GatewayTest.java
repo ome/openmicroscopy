@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2021 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,13 +20,22 @@
  */
 package integration.gateway;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
+import integration.ModelMockFactory;
 import omero.RLong;
+import omero.ServerError;
 import omero.api.IPixelsPrx;
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
@@ -40,14 +49,19 @@ import omero.gateway.facility.Facility;
 import omero.gateway.facility.MetadataFacility;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.RawDataFacility;
-import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.SearchFacility;
 import omero.gateway.facility.TablesFacility;
 import omero.gateway.facility.TransferFacility;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.RectangleData;
 import omero.log.SimpleLogger;
+import omero.model.Folder;
 import omero.model.IObject;
+import omero.model.Image;
 import omero.model.PixelsType;
 
+import omero.model.Roi;
+import omero.sys.ParametersI;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -206,6 +220,12 @@ public class GatewayTest {
         return (PlateData) datamanagerFacility.saveAndReturnObject(ctx, plate);
     }
 
+    PlateData createPlateWithWells()  throws Exception {
+        ModelMockFactory mf = new ModelMockFactory(gw.getTypesService(rootCtx));
+        PlateData p = new PlateData(mf.createPlate(3, 3, 2, 1, false));
+        return (PlateData) datamanagerFacility.saveAndReturnObject(rootCtx, p);
+    }
+
     ImageData createImage(SecurityContext ctx, DatasetData ds)
             throws Exception {
         long imgId = createImage(ctx);
@@ -226,7 +246,7 @@ public class GatewayTest {
         return img;
     }
 
-    private long createImage(SecurityContext ctx) throws Exception {
+    long createImage(SecurityContext ctx) throws Exception {
         String name = UUID.randomUUID().toString();
         IPixelsPrx svc = gw.getPixelsService(ctx);
         List<IObject> types = gw.getTypesService(ctx)
@@ -238,5 +258,69 @@ public class GatewayTest {
         RLong id = svc.createImage(10, 10, 10, 10, channels,
                 (PixelsType) types.get(1), name, "");
         return id.getValue();
+    }
+
+    File createFile(int sizeInMb) {
+        try {
+            File tmp = File.createTempFile(System.currentTimeMillis()+"_attachedFile", "file");
+
+            FileOutputStream fos = new FileOutputStream(tmp);
+
+            Random r = new Random();
+            byte[] data = new byte[1024*1024];
+            r.nextBytes(data);
+
+            int size = 0;
+            while(size < (sizeInMb*1024*1024)) {
+                fos.write(data);
+                size += data.length;
+            }
+            fos.close();
+
+            return tmp;
+        } catch (IOException e) {
+        }
+        return null;
+    }
+
+    FolderData createRoiFolder(SecurityContext ctx,
+                                       Collection<ROIData> rois) throws DSOutOfServiceException,
+            DSAccessException {
+        FolderData folder = new FolderData();
+        folder.setName(UUID.randomUUID().toString());
+        Folder f = folder.asFolder();
+        for (ROIData roi : rois)
+            f.linkRoi((Roi) roi.asIObject());
+        return (FolderData) datamanagerFacility
+                .saveAndReturnObject(ctx, folder);
+    }
+
+    ROIData createRectangleROI(int x, int y, int w, int h, long imgId)
+            throws DSOutOfServiceException, DSAccessException,
+            ExecutionException {
+        ROIData roiData = new ROIData();
+        RectangleData rectangle = new RectangleData(x, y, w, h);
+        roiData.addShapeData(rectangle);
+        return roiFacility
+                .saveROIs(rootCtx, imgId, Collections.singleton(roiData))
+                .iterator().next();
+    }
+
+    ImageData createImage() throws ServerError, DSOutOfServiceException {
+        String name = UUID.randomUUID().toString();
+        IPixelsPrx svc = gw.getPixelsService(rootCtx);
+        List<IObject> types = gw.getTypesService(rootCtx)
+                .allEnumerations(PixelsType.class.getName());
+        List<Integer> channels = new ArrayList<Integer>();
+        for (int i = 0; i < 3; i++) {
+            channels.add(i);
+        }
+        long id = svc.createImage(10, 10, 1, 1, channels,
+                (PixelsType) types.get(1), name, "").getValue();
+        ParametersI param = new ParametersI();
+        param.addId(id);
+        Image img = (Image) gw.getQueryService(rootCtx).findByQuery(
+                "select i from Image i where i.id = :id", param);
+        return new ImageData(img);
     }
 }
