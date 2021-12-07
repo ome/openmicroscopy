@@ -16,7 +16,8 @@ Test Copy Paste Dataset
     Select Experimenter
     ${p1id}=                                Create project      test copy-paste TO here
     ${p2id}=                                Create project      test copy-paste FROM here
-    ${did}=                                 Create Dataset
+    ${did}=                                 Create Dataset      firstPaste
+    ${did2}=                                Create Dataset      nextPaste
     Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Click Element                          refreshButton
     Select Project By Id                    ${p2id}
     Wait Until Page Contains Element        xpath=//li[@data-id='${p2id}']//li[@data-id='${did}']
@@ -31,8 +32,19 @@ Test Copy Paste Dataset
     Wait Until Page Contains Element        xpath=//li[@data-id='${p1id}']//li[@data-id='${did}']
     Wait Until Page Contains Element        xpath=//li[@data-id='${p2id}']//li[@data-id='${did}']
 
+    # Paste next Dataset
+    Select Dataset By Id                    ${did2}
+    Click Element                           id=copyButton
+    Select Project By Id                    ${p1id}
+    Click Element                           id=pasteButton
+    Select Project By Id                    ${p1id}
+    Wait Until Page Contains Element        xpath=//li[@data-id='${p1id}']//li[@data-id='${did2}']
+    Wait Until Page Contains Element        xpath=//li[@data-id='${p2id}']//li[@data-id='${did2}']
+
     #Delete Copied Dataset
     Select Dataset By Id                    ${did}
+    Delete Container
+    Select Dataset By Id                    ${did2}
     Delete Container
 
     Select Project By Id                    ${p2id}

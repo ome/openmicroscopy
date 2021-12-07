@@ -31,7 +31,7 @@ Filter Name
 
 Check Selected Count
     [Arguments]                                 ${selectedCount}
-    Page Should Contain Element                 xpath=//a[contains(@class, 'jstree-clicked')]           limit=${selectedCount}
+    Page Should Contain Element                 xpath=//span[contains(@class, 'jstree-clicked')]           limit=${selectedCount}
 
 *** Test Cases ***
 

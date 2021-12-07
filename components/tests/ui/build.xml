@@ -27,7 +27,7 @@
         <attribute name="output"/>
         <element name="args" implicit="true"/>
         <sequential>
-            <exec executable="pybot" failonerror="@{failonerror}" dir="${output}">
+            <exec executable="robot" failonerror="@{failonerror}" dir="${output}">
                 <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>
                  <args/>
             </exec>

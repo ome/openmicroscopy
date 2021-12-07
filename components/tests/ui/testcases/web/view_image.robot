@@ -18,9 +18,8 @@ ${PLATE_NAME}               spwTests
 
 Check Image Viewer
     [Arguments]                         ${title}    ${datasetId}
-    # Wait until popup windows is fully initialized
     # Image Viewer title is the image name.
-    Wait Until Keyword Succeeds  ${TIMEOUT}     ${INTERVAL}     Select Window   title=${title}
+    Switch Window                       ${title}
     # Loading of image within viewport indicates all is OK
     Wait Until Page Contains Element    xpath=//img[@id='weblitz-viewport-img']     ${WAIT}
     ${titles}=                          Get Window Titles
@@ -31,12 +30,11 @@ Check Image Viewer
     Length Should Be                    ${windowIds}            2
     # Close Popup window
     Close Window
-    # Select parent window
-    Select Window
+    Switch Window                       MAIN
 
 Right Click Open With
     [Arguments]                             ${nodeId}       ${optionText}
-    Open Context Menu                       xpath=//li[@id='${nodeId}']/a
+    Open Context Menu                       xpath=//li[@id='${nodeId}']/span
     Mouse Over                              xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Open With...')]
     Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//li[descendant::a[contains(text(), 'Open With...')]]//a[contains(text(), "${optionText}")]
 
@@ -91,7 +89,7 @@ Test Prev Next Buttons
     ${nodeId}=                          Wait For Image Node         ${imageId}
     ${imageName}=                       Wait For General Panel And Return Name      Image
     Click Element                       xpath=//a[@title='Open full image viewer in new tab']
-    Wait Until Keyword Succeeds  ${TIMEOUT}     ${INTERVAL}     Select Window   title=${imageName}
+    Switch Window                       ${imageName}
     # Loading of image within viewport indicates all is OK
     Wait Until Page Contains Element    xpath=//img[@id='weblitz-viewport-img']     ${WAIT}
     # Prev button should be disabled, Next button enabled
@@ -103,8 +101,6 @@ Test Prev Next Buttons
     Wait Until Page Contains Element    xpath=//button[@id='prevImage' and not (@disabled='disabled')]
     # Close Popup window for next test
     Close Window
-    # Select parent window
-    Select Window
 
 
 Test Bulk Annotations
@@ -116,12 +112,12 @@ Test Bulk Annotations
     Click Well By Name                  A1
 
     # Select Image to get Name
-    Wait Until Page Contains Element    xpath=//div[@id='wellImages']//li/a/img[1]
-    Click Element                       xpath=//div[@id='wellImages']//li/a/img[1]
+    Wait Until Page Contains Element    xpath=//div[@id='wellImages']//li/a/div/img[1]
+    Click Element                       xpath=//div[@id='wellImages']//li/a/div/img[1]
     ${imgName}=                         Wait For General Panel And Return Name          Image
 
     Click Element                       xpath=//a[@title='Open full image viewer in new tab']
-    Wait Until Keyword Succeeds         ${TIMEOUT}     ${INTERVAL}     Select Window   title=${imgName}
+    Switch Window                       ${imgName}
     # Loading of image within viewport indicates all is OK
     Wait Until Page Contains Element    xpath=//img[@id='weblitz-viewport-img']     ${WAIT}
 

@@ -76,15 +76,18 @@ class RobotControl(BaseControl):
             "PROTOCOL": args.protocol,
             "REMOTEURL": args.remoteurl,
             "DC": args.dc,
+            "GROUP_NAME": p.getPropertyWithDefault("group_name", "group_name"),
+            "GROUP_NAME_2": p.getPropertyWithDefault("group_name_2",
+                                                     "group_name_2"),
         }
 
         # Add OMERO.web substitutions
-        import urllib
+        import urllib.parse
         from omeroweb import settings
         static_prefix = getattr(settings, 'FORCE_SCRIPT_NAME', '')
         d["WEBPREFIX"] = static_prefix
-        d["QWEBPREFIX"] = urllib.quote(static_prefix, '')
-        d["QSEP"] = urllib.quote('/', '')
+        d["QWEBPREFIX"] = urllib.parse.quote(static_prefix, '')
+        d["QSEP"] = urllib.parse.quote('/', '')
         if args.webhost:
             d["WEBHOST"] = args.webhost
         elif settings.APPLICATION_SERVER not in settings.WSGI_TYPES:
@@ -94,8 +97,10 @@ class RobotControl(BaseControl):
             d["WEBHOST"] = d["HOST"]
 
         # Read robot.template file and substitute keywords
-        c = open(self.ctx.dir / "etc" / "templates" / "robot.template").read()
-        self.ctx.out(c % d)
+        path = os.path.join(self.ctx.dir, "etc", "templates", "robot.template")
+        with open(path, "r") as f:
+            c = f.read()
+            self.ctx.out(c % d)
 
 
 try:

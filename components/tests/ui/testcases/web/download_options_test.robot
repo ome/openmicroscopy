@@ -68,7 +68,7 @@ Test Download Menu
     Download Option Available       Export as TIFF
 
     # SPW Image
-    Click Element                   xpath=//div[@id='wellImages']//li/a/img[1]
+    Click Element                   xpath=//div[@id='wellImages']//li/a/div/img[1]
     Wait For General Panel          Image
     Show Download Menu
     Download Option Not Available   Download...
