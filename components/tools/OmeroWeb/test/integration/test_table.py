@@ -140,9 +140,10 @@ class TestOmeroTables(IWebTest):
         chunks = [c.decode("utf-8") for c in rsp.streaming_content]
         csv_data = "".join(chunks)
         cols_csv = ','.join(col_names)
-        rows_csv = '\n'.join([','.join(
+        rows.append([''])       # add empty row (as found in exported csv)
+        rows_csv = '\r\n'.join([','.join(
             [str(td) for td in row]) for row in rows])
-        assert csv_data == '%s\n%s' % (cols_csv, rows_csv)
+        assert csv_data == '%s\r\n%s' % (cols_csv, rows_csv)
 
     def test_table_pagination(self, omero_table_file, django_client,
                               table_data):
