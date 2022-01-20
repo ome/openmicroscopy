@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2018 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2021 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,9 +22,7 @@ package integration.gateway;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +31,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Arrays;
@@ -42,17 +39,12 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import omero.LockTimeout;
-import omero.RLong;
 import omero.ServerError;
-import omero.api.IPixelsPrx;
 import omero.cmd.CmdCallbackI;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.model.Folder;
 import omero.model.IObject;
-import omero.model.PixelsType;
-import omero.model.Roi;
 
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.BooleanAnnotationData;
@@ -69,7 +61,6 @@ import omero.gateway.model.PlateData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.RatingAnnotationData;
-import omero.gateway.model.RectangleData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.TermAnnotationData;
@@ -252,7 +243,7 @@ public class DataManagerFacilityTest extends GatewayTest {
         Assert.assertNull(f11.getParentFolder());
         
         // 3) Test delete content (ROIs)
-        long imgId = createImage();
+        long imgId = createImage().getId();
         ROIData rd = createRectangleROI(5, 5,5,5, imgId);
         FolderData f = createRoiFolder(rootCtx, Collections.singleton(rd));
         final long fId = f.getId();
@@ -271,7 +262,7 @@ public class DataManagerFacilityTest extends GatewayTest {
         Assert.assertNull(notFound);
         
         // 4) Test orphan content (ROIs)
-        imgId = createImage();
+        imgId = createImage().getId();
         rd = createRectangleROI(5, 5,5,5, imgId);
         FolderData f2 = createRoiFolder(rootCtx, Collections.singleton(rd));
         final long f2Id = f2.getId();
@@ -616,77 +607,5 @@ public class DataManagerFacilityTest extends GatewayTest {
         // check that the project contains the two datasets
         proj = browseFacility.getProjects(rootCtx, Arrays.asList(new Long[]{proj.getId()})).iterator().next();
         Assert.assertEquals(proj.getDatasets().size(), 2);
-    }
-    
-    private long createImage(SecurityContext ctx) throws Exception {
-        IPixelsPrx svc = gw.getPixelsService(ctx);
-        List<IObject> types = gw.getTypesService(ctx)
-                .allEnumerations(PixelsType.class.getName());
-        List<Integer> channels = new ArrayList<Integer>();
-        for (int i = 0; i < 3; i++) {
-            channels.add(i);
-        }
-        RLong id = svc.createImage(10, 10, 10, 10, channels,
-                (PixelsType) types.get(1), "test", "");
-        return id.getValue();
-    }
-    
-    private File createFile(int sizeInMb) {
-        try {
-            File tmp = File.createTempFile(System.currentTimeMillis()+"_attachedFile", "file");
-            
-            FileOutputStream fos = new FileOutputStream(tmp);
-            
-            Random r = new Random();
-            byte[] data = new byte[1024*1024];
-            r.nextBytes(data);
-            
-            int size = 0;
-            while(size < (sizeInMb*1024*1024)) {
-                fos.write(data);
-                size += data.length;
-            }
-            fos.close();
-            
-            return tmp;
-        } catch (IOException e) {
-        }
-        return null;
-    }
-    
-    private FolderData createRoiFolder(SecurityContext ctx,
-            Collection<ROIData> rois) throws DSOutOfServiceException,
-            DSAccessException {
-        FolderData folder = new FolderData();
-        folder.setName(UUID.randomUUID().toString());
-        Folder f = folder.asFolder();
-        for (ROIData roi : rois)
-            f.linkRoi((Roi) roi.asIObject());
-        return (FolderData) datamanagerFacility
-                .saveAndReturnObject(ctx, folder);
-    }
-
-    private ROIData createRectangleROI(int x, int y, int w, int h, long imgId)
-            throws DSOutOfServiceException, DSAccessException,
-            ExecutionException {
-        ROIData roiData = new ROIData();
-        RectangleData rectangle = new RectangleData(x, y, w, h);
-        roiData.addShapeData(rectangle);
-        return roiFacility
-                .saveROIs(rootCtx, imgId, Collections.singleton(roiData))
-                .iterator().next();
-    }
-
-    private long createImage() throws ServerError, DSOutOfServiceException {
-        String name = UUID.randomUUID().toString();
-        IPixelsPrx svc = gw.getPixelsService(rootCtx);
-        List<IObject> types = gw.getTypesService(rootCtx)
-                .allEnumerations(PixelsType.class.getName());
-        List<Integer> channels = new ArrayList<Integer>();
-        for (int i = 0; i < 3; i++) {
-            channels.add(i);
-        }
-        return svc.createImage(100, 100, 1, 1, channels,
-                (PixelsType) types.get(1), name, "").getValue();
     }
 }

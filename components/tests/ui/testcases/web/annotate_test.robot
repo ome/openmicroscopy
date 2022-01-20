@@ -26,6 +26,7 @@ Check Comment Gone
 
 Remove Comment
     [Arguments]                                 ${text}
+    Wait Until Element Is Visible               xpath=//div[contains(@class, 'ann_comment_text')][descendant::div[contains(text(), '${text}')]]/img[@class='removeComment']
     Click Element                               xpath=//div[contains(@class, 'ann_comment_text')][descendant::div[contains(text(), '${text}')]]/img[@class='removeComment']
     Click Dialog Button                         OK
     Wait Until Keyword Succeeds                 ${TIMEOUT}   ${INTERVAL}    Check Comment Gone  ${text}

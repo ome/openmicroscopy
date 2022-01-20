@@ -6,18 +6,49 @@ specify automated operation of OMERO clients. This allows acceptance
 testing of user interface behavior and detection of regressions.
 
 **Requirements**:
- * [Robot Framework](http://robotframework.org)
- * Python 2.x and [pip](https://pip.pypa.io/en/stable/) (Python 3.x is not supported)
- * one or both of these web browsers (Web tests)
+ * [Robot Framework](http://robotframework.org) 4.x
+ * Python 3.x and [pip](https://pip.pypa.io/en/stable/)
+ * one or both of these web browsers
     + Firefox - [requires geckodriver](#web-browser-drivers)
     + Chrome - [requires chromedriver](#web-browser-drivers)
- * robotframework-selenium2library (Web tests)
+ * robotframework-selenium2library 3.0.0
+ * robotframework-seleniumlibrary 5.x.x
+ * robotframework-pythonlibcore 3.x.x
 
-Before installing please visit
-https://github.com/robotframework/robotframework/blob/master/INSTALL.rst
+
+
+Before installing please read about the [Robot Framework](https://github.com/robotframework/robotframework/blob/master/INSTALL.rst)
+
+Web browser drivers
+-------------------
+
+By default, the tests are run using the default browser i.e. Firefox.
+If you are running the tests on Mac OS X, you can install with the following
+
+```
+brew install geckodriver
+```
+
+NB: If this takes too long, and manually installing geckodriver
+from [releases](https://github.com/mozilla/geckodriver/releases)
+doesn't work, try using Chrome.
+
+To run the tests on Chrome, you need to install the chromedriver.
+See https://sites.google.com/a/chromium.org/chromedriver/downloads
+Download the correct driver for your version of Chrome and save it to
+a directory on your `$PATH`.
 
 Testing frameworks
 ------------------
+
+We recommend to install the various libraries in a virtual environment.
+
+### [Robot Framework](http://robotframework.org)
+
+Run the following commands:
+
+```
+pip install "robotframework==4.1" "robotframework-pythonlibcore==3.0.0"
 
 #### [selenium](http://github.com/rtomac/robotframework-selenium2library)
 
@@ -25,7 +56,7 @@ Selenium runs tests _one at a time (recommended way to run tests for now)_.
 You can install the library with the following:
 
 ```
-pip install robotframework-selenium2library
+pip install robotframework-selenium2library "robotframework-seleniumlibrary==5.1.3"
 ```
 
 #### [pabot](https://github.com/mkorpela/pabot/)
@@ -38,35 +69,15 @@ unexpected results. To install robotframework-pabot:
 pip install robotframework-pabot
 ```
 
-Web browser drivers
--------------------
-
-By default, the tests are run using the default browser i.e. Firefox.
-If you are running the tests on Mac OS X, you can install with the following
-
-```
-brew install geckodriver
-```
-
-If you want to run the tests on Chrome, you need to install the chromedriver.
-See https://sites.google.com/a/chromium.org/chromedriver/downloads
-
-If you are running the tests on Mac OS X, you can install with the following
-
-```
-brew install chromedriver
-```
-
 Setting up
 ----------
 
-If you wish to set-up the data required for the Robot test, you first need to
+If you wish to set-up the data required for the Robot test, you will first need to have an OMERO.server installation. In the virtual environment with the dependencies required to run an OMERO.server, you first need to
 run the robot setup script (assuming the `ICE_CONFIG` environment variable is
-properly configured) from the `dist` folder of the server:
+properly configured):
 
 ```
-cd dist/
-bash ../components/tests/ui/robot_setup.sh
+bash components/tests/ui/robot_setup.sh
 ```
 
 This command will create a `robot_ice.config` file containing the credentials

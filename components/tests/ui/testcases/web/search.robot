@@ -4,6 +4,7 @@ Documentation     Tests Search on Web
 
 Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
 
 Library           DateTime
 
@@ -26,8 +27,7 @@ ${XpathWellThumb}       xpath=//table[@id='dataTable']//img[contains(@src,'well1
 ${XpathTable}           xpath=//table[@id='dataTable']
 ${XpathTableColumn}     xpath=//table[@id='dataTable']//tr/td[position()=3]
 ${XPathAlertText}       xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//p
-${RandomClick}          xpath=//form[@id="searching_form"]//h2
-${AlertWindow}          xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//div[contains(@class, 'ui-dialog-buttonset')]//*[contains(text(),"OK")]
+${RandomClick}          xpath=//form[@id="searching_form"]//label
 ${SearchInProgress}     xpath=//div[@id='content_details']//img[contains(@src,'webgateway/img/spinner.gif')]
 ${QueryError}           xpath=//div[@id='content_details']//div[contains(@class,'error')]
 ${NoResultsFound}       xpath=//div[@id='content_details']//p[contains(@class,'center_message message_nodata')]
@@ -84,14 +84,16 @@ Omero Default Search
     Submit Form
 
 For-Loop-In-Range-Acquired       [Arguments]         ${rows}
-    : FOR    ${INDEX}    IN RANGE    2    ${rows}
-    \    ${RANDOM_STRING}   Get Table Cell    ${XpathTable}    ${INDEX}    3
-    \    Run Keyword Unless    "${RANDOM_STRING}" == ""    Condition Check Acquired Date       ${RANDOM_STRING}
+    FOR     ${INDEX}    IN RANGE    2    ${rows}
+            ${RANDOM_STRING}   Get Table Cell    ${XpathTable}    ${INDEX}    3
+            Run Keyword Unless    "${RANDOM_STRING}" == ""    Condition Check Acquired Date       ${RANDOM_STRING}
+    END
 
 For-Loop-In-Range-Imported       [Arguments]         ${rows}
-    : FOR    ${INDEX}    IN RANGE    2    ${rows}
-    \    ${RANDOM_STRING}   Get Table Cell    ${XpathTable}    ${INDEX}    4
-    \    Run Keyword Unless    "${RANDOM_STRING}" == ""  Condition Check Imported Date         ${RANDOM_STRING}
+    FOR     ${INDEX}    IN RANGE    2    ${rows}
+            ${RANDOM_STRING}   Get Table Cell    ${XpathTable}    ${INDEX}    4
+            Run Keyword Unless    "${RANDOM_STRING}" == ""  Condition Check Imported Date         ${RANDOM_STRING}
+    END
 
 Condition Check Imported Date
     [Arguments]             ${RANDOM_STRING}
@@ -288,7 +290,7 @@ Test Date Range
 
     Page Should Not Contain         ${XpathTable}
     Page Should Contain Element     id=center_panel
-    ${rows}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr
+    ${rows}=        Get Element Count    xpath=//table[@id='dataTable']/tbody/tr
     For-Loop-In-Range-Acquired      ${rows}+1
     For-Loop-In-Range-Imported      ${rows}+1
 
@@ -299,8 +301,8 @@ Test Date Range
     sleep                           ${ImplicitDELAY}
     Click Button  id=search_button
     Page Should Contain Element     id=center_panel
-    ${rows}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr
-    ${cols}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr/td
+    ${rows}=        Get Element Count    xpath=//table[@id='dataTable']/tbody/tr
+    ${cols}=        Get Element Count    xpath=//table[@id='dataTable']/tbody/tr/td
     For-Loop-In-Range-Acquired      ${rows}+1
 
     #Check with a End date alone
@@ -309,7 +311,7 @@ Test Date Range
     Click Element   id=searching
     sleep                           ${ImplicitDELAY}
     Click Button    id=search_button
-    Click Element                   ${AlertWindow}
+    Click Dialog Button             OK
 
     #Check with a From date > End date
     Clear Date Text Field
@@ -329,7 +331,7 @@ Test Date Range
     sleep                           ${ImplicitDELAY}
     Select All Checkboxes
     Click Button    id=search_button
-    Click Element                   ${AlertWindow}
+    Click Dialog Button             OK
 
 
 Test Key Word Search
@@ -341,8 +343,8 @@ Test Key Word Search
     Click Element   ${RandomClick}
     sleep           ${ImplicitDELAY}
     Click Button    id=search_button
-    Element Should Be Visible  xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//p[contains(text(),"${alertText}")]
-    Click Element   ${AlertWindow}
+    Page Should Contain     ${alertText}
+    Click Dialog Button             OK
 
     #Search keyword ?
     Clear Search Text Field
@@ -362,21 +364,21 @@ Test Key Word Search
     Click Button    id=search_button
     Wait Until Page Contains Element  id=dataTable  ${TIMEOUT}
     Page Should Contain Element         ${XpathTable}
-    ${rows}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr
+    ${rows}=        Get Element Count   xpath=//table[@id='dataTable']/tbody/tr
 
     Clear Search Text Field
     Input Text     name=query           ${Search_Query1}*
     Click Button    id=search_button
     Wait Until Page Contains Element  id=dataTable  ${TIMEOUT}
     Page Should Contain Element         ${XpathTable}
-    ${rows1}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr
+    ${rows1}=        Get Element Count   xpath=//table[@id='dataTable']/tbody/tr
 
     Clear Search Text Field
     Input Text     name=query           *${Search_Query1}*
     Click Button    id=search_button
-    Wait Until Page Contains Element  id=dataTable  ${TIMEOUT}
+    Wait Until Page Contains Element    id=dataTable  ${TIMEOUT}
     Page Should Contain Element         ${XpathTable}
-    ${rows2}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr
+    ${rows2}=        Get Element Count    xpath=//table[@id='dataTable']/tbody/tr
 
     #Checkpoints for results obtained from the above search
     Should Be True                      ${rows1}>=${rows}

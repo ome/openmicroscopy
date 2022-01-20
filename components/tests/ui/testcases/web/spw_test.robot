@@ -58,13 +58,13 @@ Test Spw Grid Layout
 
     # No Well-Images selected. Click to select
     Page Should Not Contain Element         xpath=//div[@id='wellImages']//li[contains(@class,'ui-selected')]
-    Click Element                           xpath=//div[@id='wellImages']//li/a/img[1]
+    Click Element                           xpath=//div[@id='wellImages']//li/a/div/img[1]
     Page Should Contain Element             xpath=//div[@id='wellImages']//li[1][contains(@class,'ui-selected')]
     ${imgName}=                             Wait For General Panel And Return Name          Image
 
     # Wrap rows of images by fixed column count
     Input Text                              id=imagesPerRow             2
-    Press Key                               id=imagesPerRow             \\13    # ASCII code for enter key
+    Press Keys                              id=imagesPerRow             RETURN
     # First, Third and Fifth images should be aligned
     ${well1x}=                              Get Horizontal Position  xpath=//div[@id='wellImages']//li[1]/a
     ${well3x}=                              Get Horizontal Position  xpath=//div[@id='wellImages']//li[3]/a

@@ -57,43 +57,6 @@ Test Channel Rename
     Wait Until Keyword Succeeds                 ${TIMEOUT}  ${INTERVAL}   Element Should Not Be Visible     channel0
     Wait Until Page Contains Element            xpath=//div[@id='channel_names_display']/span[contains(text(), "ch${chName}")]      ${WAIT}
 
-Test Share
-    [Documentation]     Tests creating and editing share
-
-    # Go To                                       ${WELCOME URL}
-    ${imageId}=                                 Select And Expand Image
-    Click Element                               createshareButton
-    Wait Until Element Is Visible               id_message      ${WAIT}
-    Input Text                                  id_message      Created via Selenium Test
-    Click Element                               xpath=//div[@id='id_members_chosen']/ul[@class='chosen-choices']
-    Page Should Contain Element                 xpath=//div[@id='id_members_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']
-    Click Element                               xpath=//div[@id='id_members_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']/li[@data-option-array-index='1']
-
-    Submit Form                                 create_share_form
-    Wait Until Element Is Visible               id=share_dialog_form    ${WAIT}
-    ${shareId}=                                 Get Text                    id=shareCreatedId
-    Click Dialog Button                         OK
-
-    # Check Share has been created
-    Go To                                       ${WELCOME URL}public/
-    Wait Until Element Is Visible               id=Public   ${WAIT}
-    ${shareNodeId}=                             Wait For Share Node         ${shareId}
-    # Created share should be first in tree
-    ${firstShareId}=                            Select First Share
-    Should Be Equal                             ${shareId}                  ${firstShareId}
-
-    # Test Editing of Share.
-    Wait Until Element Is Visible               id=editshareButton      ${WAIT}
-    Click Element                               id=editshareButton
-    Wait Until Element Is Visible               id_message      ${WAIT}
-    Input Text                                  id_message      Edited Share Message
-    Click Dialog Button                         Accept
-    Wait Until Page Contains                    Edited Share Message    ${WAIT}
-    # Add Comment
-    Input Text                                  id_comment      New Discussion Comment
-    Submit Form                                 add_share_comment_form
-    Wait Until Element Is Visible               xpath=//div[contains(@class, "commentText")][contains(text(), "New Discussion Comment")]    ${WAIT}
-
 Test Annotate
     [Documentation]     Test Annotation of a Project that we create
 

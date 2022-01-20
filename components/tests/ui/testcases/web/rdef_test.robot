@@ -18,12 +18,12 @@ ${multic_dataset}                   MultiChannel Images
 
 *** Keywords ***
 
-Edit Channel End
+Edit Channel Start
     [Arguments]                             ${index}    ${value}
-    Click Element                           xpath=//input[@id="wblitz-ch${index}-cw-end"]
-    Input Text                              wblitz-ch${index}-cw-end    ${value}
+    Click Element                           xpath=//input[@id="wblitz-ch${index}-cw-start"]
+    Input Text                              wblitz-ch${index}-cw-start    ${value}      False
     # Switch focus to other element to trigger a 'focus lost' event
-    Click Element                           xpath=//input[@id="wblitz-ch0-cw-start"]
+    Click Element                           xpath=//input[@id="wblitz-ch0-cw-end"]
 
 Toggle Channel Active
     [Arguments]                             ${index}
@@ -121,7 +121,7 @@ Right Click Dataset Rendering Settings
 
 Right Click Rendering Settings
     [Arguments]            ${treeId}       ${optionText}
-    Open Context Menu                       xpath=//li[@id='${treeId}']/a
+    Open Context Menu                       xpath=//li[@id='${treeId}']/span
     Mouse Over                              xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Rendering Settings...')]
     Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//li[descendant::a[contains(text(), 'Rendering Settings')]]//a[contains(text(), "${optionText}")]
     # E.g. 'Copy' option won't have 'OK' dialog
@@ -164,13 +164,15 @@ Test Rdef Copy Paste Save
     Wait For Toolbar Button Disabled        rdef-setdef-btn
     Element Text Should Be                  id=wblitz-z-curr        ${defaultZ}
 
-    # Set start / end slider values
-    Input Text                              id=wblitz-ch0-cw-start      111
-    Input Text                              id=wblitz-ch0-cw-end        222
+    # Set start / end slider values - Don't clear field first - empty field gives NaN
+    Input Text                              id=wblitz-ch0-cw-start      111     False
+    Input Text                              id=wblitz-ch0-cw-end        ""      False
 
     # Color-picker, Yellow then Blue.
     Pick Color          FFFF00
+    Wait For Channel Color                  FFFF00
     Pick Color          0000FF
+    Wait For Channel Color                  0000FF
 
     # ONLY Redo should be disabled
     Element Should Be Enabled               id=rdef-undo-btn
@@ -215,7 +217,7 @@ Test Rdef Copy Paste Save
     Click Element                           xpath=//button[@id='rdef-paste-btn']
     Wait For Channel Color                  0000FF
     Textfield Value Should Be               wblitz-ch0-cw-start     111
-    Textfield Value Should Be               wblitz-ch0-cw-end       222
+    Textfield Value Should Be               wblitz-ch0-cw-end       255
 
     # Save to all (Blue channel)
     Click Element                           id=rdef-save-all
@@ -244,7 +246,7 @@ Test Owners Rdef
     # Save Channel 'Green' and Window End: 100.5
     Unselect Checkbox                       rd-wblitz-rmodel
     Pick Color                              00FF00
-    Input Text                              id=wblitz-ch0-cw-end        100.5
+    Input Text                              id=wblitz-ch0-cw-start        10.5       False
     Click Element                           id=rdef-setdef-btn
     Wait For BlockUI
 
@@ -266,19 +268,19 @@ Test Owners Rdef
     # Set to "Imported"
     Click Element                           id=rdef-reset-btn
     Wait For Channel Color                  ${importedChColor}
-    Textfield Value Should Be               wblitz-ch0-cw-end           255
+    Textfield Value Should Be               wblitz-ch0-cw-start           0
     Checkbox Should Be Selected             rd-wblitz-rmodel
 
     # Set to Owner's (click on thumbnail)
     Click Element                           xpath=//button[contains(@class, 'rdef')][descendant::span[contains(@class, 'owner')]]
     Wait For Channel Color                  00FF00
-    Textfield Value Should Be               wblitz-ch0-cw-end           100.5
+    Textfield Value Should Be               wblitz-ch0-cw-start           10.5
     Checkbox Should Not Be Selected         rd-wblitz-rmodel
 
     # Set to Full Range
     Click Element                           id=rdef-fullrange-btn
     Wait For Channel Color                  00FF00
-    Textfield Value Should Be               wblitz-ch0-cw-end           255
+    Textfield Value Should Be               wblitz-ch0-cw-start           0
     Checkbox Should Not Be Selected         rd-wblitz-rmodel
 
     # 'Save All' with some different settings (Red channel)
@@ -290,10 +292,10 @@ Test Owners Rdef
     # Min/Max
     Click Element                           id=rdef-minmax-btn
     Wait For Channel Color                  FF0000
-    Textfield Value Should Be               wblitz-ch0-cw-end           255
+    Textfield Value Should Be               wblitz-ch0-cw-start           0
 
-    # New settings (White channel, end) and 'Copy'
-    Input Text                              id=wblitz-ch0-cw-end        200.2
+    # New settings (White channel, start) and 'Copy'
+    Input Text                              id=wblitz-ch0-cw-start        12        False
     Pick Color                              FFFFFF
     Click Element                           xpath=//button[@id='rdef-copy-btn']
     Wait For Toolbar Button Enabled         rdef-paste-btn
@@ -307,7 +309,7 @@ Test Owners Rdef
     Select Image By Id                      ${imageId_2}
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  FFFFFF
-    Textfield Value Should Be               wblitz-ch0-cw-end           200.2
+    Textfield Value Should Be               wblitz-ch0-cw-start           12
 
     # Test Set Owner's in same way on first Image
     ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/a/img    attribute=src
@@ -317,7 +319,7 @@ Test Owners Rdef
     Click Element                           id=image_icon-${imageId}
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  00FF00
-    Textfield Value Should Be               wblitz-ch0-cw-end           100.5
+    Textfield Value Should Be               wblitz-ch0-cw-start           10.5
 
     # Test "Set Imported" on first Image
     ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/a/img    attribute=src
@@ -355,7 +357,7 @@ Test Owners Rdef
     Reload Page
     Wait Until Page Contains Element        id=wblitz-ch0
     Click Link                              Edit
-    Textfield Value Should Be               wblitz-ch0-cw-end    200.2
+    Textfield Value Should Be               wblitz-ch0-cw-end    255
 
 Test Rdef Save
     [Documentation]     Tests saving rendering settings, including inactive channels
@@ -375,7 +377,7 @@ Test Rdef Save
     Element Should Be Disabled          id=rdef-redo-btn
     Element Should Be Disabled          id=rdef-setdef-btn
 
-    Edit Channel End                    0   50
+    Edit Channel Start                  0   50
 
     # Undo & Save should be enabled now
     Element Should Be Enabled           id=rdef-undo-btn
@@ -385,8 +387,8 @@ Test Rdef Save
     Toggle Channel Active               1
     Toggle Channel Active               2
 
-    Edit Channel End                    1   50
-    Edit Channel End                    2   50
+    Edit Channel Start                  1   50
+    Edit Channel Start                  2   50
 
     # Save rendering settings
     ${thumbSrc}=                        Get Element Attribute      xpath=//button[@class="rdef clicked"]/img    attribute=src
@@ -404,9 +406,9 @@ Test Rdef Save
     ${status}    ${oldId}               Wait For Preview Load       FAIL      '1'
 
     # Check that all values have been saved, including deactivated channels
-    Textfield Value Should Be           wblitz-ch0-cw-end           50
-    Textfield Value Should Be           wblitz-ch1-cw-end           50
-    Textfield Value Should Be           wblitz-ch2-cw-end           50
+    Textfield Value Should Be           wblitz-ch0-cw-start           50
+    Textfield Value Should Be           wblitz-ch1-cw-start           50
+    Textfield Value Should Be           wblitz-ch2-cw-start           50
     Channel Should Be Active            0
     Channel Should Not Be Active        1
     Channel Should Not Be Active        2
@@ -502,7 +504,8 @@ Test Launch Full Viewer
     Toggle Channel Active                   2
 
     Click Link                              id=preview_open_viewer
-    Wait Until Keyword Succeeds             ${TIMEOUT}     ${INTERVAL}     Select Window     title=${imageName}
+    # Wait Until Keyword Succeeds             ${TIMEOUT}     ${INTERVAL}     Select Window     title=${imageName}
+    Switch Window                           NEW
     Wait Until Page Contains Element        id=wblitz-ch0
     # Check various channel settings and inverted map are applied
     Wait For Image Src                      c=1|0:255$FFFF00,2|0:255$16_colors.lut,-3|0:255$0000FF

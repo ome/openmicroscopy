@@ -12,6 +12,8 @@ ${USERNAME}             %(USER)s
 ${PASSWORD}             %(PASS)s
 ${LAST NAME}            %(USER)s
 ${FULL NAME}            %(USER)s %(USER)s
+${GROUP_NAME}           %(GROUP_NAME)s
+${GROUP_NAME_2}         %(GROUP_NAME_2)s
 
 # Web config
 ${WEB HOST}             %(WEBHOST)s

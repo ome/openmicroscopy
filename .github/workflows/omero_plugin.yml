@@ -33,5 +33,5 @@ jobs:
       - name: Set up log level
         run: |
           echo 'ivy.retrieve.log=default' >> etc/local.properties
-      - name: Build and run OMERO tests
-        run: .omero/docker $STAGE
+#      - name: Build and run OMERO tests
+#        run: .omero/docker $STAGE
