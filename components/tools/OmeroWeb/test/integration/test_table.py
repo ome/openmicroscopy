@@ -59,7 +59,7 @@ class TestOmeroTables(IWebTest):
             [1, 'test', 0.5, 135345.0, 2],
             [2, 'string', 1.0, 345345.121, 4],
             [3, 'column', 0.75, 356575.012, 6],
-            [4, 'data', 0.12345, 13579.0, 8],
+            [4, 'data,comma', 0.12345, 13579.0, 8],
             [5, 'five', 0.01, 500.05, 10]
         ]
         return (col_types, col_names, rows)
@@ -140,9 +140,12 @@ class TestOmeroTables(IWebTest):
         chunks = [c.decode("utf-8") for c in rsp.streaming_content]
         csv_data = "".join(chunks)
         cols_csv = ','.join(col_names)
-        rows_csv = '\n'.join([','.join(
-            [str(td) for td in row]) for row in rows])
-        assert csv_data == '%s\n%s' % (cols_csv, rows_csv)
+        rows.append([''])       # add empty row (as found in exported csv)
+        def wrap_commas(value):
+            return str(value) if "," not in str(value) else '"%s"' % value
+        rows_csv = '\r\n'.join([','.join(
+            [wrap_commas(td) for td in row]) for row in rows])
+        assert csv_data == '%s\r\n%s' % (cols_csv, rows_csv)
 
     def test_table_pagination(self, omero_table_file, django_client,
                               table_data):
