@@ -264,7 +264,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     </target>
 
     <target name="release-all" description="Produce all binary release artifacts (unsigned)"
-        depends="release-clients,release-zip,release-docs">
+        depends="release-clients,release-zip">
    </target>
 
     <target name="release-zip" description="Zip the dist directory into ${product.name}-${omero.version}.zip">
@@ -326,26 +326,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     <target name="release-findbugs" description="Generates findbugs.xml and checkstyle.xml for all components" depends="init">
        <iterate buildpathref="all.buildpath"   target="findbugs"/>
        <iterate buildpathref="tools.buildpath" target="findbugs"/>
-    </target>
-
-    <target name="release-docs" depends="release-sphinx-api" description="Generate Docs for all components under dist/docs/api">
-        <zip destfile="${omero.home}/target/OMERO.apidoc-${omero.version}.zip">
-            <zipfileset dir="${dist.dir}/docs" prefix="OMERO.apidoc-${omero.version}"/>
-        </zip>
-    </target>
-
-    <target name="release-sphinx-api" depends="build-py,build-web"
-        description="The OMERO.py Sphinx API Documentation">
-        <mkdir dir="${dist.dir}/docs/api/python"/>
-
-        <ant antfile="build.xml" dir="docs/sphinx-api" target="clean" inheritAll="false"/>
-        <ant antfile="build.xml" dir="docs/sphinx-api" target="html" inheritAll="false">
-            <property name="omero.shortversion" value="${omero.version}"/>
-        </ant>
-
-        <copy todir="${dist.dir}/docs/api/python">
-            <fileset dir="docs/sphinx-api/_build/html"/>
-        </copy>
     </target>
 
     <target name="release-training" description="Produces a zip with the examples/Training files">
