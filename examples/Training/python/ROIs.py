@@ -285,8 +285,8 @@ for roi in result.rois:
 # Delete ROIs and all the Shapes they contain
 # ===========================================
 roi_to_delete = create_roi(image, [rect])
-print("Deleting ROI:", roi.getId().getValue())
-conn.deleteObjects("Roi", [roi.getId().getValue()], wait=True)
+print("Deleting ROI:", roi_to_delete.getId().getValue())
+conn.deleteObjects("Roi", [roi_to_delete.getId().getValue()], wait=True)
 
 
 # Close connection
