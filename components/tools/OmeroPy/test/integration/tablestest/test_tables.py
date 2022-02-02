@@ -85,17 +85,6 @@ class TableIntegrityBase(ITest):
 class TestTableIntegrity(TableIntegrityBase):
 
     def _testCreateAllColumnsAndMetadata(self):
-        """
-        Call this method to create the reference HDF5 table.
-        The OriginalFile ID of the table will be printed,
-        and can be used to find the file under ${omero.data.dir}/Files/.
-        Alternatively download it using
-        ``omero download OriginalFile:FileID output.h5``
-
-        To run manually goto ``components/tools/OmeroPy``, and run:
-        ``pytest test/integration/tablestest/test_tables.py\
-        -s -k _testCreateAllColumnsAndMetadata``
-        """
 
         grid = self.client.sf.sharedResources()
         repoMap = grid.repositories()
@@ -209,7 +198,9 @@ class TestTableIntegrity(TableIntegrityBase):
 
     def testAllColumnsAndMetadata(self):
         """
-        Check the integrity of a created table created.
+        Check the integrity of an created OMERO table created within this test.
+        This test mainly checks if the created table is as expected by checking 
+        column types and values.
         """
 
         table = self._testCreateAllColumnsAndMetadata()
