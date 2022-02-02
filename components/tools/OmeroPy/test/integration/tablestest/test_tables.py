@@ -84,7 +84,7 @@ class TableIntegrityBase(ITest):
 
 class TestTableIntegrity(TableIntegrityBase):
 
-    def testCreateAllColumnsAndMetadata(self):
+    def _testCreateAllColumnsAndMetadata(self):
         """
         Call this method to create the reference HDF5 table.
         The OriginalFile ID of the table will be printed,
@@ -94,7 +94,7 @@ class TestTableIntegrity(TableIntegrityBase):
 
         To run manually goto ``components/tools/OmeroPy``, and run:
         ``pytest test/integration/tablestest/test_tables.py\
-        -s -k testCreateAllColumnsAndMetadata``
+        -s -k _testCreateAllColumnsAndMetadata``
         """
 
         grid = self.client.sf.sharedResources()
@@ -212,7 +212,7 @@ class TestTableIntegrity(TableIntegrityBase):
         Check the integrity of a created table created.
         """
 
-        table = self.testCreateAllColumnsAndMetadata()
+        table = self._testCreateAllColumnsAndMetadata()
         assert table
 
         metadata = table.getAllMetadata()
