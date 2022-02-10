@@ -19,5 +19,8 @@
     <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}"/>
     <!-- Extensions for bundling into the release -->
     <dependency org="ome" name="OMEZarrReader" rev="${versions.OMEZarrReader}"/>
+    <!-- build-dev dependencies -->
+    <dependency org="joda-time" name="joda-time" rev="${versions.joda-time}"/>
+    <dependency org="com.beust" name="jcommander" rev="${versions.jcommander}"/>
   </dependencies>
 </ivy-module>
