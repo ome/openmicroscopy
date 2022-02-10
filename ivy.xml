@@ -17,5 +17,7 @@
     <dependency org="janino" name="janino" rev="${versions.janino}"/>
     <!-- Useful for globally overriding the Bio-Formats version, empty version is ignored by default -->
     <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}"/>
+    <!-- Extensions for bundling into the release -->
+    <dependency org="ome" name="OMEZarrReader" rev="${versions.OMEZarrReader}"/>
   </dependencies>
 </ivy-module>
