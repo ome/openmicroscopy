@@ -23,7 +23,7 @@ from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get_json
 
 import pytest
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 class TestHistogram(IWebTest):

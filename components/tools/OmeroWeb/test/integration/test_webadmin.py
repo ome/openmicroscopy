@@ -26,7 +26,7 @@ from omeroweb.testlib import IWebTest
 from omeroweb.testlib import post, get
 import re
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 def get_all_privileges(client):

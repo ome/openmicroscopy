@@ -30,7 +30,7 @@ from omeroweb.testlib import IWebTest
 from omeroweb.testlib import post, get, _response, csrf_response
 
 from django.test import Client
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 try:

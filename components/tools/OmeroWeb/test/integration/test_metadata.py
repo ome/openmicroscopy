@@ -27,7 +27,7 @@ import pytest
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get, _get_response
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.model.enums import UnitsLength
 from omero_model_ImageI import ImageI

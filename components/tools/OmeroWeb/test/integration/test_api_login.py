@@ -23,7 +23,7 @@ Tests logging in with webgateway json api
 
 import pytest
 from omeroweb.testlib import IWebTest, get_json, _response, post
-from django.core.urlresolvers import reverse, NoReverseMatch
+from django.urls import reverse, NoReverseMatch
 from django.middleware import csrf
 from omeroweb.api import api_settings
 from django.test import Client

@@ -21,7 +21,7 @@
 
 from future.utils import native_str
 from omeroweb.testlib import IWebTest, post_json, put_json, get_json
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from omeroweb.api import api_settings
 import pytest
 from test_api_projects import get_connection

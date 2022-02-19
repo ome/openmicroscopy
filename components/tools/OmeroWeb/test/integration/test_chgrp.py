@@ -30,7 +30,7 @@ from omero.gateway import BlitzGateway
 import pytest
 import time
 from omeroweb.testlib import IWebTest, post, get_json
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 import json
 
 PRIVATE = 'rw----'

@@ -28,7 +28,7 @@ from omero.model import PlateI, WellI, WellSampleI
 from omero.rtypes import rstring
 
 import pytest
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from omeroweb.testlib import IWebTest, get
 

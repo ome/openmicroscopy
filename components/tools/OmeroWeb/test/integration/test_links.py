@@ -31,7 +31,7 @@ from omeroweb.testlib import post_json, get_json, delete_json
 
 from time import sleep
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 import pytest
 
