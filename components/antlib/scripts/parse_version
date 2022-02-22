@@ -95,8 +95,8 @@ def incr_version(omero_version):
     """
     try:
         # First we try to use distutils
-        from distutils.version import LooseVersion
-        version = LooseVersion(omero_version).version
+        from packaging.version import Version
+        version = Version(omero_version).version
         # Find the last index which is an int
         for idx in range(len(version)-1, 0, -1):
             val = version[idx]
