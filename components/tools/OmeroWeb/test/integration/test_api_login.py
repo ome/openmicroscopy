@@ -164,7 +164,7 @@ class TestLogin(IWebTest):
 
         # Can also get this from our session cookies
         csrf_token = django_client.cookies['csrftoken'].value
-        assert csrf._compare_salted_tokens(token, csrf_token) is True
+        assert csrf._compare_masked_tokens(token, csrf_token) is True
         # Now we have all info we need for login.
         # Set the header, so we don't need to do this for every POST/PUT/DELETE
         # OR we could add it to each POST as 'csrfmiddlewaretoken'
