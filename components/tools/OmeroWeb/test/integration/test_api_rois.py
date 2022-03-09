@@ -20,7 +20,7 @@
 """Tests querying of ROIs and Shapes with json api."""
 
 from omeroweb.testlib import IWebTest, get_json, delete_json
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from omeroweb.api import api_settings
 import pytest
 from test_api_projects import get_update_service, \

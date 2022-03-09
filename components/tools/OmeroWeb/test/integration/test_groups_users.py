@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 READONLY = 'rwr---'
 

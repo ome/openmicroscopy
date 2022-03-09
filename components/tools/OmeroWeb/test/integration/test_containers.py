@@ -33,7 +33,7 @@ from omeroweb.testlib import get_json, post, post_json, delete_json
 
 import json
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 class TestContainers(IWebTest):

@@ -29,7 +29,7 @@ from omero.grid import WellColumn, StringColumn
 from omeroweb.webgateway.plategrid import PlateGrid
 
 from django.test import Client
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from random import random
 import json
 import time

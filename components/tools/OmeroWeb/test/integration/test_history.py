@@ -23,7 +23,7 @@ from __future__ import print_function
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get, post
 from datetime import datetime
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 class TestHistory(IWebTest):

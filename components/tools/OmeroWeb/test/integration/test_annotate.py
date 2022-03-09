@@ -31,7 +31,7 @@ import json
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get, post, get_json
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 class TestMapAnnotations(IWebTest):

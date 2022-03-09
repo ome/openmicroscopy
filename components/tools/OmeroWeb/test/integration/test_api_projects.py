@@ -28,7 +28,7 @@ from builtins import zip
 from builtins import range
 from omeroweb.testlib import IWebTest, get_json, \
     post_json, put_json, delete_json
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from omeroweb.api import api_settings
 from django.test import Client
 import pytest

@@ -27,7 +27,7 @@ from omero.grid import WellColumn, StringColumn, \
     DoubleColumn, LongColumn
 from omero.rtypes import rint, rstring
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from random import random
 import numpy as np
 

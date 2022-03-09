@@ -31,7 +31,7 @@ import omero.clients
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import post, get
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from io import BytesIO
 try:

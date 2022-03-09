@@ -29,7 +29,7 @@ from django.test.utils import override_settings
 from omeroweb.webclient.views import WebclientLoginView
 
 from omeroweb.testlib import IWebTest, post, get
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import Client
 from random import random
 import pytest

@@ -32,7 +32,7 @@ from omeroweb.testlib import get
 
 from io import BytesIO
 import pytest
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 try:
     from PIL import Image
 except Exception:

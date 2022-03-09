@@ -27,7 +27,7 @@ from omero.rtypes import rstring
 import pytest
 import time
 from omeroweb.testlib import IWebTest, post, get_json
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 READANNOTATE = 'rwra--'
 
