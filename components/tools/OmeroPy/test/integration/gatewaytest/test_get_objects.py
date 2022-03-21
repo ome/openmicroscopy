@@ -347,7 +347,7 @@ class TestGetObject (ITest):
         gatewaywrapper.loginAsAuthor()
         params = omero.sys.ParametersI()
         # Only 3 images available
-        limit = 2
+        limit = 1
         params.page(0, limit)
         pros = list(gatewaywrapper.gateway.getObjects(
             "Project", None, params))
@@ -355,7 +355,15 @@ class TestGetObject (ITest):
 
         # Also using opts dict
         pros = list(gatewaywrapper.gateway.getObjects(
-            "Project", None, opts={'offset': 0, 'limit': 2}))
+            "Project", None, opts={'offset': 0, 'limit': limit}))
+        assert len(pros) == limit
+
+        # Setting limit ONLY should still work
+        params = omero.sys.ParametersI()
+        params.theFilter = omero.sys.Filter()
+        params.theFilter.limit = wrap(limit)
+        pros = list(gatewaywrapper.gateway.getObjects(
+            "Project", None, params))
         assert len(pros) == limit
 
     def testGetDatasetsByProject(self, gatewaywrapper):
