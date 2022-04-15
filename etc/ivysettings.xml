@@ -81,6 +81,10 @@
           usepoms="true" useMavenMetadata="true"
           m2compatible="true"
           root="https://artifacts.unidata.ucar.edu/repository/unidata-releases"/>
+      <ibiblio name="bc-nexus-repo" cache="maven"
+          usepoms="true" useMavenMetadata="true"
+          m2compatible="true"
+          root="https://nexus.senbox.net/nexus/content/groups/public/"/>
 
     <!-- Main resolver which has as its first resolver the location
     where all our jars will be published -->
@@ -90,6 +94,12 @@
         <resolver ref="user-maven"/>
         <resolver ref="maven"/>
         <resolver ref="ome-artifactory"/>
+    </chain>
+
+    <!-- Resolver for jzarr dependencies-->
+    <chain name="bc-resolver" returnFirst="true">
+        <resolver ref="user-maven"/>
+        <resolver ref="bc-nexus-repo"/>
     </chain>
 
     <!-- Resolver for OME dependencies-->
@@ -137,6 +147,8 @@
     <module organisation="edu.ucar" name="netcdf" resolver="unidata-resolver"/>
     <module organisation="edu.ucar" name="cdm" resolver="unidata-resolver"/>
     <module organisation="edu.ucar" name="httpservices" resolver="unidata-resolver"/>
+    <module organisation="edu.ucar" name="cdm-core" resolver="unidata-resolver"/>
+    <module organisation="edu.ucar" name="udunits" resolver="unidata-resolver"/>
     <module organisation="omero" name="omejava" resolver="omero-resolver" />
     <module organisation="omero" name="*-test" resolver="test-resolver" matcher="glob"/>
     <module organisation="org.springframework" resolver="maven-resolver"/>
@@ -145,6 +157,7 @@
     <module organisation="ome" name="jxrlib-all" resolver="ome-resolver"/>
     <module organisation="ome" resolver="${ome.resolver}"/>
     <module organisation="org.openmicroscopy" resolver="${ome.resolver}"/>
+    <module organisation="com.bc.zarr" resolver="bc-resolver"/>
   </modules>
 
   <triggers/>
