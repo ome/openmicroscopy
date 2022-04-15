@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 <!--
-  Copyright (C) 2017 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2017-2021 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -19,15 +19,24 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!-- Example file for connecting and logging in to the JSON api -->
+<!--
+  Example file for connecting and logging in to the JSON api
+
+  To use:
+  cd examples/Training/javascript
+  python -m http.server
+
+  Then go to http://localhost:8000/
+-->
 
 <html>
 
+<script src="./utils.js"></script>
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
 <style>
 
-#base_url_container {
+#server_form_container {
   z-index: 100;
 }
 
@@ -74,11 +83,14 @@ body {
 
 <body>
 
-  <div id="base_url_container" class="full_page container">
+  <div id="server_form_container" class="full_page container">
     <form id="server_form">
       <h2>Enter OMERO.web url</h2>
-      <input id="base_url" type="text" class="form-control" placeholder="e.g. http://localhost:4080/" required autofocus>
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Connect</button>
+      <p>Once you provide the URL of the OMERO.web you wish to connect to,
+        we can load the URLs and other data we need to prepare a Login form: 
+      </p>
+      <input id="base_url" type="text" class="form-control" value="http://localhost:4080/" placeholder="e.g. http://localhost:4080/" required autofocus>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Prepare Login</button>
     </form>
   </div>
 
@@ -121,158 +133,130 @@ body {
 
 <script>
 
-var omeroweb_url;
-var latest_base_url;
 var base_urls;
-var csrf_token;
 
-
-function createCORSRequest(method, url) {
-  var xhr = new XMLHttpRequest();
-  if ("withCredentials" in xhr) {
-    xhr.withCredentials = true;
-    xhr.open(method, url, true);
-  } else if (typeof XDomainRequest != "undefined") {
-    xhr = new XDomainRequest();
-    xhr.open(method, url);
-  } else {
-    // CORS is not supported by the browser.
-    xhr = null;
-  }
-
-  xhr.onerror = function() {
-    console.log('There was an error!');
-  };
-  return xhr;
+function getUrl(name){
+  return base_urls[name].replace("http", protocol);
 }
 
-function makeJSONRequest(method, url, callback, data) {
-  var xhr = createCORSRequest(method, url);
-
-  xhr.onload = function() {
-    console.log(xhr);
-    // handle the response (assumes we're getting JSON data)
-    var responseText = xhr.responseText;
-    var jsonResponse = JSON.parse(responseText);
-    // If not logged-in, show login form
-    if (xhr.status === 403 && jsonResponse.message === "Not logged in") {
-      prepareLogin();
-    }
-    // status OK - call the callback()
-    else if (xhr.status === 200) {
-      if (callback) {
-        callback(jsonResponse);
-      }
-    } else {
-      console.log("Error:", xhr)
-    }
-  };
-
-  if (method !== 'GET') {
-    xhr.setRequestHeader('x-csrftoken', csrf_token);
-  }
-
-  if (data) {
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.send(data);
-  } else {
-    xhr.send();
-  }
-}
-
-function loadBaseUrls(callback) {
-  makeJSONRequest('GET', latest_base_url, function(rsp) {
-    base_urls = rsp;
-    callback();
-  });
-}
-
-function prepareLogin() {
+async function prepareLogin() {
   // show login form
   document.getElementById('login_container').style.display = 'block';
   // Get available servers
-  var servers_url = base_urls['url:servers'];
-  makeJSONRequest('GET', servers_url, function(rsp) {
-    var serversHtml = rsp.data.map(function(s){
-      return '<option value="' + s.id + '">' + s.server + ':' + s.port + '</option>';
-    });
-    document.getElementById('server').innerHTML = serversHtml.join("");
+  var servers_url = getUrl('url:servers');
+  const data = await makeJSONRequest('GET', servers_url).then(rsp => rsp.data);
+  var serversHtml = data.map(function(s){
+    return '<option value="' + s.id + '">' + s.server + ':' + s.port + '</option>';
   });
-
-  // Also get CSRF token needed for login and other POST requests
-  var token_url = base_urls['url:token'];
-  makeJSONRequest('GET', token_url, function(rsp) {
-    csrf_token = rsp.data;
-  });
+  document.getElementById('server').innerHTML = serversHtml.join("");
 }
 
-function loadProjects() {
-  var projects_url = base_urls['url:projects'];
-  makeJSONRequest('GET', projects_url, function(rsp) {
+
+async function loadProjects() {
+  var projects_url = getUrl('url:projects');
+  const data = await makeJSONRequest('GET', projects_url).then(rsp => {
     // hide login form
     document.getElementById('login_container').style.display = 'none';
-    var projectsHtml = rsp.data.map(function(p){
+    // display the projects
+    var projectsHtml = rsp.data.map(function (p) {
       return '<p>' + p['@id'] + ':' + p.Name + '</p>';
     });
     document.getElementById('projects').innerHTML = projectsHtml.join("");
+  }).catch(rsp => {
+    console.log("FAILED to load Projects", rsp);
+    // If not logged-in, show login form
+    if (rsp.status === 403) {
+      prepareLogin();
+    }
   });
 }
 
-document.getElementById('server_form').addEventListener('submit', function(event) {
-  event.preventDefault();
 
-  omeroweb_url = document.getElementById('base_url').value;
-  // hide form
-  document.getElementById('base_url_container').style.display = 'none';
-  makeJSONRequest('GET', omeroweb_url + 'api/', function(rsp) {
-    // List of supported versions
-    var versions = rsp.data;
-    // Get base_url from last version in the list
-    latest_base_url = versions[versions.length-1]["url:base"];
-
-    // Get the list of top-level urls as starting points,
-    // then load Projects (will show Login form if we're not logged in)
-    loadBaseUrls(loadProjects);
-  });
-
-  return false;
-});
-
-
-document.getElementById('login_form').addEventListener('submit', function(event) {
-  event.preventDefault();
-
-  var login_url = base_urls['url:login'];
+async function login() {
+  var login_url = getUrl('url:login');
 
   var fields = ['username', 'password', 'server'];
-  var data = fields.map(function(f){
-    return f + '=' + document.getElementById(f).value
+  const formData = new FormData();
+
+  fields.forEach(function(f){
+    console.log(f, document.getElementById(f).value);
+    formData.append(f, document.getElementById(f).value);
   });
-  data = data.join('&');
-  console.log(data);
+  console.log(formData);
 
-  makeJSONRequest('POST', login_url, function(rsp) {
-    // Will get eventContext if login OK
-    console.log(rsp);
+  const eventContext = await makeJSONRequest('POST', login_url, formData).then(rsp => rsp.eventContext);
+  
+  // Will get eventContext if login OK
+  console.log(eventContext);
 
-    // Show username in top header
-    var ctx = rsp['eventContext'];
-    document.getElementById('logged_in_user').innerHTML = ctx['userName'];
+  // Show username in top header
+  document.getElementById('logged_in_user').innerHTML = eventContext.userName;
 
-    loadProjects();
-  }, data);
+  loadProjects();
+};
 
-  return false;
-});
+
+async function logout() {
+  const logout_url = server_url + 'webclient/logout/';
+  // NB: this redirects to `webclient/login` (html page) so the JSON parsing fails
+  // and we get an error, although logout is successful.
+  await makeJSONRequest('POST', logout_url)
+    .catch(rsp => {
+      // Reload page, to show login again
+      window.location.href = window.location.href
+    });
+};
+
+
+// bind event listeners
+document.getElementById('login_form').addEventListener('submit', function(event) {
+  event.preventDefault();
+  login();
+})
 
 document.getElementById('logout_button').addEventListener('click', function(event) {
   event.preventDefault()
-  var logout_url = omeroweb_url + 'webclient/logout/';
-  makeJSONRequest('POST', logout_url, function(rsp) {
-    console.log("LOGGED OUT")
+  logout();
+});
+
+
+async function init_connection() {
+  // List of supported versions
+  const versions = await makeJSONRequest('GET', server_url + 'api/').then(rsp => rsp.data);
+
+  // Get base_url from last version in the list
+  latest_base_url = versions[versions.length - 1]["url:base"].replace("http", protocol);
+
+  // Get the list of top-level urls as starting points,
+  base_urls = await makeJSONRequest('GET', latest_base_url);
+
+  // Also get CSRF token needed for any POST requests (login, logout etc)
+  // Header of this response sets a cookie. NB: We can ingore the response JSON
+  await makeJSONRequest('GET', getUrl('url:token'));
+
+  // Try to load Projects (will show Login form if we're not logged in)
+  loadProjects();
+}
+
+// When page first loads, if we have a server...
+const server_url = getParameterByName("server");
+const protocol = server_url.includes("https") ? "https" : "http";
+if (server_url) {
+  // Hide server form and load BASE url...
+  document.getElementById('server_form_container').style.display = 'none';
+  init_connection();
+} else {
+  // If no server_url, add listener to the "server_form". Submit updates url ?server=server
+  document.getElementById('server_form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    var url = document.getElementById('base_url').value;
+    if (!url.endsWith("/")) {
+      url = url + '/';
+    }
+    // Reload page with URL
+    window.location.href = window.location.href + '?server=' + url
   });
-  return false;
-})
+}
 
 </script>
 
