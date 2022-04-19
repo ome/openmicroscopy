@@ -141,6 +141,7 @@ class TestOmeroTables(IWebTest):
         csv_data = "".join(chunks)
         cols_csv = ','.join(col_names)
         rows.append([''])       # add empty row (as found in exported csv)
+
         def wrap_commas(value):
             return str(value) if "," not in str(value) else '"%s"' % value
         rows_csv = '\r\n'.join([','.join(

@@ -10,7 +10,7 @@
 """
 
 from future import standard_library
-standard_library.install_aliases()  # noqa
+
 from builtins import str
 from builtins import object
 import pytest
@@ -23,6 +23,8 @@ from mox3 import mox
 import getpass
 import builtins
 import re
+standard_library.install_aliases()  # noqa
+
 
 OMERODIR = False
 if 'OMERODIR' in os.environ:
