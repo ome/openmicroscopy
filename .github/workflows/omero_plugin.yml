@@ -22,7 +22,6 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       STAGE: srv # app, cli, lib, scripts, srv
-      ICE_HOME: /opt/ice-3.6.5 # location where Ice is installed
     steps:
       - uses: actions/checkout@v2
       - name: Checkout omero-test-infra
