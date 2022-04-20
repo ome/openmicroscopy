@@ -12,8 +12,8 @@ This release improves and expands integration testing to handle Django 3.2.x.
 It also removes obsolete code.
 More importantly, it has been tested with:
 
-- omero-blitz 5.5.9
-- omero-gateway-java 5.6.8
+- omero-blitz 5.5.10
+- omero-gateway-java 5.6.9
 - omero-py 5.11.1
 - omero-web 5.14.0
 - omero-dropbox 5.6.2
