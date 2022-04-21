@@ -9,7 +9,7 @@
 #
 # 2. Adjust the cron schedule as necessary
 
-name: OMERO
+name: OMERO Plugin
 on:
   push:
   pull_request:
@@ -19,7 +19,7 @@ on:
 jobs:
   test:
     name: Run integration tests against OMERO
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       STAGE: srv # app, cli, lib, scripts, srv
     steps:
@@ -33,5 +33,5 @@ jobs:
       - name: Set up log level
         run: |
           echo 'ivy.retrieve.log=default' >> etc/local.properties
-#      - name: Build and run OMERO tests
-#        run: .omero/docker $STAGE
+      - name: Build and run OMERO tests
+        run: .omero/docker $STAGE

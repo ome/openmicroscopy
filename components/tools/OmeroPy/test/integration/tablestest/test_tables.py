@@ -28,15 +28,9 @@ import omero.grid
 from omero.testlib import ITest
 
 from omero import columns
-from omero.rtypes import (
-    RFloatI,
-    RLongI,
-    RStringI,
-    rfloat,
-    rint,
-    rlong,
-    rstring,
-)
+
+from omero.rtypes import RFloatI, RLongI, RStringI
+from omero.rtypes import rfloat, rint, rlong, rstring
 
 
 class TableIntegrityBase(ITest):
@@ -54,6 +48,7 @@ class TableIntegrityBase(ITest):
         return mask
 
     def checkMaskCol(self, test):
+
         def arr(x):
             import numpy
             import tables
@@ -199,7 +194,7 @@ class TestTableIntegrity(TableIntegrityBase):
     def testAllColumnsAndMetadata(self):
         """
         Check the integrity of an created OMERO table created within this test.
-        This test mainly checks if the created table is as expected by checking 
+        This test mainly checks if the created table is as expected by checking
         column types and values.
         """
 
