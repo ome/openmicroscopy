@@ -33,5 +33,5 @@ jobs:
           mv ice-3.6.5 /opt
           rm ice-3.6.5-0.2.0-ubuntu2004-amd64.tar.gz
           echo "/opt/ice-3.6.5/bin" >> $GITHUB_PATH
-      - name: Build
-        run: ./build.py
+      #- name: Build
+      #  run: ./build.py
