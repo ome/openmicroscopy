@@ -17,6 +17,7 @@ More importantly, it has been tested with:
 - omero-py 5.11.1
 - omero-web 5.14.0
 - omero-dropbox 5.6.2
+- omero-scripts 5.6.2
 
 **Note:** This upgrade will invalidate the Bio-Formats Memoizer cache. Please
 see the upgrade guide for further information.
