@@ -5,6 +5,23 @@
 OMERO version history
 =====================
 
+5.6.4 (April 2022)
+------------------
+
+This release improves and expands integration testing to handle Django 3.2.x.
+It also removes obsolete code.
+More importantly, it has been tested with:
+
+- omero-blitz 5.5.10
+- omero-gateway-java 5.6.9
+- omero-py 5.11.1
+- omero-web 5.14.0
+- omero-dropbox 5.6.2
+- omero-scripts 5.6.2
+
+**Note:** This upgrade will invalidate the Bio-Formats Memoizer cache. Please
+see the upgrade guide for further information.
+
 5.6.3 (October 2020)
 --------------------
 
