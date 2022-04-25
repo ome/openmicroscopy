@@ -137,6 +137,7 @@
     <module organisation="edu.ucar" name="netcdf" resolver="unidata-resolver"/>
     <module organisation="edu.ucar" name="cdm" resolver="unidata-resolver"/>
     <module organisation="edu.ucar" name="httpservices" resolver="unidata-resolver"/>
+    <module organisation="edu.ucar" name="cdm-core" resolver="unidata-resolver"/>
     <module organisation="omero" name="omejava" resolver="omero-resolver" />
     <module organisation="omero" name="*-test" resolver="test-resolver" matcher="glob"/>
     <module organisation="org.springframework" resolver="maven-resolver"/>
