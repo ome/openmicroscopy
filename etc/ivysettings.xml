@@ -81,6 +81,10 @@
           usepoms="true" useMavenMetadata="true"
           m2compatible="true"
           root="https://artifacts.unidata.ucar.edu/repository/unidata-releases"/>
+      <ibiblio name="bc.releases" cache="maven"
+          usepoms="true" useMavenMetadata="true"
+          m2compatible="true"
+          root="https://nexus.senbox.net/nexus/content/groups/public/"/>
 
     <!-- Main resolver which has as its first resolver the location
     where all our jars will be published -->
@@ -117,6 +121,10 @@
       <resolver ref="omero-resolver"/>
     </chain>
 
+    <chain name="bc-resolver" returnFirst="true">
+      <resolver ref="bc.releases"/>
+    </chain>
+
     <!-- Hudson resolver. Used by hudson to build a central repository -->
     <filesystem name="hudson-repository" cache="local">
         <ivy pattern="${user.home}/.hudson/repository/[organisation]/[module]/ivys/ivy-[revision].xml"/>
@@ -146,6 +154,7 @@
     <module organisation="ome" name="jxrlib-all" resolver="ome-resolver"/>
     <module organisation="ome" resolver="${ome.resolver}"/>
     <module organisation="org.openmicroscopy" resolver="${ome.resolver}"/>
+    <module organisation="com.bc.zarr" name="jzarr" resolver="bc-resolver"/>
   </modules>
 
   <triggers/>
