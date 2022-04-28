@@ -16,7 +16,7 @@ try:
         " like :namedParameter")
 
     p = ParametersI()
-    p.addId(1L)
+    p.addId(1)
     p.add("namedParameter", rstring("cell%mit%"))
 
     results = q.findAllByQuery(query_string, p)

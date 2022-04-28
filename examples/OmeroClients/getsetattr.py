@@ -26,5 +26,5 @@ assert i.name.val == "name"
 #
 try:
     i.datasetLinks[0]
-except AttributeError, ae:
+except AttributeError:
     pass
