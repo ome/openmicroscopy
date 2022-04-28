@@ -33,6 +33,12 @@ jobs:
           mv ice-3.6.5 /opt
           rm ice-3.6.5-0.2.0-ubuntu2004-amd64.tar.gz
           echo "/opt/ice-3.6.5/bin" >> $GITHUB_PATH
+      - name: Set version
+        run: |
+          tag_name="${GITHUB_REF##*/}"
+          tag_value="${tag_name:1}"
+          echo tag_value
+          echo "omero.version=$tag_value" >> etc/local.properties
       - name: Build artifacts
         run: ./build.py build-dev release-all
       - name: Upload Release Assets
