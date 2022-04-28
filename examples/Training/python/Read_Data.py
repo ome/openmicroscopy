@@ -135,7 +135,7 @@ for channel in image.getChannels():
     print('Is reverse intensity?', channel.isReverseIntensity())
 
 # render the first timepoint, mid Z section
-z = image.getSizeZ()// 2
+z = image.getSizeZ() // 2
 t = 0
 rendered_image = image.renderImage(z, t)
 # renderedImage.show()               # popup (use for debug only)
@@ -207,7 +207,7 @@ for link in conn.getAnnotationLinks('Image', ann_ids=ann_ids):
     link.save()
 
 # Find Annotations linked to Object(s), filter by namespace (optional)
-for link in conn.getAnnotationLinks('Image', parent_ids=[imageId], ns="test.namespace"):
+for link in conn.getAnnotationLinks('Image', parent_ids=[imageId], ns="test.namespace"):  # noqa
     print("Annotation ID:", link.getChild().id)
 
 

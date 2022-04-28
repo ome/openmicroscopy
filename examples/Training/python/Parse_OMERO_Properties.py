@@ -12,8 +12,6 @@ FOR TRAINING PURPOSES ONLY!
 """
 
 import omero
-import sys
-import codecs
 
 client = omero.client()
 
