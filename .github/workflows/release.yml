@@ -37,7 +37,6 @@ jobs:
         run: |
           tag_name="${GITHUB_REF##*/}"
           tag_value="${tag_name:1}"
-          echo tag_value
           echo "omero.version=$tag_value" >> etc/local.properties
       - name: Build artifacts
         run: ./build.py build-dev release-all
