@@ -1,0 +1,59 @@
+---
+name: Build and publish packages
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Install slice2java
+        run: |
+          sudo apt-get install -y libmcpp-dev
+          wget -q https://github.com/ome/zeroc-ice-ubuntu2004/releases/download/0.2.0/ice-3.6.5-0.2.0-ubuntu2004-amd64.tar.gz
+          tar xf ice-3.6.5-0.2.0-ubuntu2004-amd64.tar.gz
+          mv ice-3.6.5-0.2.0 ice-3.6.5
+          mv ice-3.6.5 /opt
+          rm ice-3.6.5-0.2.0-ubuntu2004-amd64.tar.gz
+          echo "/opt/ice-3.6.5/bin" >> $GITHUB_PATH
+      - name: Build artifacts
+        run: ./build.py build-dev release-all
+      - name: Upload Release Assets
+        run: |
+          set -x
+          assets=()
+          touch SHASUMS
+          touch MD5
+          for asset in ./target/*.zip; do
+            assets+=("-a" "$asset")
+            filename=$(basename -- "$asset")
+            sha=$(sha256sum $asset)
+            IFS=' ' read -r -a array <<< "$sha"
+            echo "${array[0]} $filename" >> SHASUMS
+            md5=$(md5sum $asset)
+            IFS=' ' read -r -a array <<< "$md5"
+            echo "${array[0]} $filename" >> MD5
+          done
+          assets+=("-a" SHASUMS)
+          assets+=("-a" MD5)
+          tag_name="${GITHUB_REF##*/}"
+          hub release create "${assets[@]}" -m "$tag_name" "$tag_name"
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
