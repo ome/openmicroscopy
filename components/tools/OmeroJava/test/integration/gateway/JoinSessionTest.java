@@ -62,13 +62,6 @@ public class JoinSessionTest {
     String host;
     String port;
 
-    Gateway gw;
-    SecurityContext rootCtx;
-    ExperimenterData root;
-    AdminFacility adminFacility;
-    DataManagerFacility datamanagerFacility;
-    BrowseFacility browseFacility;
-
     long raId, rwId, roId, prId;
     String expName;
     String expPass = "test";
@@ -76,6 +69,7 @@ public class JoinSessionTest {
     @BeforeClass(alwaysRun = true)
     protected void setUp() throws Exception {
 
+        // Login as root and create groups
         omero.client client = new omero.client();
         String pass = client.getProperty("omero.rootpass");
         host = client.getProperty("omero.host");
@@ -87,21 +81,18 @@ public class JoinSessionTest {
         c.getUser().setUsername("root");
         c.getUser().setPassword(pass);
 
-        gw = new Gateway(new SimpleLogger());
-        root = gw.connect(c);
+        Gateway gw = new Gateway(new SimpleLogger());
+        ExperimenterData root = gw.connect(c);
 
-        rootCtx = new SecurityContext(root.getDefaultGroup().getGroupId());
+        SecurityContext rootCtx = new SecurityContext(root.getDefaultGroup().getGroupId());
         rootCtx.setExperimenter(root);
 
-        adminFacility = Facility.getFacility(AdminFacility.class, gw);
-        datamanagerFacility = Facility.getFacility(DataManagerFacility.class,
-                gw);
-        browseFacility = Facility.getFacility(BrowseFacility.class, gw);
+        AdminFacility adminFacility = Facility.getFacility(AdminFacility.class, gw);
 
-        GroupData ra = createGroup(GroupData.PERMISSIONS_GROUP_READ_LINK);
-        GroupData rw = createGroup(GroupData.PERMISSIONS_GROUP_READ_WRITE);
-        GroupData ro = createGroup(GroupData.PERMISSIONS_GROUP_READ);
-        GroupData pr = createGroup(GroupData.PERMISSIONS_PRIVATE);
+        GroupData ra = createGroup(rootCtx, GroupData.PERMISSIONS_GROUP_READ_LINK, adminFacility);
+        GroupData rw = createGroup(rootCtx, GroupData.PERMISSIONS_GROUP_READ_WRITE, adminFacility);
+        GroupData ro = createGroup(rootCtx, GroupData.PERMISSIONS_GROUP_READ, adminFacility);
+        GroupData pr = createGroup(rootCtx, GroupData.PERMISSIONS_PRIVATE, adminFacility);
         raId = ra.getGroupId();
         roId = ro.getGroupId();
         rwId = rw.getGroupId();
@@ -112,31 +103,47 @@ public class JoinSessionTest {
         groups.add(rw);
         groups.add(ro);
         groups.add(pr);
-        ExperimenterData exp = createExperimenter(groups);
+        ExperimenterData exp = createExperimenter(rootCtx, groups, adminFacility);
         expName = exp.getUserName();
+
+        // Close the root session
+        gw.close();
+
+        // Login as user
+        c = new LoginCredentials();
+        c.getServer().setHost(host);
+        c.getServer().setPort(Integer.parseInt(port));
+        c.getUser().setUsername(expName);
+        c.getUser().setPassword(expPass);
+        gw = new Gateway(new SimpleLogger());
+        exp = gw.connect(c);
+
+        DataManagerFacility datamanagerFacility = Facility.getFacility(DataManagerFacility.class,
+                gw);
+        BrowseFacility browseFacility = Facility.getFacility(BrowseFacility.class, gw);
 
         SecurityContext ctx = new SecurityContext(raId);
         ctx.setExperimenter(exp);
-        DatasetData ds = createDataset(ctx, null);
-        createImage(ctx, ds);
+        DatasetData ds = createDataset(ctx, null, datamanagerFacility);
+        createImage(ctx, gw, ds, datamanagerFacility, browseFacility);
         System.out.println("Created image for dataset "+ds.getName()+" , group "+raId);
 
         ctx = new SecurityContext(roId);
         ctx.setExperimenter(exp);
-        ds = createDataset(ctx, null);
-        createImage(ctx, ds);
+        ds = createDataset(ctx, null, datamanagerFacility);
+        createImage(ctx, gw, ds, datamanagerFacility, browseFacility);
         System.out.println("Created image for dataset "+ds.getName()+" , group "+roId);
 
         ctx = new SecurityContext(rwId);
         ctx.setExperimenter(exp);
-        ds = createDataset(ctx, null);
-        createImage(ctx, ds);
+        ds = createDataset(ctx, null, datamanagerFacility);
+        createImage(ctx, gw, ds, datamanagerFacility, browseFacility);
         System.out.println("Created image for dataset "+ds.getName()+" , group "+rwId);
 
         ctx = new SecurityContext(prId);
         ctx.setExperimenter(exp);
-        ds = createDataset(ctx, null);
-        createImage(ctx, ds);
+        ds = createDataset(ctx, null, datamanagerFacility);
+        createImage(ctx, gw, ds, datamanagerFacility, browseFacility);
         System.out.println("Created image for dataset "+ds.getName()+" , group "+prId);
 
         gw.close();
@@ -189,15 +196,15 @@ public class JoinSessionTest {
         client.closeSession();
     }
 
-    GroupData createGroup(int permission) throws DSOutOfServiceException,
+    GroupData createGroup(SecurityContext ctx, int permission, AdminFacility adminFacility) throws DSOutOfServiceException,
             DSAccessException {
         GroupData group = new GroupData();
         group.setName(UUID.randomUUID().toString());
-        return adminFacility.createGroup(rootCtx, group, null,
+        return adminFacility.createGroup(ctx, group, null,
                 permission);
     }
 
-    DatasetData createDataset(SecurityContext ctx, ProjectData proj)
+    DatasetData createDataset(SecurityContext ctx, ProjectData proj, DataManagerFacility datamanagerFacility)
             throws DSOutOfServiceException, DSAccessException {
         DatasetData ds = new DatasetData();
         ds.setName(UUID.randomUUID().toString());
@@ -209,18 +216,18 @@ public class JoinSessionTest {
         return (DatasetData) datamanagerFacility.saveAndReturnObject(ctx, ds);
     }
 
-    ExperimenterData createExperimenter(ArrayList<GroupData> groups)
+    ExperimenterData createExperimenter(SecurityContext ctx, ArrayList<GroupData> groups, AdminFacility adminFacility)
             throws DSOutOfServiceException, DSAccessException {
         ExperimenterData exp = new ExperimenterData();
         exp.setFirstName("Test");
         exp.setLastName("User");
-        return adminFacility.createExperimenter(rootCtx, exp, UUID.randomUUID()
+        return adminFacility.createExperimenter(ctx, exp, UUID.randomUUID()
                 .toString(), "test", groups, false, true);
     }
 
-    ImageData createImage(SecurityContext ctx, DatasetData ds)
+    ImageData createImage(SecurityContext ctx, Gateway gw, DatasetData ds, DataManagerFacility datamanagerFacility, BrowseFacility browseFacility)
             throws Exception {
-        long imgId = createImage(ctx);
+        long imgId = createImage(ctx, gw);
         List<Long> ids = new ArrayList<Long>(1);
         ids.add(imgId);
         ImageData img = browseFacility.getImages(ctx, ids).iterator().next();
@@ -237,7 +244,7 @@ public class JoinSessionTest {
         return img;
     }
 
-    long createImage(SecurityContext ctx) throws Exception {
+    long createImage(SecurityContext ctx, Gateway gw) throws Exception {
         String name = UUID.randomUUID().toString();
         IPixelsPrx svc = gw.getPixelsService(ctx);
         List<IObject> types = gw.getTypesService(ctx)
