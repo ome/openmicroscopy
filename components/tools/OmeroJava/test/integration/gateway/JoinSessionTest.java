@@ -149,22 +149,43 @@ public class JoinSessionTest {
         gw.close();
     }
 
-    @DataProvider(name = "permissions")
-    public Object[] permissions() {
-        return new String[] {"RA", "RW", "RO", "PRIVATE"};
+
+    @DataProvider(name = "dp")
+    public Object[][] dp() {
+        String[] permissions = {"RA", "RW", "RO", "PRIVATE"};
+        String [] logintypes = {"normal", "args"};
+        List<Object[]> result = new ArrayList<>();
+        for (String p : permissions) {
+            for (String l : logintypes)
+            {
+                result.add(new String[] {p, l});
+            }
+        }
+        return result.toArray(new Object[result.size()][]);
     }
 
-    @Test(dataProvider = "permissions")
-    public void testJoinSession(String permission) throws Exception {
+    @Test(dataProvider = "dp")
+    public void testJoinSession(String permission, String logintype) throws Exception {
         omero.client client = new client(host, Integer.parseInt(port));
         client.createSession(expName, expPass);
         String sessionId = client.getSessionId();
         System.out.println("Created session "+sessionId);
 
-        LoginCredentials c = new LoginCredentials();
-        c.getServer().setHost(host);
-        c.getServer().setPort(Integer.parseInt(port));
-        c.getUser().setUsername(sessionId);
+        LoginCredentials c = null;
+        if (logintype.equals("normal")) {
+            c = new LoginCredentials();
+            c.getServer().setHost(host);
+            c.getServer().setPort(Integer.parseInt(port));
+            c.getUser().setUsername(sessionId);
+        }
+        else {
+            String[] args = new String[] {
+                    "omero.host="+host,
+                    "omero.port="+port,
+                    "omero.user="+sessionId
+            };
+            c = new LoginCredentials(args);
+        }
 
         Gateway gw = new Gateway(new SimpleLogger());
         ExperimenterData exp = gw.connect(c);
