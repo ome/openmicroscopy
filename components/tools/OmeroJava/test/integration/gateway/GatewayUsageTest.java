@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2021 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2022 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,7 +28,6 @@ import java.util.UUID;
 import integration.AbstractServerTest;
 import omero.SecurityViolation;
 import omero.gateway.Gateway;
-import omero.gateway.JoinSessionCredentials;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -174,8 +173,8 @@ public class GatewayUsageTest extends AbstractServerTest
             ExperimenterData root = gw.connect(c);
             String sessionId = gw.getSessionId(root);
             try (Gateway gw2 = new Gateway(new SimpleLogger())) {
-                JoinSessionCredentials c2 = new JoinSessionCredentials(
-                        sessionId, client.getProperty("omero.host"),
+                LoginCredentials c2 = new LoginCredentials(sessionId, sessionId,
+                        client.getProperty("omero.host"),
                         Integer.parseInt(client.getProperty("omero.port")));
                 ExperimenterData root2 = gw2.connect(c2);
                 Assert.assertNotNull(root2);
@@ -212,8 +211,8 @@ public class GatewayUsageTest extends AbstractServerTest
 
         // join session
         try (Gateway gw = new Gateway(new SimpleLogger())) {
-            JoinSessionCredentials c2= new JoinSessionCredentials(
-                    sessionId, client.getProperty("omero.host"),
+            LoginCredentials c2 = new LoginCredentials(sessionId, sessionId,
+                    client.getProperty("omero.host"),
                     Integer.parseInt(client.getProperty("omero.port")));
             gw.connect(c2);
             Assert.assertTrue(gw.isConnected());
@@ -224,8 +223,8 @@ public class GatewayUsageTest extends AbstractServerTest
 
         // make sure the session is still active
         try (Gateway gw = new Gateway(new SimpleLogger())) {
-            JoinSessionCredentials c2= new JoinSessionCredentials(
-                    sessionId, client.getProperty("omero.host"),
+            LoginCredentials c2 = new LoginCredentials(sessionId, sessionId,
+                    client.getProperty("omero.host"),
                     Integer.parseInt(client.getProperty("omero.port")));
             ExperimenterData user = gw.connect(c2);
             Assert.assertTrue(gw.isConnected());
@@ -237,8 +236,8 @@ public class GatewayUsageTest extends AbstractServerTest
 
         // make sure the session was closed
         try (Gateway gw = new Gateway(new SimpleLogger())) {
-            JoinSessionCredentials c2= new JoinSessionCredentials(
-                    sessionId, client.getProperty("omero.host"),
+            LoginCredentials c2 = new LoginCredentials(sessionId, sessionId,
+                    client.getProperty("omero.host"),
                     Integer.parseInt(client.getProperty("omero.port")));
             gw.connect(c2);
             Assert.fail("The session "+sessionId+" should have been closed.");
