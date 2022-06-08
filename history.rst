@@ -13,10 +13,10 @@ This release includes the following upgrade of the OMERO.server Java components:
 - omero-gateway-java 5.6.10
 - omero-blitz 5.5.12
 - omero-server 5.6.4
-- omero-renderer 5.5.12
-- omero-romio 5.5.12
-- omero-common 5.5.12
-- omero-model 5.5.12
+- omero-renderer 5.5.10
+- omero-romio 5.7.0
+- omero-common 5.5.10
+- omero-model 5.6.7
 
 
 Improvements include:
