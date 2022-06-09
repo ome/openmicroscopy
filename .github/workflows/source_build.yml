@@ -18,3 +18,5 @@ jobs:
           flake8 .
       - name: Build
         run: ./build.py
+      - name: Rebuild
+        run: ./build.py clean && ./build.py
