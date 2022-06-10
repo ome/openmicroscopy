@@ -18,5 +18,7 @@ jobs:
           flake8 .
       - name: Build
         run: ./build.py
+      - name: Check .m2
+        run: ls -alR ${HOME}/.m2
       - name: Rebuild
         run: ./build.py clean && ./build.py
