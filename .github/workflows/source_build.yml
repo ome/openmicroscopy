@@ -12,13 +12,28 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ome/action-ice@v1
+      - name: Checkout repositories
+        run: |
+          cd ..
+          WORKSPACE=$(pwd)
+          echo "space="${WORKSPACE} >> $GITHUB_ENV
+          git clone -b dependency-updates https://github.com/jburel/ZarrReader
+      - name: Build ZarrReader
+        run: |
+          cd $space/ZarrReader
+          mvn install
       - name: Install and run flake8
         run: |
+          cd $space/openmicroscopy
           pip install flake8
           flake8 .
       - name: Build
-        run: ./build.py
+        run: |
+          cd $space/openmicroscopy
+          ./build.py
       - name: Check .m2
         run: ls -alR ${HOME}/.m2
       - name: Rebuild
-        run: ./build.py clean && ./build.py
+        run: |
+          cd $space/openmicroscopy
+          ./build.py clean && ./build.py
