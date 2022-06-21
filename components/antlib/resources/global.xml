@@ -289,18 +289,6 @@
             <arg value="--version"/>
         </exec>
 
-        <!-- Checking ice compatibility and choose the proper version -->
-        <if><not><equals arg1="${slice2java.result}" arg2="0"/></not>
-            <then>
-                <fail> Cannot find slice2java!
-
-                    *******************************************************
-                    Ice is not properly installed. Cannot find slice2java
-                    *******************************************************
-                </fail>
-            </then>
-        </if>
-
         <propertyregex property="executable.ice.shortversion" input="${executable.ice.version}" select="\1.\2">
             <regexp pattern="([0-9]*)\.([0-9]*)\.([0-9]*).*"/>
         </propertyregex>
