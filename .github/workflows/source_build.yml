@@ -7,6 +7,10 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        build_bf: [true]
+        build_zarr: [true]
     name: Build OMERO from source
     runs-on: ubuntu-20.04
     steps:
@@ -16,5 +20,22 @@ jobs:
         run: |
           pip install flake8
           flake8 .
-      - name: Build
+      - name: install dependencies
+        run: |
+          sudo apt-get install -y git maven wget
+      - name: Build Bio-Formats
+        if: matrix.build_bf
+        run: |
+          git clone https://github.com/ome/bioformats /tmp/bioformats --depth 1
+          cd /tmp/bioformats
+          mvn install -DskipTests
+      - name: Build ZarrReader
+        if: matrix.build_zarr
+        run: |
+          git clone https://github.com/ome/ZarrReader /tmp/ZarrReader
+          cd /tmp/ZarrReader
+          mvn install -DskipTests
+      - name: Build OMERO
         run: ./build.py
+      - name: Rebuild
+        run: ./build.py clean && ./build.py
