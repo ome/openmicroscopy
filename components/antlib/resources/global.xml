@@ -221,9 +221,6 @@
         <condition property="ice.home" value="${env.ICE_HOME}">
             <isset property="env.ICE_HOME"/>
         </condition>
-        <condition property="ice.slice2py" value="${env.SLICE2PY}">
-            <isset property="env.SLICE2PY"/>
-        </condition>
         <condition property="ice.slice2cpp" value="${env.SLICE2CPP}">
             <isset property="env.SLICE2CPP"/>
         </condition>
@@ -259,11 +256,6 @@
             <available file="/usr/share/Ice" type="dir"/>
         </condition>
         <property name="ice.home" value=""/>
-
-        <condition property="ice.slice2py" value="${ice.home}/bin/slice2py">
-            <available file="${ice.home}/bin/slice2py"/>
-        </condition>
-        <property name="ice.slice2py" value="slice2py"/>
 
         <condition property="ice.slice2cpp" value="${ice.home}/bin/slice2cpp">
             <available file="${ice.home}/bin/slice2cpp"/>
@@ -456,14 +448,12 @@
                 <property name="env.ARCH" value="detect"/>
                 <property name="env.RELEASE" value="debug"/>
                 <echo>Building with ICE_HOME=${ice.home}</echo>
-                <echo>Building with SLICE2PY=${ice.slice2py}</echo>
                 <echo>Building with SLICE2CPP=${ice.slice2cpp}</echo>
                 <echo>Building with SLICE2HTML=${ice.slice2html}</echo>
                 <echo>Building with SLICEPATH=${ice.slicepath}</echo>
                 <exec executable="python" dir="@{dir}" failonerror="@{failonerror}">
                     <env key="PYTHONPATH" value="@{pythonpath}"/>
                     <env key="ICE_HOME" value="${ice.home}"/>
-                    <env key="SLICE2PY" value="${ice.slice2py}"/>
                     <env key="SLICE2CPP" value="${ice.slice2cpp}"/>
                     <env key="SLICE2HTML" value="${ice.slice2html}"/>
                     <env key="SLICEPATH" value="${ice.slicepath}"/>
