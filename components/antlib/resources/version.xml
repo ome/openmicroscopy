@@ -82,7 +82,7 @@
                 outputproperty = "omero.version"
                 failonerror = "true">
                 <arg value = "parse_version" />
-                <arg value = "${omero.plainversion}"/>
+                <arg value = "${omero.plainversion}-ice${versions.ice_lib}"/>
             </exec>
             <property name="omero.version.source" value="git"/>
             <property name="omero.plainversion.source" value="git"/>
@@ -129,7 +129,7 @@
             <property name="omero.vcs.date_unix" value="UNKNOWN"/>
 
             <!-- And compose omero.version from those -->
-            <property name="omero.version" value="${omero.plainversion}"/>
+            <property name="omero.version" value="${omero.plainversion}-ice${versions.ice_lib}"/>
 
             <property name="omero.plainversion.source" value="ant"/>
             <property name="omero.shortversion.source" value="ant"/>
