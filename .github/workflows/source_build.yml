@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         build_bf: [false]
-        build_zarr: [false]
+        build_zarr: [true]
     name: Build OMERO from source
     runs-on: ubuntu-20.04
     steps:
@@ -32,7 +32,7 @@ jobs:
       - name: Build ZarrReader
         if: matrix.build_zarr
         run: |
-          git clone https://github.com/ome/ZarrReader /tmp/ZarrReader
+          git clone -b dependency-updates https://github.com/dgault/ZarrReader /tmp/ZarrReader
           cd /tmp/ZarrReader
           mvn install -DskipTests
       - name: Build OMERO
