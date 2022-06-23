@@ -9,8 +9,8 @@ jobs:
   build:
     strategy:
       matrix:
-        build_bf: [true]
-        build_zarr: [true]
+        build_bf: [false]
+        build_zarr: [false]
     name: Build OMERO from source
     runs-on: ubuntu-20.04
     steps:
