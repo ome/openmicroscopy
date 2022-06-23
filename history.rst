@@ -5,6 +5,34 @@
 OMERO version history
 =====================
 
+5.6.5 (June 2022)
+------------------
+
+This release includes the following upgrade of the OMERO.server Java components:
+
+- omero-gateway-java 5.6.10
+- omero-blitz 5.5.12
+- omero-server 5.6.4
+- omero-renderer 5.5.10
+- omero-romio 5.7.0
+- omero-common 5.5.10
+- omero-model 5.6.7
+
+
+Improvements include:
+
+-  a new server configuration allowing to control the pyramidal requirement for floating-point images
+-  an upgrade of Bio-Formats to version 6.10.0
+
+**Note:** This upgrade will invalidate the Bio-Formats Memoizer cache. Please
+see the upgrade guide for further information.
+
+This version of the OMERO.server has been tested with:
+
+- OMERO.py 5.11.2
+- OMERO.web 5.14.1
+- OMERO.dropbox 5.6.2
+
 5.6.4 (April 2022)
 ------------------
 
