@@ -82,7 +82,7 @@ def snapshot_logic(omero_version):
     if m:
         # Non-tag version
         base = incr_version(m.group("BASE"))
-        omero_version = "%s-SNAPSHOT" % (
+        omero_version = "%s%s-SNAPSHOT" % (
             base, m.group("ICE"))
     else:
         return omero_version
