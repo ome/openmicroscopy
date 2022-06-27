@@ -127,19 +127,19 @@ This release focuses on dropping support for Java 7, Python 2.6 and Ice 3.5,
 adding support for Java 11 and PostgreSQL 10, and on decoupling the Java components to new,
 separate repositories, each with a new `Gradle <https://gradle.org>`_ build system:
 
-- https://github.com/ome/omero-dsl-plugin
-- https://github.com/ome/omero-model
-- https://github.com/ome/omero-common
-- https://github.com/ome/omero-romio
-- https://github.com/ome/omero-renderer
-- https://github.com/ome/omero-server
-- https://github.com/ome/omero-blitz
-- https://github.com/ome/omero-gateway-java
-- https://github.com/ome/omero-blitz-plugin
-- https://github.com/ome/omero-insight
-- https://github.com/ome/omero-matlab
-- https://github.com/ome/omero-javapackager-plugin
-- https://github.com/ome/omero-api-plugin
+- :omero_subs_github_repo_root:`omero-dsl-plugin <omero-dsl-plugin>`
+- :omero_subs_github_repo_root:`omero-model <omero-model>`
+- :omero_subs_github_repo_root:`omero-common <omero-common>`
+- :omero_subs_github_repo_root:`omero-romio <omero-romio>`
+- :omero_subs_github_repo_root:`omero-renderer <omero-renderer>`
+- :omero_subs_github_repo_root:`omero-server <omero-server>`
+- :omero_subs_github_repo_root:`omero-blitz <omero-blitz>`
+- :omero_subs_github_repo_root:`omero-gateway-java <omero-gateway-java>`
+- :omero_subs_github_repo_root:`omero-blitz-plugin <omero-blitz-plugin>`
+- :omero_subs_github_repo_root:`omero-insight <omero-insight>`
+- :omero_subs_github_repo_root:`omero-matlab <omero-matlab>`
+- :omero_subs_github_repo_root:`omero-javapackager-plugin <omero-javapackager-plugin>`
+- :omero_subs_github_repo_root:`omero-api-plugin <omero-api-plugin>`
 
 This has the goal of enabling more fine-grained releases.
 
