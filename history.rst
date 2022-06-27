@@ -23,6 +23,7 @@ Improvements include:
 
 -  a new server configuration allowing to control the pyramidal requirement for floating-point images
 -  an upgrade of Bio-Formats to version 6.10.0
+-  the inclusion of the experimental OMEZarrReader version 0.2.0 for reading OME-NGFF data
 
 **Note:** This upgrade will invalidate the Bio-Formats Memoizer cache. Please
 see the upgrade guide for further information.
