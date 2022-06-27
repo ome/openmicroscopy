@@ -575,7 +575,7 @@ Developer updates include:
 -  added support for PyTables version 3.4+
 -  deprecated Path Object in OMERO Model
 -  updated the documentation for server installation on Mac OS to no longer
-   use the homebrew formulae from https://github.com/ome/homebrew-alt (these
+   use the homebrew formulae from :omero_subs_github_repo_root:`homebrew-alt <homebrew-alt>` (these
    are not working and will not be fixed)
 
 Further changes to the Python BlitzGateway are described in
