@@ -221,12 +221,6 @@
         <condition property="ice.home" value="${env.ICE_HOME}">
             <isset property="env.ICE_HOME"/>
         </condition>
-        <condition property="ice.slice2java" value="${env.SLICE2JAVA}">
-            <isset property="env.SLICE2JAVA"/>
-        </condition>
-        <condition property="ice.slice2py" value="${env.SLICE2PY}">
-            <isset property="env.SLICE2PY"/>
-        </condition>
         <condition property="ice.slice2cpp" value="${env.SLICE2CPP}">
             <isset property="env.SLICE2CPP"/>
         </condition>
@@ -263,16 +257,6 @@
         </condition>
         <property name="ice.home" value=""/>
 
-        <condition property="ice.slice2java" value="${ice.home}/bin/slice2java">
-            <available file="${ice.home}/bin/slice2java"/>
-        </condition>
-        <property name="ice.slice2java" value="slice2java"/>
-
-        <condition property="ice.slice2py" value="${ice.home}/bin/slice2py">
-            <available file="${ice.home}/bin/slice2py"/>
-        </condition>
-        <property name="ice.slice2py" value="slice2py"/>
-
         <condition property="ice.slice2cpp" value="${ice.home}/bin/slice2cpp">
             <available file="${ice.home}/bin/slice2cpp"/>
         </condition>
@@ -284,58 +268,11 @@
         <property name="ice.slice2html" value="slice2html"/>
 
         <!-- Checking the slice2* version before continuing. See #1185 -->
-        <exec outputproperty="executable.ice.version" executable="${ice.slice2java}"
-            failifexecutionfails="false" failonerror="false" resultproperty="slice2java.result">
-            <arg value="--version"/>
-        </exec>
-
-        <!-- Checking ice compatibility and choose the proper version -->
-        <if><not><equals arg1="${slice2java.result}" arg2="0"/></not>
-            <then>
-                <fail> Cannot find slice2java!
-
-                    *******************************************************
-                    Ice is not properly installed. Cannot find slice2java
-                    *******************************************************
-                </fail>
-            </then>
-        </if>
-
-        <propertyregex property="executable.ice.shortversion" input="${executable.ice.version}" select="\1.\2">
-            <regexp pattern="([0-9]*)\.([0-9]*)\.([0-9]*).*"/>
-        </propertyregex>
-
-        <if><equals arg1="auto" arg2="${ice.compatibility}"/>
-            <then>
-                <if><matches string="${executable.ice.version}" pattern="^3[.]6"/>
-                    <then>
-                        <property name="versions.ice" value="${versions.ice36}"/>
-                        <property name="versions.ice_lib" value="${versions.ice36_lib}"/>
-                        <property name="versions.icedb" value="${versions.icedb36}"/>
-                        <property name="versions.omeromock" value="${versions.omeromock36}"/>
-                        <property name="versions.omeroshares" value="${versions.omeroshares36}"/>
-                    </then>
-                </if>
-            </then>
-            <elseif>
-                <equals arg1="3.6" arg2="${ice.compatibility}"/>
-                <then>
-                    <property name="versions.ice" value="${versions.ice36}"/>
-                    <property name="versions.ice_lib" value="${versions.ice36_lib}"/>
-                    <property name="versions.icedb" value="${versions.icedb36}"/>
-                    <property name="versions.omeromock" value="${versions.omeromock36}"/>
-                    <property name="versions.omeroshares" value="${versions.omeroshares36}"/>
-                </then>
-            </elseif>
-            <else>
-                <fail> Bad configuration!
-
-                    *******************************************************
-                    Unknown Ice compatibility setting: ${ice.compatibility}
-                    *******************************************************
-                </fail>
-            </else>
-        </if>
+        <property name="versions.ice" value="${versions.ice36}"/>
+        <property name="versions.ice_lib" value="${versions.ice36_lib}"/>
+        <property name="versions.icedb" value="${versions.icedb36}"/>
+        <property name="versions.omeromock" value="${versions.omeromock36}"/>
+        <property name="versions.omeroshares" value="${versions.omeroshares36}"/>
 
         <condition property="ice.slicepath" value="${ice.home}/slice">
             <available file="${ice.home}/slice" type="dir"/>
@@ -511,16 +448,12 @@
                 <property name="env.ARCH" value="detect"/>
                 <property name="env.RELEASE" value="debug"/>
                 <echo>Building with ICE_HOME=${ice.home}</echo>
-                <echo>Building with SLICE2JAVA=${ice.slice2java}</echo>
-                <echo>Building with SLICE2PY=${ice.slice2py}</echo>
                 <echo>Building with SLICE2CPP=${ice.slice2cpp}</echo>
                 <echo>Building with SLICE2HTML=${ice.slice2html}</echo>
                 <echo>Building with SLICEPATH=${ice.slicepath}</echo>
                 <exec executable="python" dir="@{dir}" failonerror="@{failonerror}">
                     <env key="PYTHONPATH" value="@{pythonpath}"/>
                     <env key="ICE_HOME" value="${ice.home}"/>
-                    <env key="SLICE2JAVA" value="${ice.slice2java}"/>
-                    <env key="SLICE2PY" value="${ice.slice2py}"/>
                     <env key="SLICE2CPP" value="${ice.slice2cpp}"/>
                     <env key="SLICE2HTML" value="${ice.slice2html}"/>
                     <env key="SLICEPATH" value="${ice.slicepath}"/>

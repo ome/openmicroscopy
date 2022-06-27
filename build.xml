@@ -34,7 +34,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
     <property name="import.dir" value="${basedir}/components/antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
 
-    <target name="init" depends="check-ivy,check-scons,check-ice">
+    <target name="init" depends="check-ivy,check-scons">
     </target>
 
     <target name="check-git">
@@ -95,32 +95,6 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
         <unzip src="${lib.dir}/repository/scons-local-2.1.0.zip" dest="target/scons"/>
     </target>
 
-    <target name="check-ice" description="Checks Ice versioning">
-        <!-- Checking the slice2* version before continuing. See #1185 -->
-        <exec outputproperty="executable.ice.version" executable="${ice.slice2java}">
-            <arg value="--version"/>
-        </exec>
-        <if>
-            <not>
-                <or>
-                    <matches pattern="^${ice.compatibility}" string="${executable.ice.version}"/>
-                    <matches pattern="^${ice.compatibility}" string="auto"/>
-                </or>
-            </not>
-            <then><fail>WRONG ICE VERSION!
-
-                slice2java (${ice.slice2java}) version = ${executable.ice.version}
-                Expected version = ${ice.compatibility}
-
-                If you would like to configure which Ice to use, set
-                ice.compatibility=ice_version in etc/local.properties
-                or on the command-line, e.g.:
-
-                  ./build.py -Dice.compatibility=3.6
-
-            </fail></then>
-        </if>
-    </target>
 
     <target name="build-default" description="Default build calls build" depends="build"/>
     <target name="build" description="Build all components" depends="init">

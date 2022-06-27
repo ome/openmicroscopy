@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - uses: ome/action-ice@v1
       - name: Install and run flake8
         run: |
           pip install flake8
