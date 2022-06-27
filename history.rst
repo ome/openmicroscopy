@@ -18,6 +18,7 @@ This release includes the following upgrade of the OMERO.server Java components:
 - omero-common 5.5.10
 - omero-model 5.6.7
 
+as well as the upgrade of omero-scripts to version 5.7.0.
 
 Improvements include:
 
