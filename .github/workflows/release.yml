@@ -1,0 +1,44 @@
+name: "Build and push artifacts"
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * 0'
+
+jobs:
+  build:
+    name: Release artifacts
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set version
+        if: startsWith(github.ref, 'refs/tags')
+        run: |
+          tag_name="${GITHUB_REF##*/}"
+          tag_value="${tag_name:1}-ice36"
+          echo "omero.version=$tag_value" >> etc/local.properties
+      - name: Build and package
+        run: ./build.py build-dev release-all
+      - name: Upload Release Assets
+        if: startsWith(github.ref, 'refs/tags')
+        run: |
+          set -x
+          assets=()
+          touch SHASUMS
+          touch MD5
+          for asset in ./target/*.zip; do
+            assets+=("$asset")
+            filename=$(basename -- "$asset")
+            sha=$(sha256sum $asset)
+            IFS=' ' read -r -a array <<< "$sha"
+            echo "${array[0]} $filename" >> SHASUMS
+            md5=$(md5sum $asset)
+            IFS=' ' read -r -a array <<< "$md5"
+            echo "${array[0]} $filename" >> MD5
+          done
+          assets+=(SHASUMS)
+          assets+=(MD5)
+          tag_name="${GITHUB_REF##*/}"
+          gh release create "$tag_name" "${assets[@]}" 
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
