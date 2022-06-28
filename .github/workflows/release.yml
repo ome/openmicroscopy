@@ -17,7 +17,7 @@ jobs:
           tag_value="${tag_name:1}-ice36"
           echo "omero.version=$tag_value" >> etc/local.properties
       - name: Build and package
-        run: ./build.py build-dev release-all
+        run: ./build.py build-dev release-all release-src
       - name: Upload Release Assets
         if: startsWith(github.ref, 'refs/tags')
         run: |
