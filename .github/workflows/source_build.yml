@@ -6,7 +6,7 @@ on:
     - cron: '0 0 * * *'
 
 jobs:
-  buil:
+  build:
     name: Build OMERO from source
     runs-on: ubuntu-20.04
     steps:
