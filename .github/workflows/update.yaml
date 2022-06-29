@@ -9,24 +9,9 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - name: update version
+      - name: update versions
         run: |
-          dirs=("org/openmicroscopy/omero-blitz" "org/openmicroscopy/omero-common-test" "org/openmicroscopy/omero-gateway" "ome/OMEZarrReader")
-          for dir in "${dirs[@]}"
-          do
-            : 
-            values=(${dir//// })
-            value=${values[${#values[@]}-1]}
-            # get the latest version of the package
-            repopath="https://artifacts.openmicroscopy.org/artifactory/ome.releases/${dir}"
-            version=`curl -s ${repopath}/maven-metadata.xml | grep latest | sed "s/.*<latest>\([^<]*\)<\/latest>.*/\1/"`
-            sed -i "s/versions.${value}=.*/versions.${value}=${version}/" etc/omero.properties
-          done
-      - name: update version Python
-        run: |
-          package="omero-scripts"
-          version=`curl -Ls https://pypi.org/pypi/$package/json | jq -r .info.version`
-          sed -i "s/versions.${package}=.*/versions.${package}=${version}/" etc/omero.properties
+          bash update_dependencies.sh
       - name: Set up configuration
         run: |
           git config --global user.email github-actions@github.com
