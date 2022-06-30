@@ -12,13 +12,13 @@ jobs:
       - uses: actions/checkout@v2
       - name: Set version
         run: |
+          echo ${{github.job}}
           tag_name="${GITHUB_REF##*/}"
           tag_value="${tag_name:1}-ice36"
           echo "omero.version=$tag_value" >> etc/local.properties
       - name: Build and package
         run: ./build.py build-dev release-all release-src
       - name: Upload Release Assets
-        if: startsWith(github.ref, 'refs/tags')
         run: |
           set -x
           assets=()
