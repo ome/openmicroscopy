@@ -24,4 +24,7 @@ do
     version=`curl -Ls https://pypi.org/pypi/$package/json | jq -r .info.version`
     sed -i -e "s/versions.${package}=.*/versions.${package}=${version}/" etc/omero.properties
 done
-rm -rf etc/omero.properties-e
+if [ -f etc/omero.properties-e ]; then
+    echo "file"
+    rm -rf etc/omero.properties-e
+fi
