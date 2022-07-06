@@ -17,20 +17,11 @@ jobs:
           echo "omero.version=$tag_value" >> etc/local.properties
       - name: Build and package
         run: ./build.py build-dev release-all release-src
-      - name: Upload Release Assets
+      - name: Create a release and upload Release Assets
         run: |
-          set -x
-          assets=()
-          touch SHASUMS
-          for asset in ./target/*.zip; do
-            assets+=("$asset")
-            filename=$(basename -- "$asset")
-            sha=$(sha256sum $asset)
-            IFS=' ' read -r -a array <<< "$sha"
-            echo "${array[0]} $filename" >> SHASUMS
-          done
-          assets+=(SHASUMS)
+          cd target
           tag_name="${GITHUB_REF##*/}"
-          gh release create "$tag_name" "${assets[@]}" 
+          sha256sum ./*.zip >> SHASUMS
+          gh release create "$tag_name" ./*.zip SHASUMS
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
