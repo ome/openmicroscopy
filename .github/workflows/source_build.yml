@@ -30,6 +30,7 @@ jobs:
           cd /tmp/bioformats
           mvn install -DskipTests -q
           echo "::set-output name=bf_version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+          echo "::set-output name=ome_common_version::$(mvn help:evaluate -Dexpression=ome-common.version -q -DforceStdout)"
       - name: Build ZarrReader
         id: zarr_reader
         if: matrix.build_zarr
@@ -46,6 +47,7 @@ jobs:
         if: matrix.build_bf
         run: |
           sed -i 's/versions.bioformats=.*/versions.bioformats=${{ steps.bf.outputs.bf_version }}/' etc/omero.properties
+          sed -i 's/versions.ome-common=.*/versions.ome-common=${{ steps.bf.outputs.ome_common_version }}/' etc/omero.properties
       - name: Build
         run: ./build.py
       - name: Rebuild
