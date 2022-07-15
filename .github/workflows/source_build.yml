@@ -26,7 +26,7 @@ jobs:
         id: bf
         if: matrix.build_bf
         run: |
-          git clone -b components_update https://github.com/sbesson/bioformats /tmp/bioformats --depth 1
+          git clone https://github.com/ome/bioformats /tmp/bioformats --depth 1
           cd /tmp/bioformats
           mvn install -DskipTests -q
           echo "::set-output name=bf_version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
