@@ -259,7 +259,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
             <arg value="${omero.home}/components/antlib/scripts/source-archive.py"/>
             <arg value="openmicroscopy"/>
             <arg value="${omero.shortversion}"/>
-            <arg value="${omero.plainversion}"/>
+            <arg value="${omero.version}"/>
             <arg value="${omero.vcs.shortrevision}"/>
             <arg value="${omero.vcs.revision}"/>
             <arg value="${omero.vcs.date}"/>
@@ -269,7 +269,7 @@ To get started using Eclipse, execute "ant build-dev" and import the top-level
 
     </target>
 
-    <target name="release-src" description="Package the git source tree into openmicroscopy-${omero.plainversion}.zip"
+    <target name="release-src" description="Package the git source tree into openmicroscopy-${omero.version}.zip"
             depends="release-src-embed,release-src-git"/>
 
     <target name="release-clients" description="Zip the Java zip">

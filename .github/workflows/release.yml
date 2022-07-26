@@ -1,0 +1,28 @@
+name: "Build and push artifacts"
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    name: Release artifacts
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set version
+        run: |
+          tag_name="${GITHUB_REF##*/}"
+          tag_name=$(grep -o '[0-9].*' <<< $tag_name)
+          tag_value="${tag_name}-ice36"
+          echo "omero.version=$tag_value" >> etc/local.properties
+      - name: Build and package
+        run: ./build.py build-dev release-all release-src
+      - name: Create a release and upload Release Assets
+        run: |
+          cd target
+          tag_name="${GITHUB_REF##*/}"
+          sha256sum ./*.zip >> SHASUMS
+          gh release create "$tag_name" ./*.zip SHASUMS
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
