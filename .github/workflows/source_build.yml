@@ -46,7 +46,7 @@ jobs:
       - name: Set Bio-Formats version
         if: matrix.build_bf
         run: |
-          DEPENDENCY="<dependency org="org.openmicroscopy" name="ome-common" rev="${{ steps.bf.outputs.ome_common_version }}">\n<artifact name="ome-common" type="jar" ext="jar"\/>\n<\/dependency>"
+          DEPENDENCY="<dependency org=\"org.openmicroscopy\" name=\"ome-common\" rev=\"${{ steps.bf.outputs.ome_common_version }}\">\n<artifact name=\"ome-common\" type=\"jar\" ext=\"jar\"\/>\n<\/dependency>"
           sed -i 's/versions.bioformats=.*/versions.bioformats=${{ steps.bf.outputs.bf_version }}/' etc/omero.properties
           sed -i "s/<dependencies>/<dependencies>\n $DEPENDENCY/" components/tools/OmeroJava/ivy.xml
       - name: Build
