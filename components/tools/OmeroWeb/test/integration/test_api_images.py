@@ -68,7 +68,7 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
         # remove any urls from json (tested elsewhere)
         for key in list(o1.keys()):
             if key.startswith('url:'):
-                del(o1[key])
+                del o1[key]
         assert o1 == o2
 
 

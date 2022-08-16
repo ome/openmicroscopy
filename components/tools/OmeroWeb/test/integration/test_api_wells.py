@@ -55,7 +55,7 @@ def remove_urls(marshalled, keys=[]):
     """Traverse a dict (Well) removing 'url:' values."""
     for key, val in list(marshalled.items()):
         if key.startswith('url:') and key not in keys:
-            del(marshalled[key])
+            del marshalled[key]
         # We only traverse paths where we know urls are
         elif key == 'Image':
             remove_urls(val)

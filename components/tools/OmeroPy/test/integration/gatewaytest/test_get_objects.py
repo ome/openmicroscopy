@@ -933,7 +933,7 @@ class TestLeaderAndMemberOfGroup(object):
             gId = groupExpMap.parent.id.val
             if groupExpMap.owner.val and gId not in filter_system_groups:
                 leaderOf.append(gId)
-        assert(leaderOf == grs)
+        assert leaderOf == grs
 
     def testGetGroupsLeaderOfAsMember(self, gatewaywrapper):
         gatewaywrapper.doLogin(dbhelpers.USERS['group_member'])

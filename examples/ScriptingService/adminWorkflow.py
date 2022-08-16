@@ -208,7 +208,7 @@ def runScript(session, scriptService, scriptPath):
                     listClass = omero.rtypes.rint
 
             print("List:")
-            while(True):
+            while True:
                 value = input(prompt)
                 if value == "":
                     break
@@ -232,7 +232,7 @@ def runScript(session, scriptService, scriptPath):
 
         else:
             value = input(prompt)
-            while(True):
+            while True:
                 if value == "":
                     if default:
                         map[key] = param.prototype
