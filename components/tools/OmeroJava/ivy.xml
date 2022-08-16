@@ -28,9 +28,6 @@
     </dependency>
     <dependency org="org.openmicroscopy" name="omero-gateway" rev="${versions.omero-gateway}"/>
     <dependency org="org.openmicroscopy" name="omero-common-test" rev="${versions.omero-common-test}"/>
-    <dependency org="org.openmicroscopy" name="ome-common" rev="${versions.ome-common}">
-      <artifact name="ome-common" type="jar" ext="jar"/>
-      </dependency>
   </dependencies>
 </ivy-module>
 
