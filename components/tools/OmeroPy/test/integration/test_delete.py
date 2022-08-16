@@ -335,7 +335,7 @@ class TestDelete(ITest):
         in_progress = 0
         r = None
 
-        while(len(handlers) > 0):
+        while len(handlers) > 0:
             for cbString in handlers:
                 try:
                     handle = omero.cmd.HandlePrx.checkedCast(

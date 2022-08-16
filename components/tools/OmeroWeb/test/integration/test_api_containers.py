@@ -97,7 +97,7 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
         o1 = copy.deepcopy(o1)      # don't modify original
         for key in list(o1.keys()):
             if key.startswith('url:') and key not in o2:
-                del(o1[key])
+                del o1[key]
         # add urls to any 'Image' in expected 'Wells' dict
         add_image_urls(o2, client)
         assert o1 == o2
