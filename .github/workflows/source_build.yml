@@ -35,7 +35,7 @@ jobs:
         id: zarr_reader
         if: matrix.build_zarr
         run: |
-          git clone -b dependency-updates https://github.com/dgault/ZarrReader /tmp/ZarrReader
+          git clone https://github.com/ome/ZarrReader /tmp/ZarrReader --depth 1
           cd /tmp/ZarrReader
           mvn install -DskipTests -q
           echo "::set-output name=zarr_reader_version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
