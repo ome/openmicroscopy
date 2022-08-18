@@ -6,7 +6,11 @@ on:
     - cron: '0 0 * * *'
 
 jobs:
-  buil:
+  build:
+    strategy:
+      matrix:
+        build_bf: [false, true]
+        build_zarr: [false, true]
     name: Build OMERO from source
     runs-on: ubuntu-20.04
     steps:
@@ -15,6 +19,36 @@ jobs:
         run: |
           pip install flake8
           flake8 .
+      - name: install dependencies
+        run: |
+          sudo apt-get install -y git
+      - name: Build Bio-Formats
+        id: bf
+        if: matrix.build_bf
+        run: |
+          git clone https://github.com/ome/bioformats /tmp/bioformats --depth 1
+          cd /tmp/bioformats
+          mvn install -DskipTests -q
+          echo "::set-output name=bf_version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+          echo "::set-output name=ome_common_version::$(mvn help:evaluate -Dexpression=ome-common.version -q -DforceStdout)"
+      - name: Build ZarrReader
+        id: zarr_reader
+        if: matrix.build_zarr
+        run: |
+          git clone https://github.com/ome/ZarrReader /tmp/ZarrReader --depth 1
+          cd /tmp/ZarrReader
+          mvn install -DskipTests -q
+          echo "::set-output name=zarr_reader_version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+      - name: Set ZarrReader version
+        if: matrix.build_zarr
+        run: |
+          sed -i 's/versions.OMEZarrReader=.*/versions.OMEZarrReader=${{ steps.zarr_reader.outputs.zarr_reader_version }}/' etc/omero.properties
+      - name: Set Bio-Formats version
+        if: matrix.build_bf
+        run: |
+          DEPENDENCY="<dependency org=\"org.openmicroscopy\" name=\"ome-common\" rev=\"${{ steps.bf.outputs.ome_common_version }}\">\n<artifact name=\"ome-common\" type=\"jar\" ext=\"jar\"\/>\n<\/dependency>"
+          sed -i 's/versions.bioformats=.*/versions.bioformats=${{ steps.bf.outputs.bf_version }}/' etc/omero.properties
+          sed -i "s/<dependencies>/<dependencies>\n $DEPENDENCY/" components/tools/OmeroJava/ivy.xml
       - name: Build
         run: ./build.py
       - name: Rebuild
