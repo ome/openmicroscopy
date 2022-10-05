@@ -127,6 +127,30 @@ class TestFS(CLITest):
         out, err = capsys.readouterr()
         assert err.endswith("SecurityViolation: Admins only!\n")
 
+    @pytest.mark.parametrize("hcs", [True, False])
+    @pytest.mark.parametrize("skip", ["all", "minmax", "thumbnails"])
+    def testImportTime(self, hcs, skip, capfd):
+
+        kwargs = {}
+        if hcs:
+            kwargs["plateCols"] = 2
+            kwargs["plateRows"] = 2
+            kwargs["fields"] = 2
+            kwargs["images_count"] = 8
+        images = self.import_fake_file(skip=skip, **kwargs)
+        fileset = self.get_fileset(images)
+
+        self.args += ["importtime", "Fileset:%s" % fileset.getId().val]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+
+        assert "upload time" in o
+        assert "metadata time" in o
+        assert "pixels time" in o
+        if skip not in ["all", "thumbnails"]:
+            assert "rdefs time" in o
+            assert "thumbnail time" in o
+
 
 class TestFsRoot(RootCLITest):
 
