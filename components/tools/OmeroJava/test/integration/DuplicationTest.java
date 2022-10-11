@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import omero.RLong;
 import omero.RString;
@@ -53,6 +54,8 @@ import omero.model.DoubleAnnotationI;
 import omero.model.Ellipse;
 import omero.model.EllipseI;
 import omero.model.ExperimenterGroup;
+import omero.model.ExternalInfo;
+import omero.model.ExternalInfoI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Folder;
@@ -282,6 +285,13 @@ public class DuplicationTest extends AbstractServerTest {
       Assert.assertEquals(duplicate.getTheZ().getValue(), original.getTheZ().getValue());
       Assert.assertEquals(duplicate.getTheT().getValue(), original.getTheT().getValue());
       Assert.assertEquals(duplicate.getTheC().getValue(), original.getTheC().getValue());
+      ExternalInfo originalExternalInfo = original.getDetails().getExternalInfo();
+      Assert.assertNotNull(originalExternalInfo);
+      ExternalInfo duplicateExternalInfo = duplicate.getDetails().getExternalInfo();
+      Assert.assertNotNull(duplicateExternalInfo);
+      Assert.assertEquals(originalExternalInfo.getEntityId(), duplicateExternalInfo.getEntityId());
+      Assert.assertEquals(originalExternalInfo.getEntityType(), duplicateExternalInfo.getEntityType());
+      Assert.assertEquals(originalExternalInfo.getUuid(), duplicateExternalInfo.getUuid());
     }
 
     /**
@@ -1070,6 +1080,12 @@ public class DuplicationTest extends AbstractServerTest {
         Polyline originalPolyline = new PolylineI();
         originalRoi.addShape(originalPolyline);
 
+        ExternalInfo originalRoiInfo = new ExternalInfoI();
+        originalRoiInfo.setEntityType(omero.rtypes.rstring("roi"));
+        originalRoiInfo.setEntityId(omero.rtypes.rlong(0));
+        originalRoiInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalRoi.getDetails().setExternalInfo(originalRoiInfo);
+
         int propertyValue = 1;
         originalRectangle.setTheZ(omero.rtypes.rint(propertyValue++));
         originalRectangle.setTheT(omero.rtypes.rint(propertyValue++));
@@ -1122,6 +1138,47 @@ public class DuplicationTest extends AbstractServerTest {
         originalPolyline.setTheC(omero.rtypes.rint(propertyValue++));
         originalPolyline.setPoints(omero.rtypes.rstring(Integer.toString(propertyValue++)));
         originalPolyline.setTextValue(omero.rtypes.rstring(Integer.toString(propertyValue++)));
+
+        ExternalInfo originalRectangleInfo = new ExternalInfoI();
+        originalRectangleInfo.setEntityType(omero.rtypes.rstring("rectangle"));
+        originalRectangleInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalRectangleInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalRectangle.getDetails().setExternalInfo(originalRectangleInfo);
+        ExternalInfo originalEllipseInfo = new ExternalInfoI();
+        originalEllipseInfo.setEntityType(omero.rtypes.rstring("ellipse"));
+        originalEllipseInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalEllipseInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalEllipse.getDetails().setExternalInfo(originalEllipseInfo);
+        ExternalInfo originalLineInfo = new ExternalInfoI();
+        originalLineInfo.setEntityType(omero.rtypes.rstring("line"));
+        originalLineInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalLineInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalLine.getDetails().setExternalInfo(originalLineInfo);
+        ExternalInfo originalPointInfo = new ExternalInfoI();
+        originalPointInfo.setEntityType(omero.rtypes.rstring("point"));
+        originalPointInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalPointInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalPoint.getDetails().setExternalInfo(originalPointInfo);
+        ExternalInfo originalLabelInfo = new ExternalInfoI();
+        originalLabelInfo.setEntityType(omero.rtypes.rstring("label"));
+        originalLabelInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalLabelInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalLabel.getDetails().setExternalInfo(originalLabelInfo);
+        ExternalInfo originalMaskInfo = new ExternalInfoI();
+        originalMaskInfo.setEntityType(omero.rtypes.rstring("mask"));
+        originalMaskInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalMaskInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalMask.getDetails().setExternalInfo(originalMaskInfo);
+        ExternalInfo originalPolygonInfo = new ExternalInfoI();
+        originalPolygonInfo.setEntityType(omero.rtypes.rstring("polygon"));
+        originalPolygonInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalPolygonInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalPolygon.getDetails().setExternalInfo(originalPolygonInfo);
+        ExternalInfo originalPolylineInfo = new ExternalInfoI();
+        originalPolylineInfo.setEntityType(omero.rtypes.rstring("polygon"));
+        originalPolylineInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalPolylineInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalPolyline.getDetails().setExternalInfo(originalPolylineInfo);
 
         originalRoi = (Roi) iUpdate.saveAndReturnObject(originalRoi);
         final Iterator<Shape> originalShapes = originalRoi.copyShapes().iterator();
@@ -1211,7 +1268,8 @@ public class DuplicationTest extends AbstractServerTest {
         final Image duplicateImage = (Image) iQuery.findByQuery(
                 "SELECT i FROM Image i " +
                 "JOIN FETCH i.rois AS r " +
-                "JOIN FETCH r.shapes " +
+                "JOIN FETCH r.shapes AS s " +
+                "JOIN FETCH s.details.externalInfo " +
                 "WHERE i.id = :id", parameters);
         final Iterator<Shape> duplicateShapes = duplicateImage.copyRois().get(0).copyShapes().iterator();
         final Rectangle duplicateRectangle = (Rectangle) duplicateShapes.next();
