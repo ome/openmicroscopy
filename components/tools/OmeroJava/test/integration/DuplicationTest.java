@@ -627,6 +627,11 @@ public class DuplicationTest extends AbstractServerTest {
         final Image originalImage = mmFactory.simpleImage();
         final TextAnnotation originalAnnotation = new XmlAnnotationI();
         originalAnnotation.setTextValue(omero.rtypes.rstring(annotationText));
+        ExternalInfo originalAnnotationInfo = new ExternalInfoI();
+        originalAnnotationInfo.setEntityType(omero.rtypes.rstring("xmlannotation"));
+        originalAnnotationInfo.setEntityId(omero.rtypes.rlong(0));
+        originalAnnotationInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalAnnotation.getDetails().setExternalInfo(originalAnnotationInfo);
         ImageAnnotationLink originalLink = new ImageAnnotationLinkI();
         originalLink.setParent(originalImage);
         originalLink.setChild(originalAnnotation);
@@ -673,10 +678,15 @@ public class DuplicationTest extends AbstractServerTest {
         /* check that the annotation is indeed a duplicate of the original */
 
         final TextAnnotation duplicatedAnnotation = (TextAnnotation) iQuery.findByQuery(
-                "FROM Annotation WHERE id = :id",
+                "SELECT a FROM Annotation a JOIN FETCH a.details.externalInfo WHERE a.id = :id",
                 new ParametersI().addId(reportedAnnotationId));
 
         Assert.assertEquals(duplicatedAnnotation.getTextValue().getValue(), annotationText);
+        ExternalInfo duplicateExternalInfo = duplicatedAnnotation.getDetails().getExternalInfo();
+        Assert.assertNotNull(duplicateExternalInfo);
+        Assert.assertEquals(duplicateExternalInfo.getEntityId(), originalAnnotationInfo.getEntityId());
+        Assert.assertEquals(duplicateExternalInfo.getEntityType(), originalAnnotationInfo.getEntityType());
+        Assert.assertEquals(duplicateExternalInfo.getUuid(), originalAnnotationInfo.getUuid());
     }
 
     /**
