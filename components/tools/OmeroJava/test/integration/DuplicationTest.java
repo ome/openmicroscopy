@@ -270,10 +270,19 @@ public class DuplicationTest extends AbstractServerTest {
      * @param original the original instance
      * @param duplicate the duplicate instance that is expected to correspond to the original
      */
+    private static void assertSameProperties(Shape original, Shape duplicate) {
+      Assert.assertEquals(duplicate.getTheZ().getValue(), original.getTheZ().getValue());
+      Assert.assertEquals(duplicate.getTheT().getValue(), original.getTheT().getValue());
+      Assert.assertEquals(duplicate.getTheC().getValue(), original.getTheC().getValue());
+    }
+
+    /**
+     * Assert that the given instances have the same property values.
+     * @param original the original instance
+     * @param duplicate the duplicate instance that is expected to correspond to the original
+     */
     private static void assertSameProperties(Rectangle original, Rectangle duplicate) {
-        Assert.assertEquals(duplicate.getTheZ().getValue(), original.getTheZ().getValue());
-        Assert.assertEquals(duplicate.getTheT().getValue(), original.getTheT().getValue());
-        Assert.assertEquals(duplicate.getTheC().getValue(), original.getTheC().getValue());
+        assertSameProperties((Shape) original, (Shape) duplicate);
         Assert.assertEquals(duplicate.getX().getValue(), original.getX().getValue());
         Assert.assertEquals(duplicate.getY().getValue(), original.getY().getValue());
         Assert.assertEquals(duplicate.getWidth().getValue(), original.getWidth().getValue());
@@ -286,9 +295,7 @@ public class DuplicationTest extends AbstractServerTest {
      * @param duplicate the duplicate instance that is expected to correspond to the original
      */
     private static void assertSameProperties(Ellipse original, Ellipse duplicate) {
-        Assert.assertEquals(duplicate.getTheZ().getValue(), original.getTheZ().getValue());
-        Assert.assertEquals(duplicate.getTheT().getValue(), original.getTheT().getValue());
-        Assert.assertEquals(duplicate.getTheC().getValue(), original.getTheC().getValue());
+        assertSameProperties((Shape) original, (Shape) duplicate);
         Assert.assertEquals(duplicate.getX().getValue(), original.getX().getValue());
         Assert.assertEquals(duplicate.getY().getValue(), original.getY().getValue());
         Assert.assertEquals(duplicate.getRadiusX().getValue(), original.getRadiusX().getValue());
@@ -301,9 +308,7 @@ public class DuplicationTest extends AbstractServerTest {
      * @param duplicate the duplicate instance that is expected to correspond to the original
      */
     private static void assertSameProperties(Line original, Line duplicate) {
-        Assert.assertEquals(duplicate.getTheZ().getValue(), original.getTheZ().getValue());
-        Assert.assertEquals(duplicate.getTheT().getValue(), original.getTheT().getValue());
-        Assert.assertEquals(duplicate.getTheC().getValue(), original.getTheC().getValue());
+        assertSameProperties((Shape) original, (Shape) duplicate);
         Assert.assertEquals(duplicate.getX1().getValue(), original.getX1().getValue());
         Assert.assertEquals(duplicate.getY1().getValue(), original.getY1().getValue());
         Assert.assertEquals(duplicate.getX2().getValue(), original.getX2().getValue());
@@ -316,9 +321,7 @@ public class DuplicationTest extends AbstractServerTest {
      * @param duplicate the duplicate instance that is expected to correspond to the original
      */
     private static void assertSameProperties(Point original, Point duplicate) {
-        Assert.assertEquals(duplicate.getTheZ().getValue(), original.getTheZ().getValue());
-        Assert.assertEquals(duplicate.getTheT().getValue(), original.getTheT().getValue());
-        Assert.assertEquals(duplicate.getTheC().getValue(), original.getTheC().getValue());
+        assertSameProperties((Shape) original, (Shape) duplicate);
         Assert.assertEquals(duplicate.getX().getValue(), original.getX().getValue());
         Assert.assertEquals(duplicate.getY().getValue(), original.getY().getValue());
     }
