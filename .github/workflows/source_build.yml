@@ -29,8 +29,8 @@ jobs:
           git clone https://github.com/ome/bioformats /tmp/bioformats --depth 1
           cd /tmp/bioformats
           mvn install -DskipTests -q
-          echo "::set-output name=bf_version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
-          echo "::set-output name=ome_common_version::$(mvn help:evaluate -Dexpression=ome-common.version -q -DforceStdout)"
+          echo "bf_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
+          echo "ome_common_version=$(mvn help:evaluate -Dexpression=ome-common.version -q -DforceStdout)" >> $GITHUB_OUTPUT
       - name: Build ZarrReader
         id: zarr_reader
         if: matrix.build_zarr
@@ -38,7 +38,7 @@ jobs:
           git clone https://github.com/ome/ZarrReader /tmp/ZarrReader --depth 1
           cd /tmp/ZarrReader
           mvn install -DskipTests -q
-          echo "::set-output name=zarr_reader_version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+          echo "zarr_reader_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
       - name: Set ZarrReader version
         if: matrix.build_zarr
         run: |
