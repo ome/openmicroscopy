@@ -289,9 +289,9 @@ public class DuplicationTest extends AbstractServerTest {
       Assert.assertNotNull(originalExternalInfo);
       ExternalInfo duplicateExternalInfo = duplicate.getDetails().getExternalInfo();
       Assert.assertNotNull(duplicateExternalInfo);
-      Assert.assertEquals(originalExternalInfo.getEntityId(), duplicateExternalInfo.getEntityId());
-      Assert.assertEquals(originalExternalInfo.getEntityType(), duplicateExternalInfo.getEntityType());
-      Assert.assertEquals(originalExternalInfo.getUuid(), duplicateExternalInfo.getUuid());
+      Assert.assertEquals(duplicateExternalInfo.getEntityId(), originalExternalInfo.getEntityId());
+      Assert.assertEquals(duplicateExternalInfo.getEntityType(), originalExternalInfo.getEntityType());
+      Assert.assertEquals(duplicateExternalInfo.getUuid(), originalExternalInfo.getUuid());
     }
 
     /**
