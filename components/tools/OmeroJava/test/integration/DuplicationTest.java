@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import omero.RLong;
 import omero.RString;
@@ -53,6 +54,8 @@ import omero.model.DoubleAnnotationI;
 import omero.model.Ellipse;
 import omero.model.EllipseI;
 import omero.model.ExperimenterGroup;
+import omero.model.ExternalInfo;
+import omero.model.ExternalInfoI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Folder;
@@ -65,18 +68,26 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
+import omero.model.Label;
+import omero.model.LabelI;
 import omero.model.Line;
 import omero.model.LineI;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
 import omero.model.MapAnnotationI;
+import omero.model.Mask;
+import omero.model.MaskI;
 import omero.model.Pixels;
 import omero.model.PlaneInfo;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.Point;
 import omero.model.PointI;
+import omero.model.Polygon;
+import omero.model.PolygonI;
+import omero.model.Polyline;
+import omero.model.PolylineI;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
@@ -270,10 +281,26 @@ public class DuplicationTest extends AbstractServerTest {
      * @param original the original instance
      * @param duplicate the duplicate instance that is expected to correspond to the original
      */
+    private static void assertSameProperties(Shape original, Shape duplicate) {
+      Assert.assertEquals(duplicate.getTheZ().getValue(), original.getTheZ().getValue());
+      Assert.assertEquals(duplicate.getTheT().getValue(), original.getTheT().getValue());
+      Assert.assertEquals(duplicate.getTheC().getValue(), original.getTheC().getValue());
+      ExternalInfo originalExternalInfo = original.getDetails().getExternalInfo();
+      Assert.assertNotNull(originalExternalInfo);
+      ExternalInfo duplicateExternalInfo = duplicate.getDetails().getExternalInfo();
+      Assert.assertNotNull(duplicateExternalInfo);
+      Assert.assertEquals(duplicateExternalInfo.getEntityId(), originalExternalInfo.getEntityId());
+      Assert.assertEquals(duplicateExternalInfo.getEntityType(), originalExternalInfo.getEntityType());
+      Assert.assertEquals(duplicateExternalInfo.getUuid(), originalExternalInfo.getUuid());
+    }
+
+    /**
+     * Assert that the given instances have the same property values.
+     * @param original the original instance
+     * @param duplicate the duplicate instance that is expected to correspond to the original
+     */
     private static void assertSameProperties(Rectangle original, Rectangle duplicate) {
-        Assert.assertEquals(duplicate.getTheZ().getValue(), original.getTheZ().getValue());
-        Assert.assertEquals(duplicate.getTheT().getValue(), original.getTheT().getValue());
-        Assert.assertEquals(duplicate.getTheC().getValue(), original.getTheC().getValue());
+        assertSameProperties((Shape) original, (Shape) duplicate);
         Assert.assertEquals(duplicate.getX().getValue(), original.getX().getValue());
         Assert.assertEquals(duplicate.getY().getValue(), original.getY().getValue());
         Assert.assertEquals(duplicate.getWidth().getValue(), original.getWidth().getValue());
@@ -286,9 +313,7 @@ public class DuplicationTest extends AbstractServerTest {
      * @param duplicate the duplicate instance that is expected to correspond to the original
      */
     private static void assertSameProperties(Ellipse original, Ellipse duplicate) {
-        Assert.assertEquals(duplicate.getTheZ().getValue(), original.getTheZ().getValue());
-        Assert.assertEquals(duplicate.getTheT().getValue(), original.getTheT().getValue());
-        Assert.assertEquals(duplicate.getTheC().getValue(), original.getTheC().getValue());
+        assertSameProperties((Shape) original, (Shape) duplicate);
         Assert.assertEquals(duplicate.getX().getValue(), original.getX().getValue());
         Assert.assertEquals(duplicate.getY().getValue(), original.getY().getValue());
         Assert.assertEquals(duplicate.getRadiusX().getValue(), original.getRadiusX().getValue());
@@ -301,9 +326,7 @@ public class DuplicationTest extends AbstractServerTest {
      * @param duplicate the duplicate instance that is expected to correspond to the original
      */
     private static void assertSameProperties(Line original, Line duplicate) {
-        Assert.assertEquals(duplicate.getTheZ().getValue(), original.getTheZ().getValue());
-        Assert.assertEquals(duplicate.getTheT().getValue(), original.getTheT().getValue());
-        Assert.assertEquals(duplicate.getTheC().getValue(), original.getTheC().getValue());
+        assertSameProperties((Shape) original, (Shape) duplicate);
         Assert.assertEquals(duplicate.getX1().getValue(), original.getX1().getValue());
         Assert.assertEquals(duplicate.getY1().getValue(), original.getY1().getValue());
         Assert.assertEquals(duplicate.getX2().getValue(), original.getX2().getValue());
@@ -316,11 +339,58 @@ public class DuplicationTest extends AbstractServerTest {
      * @param duplicate the duplicate instance that is expected to correspond to the original
      */
     private static void assertSameProperties(Point original, Point duplicate) {
-        Assert.assertEquals(duplicate.getTheZ().getValue(), original.getTheZ().getValue());
-        Assert.assertEquals(duplicate.getTheT().getValue(), original.getTheT().getValue());
-        Assert.assertEquals(duplicate.getTheC().getValue(), original.getTheC().getValue());
+        assertSameProperties((Shape) original, (Shape) duplicate);
         Assert.assertEquals(duplicate.getX().getValue(), original.getX().getValue());
         Assert.assertEquals(duplicate.getY().getValue(), original.getY().getValue());
+    }
+
+    /**
+     * Assert that the given instances have the same property values.
+     * @param original the original instance
+     * @param duplicate the duplicate instance that is expected to correspond to the original
+     */
+    private static void assertSameProperties(Label original, Label duplicate) {
+        assertSameProperties((Shape) original, (Shape) duplicate);
+        Assert.assertEquals(duplicate.getX().getValue(), original.getX().getValue());
+        Assert.assertEquals(duplicate.getY().getValue(), original.getY().getValue());
+        Assert.assertEquals(duplicate.getTextValue().getValue(), original.getTextValue().getValue());
+    }
+
+    /**
+     * Assert that the given instances have the same property values.
+     * @param original the original instance
+     * @param duplicate the duplicate instance that is expected to correspond to the original
+     */
+    private static void assertSameProperties(Mask original, Mask duplicate) {
+        assertSameProperties((Shape) original, (Shape) duplicate);
+        Assert.assertEquals(duplicate.getX().getValue(), original.getX().getValue());
+        Assert.assertEquals(duplicate.getY().getValue(), original.getY().getValue());
+        Assert.assertEquals(duplicate.getWidth().getValue(), original.getWidth().getValue());
+        Assert.assertEquals(duplicate.getHeight().getValue(), original.getHeight().getValue());
+        Assert.assertEquals(duplicate.getTextValue().getValue(), original.getTextValue().getValue());
+        Assert.assertEquals(duplicate.getBytes(), original.getBytes());
+    }
+
+    /**
+     * Assert that the given instances have the same property values.
+     * @param original the original instance
+     * @param duplicate the duplicate instance that is expected to correspond to the original
+     */
+    private static void assertSameProperties(Polygon original, Polygon duplicate) {
+        assertSameProperties((Shape) original, (Shape) duplicate);
+        Assert.assertEquals(duplicate.getPoints().getValue(), original.getPoints().getValue());
+        Assert.assertEquals(duplicate.getTextValue().getValue(), original.getTextValue().getValue());
+    }
+
+    /**
+     * Assert that the given instances have the same property values.
+     * @param original the original instance
+     * @param duplicate the duplicate instance that is expected to correspond to the original
+     */
+    private static void assertSameProperties(Polyline original, Polyline duplicate) {
+        assertSameProperties((Shape) original, (Shape) duplicate);
+        Assert.assertEquals(duplicate.getPoints().getValue(), original.getPoints().getValue());
+        Assert.assertEquals(duplicate.getTextValue().getValue(), original.getTextValue().getValue());
     }
 
     /**
@@ -557,6 +627,11 @@ public class DuplicationTest extends AbstractServerTest {
         final Image originalImage = mmFactory.simpleImage();
         final TextAnnotation originalAnnotation = new XmlAnnotationI();
         originalAnnotation.setTextValue(omero.rtypes.rstring(annotationText));
+        ExternalInfo originalAnnotationInfo = new ExternalInfoI();
+        originalAnnotationInfo.setEntityType(omero.rtypes.rstring("xmlannotation"));
+        originalAnnotationInfo.setEntityId(omero.rtypes.rlong(0));
+        originalAnnotationInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalAnnotation.getDetails().setExternalInfo(originalAnnotationInfo);
         ImageAnnotationLink originalLink = new ImageAnnotationLinkI();
         originalLink.setParent(originalImage);
         originalLink.setChild(originalAnnotation);
@@ -603,10 +678,15 @@ public class DuplicationTest extends AbstractServerTest {
         /* check that the annotation is indeed a duplicate of the original */
 
         final TextAnnotation duplicatedAnnotation = (TextAnnotation) iQuery.findByQuery(
-                "FROM Annotation WHERE id = :id",
+                "SELECT a FROM Annotation a JOIN FETCH a.details.externalInfo WHERE a.id = :id",
                 new ParametersI().addId(reportedAnnotationId));
 
         Assert.assertEquals(duplicatedAnnotation.getTextValue().getValue(), annotationText);
+        ExternalInfo duplicateExternalInfo = duplicatedAnnotation.getDetails().getExternalInfo();
+        Assert.assertNotNull(duplicateExternalInfo);
+        Assert.assertEquals(duplicateExternalInfo.getEntityId(), originalAnnotationInfo.getEntityId());
+        Assert.assertEquals(duplicateExternalInfo.getEntityType(), originalAnnotationInfo.getEntityType());
+        Assert.assertEquals(duplicateExternalInfo.getUuid(), originalAnnotationInfo.getUuid());
     }
 
     /**
@@ -1001,6 +1081,20 @@ public class DuplicationTest extends AbstractServerTest {
         originalRoi.addShape(originalLine);
         Point originalPoint = new PointI();
         originalRoi.addShape(originalPoint);
+        Label originalLabel = new LabelI();
+        originalRoi.addShape(originalLabel);
+        Mask originalMask = new MaskI();
+        originalRoi.addShape(originalMask);
+        Polygon originalPolygon = new PolygonI();
+        originalRoi.addShape(originalPolygon);
+        Polyline originalPolyline = new PolylineI();
+        originalRoi.addShape(originalPolyline);
+
+        ExternalInfo originalRoiInfo = new ExternalInfoI();
+        originalRoiInfo.setEntityType(omero.rtypes.rstring("roi"));
+        originalRoiInfo.setEntityId(omero.rtypes.rlong(0));
+        originalRoiInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalRoi.getDetails().setExternalInfo(originalRoiInfo);
 
         int propertyValue = 1;
         originalRectangle.setTheZ(omero.rtypes.rint(propertyValue++));
@@ -1029,6 +1123,72 @@ public class DuplicationTest extends AbstractServerTest {
         originalPoint.setTheC(omero.rtypes.rint(propertyValue++));
         originalPoint.setX(omero.rtypes.rdouble(propertyValue++));
         originalPoint.setY(omero.rtypes.rdouble(propertyValue++));
+        originalLabel.setTheZ(omero.rtypes.rint(propertyValue++));
+        originalLabel.setTheT(omero.rtypes.rint(propertyValue++));
+        originalLabel.setTheC(omero.rtypes.rint(propertyValue++));
+        originalLabel.setX(omero.rtypes.rdouble(propertyValue++));
+        originalLabel.setY(omero.rtypes.rdouble(propertyValue++));
+        originalLabel.setTextValue(omero.rtypes.rstring(Integer.toString(propertyValue++)));
+        originalMask.setTheZ(omero.rtypes.rint(propertyValue++));
+        originalMask.setTheT(omero.rtypes.rint(propertyValue++));
+        originalMask.setTheC(omero.rtypes.rint(propertyValue++));
+        originalMask.setX(omero.rtypes.rdouble(propertyValue++));
+        originalMask.setY(omero.rtypes.rdouble(propertyValue++));
+        originalMask.setHeight(omero.rtypes.rdouble(propertyValue++));
+        originalMask.setWidth(omero.rtypes.rdouble(propertyValue++));
+        originalMask.setTextValue(omero.rtypes.rstring(Integer.toString(propertyValue++)));
+        originalMask.setBytes(new byte[] {(byte) propertyValue++});
+        originalPolygon.setTheZ(omero.rtypes.rint(propertyValue++));
+        originalPolygon.setTheT(omero.rtypes.rint(propertyValue++));
+        originalPolygon.setTheC(omero.rtypes.rint(propertyValue++));
+        originalPolygon.setPoints(omero.rtypes.rstring(Integer.toString(propertyValue++)));
+        originalPolygon.setTextValue(omero.rtypes.rstring(Integer.toString(propertyValue++)));
+        originalPolyline.setTheZ(omero.rtypes.rint(propertyValue++));
+        originalPolyline.setTheT(omero.rtypes.rint(propertyValue++));
+        originalPolyline.setTheC(omero.rtypes.rint(propertyValue++));
+        originalPolyline.setPoints(omero.rtypes.rstring(Integer.toString(propertyValue++)));
+        originalPolyline.setTextValue(omero.rtypes.rstring(Integer.toString(propertyValue++)));
+
+        ExternalInfo originalRectangleInfo = new ExternalInfoI();
+        originalRectangleInfo.setEntityType(omero.rtypes.rstring("rectangle"));
+        originalRectangleInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalRectangleInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalRectangle.getDetails().setExternalInfo(originalRectangleInfo);
+        ExternalInfo originalEllipseInfo = new ExternalInfoI();
+        originalEllipseInfo.setEntityType(omero.rtypes.rstring("ellipse"));
+        originalEllipseInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalEllipseInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalEllipse.getDetails().setExternalInfo(originalEllipseInfo);
+        ExternalInfo originalLineInfo = new ExternalInfoI();
+        originalLineInfo.setEntityType(omero.rtypes.rstring("line"));
+        originalLineInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalLineInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalLine.getDetails().setExternalInfo(originalLineInfo);
+        ExternalInfo originalPointInfo = new ExternalInfoI();
+        originalPointInfo.setEntityType(omero.rtypes.rstring("point"));
+        originalPointInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalPointInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalPoint.getDetails().setExternalInfo(originalPointInfo);
+        ExternalInfo originalLabelInfo = new ExternalInfoI();
+        originalLabelInfo.setEntityType(omero.rtypes.rstring("label"));
+        originalLabelInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalLabelInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalLabel.getDetails().setExternalInfo(originalLabelInfo);
+        ExternalInfo originalMaskInfo = new ExternalInfoI();
+        originalMaskInfo.setEntityType(omero.rtypes.rstring("mask"));
+        originalMaskInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalMaskInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalMask.getDetails().setExternalInfo(originalMaskInfo);
+        ExternalInfo originalPolygonInfo = new ExternalInfoI();
+        originalPolygonInfo.setEntityType(omero.rtypes.rstring("polygon"));
+        originalPolygonInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalPolygonInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalPolygon.getDetails().setExternalInfo(originalPolygonInfo);
+        ExternalInfo originalPolylineInfo = new ExternalInfoI();
+        originalPolylineInfo.setEntityType(omero.rtypes.rstring("polygon"));
+        originalPolylineInfo.setEntityId(omero.rtypes.rlong(propertyValue++));
+        originalPolylineInfo.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        originalPolyline.getDetails().setExternalInfo(originalPolylineInfo);
 
         originalRoi = (Roi) iUpdate.saveAndReturnObject(originalRoi);
         final Iterator<Shape> originalShapes = originalRoi.copyShapes().iterator();
@@ -1036,6 +1196,10 @@ public class DuplicationTest extends AbstractServerTest {
         originalEllipse = (Ellipse) originalShapes.next();
         originalLine = (Line) originalShapes.next();
         originalPoint = (Point) originalShapes.next();
+        originalLabel = (Label) originalShapes.next();
+        originalMask = (Mask) originalShapes.next();
+        originalPolygon = (Polygon) originalShapes.next();
+        originalPolyline = (Polyline) originalShapes.next();
         Assert.assertFalse(originalShapes.hasNext());
         originalImage.addRoi(originalRoi);
         originalImage = (Image) iUpdate.saveAndReturnObject(originalImage);
@@ -1048,6 +1212,10 @@ public class DuplicationTest extends AbstractServerTest {
         final long originalEllipseId = originalEllipse.getId().getValue();
         final long originalLineId = originalLine.getId().getValue();
         final long originalPointId = originalPoint.getId().getValue();
+        final long originalLabelId = originalLabel.getId().getValue();
+        final long originalMaskId = originalMask.getId().getValue();
+        final long originalPolygonId = originalPolygon.getId().getValue();
+        final long originalPolylineId = originalPolyline.getId().getValue();
         testImages.add(originalImageId);
 
         /* duplicate the image */
@@ -1063,6 +1231,10 @@ public class DuplicationTest extends AbstractServerTest {
         final Set<Long> reportedEllipseIds = new HashSet<Long>(response.duplicates.get("ome.model.roi.Ellipse"));
         final Set<Long> reportedLineIds = new HashSet<Long>(response.duplicates.get("ome.model.roi.Line"));
         final Set<Long> reportedPointIds = new HashSet<Long>(response.duplicates.get("ome.model.roi.Point"));
+        final Set<Long> reportedLabelIds = new HashSet<Long>(response.duplicates.get("ome.model.roi.Label"));
+        final Set<Long> reportedMaskIds = new HashSet<Long>(response.duplicates.get("ome.model.roi.Mask"));
+        final Set<Long> reportedPolygonIds = new HashSet<Long>(response.duplicates.get("ome.model.roi.Polygon"));
+        final Set<Long> reportedPolylineIds = new HashSet<Long>(response.duplicates.get("ome.model.roi.Polyline"));
 
         Assert.assertEquals(reportedImageIds.size(), 1);
         Assert.assertEquals(reportedRoiIds.size(), 1);
@@ -1070,6 +1242,10 @@ public class DuplicationTest extends AbstractServerTest {
         Assert.assertEquals(reportedEllipseIds.size(), 1);
         Assert.assertEquals(reportedLineIds.size(), 1);
         Assert.assertEquals(reportedPointIds.size(), 1);
+        Assert.assertEquals(reportedLabelIds.size(), 1);
+        Assert.assertEquals(reportedMaskIds.size(), 1);
+        Assert.assertEquals(reportedPolygonIds.size(), 1);
+        Assert.assertEquals(reportedPolylineIds.size(), 1);
 
         /* check that the reported image, ROI and shapes each have a new ID */
 
@@ -1079,6 +1255,10 @@ public class DuplicationTest extends AbstractServerTest {
         final long reportedEllipseId = reportedEllipseIds.iterator().next();
         final long reportedLineId = reportedLineIds.iterator().next();
         final long reportedPointId = reportedPointIds.iterator().next();
+        final long reportedLabelId = reportedLabelIds.iterator().next();
+        final long reportedMaskId = reportedMaskIds.iterator().next();
+        final long reportedPolygonId = reportedPolygonIds.iterator().next();
+        final long reportedPolylineId = reportedPolylineIds.iterator().next();
         testImages.add(reportedImageId);
 
         Assert.assertNotEquals(originalImageId, reportedImageId);
@@ -1087,6 +1267,10 @@ public class DuplicationTest extends AbstractServerTest {
         Assert.assertNotEquals(originalEllipseId, reportedEllipseId);
         Assert.assertNotEquals(originalLineId, reportedLineId);
         Assert.assertNotEquals(originalPointId, reportedPointId);
+        Assert.assertNotEquals(originalLabelId, reportedLabelId);
+        Assert.assertNotEquals(originalMaskId, reportedMaskId);
+        Assert.assertNotEquals(originalPolygonId, reportedPolygonId);
+        Assert.assertNotEquals(originalPolylineId, reportedPolylineId);
 
         /* check that the ROI on the images is exactly as expected */
 
@@ -1094,24 +1278,37 @@ public class DuplicationTest extends AbstractServerTest {
         final Image duplicateImage = (Image) iQuery.findByQuery(
                 "SELECT i FROM Image i " +
                 "JOIN FETCH i.rois AS r " +
-                "JOIN FETCH r.shapes " +
+                "JOIN FETCH r.shapes AS s " +
+                "JOIN FETCH s.details.externalInfo " +
                 "WHERE i.id = :id", parameters);
         final Iterator<Shape> duplicateShapes = duplicateImage.copyRois().get(0).copyShapes().iterator();
         final Rectangle duplicateRectangle = (Rectangle) duplicateShapes.next();
         final Ellipse duplicateEllipse = (Ellipse) duplicateShapes.next();
         final Line duplicateLine = (Line) duplicateShapes.next();
         final Point duplicatePoint = (Point) duplicateShapes.next();
+        final Label duplicateLabel = (Label) duplicateShapes.next();
+        final Mask duplicateMask = (Mask) duplicateShapes.next();
+        final Polygon duplicatePolygon = (Polygon) duplicateShapes.next();
+        final Polyline duplicatePolyline = (Polyline) duplicateShapes.next();
         Assert.assertFalse(duplicateShapes.hasNext());
 
         Assert.assertEquals(duplicateRectangle.getId().getValue(), reportedRectangleId);
         Assert.assertEquals(duplicateEllipse.getId().getValue(), reportedEllipseId);
         Assert.assertEquals(duplicateLine.getId().getValue(), reportedLineId);
         Assert.assertEquals(duplicatePoint.getId().getValue(), reportedPointId);
+        Assert.assertEquals(duplicateLabel.getId().getValue(), reportedLabelId);
+        Assert.assertEquals(duplicateMask.getId().getValue(), reportedMaskId);
+        Assert.assertEquals(duplicatePolygon.getId().getValue(), reportedPolygonId);
+        Assert.assertEquals(duplicatePolyline.getId().getValue(), reportedPolylineId);
 
         assertSameProperties(originalRectangle, duplicateRectangle);
         assertSameProperties(originalEllipse, duplicateEllipse);
         assertSameProperties(originalLine, duplicateLine);
         assertSameProperties(originalPoint, duplicatePoint);
+        assertSameProperties(originalLabel, duplicateLabel);
+        assertSameProperties(originalMask, duplicateMask);
+        assertSameProperties(originalPolygon, duplicatePolygon);
+        assertSameProperties(originalPolyline, duplicatePolyline);
 }
 
     /**
