@@ -24,7 +24,7 @@ Improvements include:
 
 - enhancement of the Command line importer developer user experience
 - the option for omero.server.nodedescriptors to be queried from a client
-- a new property to configure the QA system the feedback is submitted too.
+- a new property to configure the QA system the feedback is submitted to.
 - an upgrade of Bio-Formats to version 6.11.1
 
 **Note:** This upgrade will invalidate the Bio-Formats Memoizer cache. Please
