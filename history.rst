@@ -5,8 +5,40 @@
 OMERO version history
 =====================
 
+5.6.6 (December 2022)
+---------------------
+
+This release includes the following upgrade of the OMERO.server Java components:
+
+- omero-gateway-java 5.7.0
+- omero-blitz 5.6.0
+- omero-server 5.6.5
+- omero-renderer 5.5.11
+- omero-romio 5.7.1
+- omero-common 5.6.0
+- omero-model 5.6.9
+
+as well as the upgrade of omero-scripts to version 5.7.1.
+
+Improvements include:
+
+- improvements to the Command line importer developer user experience
+- the option for omero.server.nodedescriptors to be queried from a client
+- a new property to configure the QA system the feedback is submitted too.
+- an upgrade of Bio-Formats to version 6.11.1
+
+**Note:** This upgrade will invalidate the Bio-Formats Memoizer cache. Please
+see the upgrade guide for further information.
+
+This version of the OMERO.server has been tested with:
+
+- OMERO.py 5.13.1
+- OMERO.web 5.16.0
+- OMERO.dropbox 5.6.2
+
+
 5.6.5 (June 2022)
-------------------
+-----------------
 
 This release includes the following upgrade of the OMERO.server Java components:
 
