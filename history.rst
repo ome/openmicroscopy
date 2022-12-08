@@ -22,7 +22,7 @@ as well as the upgrade of omero-scripts to version 5.7.1.
 
 Improvements include:
 
-- improvements to the Command line importer developer user experience
+- enhancement of the Command line importer developer user experience
 - the option for omero.server.nodedescriptors to be queried from a client
 - a new property to configure the QA system the feedback is submitted too.
 - an upgrade of Bio-Formats to version 6.11.1
