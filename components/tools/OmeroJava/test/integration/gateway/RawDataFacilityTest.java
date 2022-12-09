@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2018 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2021 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,18 +20,30 @@
  */
 package integration.gateway;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.Executors;
 
+import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
+import ome.formats.importer.ImportCandidates;
+import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportEvent;
+import ome.formats.importer.ImportLibrary;
+import ome.formats.importer.OMEROWrapper;
 import omero.api.IPixelsPrx;
 import omero.api.RawPixelsStorePrx;
+import omero.api.ResolutionDescription;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.DataSourceException;
+import omero.gateway.model.PixelsData;
 import omero.gateway.rnd.Plane2D;
 import omero.model.IObject;
 import omero.model.PixelsType;
@@ -110,6 +122,21 @@ public class RawDataFacilityTest extends GatewayTest {
         
         Assert.assertEquals(planeData, rawDataPart);
     }
+
+    @Test
+    public void testGetTileResolutions() throws Throwable {
+        PixelsData pix = importImageFile();
+        Assert.assertTrue(pix.getId() > -1);
+        List<ResolutionDescription> res = rawdataFacility.getResolutionDescriptions(rootCtx,pix);
+        Assert.assertEquals(res.size(), 5);
+        int size = 6000;
+        for (int i=0; i<res.size(); i++) {
+            ResolutionDescription des = res.get(i);
+            Assert.assertEquals(des.sizeX, size);
+            rawdataFacility.getTile(rootCtx, pix, 0,0, 0, 0, 0, 100, 100, i);
+            size /= 2;
+        }
+    }
     
     @Test
     public void testGetHistogram() throws DataSourceException,
@@ -171,5 +198,28 @@ public class RawDataFacilityTest extends GatewayTest {
         }
         store.setPlane(rawData, 0, 0, 0);
         gw.closeService(rootCtx, store);
+    }
+
+    private PixelsData importImageFile()
+            throws Throwable
+    {
+        OMEROMetadataStoreClient importer = gw.getImportStore(rootCtx);
+        ImportConfig config = new ImportConfig();
+        config.doThumbnails.set(true);
+        ImportLibrary library = new ImportLibrary(importer, new OMEROWrapper(
+                config));
+
+        File f = File.createTempFile("testImage",
+                "&sizeX=6000&sizeY=6000&sizeZ=1&sizeT=1&resolutions=5.fake");
+        f.deleteOnExit();
+        OMEROWrapper reader = new OMEROWrapper(config);
+        String[] paths = new String[1];
+        paths[0] = f.getAbsolutePath();
+        IObserver o = new IObserver() {
+            public void update(IObservable importLibrary, ImportEvent event) {}
+        };
+        ImportCandidates candidates = new ImportCandidates(reader, paths, o);
+        return new PixelsData(library.importImage(candidates.getContainers().get(0),
+                Executors.newSingleThreadExecutor(), 0).iterator().next());
     }
 }
