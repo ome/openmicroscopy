@@ -4,7 +4,7 @@
 # is available and updates the value in etc/omero.properties
 
 # Check the Java packages
-dirs=("org/openmicroscopy/omero-blitz" "org/openmicroscopy/omero-common-test" "org/openmicroscopy/omero-gateway" "ome/OMEZarrReader")
+dirs=("org/openmicroscopy/omero-blitz" "org/openmicroscopy/omero-common" "org/openmicroscopy/omero-gateway" "ome/OMEZarrReader")
 for dir in "${dirs[@]}"
 do
     : 
