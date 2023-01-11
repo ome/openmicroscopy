@@ -621,7 +621,7 @@ class TestGetObject (ITest):
         testImage.isGreyscaleRenderingModel()
         assert image._re.getDefaultZ() == testImage._re.getDefaultZ()
         assert image._re.getDefaultT() == testImage._re.getDefaultT()
-        assert image.getOwnerOmeName == testImage.getOwnerOmeName
+        assert image.getOwnerOmeName() == testImage.getOwnerOmeName()
         assert image.getThumbVersion() is not None
 
     @pytest.mark.parametrize("load_pixels", [True, False])
@@ -660,7 +660,7 @@ class TestGetObject (ITest):
         assert testProj.getId() == p.getId()
         assert testProj.OMERO_CLASS == p.OMERO_CLASS
         assert testProj.countChildren_cached() == p.countChildren_cached()
-        assert testProj.getOwnerOmeName == p.getOwnerOmeName
+        assert testProj.getOwnerOmeName() == p.getOwnerOmeName()
 
     def testTraversal(self, author_testimg_tiny):
         image = author_testimg_tiny
