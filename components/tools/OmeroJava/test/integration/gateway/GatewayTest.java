@@ -46,6 +46,7 @@ import omero.gateway.facility.AdminFacility;
 import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.Facility;
+import omero.gateway.facility.LoadFacility;
 import omero.gateway.facility.MetadataFacility;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.RawDataFacility;
@@ -101,6 +102,7 @@ public class GatewayTest {
     MetadataFacility metadataFacility = null;
     ROIFacility roiFacility = null;
     TablesFacility tablesFacility = null;
+    LoadFacility loadFacility = null;
 
     @Test
     public void testConnected() throws DSOutOfServiceException {
@@ -220,10 +222,15 @@ public class GatewayTest {
         return (PlateData) datamanagerFacility.saveAndReturnObject(ctx, plate);
     }
 
-    PlateData createPlateWithWells()  throws Exception {
-        ModelMockFactory mf = new ModelMockFactory(gw.getTypesService(rootCtx));
+    PlateData createPlateWithWells(SecurityContext ctx, ScreenData screen)  throws Exception {
+        ModelMockFactory mf = new ModelMockFactory(gw.getTypesService(ctx));
         PlateData p = new PlateData(mf.createPlate(3, 3, 2, 1, false));
-        return (PlateData) datamanagerFacility.saveAndReturnObject(rootCtx, p);
+        if (screen != null) {
+            Set<ScreenData> screens = new HashSet<ScreenData>(1);
+            screens.add(screen);
+            p.setScreens(screens);
+        }
+        return (PlateData) datamanagerFacility.saveAndReturnObject(ctx, p);
     }
 
     ImageData createImage(SecurityContext ctx, DatasetData ds)

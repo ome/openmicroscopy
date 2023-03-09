@@ -1,0 +1,128 @@
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2023 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+package integration.gateway;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.WellData;
+import omero.model.Plate;
+import omero.model.Well;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.util.ArrayList;
+import java.util.Collections;
+
+/**
+ *
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ */
+
+public class LoadFacilityTest extends GatewayTest {
+
+    private GroupData group;
+    private ExperimenterData user;
+    
+    private ProjectData proj;
+    private DatasetData ds;
+    private ScreenData screen;
+    private PlateData plate;
+    private ImageData img;
+    private ArrayList<Long> wellIds;
+
+    @Override
+    @BeforeClass(alwaysRun = true)
+    protected void setUp() throws Exception {
+        super.setUp();
+        initData();
+    }
+
+    @Test
+    public void testGetDataset() throws DSOutOfServiceException, DSAccessException {
+        DatasetData obj = this.loadFacility.getDataset(this.rootCtx, this.ds.getId());
+        Assert.assertEquals(obj.getName(), this.ds.getName());
+    }
+
+    @Test
+    public void testGetImage() throws DSOutOfServiceException, DSAccessException {
+        ImageData obj = this.loadFacility.getImage(this.rootCtx, this.img.getId());
+        Assert.assertEquals(obj.getName(), this.img.getName());
+    }
+
+    @Test
+    public void testGetPlate() throws DSOutOfServiceException, DSAccessException {
+        PlateData obj = this.loadFacility.getPlate(this.rootCtx, this.plate.getId());
+        Assert.assertEquals(obj.getName(), this.plate.getName());
+    }
+
+    @Test
+    public void testGetProject() throws DSOutOfServiceException, DSAccessException {
+        ProjectData obj = this.loadFacility.getProject(this.rootCtx, this.proj.getId());
+        Assert.assertEquals(obj.getName(), this.proj.getName());
+    }
+
+    @Test
+    public void testGetScreen() throws DSOutOfServiceException, DSAccessException {
+        ScreenData obj = this.loadFacility.getScreen(this.rootCtx, this.img.getId());
+        Assert.assertEquals(obj.getName(), this.img.getName());
+    }
+
+    @Test
+    public void testGetWell() throws DSOutOfServiceException, DSAccessException {
+        WellData test = this.plate.getWells().iterator().next();
+        WellData obj = this.loadFacility.getWell(this.rootCtx, test.getId());
+        Assert.assertEquals(obj.getColumn(), test.getColumn());
+        Assert.assertEquals(obj.getRow(), test.getRow());
+        Assert.assertEquals(obj.getWellSamples().get(0).getImage().getId(),
+                test.getWellSamples().get(0).getImage().getId());
+    }
+    
+    private void initData() throws Exception {
+        this.group = createGroup();
+        this.user = createExperimenter(group);
+        SecurityContext ctx = new SecurityContext(group.getId());
+
+        this.img = createImage(ctx, null);
+        
+        this.proj = createProject(ctx);
+        this.ds = createDataset(ctx, proj);
+        this.screen = createScreen(ctx);
+        this.plate = createPlateWithWells(ctx, screen);
+        
+        this.wellIds = new ArrayList<Long>();
+        Plate p = this.plate.asPlate();
+        for (Well w : p.copyWells()) {
+            this.wellIds.add(w.getId().getValue());
+        }
+        Collections.sort(this.wellIds);
+    }
+
+}
