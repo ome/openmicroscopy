@@ -148,6 +148,7 @@ public class GatewayTest {
         roiFacility = Facility.getFacility(ROIFacility.class,
                 gw);
         tablesFacility = Facility.getFacility(TablesFacility.class, gw);
+        loadFacility = Facility.getFacility(LoadFacility.class, gw);
     }
 
     @AfterClass(alwaysRun = true)
