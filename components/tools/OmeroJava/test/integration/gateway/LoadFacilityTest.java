@@ -50,7 +50,8 @@ public class LoadFacilityTest extends GatewayTest {
 
     private GroupData group;
     private ExperimenterData user;
-    
+    private SecurityContext ctx;
+
     private ProjectData proj;
     private DatasetData ds;
     private ScreenData screen;
@@ -67,31 +68,31 @@ public class LoadFacilityTest extends GatewayTest {
 
     @Test
     public void testGetDataset() throws DSOutOfServiceException, DSAccessException {
-        DatasetData obj = this.loadFacility.getDataset(this.rootCtx, this.ds.getId());
+        DatasetData obj = this.loadFacility.getDataset(this.ctx, this.ds.getId());
         Assert.assertEquals(obj.getName(), this.ds.getName());
     }
 
     @Test
     public void testGetImage() throws DSOutOfServiceException, DSAccessException {
-        ImageData obj = this.loadFacility.getImage(this.rootCtx, this.img.getId());
+        ImageData obj = this.loadFacility.getImage(this.ctx, this.img.getId());
         Assert.assertEquals(obj.getName(), this.img.getName());
     }
 
     @Test
     public void testGetPlate() throws DSOutOfServiceException, DSAccessException {
-        PlateData obj = this.loadFacility.getPlate(this.rootCtx, this.plate.getId());
+        PlateData obj = this.loadFacility.getPlate(this.ctx, this.plate.getId());
         Assert.assertEquals(obj.getName(), this.plate.getName());
     }
 
     @Test
     public void testGetProject() throws DSOutOfServiceException, DSAccessException {
-        ProjectData obj = this.loadFacility.getProject(this.rootCtx, this.proj.getId());
+        ProjectData obj = this.loadFacility.getProject(this.ctx, this.proj.getId());
         Assert.assertEquals(obj.getName(), this.proj.getName());
     }
 
     @Test
     public void testGetScreen() throws DSOutOfServiceException, DSAccessException {
-        ScreenData obj = this.loadFacility.getScreen(this.rootCtx, this.img.getId());
+        ScreenData obj = this.loadFacility.getScreen(this.ctx, this.img.getId());
         Assert.assertEquals(obj.getName(), this.img.getName());
     }
 
@@ -108,7 +109,7 @@ public class LoadFacilityTest extends GatewayTest {
     private void initData() throws Exception {
         this.group = createGroup();
         this.user = createExperimenter(group);
-        SecurityContext ctx = new SecurityContext(group.getId());
+        this.ctx = new SecurityContext(group.getId());
 
         this.img = createImage(ctx, null);
         
