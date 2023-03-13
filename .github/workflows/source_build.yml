@@ -72,6 +72,8 @@ jobs:
         if: matrix.build_snapshot
         id: snapshot
         run: |
+          # to use own repo
+          # git clone -b your_branch https://github.com/your_repo/omero-gateway-java /tmp/omero-gateway-java
           git clone https://github.com/ome/omero-gateway-java /tmp/omero-gateway-java --depth 1
           cd /tmp/omero-gateway-java
           gradle publishToMavenLocal -x test
