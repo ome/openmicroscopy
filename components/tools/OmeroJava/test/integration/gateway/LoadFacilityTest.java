@@ -23,6 +23,7 @@ package integration.gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.facility.BrowseFacility;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
@@ -38,6 +39,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 
 /**
@@ -92,14 +94,14 @@ public class LoadFacilityTest extends GatewayTest {
 
     @Test
     public void testGetScreen() throws DSOutOfServiceException, DSAccessException {
-        ScreenData obj = this.loadFacility.getScreen(this.ctx, this.img.getId());
-        Assert.assertEquals(obj.getName(), this.img.getName());
+        ScreenData obj = this.loadFacility.getScreen(this.ctx, this.screen.getId());
+        Assert.assertEquals(obj.getName(), this.screen.getName());
     }
 
     @Test
     public void testGetWell() throws DSOutOfServiceException, DSAccessException {
         WellData test = this.plate.getWells().iterator().next();
-        WellData obj = this.loadFacility.getWell(this.rootCtx, test.getId());
+        WellData obj = this.loadFacility.getWell(this.ctx, test.getId());
         Assert.assertEquals(obj.getColumn(), test.getColumn());
         Assert.assertEquals(obj.getRow(), test.getRow());
         Assert.assertEquals(obj.getWellSamples().get(0).getImage().getId(),
@@ -114,7 +116,7 @@ public class LoadFacilityTest extends GatewayTest {
         this.img = createImage(ctx, null);
         
         this.proj = createProject(ctx);
-        this.ds = createDataset(ctx, proj);
+        this.ds = createDataset(ctx, null);
         this.screen = createScreen(ctx);
         this.plate = createPlateWithWells(ctx, screen);
         
@@ -123,7 +125,7 @@ public class LoadFacilityTest extends GatewayTest {
         for (Well w : p.copyWells()) {
             this.wellIds.add(w.getId().getValue());
         }
-        Collections.sort(this.wellIds);
+        System.out.println("Data initialized.");
     }
 
 }
