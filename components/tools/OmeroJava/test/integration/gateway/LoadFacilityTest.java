@@ -125,7 +125,6 @@ public class LoadFacilityTest extends GatewayTest {
         for (Well w : p.copyWells()) {
             this.wellIds.add(w.getId().getValue());
         }
-        System.out.println("Data initialized.");
     }
 
 }
