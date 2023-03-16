@@ -29,6 +29,7 @@ Improvements include:
 
 **Note:** This upgrade will invalidate the Bio-Formats Memoizer cache. Please
 see the upgrade guide for further information.
+We also recommend to re-index the database especially if the OMERO server has a large number of High Content Screening data.
 
 This version of the OMERO.server has been tested with:
 
