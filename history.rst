@@ -22,7 +22,7 @@ This release includes the following upgrade of the OMERO.server Java components:
 Improvements include:
 
 - address performance issues when indexing fileset
-- add option to configure fileset indexing
+- add ``omero.search.max_fileset_size`` parameter to indicated the maximum size of the fileset to be considered for indexing
 - run the PixelDataThread Application events in SYSTEM Thread pool.
 - Declare logback-classic as explicit dependency and set to 1.2.x.
 - an upgrade of Bio-Formats to version 6.12.0
