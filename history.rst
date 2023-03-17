@@ -34,7 +34,7 @@ We also recommend to re-index the database especially if the OMERO server has a 
 This version of the OMERO.server has been tested with:
 
 - OMERO.py 5.13.1
-- OMERO.web 5.18.0
+- OMERO.web 5.19.0
 - OMERO.dropbox 5.6.2
 
 5.6.6 (December 2022)
