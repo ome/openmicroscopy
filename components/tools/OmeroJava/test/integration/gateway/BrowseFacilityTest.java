@@ -453,7 +453,7 @@ public class BrowseFacilityTest extends GatewayTest {
         
         this.user2Folder = createFolder(ctx);
         
-        this.wellsPlate = createPlateWithWells();
+        this.wellsPlate = createPlateWithWells(rootCtx, null);
         
         this.wellIds = new ArrayList<Long>();
         Plate p = this.wellsPlate.asPlate();

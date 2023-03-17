@@ -100,7 +100,7 @@ public class TablesFacilityTest extends GatewayTest {
         ImageData img = createImage();
         ProjectData pr = createProject(rootCtx);
         DatasetData dat = createDataset(rootCtx, pr);
-        PlateData plate = createPlateWithWells();
+        PlateData plate = createPlateWithWells(rootCtx, null);
         ArrayList tmp = new ArrayList<ROIData>();
         tmp.add(createRectangleROI(0, 0, 10, 10, img.getId()));
         ROIData roi = (ROIData) roiFacility.saveROIs(rootCtx, img.getId(), tmp).iterator().next();
