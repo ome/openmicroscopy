@@ -10,7 +10,7 @@ OMERO version history
 
 This release includes the following upgrade of the OMERO.server Java components:
 
-- omero-gateway-java 5.7.2
+- omero-gateway-java 5.8.0
 - omero-blitz 5.6.2
 - omero-server 5.6.7
 - omero-renderer 5.5.12
