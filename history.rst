@@ -5,6 +5,38 @@
 OMERO version history
 =====================
 
+5.6.7 (March 2023)
+------------------
+
+This release includes the following upgrade of the OMERO.server Java components:
+
+- omero-gateway-java 5.8.0
+- omero-blitz 5.6.2
+- omero-server 5.6.7
+- omero-renderer 5.5.12
+- omero-romio 5.7.2
+- omero-common 5.6.1
+- omero-model 5.6.10
+
+
+Improvements include:
+
+- address performance issues when indexing fileset
+- add ``omero.search.max_fileset_size`` property to indicated the maximum size of the fileset to be considered for indexing
+- run the PixelDataThread Application events in SYSTEM Thread pool
+- declare logback-classic as explicit dependency and set to 1.2.x
+- an upgrade of Bio-Formats to version 6.12.0
+
+**Note:** This upgrade will invalidate the Bio-Formats Memoizer cache. Please
+see the upgrade guide for further information.
+We also recommend to re-index the database especially if the OMERO server has a large number of High Content Screening data.
+
+This version of the OMERO.server has been tested with:
+
+- OMERO.py 5.13.1
+- OMERO.web 5.19.0
+- OMERO.dropbox 5.6.2
+
 5.6.6 (December 2022)
 ---------------------
 
