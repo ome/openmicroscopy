@@ -11,10 +11,29 @@ jobs:
       matrix:
         build_bf: [false, true]
         build_zarr: [false, true]
+        build_snapshot: [false]
     name: Build OMERO from source
     runs-on: ubuntu-20.04
+    env:
+      ICE_HOME: /opt/ice-3.6.5
     steps:
       - uses: actions/checkout@v2
+      - name: Install Ice and Ice python binding
+        if: matrix.build_snapshot
+        uses: ome/action-ice@v2.1
+      - name: Set up JDK 11
+        if: matrix.build_snapshot
+        uses: actions/setup-java@v3
+        with:
+            java-version: 11
+            distribution: 'zulu'
+      - name: Set up Gradle 6.8.3
+        if: matrix.build_snapshot
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 6.8.3
+          arguments: build -x test
+          build-root-directory: components/tools/OmeroJava # required by the action to have a *.gradle file"
       - name: Install and run flake8
         run: |
           pip install flake8
@@ -49,6 +68,20 @@ jobs:
           DEPENDENCY="<dependency org=\"org.openmicroscopy\" name=\"ome-common\" rev=\"${{ steps.bf.outputs.ome_common_version }}\">\n<artifact name=\"ome-common\" type=\"jar\" ext=\"jar\"\/>\n<\/dependency>"
           sed -i 's/versions.bioformats=.*/versions.bioformats=${{ steps.bf.outputs.bf_version }}/' etc/omero.properties
           sed -i "s/<dependencies>/<dependencies>\n $DEPENDENCY/" components/tools/OmeroJava/ivy.xml
+      - name: Build snapshot
+        if: matrix.build_snapshot
+        id: snapshot
+        run: |
+          # to use own repo
+          # git clone -b your_branch https://github.com/your_repo/omero-gateway-java /tmp/omero-gateway-java
+          git clone https://github.com/ome/omero-gateway-java /tmp/omero-gateway-java --depth 1
+          cd /tmp/omero-gateway-java
+          gradle publishToMavenLocal -x test
+          echo "gateway_version=$(gradle properties -q | grep "version:" | awk '{print $2}')" >> $GITHUB_OUTPUT
+      - name: Set snapshot version
+        if: matrix.build_snapshot
+        run: |
+          sed -i 's/versions.omero-gateway=.*/versions.omero-gateway=${{ steps.snapshot.outputs.gateway_version }}/' etc/omero.properties
       - name: Build
         run: ./build.py
       - name: Rebuild
