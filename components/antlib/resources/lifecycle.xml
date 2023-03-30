@@ -348,7 +348,7 @@ omero.version=${omero.version}
             pathsep=" " dirsep="/">
             <flattenmapper/>
         </pathconvert>
-                <property name="mf.classpath.and.jars" value="../../etc ${mf.classpath} services.jar extensions.jar"/>
+                <property name="mf.classpath.and.jars" value="../../etc ${mf.classpath} extensions.jar"/>
         <jar destfile="${target.dir}/${ivy.module}.jar" update="true">
             <manifest>
                 <attribute name="Class-Path" value="${mf.classpath.and.jars}"/>
