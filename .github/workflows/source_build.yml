@@ -9,7 +9,7 @@ jobs:
   build:
     strategy:
       matrix:
-        build_bf: [false, true]
+        build_bf: [false]
         build_zarr: [false, true]
         build_snapshot: [false]
     name: Build OMERO from source
