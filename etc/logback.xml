@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration scan="true" debug="false">
+<configuration scan="true" debug="false" scanPeriod="1 minute">
 
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${omero.logfile}</file>
