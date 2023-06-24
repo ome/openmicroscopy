@@ -458,7 +458,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
                 int exp = 0;
                 if (bin == 0)
                     exp = 80;
-                else if (bin == 127 || bin == 255)
+                else if (bin == 126 || bin == 255)
                     exp = 10;
                 Assert.assertEquals(counts[bin], exp);
             }
@@ -551,7 +551,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
                 int exp = 0;
                 if (bin == 0)
                     exp = 80;
-                else if (bin == 127 || bin == 255)
+                else if (bin == 128 || bin == 255)
                     exp = 10;
                 Assert.assertEquals(counts[bin], exp);
             }
@@ -582,7 +582,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
             int exp = 0;
             if (bin == 0)
                 exp = 15;
-            else if (bin == 127 || bin == 255)
+            else if (bin == 128 || bin == 255)
                 exp = 5;
             Assert.assertEquals(counts[bin], exp);
         }
