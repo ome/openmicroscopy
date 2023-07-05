@@ -389,7 +389,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
     }
     
     /**
-     * Tests the histogram data generation with an UNIT8 image
+     * Tests the histogram data generation with an UINT8 image
      *
      * @throws Exception
      *             Thrown if an error occurred.
@@ -472,7 +472,90 @@ public class RawPixelsStoreTest extends AbstractServerTest {
     }
 
     /**
-     * Tests the histogram data generation an UNIT16 image
+     * Tests the histogram data generation with an INT8 image
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testGetHistogramINT8() throws Exception {
+        // Create an UINT8 image with 1 channels
+        // Possible px values: [–128 127]
+        final int nChannels = 1;
+        localSetUp(nChannels, 10, 10, ModelMockFactory.INT8);
+
+        Assert.assertEquals(svc.getByteWidth(), 1,
+                "Test assumes image of type UINT8");
+
+        final int byteSize = (int) svc.getPlaneSize();
+
+        Assert.assertEquals(byteSize, 100, "Test assumes a 100px image");
+
+        final int binCount = 256;
+
+        // channel stats are not calculated for the generated test image,
+        // so this does not test global min/max usage but rather the fallback
+        // to use the plane min/max
+        final boolean useGlobalRange = true;
+
+        final int z = 0;
+        final int t = 0;
+
+        // Only set data for the first z/t plane, where...
+        // channel 0 contains 10px with value 0 and 10px 63
+        // all other pixels have value -128
+        //
+        // -> expected values are:
+        // bin[0] = 80, bin[171] = 10 and bin[255] = 10, all other bins = 0;
+
+        for (int ch = 0; ch < nChannels; ch++) {
+            byte[] buf = new byte[byteSize];
+            for (int i = 0; i < byteSize; i++) {
+                int pxValue = -128;
+                if (ch == 0) {
+                    if (i < 10)
+                        pxValue = 0;
+                    else if (i < 20)
+                        pxValue = 63;
+                }
+                buf[i] = (byte) pxValue;
+            }
+            svc.setPlane(buf, z, ch, t);
+        }
+
+        int[] channels = new int[] { 0 };
+
+        PlaneDef plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0,
+                0, z, t, null, -1);
+        Map<Integer, int[]> data = svc.getHistogram(channels, binCount,
+                useGlobalRange, plane);
+
+        Assert.assertEquals(data.size(), nChannels);
+
+        Iterator<Entry<Integer, int[]>> it = data.entrySet().iterator();
+        while (it.hasNext()) {
+            Entry<Integer, int[]> e = it.next();
+            int[] counts = e.getValue();
+            Assert.assertEquals(counts.length, binCount);
+            for (int bin = 0; bin < binCount; bin++) {
+                int exp = 0;
+                if (bin == 0)
+                    exp = 80;
+                else if (bin == 171 || bin == 255)
+                    exp = 10;
+                Assert.assertEquals(counts[bin], exp);
+            }
+
+            int ch = e.getKey();
+            if (ch == 0 || ch == 1)
+                it.remove();
+        }
+
+        Assert.assertTrue(data.isEmpty());
+    }
+
+    /**
+     * Tests the histogram data generation with an UINT16 image
      *
      * @throws Exception
      *             Thrown if an error occurred.
@@ -583,6 +666,123 @@ public class RawPixelsStoreTest extends AbstractServerTest {
             if (bin == 0)
                 exp = 15;
             else if (bin == 128 || bin == 255)
+                exp = 5;
+            Assert.assertEquals(counts[bin], exp);
+        }
+    }
+
+    /**
+     * Tests the histogram data generation with an INT16 image
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testGetHistogramINT16() throws Exception {
+        // Create an UINT16 image with 2 channels
+        // Possible px values: [0-65535]
+        final int nChannels = 2;
+        localSetUp(nChannels, 10, 10, ModelMockFactory.INT16);
+
+        Assert.assertEquals(svc.getByteWidth(), 2,
+                "Test assumes image of type INT16");
+
+        final int byteSize = (int) svc.getPlaneSize();
+
+        Assert.assertEquals(byteSize, 200, "Test assumes a 100px image");
+
+        final int binCount = 256;
+
+        // channel stats are not calculated for the generated test image,
+        // so this does not test global min/max usage but rather the fallback
+        // to use the plane min/max
+        final boolean useGlobalRange = true;
+
+        final int z = 0;
+        final int t = 0;
+
+        // Only set data for the first z/t plane, where...
+        // channel 0 contains 10px with value -12800 and 10px 25600
+        // channel 1 contains 10px with value -25600 and 10px 51200
+        // all other pixels have value 0
+        //
+        // -> expected values for both channels are:
+        // bin[0] = 80, bin[127] = 10 and bin[255] = 10, all other bins = 0;
+
+        for (int ch = 0; ch < nChannels; ch++) {
+            byte[] buf = new byte[byteSize];
+            for (int i = 0; i < byteSize; i += 2) {
+                int pxValue = 0;
+                int pxCount = i / 2;
+                if (ch == 0) {
+                    if (pxCount < 10)
+                        pxValue = -12800;
+                    else if (pxCount < 20)
+                        pxValue = 25600;
+                } else if (ch == 1) {
+                    if (pxCount < 10)
+                        pxValue = -6400;
+                    else if (pxCount < 20)
+                        pxValue = 12800;
+                }
+
+                byte[] pxBytes = intTo2ByteArray(pxValue);
+                buf[i] = pxBytes[0];
+                buf[i + 1] = pxBytes[1];
+            }
+            svc.setPlane(buf, z, ch, t);
+        }
+
+        int[] channels = new int[] { 0, 1 };
+
+        PlaneDef plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0,
+                0, z, t, null, -1);
+        Map<Integer, int[]> data = svc.getHistogram(channels, binCount,
+                useGlobalRange, plane);
+
+        Assert.assertEquals(data.size(), nChannels);
+
+        Iterator<Entry<Integer, int[]>> it = data.entrySet().iterator();
+        while (it.hasNext()) {
+            Entry<Integer, int[]> e = it.next();
+            int[] counts = e.getValue();
+            Assert.assertEquals(counts.length, binCount);
+            for (int bin = 0; bin < binCount; bin++) {
+                int exp = 0;
+                if (bin == 85)
+                    exp = 80;
+                else if (bin == 0 || bin == 255)
+                    exp = 10;
+                Assert.assertEquals(counts[bin], exp);
+            }
+
+            int ch = e.getKey();
+            if (ch == 0 || ch == 1)
+                it.remove();
+        }
+
+        Assert.assertTrue(data.isEmpty());
+
+        // Test a 5x5px region, first channel only;
+        // First row of pixels is 12800, second row = 25600, others = 0;
+        // -> expected bin[0] = 15, bin[127] = 5 and bin[255] = 5, all other
+        // bins = 0;
+        RegionDef region = new RegionDef(0, 0, 5, 5);
+        plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t,
+                region, -1);
+
+        data = svc.getHistogram(new int[] { 0 }, binCount, useGlobalRange,
+                plane);
+        Assert.assertEquals(data.size(), 1);
+
+        int[] counts = data.values().iterator().next();
+        Assert.assertEquals(counts.length, binCount);
+
+        for (int bin = 0; bin < binCount; bin++) {
+            int exp = 0;
+            if (bin == 85)
+                exp = 15;
+            else if (bin == 0 || bin == 255)
                 exp = 5;
             Assert.assertEquals(counts[bin], exp);
         }

@@ -88,6 +88,12 @@ public class ModelMockFactory {
     /** The dimension order for the pixels type. */
     public static final String XYZCT = omero.model.enums.DimensionOrderXYZCT.value;
 
+    /** The signed int 8 pixels Type. */
+    public static final String INT8 = omero.model.enums.PixelsTypeint8.value;
+
+    /** The signed int 16 pixels Type. */
+    public static final String INT16 = omero.model.enums.PixelsTypeint16.value;
+
     /** The unsigned int 16 pixels Type. */
     public static final String UINT16 = omero.model.enums.PixelsTypeuint16.value;
 
