@@ -881,6 +881,121 @@ public class RawPixelsStoreTest extends AbstractServerTest {
     }
 
     /**
+     * Tests the histogram data generation with an DOUBLE image
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testGetHistogramDOUBLE() throws Exception {
+        // Create an DOUBLE image with 2 channels
+        final int nChannels = 2;
+        localSetUp(nChannels, 10, 10, ModelMockFactory.DOUBLE);
+
+        Assert.assertEquals(svc.getByteWidth(), 8,
+                "Test assumes image of type DOUBLE");
+
+        final int byteSize = (int) svc.getPlaneSize();
+
+        Assert.assertEquals(byteSize, 800, "Test assumes a 100px image");
+
+        final int binCount = 256;
+
+        // channel stats are not calculated for the generated test image,
+        // so this does not test global min/max usage but rather the fallback
+        // to use the plane min/max
+        final boolean useGlobalRange = true;
+
+        final int z = 0;
+        final int t = 0;
+
+        // Only set data for the first z/t plane, where...
+        // channel 0 contains 10px with value -0.1 and 10px with value 0.1
+        // channel 1 contains 10px with value -0.8 and 10px with value 0.8
+        // all other pixels have value 0
+        for (int ch = 0; ch < nChannels; ch++) {
+            byte[] buf = new byte[byteSize];
+            for (int i = 0; i < byteSize; i += 8) {
+                double pxValue = 0;
+                int pxCount = i / 8;
+                if (ch == 0) {
+                    if (pxCount < 10)
+                        pxValue = -.1;
+                    else if (pxCount < 20)
+                        pxValue = .1;
+                } else if (ch == 1) {
+                    if (pxCount < 10)
+                        pxValue = -.8;
+                    else if (pxCount < 20)
+                        pxValue = .8;
+                }
+
+                byte[] pxBytes = ByteBuffer.allocate(8).putDouble(pxValue).array();
+                buf[i] = pxBytes[0];
+                buf[i + 1] = pxBytes[1];
+                buf[i + 2] = pxBytes[2];
+                buf[i + 3] = pxBytes[3];
+                buf[i + 4] = pxBytes[4];
+                buf[i + 5] = pxBytes[5];
+                buf[i + 6] = pxBytes[6];
+                buf[i + 7] = pxBytes[7];
+            }
+            svc.setPlane(buf, z, ch, t);
+        }
+
+        int[] channels = new int[] { 0, 1 };
+
+        // Test the histogram for the entire plane
+        // Expected values for both channels are:
+        // bin[0] = 10, bin[128] = 80 and bin[255] = 10, all other bins = 0;
+        PlaneDef plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0,
+                0, z, t, null, -1);
+        Map<Integer, int[]> data = svc.getHistogram(channels, binCount,
+                useGlobalRange, plane);
+
+        Assert.assertEquals(data.size(), nChannels);
+
+        Iterator<Entry<Integer, int[]>> it = data.entrySet().iterator();
+        while (it.hasNext()) {
+            Entry<Integer, int[]> e = it.next();
+            int[] counts = e.getValue();
+            Assert.assertEquals(counts.length, binCount);
+
+            int[] expectedCounts = new int[binCount];
+            expectedCounts[0] = 10;
+            expectedCounts[128] = 80;
+            expectedCounts[255] = 10;
+            Assert.assertEquals(counts, expectedCounts);
+
+            int ch = e.getKey();
+            if (ch == 0 || ch == 1)
+                it.remove();
+        }
+
+        Assert.assertTrue(data.isEmpty());
+
+        // Test the histogram for a 5x5px region, first channel only;
+        // Expected values are:
+        // bin[0] = 5, bin[128] = 15 and bin[255] = 5, all other bins = 0;
+        RegionDef region = new RegionDef(0, 0, 5, 5);
+        plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t,
+                region, -1);
+
+        data = svc.getHistogram(new int[] { 0 }, binCount, useGlobalRange,
+                plane);
+        Assert.assertEquals(data.size(), 1);
+
+        int[] counts = data.values().iterator().next();
+        Assert.assertEquals(counts.length, binCount);
+
+        int[] expectedCounts = new int[binCount];
+        expectedCounts[0] = 5;
+        expectedCounts[128] = 15;
+        expectedCounts[255] = 5;
+        Assert.assertEquals(counts, expectedCounts);
+    }
+
+    /**
      * Tests to set a region that is bigger than the entire file
      *
      * @throws Exception
