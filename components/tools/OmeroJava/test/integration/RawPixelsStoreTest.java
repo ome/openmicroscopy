@@ -600,9 +600,9 @@ public class RawPixelsStoreTest extends AbstractServerTest {
                         pxValue = 51200;
                 }
 
-                byte[] pxBytes = intTo2ByteArray(pxValue);
-                buf[i] = pxBytes[0];
-                buf[i + 1] = pxBytes[1];
+                byte[] pxBytes = ByteBuffer.allocate(4).putInt(pxValue).array();
+                buf[i] = pxBytes[2];
+                buf[i + 1] = pxBytes[3];
             }
             svc.setPlane(buf, z, ch, t);
         }
@@ -710,9 +710,9 @@ public class RawPixelsStoreTest extends AbstractServerTest {
                         pxValue = 12800;
                 }
 
-                byte[] pxBytes = intTo2ByteArray(pxValue);
-                buf[i] = pxBytes[0];
-                buf[i + 1] = pxBytes[1];
+                byte[] pxBytes = ByteBuffer.allocate(4).putInt(pxValue).array();
+                buf[i] = pxBytes[2];
+                buf[i + 1] = pxBytes[3];
             }
             svc.setPlane(buf, z, ch, t);
         }
@@ -880,17 +880,6 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         Assert.assertEquals(counts, expectedCounts);
     }
 
-    /**
-     * Convert an integer into a two byte array
-     * 
-     * @param value
-     *            the integer value
-     * @return See above.
-     */
-    private byte[] intTo2ByteArray(int value) {
-        return new byte[] { (byte) (value >>> 8), (byte) value };
-    }
-    
     /**
      * Tests to set a region that is bigger than the entire file
      *
