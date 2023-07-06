@@ -800,7 +800,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
 
         // Only set data for the first z/t plane, where...
         // channel 0 contains 10px with value -0.1 and 10px with value 0.1
-        // channel 1 contains 10px with value -0.8 and 10px with value 0.8
+        // channel 1 contains 10px with value -100.0 and 10px with value 100.0
         // all other pixels have value 0
         for (int ch = 0; ch < nChannels; ch++) {
             byte[] buf = new byte[byteSize];
@@ -814,9 +814,9 @@ public class RawPixelsStoreTest extends AbstractServerTest {
                         pxValue = (float) .1;
                 } else if (ch == 1) {
                     if (pxCount < 10)
-                        pxValue = (float) -.8;
+                        pxValue = (float) -100.0;
                     else if (pxCount < 20)
-                        pxValue = (float) .8;
+                        pxValue = (float) 100.0;
                 }
 
                 byte[] pxBytes = ByteBuffer.allocate(4).putFloat(pxValue).array();
@@ -911,7 +911,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
 
         // Only set data for the first z/t plane, where...
         // channel 0 contains 10px with value -0.1 and 10px with value 0.1
-        // channel 1 contains 10px with value -0.8 and 10px with value 0.8
+        // channel 1 contains 10px with value -100.0 and 10px with value 100.0
         // all other pixels have value 0
         for (int ch = 0; ch < nChannels; ch++) {
             byte[] buf = new byte[byteSize];
@@ -925,9 +925,9 @@ public class RawPixelsStoreTest extends AbstractServerTest {
                         pxValue = .1;
                 } else if (ch == 1) {
                     if (pxCount < 10)
-                        pxValue = -.8;
+                        pxValue = -100.0;
                     else if (pxCount < 20)
-                        pxValue = .8;
+                        pxValue = 100.0;
                 }
 
                 byte[] pxBytes = ByteBuffer.allocate(8).putDouble(pxValue).array();
