@@ -100,6 +100,9 @@ public class ModelMockFactory {
     /** The unsigned int 8 pixels Type. */
     public static final String UINT8 = omero.model.enums.PixelsTypeuint8.value;
     
+    /** The 32-bit floating-point Type. */
+    public static final String FLOAT = omero.model.enums.PixelsTypefloat.value;
+
     /** The bit pixels Type. */
     public static final String BIT =  omero.model.enums.PixelsTypebit.value;
 

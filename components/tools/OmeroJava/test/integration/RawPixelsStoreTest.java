@@ -20,6 +20,7 @@
  */
 package integration;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -511,10 +512,10 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         for (int ch = 0; ch < nChannels; ch++) {
             byte[] buf = new byte[byteSize];
             for (int i = 0; i < byteSize; i++) {
-                int pxValue = -128;
+                int pxValue = 0;
                 if (ch == 0) {
                     if (i < 10)
-                        pxValue = 0;
+                        pxValue = -128;
                     else if (i < 20)
                         pxValue = 63;
                 }
@@ -539,9 +540,9 @@ public class RawPixelsStoreTest extends AbstractServerTest {
             Assert.assertEquals(counts.length, binCount);
             for (int bin = 0; bin < binCount; bin++) {
                 int exp = 0;
-                if (bin == 0)
+                if (bin == 171)
                     exp = 80;
-                else if (bin == 171 || bin == 255)
+                else if (bin == 0 || bin == 255)
                     exp = 10;
                 Assert.assertEquals(counts[bin], exp);
             }
@@ -764,8 +765,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         Assert.assertTrue(data.isEmpty());
 
         // Test a 5x5px region, first channel only;
-        // First row of pixels is 12800, second row = 25600, others = 0;
-        // -> expected bin[0] = 15, bin[127] = 5 and bin[255] = 5, all other
+        // -> expected bin[0] = 5, bin[85] = 15 and bin[255] = 5, all other
         // bins = 0;
         RegionDef region = new RegionDef(0, 0, 5, 5);
         plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t,
@@ -781,6 +781,124 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         for (int bin = 0; bin < binCount; bin++) {
             int exp = 0;
             if (bin == 85)
+                exp = 15;
+            else if (bin == 0 || bin == 255)
+                exp = 5;
+            Assert.assertEquals(counts[bin], exp);
+        }
+    }
+
+    /**
+     * Tests the histogram data generation with an FLOAT image
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testGetHistogramFLOAT() throws Exception {
+        // Create an UINT16 image with 2 channels
+        // Possible px values: [0-65535]
+        final int nChannels = 2;
+        localSetUp(nChannels, 10, 10, ModelMockFactory.FLOAT);
+
+        Assert.assertEquals(svc.getByteWidth(), 4,
+                "Test assumes image of type FLOAT");
+
+        final int byteSize = (int) svc.getPlaneSize();
+
+        Assert.assertEquals(byteSize, 400, "Test assumes a 100px image");
+
+        final int binCount = 256;
+
+        // channel stats are not calculated for the generated test image,
+        // so this does not test global min/max usage but rather the fallback
+        // to use the plane min/max
+        final boolean useGlobalRange = true;
+
+        final int z = 0;
+        final int t = 0;
+
+        // Only set data for the first z/t plane, where...
+        // channel 0 contains 10px with value -0.1 and 10px with value 0.1
+        // channel 1 contains 10px with value -0.8 and 10px with value 0.8
+        // all other pixels have value 0
+        //
+        // -> expected values for both channels are:
+        // bin[0] = 10, bin[128] = 80 and bin[255] = 10, all other bins = 0;
+
+        for (int ch = 0; ch < nChannels; ch++) {
+            byte[] buf = new byte[byteSize];
+            for (int i = 0; i < byteSize; i += 4) {
+                float pxValue = 0;
+                int pxCount = i / 4;
+                if (ch == 0) {
+                    if (pxCount < 10)
+                        pxValue = (float) -.1;
+                    else if (pxCount < 20)
+                        pxValue = (float) .1;
+                } else if (ch == 1) {
+                    if (pxCount < 10)
+                        pxValue = (float) -.8;
+                    else if (pxCount < 20)
+                        pxValue = (float) .8;
+                }
+
+                byte[] pxBytes = ByteBuffer.allocate(4).putFloat(pxValue).array();
+                buf[i] = pxBytes[0];
+                buf[i + 1] = pxBytes[1];
+                buf[i + 2] = pxBytes[2];
+                buf[i + 3] = pxBytes[3];
+            }
+            svc.setPlane(buf, z, ch, t);
+        }
+
+        int[] channels = new int[] { 0, 1 };
+
+        PlaneDef plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0,
+                0, z, t, null, -1);
+        Map<Integer, int[]> data = svc.getHistogram(channels, binCount,
+                useGlobalRange, plane);
+
+        Assert.assertEquals(data.size(), nChannels);
+
+        Iterator<Entry<Integer, int[]>> it = data.entrySet().iterator();
+        while (it.hasNext()) {
+            Entry<Integer, int[]> e = it.next();
+            int[] counts = e.getValue();
+            Assert.assertEquals(counts.length, binCount);
+            for (int bin = 0; bin < binCount; bin++) {
+                int exp = 0;
+                if (bin == 128)
+                    exp = 80;
+                else if (bin == 0 || bin == 255)
+                    exp = 10;
+                Assert.assertEquals(counts[bin], exp);
+            }
+
+            int ch = e.getKey();
+            if (ch == 0 || ch == 1)
+                it.remove();
+        }
+
+        Assert.assertTrue(data.isEmpty());
+
+        // Test a 5x5px region, first channel only;
+        // -> expected bin[0] = 5, bin[128] = 15 and bin[255] = 5, all other
+        // bins = 0;
+        RegionDef region = new RegionDef(0, 0, 5, 5);
+        plane = new PlaneDef(omeis.providers.re.data.PlaneDef.XY, 0, 0, z, t,
+                region, -1);
+
+        data = svc.getHistogram(new int[] { 0 }, binCount, useGlobalRange,
+                plane);
+        Assert.assertEquals(data.size(), 1);
+
+        int[] counts = data.values().iterator().next();
+        Assert.assertEquals(counts.length, binCount);
+
+        for (int bin = 0; bin < binCount; bin++) {
+            int exp = 0;
+            if (bin == 128)
                 exp = 15;
             else if (bin == 0 || bin == 255)
                 exp = 5;
