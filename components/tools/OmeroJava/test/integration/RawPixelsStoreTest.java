@@ -691,7 +691,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
 
         // Only set data for the first z/t plane, where...
         // channel 0 contains 10px with value -12800 and 10px 25600
-        // channel 1 contains 10px with value -25600 and 10px 51200
+        // channel 1 contains 10px with value -6400 and 10px 12800
         // all other pixels have value 0
         for (int ch = 0; ch < nChannels; ch++) {
             byte[] buf = new byte[byteSize];
