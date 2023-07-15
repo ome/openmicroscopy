@@ -36,8 +36,18 @@
 			side code for use with OMERO.
 		</echo>
 		<mkdir dir="target/lib/server"/>
-		<download pkg="omero-scripts" file="omero-scripts-${versions.omero-scripts}.tar.gz" expected="${versions.omero-scripts-md5}"
+		<!-- Look for file above src -->
+		<property name="filegz" value="../../../omero-scripts-${versions.omero-scripts}.tar.gz" />
+		<if>
+			<available file="${filegz}"/>
+            <then>
+               <copy file="${filegz}" todir="target/downloads/scripts"/>
+            </then>
+			<else>
+		        <download pkg="omero-scripts" file="omero-scripts-${versions.omero-scripts}.tar.gz" expected="${versions.omero-scripts-md5}"
 			where="target/downloads/scripts"/>
+		    </else>
+		</if>
 		<untar src="target/downloads/scripts/omero-scripts-${versions.omero-scripts}.tar.gz" dest="target/downloads/scripts" compression="gzip"/>
 		<copy todir="target/lib/scripts">
 			<fileset dir="target/downloads/scripts/omero-scripts-${versions.omero-scripts}" includes="omero/**/*,README*"/>
