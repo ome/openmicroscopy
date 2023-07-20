@@ -5,6 +5,36 @@
 OMERO version history
 =====================
 
+5.6.8 (July 2023)
+-----------------
+
+This release includes the following upgrade of the OMERO.server Java components:
+
+- omero-gateway-java 5.8.1
+- omero-blitz 5.6.3
+- omero-server 5.6.8
+- omero-renderer 5.5.13
+- omero-romio 5.7.3
+- omero-common 5.6.2
+- omero-model 5.6.11
+
+
+Improvements include:
+
+- support histogram for tiled images and fix generation of histogram for float images
+- add default scanning period in logback.
+- an upgrade of Bio-Formats to version 6.14.0
+
+**Note:** This upgrade will invalidate the Bio-Formats Memoizer cache. Please
+see the upgrade guide for further information.
+We also recommend to re-index the database especially if the OMERO server has a large number of High Content Screening data.
+
+This version of the OMERO.server has been tested with:
+
+- OMERO.py 5.14.0
+- OMERO.web 5.21.0
+- OMERO.dropbox 5.6.2
+
 5.6.7 (March 2023)
 ------------------
 
