@@ -32,7 +32,7 @@ We also recommend to re-index the database especially if the OMERO server has a 
 This version of the OMERO.server has been tested with:
 
 - OMERO.py 5.14.0
-- OMERO.web 5.21.0
+- OMERO.web 5.22.0
 - OMERO.dropbox 5.6.2
 
 5.6.7 (March 2023)
