@@ -44,7 +44,7 @@ class CustomWebclientLoginView(WebclientLoginView):
 urlpatterns = import_module(settings.ROOT_URLCONF).urlpatterns
 urlpatterns += [
     re_path(r'^test_login/$',
-        CustomWebclientLoginView.as_view(), name="test_weblogin"),
+            CustomWebclientLoginView.as_view(), name="test_weblogin"),
 ]
 
 
