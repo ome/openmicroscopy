@@ -25,6 +25,7 @@ import json
 
 from omero.testlib import ITest
 
+from django.http import HttpResponse
 from django.test import RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
 
@@ -74,7 +75,7 @@ class TestConfig(ITest):
     def setup_method(self, method):
         # prepare session
         self.r = RequestFactory().get('/rand')
-        middleware = SessionMiddleware()
+        middleware = SessionMiddleware(lambda: HttpResponse())
         middleware.process_request(self.r)
         self.r.session.save()
         self.rs = self.root.sf.getConfigService()
