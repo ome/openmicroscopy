@@ -304,7 +304,7 @@ class TestChgrp(ITest):
 
         # Check second Dataset not moved
         dataset = query_service.get('Dataset', datasets[1].id.val)
-        assert target_gid != dataset.details.group.id.val,\
+        assert target_gid != dataset.details.group.id.val, \
             "Dataset should not be in group: %s" % target_gid
 
         # query in the target group
