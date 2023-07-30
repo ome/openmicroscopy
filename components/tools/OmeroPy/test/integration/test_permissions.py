@@ -495,7 +495,7 @@ class TestPermissions(ITest):
         # https://trac.openmicroscopy.org/ome/ticket/3136
         # is still valid. Does the ticket need re-opening
         # or does the test condition need relaxing?
-        assert elapsed1 < (0.1 * elapsed2),\
+        assert elapsed1 < (0.1 * elapsed2), \
             "elapsed1=%s, elapsed2=%s" % (elapsed1, elapsed2)
 
     #

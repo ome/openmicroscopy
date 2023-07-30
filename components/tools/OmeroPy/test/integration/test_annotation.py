@@ -100,7 +100,7 @@ class TestFigureExportScripts(ITest):
             # only 1 of each namespace
             link = queryService.findByQuery(query, p)
             valueMethod = getattr(link.child, values[1])
-            assert values[0] == valueMethod().getValue(),\
+            assert values[0] == valueMethod().getValue(), \
                 "Annotation %s value %s not equal to set value %s"\
                 % (link.child.__class__, valueMethod().getValue(), values[0])
 
@@ -117,11 +117,11 @@ def saveAndLinkAnnotation(
     if description:
         annotation.setDescription(rstring(description))
     annotation = updateService.saveAndReturnObject(annotation)
-    if type(parent) == omero.model.DatasetI:
+    if type(parent) is omero.model.DatasetI:
         link = omero.model.DatasetAnnotationLinkI()
-    elif type(parent) == omero.model.ProjectI:
+    elif type(parent) is omero.model.ProjectI:
         link = omero.model.ProjectAnnotationLinkI()
-    elif type(parent) == omero.model.ImageI:
+    elif type(parent) is omero.model.ImageI:
         link = omero.model.ImageAnnotationLinkI()
     else:
         return
