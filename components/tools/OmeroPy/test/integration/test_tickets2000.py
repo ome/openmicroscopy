@@ -375,7 +375,7 @@ class TestTickets2000(ITest):
         assert 24 == len(res)
         end = time.time()
         elapsed = end - start
-        assert elapsed < 3.0,\
+        assert elapsed < 3.0, \
             "Expected the test to complete in < 3 seconds, took: %f" % elapsed
 
     def test1183(self):

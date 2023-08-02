@@ -126,7 +126,7 @@ class TestChgrp(ITest):
             where link.child.id=%s" % img.id.val
         link = client.sf.getQueryService().findByQuery(query, None)
         assert link is not None, "New DatasetImageLink on image not found"
-        assert link.details.group.id.val == first_gid,\
+        assert link.details.group.id.val == first_gid, \
             "Link Created in same group as Image target"
 
     def testChgrpPDI(self):
@@ -246,7 +246,7 @@ class TestChgrp(ITest):
         for i in images:
             image = query_service.get('Image', i.id.val, ctx)
             img_gid = image.details.group.id.val
-            assert target_gid == img_gid,\
+            assert target_gid == img_gid, \
                 "Image should be in group: %s, NOT %s" % (target_gid,  img_gid)
 
     def testChgrpAllImagesFilesetTwoCommandsErr(self):
@@ -299,12 +299,12 @@ class TestChgrp(ITest):
         # Check Images not moved
         for i in range(2):
             image = query_service.get('Image', images[i].id.val)
-            assert target_gid != image.details.group.id.val,\
+            assert target_gid != image.details.group.id.val, \
                 "Image should not be in group: %s" % target_gid
 
         # Check second Dataset not moved
         dataset = query_service.get('Dataset', datasets[1].id.val)
-        assert target_gid != dataset.details.group.id.val,\
+        assert target_gid != dataset.details.group.id.val, \
             "Dataset should not be in group: %s" % target_gid
 
         # query in the target group
@@ -312,7 +312,7 @@ class TestChgrp(ITest):
 
         # Check first Dataset moved
         dataset = query_service.get('Dataset', datasets[0].id.val, ctx)
-        assert target_gid == dataset.details.group.id.val,\
+        assert target_gid == dataset.details.group.id.val, \
             "Dataset should be in group: %s" % target_gid
 
     def testChgrpAllDatasetsFilesetOK(self):
@@ -344,9 +344,9 @@ class TestChgrp(ITest):
         for i in range(2):
             dataset = query_service.get('Dataset', datasets[i].id.val, ctx)
             image = query_service.get('Image', images[i].id.val, ctx)
-            assert target_gid == dataset.details.group.id.val,\
+            assert target_gid == dataset.details.group.id.val, \
                 "Dataset should be in group: %s" % target_gid
-            assert target_gid == image.details.group.id.val,\
+            assert target_gid == image.details.group.id.val, \
                 "Image should be in group: %s" % target_gid
 
     def testChgrpOneDatasetFilesetOK(self):
@@ -375,12 +375,12 @@ class TestChgrp(ITest):
         query_service = client.sf.getQueryService()
         ctx = {'omero.group': native_str('-1')}  # query across groups
         dataset = query_service.get('Dataset', ds.id.val, ctx)
-        assert target_gid == dataset.details.group.id.val,\
+        assert target_gid == dataset.details.group.id.val, \
             "Dataset should be in group: %s" % target_gid
         for i in range(2):
             image = query_service.get('Image', images[i].id.val, ctx)
             img_gid = image.details.group.id.val
-            assert target_gid == img_gid,\
+            assert target_gid == img_gid, \
                 "Image should be in group: %s, NOT %s" % (target_gid,  img_gid)
 
     def testChgrpImagesTwoFilesetsErr(self):
@@ -430,7 +430,7 @@ class TestChgrp(ITest):
         # Check Images not moved
         for i in (images_fs_one[0], images_fs_two[0]):
             image = query_service.get('Image', i.id.val)
-            assert target_gid != image.details.group.id.val,\
+            assert target_gid != image.details.group.id.val, \
                 "Image should not be in group: %s" % target_gid
 
         # query in the target group
@@ -438,7 +438,7 @@ class TestChgrp(ITest):
 
         # Check Dataset moved
         dataset = query_service.get('Dataset', ds.id.val, ctx)
-        assert target_gid == dataset.details.group.id.val,\
+        assert target_gid == dataset.details.group.id.val, \
             "Dataset should be in group: %s" % target_gid
 
     def testChgrpDatasetCheckFsGroup(self):
@@ -471,7 +471,7 @@ class TestChgrp(ITest):
         fs_id = image1.fileset.id.val
         image_gid = image1.details.group.id.val
         fileset_gid = qs.get("Fileset", fs_id, ctx).details.group.id.val
-        assert image_gid == fileset_gid,\
+        assert image_gid == fileset_gid, \
             "Image group: %s and Fileset group: %s don't match" %\
             (image_gid, fileset_gid)
 
@@ -497,12 +497,12 @@ class TestChgrp(ITest):
         # thus the Fileset is in sync with Images.
         ctx = {'omero.group': native_str('-1')}  # query across groups
         fileset = query.get('Fileset', fs_id, ctx)
-        assert target_gid == fileset.details.group.id.val,\
+        assert target_gid == fileset.details.group.id.val, \
             "Fileset should be in group: %s" % target_gid
         for i in range(2):
             image = query.get('Image', images[i].id.val, ctx)
             img_gid = image.details.group.id.val
-            assert target_gid == img_gid,\
+            assert target_gid == img_gid, \
                 "Image should be in group: %s, NOT %s" % (target_gid,  img_gid)
 
     def testChgrp11000(self):
@@ -1084,12 +1084,12 @@ class TestChgrpTarget(ITest):
         for i in images:
             image = query_service.get('Image', i.id.val, ctx)
             img_gid = image.details.group.id.val
-            assert target_gid == img_gid,\
+            assert target_gid == img_gid, \
                 "Image should be in group: %s, NOT %s" % (target_gid,  img_gid)
         # Check Dataset has images linked
         ds_imgs = client.sf.getContainerService().getImages(
             'Dataset', [ds.id.val], None, ctx)
-        assert len(ds_imgs) == len(images),\
+        assert len(ds_imgs) == len(images), \
             "All Images should be in target Dataset"
 
         previous_gid = admin.getEventContext().groupId
@@ -1187,5 +1187,5 @@ class TestChgrpTarget(ITest):
         ctx = {'omero.group': '-1'}  # query across groups
         dataset = query_service.get('Dataset', ds.id.val, ctx)
         ds_gid = dataset.details.group.id.val
-        assert target_gid == ds_gid,\
+        assert target_gid == ds_gid, \
             "Dataset should be in group: %s, NOT %s" % (target_gid, ds_gid)

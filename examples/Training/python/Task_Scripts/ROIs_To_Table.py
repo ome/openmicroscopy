@@ -61,7 +61,7 @@ def process_data(conn, script_params):
             result = roi_service.findByImage(image.getId(), None)
             for roi in result.rois:
                 for s in roi.copyShapes():
-                    if type(s) == omero.model.LineI:
+                    if type(s) is omero.model.LineI:
                         image_ids.append(image.getId())
                         roi_ids.append(roi.getId().getValue())
                         shape_ids.append(s.getId().getValue())

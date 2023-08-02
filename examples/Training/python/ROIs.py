@@ -213,29 +213,29 @@ for roi in result.rois:
         shape['theZ'] = s.getTheZ().getValue()
         if s.getTextValue():
             shape['textValue'] = s.getTextValue().getValue()
-        if type(s) == omero.model.RectangleI:
+        if type(s) is omero.model.RectangleI:
             shape['type'] = 'Rectangle'
             shape['x'] = s.getX().getValue()
             shape['y'] = s.getY().getValue()
             shape['width'] = s.getWidth().getValue()
             shape['height'] = s.getHeight().getValue()
-        elif type(s) == omero.model.EllipseI:
+        elif type(s) is omero.model.EllipseI:
             shape['type'] = 'Ellipse'
             shape['x'] = s.getX().getValue()
             shape['y'] = s.getY().getValue()
             shape['radiusX'] = s.getRadiusX().getValue()
             shape['radiusY'] = s.getRadiusY().getValue()
-        elif type(s) == omero.model.PointI:
+        elif type(s) is omero.model.PointI:
             shape['type'] = 'Point'
             shape['x'] = s.getX().getValue()
             shape['y'] = s.getY().getValue()
-        elif type(s) == omero.model.LineI:
+        elif type(s) is omero.model.LineI:
             shape['type'] = 'Line'
             shape['x1'] = s.getX1().getValue()
             shape['x2'] = s.getX2().getValue()
             shape['y1'] = s.getY1().getValue()
             shape['y2'] = s.getY2().getValue()
-        elif type(s) == omero.model.MaskI:
+        elif type(s) is omero.model.MaskI:
             shape['type'] = 'Mask'
             shape['x'] = s.getX().getValue()
             shape['y'] = s.getY().getValue()

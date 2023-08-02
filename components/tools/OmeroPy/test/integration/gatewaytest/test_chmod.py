@@ -519,7 +519,7 @@ class TestDefaultSetup (object):
         user = gatewaywrapper.gateway.getUser()
         # switch into group
         assert gatewaywrapper.gateway.setGroupForSession(image_gid)
-        assert image_gid == gatewaywrapper.gateway.getEventContext().groupId,\
+        assert image_gid == gatewaywrapper.gateway.getEventContext().groupId, \
             "Confirm in same group as image"
         i = gatewaywrapper.gateway.getObject("Image", imageId)
         assert i is not None, \
