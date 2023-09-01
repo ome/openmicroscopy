@@ -151,7 +151,6 @@ public class LoadFacilityTest extends GatewayTest {
 
         this.screen = createScreen(ctx);
         this.plate = createPlateWithWells(ctx, screen);
-        System.out.println("ID: "+this.plate.getId());
         this.wellIds = new ArrayList<Long>();
         Plate p = this.plate.asPlate();
         for (Well w : p.copyWells()) {
