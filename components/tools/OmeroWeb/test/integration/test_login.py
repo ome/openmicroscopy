@@ -22,7 +22,7 @@ Tests webclient login
 """
 from builtins import str
 from django.conf import settings
-from django.conf.urls import url
+from django.urls import re_path
 from importlib import import_module
 from django.test.utils import override_settings
 
@@ -43,8 +43,8 @@ class CustomWebclientLoginView(WebclientLoginView):
 
 urlpatterns = import_module(settings.ROOT_URLCONF).urlpatterns
 urlpatterns += [
-    url(r'^test_login/$',
-        CustomWebclientLoginView.as_view(), name="test_weblogin"),
+    re_path(r'^test_login/$',
+            CustomWebclientLoginView.as_view(), name="test_weblogin"),
 ]
 
 
