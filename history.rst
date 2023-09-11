@@ -5,6 +5,39 @@
 OMERO version history
 =====================
 
+5.6.9 (September 2023)
+---------------------
+
+This release includes the following upgrade of the OMERO.server Java components:
+
+- omero-gateway-java 5.8.2
+- omero-blitz 5.7.1
+- omero-server 5.6.9
+- omero-renderer 5.5.14
+- omero-romio 5.7.4
+- omero-common 5.6.3
+- omero-model 5.6.12
+
+
+Improvements include:
+
+- remove support for ADH and let Ice choose the default SSL protocol.
+- revert "Java client init: no "anon" among jdk.tls.disabledAlgorithms" 
+- an upgrade of Bio-Formats to version 7.0.0
+
+**Note:** This upgrade will invalidate the Bio-Formats Memoizer cache. Please
+see the upgrade guide for further information.
+We also recommend to re-index the database especially if the OMERO server has a large number of High Content Screening data.
+
+This version of the OMERO.server has been tested with:
+
+- OMERO.py 5.16.0
+- OMERO.web 5.22.1
+- OMERO.dropbox 5.6.2
+
+OMERO version history
+=====================
+
 5.6.8 (July 2023)
 -----------------
 
