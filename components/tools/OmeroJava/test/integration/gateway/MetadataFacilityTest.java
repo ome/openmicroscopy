@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015-2021 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2023 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -202,5 +202,14 @@ public class MetadataFacilityTest extends GatewayTest {
         Assert.assertEquals(pi.getTheT(), 0);
         Assert.assertEquals(pi.getDeltaT().getValue(), 1.0);
         Assert.assertEquals(pi.getDeltaT().getUnit(), omero.model.enums.UnitsTime.DAY);
+    }
+
+    @Test
+    public void testGetOriginalMetadata() throws Exception {
+        ImageData img = createImage(rootCtx, null);
+        MetadataFacility mdf = gw.getFacility(MetadataFacility.class);
+        StringBuffer buffer = new StringBuffer();
+        mdf.getOriginalMetadata(ctx, img.getId(), buffer);
+        Assert.assertFalse(buffer.toString().isEmpty());
     }
 }
