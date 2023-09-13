@@ -209,7 +209,7 @@ public class MetadataFacilityTest extends GatewayTest {
         ImageData img = createImage(rootCtx, null);
         MetadataFacility mdf = gw.getFacility(MetadataFacility.class);
         StringBuffer buffer = new StringBuffer();
-        mdf.getOriginalMetadata(ctx, img.getId(), buffer);
+        mdf.getOriginalMetadata(rootCtx, img.getId(), buffer);
         Assert.assertFalse(buffer.toString().isEmpty());
     }
 }
