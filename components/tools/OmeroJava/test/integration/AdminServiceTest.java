@@ -2010,7 +2010,7 @@ public class AdminServiceTest extends AbstractServerTest {
         }
         Assert.assertTrue(isInSystemGroup, "new light system user must be member of system group");
         final LoginCredentials credentials = new LoginCredentials();
-        credentials.getServer().setHostname(root.getProperty("omero.host"));
+        credentials.getServer().setHost(root.getProperty("omero.host"));
         credentials.getServer().setPort(Integer.parseInt(root.getProperty("omero.port")));
         credentials.getUser().setUsername(lightAdminName);
         credentials.getUser().setPassword(lightAdminPassword);
