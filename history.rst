@@ -5,8 +5,8 @@
 OMERO version history
 =====================
 
-5.6.9 (September 2023)
----------------------
+5.6.9 (October 2023)
+--------------------
 
 This release includes the following upgrade of the OMERO.server Java components:
 
@@ -33,9 +33,6 @@ This version of the OMERO.server has been tested with:
 - OMERO.py 5.16.0
 - OMERO.web 5.22.1
 - OMERO.dropbox 5.6.2
-
-OMERO version history
-=====================
 
 5.6.8 (July 2023)
 -----------------
