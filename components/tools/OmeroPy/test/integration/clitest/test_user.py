@@ -29,7 +29,6 @@ from omero.testlib.cli import UserIdNameFixtures
 from omero.testlib.cli import GroupFixtures
 from omero.testlib.cli import UserFixtures
 from Glacier2 import PermissionDeniedException
-import getpass
 import pytest
 
 GroupNames = [str(x) for x in GroupFixtures]
@@ -202,7 +201,8 @@ class TestUser(CLITest):
         try:
             self.cli.invoke(self.args, strict=True)
             expected_calls = [
-                mocker.call(f'Please enter password for your user ({login}): '),
+                mocker.call(
+                    f'Please enter password for your user ({login}): '),
                 mocker.call('Please enter password to be set: '),
                 mocker.call('Please re-enter password to be set: ')
             ]
@@ -412,8 +412,10 @@ class TestUserRoot(RootCLITest):
         self.cli.invoke(self.args, strict=True)
         if not password_prefix:
             expected_calls = [
-                mocker.call(f'Please enter password for your new user ({login}): '),
-                mocker.call(f'Please re-enter password for your new user ({login}): '),
+                mocker.call(
+                    f'Please enter password for your new user ({login}): '),
+                mocker.call(
+                    f'Please re-enter password for your new user ({login}): '),
             ]
             mock_get_pass.assert_has_calls(expected_calls)
 

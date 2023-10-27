@@ -19,8 +19,6 @@ from omero.plugins.db import DatabaseControl
 from omero.util.temp_files import create_path
 from omero.cli import NonZeroReturnCode
 from omero.cli import CLI
-import getpass
-import builtins
 import re
 standard_library.install_aliases()  # noqa
 
@@ -103,13 +101,17 @@ class TestDatabase(object):
         if not password:
             if user_id != '' and user_id != '0':
                 expected_calls = [
-                    mocker.call(f'Please enter password for OMERO user {user_id}: '),
-                    mocker.call(f'Please re-enter password for OMERO user {user_id}: ')
+                    mocker.call(
+                        f'Please enter password for OMERO user {user_id}: '),
+                    mocker.call(
+                        f'Please re-enter password for OMERO user {user_id}: ')
                 ]
             else:
                 expected_calls = [
-                    mocker.call('Please enter password for OMERO root user: '),
-                    mocker.call('Please re-enter password for OMERO root user: ')
+                    mocker.call(
+                        'Please enter password for OMERO root user: '),
+                    mocker.call(
+                        'Please re-enter password for OMERO root user: ')
                 ]
             mock_get_pass.assert_has_calls(expected_calls)
 
@@ -180,7 +182,6 @@ class TestDatabase(object):
         assert 'Using %s for patch' % (arg_values[1]) in err
         assert 'Using password from commandline' in err
         assert 'Invalid Database version/patch' in err
-
 
     def password_output(self, user_id, no_salt):
         update_msg = "UPDATE password SET hash = \'%s\'" \

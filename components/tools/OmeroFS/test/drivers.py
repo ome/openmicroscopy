@@ -20,7 +20,6 @@ import threading
 import time
 import uuid
 
-import omero.all
 import omero.grid.monitors as monitors
 
 try:
