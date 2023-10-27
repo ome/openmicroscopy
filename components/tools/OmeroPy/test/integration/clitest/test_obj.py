@@ -36,10 +36,6 @@ class TestObj(CLITest):
         super(TestObj, self).setup_method(method)
         self.cli.register("obj", ObjControl, "TEST")
         self.args += ["obj"]
-        self.setup_mock()
-
-    def teardown_method(self, method):
-        self.teardown_mock()
 
     def go(self):
         self.cli.invoke(self.args, strict=True)

@@ -19,7 +19,6 @@ from omero.plugins.db import DatabaseControl
 from omero.util.temp_files import create_path
 from omero.cli import NonZeroReturnCode
 from omero.cli import CLI
-from mox3 import mox
 import getpass
 import builtins
 import re
@@ -47,18 +46,8 @@ class TestDatabase(object):
 
         self.file = create_path()
 
-        self.mox = mox.Mox()
-        self.mox.StubOutWithMock(getpass, 'getpass')
-        try:
-            self.mox.StubOutWithMock(__builtins__, "raw_input")
-        except AttributeError:
-            # Python 3
-            self.mox.StubOutWithMock(builtins, "input")
-
     def teardown_method(self, method):
         self.file.remove()
-        self.mox.UnsetStubs()
-        self.mox.VerifyAll()
 
     @pytest.mark.skipif(OMERODIR is False, reason="Needs omero.db.profile")
     def testBadVersionDies(self):
@@ -66,28 +55,36 @@ class TestDatabase(object):
             self.cli.invoke("db script NONE NONE pw", strict=True)
 
     @pytest.mark.skipif(OMERODIR is False, reason="db password fails")
-    def testPasswordIsAskedForAgainIfDiffer(self):
-        self.expectPassword("ome")
-        self.expectConfirmation("bad")
-        self.expectPassword("ome")
-        self.expectConfirmation("ome")
-        self.mox.ReplayAll()
+    def testPasswordIsAskedForAgainIfDiffer(self, mocker):
+        mock_get_pass = mocker.patch('getpass.getpass')
+        mock_get_pass.side_effect = ["ome", "bad", "ome", "ome"]
         self.cli.invoke("db password", strict=True)
+        expected_calls = [
+            mocker.call('Please enter password for OMERO root user: '),
+            mocker.call('Please re-enter password for OMERO root user: '),
+            mocker.call('Please enter password for OMERO root user: '),
+            mocker.call('Please re-enter password for OMERO root user: ')
+        ]
+        mock_get_pass.assert_has_calls(expected_calls)
 
     @pytest.mark.skipif(OMERODIR is False, reason="db password fails")
-    def testPasswordIsAskedForAgainIfEmpty(self):
-        self.expectPassword("")
-        self.expectPassword("ome")
-        self.expectConfirmation("ome")
-        self.mox.ReplayAll()
+    def testPasswordIsAskedForAgainIfEmpty(self, mocker):
+        mock_get_pass = mocker.patch('getpass.getpass')
+        mock_get_pass.side_effect = ["", "ome", "ome"]
         self.cli.invoke("db password", strict=True)
+        expected_calls = [
+            mocker.call('Please enter password for OMERO root user: '),
+            mocker.call('Please enter password for OMERO root user: '),
+            mocker.call('Please re-enter password for OMERO root user: ')
+        ]
+        mock_get_pass.assert_has_calls(expected_calls)
 
-    @pytest.mark.xfail(reason="https://github.com/ome/omero-py/issues/112")
+    # @pytest.mark.xfail(reason="https://github.com/ome/omero-py/issues/112")
     @pytest.mark.skipif(OMERODIR is False, reason="self.password() fails")
     @pytest.mark.parametrize('no_salt', ['', '--no-salt'])
     @pytest.mark.parametrize('user_id', ['', '0', '1'])
     @pytest.mark.parametrize('password', ['', 'ome'])
-    def testPassword(self, user_id, password, no_salt, capsys):
+    def testPassword(self, user_id, password, no_salt, capsys, mocker):
         args = "db password"
         if user_id:
             args += " --user-id=%s " % user_id
@@ -96,20 +93,31 @@ class TestDatabase(object):
         if password:
             args += " %s" % password
         else:
-            self.expectPassword("ome", id=user_id)
-            self.expectConfirmation("ome", id=user_id)
-            self.mox.ReplayAll()
+            mock_get_pass = mocker.patch('getpass.getpass')
+            mock_get_pass.return_value = "ome"
         self.cli.invoke(args, strict=True)
 
-        self.password(args)
         out, err = capsys.readouterr()
         assert out.strip() == self.password_output(user_id, no_salt)
+
+        if not password:
+            if user_id != '' and user_id != '0':
+                expected_calls = [
+                    mocker.call(f'Please enter password for OMERO user {user_id}: '),
+                    mocker.call(f'Please re-enter password for OMERO user {user_id}: ')
+                ]
+            else:
+                expected_calls = [
+                    mocker.call('Please enter password for OMERO root user: '),
+                    mocker.call('Please re-enter password for OMERO root user: ')
+                ]
+            mock_get_pass.assert_has_calls(expected_calls)
 
     @pytest.mark.skipif(OMERODIR is False, reason="self.script() fails")
     @pytest.mark.parametrize('file_arg', ['', '-f', '--file'])
     @pytest.mark.parametrize('no_salt', ['', '--no-salt'])
     @pytest.mark.parametrize('password', ['', '--password ome'])
-    def testScript(self, no_salt, file_arg, password, capsys):
+    def testScript(self, no_salt, file_arg, password, capsys, mocker):
         """
         Recommended usage of db script
         """
@@ -120,9 +128,8 @@ class TestDatabase(object):
             args += " %s %s" % (file_arg, str(self.file))
 
         if not password:
-            self.expectPassword("ome")
-            self.expectConfirmation("ome")
-        self.mox.ReplayAll()
+            mock_get_pass = mocker.patch('getpass.getpass')
+            mock_get_pass.return_value = "ome"
 
         self.cli.invoke(args, strict=True)
 
@@ -163,7 +170,6 @@ class TestDatabase(object):
             args += " %s" % no_salt
         if file_arg:
             args += " %s %s" % (file_arg, str(self.file))
-        self.mox.ReplayAll()
 
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(args, strict=True)
@@ -175,20 +181,6 @@ class TestDatabase(object):
         assert 'Using password from commandline' in err
         assert 'Invalid Database version/patch' in err
 
-    def password_ending(self, user, id):
-        if id and id != '0':
-            rv = "user %s: " % id
-        else:
-            rv = "%s user: " % user
-        return "password for OMERO " + rv
-
-    def expectPassword(self, pw, user="root", id=None):
-        getpass.getpass("Please enter %s" %
-                        self.password_ending(user, id)).AndReturn(pw)
-
-    def expectConfirmation(self, pw, user="root", id=None):
-        getpass.getpass("Please re-enter %s" %
-                        self.password_ending(user, id)).AndReturn(pw)
 
     def password_output(self, user_id, no_salt):
         update_msg = "UPDATE password SET hash = \'%s\'" \
