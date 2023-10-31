@@ -66,7 +66,6 @@ class TestSearch(CLITest):
         super(TestSearch, self).setup_method(method)
         self.cli.register("search", SearchControl, "TEST")
         self.args += ["search"]
-        self.setup_mock()
 
     def go(self):
         self.cli.invoke(self.args, strict=True)
