@@ -20,7 +20,6 @@ import threading
 import time
 import uuid
 
-import omero.all
 import omero.grid.monitors as monitors
 
 try:
@@ -29,7 +28,6 @@ except ImportError:
     # Python 2
     from path import path
 from omero.util import ServerContext
-from mox3 import mox
 from functools import wraps
 from omero.util.temp_files import create_path
 from fsDropBoxMonitorClient import MonitorClientI
@@ -352,14 +350,9 @@ class mock_communicator(object):
 class MockServerContext(ServerContext):
 
     def __init__(self, ic, get_root):
-        self.mox = mox.Mox()
         self.communicator = ic
         self.getSession = get_root
         self.stop_event = threading.Event()
-
-    def newSession(self, *args):
-        sess = self.mox.CreateMock(omero.api.ServiceFactoryPrx.__class__)
-        return sess
 
 
 class MockMonitor(MonitorClientI):
@@ -381,9 +374,10 @@ class MockMonitor(MonitorClientI):
             post = []
         self.root = None
         ic = mock_communicator()
+        self.ctx = MockServerContext(ic, self.get_root)
         MonitorClientI.__init__(
             self, dir, ic, getUsedFiles=self.used_files,
-            ctx=MockServerContext(ic, self.get_root), worker_wait=0.1)
+            ctx=self.ctx, worker_wait=0.1)
         self.log = logging.getLogger("MockMonitor")
         self.events = []
         self.files = {}

@@ -29,7 +29,6 @@ from omero.testlib.cli import UserIdNameFixtures
 from omero.testlib.cli import GroupFixtures
 from omero.testlib.cli import UserFixtures
 from Glacier2 import PermissionDeniedException
-import getpass
 import pytest
 
 GroupNames = [str(x) for x in GroupFixtures]
@@ -184,7 +183,7 @@ class TestUser(CLITest):
     # Password subcommand
     # ========================================================================
     @pytest.mark.parametrize("is_unicode", [True, False])
-    def testPassword(self, is_unicode):
+    def testPassword(self, is_unicode, mocker):
         self.args += ["password"]
         login = self.ctx.userName
         if is_unicode:
@@ -192,19 +191,22 @@ class TestUser(CLITest):
         else:
             password = self.uuid()
 
-        self.setup_mock()
-        self.mox.StubOutWithMock(getpass, 'getpass')
-        i1 = 'Please enter password for your user (%s): ' % login
-        i2 = 'Please enter password to be set: '
-        i3 = 'Please re-enter password to be set: '
-        getpass.getpass(i1).AndReturn(login)
-        getpass.getpass(i2).AndReturn(password)
-        getpass.getpass(i3).AndReturn(password)
-        self.mox.ReplayAll()
+        mock_get_pass = mocker.patch('getpass.getpass')
+        mock_get_pass.side_effect = [
+                login,
+                password,
+                password
+        ]
 
         try:
             self.cli.invoke(self.args, strict=True)
-            self.teardown_mock()
+            expected_calls = [
+                mocker.call(
+                    f'Please enter password for your user ({login}): '),
+                mocker.call('Please enter password to be set: '),
+                mocker.call('Please re-enter password to be set: ')
+            ]
+            mock_get_pass.assert_has_calls(expected_calls)
 
             # Check session creation using new password
             self.new_client(user=login, password=password)
@@ -389,7 +391,7 @@ class TestUserRoot(RootCLITest):
 
     @pytest.mark.parametrize("password_prefix", password_prefixes)
     @pytest.mark.parametrize("is_unicode", [True, False])
-    def testAddPassword(self, password_prefix, is_unicode):
+    def testAddPassword(self, password_prefix, is_unicode, mocker):
         group = self.new_group()
         login = self.uuid()
         firstname = self.uuid()
@@ -404,17 +406,18 @@ class TestUserRoot(RootCLITest):
         if password_prefix:
             self.args += [password_prefix, "%s" % password]
         else:
-            self.setup_mock()
-            self.mox.StubOutWithMock(getpass, 'getpass')
-            i1 = 'Please enter password for your new user (%s): ' % login
-            i2 = 'Please re-enter password for your new user (%s): ' % login
-            getpass.getpass(i1).AndReturn(password)
-            getpass.getpass(i2).AndReturn(password)
-            self.mox.ReplayAll()
+            mock_get_pass = mocker.patch('getpass.getpass')
+            mock_get_pass.return_value = password
 
         self.cli.invoke(self.args, strict=True)
         if not password_prefix:
-            self.teardown_mock()
+            expected_calls = [
+                mocker.call(
+                    f'Please enter password for your new user ({login}): '),
+                mocker.call(
+                    f'Please re-enter password for your new user ({login}): '),
+            ]
+            mock_get_pass.assert_has_calls(expected_calls)
 
         # Check user has been added to the list of member/owners
         user = self.root.sf.getAdminService().lookupExperimenter(login)
@@ -447,7 +450,7 @@ class TestUserRoot(RootCLITest):
     # Password subcommand
     # ========================================================================
     @pytest.mark.parametrize("is_unicode", [True, False])
-    def testPassword(self, is_unicode):
+    def testPassword(self, is_unicode, mocker):
         user = self.new_user()
         login = user.omeName.val
         self.args += ["password", "%s" % login]
@@ -456,18 +459,20 @@ class TestUserRoot(RootCLITest):
         else:
             password = self.uuid()
 
-        self.setup_mock()
-        self.mox.StubOutWithMock(getpass, 'getpass')
-        i1 = 'Please enter password for your user (root): '
-        i2 = 'Please enter password to be set: '
-        i3 = 'Please re-enter password to be set: '
-        getpass.getpass(i1).AndReturn(self.root.getProperty("omero.rootpass"))
-        getpass.getpass(i2).AndReturn(password)
-        getpass.getpass(i3).AndReturn(password)
-        self.mox.ReplayAll()
+        mock_get_pass = mocker.patch('getpass.getpass')
+        mock_get_pass.side_effect = [
+                self.root.getProperty("omero.rootpass"),
+                password,
+                password
+        ]
 
         self.cli.invoke(self.args, strict=True)
-        self.teardown_mock()
+        expected_calls = [
+            mocker.call('Please enter password for your user (root): '),
+            mocker.call('Please enter password to be set: '),
+            mocker.call('Please re-enter password to be set: ')
+        ]
+        mock_get_pass.assert_has_calls(expected_calls)
 
         # Check session creation using new password
         self.new_client(user=login, password=password)

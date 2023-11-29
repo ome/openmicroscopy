@@ -59,4 +59,4 @@ setup(
     package_data={
         'omero.gateway': ['pilfonts/*'],
         'omero.gateway.scripts': ['imgs/*']},
-    tests_require=['pytest', 'pytest-xdist', 'mox3'])
+    tests_require=['pytest', 'pytest-xdist', 'pytest-mock'])
