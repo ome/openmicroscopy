@@ -21,12 +21,6 @@ jobs:
       - name: Install Ice and Ice python binding
         if: matrix.build_snapshot
         uses: ome/action-ice@v2.1
-      - name: Set up JDK 11
-        if: matrix.build_snapshot
-        uses: actions/setup-java@v3
-        with:
-            java-version: 11
-            distribution: 'zulu'
       - name: Set up Gradle 6.8.3
         if: matrix.build_snapshot
         uses: gradle/gradle-build-action@v2
