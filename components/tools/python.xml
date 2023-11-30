@@ -24,7 +24,7 @@ build_year = "${python_build_year}"
         <attribute name="failonerror" default="true"/>
         <element name="args" implicit="true"/>
         <sequential>
-            <exec executable="python" failonerror="@{failonerror}">
+            <exec executable="python3" failonerror="@{failonerror}">
                 <args/>
             </exec>
         </sequential>
