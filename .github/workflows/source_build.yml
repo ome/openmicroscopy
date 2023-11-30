@@ -13,7 +13,7 @@ jobs:
         build_zarr: [false, true]
         build_snapshot: [false]
     name: Build OMERO from source
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       ICE_HOME: /opt/ice-3.6.5
     steps:
