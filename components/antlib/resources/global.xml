@@ -451,7 +451,7 @@
                 <echo>Building with SLICE2CPP=${ice.slice2cpp}</echo>
                 <echo>Building with SLICE2HTML=${ice.slice2html}</echo>
                 <echo>Building with SLICEPATH=${ice.slicepath}</echo>
-                <exec executable="python" dir="@{dir}" failonerror="@{failonerror}">
+                <exec executable="python3" dir="@{dir}" failonerror="@{failonerror}">
                     <env key="PYTHONPATH" value="@{pythonpath}"/>
                     <env key="ICE_HOME" value="${ice.home}"/>
                     <env key="SLICE2CPP" value="${ice.slice2cpp}"/>
@@ -470,7 +470,7 @@
             <attribute name="failonerror" default="true"/>
             <element name="args" implicit="true"/>
             <sequential>
-                <exec executable="python" failonerror="@{failonerror}">
+                <exec executable="python3" failonerror="@{failonerror}">
                     <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
                     <env key="PYTHONPATH" path="test:build/lib:${env.PYTHONPATH}"/>
                     <arg value="${basedir}/setup.py"/>
