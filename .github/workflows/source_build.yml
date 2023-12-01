@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Ice and Ice python binding
         if: matrix.build_snapshot
-        uses: jburel/action-ice@bump_version
+        uses: ome/action-ice@v3
       - name: Set up Gradle 6.8.3
         if: matrix.build_snapshot
         uses: gradle/gradle-build-action@v2
