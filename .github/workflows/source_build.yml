@@ -13,20 +13,14 @@ jobs:
         build_zarr: [false, true]
         build_snapshot: [false]
     name: Build OMERO from source
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       ICE_HOME: /opt/ice-3.6.5
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Ice and Ice python binding
         if: matrix.build_snapshot
-        uses: ome/action-ice@v2.1
-      - name: Set up JDK 11
-        if: matrix.build_snapshot
-        uses: actions/setup-java@v3
-        with:
-            java-version: 11
-            distribution: 'zulu'
+        uses: ome/action-ice@v3
       - name: Set up Gradle 6.8.3
         if: matrix.build_snapshot
         uses: gradle/gradle-build-action@v2
