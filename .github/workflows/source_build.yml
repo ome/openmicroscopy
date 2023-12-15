@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         build_bf: [false]
-        build_zarr: [false, true]
+        build_zarr: [false]
         build_snapshot: [false]
     name: Build OMERO from source
     runs-on: ubuntu-22.04

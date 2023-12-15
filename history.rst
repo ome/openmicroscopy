@@ -5,6 +5,33 @@
 OMERO version history
 =====================
 
+5.6.10 (December 2023)
+----------------------
+
+This release includes the following upgrade of the OMERO.server Java components:
+
+- omero-gateway-java 5.9.0
+- omero-blitz 5.7.2
+- omero-server 5.6.10
+- omero-renderer 5.5.15
+- omero-romio 5.7.5
+- omero-common 5.6.4
+- omero-model 5.6.13
+
+
+Improvements include:
+
+- an upgrade of logback-classic to version 1.3.14
+- an upgrade of Bio-Formats to version 7.1.0
+
+**Note:** This upgrade will invalidate the Bio-Formats Memoizer cache. Please
+see the upgrade guide for further information.
+
+This version of the OMERO.server has been tested with:
+
+- OMERO.py 5.17.0
+- OMERO.web 5.23.0
+
 5.6.9 (October 2023)
 --------------------
 
