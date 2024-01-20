@@ -23,7 +23,6 @@
    Integration test focused on the omero.api.IQuery interface.
 
 """
-from __future__ import absolute_import
 
 from builtins import range
 from future.utils import native_str
