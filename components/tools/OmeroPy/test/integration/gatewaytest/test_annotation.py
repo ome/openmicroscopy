@@ -13,7 +13,6 @@
 
 """
 
-from future import standard_library
 from builtins import str
 from builtins import range
 import time
@@ -29,7 +28,6 @@ try:
 except Exception:
     # Python 3
     long = int
-standard_library.install_aliases()
 
 
 def _testAnnotation(obj, annclass, ns, value, sameOwner=False,

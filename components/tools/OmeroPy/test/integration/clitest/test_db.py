@@ -9,8 +9,6 @@
 
 """
 
-from future import standard_library
-
 from builtins import str
 from builtins import object
 import pytest
@@ -20,7 +18,6 @@ from omero.util.temp_files import create_path
 from omero.cli import NonZeroReturnCode
 from omero.cli import CLI
 import re
-standard_library.install_aliases()  # noqa
 
 
 OMERODIR = False

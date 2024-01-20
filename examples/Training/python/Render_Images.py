@@ -11,7 +11,6 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
-from future import standard_library
 from builtins import range
 from past.utils import old_div
 from omero.gateway import BlitzGateway
@@ -22,7 +21,6 @@ except ImportError:
     import Image
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT, imageId
 
-standard_library.install_aliases()
 """
 start-code
 """
