@@ -21,7 +21,6 @@
 Tests chgrp functionality of views.py
 """
 
-from future.utils import native_str
 from omero.model import ProjectI, DatasetI, TagAnnotationI
 from omero.rtypes import rstring
 from omero.gateway import BlitzGateway
@@ -268,7 +267,7 @@ class TestChgrp(IWebTest):
         project = ProjectI()
         projectName = "chgrp-target-%s" % self.client.getSessionId()
         project.name = rstring(projectName)
-        ctx = {"omero.group": native_str(self.group2.id.val)}
+        ctx = {"omero.group": str(self.group2.id.val)}
         project = self.sf.getUpdateService().saveAndReturnObject(project, ctx)
         request_url = reverse('chgrp')
 
