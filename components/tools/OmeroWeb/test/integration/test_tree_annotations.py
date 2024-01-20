@@ -20,7 +20,6 @@
 """
 Integration tests for annotations methods in the "tree" module.
 """
-from __future__ import division
 
 from builtins import zip
 from future.utils import native_str

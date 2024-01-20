@@ -10,7 +10,6 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
-from __future__ import division
 
 from builtins import range
 import omero

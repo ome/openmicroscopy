@@ -10,7 +10,6 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
-from __future__ import division
 
 from future import standard_library
 from builtins import range

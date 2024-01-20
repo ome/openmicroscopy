@@ -9,7 +9,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import division
 
 from builtins import str
 from builtins import range
