@@ -20,8 +20,6 @@ FOR TRAINING PURPOSES ONLY!
 # folder
 # This script takes an Image ID as a parameter from the scripting service.
 
-from __future__ import print_function
-
 import omero.util.script_utils as scriptUtil
 from omero.gateway import BlitzGateway
 from numpy import hstack, int32

@@ -23,7 +23,6 @@
    Test of the Tables service
 
 """
-from __future__ import print_function
 from future.utils import native_str
 from builtins import str
 from builtins import range

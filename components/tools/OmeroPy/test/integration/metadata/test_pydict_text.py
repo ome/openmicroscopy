@@ -22,7 +22,6 @@
 """
 Test of the yaml/json parameters file handling
 """
-from __future__ import print_function
 
 from builtins import str
 from omero.testlib import ITest

@@ -11,7 +11,6 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
-from __future__ import print_function
 import omero
 import omero.callbacks
 from omero.gateway import BlitzGateway

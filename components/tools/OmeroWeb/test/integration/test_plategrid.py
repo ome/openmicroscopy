@@ -9,7 +9,6 @@
    Integration tests for the "plategrid" module.
 """
 from __future__ import division
-from __future__ import print_function
 
 from builtins import map
 from builtins import str

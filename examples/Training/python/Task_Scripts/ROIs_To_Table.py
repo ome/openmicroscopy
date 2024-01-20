@@ -6,7 +6,6 @@
 #                    All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
-from __future__ import print_function
 
 import omero.scripts as scripts
 from random import random

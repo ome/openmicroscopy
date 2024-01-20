@@ -15,7 +15,6 @@ $ python markup.py > wikiText.txt    # to file
 
 """
 
-from __future__ import print_function
 import sys
 import re
 import os

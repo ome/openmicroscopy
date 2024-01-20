@@ -22,8 +22,6 @@
 """
 Integration test of metadata_mapannotation
 """
-from __future__ import print_function
-
 
 from builtins import zip
 from omero.testlib import ITest

@@ -11,8 +11,6 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
-from __future__ import print_function
-
 import omero.util.script_utils as scriptUtil
 from numpy import int32
 from omero.gateway import BlitzGateway

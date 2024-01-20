@@ -10,7 +10,6 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
-from __future__ import print_function
 
 
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT

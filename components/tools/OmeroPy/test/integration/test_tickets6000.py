@@ -9,7 +9,6 @@
 """
 Integration tests for tickets between 5000 and 5999
 """
-from __future__ import print_function
 
 import pytest
 from omero.testlib import ITest

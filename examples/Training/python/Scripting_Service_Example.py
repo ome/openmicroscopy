@@ -10,7 +10,6 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
-from __future__ import print_function
 
 # This is a 'bare-bones' template to allow easy conversion from a simple
 # client-side Python script to a script run by the server, on the OMERO

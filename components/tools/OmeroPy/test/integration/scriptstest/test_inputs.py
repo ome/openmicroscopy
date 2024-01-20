@@ -23,7 +23,6 @@
     Specifically test the parseInputs functionality
     which all scripts might want to use.
 """
-from __future__ import print_function
 
 from omero.testlib import ITest
 import omero

@@ -19,7 +19,6 @@ FOR TRAINING PURPOSES ONLY!
 # A more complete template, for 'real-world' scripts, is also included in this
 # folder
 # This script takes an Image ID as a parameter from the scripting service.
-from __future__ import print_function
 
 from omero.gateway import BlitzGateway
 import omero

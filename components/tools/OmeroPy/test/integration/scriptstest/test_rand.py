@@ -24,7 +24,6 @@
    ServiceFactoryI.acquireProcessor().
 
 """
-from __future__ import print_function
 
 from omero.testlib import ITest
 import omero

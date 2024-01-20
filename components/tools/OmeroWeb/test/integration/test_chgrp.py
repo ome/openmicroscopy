@@ -20,7 +20,6 @@
 """
 Tests chgrp functionality of views.py
 """
-from __future__ import print_function
 
 from future.utils import native_str
 from omero.model import ProjectI, DatasetI, TagAnnotationI

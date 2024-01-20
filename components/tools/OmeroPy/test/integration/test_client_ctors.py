@@ -23,7 +23,6 @@
    Tests of the omero.client constructors
 
 """
-from __future__ import print_function
 
 from future.utils import native_str
 import os

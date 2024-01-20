@@ -7,7 +7,6 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
-from __future__ import print_function
 from past.builtins import execfile
 import os
 training_dir = os.path.dirname(os.path.abspath(__file__))
