@@ -11,7 +11,6 @@
 
 from builtins import hex
 from builtins import range
-from past.utils import old_div
 import omero
 import threading
 from omero.testlib import ITest
@@ -123,7 +122,7 @@ class TestRPS(ITest):
                     success = True
                 except omero.MissingPyramidException as mpm:
                     assert int(pix) == mpm.pixelsID
-                    backOff = old_div(mpm.backOff, 1000)
+                    backOff = mpm.backOff / 1000
                     event = concurrency.get_event("testRomio")
                     event.wait(backOff)  # seconds
                 i -= 1
@@ -158,7 +157,7 @@ class TestRPS(ITest):
                     success = True
                 except omero.MissingPyramidException as mpm:
                     assert int(pix) == mpm.pixelsID
-                    backOff = old_div(mpm.backOff, 1000)
+                    backOff = mpm.backOff / 1000
                     event = concurrency.get_event("testRomio")
                     event.wait(backOff)  # seconds
                 i -= 1
@@ -192,7 +191,7 @@ class TestRPS(ITest):
                     success = True
                 except omero.MissingPyramidException as mpm:
                     assert int(pix) == mpm.pixelsID
-                    backOff = old_div(mpm.backOff, 1000)
+                    backOff = mpm.backOff / 1000
                     event = concurrency.get_event("testRomio")
                     event.wait(backOff)  # seconds
                 i -= 1
@@ -277,7 +276,7 @@ class TestTiles(ITest):
             """
             create some fake pixel data tile (2D numpy array)
             """
-            return old_div((x * y), (1 + x + y))
+            return (x * y) // (1 + x + y)
 
         def mktile(w, h):
             tile = fromfunction(f, (w, h))

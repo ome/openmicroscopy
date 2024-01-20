@@ -12,7 +12,6 @@
 from builtins import zip
 from builtins import str
 from builtins import range
-from past.utils import old_div
 from builtins import object
 import pytest
 
@@ -595,7 +594,7 @@ class TestDeletePerformance(AbstractRepoTest):
         folder = create_path(folder=True)
         for x in range(200):
             name = "%s.unknown" % x
-            (old_div(folder, name)).touch()
+            (folder / name).touch()
         paths = folder.files()
         proc = mrepo.importPaths(paths)
         hashes = self.upload_folder(proc, folder)

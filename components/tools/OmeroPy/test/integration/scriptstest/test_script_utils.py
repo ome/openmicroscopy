@@ -24,7 +24,6 @@
 
 from builtins import str
 from builtins import range
-from past.utils import old_div
 import pytest
 from omero.testlib import ITest
 import omero.util.script_utils as scriptUtil
@@ -73,7 +72,7 @@ class TestScriptUtils(ITest):
             min_c = c.getWindowMin()
             max_c = c.getWindowMax()
             channel_min_max.append((min_c, max_c))
-        z = old_div(image.getSizeZ(), 2)
+        z = image.getSizeZ() // 2
         t = 0
         c = 0
         try:
@@ -103,7 +102,7 @@ class TestScriptUtils(ITest):
             min_c = c.getWindowMin()
             max_c = c.getWindowMax()
             channel_min_max.append((min_c, max_c))
-        z = old_div(image.getSizeZ(), 2)
+        z = image.getSizeZ() // 2
         t = 0
         c = 0
         try:
@@ -129,7 +128,7 @@ class TestScriptUtils(ITest):
             min_c = c.getWindowMin()
             max_c = c.getWindowMax()
             channel_min_max.append((min_c, max_c))
-        z = old_div(image.getSizeZ(), 2)
+        z = image.getSizeZ() // 2
         t = 0
         c = 0
 
@@ -245,7 +244,7 @@ class TestScriptUtils(ITest):
             return y
 
         def f2(x, y):
-            return old_div((x + y), 2)
+            return (x + y) // 2
 
         def f3(x, y):
             return x

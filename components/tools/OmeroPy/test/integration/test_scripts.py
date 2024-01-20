@@ -11,7 +11,6 @@
 
 from builtins import str
 from builtins import range
-from past.utils import old_div
 import os
 import time
 import pytest
@@ -417,7 +416,7 @@ client.closeSession()
         impl = omero.processor.usermode_processor(root_client)
         try:
             params_time, params = self.timeit(svc.getParams, scriptID)
-            assert params_time < (old_div(upload_time, 10)), \
+            assert params_time < (upload_time / 10), \
                 "upload_time(%s) <= 10 * params_time(%s)!" % \
                 (upload_time, params_time)
             assert params_time < 0.1, "params_time(%s) >= 0.01 !" % params_time

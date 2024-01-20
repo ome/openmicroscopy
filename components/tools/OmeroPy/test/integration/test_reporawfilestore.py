@@ -15,7 +15,6 @@
 
 """
 
-from past.utils import old_div
 import pytest
 import omero
 import omero.gateway
@@ -34,7 +33,7 @@ class TestRepoRawFileStore(AbstractRepoTest):
         super(TestRepoRawFileStore, self).setup_method(method)
         tmp_dir = path(self.unique_dir)
         self.repoPrx = self.get_managed_repo()
-        self.repo_filename = old_div(tmp_dir, self.uuid()) + ".txt"
+        self.repo_filename = tmp_dir / self.uuid() + ".txt"
 
     def testCreate(self):
         rfs = self.repoPrx.file(self.repo_filename, "rw")

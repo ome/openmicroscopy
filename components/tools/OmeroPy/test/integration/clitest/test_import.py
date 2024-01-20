@@ -20,7 +20,6 @@
 
 from builtins import str
 from builtins import range
-from past.utils import old_div
 from builtins import object
 from omero.testlib.cli import CLITest
 import pytest
@@ -175,7 +174,7 @@ class TestImport(CLITest):
         return o, e
 
     def add_client_dir(self):
-        client_dir = old_div(old_div(self.omero_dist, "lib"), "client")
+        client_dir = self.omero_dist / "lib" / "client"
         self.args += ["--clientdir", client_dir]
 
     def check_other_output(self, out, import_type='default'):

@@ -13,7 +13,6 @@ from builtins import map
 from builtins import str
 from builtins import range
 from builtins import object
-from past.utils import old_div
 import pytest
 from omeroweb.testlib import IWebTest
 
@@ -172,7 +171,7 @@ def plate_wells_with_acq_date(itest, well_grid_factory, update_service):
     plate.addWell(well)
     plate = update_service.saveAndReturnObject(plate)
     return {'plate': plate,
-            'acq_date': int(old_div(acq_date, 1000))}
+            'acq_date': int(acq_date / 1000)}
 
 
 @pytest.fixture()
@@ -192,7 +191,7 @@ def plate_wells_with_no_acq_date(itest, well_grid_factory, update_service,
     image = plate.copyWells()[0].copyWellSamples()[0].image
     creation_date = image.details.creationEvent.time
     return {'plate': plate,
-            'creation_date': old_div(creation_date.val, 1000)}
+            'creation_date': creation_date.val // 1000}
 
 
 @pytest.fixture()

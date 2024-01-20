@@ -13,7 +13,6 @@
 from builtins import str
 from builtins import range
 from builtins import object
-from past.utils import old_div
 import logging
 import threading
 import time
@@ -68,7 +67,7 @@ class AbstractEvent(object):
         By default, nothing.
         """
         self.log.info("Sleeping %s" % self.waitMillis)
-        time.sleep(old_div(self.waitMillis, 1000))
+        time.sleep(self.waitMillis / 1000)
         if not self.client:
             self.log.error("No client")
         self.doRun()
@@ -159,7 +158,7 @@ def with_driver(func, errors=0):
     """ Decorator for running a test with a Driver """
     def handler(*args, **kwargs):
         self = args[0]
-        self.dir = old_div(create_path(folder=True), "DropBox")
+        self.dir = create_path(folder=True) / "DropBox"
         self.simulator = Simulator(self.dir)
         self.client = MockMonitor(self.dir, pre=[self.simulator], post=[])
         try:
@@ -309,7 +308,7 @@ class Simulator(monitors.MonitorClient):
                     if not file.isdir():
                         raise Exception("%s is not a directory" % file)
                     self.log.info("Creating file in dir %s", file)
-                    new_file = old_div(file, str(uuid.uuid4()))
+                    new_file = file / str(uuid.uuid4())
                     new_file.write_lines(
                         ["Writing new file to modify this"
                          "directory on event: %s" % event])

@@ -12,7 +12,6 @@ FOR TRAINING PURPOSES ONLY!
 """
 
 from builtins import range
-from past.utils import old_div
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
@@ -72,7 +71,7 @@ for i, p in enumerate(planes):
 # ==========================
 zct_list = []
 # get the top half of the Z-stack
-for z in range(old_div(size_z, 2), size_z):
+for z in range(size_z // 2, size_z):
     for c in range(size_c):          # all channels
         for t in range(size_t):      # all time-points
             zct_list.append((z, c, t))

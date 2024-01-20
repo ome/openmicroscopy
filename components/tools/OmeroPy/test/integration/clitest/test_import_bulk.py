@@ -19,7 +19,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from builtins import str
-from past.utils import old_div
 from omero.cli import NonZeroReturnCode
 from omero.testlib.cli import CLITest
 from omero.plugins.sessions import SessionsControl
@@ -125,8 +124,7 @@ path: test.tsv
         script = tmpdir.join("script1.sh")
 
         self.args += ["import", "-f", "--bulk", str(yml),
-                      "--clientdir", old_div(old_div(self.omero_dist, "lib"),
-                                             "client")]
+                      "--clientdir", self.omero_dist / "lib" / "client"]
 
         monkeypatch.setattr(sys, "argv", ["omero"])
         out, err = self.do_import(capfd)

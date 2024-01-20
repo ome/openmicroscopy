@@ -21,7 +21,6 @@
 
 
 from builtins import str
-from past.utils import old_div
 import pytest
 import os
 
@@ -58,10 +57,8 @@ class TestAdmin(RootCLITest):
         self.cli.register("admin", omero.plugins.admin.AdminControl, "TEST")
         # omero needs the etc/grid directory
         self.cli.dir = (
-            old_div(old_div(old_div(old_div(
-                old_div(old_div(
-                    old_div(path(__file__).dirname(), ".."),
-                    ".."), ".."), ".."), ".."), ".."), "dist"))
+            path(__file__).dirname() /
+            ".." / ".." / ".." / ".." / ".." / ".." / "dist")
         self.args += ["admin"]
 
     def go(self):
@@ -113,10 +110,8 @@ class TestAdminRestrictedAdmin(CLITest):
         self.cli.register("admin", omero.plugins.admin.AdminControl, "TEST")
         # omero needs the etc/grid directory
         self.cli.dir = (
-            old_div(old_div(old_div(old_div(
-                old_div(old_div(
-                    old_div(path(__file__).dirname(), ".."),
-                    ".."), ".."), ".."), ".."), ".."), "dist"))
+            path(__file__).dirname() /
+            ".." / ".." / ".." / ".." / ".." / ".." / "dist")
         self.args += ["admin"]
 
     def test_log(self):
