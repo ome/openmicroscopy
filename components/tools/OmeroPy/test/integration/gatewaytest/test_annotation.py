@@ -23,11 +23,6 @@ from tempfile import NamedTemporaryFile
 import omero.gateway
 from omero.rtypes import rstring
 from omero.gateway import FileAnnotationWrapper
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
 
 
 def _testAnnotation(obj, annclass, ns, value, sameOwner=False,

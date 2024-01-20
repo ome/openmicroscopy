@@ -25,11 +25,7 @@
 """
 from builtins import str
 from builtins import range
-try:
-    from omero_ext.path import path
-except ImportError:
-    # Python 2
-    from path import path
+from omero_ext.path import path
 import omero
 import omero.tables
 from omero.testlib import ITest

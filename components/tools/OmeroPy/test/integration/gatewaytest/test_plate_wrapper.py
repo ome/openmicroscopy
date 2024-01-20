@@ -21,11 +21,6 @@ import pytest
 from omero.model import PlateI, WellI, WellSampleI, ImageI
 from omero.rtypes import rstring, rint, rtime
 from uuid import uuid4
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
 
 
 def uuid():

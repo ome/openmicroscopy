@@ -25,11 +25,6 @@ import omero.cli
 from omero.rtypes import rstring, wrap, unwrap
 from omero.util.temp_files import create_path
 
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
 
 PUBLIC = omero.model.PermissionsI("rwrwrw")
 

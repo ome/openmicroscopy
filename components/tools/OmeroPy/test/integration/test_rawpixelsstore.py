@@ -18,11 +18,6 @@ import pytest
 from omero.util.tiles import TileLoopIteration
 from omero.util.tiles import RPSTileLoop
 
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
 
 __import__("sys")
 
@@ -36,12 +31,7 @@ class TestRPS(ITest):
         try:
             rps.setPixelsId(pix.id.val, True)
             md = rps.calculateMessageDigest()
-            try:
-                # python 3
-                sha1 = format(int.from_bytes(md, 'big'), 'x')
-            except Exception:
-                # python 2
-                sha1 = hex(int(md.encode('hex'), 16))[2:]
+            sha1 = format(int.from_bytes(md, 'big'), 'x')
             sha1 = sha1.rjust(40, "0")
             assert sha1 == pix.sha1.val
         finally:
@@ -237,8 +227,6 @@ class TestRPS(ITest):
 
 class TestTiles(ITest):
 
-    @pytest.mark.skipif("sys.version_info < (2,7)",
-                        reason="This fails with Python < 2.7 and Ice >= 3.5")
     def testTiles(self):
         from omero.model import PixelsI
         from omero.sys import ParametersI

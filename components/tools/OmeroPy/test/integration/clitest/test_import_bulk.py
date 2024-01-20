@@ -26,13 +26,8 @@ import sys
 import re
 import subprocess
 
-try:
-    plugin = __import__('omero.plugins.import', globals(), locals(),
-                        ['ImportControl'], -1)
-except ValueError:
-    # Python 3
-    plugin = __import__('omero.plugins.import', globals(), locals(),
-                        ['ImportControl'], 0)
+plugin = __import__('omero.plugins.import', globals(), locals(),
+                    ['ImportControl'], 0)
 ImportControl = plugin.ImportControl
 
 

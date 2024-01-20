@@ -18,12 +18,6 @@ import Glacier2
 from omero.rtypes import rtime, rlong, rlist, rint
 from omero.gateway import BlitzGateway
 
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
-
 
 class TestIShare(ITest):
 

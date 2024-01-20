@@ -20,11 +20,7 @@ import uuid
 
 import omero.grid.monitors as monitors
 
-try:
-    from omero_ext.path import path
-except ImportError:
-    # Python 2
-    from path import path
+from omero_ext.path import path
 from omero.util import ServerContext
 from functools import wraps
 from omero.util.temp_files import create_path

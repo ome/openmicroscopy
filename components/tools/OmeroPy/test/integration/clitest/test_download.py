@@ -33,12 +33,6 @@ from omero.rtypes import rstring
 from omero.model import NamedValue as NV
 from omero.util.temp_files import create_path
 
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
-
 
 class TestDownload(CLITest):
 

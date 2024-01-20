@@ -70,9 +70,6 @@ from pytest import raises
 
 MAPR_NS_GENE = 'openmicroscopy.org/mapr/gene'
 
-pythonminver = mark.skipif(sys.version_info < (2, 7),
-                           reason="requires python2.7")
-
 
 def coord2offset(coord):
     """
@@ -867,7 +864,6 @@ class Project2Datasets(Fixture):
                 raise Exception("Unknown dataset: %s" % ds)
 
 
-@pythonminver
 class TestPopulateMetadataConfigLoad(ITest):
 
     def get_cfg_filepath(self):
@@ -892,7 +888,6 @@ class TestPopulateMetadataConfigLoad(ITest):
         self._assert_configs(default_cfg, column_cfgs, advanced_cfgs)
 
 
-@pythonminver
 class TestPopulateMetadataHelper(ITest):
 
     def _test_parsing_context(self, fixture, batch_size):
@@ -985,7 +980,6 @@ class TestPopulateMetadataHelper(ITest):
         assert len(fixture.get_all_map_annotations()) == 0
 
 
-@pythonminver
 class TestPopulateMetadataHelperPerMethod(TestPopulateMetadataHelper):
 
     # Some tests in this file check the counts of annotations in a fixed
@@ -1004,7 +998,6 @@ class TestPopulateMetadataHelperPerMethod(TestPopulateMetadataHelper):
         super(TestPopulateMetadataHelperPerMethod, self).teardown_class()
 
 
-@pythonminver
 class TestPopulateMetadata(TestPopulateMetadataHelper):
 
     METADATA_FIXTURES = (
@@ -1082,7 +1075,6 @@ class TestPopulateMetadata(TestPopulateMetadataHelper):
             self._test_bulk_to_map_annotation_context(fixture_fail, 2)
 
 
-@pythonminver
 class TestPopulateMetadataDedup(TestPopulateMetadataHelperPerMethod):
 
     # Hard-code the number of expected map-annotations in these tests
@@ -1236,7 +1228,6 @@ class TestPopulateMetadataDedup(TestPopulateMetadataHelperPerMethod):
             fixture1, fixture2, ns)
 
 
-@pythonminver
 class TestPopulateMetadataConfigFiles(TestPopulateMetadataHelperPerMethod):
 
     def _init_fixture_attach_cfg(self):
@@ -1425,7 +1416,6 @@ class ROICSV(Fixture):
         return self.plate
 
 
-@pythonminver
 class TestPopulateRois(ITest):
 
     def testPopulateRoisPlate(self):

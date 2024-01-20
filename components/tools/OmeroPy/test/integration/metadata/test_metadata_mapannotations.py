@@ -32,9 +32,6 @@ from omero.util.metadata_mapannotations import (
 import pytest
 import sys
 
-pythonminver = pytest.mark.skipif(sys.version_info < (2, 7),
-                                  reason="requires python2.7")
-
 
 def assert_equal_map_value(mva, mvb):
     assert len(mva) == len(mvb)
@@ -45,7 +42,6 @@ def assert_equal_map_value(mva, mvb):
         assert a.value == b.value
 
 
-@pythonminver
 class TestMapAnnotationManager(ITest):
 
     def create_mas(self):

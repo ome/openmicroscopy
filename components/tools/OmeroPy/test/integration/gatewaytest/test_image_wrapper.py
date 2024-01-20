@@ -21,11 +21,6 @@ from omero.testlib import ITest
 from omero.model import ImageI, ChannelI, LogicalChannelI, LengthI
 from omero.rtypes import rstring, rtime
 from datetime import datetime
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
 
 
 @pytest.fixture(scope='module')

@@ -18,12 +18,6 @@ from omero.sys import ParametersI
 from omero.util.concurrency import get_event
 from omero.rtypes import rint, unwrap
 
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
-
 
 class TestThumbs(ITest):
 

@@ -28,11 +28,7 @@ from omero.testlib.cli import CLITest
 from omero.testlib.cli import RootCLITest
 import omero.plugins.admin
 from omero.cli import NonZeroReturnCode
-try:
-    from omero_ext.path import path
-except ImportError:
-    # Python 2
-    from path import path
+from omero_ext.path import path
 from omero.util.upgrade_check import UpgradeCheck
 
 OMERODIR = os.getenv('OMERODIR', None)

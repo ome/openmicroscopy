@@ -37,13 +37,6 @@ from omero_sys_ParametersI import ParametersI
 from omero.rtypes import rbool, rstring, unwrap
 
 
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
-
-
 class CallContextFixture(object):
 
     """
@@ -418,11 +411,11 @@ class TestPermissions(ITest):
             rm_exps = list()
             for om in old_owners:
                 for a in available:
-                    if om.id == long(str(a)):
+                    if om.id == int(str(a)):
                         rm_exps.append(om._obj)
             for oa in old_available:
                 for o in owners:
-                    if oa.id == long(str(o)):
+                    if oa.id == int(str(o)):
                         add_exps.append(oa._obj)
 
             #final save
