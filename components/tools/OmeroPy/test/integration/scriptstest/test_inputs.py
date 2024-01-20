@@ -36,7 +36,6 @@ SENDFILE = """
 # Setup to run as an integration test
 import os
 import sys
-from past.builtins import long
 
 import omero.scripts as s
 import omero.util.script_utils as su
@@ -61,7 +60,7 @@ for method, inputs in (
         raise Exception("Failed!")
 
     a = inputs["a"]
-    if not isinstance(a, (int, long)):
+    if not isinstance(a, int):
         raise Exception("Failed!")
 
     b = inputs.get("b")
