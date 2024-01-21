@@ -23,7 +23,6 @@
 Test of the yaml/json parameters file handling
 """
 
-from builtins import str
 from omero.testlib import ITest
 from omero.rtypes import unwrap
 from omero.util import pydict_text_io

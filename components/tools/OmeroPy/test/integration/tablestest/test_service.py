@@ -23,8 +23,6 @@
    Test of the Tables service
 
 """
-from builtins import str
-from builtins import range
 from omero_ext.path import path
 import omero
 import omero.tables

@@ -14,8 +14,6 @@
 
 """
 
-from builtins import str
-from builtins import object
 import pytest
 
 from io import BytesIO

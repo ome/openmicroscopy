@@ -20,7 +20,6 @@
 """
 Tests webclient login
 """
-from builtins import str
 from django.conf import settings
 from django.urls import re_path
 from importlib import import_module

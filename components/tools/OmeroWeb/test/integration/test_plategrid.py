@@ -9,10 +9,6 @@
    Integration tests for the "plategrid" module.
 """
 
-from builtins import map
-from builtins import str
-from builtins import range
-from builtins import object
 import pytest
 from omeroweb.testlib import IWebTest
 

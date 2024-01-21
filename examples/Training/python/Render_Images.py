@@ -11,7 +11,6 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
-from builtins import range
 from omero.gateway import BlitzGateway
 from io import BytesIO
 try:

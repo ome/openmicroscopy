@@ -24,7 +24,6 @@
 
 """
 
-from builtins import range
 from omero.testlib import ITest
 from omero.rtypes import rstring
 from omero.rtypes import unwrap, wrap

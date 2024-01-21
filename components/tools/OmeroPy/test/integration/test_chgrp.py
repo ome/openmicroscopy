@@ -24,7 +24,6 @@
 
 """
 
-from builtins import range
 import omero
 import omero.gateway
 from omero.testlib import ITest

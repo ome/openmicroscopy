@@ -21,7 +21,6 @@
 Integration tests for annotations methods in the "tree" module.
 """
 
-from builtins import zip
 import pytest
 import pytz
 from omero.testlib import ITest

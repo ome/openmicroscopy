@@ -19,9 +19,6 @@
 
 """Tests querying & editing Containers with webgateway json api."""
 
-from builtins import zip
-from builtins import str
-from builtins import range
 import copy
 from omeroweb.testlib import IWebTest, get_json, \
     post_json, put_json, delete_json

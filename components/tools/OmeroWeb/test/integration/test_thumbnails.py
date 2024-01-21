@@ -19,7 +19,6 @@
 
 """Tests rendering of thumbnails."""
 
-from builtins import range
 import base64
 import json
 from omero.model import EllipseI, LengthI, LineI, \

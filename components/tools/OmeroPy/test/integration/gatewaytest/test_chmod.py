@@ -13,7 +13,6 @@
 
 """
 
-from builtins import object
 import omero
 import traceback
 from omero.rtypes import rstring

@@ -8,7 +8,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from builtins import object
 from omero.testlib import ITest
 import omero
 from omero.rtypes import rdouble, rstring, rint

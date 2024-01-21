@@ -21,7 +21,6 @@
 Simple integration tests for the "tree" module.
 """
 
-from builtins import str
 import pytest
 from omero.testlib import ITest
 

@@ -13,8 +13,6 @@
 
 """
 
-from builtins import range
-from builtins import object
 import pytest
 from omero.testlib import ITest
 

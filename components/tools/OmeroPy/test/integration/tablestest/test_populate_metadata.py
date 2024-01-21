@@ -24,7 +24,6 @@
 
 """
 
-from builtins import range
 from omero.testlib import ITest
 import os
 

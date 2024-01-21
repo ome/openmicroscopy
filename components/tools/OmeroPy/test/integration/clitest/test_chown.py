@@ -21,8 +21,6 @@
 
 # from omero.cli import NonZeroReturnCode
 
-from builtins import str
-from builtins import range
 import omero
 from omero.plugins.chown import ChownControl
 from omero.testlib.cli import CLITest, RootCLITest

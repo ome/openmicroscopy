@@ -13,8 +13,6 @@
 
 """
 
-from builtins import str
-from builtins import object
 import Ice
 import omero
 import os

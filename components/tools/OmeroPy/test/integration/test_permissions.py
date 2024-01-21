@@ -24,8 +24,6 @@
 
 """
 
-from builtins import str
-from builtins import object
 import pytest
 from omero.testlib import ITest, PFS
 import omero

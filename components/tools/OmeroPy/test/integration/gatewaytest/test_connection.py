@@ -11,8 +11,6 @@
 
 """
 
-from builtins import map
-from builtins import object
 import omero
 import Ice
 from omero.gateway.scripts import dbhelpers

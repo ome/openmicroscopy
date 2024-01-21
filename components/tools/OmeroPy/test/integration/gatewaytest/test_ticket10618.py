@@ -25,7 +25,6 @@ sensible usages of ImageWrapper.getThumbnail()
 """
 
 
-from builtins import str
 from omero.testlib import ITest
 
 

@@ -12,7 +12,6 @@
 
 """
 
-from builtins import range
 import omero
 from omero.rtypes import rstring
 from omero.cmd import State, ERR, OK

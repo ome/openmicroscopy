@@ -23,7 +23,6 @@
 Integration test of metadata_mapannotation
 """
 
-from builtins import zip
 from omero.testlib import ITest
 from omero.model import MapAnnotationI, NamedValue
 from omero.rtypes import unwrap, wrap

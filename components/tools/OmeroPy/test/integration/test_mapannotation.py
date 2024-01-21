@@ -24,7 +24,6 @@ Tests for the MapAnnotation and related base types
 introduced in 5.1.
 """
 
-from builtins import range
 from omero.testlib import ITest
 import pytest
 import omero

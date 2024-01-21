@@ -19,7 +19,6 @@
 
 """Test OMERO.scripts usage in the webclient."""
 
-from builtins import str
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get, post, get_json
 import time

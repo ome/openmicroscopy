@@ -24,10 +24,6 @@
    and populate_roi.py scripts.
 """
 
-from builtins import str
-from builtins import zip
-from builtins import range
-from builtins import object
 from omero.testlib import ITest
 import string
 import csv

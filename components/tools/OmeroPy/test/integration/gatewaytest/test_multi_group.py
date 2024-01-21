@@ -12,8 +12,6 @@
 
 """
 
-from builtins import str
-from builtins import object
 import omero
 import omero.scripts
 from omero.rtypes import rstring, rtime, rlong

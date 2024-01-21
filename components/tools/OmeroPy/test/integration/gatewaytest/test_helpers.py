@@ -7,7 +7,6 @@
 
 """
 
-from builtins import object
 import omero
 import omero.gateway
 

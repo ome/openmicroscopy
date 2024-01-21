@@ -22,8 +22,6 @@
 
 """
 
-from builtins import str
-from builtins import range
 import pytest
 from omero.testlib import ITest
 import omero.util.script_utils as scriptUtil

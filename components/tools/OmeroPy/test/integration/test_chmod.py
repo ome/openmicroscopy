@@ -24,7 +24,6 @@
 
 """
 
-from builtins import str
 import time
 from omero.testlib import ITest
 import omero

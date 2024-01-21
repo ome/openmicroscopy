@@ -9,8 +9,6 @@
 
 """
 
-from builtins import str
-from builtins import object
 import pytest
 import os
 from omero.plugins.db import DatabaseControl

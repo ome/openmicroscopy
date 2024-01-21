@@ -24,8 +24,6 @@
 
 """
 
-from builtins import str
-from builtins import range
 import traceback
 from omero.testlib import ITest
 import pytest

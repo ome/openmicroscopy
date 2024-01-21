@@ -6,7 +6,6 @@
 
 """
 
-from builtins import map
 import glob
 import sys
 import os

@@ -11,8 +11,6 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
-from builtins import str
-from builtins import range
 import numpy
 import struct
 import math

@@ -11,7 +11,6 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
-from builtins import str
 import os
 import omero
 from omero.rtypes import rstring

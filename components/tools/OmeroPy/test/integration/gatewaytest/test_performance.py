@@ -16,8 +16,6 @@
 
 """
 
-from builtins import range
-from builtins import object
 import pytest
 import omero
 import time

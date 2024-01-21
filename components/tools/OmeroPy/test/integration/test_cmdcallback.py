@@ -23,7 +23,6 @@
 Test of the CmdCallbackI object
 """
 
-from builtins import range
 import threading
 
 from omero.testlib import ITest

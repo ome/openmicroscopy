@@ -21,8 +21,6 @@
 Tests creation, linking, editing & deletion of containers
 """
 
-from builtins import str
-from builtins import range
 import omero
 import omero.clients
 from omero.rtypes import rtime

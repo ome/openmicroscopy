@@ -21,7 +21,6 @@
 Tests copying and pasting of rendering settings in webclient
 """
 
-from builtins import str
 import json
 import omero
 import omero.clients

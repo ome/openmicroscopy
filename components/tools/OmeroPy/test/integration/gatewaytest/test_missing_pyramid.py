@@ -10,7 +10,6 @@
 
 """
 
-from builtins import object
 import omero
 import pytest
 

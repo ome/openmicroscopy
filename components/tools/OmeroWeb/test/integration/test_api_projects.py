@@ -21,9 +21,6 @@
 Tests querying & editing Projects with webgateway json api
 """
 
-
-from builtins import zip
-from builtins import range
 from omeroweb.testlib import IWebTest, get_json, \
     post_json, put_json, delete_json
 from django.urls import reverse

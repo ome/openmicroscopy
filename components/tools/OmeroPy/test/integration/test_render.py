@@ -24,7 +24,6 @@
    rendering a 'region' of big images.
 """
 
-from builtins import range
 import omero
 import logging
 from omero.testlib import ITest

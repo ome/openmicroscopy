@@ -9,8 +9,6 @@
 
 """
 
-from builtins import hex
-from builtins import range
 import omero
 import threading
 from omero.testlib import ITest

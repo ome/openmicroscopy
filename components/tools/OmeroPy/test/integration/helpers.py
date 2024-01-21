@@ -24,7 +24,6 @@
 
 """
 
-from builtins import range
 import omero.util.script_utils as scriptUtil
 from numpy import arange, uint8
 

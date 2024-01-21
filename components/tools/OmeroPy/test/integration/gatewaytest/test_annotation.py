@@ -13,8 +13,6 @@
 
 """
 
-from builtins import str
-from builtins import range
 import time
 import datetime
 import os

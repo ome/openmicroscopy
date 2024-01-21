@@ -27,9 +27,6 @@
 
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
 import pytest
 
 from omero.model import ImageI, PixelsI, FilesetI, FilesetEntryI, \

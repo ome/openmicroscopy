@@ -11,7 +11,6 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
-from builtins import range
 import omero
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
