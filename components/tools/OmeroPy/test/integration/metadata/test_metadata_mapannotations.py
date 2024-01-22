@@ -29,7 +29,6 @@ from omero.rtypes import unwrap, wrap
 from omero.util.metadata_mapannotations import (
     CanonicalMapAnnotation, MapAnnotationManager)
 import pytest
-import sys
 
 
 def assert_equal_map_value(mva, mvb):

@@ -26,7 +26,7 @@ if __name__ == "__main__":
     exec(os.path.join(training_dir, 'Tables.py'))
     exec(os.path.join(training_dir, 'Write_Data.py'))
     exec(os.path.join(training_dir,
-             'Advanced/Create_Image_advanced.py'))
+         'Advanced/Create_Image_advanced.py'))
     exec(os.path.join(training_dir, 'Advanced/Raw_Data_advanced.py'))
     exec(os.path.join(training_dir, 'Advanced/Read_Data_advanced.py'))
     exec(os.path.join(training_dir, 'Advanced/Write_data_advanced.py'))

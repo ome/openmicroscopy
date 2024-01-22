@@ -12,7 +12,6 @@
 import omero
 import threading
 from omero.testlib import ITest
-import pytest
 from omero.util.tiles import TileLoopIteration
 from omero.util.tiles import RPSTileLoop
 

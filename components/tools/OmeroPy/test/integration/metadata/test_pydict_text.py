@@ -28,7 +28,6 @@ from omero.rtypes import unwrap
 from omero.util import pydict_text_io
 
 import pytest
-import sys
 
 
 class TestPydictTextIo(ITest):

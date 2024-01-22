@@ -32,7 +32,6 @@ class TestHelperObjects(object):
         assert c1.getCss() == 'rgba(50,100,200,1.000)'
 
     def testOmeroType(self):
-        import sys
         omero_type = omero.gateway.omero_type
         assert isinstance(omero_type('rstring'), omero.RString)
         assert isinstance(omero_type(u'rstring'), omero.RString)
