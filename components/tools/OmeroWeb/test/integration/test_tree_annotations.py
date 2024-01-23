@@ -160,7 +160,7 @@ def annotate_project(ann, project, user):
 
 
 def expected_date(time):
-    d = datetime.fromtimestamp(time / 1000)
+    d = datetime.fromtimestamp(time // 1000)
     # Add time-zone awareness. Use default TIME_ZONE setting
     tz = pytz.timezone("Europe/London")
     d = tz.localize(d)
