@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         build_bf: [false]
-        build_zarr: [false]
+        build_zarr: [true]
         build_snapshot: [false]
     name: Build OMERO from source
     runs-on: ubuntu-22.04
@@ -48,7 +48,7 @@ jobs:
         id: zarr_reader
         if: matrix.build_zarr
         run: |
-          git clone https://github.com/ome/ZarrReader /tmp/ZarrReader --depth 1
+          git clone -b s3-filesystem https://github.com/dgault/ZarrReader /tmp/ZarrReader --depth 1
           cd /tmp/ZarrReader
           mvn install -DskipTests -q
           echo "zarr_reader_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
