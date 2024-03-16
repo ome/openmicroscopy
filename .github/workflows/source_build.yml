@@ -37,7 +37,7 @@ jobs:
           build-root-directory: components/tools/OmeroJava # required by the action to have a *.gradle file"
       - name: Install and run flake8
         run: |
-          pip install flake8 setuptools
+          pip install flake8 'setuptools<69'
           flake8 .
       - name: install dependencies
         run: |
