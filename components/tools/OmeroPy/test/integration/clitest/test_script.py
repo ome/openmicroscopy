@@ -9,7 +9,6 @@
 
 """
 
-from builtins import str
 from omero.testlib.cli import CLITest
 from omero.plugins.script import ScriptControl
 from omero.util.temp_files import create_path

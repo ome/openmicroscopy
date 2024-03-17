@@ -20,8 +20,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-from builtins import str
-from builtins import range
 from omero.testlib import ITest
 
 from omero.callbacks import CmdCallbackI

@@ -21,11 +21,6 @@
 Tests querying & editing Projects with webgateway json api
 """
 
-
-from future.utils import native_str
-
-from builtins import zip
-from builtins import range
 from omeroweb.testlib import IWebTest, get_json, \
     post_json, put_json, delete_json
 from django.urls import reverse
@@ -570,7 +565,7 @@ class TestProjects(IWebTest):
         assert project_json['Description'] == 'Test update'  # No change
 
         # 2) Put from scratch (will delete empty fields, E.g. Description)
-        save_url += '?group=' + native_str(group)
+        save_url += '?group=' + str(group)
         payload = {'Name': 'updated name',
                    '@id': project.id.val}
         # Test error message if we don't pass @type:

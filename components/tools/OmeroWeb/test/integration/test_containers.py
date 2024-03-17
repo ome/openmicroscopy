@@ -20,10 +20,7 @@
 """
 Tests creation, linking, editing & deletion of containers
 """
-from __future__ import print_function
 
-from builtins import str
-from builtins import range
 import omero
 import omero.clients
 from omero.rtypes import rtime

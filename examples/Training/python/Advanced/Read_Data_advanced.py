@@ -11,8 +11,6 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
-from __future__ import print_function
-
 import omero
 from omero.rtypes import rstring
 from omero.gateway import BlitzGateway

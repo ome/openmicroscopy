@@ -10,10 +10,7 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
-from __future__ import division
-from __future__ import print_function
 
-from builtins import range
 import omero
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT

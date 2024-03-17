@@ -23,7 +23,6 @@
    Tests for the Pixels service.
 
 """
-from __future__ import absolute_import
 
 import omero
 import omero.gateway

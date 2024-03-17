@@ -6,8 +6,6 @@
 #
 
 
-from builtins import range
-from builtins import object
 import pytest
 import os
 

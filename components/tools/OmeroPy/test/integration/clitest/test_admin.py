@@ -20,9 +20,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-from __future__ import division
-from builtins import str
-from past.utils import old_div
 import pytest
 import os
 
@@ -30,11 +27,7 @@ from omero.testlib.cli import CLITest
 from omero.testlib.cli import RootCLITest
 import omero.plugins.admin
 from omero.cli import NonZeroReturnCode
-try:
-    from omero_ext.path import path
-except ImportError:
-    # Python 2
-    from path import path
+from omero_ext.path import path
 from omero.util.upgrade_check import UpgradeCheck
 
 OMERODIR = os.getenv('OMERODIR', None)
@@ -59,10 +52,8 @@ class TestAdmin(RootCLITest):
         self.cli.register("admin", omero.plugins.admin.AdminControl, "TEST")
         # omero needs the etc/grid directory
         self.cli.dir = (
-            old_div(old_div(old_div(old_div(
-                old_div(old_div(
-                    old_div(path(__file__).dirname(), ".."),
-                    ".."), ".."), ".."), ".."), ".."), "dist"))
+            path(__file__).dirname() /
+            ".." / ".." / ".." / ".." / ".." / ".." / "dist")
         self.args += ["admin"]
 
     def go(self):
@@ -114,10 +105,8 @@ class TestAdminRestrictedAdmin(CLITest):
         self.cli.register("admin", omero.plugins.admin.AdminControl, "TEST")
         # omero needs the etc/grid directory
         self.cli.dir = (
-            old_div(old_div(old_div(old_div(
-                old_div(old_div(
-                    old_div(path(__file__).dirname(), ".."),
-                    ".."), ".."), ".."), ".."), ".."), "dist"))
+            path(__file__).dirname() /
+            ".." / ".." / ".." / ".." / ".." / ".." / "dist")
         self.args += ["admin"]
 
     def test_log(self):

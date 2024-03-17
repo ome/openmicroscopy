@@ -8,7 +8,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import print_function
 
 from omero.testlib import ITest
 import pytest

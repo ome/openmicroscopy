@@ -12,20 +12,12 @@
 
 """
 
-from builtins import str
-from builtins import object
 import omero
 import omero.scripts
 from omero.rtypes import rstring, rtime, rlong
 from omero.gateway.scripts import dbhelpers
 import time
 import pytest
-
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
 
 PRIVATE = 'rw----'
 READONLY = 'rwr---'

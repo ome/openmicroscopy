@@ -12,11 +12,7 @@
    - author_testimg_generated
 
 """
-from __future__ import print_function
 
-from future import standard_library
-from builtins import str
-from builtins import range
 import time
 import datetime
 import os
@@ -25,12 +21,6 @@ from tempfile import NamedTemporaryFile
 import omero.gateway
 from omero.rtypes import rstring
 from omero.gateway import FileAnnotationWrapper
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
-standard_library.install_aliases()
 
 
 def _testAnnotation(obj, annclass, ns, value, sameOwner=False,

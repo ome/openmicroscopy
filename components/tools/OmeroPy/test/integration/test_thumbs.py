@@ -9,7 +9,6 @@
 
 """
 
-from builtins import range
 from omero.testlib import ITest
 import pytest
 
@@ -17,12 +16,6 @@ from omero import MissingPyramidException
 from omero.sys import ParametersI
 from omero.util.concurrency import get_event
 from omero.rtypes import rint, unwrap
-
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
 
 
 class TestThumbs(ITest):

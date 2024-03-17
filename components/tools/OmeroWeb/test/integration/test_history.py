@@ -18,7 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Tests display of data in History page."""
-from __future__ import print_function
 
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import get, post

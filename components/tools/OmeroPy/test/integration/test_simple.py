@@ -10,7 +10,6 @@
 
 """
 
-from builtins import str
 from omero.testlib import ITest
 
 

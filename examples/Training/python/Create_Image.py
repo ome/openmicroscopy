@@ -10,11 +10,7 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
-from __future__ import division
-from __future__ import print_function
 
-from builtins import range
-from past.utils import old_div
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
@@ -105,7 +101,7 @@ def plane_gen():
                 # Here we can manipulate the data in many different ways. As
                 # an example we are doing "average"
                 # average of 2 channels
-                new_plane = old_div((channel0 + channel1), 2)
+                new_plane = (channel0 + channel1) // 2
                 print("newPlane for z,t:", z, t, new_plane.dtype,
                       new_plane.min(), new_plane.max())
                 yield new_plane

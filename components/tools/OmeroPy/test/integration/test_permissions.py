@@ -24,9 +24,6 @@
 
 """
 
-from builtins import str
-from builtins import object
-from future.utils import native_str
 import pytest
 from omero.testlib import ITest, PFS
 import omero
@@ -36,13 +33,6 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_sys_ParametersI import ParametersI
 from omero.rtypes import rbool, rstring, unwrap
-
-
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
 
 
 class CallContextFixture(object):
@@ -131,7 +121,7 @@ class TestPermissions(ITest):
         ec = self.client.sf.getAdminService().getEventContext()
         public_client = omero.client(rv)
         public_client.getImplicitContext().put("omero.group",
-                                               native_str(uuid))
+                                               str(uuid))
         sf = public_client.createSession(ec.userName, ec.userName)
         ec = sf.getAdminService().getEventContext()
         assert uuid == ec.groupName
@@ -419,11 +409,11 @@ class TestPermissions(ITest):
             rm_exps = list()
             for om in old_owners:
                 for a in available:
-                    if om.id == long(str(a)):
+                    if om.id == int(str(a)):
                         rm_exps.append(om._obj)
             for oa in old_available:
                 for o in owners:
-                    if oa.id == long(str(o)):
+                    if oa.id == int(str(o)):
                         add_exps.append(oa._obj)
 
             #final save
@@ -681,7 +671,7 @@ class TestPermissions(ITest):
         # Setup groups as per Carlos' instructions (Feb 23)
         groupX = self.new_group(perms="rwrw--")
         clientA, userA = self.new_client_and_user(group=groupX)
-        gid = native_str(groupX.id.val)
+        gid = str(groupX.id.val)
 
         groupY = self.new_group(perms="rw----")
         clientB, userB = self.new_client_and_user(group=groupY)
@@ -747,8 +737,8 @@ class TestPermissions(ITest):
             self.assertAsUser(client, image, user, group)
 
     def assertAsUser(self, client, image, user, group):
-        callcontext = {"omero.user": native_str(user.id.val),
-                       "omero.group": native_str(group.id.val)}
+        callcontext = {"omero.user": str(user.id.val),
+                       "omero.group": str(group.id.val)}
         query = client.sf.getQueryService()
         query.get("Image", image.id.val, callcontext)
 
@@ -834,7 +824,7 @@ class TestPermissions(ITest):
 
     def testUseOfRawFileBeanScriptReadCorrectGroup(self):
         self.assertValidScript(lambda v: {'omero.group':
-                                          native_str(v.details.group.id.val)})
+                                          str(v.details.group.id.val)})
 
     @pytest.mark.broken(ticket="11539")
     def testUseOfRawFileBeanScriptReadCorrectGroupAndUser(self):
@@ -936,7 +926,7 @@ class TestPermissionProjections(ITest):
                 proj = unwrap(reader.projection(
                     "select p from Project p where p.id = :id",
                     ParametersI().addId(project.id.val),
-                    {"omero:group": native_str(group)}))[0][0]
+                    {"omero:group": str(group)}))[0][0]
                 assert fixture.canRead
                 perms = proj.details.permissions
                 value = {

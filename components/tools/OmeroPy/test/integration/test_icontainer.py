@@ -24,8 +24,6 @@
 
 """
 
-from builtins import str
-from builtins import range
 from omero.testlib import ITest
 import omero
 from omero_model_CommentAnnotationI import CommentAnnotationI

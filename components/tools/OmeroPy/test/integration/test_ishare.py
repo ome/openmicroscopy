@@ -9,7 +9,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from future.utils import native_str
 import time
 from omero.testlib import ITest
 import pytest
@@ -18,12 +17,6 @@ import Glacier2
 
 from omero.rtypes import rtime, rlong, rlist, rint
 from omero.gateway import BlitzGateway
-
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
 
 
 class TestIShare(ITest):
@@ -260,7 +253,7 @@ class TestIShare(ITest):
         p = omero.sys.Parameters()
         p.map = {"ids": rlist([rlong(img.id.val)])}
         sql = "select im from Image im where im.id in (:ids) order by im.name"
-        res = query2.findAllByQuery(sql, p, {'omero.share': native_str(sid)})
+        res = query2.findAllByQuery(sql, p, {'omero.share': str(sid)})
         assert 1 == len(res)
 
         # User should not be able to annotate private image.
@@ -920,9 +913,9 @@ class TestIShare(ITest):
             assert False, "Error: Member shouldn't access image in share!"
 
         rv = member_query.find("Image", image.id.val,
-                               {'omero.share': native_str(sid),
+                               {'omero.share': str(sid),
                                 'omero.group':
-                                    native_str(image.details.group.id.val)})
+                                    str(image.details.group.id.val)})
         assert image.id.val == rv.id.val
 
         # join share
@@ -934,7 +927,7 @@ class TestIShare(ITest):
             user_query = user_client.sf.getQueryService()
             rv = user_query.find("Image", image2.id.val,
                                  {'omero.group':
-                                  native_str(image2.details.group.id.val)})
+                                  str(image2.details.group.id.val)})
             assert image2.id.val == rv.id.val
         finally:
             user_client.__del__()
@@ -975,7 +968,7 @@ class TestIShare(ITest):
         sql = "select im from Image im join fetch im.details.owner " \
               "join fetch im.details.group where im.id=:id order by im.name"
         image = owner.sf.getQueryService().findAllByQuery(
-            sql, p, {'omero.group': native_str(owner_groupId)})[0]
+            sql, p, {'omero.group': str(owner_groupId)})[0]
 
         rdefs = owner.sf.getQueryService().findAll("RenderingDef", None)
 
@@ -1005,7 +998,7 @@ class TestIShare(ITest):
             assert False, "Error: Member shouldn't access image in share!"
 
         rv = member_query.find("Image", image.id.val,
-                               {'omero.share': native_str(sid)})
+                               {'omero.share': str(sid)})
         # Not sure which group to set
         # 'omero.group':str(image.details.group.id.val)
         # or 'omero.group':str(member_groupId)
@@ -1015,7 +1008,7 @@ class TestIShare(ITest):
         member_tb = member.sf.createThumbnailStore()
         try:
             member_tb.setPixelsId(rdefs[0].pixels.id.val,
-                                  {'omero.share': native_str(sid)})
+                                  {'omero.share': str(sid)})
         finally:
             member_tb.close()
         # join share
@@ -1027,7 +1020,7 @@ class TestIShare(ITest):
             user_query = user_client.sf.getQueryService()
             rv = user_query.find("Image", image2.id.val,
                                  {'omero.group':
-                                  native_str(image2.details.group.id.val)})
+                                  str(image2.details.group.id.val)})
             assert image2.id.val == rv.id.val
         finally:
             user_client.__del__()

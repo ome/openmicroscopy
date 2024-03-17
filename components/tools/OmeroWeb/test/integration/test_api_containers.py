@@ -18,11 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Tests querying & editing Containers with webgateway json api."""
-from __future__ import print_function
 
-from builtins import zip
-from builtins import str
-from builtins import range
 import copy
 from omeroweb.testlib import IWebTest, get_json, \
     post_json, put_json, delete_json

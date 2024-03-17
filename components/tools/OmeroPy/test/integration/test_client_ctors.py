@@ -23,9 +23,7 @@
    Tests of the omero.client constructors
 
 """
-from __future__ import print_function
 
-from future.utils import native_str
 import os
 from omero.testlib import ITest
 import omero
@@ -60,7 +58,7 @@ class TestClientConstructors(ITest):
         # With no argument id.properties is empty
         id.properties = Ice.createProperties()
         id.properties.setProperty("omero.host", self.host)
-        id.properties.setProperty("omero.port", native_str(self.port))
+        id.properties.setProperty("omero.port", str(self.port))
         id.properties.setProperty("omero.user", "root")
         id.properties.setProperty("omero.pass", self.rootpasswd)
         c = omero.client(id=id)

@@ -10,7 +10,6 @@
 Integration test focused on the omero.api.IUpdate interface.
 """
 
-from builtins import range
 from omero.testlib import ITest
 import omero
 import pytest

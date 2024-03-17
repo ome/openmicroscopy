@@ -8,12 +8,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import division
-from __future__ import print_function
 
-from builtins import str
-from builtins import range
-from past.utils import old_div
 import omero
 import omero.clients
 import pytest
@@ -1376,7 +1371,7 @@ class TestShow(IWebTest):
              {'type': 'project', 'id': project.id.val},
              {'type': 'dataset', 'childIndex': imgIndex,
               'id': dataset.id.val,
-              'childPage': (old_div(imgIndex, page_size)) + 1,
+              'childPage': (imgIndex // page_size) + 1,
               'childCount': len(iids)},
              {'type': 'image', 'id': iid}]]
         assert paths == expected
@@ -1397,7 +1392,7 @@ class TestShow(IWebTest):
             [{'type': 'experimenter', 'id': ownerId},
              {'type': 'orphaned', 'id': ownerId,
               'childIndex': imgIndex,
-              'childPage': (old_div(imgIndex, page_size)) + 1,
+              'childPage': (imgIndex // page_size) + 1,
               'childCount': len(iids)},
              {'type': 'image', 'id': iid}]]
         assert paths == expected

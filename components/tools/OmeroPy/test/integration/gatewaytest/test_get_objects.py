@@ -14,9 +14,6 @@
 
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
 import omero
 import uuid
 import pytest
@@ -32,11 +29,6 @@ from omero.model import DatasetI, \
     ScreenI, \
     WellI, \
     WellSampleI
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
 
 
 class TestDeleteObject (object):

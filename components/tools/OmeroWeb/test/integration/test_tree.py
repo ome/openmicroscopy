@@ -20,9 +20,7 @@
 """
 Simple integration tests for the "tree" module.
 """
-from __future__ import division
 
-from builtins import str
 import pytest
 from omero.testlib import ITest
 

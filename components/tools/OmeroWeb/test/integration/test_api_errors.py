@@ -19,7 +19,6 @@
 
 """Tests querying & editing Projects with webgateway json api."""
 
-from future.utils import native_str
 from omeroweb.testlib import IWebTest, post_json, put_json, get_json
 from django.urls import reverse
 from omeroweb.api import api_settings
@@ -125,13 +124,13 @@ class TestErrors(IWebTest):
         # Create project in group_A (default group)
         payload = {'Name': 'test_security_violation',
                    '@type': OME_SCHEMA_URL + '#Project'}
-        save_url_grp_A = save_url + '?group=' + native_str(group_A_id)
+        save_url_grp_A = save_url + '?group=' + str(group_A_id)
         rsp = post_json(django_client, save_url_grp_A, payload,
                         status_code=201)
         pr_json = rsp['data']
         projectId = pr_json['@id']
         # Try to save again into group B
-        save_url_grp_B = save_url + '?group=' + native_str(group_B_id)
+        save_url_grp_B = save_url + '?group=' + str(group_B_id)
         rsp = put_json(django_client, save_url_grp_B, pr_json, status_code=403)
         assert 'message' in rsp
         msg = "Cannot read ome.model.containers.Project:Id_%s" % projectId
@@ -147,7 +146,7 @@ class TestErrors(IWebTest):
         django_client = self.new_django_client(userName, userName)
         version = api_settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
-        save_url += '?group=' + native_str(group)
+        save_url += '?group=' + str(group)
 
         # Create Tag
         tag = TagAnnotationI()

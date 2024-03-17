@@ -23,11 +23,7 @@
    Integration test focused on the omero.api.IQuery interface.
 
 """
-from __future__ import print_function
-from __future__ import absolute_import
 
-from builtins import range
-from future.utils import native_str
 from omero.testlib import ITest
 from omero.rtypes import rstring
 from omero.rtypes import unwrap, wrap
@@ -54,7 +50,7 @@ class TestQuery(ITest):
                     * p.sizeZ * p.sizeT * p.sizeC)
                 from Pixels p group by p.pixelsType.value
                 """,
-                None, {"omero.group": native_str(group.id.val)})
+                None, {"omero.group": str(group.id.val)})
             rv = unwrap(rtypeseqseq)
             as_map = dict()
             for obj_array in rv:
@@ -116,7 +112,7 @@ class TestQuery(ITest):
             link.child = TagAnnotationI(lnk.child.id, False)
             rootLinks.append(link)
         rootUpdate.saveAndReturnArray(rootLinks, {'omero.group':
-                                                  native_str(groupId)})
+                                                  str(groupId)})
 
         q = """select distinct new map(obj.id as id,
                obj.name as name,
@@ -144,7 +140,7 @@ class TestQuery(ITest):
                 where alink.child.id=:tid and alink.parent.id=obj.id)"""
         query = q % uniqueClause
         result1 = queryService.projection(query, params,
-                                          {'omero.group': native_str(groupId)})
+                                          {'omero.group': str(groupId)})
         assert len(result1) == tagCount
 
         # Without the select statement, we get the same image returned
@@ -152,7 +148,7 @@ class TestQuery(ITest):
         clause = "alink.child.id=:tid"
         query = q % clause
         result2 = queryService.projection(query, params,
-                                          {'omero.group': native_str(groupId)})
+                                          {'omero.group': str(groupId)})
         assert len(result2) == tagCount
         for idx in range(len(result1)-1):
             # Omit final since == isn't defined for Ice objects.

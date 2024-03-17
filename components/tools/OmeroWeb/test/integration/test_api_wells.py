@@ -19,8 +19,6 @@
 
 """Tests querying Wells with web json api."""
 
-from builtins import zip
-from builtins import range
 from omeroweb.testlib import IWebTest, get_json
 from django.urls import reverse
 from omeroweb.api import api_settings

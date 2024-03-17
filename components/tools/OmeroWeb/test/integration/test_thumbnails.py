@@ -19,8 +19,6 @@
 
 """Tests rendering of thumbnails."""
 
-from future import standard_library
-from builtins import range
 import base64
 import json
 from omero.model import EllipseI, LengthI, LineI, \
@@ -37,7 +35,6 @@ try:
     from PIL import Image
 except Exception:
     import Image
-standard_library.install_aliases()
 
 
 def rgba_to_int(red, green, blue, alpha=255):

@@ -10,13 +10,7 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
-from __future__ import division
-from __future__ import print_function
 
-from future.utils import native_str
-from builtins import str
-from builtins import range
-from past.utils import old_div
 import numpy
 import struct
 import math
@@ -52,7 +46,7 @@ y = 200
 width = 100
 height = 50
 image = conn.getObject("Image", imageId)
-z = old_div(image.getSizeZ(), 2)
+z = image.getSizeZ() // 2
 t = 0
 
 
@@ -129,12 +123,12 @@ def create_mask(mask_bytes, bytes_per_pixel=1):
     else:
         message = "Format %s not supported"
         raise ValueError(message)
-    steps = math.ceil(old_div(len(mask_bytes), divider))
+    steps = math.ceil(len(mask_bytes) / divider)
     mask = []
     for i in range(int(steps)):
         binary = mask_bytes[
             i * int(divider):i * int(divider) + int(divider)]
-        format = native_str(int(byte_factor * len(binary))) + format_string
+        format = str(int(byte_factor * len(binary))) + format_string
         binary = struct.unpack(format, binary)
         s = ""
         for bit in binary:

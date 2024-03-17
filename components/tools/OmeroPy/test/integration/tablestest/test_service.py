@@ -23,15 +23,7 @@
    Test of the Tables service
 
 """
-from __future__ import print_function
-from future.utils import native_str
-from builtins import str
-from builtins import range
-try:
-    from omero_ext.path import path
-except ImportError:
-    # Python 2
-    from path import path
+from omero_ext.path import path
 import omero
 import omero.tables
 from omero.testlib import ITest
@@ -313,7 +305,7 @@ class TestTables(ITest):
 
         # Create a user in one group and a table.
         group1 = self.new_group()
-        gid1 = native_str(group1.id.val)
+        gid1 = str(group1.id.val)
         client = self.new_client(group1)
         admin = client.sf.getAdminService()
         sr = client.sf.sharedResources()

@@ -25,7 +25,6 @@
    etc/blitz/mail-server.example
 """
 
-from builtins import str
 from omero.testlib import ITest
 import omero
 

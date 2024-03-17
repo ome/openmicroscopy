@@ -23,7 +23,6 @@
 Basic tests for additions/changes to the 5.1 model.
 """
 
-from builtins import str
 from omero.testlib import ITest
 import pytest
 import omero

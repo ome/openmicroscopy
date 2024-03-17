@@ -27,9 +27,6 @@
 
 """
 
-from builtins import str
-from builtins import range
-from builtins import object
 import pytest
 
 from omero.model import ImageI, PixelsI, FilesetI, FilesetEntryI, \
@@ -37,11 +34,6 @@ from omero.model import ImageI, PixelsI, FilesetI, FilesetEntryI, \
     LongAnnotationI
 from omero.rtypes import rstring, rlong, rint, rtime
 from uuid import uuid4
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
 
 
 def uuid():

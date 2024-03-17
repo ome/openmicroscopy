@@ -24,7 +24,6 @@
    rendering a 'region' of big images.
 """
 
-from builtins import range
 import omero
 import logging
 from omero.testlib import ITest
@@ -37,12 +36,6 @@ except Exception:  # pragma: nocover
         import Image  # see ticket:2597
     except Exception:
         logging.error('No Pillow installed')
-
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
 
 
 from numpy import asarray, array_equal

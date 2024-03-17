@@ -9,8 +9,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from builtins import str
-from builtins import range
 import time
 from omero.testlib import ITest
 import pytest
@@ -20,12 +18,6 @@ from omero_model_DatasetI import DatasetI
 from omero_model_ProjectI import ProjectI
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
-
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
 
 
 class TestTickets2000(ITest):

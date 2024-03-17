@@ -23,7 +23,6 @@
     Specifically test the parseInputs functionality
     which all scripts might want to use.
 """
-from __future__ import print_function
 
 from omero.testlib import ITest
 import omero
@@ -37,7 +36,6 @@ SENDFILE = """
 # Setup to run as an integration test
 import os
 import sys
-from past.builtins import long
 
 import omero.scripts as s
 import omero.util.script_utils as su
@@ -62,7 +60,7 @@ for method, inputs in (
         raise Exception("Failed!")
 
     a = inputs["a"]
-    if not isinstance(a, (int, long)):
+    if not isinstance(a, int):
         raise Exception("Failed!")
 
     b = inputs.get("b")

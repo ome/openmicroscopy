@@ -18,10 +18,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from __future__ import division
-from __future__ import print_function
-from builtins import str
-from past.utils import old_div
 from omero.cli import NonZeroReturnCode
 from omero.testlib.cli import CLITest
 from omero.plugins.sessions import SessionsControl
@@ -29,13 +25,8 @@ import sys
 import re
 import subprocess
 
-try:
-    plugin = __import__('omero.plugins.import', globals(), locals(),
-                        ['ImportControl'], -1)
-except ValueError:
-    # Python 3
-    plugin = __import__('omero.plugins.import', globals(), locals(),
-                        ['ImportControl'], 0)
+plugin = __import__('omero.plugins.import', globals(), locals(),
+                    ['ImportControl'], 0)
 ImportControl = plugin.ImportControl
 
 
@@ -127,8 +118,7 @@ path: test.tsv
         script = tmpdir.join("script1.sh")
 
         self.args += ["import", "-f", "--bulk", str(yml),
-                      "--clientdir", old_div(old_div(self.omero_dist, "lib"),
-                                             "client")]
+                      "--clientdir", self.omero_dist / "lib" / "client"]
 
         monkeypatch.setattr(sys, "argv", ["omero"])
         out, err = self.do_import(capfd)

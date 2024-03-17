@@ -8,23 +8,13 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from __future__ import division
 
-from builtins import hex
-from builtins import range
-from past.utils import old_div
 import omero
 import threading
 from omero.testlib import ITest
-import pytest
 from omero.util.tiles import TileLoopIteration
 from omero.util.tiles import RPSTileLoop
 
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
 
 __import__("sys")
 
@@ -38,12 +28,7 @@ class TestRPS(ITest):
         try:
             rps.setPixelsId(pix.id.val, True)
             md = rps.calculateMessageDigest()
-            try:
-                # python 3
-                sha1 = format(int.from_bytes(md, 'big'), 'x')
-            except Exception:
-                # python 2
-                sha1 = hex(int(md.encode('hex'), 16))[2:]
+            sha1 = format(int.from_bytes(md, 'big'), 'x')
             sha1 = sha1.rjust(40, "0")
             assert sha1 == pix.sha1.val
         finally:
@@ -124,7 +109,7 @@ class TestRPS(ITest):
                     success = True
                 except omero.MissingPyramidException as mpm:
                     assert int(pix) == mpm.pixelsID
-                    backOff = old_div(mpm.backOff, 1000)
+                    backOff = mpm.backOff / 1000
                     event = concurrency.get_event("testRomio")
                     event.wait(backOff)  # seconds
                 i -= 1
@@ -159,7 +144,7 @@ class TestRPS(ITest):
                     success = True
                 except omero.MissingPyramidException as mpm:
                     assert int(pix) == mpm.pixelsID
-                    backOff = old_div(mpm.backOff, 1000)
+                    backOff = mpm.backOff / 1000
                     event = concurrency.get_event("testRomio")
                     event.wait(backOff)  # seconds
                 i -= 1
@@ -193,7 +178,7 @@ class TestRPS(ITest):
                     success = True
                 except omero.MissingPyramidException as mpm:
                     assert int(pix) == mpm.pixelsID
-                    backOff = old_div(mpm.backOff, 1000)
+                    backOff = mpm.backOff / 1000
                     event = concurrency.get_event("testRomio")
                     event.wait(backOff)  # seconds
                 i -= 1
@@ -239,8 +224,6 @@ class TestRPS(ITest):
 
 class TestTiles(ITest):
 
-    @pytest.mark.skipif("sys.version_info < (2,7)",
-                        reason="This fails with Python < 2.7 and Ice >= 3.5")
     def testTiles(self):
         from omero.model import PixelsI
         from omero.sys import ParametersI
@@ -278,7 +261,7 @@ class TestTiles(ITest):
             """
             create some fake pixel data tile (2D numpy array)
             """
-            return old_div((x * y), (1 + x + y))
+            return (x * y) // (1 + x + y)
 
         def mktile(w, h):
             tile = fromfunction(f, (w, h))

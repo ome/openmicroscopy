@@ -12,15 +12,22 @@ jobs:
         build_bf: [false]
         build_zarr: [false]
         build_snapshot: [false]
+        python-version:
+          - '3.10'
+          - '3.11'
+          - '3.12'
     name: Build OMERO from source
     runs-on: ubuntu-22.04
     env:
       ICE_HOME: /opt/ice-3.6.5
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+            python-version: ${{ matrix.python-version }}
       - name: Install Ice and Ice python binding
         if: matrix.build_snapshot
-        uses: ome/action-ice@v3
+        uses: jburel/action-ice@v3
       - name: Set up Gradle 6.8.3
         if: matrix.build_snapshot
         uses: gradle/gradle-build-action@v2
@@ -30,7 +37,7 @@ jobs:
           build-root-directory: components/tools/OmeroJava # required by the action to have a *.gradle file"
       - name: Install and run flake8
         run: |
-          pip install flake8
+          pip install flake8 'setuptools<69'
           flake8 .
       - name: install dependencies
         run: |

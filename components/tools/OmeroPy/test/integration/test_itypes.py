@@ -9,7 +9,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from builtins import str
 from omero.testlib import ITest
 
 from omero.rtypes import rstring

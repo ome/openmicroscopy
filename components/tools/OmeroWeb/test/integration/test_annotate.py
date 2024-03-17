@@ -21,7 +21,6 @@
 Tests adding & removing annotations
 """
 
-from builtins import str
 import pytest
 import omero
 import omero.clients

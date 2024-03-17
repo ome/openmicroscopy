@@ -10,12 +10,7 @@
 """
 FOR TRAINING PURPOSES ONLY!
 """
-from __future__ import division
-from __future__ import print_function
 
-from future import standard_library
-from builtins import range
-from past.utils import old_div
 from omero.gateway import BlitzGateway
 from io import BytesIO
 try:
@@ -24,7 +19,6 @@ except ImportError:
     import Image
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT, imageId
 
-standard_library.install_aliases()
 """
 start-code
 """
@@ -73,7 +67,7 @@ for rdef in image.getAllRenderingDefs():
 # =================================================
 image.setGreyscaleRenderingModel()
 size_c = image.getSizeC()
-z = old_div(image.getSizeZ(), 2)
+z = image.getSizeZ() // 2
 t = 0
 for c in range(1, size_c + 1):       # Channel index starts at 1
     channels = [c]                  # Turn on a single channel at a time

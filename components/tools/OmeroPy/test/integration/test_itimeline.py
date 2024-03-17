@@ -9,19 +9,12 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from builtins import range
 import time
 import pytest
 from omero.testlib import ITest
 import omero
 
 from omero.rtypes import rint, rlong, rstring, rtime
-
-try:
-    int
-except Exception:
-    # Python 3
-    long = int
 
 
 class TestITimeline(ITest):

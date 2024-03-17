@@ -21,8 +21,6 @@
 Tests creation and deletion of links between e.g. Projects & Datasets etc.
 """
 
-from builtins import str
-from builtins import range
 import omero
 
 from omero.rtypes import rstring
