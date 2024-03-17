@@ -238,6 +238,7 @@ def expected_annotations(user, links):
             'owner': {
                 'id': ann.details.owner.id.val
             },
+            'name': unwrap(ann.name),
             'ns': unwrap(ann.ns),
             'description': unwrap(ann.description),
             'id': ann.id.val,
