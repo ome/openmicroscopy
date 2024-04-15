@@ -37,20 +37,20 @@
 		</echo>
 		<mkdir dir="target/lib/server"/>
 		<!-- Look for file above src -->
-		<property name="filegz" value="../../../omero-scripts-${versions.omero-scripts}.tar.gz" />
+		<property name="filegz" value="../../../omero_scripts-${versions.omero-scripts}.tar.gz" />
 		<if>
 			<available file="${filegz}"/>
             <then>
                <copy file="${filegz}" todir="target/downloads/scripts"/>
             </then>
 			<else>
-		        <download pkg="omero-scripts" file="omero-scripts-${versions.omero-scripts}.tar.gz" expected="${versions.omero-scripts-md5}"
+		        <download pkg="omero-scripts" file="omero_scripts-${versions.omero-scripts}.tar.gz" expected="${versions.omero-scripts-md5}"
 			where="target/downloads/scripts"/>
 		    </else>
 		</if>
-		<untar src="target/downloads/scripts/omero-scripts-${versions.omero-scripts}.tar.gz" dest="target/downloads/scripts" compression="gzip"/>
+		<untar src="target/downloads/scripts/omero_scripts-${versions.omero-scripts}.tar.gz" dest="target/downloads/scripts" compression="gzip"/>
 		<copy todir="target/lib/scripts">
-			<fileset dir="target/downloads/scripts/omero-scripts-${versions.omero-scripts}" includes="omero/**/*,README*"/>
+			<fileset dir="target/downloads/scripts/omero_scripts-${versions.omero-scripts}" includes="omero/**/*,README*"/>
 		</copy>
 		<copy todir="${dist.dir}">
 			<fileset dir="target" includes="*.war,var/**/*,etc/**/*,lib/**/*,include/**/*" followsymlinks="false">
