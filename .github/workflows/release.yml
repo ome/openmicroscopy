@@ -14,7 +14,7 @@ jobs:
         run: |
           tag_name="${GITHUB_REF##*/}"
           tag_name=$(grep -o '[0-9].*' <<< $tag_name)
-          tag_value="${tag_name}-ice36"
+          tag_value="${tag_name}"
           echo "omero.version=$tag_value" >> etc/local.properties
       - name: Build and package
         run: ./build.py build-dev release-all release-src
