@@ -61,7 +61,8 @@ if __name__ == "__main__":
     vcs_date = sys.argv[6]
     vcs_date_unix = sys.argv[7]
     target = os.path.abspath(sys.argv[8])
-    release = "%s-%s" % (release, version)
+    if release != "openmicroscopy":
+        release = "%s-%s" % (release, version)
 
     if not os.path.isdir('.git'):
         raise Exception('Releasing is only possible from a git repository')
