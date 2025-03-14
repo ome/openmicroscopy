@@ -6,6 +6,25 @@ OMERO version history
 =====================
 
 
+5.6.15 (March 2025)
+-------------------
+
+This release includes the following upgrade of the OMERO.server Java components:
+
+- omero-blitz 5.8.2
+- omero-common 5.7.2
+- omero-gateway-java 5.10.2
+- omero-model 5.7.2
+- omero-server 5.7.2
+- omero-render 5.6.2
+- omero-romio 5.8.2
+
+Improvements include:
+
+- Replace usage of Java Util Logging (JUL) by SLF4J
+- Include latest Bio-Formats version 8.1.1
+
+
 5.6.14 (November 2024)
 ----------------------
 
