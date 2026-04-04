@@ -46,7 +46,7 @@ import omero.model.OriginalFile;
 import omero.model.FileAnnotation;
 import omero.sys.ParametersI;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class TablesFacilityTest extends GatewayTest {
@@ -73,7 +73,7 @@ public class TablesFacilityTest extends GatewayTest {
     private final String ns = "some Namespace";
 
     @Override
-    @BeforeClass(alwaysRun = true)
+    @BeforeMethod(alwaysRun = true)
     protected void setUp() throws Exception {
         super.setUp();
 
