@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import re
 
 # Copyright (C) 2020 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
@@ -18,7 +19,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import pytest
+from _pytest import fixtures
 from django.http import HttpRequest, HttpResponse
+from django.test import override_settings
 
 from omero import ApiUsageException
 from omeroweb.testlib import IWebTest
@@ -61,3 +64,58 @@ class TestShow(IWebTest):
         # Exception when unexpected return of ConnCleaningHttpResponse
         with pytest.raises(ApiUsageException):
             streaming_not_expected(request, streaming_response=True)
+
+
+class TestPublicUrlFilter(IWebTest):
+
+    PUBLIC = dict(
+        PUBLIC_ENABLED = True,
+        PUBLIC_USER = 'user',
+        PUBLIC_PASSWORD = 'pwd',
+    )
+
+    def request(self, method='GET', path='/'):
+        request = HttpRequest()
+        request.session = self.django_client.session
+        request.session["server_settings"] = {}
+        request.method = method
+        request.path = path
+        return request
+
+    @staticmethod
+    def success(request):
+        decorator = login_required()
+        assert decorator.is_valid_public_url(1, request) == True
+
+    @staticmethod
+    def fail(request):
+        decorator = login_required()
+        assert decorator.is_valid_public_url(1, request) == False
+
+    def test_public_unconfigured(self):
+        self.fail(self.request())
+
+    @override_settings(
+        **PUBLIC,
+    )
+    def test_public_enabled(self):
+        self.fail(self.request())
+
+    @override_settings(
+        PUBLIC_URL_FILTER=re.compile(r'^/$'),
+        PUBLIC_GET_ONLY=False,
+        **PUBLIC,
+    )
+    def test_public_url_filter(self):
+        self.success(self.request())
+        self.fail(self.request(path='/test'))
+        self.success(self.request(method='POST'))
+
+    @override_settings(
+        PUBLIC_URL_FILTER=re.compile(r'^/$'),
+        **PUBLIC,
+    )
+    def test_public_url_filter_get_only(self):
+        self.success(self.request())
+        self.fail(self.request(path='/test'))
+        self.fail(self.request(method='POST'))
