@@ -106,7 +106,7 @@ class TestPublicUrlFilter(IWebTest):
         PUBLIC_GET_ONLY=False,
         **PUBLIC,
     )
-    def test_public_url_filter(self):
+    def test_public_url_filter_any_method(self):
         self.success(self.request())
         self.fail(self.request(path='/test'))
         self.success(self.request(method='POST'))
@@ -116,6 +116,29 @@ class TestPublicUrlFilter(IWebTest):
         **PUBLIC,
     )
     def test_public_url_filter_get_only(self):
+        self.success(self.request())
+        self.fail(self.request(path='/test'))
+        self.fail(self.request(method='POST'))
+
+    @override_settings(
+        PUBLIC_URL_FILTER_BY_METHOD=dict(
+            POST=re.compile(r'^/test$'),
+        ),
+        **PUBLIC,
+    )
+    def test_public_url_filter_post(self):
+        self.success(self.request(path='/test', method='POST'))
+        self.fail(self.request(path='/test', method='OPTIONS'))
+        self.fail(self.request(path='/test'))
+        self.fail(self.request(method='POST'))
+
+    @override_settings(
+        PUBLIC_URL_FILTER_BY_METHOD=dict(
+            GET=re.compile(r'^/$'),
+        ),
+        **PUBLIC,
+    )
+    def test_public_url_filter_get_with_new_setting(self):
         self.success(self.request())
         self.fail(self.request(path='/test'))
         self.fail(self.request(method='POST'))
