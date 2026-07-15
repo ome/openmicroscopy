@@ -101,28 +101,40 @@ class TestRemovePyramidsFullAdmin(CLITest):
         id = int(float(pixels))
         # wait for the pyramid to be generated
         self.wait_for_pyramid(id)
+
         query_service = self.client.sf.getQueryService()
         pixels_service = self.client.sf.getPixelsService()
+        # new query prevents the UnloadedEntityException
+        # during orig_pix.copyChannels() on NFS
         orig_pix = query_service.findByQuery(
-            "select p from Pixels p where p.id = :id",
+            "select distinct p "
+            "from Pixels p "
+            "left join fetch p.channels c "
+            "left join fetch c.statsInfo "
+            "where p.id = :id",
             ParametersI().addId(id))
         orig_fs = query_service.findByQuery(
             "select f from Image i join i.fileset f where i.id = :id",
             ParametersI().addId(orig_pix.image.id.val))
 
         try:
+            # the change of copyStats=True
+            # to copyStats=False prevents crash
+            # on NFS as the Stats are not created
+            # in time after import
             new_img = pixels_service.copyAndResizeImage(
                 orig_pix.image.id.val, rint(4000), rint(4000), rint(1),
-                rint(1), [0], None, True).val
+                rint(1), [0], None, False).val
             pix_id = unwrap(query_service.projection(
                 "select p.id from Image i join i.pixels p where i.id = :id",
                 ParametersI().addId(new_img)))[0][0]
-            # This won't work but it but we then have a pyramid without fileset
-            self.copyPixels(orig_pix, PixelsI(pix_id, False))
-        except omero.InternalException:
+        except omero.InternalException as e:
             print("Cannot copy pixels for image %s" % orig_pix.image.id.val)
+            print(e)
+            raise
         finally:
             self.delete([orig_fs])
+
         return pix_id
 
     def copyPixels(self, orig_pix, new_pix):
