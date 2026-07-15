@@ -22,7 +22,6 @@
 
 from omero.testlib.cli import CLITest
 from omero.cli import NonZeroReturnCode
-from omero.model import PixelsI
 from omero.rtypes import rint
 from omero.rtypes import unwrap
 from omero.sys import ParametersI
