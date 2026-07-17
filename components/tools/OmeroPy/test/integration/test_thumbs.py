@@ -180,6 +180,7 @@ class TestThumbs(ITest):
             assert tb.thumbnailExists(i64, i64)
             assert not tb.isInProgress()
         elif meth == "set":
+            self.wait_for_pyramid_file(pix)
             tb.getThumbnailSet(i64, i64, [int(pix)])
         assert get().version.val >= 0
 
