@@ -168,6 +168,8 @@ class TestThumbs(ITest):
             # the pyramid is generated.
             tb.close()
             tb = self.client.sf.createThumbnailStore()
+            # Wait for pyramid gen - slower on NFS
+            # and needs a check via FS.
             self.wait_for_pyramid_file(pix)
             if not tb.setPixelsId(int(pix)):
                 tb.resetDefaults()
