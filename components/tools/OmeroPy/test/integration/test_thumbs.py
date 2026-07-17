@@ -106,8 +106,6 @@ class TestThumbs(ITest):
             f"Timed out waiting for pyramid file {expected}"
         )
 
-
-
     @pytest.mark.parametrize("meth", ("one", "set",))
     def testThumbnailVersion(self, meth):
 
