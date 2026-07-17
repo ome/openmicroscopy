@@ -11,6 +11,8 @@
 
 from omero.testlib import ITest
 import pytest
+import time
+import os
 
 from omero import MissingPyramidException
 from omero.sys import ParametersI
@@ -86,6 +88,26 @@ class TestThumbs(ITest):
         finally:
             tb.close()
 
+    def wait_for_pyramid_file(self, pixels_id, timeout=120):
+        pixels_dir = (
+            "/home/omero/workspace/"
+            "OMERO-test-integration/data/Pixels"
+        )
+        expected = f"{pixels_id}_pyramid"
+
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            for root, _, files in os.walk(pixels_dir):
+                if expected in files:
+                    return
+            time.sleep(1)
+
+        pytest.fail(
+            f"Timed out waiting for pyramid file {expected}"
+        )
+
+
+
     @pytest.mark.parametrize("meth", ("one", "set",))
     def testThumbnailVersion(self, meth):
 
@@ -146,9 +168,11 @@ class TestThumbs(ITest):
             # the pyramid is generated.
             tb.close()
             tb = self.client.sf.createThumbnailStore()
+            self.wait_for_pyramid_file(pix)
             if not tb.setPixelsId(int(pix)):
                 tb.resetDefaults()
                 tb.close()
+
                 tb = self.client.sf.createThumbnailStore()
                 assert tb.setPixelsId(int(pix))
             after = tb.getThumbnail(i64, i64)
