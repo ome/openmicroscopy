@@ -301,28 +301,48 @@ class TestRemovePyramidsFullAdmin(CLITest):
             ParametersI().addId(img_id))
         tb = self.client.sf.createThumbnailStore()
         id = pix.id.val
+
+        # Wait until the initial pyramid has been created
+        # so the first thumbnail
+        # request returns the real thumbnail
+        # rather than the clock placeholder.
+        self.wait_for_pyramid_file(id)
+
         thumb_hash = None
         try:
-            thumbs = tb.getThumbnailByLongestSideSet(rint(64), [id],
-                                                     {'omero.group': '-1'})
+            thumbs = tb.getThumbnailByLongestSideSet(
+                rint(64), [id], {'omero.group': '-1'})
             assert len(thumbs) == 1
             thumb_hash = self.calculate_sha1(thumbs[id])
+
             # remove the pyramid and the thumbnail
             self.args += ["--endian=big"]
             self.cli.invoke(self.args, strict=True)
             out, err = capsys.readouterr()
-            thumbs = tb.getThumbnailByLongestSideSet(rint(64), [id],
-                                                     {'omero.group': '-1'})
-            assert len(thumbs) == 1
-            # The clock should be returned during the pyramid generation
-            digest = self.calculate_sha1(thumbs[id])
+            digest = None
+            # Wait until the thumb
+            # is removed.
+            # This takes longer on NFS.
+            for attempt in range(30):
+                thumbs = tb.getThumbnailByLongestSideSet(
+                    rint(64), [id], {'omero.group': '-1'})
+                assert len(thumbs) == 1
+
+                digest = self.calculate_sha1(thumbs[id])
+
+                if digest != thumb_hash:
+                    break
+
+                time.sleep(1)
+
             assert digest != thumb_hash
             # The pyramid generation has now been triggered.
-            self.wait_for_pyramid(id)
-            thumbs = tb.getThumbnailByLongestSideSet(rint(64), [id],
-                                                     {'omero.group': '-1'})
+            self.wait_for_pyramid_file(id)
+            thumbs = tb.getThumbnailByLongestSideSet(
+                rint(64), [id], {'omero.group': '-1'}
+            )
             digest = self.calculate_sha1(thumbs[id])
-            # The thumbnail should now be back
+            # The thumbnail now should be back
             assert digest == thumb_hash
         finally:
             tb.close()
