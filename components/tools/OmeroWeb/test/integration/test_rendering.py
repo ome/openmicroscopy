@@ -552,6 +552,9 @@ class TestRenderImageRegion(IWebTest):
         """
         image_id = self.import_pyramid(tmpdir, client=self.client)
 
+        # Wait until the pyramid is renderable
+        self.wait_until_renderable(image_id)
+
         request_url = reverse(
             'webgateway_render_image_region',
             kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
@@ -598,6 +601,8 @@ class TestRenderImageRegion(IWebTest):
         resolution. Resolution changes is supported in that case.
         """
         image_id = self.import_pyramid(tmpdir, client=self.client)
+        # Wait until the pyramid is renderable
+        self.wait_until_renderable(image_id)
         conn = omero.gateway.BlitzGateway(client_obj=self.client)
         image = conn.getObject("Image", image_id)
         image._prepareRenderingEngine()
