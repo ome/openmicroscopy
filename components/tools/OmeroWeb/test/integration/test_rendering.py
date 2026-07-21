@@ -25,6 +25,7 @@ import json
 import omero
 import omero.clients
 import time
+import pytest
 
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import post, get
@@ -453,7 +454,6 @@ class TestRenderImageRegion(IWebTest):
         finally:
             self.assert_no_leaked_rendering_engines()
 
-
     def wait_until_renderable(self, image_id, timeout=60):
         django_client = self.new_django_client_from_session_id(
             self.client.getSessionId()
@@ -498,7 +498,6 @@ class TestRenderImageRegion(IWebTest):
         try:
             data['tile'] = '0,0,0,512,512'
             response = get(django_client, request_url, data)
-
 
             if response.status_code != 200:
                 print(response.status_code)
