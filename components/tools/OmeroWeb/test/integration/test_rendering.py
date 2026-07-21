@@ -24,6 +24,7 @@ Tests copying and pasting of rendering settings in webclient
 import json
 import omero
 import omero.clients
+import time
 
 from omeroweb.testlib import IWebTest
 from omeroweb.testlib import post, get
@@ -452,12 +453,39 @@ class TestRenderImageRegion(IWebTest):
         finally:
             self.assert_no_leaked_rendering_engines()
 
+
+    def wait_until_renderable(self, image_id, timeout=60):
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+
+        request_url = reverse(
+            "webgateway_render_image_region",
+            kwargs={"iid": str(image_id), "z": "0", "t": "0"},
+        )
+
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            response = django_client.get(
+                request_url,
+                {"tile": "0,0,0,512,512"},
+            )
+        if response.status_code == 200:
+            return
+
+            time.sleep(1)
+
+        pytest.fail("Timed out waiting for image to become renderable")
+
     def test_render_image_region_tile_params_big_image(self, tmpdir):
         """
         Tests the retrieval of pyramid image at different
         resolution. Resolution changes is supported in that case.
         """
         image_id = self.import_pyramid(tmpdir, client=self.client)
+
+        # Wait until the pyramid is renderable
+        self.wait_until_renderable(image_id)
 
         request_url = reverse(
             'webgateway_render_image_region',
@@ -470,6 +498,13 @@ class TestRenderImageRegion(IWebTest):
         try:
             data['tile'] = '0,0,0,512,512'
             response = get(django_client, request_url, data)
+
+
+            if response.status_code != 200:
+                print(response.status_code)
+                print(response.content.decode(errors="replace"))
+
+            assert response.status_code == 200
             tile_content = response.content
             tile = Image.open(BytesIO(tile_content))
             assert tile.size == (512, 512)
