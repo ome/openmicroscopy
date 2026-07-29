@@ -38,6 +38,17 @@ class TestThumbs(ITest):
         assert unwrap(x) == thumb.size[0]
         assert unwrap(y) == thumb.size[1]
 
+    def delete_pyramid(self, image_id):
+        req = omero.cmd.ManageImageBinaries()
+        req.imageId = image_id
+        req.deletePyramid = True
+
+        cb = self.client.submit(req)
+        try:
+            return cb.getResponse()
+        finally:
+            cb.close(True)
+
     #
     # MissingPyramid tests
     #
@@ -92,7 +103,30 @@ class TestThumbs(ITest):
         assert meth in ("one", "set")
         i64 = rint(64)
 
-        pix = self.missing_pyramid()
+        # Import a fake image with an existing pyramid
+        images = self.import_fake_file(
+            client=self.client,
+            sizeX=4000,
+            sizeY=4000,
+            resolutions=5,
+        )
+
+        image_id = images[0].id.val
+
+        query_service = self.client.sf.getQueryService()
+        pixels = query_service.findByQuery(
+            "select p from Pixels p where p.image.id = :id",
+            ParametersI().addId(image_id)
+        )
+
+        pixels_id = pixels.id.val
+
+        # Remove the pyramid
+        self.delete_pyramid(image_id)
+
+        # Use the pixels id from here on, matching the old helper
+        pix = str(pixels_id)
+
         q = ("select tb from Thumbnail tb "
              "where tb.pixels.id = %s "
              "order by tb.id desc ")
