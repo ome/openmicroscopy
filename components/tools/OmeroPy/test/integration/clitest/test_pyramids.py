@@ -35,7 +35,13 @@ import hashlib
 
 
 class TestRemovePyramids(CLITest):
+    """
+    Tests for the `admin removepyramids` CLI command.
 
+    These tests exercise removal of OMERO-managed pyramid binaries created
+    by the PixelData service, but only the permissions of the command,
+    and thus can be run without the PixelData service.
+    """
     def setup_method(self, method):
         super(TestRemovePyramids, self).setup_method(method)
         self.cli.register("admin", omero.plugins.admin.AdminControl, "TEST")
@@ -50,7 +56,13 @@ class TestRemovePyramids(CLITest):
 
 
 class TestRemovePyramidsRestrictedAdmin(CLITest):
+    """
+    Tests for the `admin removepyramids` CLI command.
 
+    These tests exercise removal of OMERO-managed pyramid binaries created
+    by the PixelData service, but only the permissions of the command,
+    and thus can be run without the PixelData service.
+    """
     # make the user in this test a member of system group
     DEFAULT_SYSTEM = True
     # make the new member of system group to a Restricted
@@ -72,7 +84,14 @@ class TestRemovePyramidsRestrictedAdmin(CLITest):
 
 
 class TestRemovePyramidsFullAdmin(CLITest):
+    """
+    Tests for the `admin removepyramids` CLI command.
 
+    These tests exercise removal of OMERO-managed pyramid binaries created
+    by the PixelData service under the managed repository (/OMERO/Pixels).
+    They do not apply to images whose pyramid data is part of the original
+    imported file and is therefore not removed by OMERO.
+    """
     # make the user in this test a member of system group
     DEFAULT_SYSTEM = True
     # make the new member of system group to a Full Admin
