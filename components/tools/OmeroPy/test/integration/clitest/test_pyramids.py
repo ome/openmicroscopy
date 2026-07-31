@@ -157,8 +157,15 @@ class TestRemovePyramidsFullAdmin(CLITest):
             orig_source.close()
             new_sink.close()
 
+    @pytest.mark.skipif(
+        "JENKINS_MASTER" in os.environ,
+        reason=(
+            "Disabled on Jenkins: requires the PixelData service "
+            "to provide OMERO-managed pyramids."
+        ),
+    )
     def test_remove_pyramids_little_endian(self, tmpdir, capsys):
-        """Test removepyramids with litlle endian true"""
+        """Test removepyramids with little endian true"""
         img_id = self.import_pyramid(tmpdir)
         self.args += ["--endian=little"]
         self.cli.invoke(self.args, strict=True)
@@ -166,6 +173,13 @@ class TestRemovePyramidsFullAdmin(CLITest):
         output_start = "Pyramid removed for image %s" % img_id
         assert output_start in out
 
+    @pytest.mark.skipif(
+        "JENKINS_MASTER" in os.environ,
+        reason=(
+            "Disabled on Jenkins: requires the PixelData service "
+            "to provide OMERO-managed pyramids."
+        ),
+    )
     def test_remove_pyramids_imported_after_future(self, tmpdir, capsys):
         """Test removepyramids with date in future"""
         self.import_pyramid(tmpdir)
@@ -178,6 +192,13 @@ class TestRemovePyramidsFullAdmin(CLITest):
         output_start = "No pyramids to remove"
         assert output_start in out
 
+    @pytest.mark.skipif(
+        "JENKINS_MASTER" in os.environ,
+        reason=(
+            "Disabled on Jenkins: requires the PixelData service "
+            "to provide OMERO-managed pyramids."
+        ),
+    )
     def test_remove_pyramids_limit(self, tmpdir, capsys):
         """Test removepyramids with date in future"""
         self.import_pyramid(tmpdir, skip=None)
@@ -188,6 +209,13 @@ class TestRemovePyramidsFullAdmin(CLITest):
         output_start = "No more than 1 pyramids will be removed"
         assert output_start in out
 
+    @pytest.mark.skipif(
+        "JENKINS_MASTER" in os.environ,
+        reason=(
+            "Disabled on Jenkins: requires the PixelData service "
+            "to provide OMERO-managed pyramids."
+        ),
+    )
     def test_remove_pyramids_not_valid_limit(self, tmpdir, capsys):
         """Test removepyramids with date in future"""
         self.import_pyramid(tmpdir, skip=None)
@@ -214,6 +242,13 @@ class TestRemovePyramidsFullAdmin(CLITest):
         output_start = "No pyramids to remove"
         assert output_start in out
 
+    @pytest.mark.skipif(
+        "JENKINS_MASTER" in os.environ,
+        reason=(
+            "Disabled on Jenkins: requires the PixelData service "
+            "to provide OMERO-managed pyramids."
+        ),
+    )
     def test_remove__pre_fs_pyramids(self, tmpdir, capsys):
         """Test removepyramids for pre-fs data"""
         self.import_pyramid_pre_fs(tmpdir)
@@ -224,8 +259,15 @@ class TestRemovePyramidsFullAdmin(CLITest):
         assert output_start in out
         assert reason in out
 
+    @pytest.mark.skipif(
+        "JENKINS_MASTER" in os.environ,
+        reason=(
+            "Disabled on Jenkins: requires the PixelData service "
+            "to provide OMERO-managed pyramids."
+        ),
+    )
     def test_remove_pyramids_big_endian(self, tmpdir, capsys):
-        """Test removepyramids with litlle endian true"""
+        """Test removepyramids with little endian true"""
         name = "big&sizeX=3500&sizeY=3500&little=false.fake"
         img_id = self.import_pyramid(tmpdir, name=name, skip=None)
         self.args += ["--endian=big"]
@@ -234,8 +276,15 @@ class TestRemovePyramidsFullAdmin(CLITest):
         output_start = "Pyramid removed for image %s" % img_id
         assert output_start in out
 
+    @pytest.mark.skipif(
+        "JENKINS_MASTER" in os.environ,
+        reason=(
+            "Disabled on Jenkins: requires the PixelData service "
+            "to provide OMERO-managed pyramids."
+        ),
+    )
     def test_remove_pyramids(self, tmpdir, capsys):
-        """Test removepyramids with litlle endian true"""
+        """Test removepyramids with little endian true"""
         name = "big&sizeX=3500&sizeY=3500&little=false.fake"
         big_id = self.import_pyramid(tmpdir, name=name, skip=None)
         name = "little&sizeX=3500&sizeY=3500&little=true.fake"
@@ -247,6 +296,13 @@ class TestRemovePyramidsFullAdmin(CLITest):
         output_start = "Pyramid removed for image %s" % little_id
         assert output_start in out
 
+    @pytest.mark.skipif(
+        "JENKINS_MASTER" in os.environ,
+        reason=(
+            "Disabled on Jenkins: requires the PixelData service "
+            "to provide OMERO-managed pyramids."
+        ),
+    )
     def test_remove_pyramids_check_thumbnails(self, tmpdir, capsys):
         """Test check that the thumbnail is correctly created"""
         name = "big&sizeX=3500&sizeY=3500&little=false.fake"
