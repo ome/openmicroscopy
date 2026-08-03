@@ -19,7 +19,17 @@ from omero.rtypes import rint, unwrap
 
 
 class TestThumbs(ITest):
-
+    """
+    The tests here are dealing with
+    missing pyramids situation. The pyramids
+    are missing until either generated in the
+    testThumbnailVersion by OMERO, or are never
+    generated if the PixelData service is disabled.
+    The tests before testThumbnailVersion
+    are testing that the ThumbnailStore API behaves sensibly
+    before a pyramid exists. It makes sense to retain these
+    even when PixelData service is disabled.
+    """
     @classmethod
     def open_jpeg_buffer(cls, buf):
         try:
@@ -86,6 +96,13 @@ class TestThumbs(ITest):
         finally:
             tb.close()
 
+    @pytest.mark.skipif(
+        "JENKINS_MASTER" in os.environ,
+        reason=(
+            "Disabled on Jenkins: requires the PixelData service "
+            "to provide OMERO-managed pyramids."
+        ),
+    )
     @pytest.mark.parametrize("meth", ("one", "set",))
     def testThumbnailVersion(self, meth):
         """
