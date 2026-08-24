@@ -82,6 +82,9 @@ import org.testng.Assert;
  */
 public class RenderingEngineTest extends AbstractServerTest {
 
+    /** The OME-TIFF format. */
+    private static final String OME_TIFF = "ome.tiff";
+
     /** The red mask. */
     private static final int RED_MASK = 0x00ff0000;
 
@@ -118,13 +121,11 @@ public class RenderingEngineTest extends AbstractServerTest {
             boolean preload) throws Exception {
         EventContext ctx = newUserAndGroup(permissions);
         // Import the image
-        File f = File.createTempFile("saveRenderingSettings", "." + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -335,14 +336,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testCreateRenderingEngine() throws Exception {
-        File f = File.createTempFile("testCreateRenderingEngine", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -367,14 +365,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderingEngineGetters() throws Exception {
-        File f = File.createTempFile("testRenderingEngineGetters", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -443,14 +438,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderingEngineSetters() throws Exception {
-        File file = File.createTempFile("testRenderingEngineSetters", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(file, xml.createImage(), true);
+        File file = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(file, OME_FORMAT);
+            pixels = importFile(file, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -541,14 +533,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testResetDefaultsNoSave() throws Exception {
-        File f = File.createTempFile("testResetDefaultsNoSave", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -588,13 +577,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testResetDefaults() throws Exception {
-        File f = File.createTempFile("testResetDefaults", "." + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -632,14 +619,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testSaveCurrentSettings() throws Exception {
-        File f = File.createTempFile("testSaveCurrentSettings", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -778,13 +762,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderPlane() throws Exception {
-        File f = File.createTempFile("testRenderPlane", "." + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -833,13 +815,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderRegion() throws Exception {
-        File f = File.createTempFile("testRenderRegion", "." + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -914,14 +894,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderRegionChangeModel() throws Exception {
-        File f = File.createTempFile("testRenderRegionChangeModel", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -977,14 +954,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderCompressedPlane() throws Exception {
-        File f = File.createTempFile("testRenderCompressedPlane", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -1026,14 +1000,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderCompressedRegion() throws Exception {
-        File f = File.createTempFile("testRenderCompressedRegion", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -1080,14 +1051,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderAsPackedIntPlane() throws Exception {
-        File f = File.createTempFile("testRenderAsPackedIntPlane", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -1142,14 +1110,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderAsPackedIntRegion() throws Exception {
-        File f = File.createTempFile("testRenderAsPackedIntRegion", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -1209,14 +1174,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderAsPackedIntRegionChangeModel() throws Exception {
-        File f = File.createTempFile("testRenderAsPackedIntRegion", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -1278,14 +1240,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderAsPackedIntStridePlane() throws Exception {
-        File f = File.createTempFile("testRenderAsPackedIntStridePlane", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -1325,14 +1284,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderAsPackedIntStrideRegion() throws Exception {
-        File f = File.createTempFile("testRenderAsPackedIntStrideRegion", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -1377,14 +1333,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderCompressedStridePlane() throws Exception {
-        File f = File.createTempFile("testRenderCompressedStridePlane", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -1427,14 +1380,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderCompressedStrideRegion() throws Exception {
-        File f = File.createTempFile("testRenderCompressedStridePlane", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -1483,13 +1433,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderStridePlane() throws Exception {
-        File f = File.createTempFile("testRenderStridePlane", "." + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -1547,14 +1495,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderStrideRegion() throws Exception {
-        File f = File
-                .createTempFile("testRenderStrideRegion", "." + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -1617,14 +1562,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderRegionOutsideRange() throws Exception {
-        File f = File.createTempFile("testRenderRegionOutsideRange", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -1671,14 +1613,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderAsPacketIntRegionOutsideRange() throws Exception {
-        File f = File.createTempFile("testRenderRegionOutsideRange", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -1725,14 +1664,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testSaveCurrentSettingsMultipleTimes() throws Exception {
-        File file = File.createTempFile("testRenderingEngineSetters", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(file, xml.createImage(), true);
+        File file = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(file, OME_FORMAT);
+            pixels = importFile(file, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -1768,14 +1704,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testSaveCurrentSettingsAll() throws Exception {
-        File file = File.createTempFile("testRenderingEngineSetters", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(file, xml.createImage(), true);
+        File file = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(file, OME_FORMAT);
+            pixels = importFile(file, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -1948,14 +1881,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderingEngineChannelWindowGetter() throws Exception {
-        File f = File.createTempFile("testRenderingEngineChannelWindowGetter", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -2002,14 +1932,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderingEngineChannelLookupTable() throws Exception {
-        File f = File.createTempFile("testRenderingEngineChannelLookupTable", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -2051,14 +1978,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderingEngineProjectionDef() throws Exception {
-        File f = File.createTempFile("testRenderingEngineProjectionDef", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -2112,14 +2036,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderingEngineSaveChannelLookupTable() throws Exception {
-        File f = File.createTempFile("testRenderingEngineSaveChannelLookupTable", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -2166,14 +2087,11 @@ public class RenderingEngineTest extends AbstractServerTest {
     @Test
     public void testLutReaders() throws Exception {
         //First import an image
-        File f = File.createTempFile("testLutReaders", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -2249,14 +2167,11 @@ public class RenderingEngineTest extends AbstractServerTest {
     @Test
     public void testLutNotInlist() throws Exception {
         //First import an image
-        File f = File.createTempFile("testLutNotInlist", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -2304,14 +2219,11 @@ public class RenderingEngineTest extends AbstractServerTest {
     @Test
     public void testReverseIntensity() throws Exception {
         //First import an image
-        File f = File.createTempFile("testReverseIntensity", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -2356,14 +2268,11 @@ public class RenderingEngineTest extends AbstractServerTest {
     @Test
     public void testAddAndRemoveCodomain() throws Exception {
         //First import an image
-        File f = File.createTempFile("testAddAndRemoveCodomain", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -2403,14 +2312,11 @@ public class RenderingEngineTest extends AbstractServerTest {
     @Test
     public void testAddCodomainTwice() throws Exception {
         //First import an image
-        File f = File.createTempFile("testAddCodomainTwice", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -2450,14 +2356,11 @@ public class RenderingEngineTest extends AbstractServerTest {
     @Test
     public void testSaveCodomainAndRestart() throws Exception {
         //First import an image
-        File f = File.createTempFile("testSaveCodomainAndRestart", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -2508,14 +2411,11 @@ public class RenderingEngineTest extends AbstractServerTest {
     @Test
     public void testAddRemoveChainAndSave() throws Exception {
         //First import an image
-        File f = File.createTempFile("testAddRemoveChainAndSave", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -4079,14 +3979,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderProjectedCompressed() throws Exception {
-        File f = File.createTempFile("testRenderProjectedCompressed", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -4121,14 +4018,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderProjectedUnCompressed() throws Exception {
-        File f = File.createTempFile("testRenderProjectedCompressed", "."
-                + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -4164,14 +4058,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderProjectedCompressedNoChannels() throws Exception {
-        File f = File.createTempFile("testRenderProjectedCompressedNoChannels",
-                "." + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
@@ -4210,14 +4101,11 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderProjectedUnCompressedNoChannels() throws Exception {
-        File f = File.createTempFile("testRenderProjectedUnCompressedNoChannels",
-                "."  + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImage());
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }

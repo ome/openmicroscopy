@@ -17,5 +17,6 @@
     <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}"/>
     <!-- Extensions for bundling into the release -->
     <dependency org="ome" name="OMEZarrReader" rev="${versions.OMEZarrReader}"/>
+    <dependency org="com.glencoesoftware.omero" name="omero-zarr-pixel-buffer" rev="${versions.omero-zarr-pixel-buffer}"/>
   </dependencies>
 </ivy-module>

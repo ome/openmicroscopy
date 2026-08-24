@@ -78,6 +78,7 @@
   <logger name="omero" level="INFO"/>
   <logger name="omeis" level="INFO"/>
   <logger name="OMERO" level="INFO"/>
+  <logger name="com.glencoesoftware" level="INFO"/>
   <!-- Inherit from Spring/etc and so are a bit verbose -->
   <logger name="ome.system.OmeroContext" level="WARN"/>
   <logger name="ome.system.PreferenceContext" level="WARN"/>
