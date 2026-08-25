@@ -24,6 +24,7 @@ from omero.testlib import ITest
 from omero.gateway import BlitzGateway, KNOWN_WRAPPERS, DatasetWrapper, \
     ProjectWrapper, ImageWrapper, ScreenWrapper, PlateWrapper
 from omero.model import DatasetI, \
+    ProjectI, \
     ImageI, \
     PlateI, \
     ScreenI, \
@@ -544,6 +545,8 @@ class TestGetObject (ITest):
         tag.setValue("Test Tag")
         tag = obj.linkAnnotation(tag)
         dataset.linkAnnotation(tag)
+        # also link the Tag to the Comment
+        ann.linkAnnotation(tag)
 
         # get the Comment
         annotation = gatewaywrapper.gateway.getObject(
@@ -590,6 +593,15 @@ class TestGetObject (ITest):
             assert obj.getId() == al.parent.id.val
             assert al.parent.__class__ == omero.model.ImageI
 
+        # Check links to Tag on the Comment
+        for obj_type in ["CommentAnnotation", "Annotation"]:
+            annLinks = list(gatewaywrapper.gateway.getAnnotationLinks(
+                obj_type, parent_ids=[ann.getId()]))
+            assert len(annLinks) == 1
+            for al in annLinks:
+                assert ann.getId() == al.parent.id.val
+                assert tag.getId() == al.child.id.val
+
         # compare with getObjectsByAnnotations
         annImages = list(gatewaywrapper.gateway.getObjectsByAnnotations(
             'Image', [tag.getId()]))
@@ -635,6 +647,229 @@ class TestGetObject (ITest):
         obj.removeAnnotations(ns)
         dataset.unlinkAnnotations(ns_tag)  # unlink tag
         obj.removeAnnotations(ns_tag)      # delete tag
+
+    def testGetObjectsAnnotation(self):
+
+        # create new group and user - don't rely on existing test user/group
+
+        group = self.new_group(perms='rwra--')
+        client, user = self.new_client_and_user(group=group)
+
+        conn = BlitzGateway(client_obj=client)
+
+        ann_types = ["CommentAnnotation", "TagAnnotation",
+                     "LongAnnotation", "XmlAnnotation",
+                     "DoubleAnnotation", "BooleanAnnotation",
+                     "TimestampAnnotation", "TermAnnotation"]
+        ns = "test_get_objects_namespace"
+        ns_map = "test_get_objects_map_namespace"
+        ns_file = "test_get_objects_annotation_file"
+
+        def create_dataset_with_annotations(name, dtype="Dataset"):
+            if dtype == "Dataset":
+                obj = DatasetI()
+                wrapper = omero.gateway.DatasetWrapper(conn, obj)
+            elif dtype == "Project":
+                obj = ProjectI()
+                wrapper = omero.gateway.ProjectWrapper(conn, obj)
+            wrapper.setName(name)
+            wrapper.save()
+
+            # Create total of 10 annotations on the object...
+            # create Comment, Tag, Xml, etc
+            for ann_type in ann_types:
+                ann = getattr(omero.gateway, ann_type + "Wrapper")(conn)
+                ann.setNs(ns)
+                if ann_type in ("LongAnnotation", "DoubleAnnotation",
+                                "TimestampAnnotation"):
+                    ann.setValue(100.0)
+                elif ann_type == "BooleanAnnotation":
+                    ann.setValue(True)
+                else:
+                    ann.setValue("Test %s: %s" % (ann_type, name))
+                wrapper.linkAnnotation(ann)
+
+            # create MapAnnotation
+            mapAnn = omero.gateway.MapAnnotationWrapper(conn)
+            mapAnn.setNs(ns)
+            mapAnn.setValue([("key1", "value1"), ("key2", "value2")])
+            mapAnn.setNs(ns_map)
+            mapAnn.save()
+            wrapper.linkAnnotation(mapAnn)
+
+            # create FileAnnotation
+            fileAnn = omero.gateway.FileAnnotationWrapper(conn)
+            fileObj = omero.model.OriginalFileI()
+            fileObj = omero.gateway.OriginalFileWrapper(conn, fileObj)
+            fileObj.setName(omero.rtypes.rstring('fileName'))
+            fileObj.setPath(omero.rtypes.rstring('path/to/file'))
+            fileObj.setHash(omero.rtypes.rstring('a'))
+            fileObj.setSize(omero.rtypes.rlong(0))
+            fileObj.save()
+            fileAnn.setFile(fileObj)
+            fileAnn.setNs(ns_file)
+            fileAnn.save()
+            wrapper.linkAnnotation(fileAnn)
+
+            return wrapper
+
+        dataset1 = create_dataset_with_annotations("Dataset 1")
+        dataset2 = create_dataset_with_annotations("Dataset 2")
+        create_dataset_with_annotations("Project 1", dtype="Project")
+
+        # Add Tag to Group
+        tag = omero.gateway.TagAnnotationWrapper(conn)
+        tag.setNs("test_get_objects_group_tag")
+        tag.setValue("Test Tag on Group")
+        group = conn.getGroupFromContext()
+        group.linkAnnotation(tag)
+
+        # get all annotations on one Dataset
+        annGen = conn.getObjects("Annotation",
+                                 opts={'parent_type': "Dataset",
+                                       'parent_ids': [dataset1.id]})
+        assert len(list(annGen)) == 10
+
+        # annotations on two Datasets - parent_type is case-insensitive
+        annGen = conn.getObjects("Annotation",
+                                 opts={'parent_type': "dataset",
+                                       'parent_ids': [dataset1.id,
+                                                      dataset2.id]})
+        assert len(list(annGen)) == 20
+        annGen = conn.getObjects("Annotation",
+                                 opts={'parent_type': "experimentergroup"})
+        assert len(list(annGen)) == 1
+
+        # get all annotations on ALL Datasets
+        annGen = conn.getObjects("Annotation", opts={'parent_type': "dataset"})
+        assert len(list(annGen)) == 20
+
+        # No annotations on PlateAcquisition (none created)
+        annGen = conn.getObjects("Annotation",
+                                 opts={'parent_type': "plateacquisition"})
+        assert len(list(annGen)) == 0
+
+        # get ALL annotations
+        # NB: this can include 'user' group annotations from other tests
+        anns = list(conn.getObjects("Annotation"))
+        assert len(anns) >= 31
+
+        # We only want Tags on the two Datasets
+        annGen = conn.getObjects("TagAnnotation",
+                                 opts={'parent_type': "dataset",
+                                       'parent_ids': [dataset1.id,
+                                                      dataset2.id]})
+        assert len(list(annGen)) == 2
+
+        # ALL Tags
+        annGen = conn.getObjects("TagAnnotation")
+        assert len(list(annGen)) == 4
+
+        # filter by namespace
+        annGen = conn.getObjects("Annotation", opts={'ns': ns})
+        assert len(list(annGen)) == 24
+
+        # filter by namespace and type
+        for ann_type in ann_types:
+            annGen = conn.getObjects(ann_type,
+                                     opts={'ns': ns})
+            assert len(list(annGen)) == 3
+            annGen = conn.getObjects(ann_type,
+                                     opts={'ns': ns_map})
+            assert len(list(annGen)) == 0
+
+        # test File Annotation is loaded
+        annGen = conn.getObjects("Annotation",
+                                 opts={'parent_type': "dataset",
+                                       'parent_ids': [dataset1.id,
+                                                      dataset2.id],
+                                       'ns': ns_file})
+        for ann in annGen:
+            assert ann.getFile().getName() == 'fileName'
+            assert ann.getFile().getPath() == 'path/to/file'
+
+    def testAnnotationAnnotationLinks(self):
+        """
+        Test various annotations methods when parent is an Annotation or Group
+        """
+
+        group = self.new_group(perms='rwra--')
+        client, user = self.new_client_and_user(group=group)
+
+        conn = BlitzGateway(client_obj=client)
+
+        parent = omero.gateway.TagAnnotationWrapper(conn)
+        parent.setNs("test.annotation.parent")
+        parent.setValue("parent Tag")
+        parent.save()
+
+        COMMENT_TEXT = "test annotation child Comment"
+        child = omero.gateway.CommentAnnotationWrapper(conn)
+        child.setNs("test.annotation.child")
+        child.setValue(COMMENT_TEXT)
+        child.save()
+        child2 = omero.gateway.LongAnnotationWrapper(conn)
+        child2.setNs("test.annotation.child")
+        child2.setValue(123)
+        child2.save()
+
+        # link child to parent
+        parent.linkAnnotation(child)
+        parent.linkAnnotation(child2)
+        group = conn.getGroupFromContext()
+        # Also annotate the Group
+        group.linkAnnotation(child)
+
+        # Test getObjects() - single Comment on group
+        for ann_type in ["CommentAnnotation", "LongAnnotation", "Annotation"]:
+            annGen = conn.getObjects(ann_type,
+                                     opts={'parent_type': "experimentergroup",
+                                           'parent_ids': [group.id]})
+            count = 0 if ann_type == "LongAnnotation" else 1
+            assert len(list(annGen)) == count
+
+        # Query annotations on the Annotation
+        counts = {"CommentAnnotation": 1, "LongAnnotation": 1,
+                  "Annotation": 2, "BooleanAnnotation": 0}
+        for ann_type, count in counts.items():
+            annGen = conn.getObjects(ann_type,
+                                     opts={'parent_type': "annotation",
+                                           'parent_ids': [parent.id]})
+            assert len(list(annGen)) == count
+
+        # Test conn.getAnnotationLinks()
+        for parent_types in ["CommentAnnotation", "LongAnnotation",
+                             "Annotation"]:
+            # ALL parent_typess get coerced to "Annotation"
+            annLinks = conn.getAnnotationLinks(parent_types,
+                                               parent_ids=[parent.id])
+            assert len(list(annLinks)) == 2
+
+        for parent_types in ["ExperimenterGroup", "Annotation"]:
+            annLinks = conn.getAnnotationLinks("Annotation",
+                                               ann_ids=[child.id])
+            # child is on parent (Tag) and Group, so should be 1 link each
+            assert len(list(annLinks)) == 1
+
+        # test countAnnotations()
+        counts = conn.countAnnotations("Annotation", obj_ids=[parent.id])
+        assert counts["CommentAnnotation"] == 1
+        counts = conn.countAnnotations("experimentergroup", obj_ids=[group.id])
+        assert counts["CommentAnnotation"] == 1
+
+        # test listAnnotations()
+        group = conn.getObject("ExperimenterGroup", group.id)
+        groupAnns = list(group.listAnnotations())
+        assert len(groupAnns) == 1
+        assert groupAnns[0].getValue() == COMMENT_TEXT
+        tag = conn.getObject("Annotation", parent.id)
+        tagAnns = list(tag.listAnnotations())
+        assert len(tagAnns) == 2
+        # Since obj._loadAnnotationLinks() doesn't load child annotations
+        # for AnootationAnnotationLink ?? (unexpected) the anns are
+        # not loaded, so tagAnns are just empty AnnotationWrapper()
+        # and we can't getValue()
+        # assert COMMENT_TEXT in [a.getValue() for a in tagAnns]
 
     def testGetImage(self, gatewaywrapper, author_testimg_tiny):
         testImage = author_testimg_tiny

@@ -48,6 +48,15 @@ def _testAnnotation(obj, annclass, ns, value, sameOwner=False,
     assert ann.getNs() == ns,  '%s != %s' % (str(ann.getNs()), str(ns))
     if testOwner is not None:
         testOwner(obj, ann)
+    # test conn.countAnnotations()
+    counts = gateway.countAnnotations(obj.OMERO_CLASS, [obj.id])
+    assert counts is not None
+    # Timestamp and Boolean not included in counts
+    if annclass.OMERO_CLASS not in ["TimestampAnnotation",
+                                    "BooleanAnnotation",
+                                    # LongAnnotation is only for 'rating'
+                                    "LongAnnotation"]:
+        assert counts[annclass.OMERO_CLASS] >= 1.   # e.g. TagAnnotation: 1
     # Remove and check
     obj.removeAnnotations(ns)
     assert obj.getAnnotation(ns) is None
