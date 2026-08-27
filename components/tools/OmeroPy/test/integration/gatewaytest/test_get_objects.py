@@ -871,6 +871,13 @@ class TestGetObject (ITest):
         # and we can't getValue()
         # assert COMMENT_TEXT in [a.getValue() for a in tagAnns]
 
+        grpAnnLinks = list(child.getParentLinks("ExperimenterGroup"))
+        assert len(grpAnnLinks) == 1
+
+        annAnnLinks = list(child.getParentLinks("Annotation"))
+        assert len(annAnnLinks) == 1
+
+
     def testGetImage(self, gatewaywrapper, author_testimg_tiny):
         testImage = author_testimg_tiny
         # This should return image wrapper
