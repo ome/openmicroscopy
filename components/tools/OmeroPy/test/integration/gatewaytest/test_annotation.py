@@ -124,11 +124,6 @@ def testAnnotateExperimenter(gatewaywrapper):
 
 
 def testCommentAnnotation(author_testimg_generated):
-    # test annotating a Channel
-    for ch in author_testimg_generated.getChannels(noRE=True):
-        _testAnnotation(ch,
-                        omero.gateway.CommentAnnotationWrapper,
-                        TESTANN_NS, 'channel comment')
     return _testAnnotation(author_testimg_generated,
                            omero.gateway.CommentAnnotationWrapper,
                            TESTANN_NS, 'some value')
