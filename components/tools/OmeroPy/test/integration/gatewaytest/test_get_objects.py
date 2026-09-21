@@ -877,7 +877,6 @@ class TestGetObject (ITest):
         annAnnLinks = list(child.getParentLinks("Annotation"))
         assert len(annAnnLinks) == 1
 
-
     def testGetImage(self, gatewaywrapper, author_testimg_tiny):
         testImage = author_testimg_tiny
         # This should return image wrapper
