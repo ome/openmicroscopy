@@ -41,13 +41,23 @@ def _testAnnotation(obj, annclass, ns, value, sameOwner=False,
     ann = obj.getAnnotation(ns)
     # Make sure the group for the annotation is the same as the original
     # object. (#120)
-    assert ann.getDetails().getGroup() == obj.getDetails().getGroup()
+    if not isinstance(obj, omero.gateway.ExperimenterWrapper):
+        assert ann.getDetails().getGroup() == obj.getDetails().getGroup()
     tval = hasattr(value, 'val') and value.val or value
     assert ann.getValue() == value, '%s != %s' % (str(ann.getValue()),
                                                   str(tval))
     assert ann.getNs() == ns,  '%s != %s' % (str(ann.getNs()), str(ns))
     if testOwner is not None:
         testOwner(obj, ann)
+    # test conn.countAnnotations()
+    counts = gateway.countAnnotations(obj.OMERO_CLASS, [obj.id])
+    assert counts is not None
+    # Timestamp and Boolean not included in counts
+    if annclass.OMERO_CLASS not in ["TimestampAnnotation",
+                                    "BooleanAnnotation",
+                                    # LongAnnotation is only for 'rating'
+                                    "LongAnnotation"]:
+        assert counts[annclass.OMERO_CLASS] >= 1.   # e.g. TagAnnotation: 1
     # Remove and check
     obj.removeAnnotations(ns)
     assert obj.getAnnotation(ns) is None
@@ -60,7 +70,8 @@ def _testAnnotation(obj, annclass, ns, value, sameOwner=False,
     ann = obj.getAnnotation(ns)
     # Make sure the group for the annotation is the same as the original
     # object. (#120)
-    assert ann.getDetails().getGroup() == obj.getDetails().getGroup()
+    if not isinstance(obj, omero.gateway.ExperimenterWrapper):
+        assert ann.getDetails().getGroup() == obj.getDetails().getGroup()
     tval = hasattr(value, 'val') and value.val or value
     assert ann.getValue() == value, '%s != %s' % (str(ann.getValue()),
                                                   str(tval))
@@ -100,6 +111,16 @@ def testSameOwner(gatewaywrapper):
     return _testAnnotation(
         p, omero.gateway.CommentAnnotationWrapper,
         TESTANN_NS, 'some value', sameOwner=False, testOwner=differentOwner)
+
+
+def testAnnotateExperimenter(gatewaywrapper):
+    gatewaywrapper.loginAsAdmin()
+    exp = gatewaywrapper.gateway.getUser()
+    anns = list(exp.listAnnotations())
+    assert len(anns) >= 0
+    return _testAnnotation(exp,
+                           omero.gateway.CommentAnnotationWrapper,
+                           TESTANN_NS, 'experimenter comment')
 
 
 def testCommentAnnotation(author_testimg_generated):
