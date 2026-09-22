@@ -865,11 +865,6 @@ class TestGetObject (ITest):
         tag = conn.getObject("Annotation", parent.id)
         tagAnns = list(tag.listAnnotations())
         assert len(tagAnns) == 2
-        # Since obj._loadAnnotationLinks() doesn't load child annotations
-        # for AnootationAnnotationLink ?? (unexpected) the anns are
-        # not loaded, so tagAnns are just empty AnnotationWrapper()
-        # and we can't getValue()
-        # assert COMMENT_TEXT in [a.getValue() for a in tagAnns]
 
         grpAnnLinks = list(child.getParentLinks("ExperimenterGroup"))
         assert len(grpAnnLinks) == 1
