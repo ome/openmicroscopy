@@ -85,6 +85,10 @@
           usepoms="true" useMavenMetadata="true"
           m2compatible="true"
           root="https://nexus.senbox.net/nexus/content/groups/public/"/>
+      <ibiblio name="gs-artifactory" cache="maven"
+          usepoms="true" useMavenMetadata="true"
+          m2compatible="true"
+          root="https://artifacts.glencoesoftware.com/artifactory/omero-plus/"/>
 
     <!-- Main resolver which has as its first resolver the location
     where all our jars will be published -->
@@ -94,6 +98,7 @@
         <resolver ref="user-maven"/>
         <resolver ref="maven"/>
         <resolver ref="ome-artifactory"/>
+        <resolver ref="gs-artifactory"/>
     </chain>
 
     <!-- Resolver for OME dependencies-->
