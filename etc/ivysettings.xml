@@ -81,10 +81,10 @@
           usepoms="true" useMavenMetadata="true"
           m2compatible="true"
           root="https://artifacts.unidata.ucar.edu/repository/unidata-releases"/>
-      <ibiblio name="bc.releases" cache="maven"
+      <ibiblio name="gs-artifactory" cache="maven"
           usepoms="true" useMavenMetadata="true"
           m2compatible="true"
-          root="https://nexus.senbox.net/nexus/content/groups/public/"/>
+          root="https://artifacts.glencoesoftware.com/artifactory/omero-plus/"/>
 
     <!-- Main resolver which has as its first resolver the location
     where all our jars will be published -->
@@ -94,6 +94,7 @@
         <resolver ref="user-maven"/>
         <resolver ref="maven"/>
         <resolver ref="ome-artifactory"/>
+        <resolver ref="gs-artifactory"/>
     </chain>
 
     <!-- Resolver for OME dependencies-->
@@ -119,10 +120,6 @@
     <chain name="test-resolver" returnFirst="true">
       <resolver ref="test"/>
       <resolver ref="omero-resolver"/>
-    </chain>
-
-    <chain name="bc-resolver" returnFirst="true">
-      <resolver ref="bc.releases"/>
     </chain>
 
     <!-- Hudson resolver. Used by hudson to build a central repository -->
@@ -155,7 +152,6 @@
     <module organisation="ome" name="jxrlib-all" resolver="ome-resolver"/>
     <module organisation="ome" resolver="${ome.resolver}"/>
     <module organisation="org.openmicroscopy" resolver="${ome.resolver}"/>
-    <module organisation="com.bc.zarr" name="jzarr" resolver="bc-resolver"/>
   </modules>
 
   <triggers/>

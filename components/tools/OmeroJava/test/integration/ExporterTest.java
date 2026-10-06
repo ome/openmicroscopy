@@ -260,16 +260,13 @@ public class ExporterTest extends AbstractServerTest {
      *             Thrown if an error occurred.
      */
     private Image createImageWithROIToExport() throws Exception {
-      //create an import and image
-        File f = File.createTempFile(RandomStringUtils.random(100, false, true),
-                "."+ OME_XML);
+        // Create OME-TIFF file with ROI data
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImageWithROI(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImageWithROI());
         List<Pixels> pix = null;
         try {
             // method tested in ImporterTest
-            pix = importFile(f, OME_XML);
+            pix = importFile(f, OME_TIFF);
             return pix.get(0).getImage();
         } catch (Throwable e) {
             throw new Exception("Cannot create image to import", e);
@@ -286,16 +283,13 @@ public class ExporterTest extends AbstractServerTest {
      *             Thrown if an error occurred.
      */
     private Image createImageWithAnnotatedDataToExport() throws Exception {
-        //create an import and image
-        File f = File.createTempFile(RandomStringUtils.random(100, false, true),
-                "."+ OME_XML);
+        // Create OME-TIFF file with annotated acquisition data
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImageWithAnnotatedAcquisitionData(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImageWithAnnotatedAcquisitionData());
         List<Pixels> pix = null;
         try {
             // method tested in ImporterTest
-            pix = importFile(f, OME_XML);
+            pix = importFile(f, OME_TIFF);
             return pix.get(0).getImage();
         } catch (Throwable e) {
             throw new Exception("Cannot create image to import", e);
@@ -312,16 +306,13 @@ public class ExporterTest extends AbstractServerTest {
      *             Thrown if an error occurred.
      */
     private Image createImageToExport() throws Exception {
-        //create an import and image
-        File f = File.createTempFile(RandomStringUtils.random(100, false, true),
-                "." + OME_XML);
+        // Create OME-TIFF file with acquisition data
         XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImageWithAcquisitionData(), true);
+        File f = mmFactory.createOMETiffFile(xml.createImageWithAcquisitionData());
         List<Pixels> pix = null;
         try {
             // method tested in ImporterTest
-            pix = importFile(f, OME_XML);
+            pix = importFile(f, OME_TIFF);
             return pix.get(0).getImage();
         } catch (Throwable e) {
             throw new Exception("Cannot create image to import", e);
