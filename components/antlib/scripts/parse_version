@@ -70,7 +70,8 @@ def snapshot_logic(omero_version):
 
     See gh-67 for the discussion.
     """
-    m = re.match((
+    re.compile()
+    m = re.match(r(
         "^"
         "(?P<BASE>.*?)"
         "(?P<STRIP>([-]DEV)?-\d+-[a-f0-9]+?(-dirty)?)"
@@ -115,7 +116,7 @@ def incr_version(omero_version):
         omero_version = new_vers
     except:
         # But if that doesn't work, we brute force with regex
-        m = re.match("^([^\d]*\d+[.]\d+[.])(\d+)-SNAPSHOT$", omero_version)
+        m = re.match(r"^([^\d]*\\d+[.]\d+[.])(\d+)-SNAPSHOT$", omero_version)
         if m:
             next = int(m.group(2)) + 1
             omero_version = "%s%s-SNAPSHOT" % (m.group(1), next)
