@@ -14,8 +14,10 @@
     <!-- runtime dependencies from dsl/ivy.xml -->
     <dependency org="janino" name="janino" rev="${versions.janino}"/>
     <!-- Useful for globally overriding the Bio-Formats version, empty version is ignored by default -->
-    <dependency org="ome" name="formats-gpl" rev="${versions.bioformats}"/>
+    <!-- <dependency org="org.openmicroscopy" name="formats-gpl" rev="${versions.bioformats}"/> -->
     <!-- Extensions for bundling into the release -->
-    <dependency org="com.glencoesoftware.omero" name="omero-zarr-pixel-buffer" rev="${versions.omero-zarr-pixel-buffer}"/>
+    <dependency org="com.glencoesoftware.omero" name="omero-zarr-pixel-buffer" rev="${versions.omero-zarr-pixel-buffer}">
+        <exclude org="ome" name="formats-api"/>
+    </dependency>
   </dependencies>
 </ivy-module>
